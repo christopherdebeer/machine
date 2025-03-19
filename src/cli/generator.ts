@@ -135,14 +135,15 @@ class JSONGenerator extends BaseGenerator {
 
         const value: Record<string, any> = {};
 
-        labels.forEach(label => {
-            if (typeof label.value === 'string') {
-                value.text = label.value;
-            } else if (label.value) {
-                label.value.forEach(attr => {
+        labels.forEach((label, idx) => {
+            console.log(`label ${idx}: `, label.$type, label.value.map( lv => lv))
+            label.value.forEach(attr => {
+                if (!attr.name && attr.text) {
+                    value['text'] = attr.text;
+                } else if (attr.name) {
                     value[attr.name] = attr.value;
-                });
-            }
+                }
+            });
         });
 
         return Object.keys(value).length > 0 ? value : undefined;
@@ -179,7 +180,7 @@ ${this.machine.$document?.textDocument.getText()}
 "title": "${this.machine.title}"
 config:
     class:
-        hideEmptyMembersBox: false
+        hideEmptyMembersBox: true
 ---
 classDiagram-v2
   ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
@@ -191,7 +192,7 @@ classDiagram-v2
 "title": "${this.machine.title}"
 config:
     class:
-        hideEmptyMembersBox: false
+        hideEmptyMembersBox: true
 ---
 classDiagram-v2
   ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
@@ -309,11 +310,12 @@ ${indent}}`);
         
         const result = joinToNode(edges, edge => {
             let labelJSON = ``;
-            Object.keys(edge.value || {}).forEach(key => {
+            Object.keys(edge.value || {}).forEach((key, idx) => {
+                console.log(idx, `"${key}"`, edge.value[key])
                 if (key === 'text') {
                     labelJSON += `${edge.value[key]}`;
                 } else {
-                    labelJSON += `${edge.value.text ? ', ' : ''}${key}=${edge.value[key]}`;
+                    labelJSON += `${idx > 0 ? ', ' : ''}${key}=${edge.value[key]}`;
                 }
             });
             return `  ${edge.source} --> ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`

@@ -53,7 +53,8 @@ Node<isRoot>:
 EdgeAttributeValue returns string: EXTID|STRING|ID|INT;
 
 EdgeAttribute:
-    name=ID (':' value=EdgeAttributeValue)? ';'?
+    (name=ID (':' value=EdgeAttributeValue)? ';'?)
+    | (text=EdgeAttributeValue)
 ;
 
 EdgeType:
