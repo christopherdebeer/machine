@@ -15,6 +15,13 @@ export interface FileGenerationResult {
     content: string;
 }
 
+interface Edge { source: string; value: Record<string, any>; target: string; }
+interface MachineJSON {
+    title: string;
+    nodes: Node[];
+    edges: Edge[];
+}
+
 // Base generator class
 abstract class BaseGenerator {
     protected abstract fileExtension: string;
@@ -60,100 +67,88 @@ class JSONGenerator extends BaseGenerator {
     protected fileExtension = 'json';
 
     protected generateContent(): FileGenerationResult {
-
-        // TODO: Instead of manually constructing JSON by string building
-        // simply iterate over the AST at this.machine and create a javscript object that
-        // can be serialised with JSON.stringify (ie no circular references)
-
-        const fileNode = expandToNode`{
-  "title": "${this.machine.title}",
-  "nodes": [
-    ${joinToNode(this.machine.nodes, node => {
-        return joinToNode([node].flatMap(n => {
-            return [n, ...n.nodes.map(m => ({ ...m, type: n.name }))]
-        }), n => {
-            return `{"name": "${n.name}"${n.type ? `, "type": "${n.type}"` : ''}${n.attributes.length ? `, "attributes":[ ${this.formatAttributes(n)} ]` : ''} }`;
-        }, {
-            separator: ',',
-            appendNewLineIfNotEmpty: true,
-            skipNewLineAfterLastItem: true,
-        })
-    }, {
-        separator: ',',
-        appendNewLineIfNotEmpty: true,
-        skipNewLineAfterLastItem: true,
-    })}
-  ],
-  "edges": [
-    ${joinToNode(this.machine.edges, edge => {
-        interface ChainEdge {
-            source: string | undefined;
-            label?: EdgeType[];
-            target: string | undefined;
-        }
-        const edges: ChainEdge[] = [];
-        let currentSources = edge.source.map(s => s.ref?.name);
-
-        // Process each segment in the chain to create sequential edges
-        edge.segments.forEach(segment => {
-            const targets = segment.target.map(t => t.ref?.name);
-
-            // Create edges from each source to each target
-            currentSources.forEach(source => {
-                targets.forEach(target => {
-                    edges.push({
-                        source: source,
-                        label: segment.label,
-                        target: target
-                    });
-                });
-            });
-            currentSources = targets; // Update sources for next segment
-        });
-        return joinToNode(edges.filter(e => e.source && e.target), e => {
-            let type = 'string';
-            let val : Record<string, any> = {};
-            let value : EdgeType[] | undefined = e.label;
-
-
-            value?.map( (el : EdgeType) => {
-                if (typeof el.value === 'string') {
-                    val.text = el.value;
-                } else if (typeof value === 'object') {
-                    val = el.value?.reduce((acc : Record<string, any>, curr) => {
-                        acc[curr.name] = curr.value;
-                        return acc;
-                    }, val);
-                }
-            })
-            return `{"source": "${e.source}"${type ? `, "type": "${type}"` : ''}${val ? `, "value": ${JSON.stringify(val)}` : ''}, "target": "${e.target}"}`;
-        }, {
-            separator: ',',
-            appendNewLineIfNotEmpty: true,
-            skipNewLineAfterLastItem: true
-        })
-    }, {
-        separator: ',',
-        appendNewLineIfNotEmpty: true,
-        skipNewLineAfterLastItem: true,
-    })}
-  ]
-}`.appendNewLineIfNotEmpty();
+        // Create a serializable object representation of the machine
+        const machineObject : MachineJSON = {
+            title: this.machine.title,
+            nodes: this.serializeNodes(),
+            edges: this.serializeEdges()
+        };
 
         return {
             filePath: this.filePath,
-            content: toString(fileNode)
-            // content: JSON.stringify(json, null, 2)
+            content: JSON.stringify(machineObject, null, 2)
         };
+    }
+
+    private serializeNodes(): any[] {
+        // Flatten and transform nodes
+        return this.machine.nodes.flatMap(node => {
+            const baseNodes = [{
+                name: node.name,
+                type: node.type,
+                attributes: this.serializeAttributes(node)
+            }];
+
+            // Include child nodes with parent's name as their type
+            const childNodes = node.nodes.map(child => ({
+                name: child.name,
+                type: node.name,
+                attributes: this.serializeAttributes(child)
+            }));
+
+            return [...baseNodes, ...childNodes];
+        });
+    }
+
+    private serializeAttributes(node: Node): any[] {
+        return node.attributes?.map(attr => ({
+            name: attr.name,
+            type: attr.type,
+            value: attr.value
+        })) || [];
+    }
+
+    private serializeEdges(): any[] {
+        return this.machine.edges.flatMap(edge => {
+            const sources = edge.source.map(s => s.ref?.name);
+            let currentSources = sources;
+
+            return edge.segments.flatMap(segment => {
+                const targets = segment.target.map(t => t.ref?.name);
+                const edges = currentSources.flatMap(source =>
+                    targets.map(target => ({
+                        source,
+                        target,
+                        value: this.serializeEdgeValue(segment.label)
+                    })).filter(e => e.source && e.target)
+                );
+                currentSources = targets; // Update sources for next segment
+                return edges;
+            });
+        });
+    }
+
+    private serializeEdgeValue(labels?: EdgeType[]): Record<string, any> | undefined {
+        if (!labels || labels.length === 0) {
+            return undefined;
+        };
+
+        const value: Record<string, any> = {};
+
+        labels.forEach(label => {
+            if (typeof label.value === 'string') {
+                value.text = label.value;
+            } else if (label.value) {
+                label.value.forEach(attr => {
+                    value[attr.name] = attr.value;
+                });
+            }
+        });
+
+        return Object.keys(value).length > 0 ? value : undefined;
     }
 }
 
-// Mermaid Generator
-interface MachineJSON {
-    title: string;
-    nodes: Node[];
-    edges: { source: string; type: string; target: string; }[];
-}
 
 interface TypeHierarchy {
     [key: string]: {
@@ -180,6 +175,18 @@ ${this.machine.$document?.textDocument.getText()}
 \`\`\`
 
 \`\`\`mermaid
+---
+"title": "${this.machine.title}"
+config:
+    class:
+        hideEmptyMembersBox: false
+---
+classDiagram-v2
+  ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
+  ${toString(this.generateEdges(machineJson.edges))}
+\`\`\`
+
+\`\`\`raw
 ---
 "title": "${this.machine.title}"
 config:
@@ -298,9 +305,19 @@ ${indent}}`);
         return toString(result);
     }
 
-    private generateEdges(edges: { source: string; type: string; target: string; }[]): string {
+    private generateEdges(edges: Edge[]): string {
+        
         const result = joinToNode(edges, edge => {
-            return `  ${edge.source} --> ${edge.target}${edge.type ? ` : ${edge.type}` : ''}`
+            console.log(edge.source, edge.target, edge.value)
+            let labelJSON = ``;
+            Object.keys(edge.value || {}).forEach(key => {
+                if (key === 'text') {
+                    labelJSON += `${edge.value[key]}`;
+                } else {
+                    labelJSON += `${edge.value.text ? ', ' : ''}${key}=${edge.value[key]}`;
+                }
+            });
+            return `  ${edge.source} --> ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
         }, {
             separator: '\n',
             appendNewLineIfNotEmpty: true,
@@ -386,7 +403,7 @@ class HTMLGenerator extends BaseGenerator {
             const resultDiv = document.getElementById('executionResult');
             resultDiv.innerHTML = '<h3>Execution Path:</h3>';
             const pathList = document.createElement('ul');
-            result.history.forEach(step => {
+            result.history?.forEach(step => {
                 const li = document.createElement('li');
                 li.textContent = \`\${step.from} --(\${step.transition})--> \${step.to}\`;
                 pathList.appendChild(li);

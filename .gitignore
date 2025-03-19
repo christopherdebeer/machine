@@ -10,3 +10,4 @@ examples/*
 !examples/*.mach
 *.vsix
 generated
+.DS_Store
