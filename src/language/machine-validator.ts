@@ -64,16 +64,16 @@ export class MachineValidator {
             collectStateNames(node);
         }
 
-        for (const edge of machine.edges) {
-            if (edge.source && !stateNames.has(edge.source.$refText)) {
-                accept('error', `Reference to undefined state: ${edge.source.$refText}`, { node: edge, property: 'source' });
-            }
+        // for (const edge of machine.edges) {
+        //     if (edge.source && !stateNames.has(edge.source.$refText)) {
+        //         accept('error', `Reference to undefined state: ${edge.source.$refText}`, { node: edge, property: 'source' });
+        //     }
 
-            for (const segment of edge.segments) {
-                if (!stateNames.has(segment.target.$refText)) {
-                    accept('error', `Reference to undefined state: ${segment.target.$refText}`, { node: segment, property: 'target' });
-                }
-            }
-        }
+        //     for (const segment of edge.segments) {
+        //         if (!stateNames.has(segment.target.$refText)) {
+        //             accept('error', `Reference to undefined state: ${segment.target.$refText}`, { node: segment, property: 'target' });
+        //         }
+        //     }
+        // }
     }
 }

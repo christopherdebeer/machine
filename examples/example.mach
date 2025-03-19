@@ -27,7 +27,7 @@ data result {
 init -> analyse;
 analyse -next: "asdasd";-> another;
 analyse -on foo;-> feedback;
-feedback =catch: method(4);=> complete;
-init -read: input.foo;-> query;
+feedback =catch: 'method(4)';=> complete;
+init -read: 'input.foo';-> query;
 analyse - update -> result;
 complete - read -> result;

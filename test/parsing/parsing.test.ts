@@ -311,9 +311,11 @@ describe('Context and advanced features from examples', () => {
             }
             s1;
             s2;
-            s1 -read: 'userData.name';-> s2;
+            s1 -read: 'userData.name'-> s2;
         `);
-        expect(checkDocumentValid(document)).toBeUndefined();
+        const errors = checkDocumentValid(document)
+        if (errors) console.log("Full parser errors:", errors);
+        expect(errors).toBeUndefined();
     });
 
     test('parse transition with retry catch', async () => {
@@ -323,7 +325,9 @@ describe('Context and advanced features from examples', () => {
             s2;
             s1 -catch: 'retry(3)';-> s2;
         `);
-        expect(checkDocumentValid(document)).toBeUndefined();
+        const errors = checkDocumentValid(document)
+        if (errors) console.log("Full parser errors:", errors);
+        expect(errors).toBeUndefined();
     });
 
     test('parse conditional transition', async () => {
@@ -336,7 +340,9 @@ describe('Context and advanced features from examples', () => {
             s2;
             s1 -if: '(userData.name == "start")';-> s2;
         `);
-        expect(checkDocumentValid(document)).toBeUndefined();
+        const errors = checkDocumentValid(document)
+        if (errors) console.log("Full parser errors:", errors);
+        expect(errors).toBeUndefined();
     });
 
     test('parse event-driven transition', async () => {
@@ -346,7 +352,9 @@ describe('Context and advanced features from examples', () => {
             s2;
             s1 -on: eventComplete;-> s2;
         `);
-        expect(checkDocumentValid(document)).toBeUndefined();
+        const errors = checkDocumentValid(document)
+        if (errors) console.log("Full parser errors:", errors);
+        expect(errors).toBeUndefined();
     });
 
     test('parse weighted transitions', async () => {
@@ -358,7 +366,9 @@ describe('Context and advanced features from examples', () => {
             s1 -weight: 0.7;-> s2;
             s1 -weight: 0.3;-> s3;
         `);
-        expect(checkDocumentValid(document)).toBeUndefined();
+        const errors = checkDocumentValid(document)
+        if (errors) console.log("Full parser errors:", errors);
+        expect(errors).toBeUndefined();
     });
 
     test('parse data transformation transition', async () => {
@@ -368,7 +378,9 @@ describe('Context and advanced features from examples', () => {
             s2;
             s1 -transform: '(x => x * 2)';-> s2;
         `);
-        expect(checkDocumentValid(document)).toBeUndefined();
+        const errors = checkDocumentValid(document)
+        if (errors) console.log("Full parser errors:", errors);
+        expect(errors).toBeUndefined();
     });
 
     test('parse complex chained transition', async () => {
@@ -382,7 +394,9 @@ describe('Context and advanced features from examples', () => {
             s6;
             s1 -> s2 -catch: 'retry(3)';-> s3 -"if error unresolved, escalate"-> s4, s5 -timeout: 5000; logLevel: 0;-> s6;
         `);
-        expect(checkDocumentValid(document)).toBeUndefined();
+        const errors = checkDocumentValid(document)
+        if (errors) console.log("Full parser errors:", errors);
+        expect(errors).toBeUndefined();
     });
 });
 
