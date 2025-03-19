@@ -152,6 +152,28 @@ classDiagram-v2
         };
     }
 
+    public getMermaidDefinition(): string {
+        // First generate JSON as intermediate format
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonPath = jsonGen.generate();
+        const jsonContent = fs.readFileSync(jsonPath, 'utf8');
+        const machineJson: MachineJSON = JSON.parse(jsonContent);
+
+        // Build type hierarchy
+        const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
+        const rootTypes = this.getRootTypes(hierarchy);
+
+        return toString(expandToNode`---
+"title": "${this.machine.title}"
+config:
+    class:
+        hideEmptyMembersBox: true
+---
+classDiagram-v2
+  ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
+  ${toString(this.generateEdges(machineJson.edges))}`);
+    }
+
     private buildTypeHierarchy(nodes: Node[]): TypeHierarchy {
         const hierarchy: TypeHierarchy = {};
 
@@ -236,6 +258,180 @@ ${indent}}`);
     }
 }
 
+// HTML Generator
+class HTMLGenerator extends BaseGenerator {
+    protected fileExtension = 'html';
+
+    protected generateContent(): FileGenerationResult {
+        const mermaidGen = new MermaidGenerator(this.machine, this.filePath, this.options);
+        const mermaidDefinition = mermaidGen.getMermaidDefinition();
+
+        const fileNode = expandToNode`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${this.machine.title} - Machine Diagram</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+        // Initialize mermaid with custom settings
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            fontFamily: 'monospace',
+        });
+
+        // Function to toggle dark/light mode
+        window.toggleTheme = function() {
+            const isDark = document.body.classList.toggle('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            location.reload(); // Refresh to update the diagram
+        }
+
+        // Function to download the diagram as SVG
+        window.downloadSVG = function() {
+            const svg = document.querySelector('#diagram svg');
+            const serializer = new XMLSerializer();
+            const source = serializer.serializeToString(svg);
+            const blob = new Blob([source], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '${this.machine.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_diagram.svg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Function to download the diagram as PNG
+        window.downloadPNG = function() {
+            const svg = document.querySelector('#diagram svg');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const loader = new Image();
+
+            loader.onload = function() {
+                canvas.width = loader.width;
+                canvas.height = loader.height;
+                ctx.drawImage(loader, 0, 0);
+                const a = document.createElement('a');
+                a.href = canvas.toDataURL('image/png');
+                a.download = '${this.machine.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_diagram.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+
+            const serializer = new XMLSerializer();
+            const source = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serializer.serializeToString(svg));
+            loader.src = source;
+        }
+
+        // Set initial theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.dark-theme {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        body:not(.dark-theme) button {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        body:not(.dark-theme) button:hover {
+            background-color: #e0e0e0;
+        }
+
+        body.dark-theme button {
+            background-color: #333;
+            color: #fff;
+        }
+
+        body.dark-theme button:hover {
+            background-color: #444;
+        }
+
+        .title {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #diagram {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dark-theme #diagram {
+            filter: invert(1) hue-rotate(180deg);
+        }
+
+        .dark-theme #diagram [fill="white"] {
+            fill: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button onclick="toggleTheme()">Toggle Theme</button>
+        <button onclick="downloadSVG()">Download SVG</button>
+        <button onclick="downloadPNG()">Download PNG</button>
+    </div>
+    <div class="title">${this.machine.title}</div>
+    <div id="diagram" class="mermaid">
+${mermaidDefinition}
+    </div>
+</body>
+</html>`.appendNewLineIfNotEmpty();
+
+        return {
+            filePath: this.filePath,
+            content: toString(fileNode)
+        };
+    }
+}
+
 // Generator Factory
 class GeneratorFactory {
     static createGenerator(format: string, machine: Machine, filePath: string, options: GeneratorOptions = {}): BaseGenerator {
@@ -244,6 +440,8 @@ class GeneratorFactory {
                 return new JSONGenerator(machine, filePath, options);
             case 'mermaid':
                 return new MermaidGenerator(machine, filePath, options);
+            case 'html':
+                return new HTMLGenerator(machine, filePath, options);
             default:
                 throw new Error(`Unsupported format: ${format}`);
         }
@@ -257,4 +455,8 @@ export function generateJSON(machine: Machine, filePath: string, destination: st
 
 export function generateMermaid(machine: Machine, filePath: string, destination: string | undefined): string {
     return GeneratorFactory.createGenerator('mermaid', machine, filePath, { destination }).generate();
+}
+
+export function generateHTML(machine: Machine, filePath: string, destination: string | undefined): string {
+    return GeneratorFactory.createGenerator('html', machine, filePath, { destination }).generate();
 }

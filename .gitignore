@@ -9,3 +9,4 @@ syntaxes/
 examples/*
 !examples/*.mach
 *.vsix
+generated

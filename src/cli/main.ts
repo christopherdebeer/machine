@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { MachineLanguageMetaData } from '../language/generated/module.js';
 import { createMachineServices } from '../language/machine-module.js';
 import { extractAstNode, extractDocument } from './cli-util.js';
-import { generateJSON, generateMermaid } from './generator.js';
+import { generateJSON, generateMermaid, generateHTML } from './generator.js';
 import { NodeFileSystem } from 'langium/node';
 import * as url from 'node:url';
 import * as fs from 'node:fs/promises';
@@ -28,6 +28,15 @@ export const generateMermaidAction = async (file: string, opts: GenerateOptions)
     await generateSerialized(file, opts)
     const generatedFilePath = generateMermaid(model, file, opts.destination);
     console.log(chalk.green(`Output generated successfully: ${generatedFilePath}`));
+}
+
+export const generateHTMLAction = async (file: string, opts: GenerateOptions): Promise<void> => {
+    const services = createMachineServices(NodeFileSystem).Machine;
+    const model = await extractAstNode<Machine>(file, services);
+    await generateSerialized(file, opts)
+    const generatedFilePath = generateHTML(model, file, opts.destination);
+    console.log(chalk.green(`Output generated successfully: ${generatedFilePath}`));
+    console.log(chalk.blue('Tip: Open the HTML file in a browser to view the interactive diagram'));
 }
 
 export const generateSerialized = async (file: string, opts: SerialiseOptions): Promise<void> => {
@@ -104,6 +113,14 @@ export default function(): void {
         .option('-d, --destination <dir>', 'destination directory of generating')
         .description('generates mermaid diagram that represents the state machine')
         .action(generateMermaidAction);
+
+    program
+        .command('generate-html')
+        .aliases(['gh'])
+        .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
+        .option('-d, --destination <dir>', 'destination directory of generating')
+        .description('generates interactive HTML page with mermaid diagram')
+        .action(generateHTMLAction);
 
     program
         .command('debug')
