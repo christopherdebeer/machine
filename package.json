@@ -1,7 +1,7 @@
 {
     "name": "machine-lang",
-    "description": "Please enter a brief description here",
-    "version": "0.0.15",
+    "description": "Dynamic state machine prototyping language",
+    "version": "0.0.17",
     "files": [
         "bin",
         "out",
@@ -96,9 +96,6 @@
             }
         ]
     },
-    "activationEvents": [
-        "onLanguage:machine"
-    ],
     "main": "./out/extension/main.cjs",
     "bin": {
         "dygram": "./bin/cli.js"

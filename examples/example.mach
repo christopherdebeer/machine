@@ -2,23 +2,27 @@ machine "Example"
 
 task init {
     query<string>:;
-};
+}
+
 task analyse {
     prompt: "This is my prompt for analyse";
-};
+}
+
 tool feedback {
     retry<int>: 4;
-};
+}
+
 complete;
+
 tool another;
 
 data query {
     value<string>:;
-};
+}
 
 data result {
     value<string>:;
-};
+}
 
 init -> analyse;
 analyse - next -> another;
