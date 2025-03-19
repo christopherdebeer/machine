@@ -86,6 +86,9 @@ export const executeExtended = async (htmlElement: HTMLElement) => {
     const userConfig = setupConfigExtended();
     const wrapper = new MonacoEditorLanguageClientWrapper();
     await wrapper.initAndStart(userConfig, htmlElement);
+    wrapper.getEditor()?.updateOptions({
+        wordWrap: "on"
+    })
     const src = wrapper.getEditor()?.getValue();
     console.log(src);
 
