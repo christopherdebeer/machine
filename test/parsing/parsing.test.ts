@@ -255,7 +255,7 @@ describe('Error case tests', () => {
             machine "bad syntax"
             start;
             end;
-            start ==> end;
+            start = -> end;
         `);
         expect(checkDocumentValid(document)).toBeDefined();
     });
