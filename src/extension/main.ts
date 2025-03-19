@@ -79,7 +79,9 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.ViewColumn.Beside,
             {
                 enableScripts: true,
-                
+                localResourceRoots: [
+                    vscode.Uri.file(path.join(context.extensionPath, 'out', 'extension', 'web'))
+                ]
             }
         );
 
@@ -87,7 +89,10 @@ export function activate(context: vscode.ExtensionContext) {
         const outputPath = path.join(path.dirname(activeEditor.document.fileName), 'out', path.basename(activeEditor.document.fileName, path.extname(activeEditor.document.fileName)) + '.html');
         const content = await vscode.workspace.fs.readFile(vscode.Uri.file(outputPath));
         
-        panel.webview.html = content.toString();
+        // Inject the web executor script into the HTML content
+        const htmlContent = content.toString();
+
+        panel.webview.html = htmlContent;
     });
 
     context.subscriptions.push(disposable);

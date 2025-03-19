@@ -10,7 +10,7 @@ interface GeneratorOptions {
     format?: string;
 }
 
-interface FileGenerationResult {
+export interface FileGenerationResult {
     filePath: string;
     content: string;
 }
@@ -21,9 +21,10 @@ abstract class BaseGenerator {
 
     constructor(protected machine: Machine, protected filePath: string, protected options: GeneratorOptions = {}) {}
 
-    public generate(): string {
+    public generate(): FileGenerationResult {
         const result = this.generateContent();
-        return this.writeToFile(result);
+        this.writeToFile(result);
+        return result;
     }
 
     protected abstract generateContent(): FileGenerationResult;
@@ -121,9 +122,8 @@ class MermaidGenerator extends BaseGenerator {
     protected generateContent(): FileGenerationResult {
         // First generate JSON as intermediate format
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
-        const jsonPath = jsonGen.generate();
-        const jsonContent = fs.readFileSync(jsonPath, 'utf8');
-        const machineJson: MachineJSON = JSON.parse(jsonContent);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
 
         // Build type hierarchy
         const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
@@ -155,9 +155,8 @@ classDiagram-v2
     public getMermaidDefinition(): string {
         // First generate JSON as intermediate format
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
-        const jsonPath = jsonGen.generate();
-        const jsonContent = fs.readFileSync(jsonPath, 'utf8');
-        const machineJson: MachineJSON = JSON.parse(jsonContent);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
 
         // Build type hierarchy
         const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
@@ -282,22 +281,23 @@ class HTMLGenerator extends BaseGenerator {
     protected fileExtension = 'html';
 
     protected generateContent(): FileGenerationResult {
+        const webExecutorPath = path.join(path.dirname(this.filePath), '..', 'out', 'extension', 'web', 'machine-executor-web.js');
         const mermaidGen = new MermaidGenerator(this.machine, this.filePath, this.options);
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
-        const jsonPath = jsonGen.generate();
-        const jsonContent = fs.readFileSync(jsonPath, 'utf8');
-        const machineJson = jsonContent;
+        const jsonContent = jsonGen.generate();
+        const machineJson = jsonContent.content;
         const mermaidDefinition = escapeHTML(mermaidGen.getMermaidDefinition());
 
         const fileNode = expandToNode`<!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="system" content="dygram">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${this.machine.title} - Machine Diagram</title>
+    <!-- Bundled machine executor -->
+    <script type="module">${fs.readFileSync(webExecutorPath, 'utf-8')}</script>
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-        import { MachineExecutor } from '../language/machine-executor-web.js';
 
         // Initialize mermaid with custom settings
         mermaid.initialize({
@@ -529,14 +529,14 @@ class GeneratorFactory {
 }
 
 // Public API
-export function generateJSON(machine: Machine, filePath: string, destination: string | undefined): string {
+export function generateJSON(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
     return GeneratorFactory.createGenerator('json', machine, filePath, { destination }).generate();
 }
 
-export function generateMermaid(machine: Machine, filePath: string, destination: string | undefined): string {
+export function generateMermaid(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
     return GeneratorFactory.createGenerator('mermaid', machine, filePath, { destination }).generate();
 }
 
-export function generateHTML(machine: Machine, filePath: string, destination: string | undefined): string {
+export function generateHTML(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
     return GeneratorFactory.createGenerator('html', machine, filePath, { destination }).generate();
 }

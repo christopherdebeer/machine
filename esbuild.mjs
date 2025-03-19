@@ -50,7 +50,7 @@ const ctx = await esbuild.context({
 // Build web-compatible executor
 const webCtx = await esbuild.context({
     entryPoints: ['src/language/machine-executor-web.ts'],
-    outdir: 'out/web',
+    outdir: 'out/extension/web',
     bundle: true,
     target: "ES2017",
     format: 'esm',

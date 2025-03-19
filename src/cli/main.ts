@@ -5,7 +5,7 @@ import { MachineLanguageMetaData } from '../language/generated/module.js';
 import { createMachineServices } from '../language/machine-module.js';
 import { extractAstNode, extractDocument, extractDestinationAndName } from './cli-util.js';
 import { MachineExecutor, type MachineData } from '../language/machine-executor.js';
-import { generateJSON, generateMermaid, generateHTML } from './generator.js';
+import { generateJSON, generateMermaid, generateHTML, FileGenerationResult } from './generator.js';
 import { NodeFileSystem } from 'langium/node';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
@@ -50,39 +50,45 @@ function parseFormats(formatStr?: string): GenerateFormat[] {
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     const services = createMachineServices(NodeFileSystem).Machine;
     const model = await extractAstNode<Machine>(fileName, services);
-    await generateSerialized(fileName, opts);
+    // await generateSerialized(fileName, opts);
 
     const formats = parseFormats(opts.format);
     const results: string[] = [];
 
     for (const format of formats) {
         try {
-            let generatedFilePath: string;
+            let res: FileGenerationResult;
             switch (format) {
                 case 'json':
-                    generatedFilePath = generateJSON(model, fileName, opts.destination);
+                    res = generateJSON(model, fileName, opts.destination);
                     break;
                 case 'mermaid':
-                    generatedFilePath = generateMermaid(model, fileName, opts.destination);
+                    res = generateMermaid(model, fileName, opts.destination);
                     break;
                 case 'html':
-                    generatedFilePath = generateHTML(model, fileName, opts.destination);
+                    res = generateHTML(model, fileName, opts.destination);
                     break;
             }
-            results.push(chalk.green(`Generated ${format.toUpperCase()}: ${generatedFilePath}`));
+            if (opts.destination) results.push(chalk.green(`Generated ${format.toUpperCase()}: ${res.filePath}`));
+            else console.log(res.content);
         } catch (error) {
             results.push(chalk.red(`Failed to generate ${format.toUpperCase()}: ${error instanceof Error ? error.message : String(error)}`));
         }
     }
 
-    // Print all results together
-    console.log('\nGeneration Results:');
-    results.forEach(result => console.log(result));
+    if (opts.destination) {
+        // Print all results together
+        console.log('\nGeneration Results:');
+        results.forEach(result => console.log(result));
 
-    // If HTML was generated, show the tip
-    if (formats.includes('html')) {
-        console.log(chalk.blue('\nTip: Open the HTML file in a browser to view the interactive diagram'));
+        // If HTML was generated, show the tip
+        if (formats.includes('html')) {
+            console.log(chalk.blue('\nTip: Open the HTML file in a browser to view the interactive diagram'));
+        }
+    } else {
+        console.log()
     }
+    
 };
 
 export const generateSerialized = async (file: string, opts: SerialiseOptions): Promise<void> => {
@@ -146,9 +152,8 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     const machine = await extractAstNode<Machine>(fileName, services);
 
     // Generate JSON representation for execution
-    const jsonPath = generateJSON(machine, fileName, opts.destination);
-    const jsonContent = await fs.readFile(jsonPath, 'utf-8');
-    const machineData = JSON.parse(jsonContent) as MachineData;
+    const jsonContent = generateJSON(machine, fileName, opts.destination);
+    const machineData = JSON.parse(jsonContent.content) as MachineData;
 
     console.log(chalk.blue('Executing machine program...'));
     console.log(chalk.yellow('Machine structure:'));

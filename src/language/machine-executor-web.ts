@@ -8,6 +8,7 @@ import { MachineExecutor, type MachineData, type MachineExecutionContext } from 
 declare global {
     interface Window {
         executeMachine: (machineData: MachineData) => Promise<MachineExecutionContext>;
+        MachineExecutor: typeof MachineExecutor;
     }
 }
 
@@ -16,6 +17,9 @@ window.executeMachine = async (machineData: MachineData): Promise<MachineExecuti
     const executor = new MachineExecutor(machineData);
     return await executor.execute();
 };
+
+// Make MachineExecutor available globally
+window.MachineExecutor = MachineExecutor;
 
 // Export types and executor class for module usage
 export { MachineExecutor, type MachineData, type MachineExecutionContext };
