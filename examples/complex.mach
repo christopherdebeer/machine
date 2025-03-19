@@ -1,18 +1,46 @@
 machine "complex example"
 
-// States with attributes
-start {
+// Define state types
+State {
+    desc: "Base state type";
+};
+
+InitialState {
+    type: State;
+    desc: "Starting state";
     initial: true;
+};
+
+ProcessingState {
+    type: State;
+    desc: "Processing state";
+    retryable: true;
+};
+
+FinalState {
+    type: State;
+    desc: "End state";
+    final: true;
+};
+
+// Define states with their types
+start {
+    type: InitialState;
     timeout: 1000;
 };
+
 processing {
+    type: ProcessingState;
     retry: 3;
 };
+
 error {
+    type: State;
     maxRetries: 3;
 };
+
 complete {
-    final: true;
+    type: FinalState;
 };
 
 // Transitions with labels

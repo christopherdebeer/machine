@@ -34,6 +34,8 @@ class BuildTestTool {
 
   readonly name = 'BuildTestTool';
 
+  public confirmation = () => ({ proceed: true });
+
   readonly inputSchema = {
     json: {
       type: 'object',

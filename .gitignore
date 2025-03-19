@@ -6,4 +6,6 @@ node_modules/
 out/
 src/language/generated/
 syntaxes/
-examples/out
+examples/*
+!examples/*.mach
+*.vsix
