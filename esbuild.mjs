@@ -26,9 +26,10 @@ const plugins = [{
     },
 }];
 
+// Build VSCode extension and language server
 const ctx = await esbuild.context({
     // Entry points for the vscode extension and the language server
-    entryPoints: ['src/extension/main.ts', 'src/language/main.ts'],
+    entryPoints: ['src/extension/main.ts', 'src/language/main.ts', 'src/cli/main.ts'],
     outdir: 'out',
     bundle: true,
     target: "ES2017",
@@ -46,9 +47,29 @@ const ctx = await esbuild.context({
     plugins
 });
 
+// Build web-compatible executor
+const webCtx = await esbuild.context({
+    entryPoints: ['src/language/machine-executor-web.ts'],
+    outdir: 'out/web',
+    bundle: true,
+    target: "ES2017",
+    format: 'esm',
+    loader: { '.ts': 'ts' },
+    platform: 'browser',
+    sourcemap: !minify,
+    minify,
+    plugins,
+    define: {
+        'process.env.NODE_ENV': '"production"'
+    }
+});
+
 if (watch) {
     await ctx.watch();
+    await webCtx.watch();
 } else {
     await ctx.rebuild();
+    await webCtx.rebuild();
     ctx.dispose();
+    webCtx.dispose();
 }

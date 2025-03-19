@@ -293,6 +293,7 @@ class HTMLGenerator extends BaseGenerator {
     <title>${this.machine.title} - Machine Diagram</title>
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        import { MachineExecutor } from '../language/machine-executor-web.js';
 
         // Initialize mermaid with custom settings
         mermaid.initialize({
@@ -323,6 +324,27 @@ class HTMLGenerator extends BaseGenerator {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        // Function to execute the machine
+        window.executeMachineProgram = function() {
+            const machineData = ${JSON.stringify(this.machine)};
+            const executor = new MachineExecutor(machineData);
+            const result = executor.execute();
+
+            // Display execution results
+            const resultDiv = document.getElementById('executionResult');
+            resultDiv.innerHTML = '<h3>Execution Path:</h3>';
+            const pathList = document.createElement('ul');
+            result.history.forEach(step => {
+                const li = document.createElement('li');
+                li.textContent = \`\${step.from} --(\${step.transition})--> \${step.to}\`;
+                pathList.appendChild(li);
+            });
+            resultDiv.appendChild(pathList);
+
+            // Show the results section
+            document.getElementById('results').style.display = 'block';
         }
 
         // Function to download the diagram as PNG
@@ -444,6 +466,21 @@ class HTMLGenerator extends BaseGenerator {
         .dark-theme #diagram [fill="white"] {
             fill: black;
         }
+
+        #results {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        body:not(.dark-theme) #results {
+            background-color: #f5f5f5;
+        }
+
+        body.dark-theme #results {
+            background-color: #2d2d2d;
+        }
     </style>
 </head>
 <body>
@@ -451,10 +488,15 @@ class HTMLGenerator extends BaseGenerator {
         <button onclick="toggleTheme()">Toggle Theme</button>
         <button onclick="downloadSVG()">Download SVG</button>
         <button onclick="downloadPNG()">Download PNG</button>
+        <button onclick=\"executeMachineProgram()\">Execute Machine</button>
     </div>
     <div class="title">${this.machine.title}</div>
     <div id="diagram">
         <code class="mermaid">${mermaidDefinition}</code>
+    </div>
+    <div id=\"results\">
+        <h2>Execution Results</h2>
+        <div id=\"executionResult\"></div>
     </div>
 </body>
 </html>`.appendNewLineIfNotEmpty();

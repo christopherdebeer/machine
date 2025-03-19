@@ -1,7 +1,7 @@
 {
     "name": "machine-lang",
     "description": "Please enter a brief description here",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "files": [
         "bin",
         "out",
@@ -39,8 +39,8 @@
         "@codingame/monaco-vscode-keybindings-service-override": "~3.2.3",
         "monaco-editor": "npm:@codingame/monaco-vscode-editor-api@~3.2.3",
         "monaco-editor-wrapper": "~4.0.2",
-        "monaco-languageclient": "~8.1.1"
-        
+        "monaco-languageclient": "~8.1.1",
+        "@aws-sdk/client-bedrock-runtime": "^3.535.0"
     },
     "devDependencies": {
         "@types/node": "^18.0.0",
