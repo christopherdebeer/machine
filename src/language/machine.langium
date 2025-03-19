@@ -57,7 +57,7 @@ EdgeAttribute:
 ;
 
 EdgeType:
-    (value=STRING | ID) | value+=EdgeAttribute+;
+    value+=EdgeAttribute+;
 
 EdgeSegment:
     (

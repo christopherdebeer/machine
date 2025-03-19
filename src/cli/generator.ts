@@ -308,7 +308,6 @@ ${indent}}`);
     private generateEdges(edges: Edge[]): string {
         
         const result = joinToNode(edges, edge => {
-            console.log(edge.source, edge.target, edge.value)
             let labelJSON = ``;
             Object.keys(edge.value || {}).forEach(key => {
                 if (key === 'text') {
