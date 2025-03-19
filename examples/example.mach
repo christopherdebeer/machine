@@ -20,10 +20,10 @@ data result {
     value<string>:;
 };
 
-init --> analyse;
-analyse -- next --> another;
-analyse --> feedback;
-feedback --> complete;
-init -- read --> query;
-analyse -- update --> result;
-complete -- read --> result;
+init -> analyse;
+analyse - next -> another;
+analyse -> feedback;
+feedback -> complete;
+init - read -> query;
+analyse - update -> result;
+complete - read -> result;

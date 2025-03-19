@@ -1,32 +1,29 @@
-// Empty machine
-machine "empty"
-
-// Single state machine
-machine "singleton"
-alone;
-
-// Self-referential machine
-machine "self ref"
-loop;
-loop --> loop;
-
-// Whitespace test machine
-machine    "whitespace"
-
-    state1    ;
-    state2;
-
-    state1    -->     state2;
-
 // Maximum complexity machine
 machine "stress test"
+
+alone;
+
+
+loop;
+
+
+
+state1;
+state2;
+
+
+
 start s1 {
     timeout: 1000;
 };
+
 middle s2;
 middle s3;
 middle s4;
 end s5;
+
+state1 -->     state2;
+loop --> loop;
 
 s1 -- "path1" --> s2;
 s2 -- "path2" --> s3;

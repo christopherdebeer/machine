@@ -17,8 +17,18 @@ beforeAll(async () => {
     validator = new MachineValidator();
 });
 
-describe('Basic syntax tests', () => {
-    test('parse simple machine', async () => {
+describe('Arrow syntax tests', () => {
+    test('parse machine with single dash arrow', async () => {
+        document = await parse(`
+            machine "test machine"
+            main;
+            init;
+            main -> init;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse machine with double dash arrow', async () => {
         document = await parse(`
             machine "test machine"
             main;
@@ -28,14 +38,94 @@ describe('Basic syntax tests', () => {
         expect(checkDocumentValid(document)).toBeUndefined();
     });
 
-    test('parse machine with multiple states and transitions', async () => {
+    test('parse machine with fat arrow', async () => {
         document = await parse(`
-            machine "multi state"
+            machine "fat arrow test"
             start;
-            middle;
             end;
-            start --> middle;
-            middle --> end;
+            start => end;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse machine with bidirectional arrow', async () => {
+        document = await parse(`
+            machine "bidirectional test"
+            state1;
+            state2;
+            state1 <--> state2;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse machine with mixed arrow styles', async () => {
+        document = await parse(`
+            machine "mixed arrows"
+            s1;
+            s2;
+            s3;
+            s4;
+            s1 -> s2;
+            s2 --> s3;
+            s3 => s4;
+            s4 <--> s1;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+});
+
+describe('Labeled arrow tests', () => {
+    test('parse machine with labeled single dash arrow', async () => {
+        document = await parse(`
+            machine "labeled single"
+            start;
+            end;
+            start -next-> end;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse machine with labeled double dash arrow', async () => {
+        document = await parse(`
+            machine "labeled double"
+            start;
+            end;
+            start --next--> end;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse machine with labeled fat arrow', async () => {
+        document = await parse(`
+            machine "labeled fat"
+            start;
+            end;
+            start =next=> end;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse machine with labeled bidirectional arrow', async () => {
+        document = await parse(`
+            machine "labeled bidirectional"
+            state1;
+            state2;
+            state1 <--sync--> state2;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse machine with mixed labeled arrows', async () => {
+        document = await parse(`
+            machine "mixed labeled arrows"
+            s1;
+            s2;
+            s3;
+            s4;
+            s1 -next-> s2;
+            s2 --process--> s3;
+            s3 =compute=> s4;
+            s4 <--sync--> s1;
         `);
         expect(checkDocumentValid(document)).toBeUndefined();
     });
@@ -52,19 +142,30 @@ describe('Complex feature tests', () => {
             end {
                 final: true;
             };
-            start --> end;
+            start => end;
         `);
         expect(checkDocumentValid(document)).toBeUndefined();
     });
 
-    test('parse machine with labeled transitions', async () => {
+    test('parse machine with all arrow types and attributes', async () => {
         document = await parse(`
-            machine "labeled test"
-            start;
-            success;
-            error;
-            start -- valid --> success;
-            start -- invalid --> error;
+            machine "complete test"
+            start {
+                initial: true;
+            };
+            process {
+                timeout: 500;
+            };
+            sync {
+                type: "async";
+            };
+            end {
+                final: true;
+            };
+            start -begin-> process;
+            process --work--> sync;
+            sync =compute=> end;
+            start <--reset--> end;
         `);
         expect(checkDocumentValid(document)).toBeUndefined();
     });
@@ -84,11 +185,14 @@ describe('Edge case tests', () => {
         expect(checkDocumentValid(document)).toBeUndefined();
     });
 
-    test('parse self-referential machine', async () => {
+    test('parse self-referential machine with different arrows', async () => {
         document = await parse(`
-            machine "self ref"
+            machine "self ref variations"
             loop;
+            loop -> loop;
             loop --> loop;
+            loop => loop;
+            loop <--> loop;
         `);
         expect(checkDocumentValid(document)).toBeUndefined();
     });
@@ -98,7 +202,7 @@ describe('Edge case tests', () => {
             machine    "whitespace"
                 state1    ;
                 state2;
-                state1    -->     state2;
+                state1    =>     state2;
         `);
         expect(checkDocumentValid(document)).toBeUndefined();
     });
@@ -114,7 +218,7 @@ describe('Error case tests', () => {
         document = await parse(`
             machine "invalid ref"
             start;
-            start --> nonexistent;
+            start => nonexistent;
         `);
         const errors: any[] = [];
         const accept = (severity: string, message: string, options: any) => {
@@ -135,7 +239,7 @@ describe('Error case tests', () => {
             state;
         `);
         const errors: any[] = [];
-        const  accept = (severity: string, message: string, options: any) => {
+        const accept = (severity: string, message: string, options: any) => {
             errors.push({ severity, message, options });
         };
         validator.checkDuplicateStates(
@@ -151,7 +255,7 @@ describe('Error case tests', () => {
             machine "bad syntax"
             start;
             end;
-            start ->-> end;
+            start ==> end;
         `);
         expect(checkDocumentValid(document)).toBeDefined();
     });

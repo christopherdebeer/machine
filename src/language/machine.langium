@@ -13,8 +13,16 @@ terminal INT returns number: /[0-9]+/;         // integer numbers for numeric va
 terminal BASICTYPE: "string" | "number" | "boolean";
 terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
 
-terminal ARROW_START: /-+[^>]/;
-terminal ARROW_END: /-+>/;
+// Arrow terminals - ordered from most specific to least specific
+terminal BIDIRECTIONAL_ARROW: '<-->';
+terminal BIDIRECTIONAL_LABELED: /<--[a-zA-Z0-9_]+-?-?>/;
+terminal ARROW_DOUBLE: '-->';
+terminal ARROW_LABEL_START_DOUBLE: '--';
+terminal FAT_ARROW: '=>';
+terminal FAT_ARROW_LABEL_START: '=';
+terminal ARROW_SINGLE: '->';
+terminal ARROW_LABEL_START_SINGLE: '-';
+
 STRING returns string: STR | MLSTR;
 
 
@@ -31,26 +39,33 @@ Attribute:
     name=ID ('<' type=ID '>')? ':' (value=AttributeValue)? ';'
 ;
 
-
-
 Node<isRoot>:
-	(<isRoot> type=ID)? 
-	name=ID ('{'
-		nodes+=(Node<false>)*
+    (<isRoot> type=ID)? 
+    name=ID 
+    ('{' 
+        nodes+=(Node<false>)*
         attributes+=Attribute*
-	'}')? ';';
-
-EdgeStart returns string: ARROW_START ;
-EdgeEnd returns string: ARROW_END;
+    '}' | ';')
+;
 
 EdgeSegment:
-    startType=EdgeStart
-    (label=(EXTID|STRING|ID|INT|BASICTYPE))?
-    endType=EdgeEnd
+    (
+        // Bidirectional arrows
+        endType=BIDIRECTIONAL_ARROW |
+        endType=BIDIRECTIONAL_LABELED |
+        // Double dash arrows
+        (startType=ARROW_LABEL_START_DOUBLE label=(EXTID|STRING|ID|INT|BASICTYPE) endType=ARROW_DOUBLE) |
+        endType=ARROW_DOUBLE |
+        // Fat arrows
+        (startType=FAT_ARROW_LABEL_START label=(EXTID|STRING|ID|INT|BASICTYPE) endType=FAT_ARROW) |
+        endType=FAT_ARROW |
+        // Single dash arrows
+        (startType=ARROW_LABEL_START_SINGLE label=(EXTID|STRING|ID|INT|BASICTYPE) endType=ARROW_SINGLE) |
+        endType=ARROW_SINGLE
+    )
     target=[Node:ID]
 ;
 
 Edge<isRoot>:
     (<isRoot> source=[Node:ID])
-    segments+=EdgeSegment+ ';'
-;
+    segments+=EdgeSegment+ ';';
