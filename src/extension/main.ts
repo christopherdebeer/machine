@@ -63,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
         ));
 
         // Wait for task completion
-        await new Promise<vscode.TaskExecution>((resolve) => {
+        const res = await new Promise<vscode.TaskExecution>((resolve) => {
             const disposable = vscode.tasks.onDidEndTask((e) => {
                 if (e.execution === task) {
                     disposable.dispose();
@@ -71,6 +71,8 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             });
         });
+
+        console.log(`Lets get the generated html`, res)
 
         // Create and show preview panel
         const panel = vscode.window.createWebviewPanel(

@@ -3,6 +3,7 @@ import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModul
 import { MachineGeneratedModule, MachineGeneratedSharedModule } from './generated/module.js';
 import { MachineValidator, MachineValidationRegistry } from './machine-validator.js';
 import { MachineScopeProvider } from './machine-scope.js';
+import { MachineSemanticTokenProvider } from './machine-semantic-token-provider.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -28,6 +29,9 @@ export const MachineModule: Module<MachineServices, PartialLangiumServices & Mac
     validation: {
         ValidationRegistry: (services) => new MachineValidationRegistry(services),
         MachineValidator: () => new MachineValidator()
+    },
+    lsp: {
+        SemanticTokenProvider: (services) => new MachineSemanticTokenProvider(services)
     },
     references: {
         ScopeProvider: (services) => new MachineScopeProvider(services)

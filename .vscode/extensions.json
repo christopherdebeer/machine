@@ -4,8 +4,8 @@
 
     // List of extensions which should be recommended for users of this workspace.
     "recommendations": [
-        "langium.langium-vscode",
-        "vitest.explorer",
-        "kingwl.vscode-vitest-runner"
+        // "langium.langium-vscode",
+        // "vitest.explorer",
+        // "kingwl.vscode-vitest-runner"
     ]
 }

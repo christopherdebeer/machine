@@ -13,6 +13,8 @@ terminal INT returns number: /[0-9]+/;         // integer numbers for numeric va
 terminal BASICTYPE: "string" | "number" | "boolean";
 terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
 
+terminal ARROW_START: /-+[^>]/;
+terminal ARROW_END: /-+>/;
 STRING returns string: STR | MLSTR;
 
 
@@ -29,6 +31,8 @@ Attribute:
     name=ID ('<' type=ID '>')? ':' (value=AttributeValue)? ';'
 ;
 
+
+
 Node<isRoot>:
 	(<isRoot> type=ID)? 
 	name=ID ('{'
@@ -36,8 +40,8 @@ Node<isRoot>:
         attributes+=Attribute*
 	'}')? ';';
 
-EdgeStart returns string: '--';
-EdgeEnd returns string: '-->';
+EdgeStart returns string: ARROW_START ;
+EdgeEnd returns string: ARROW_END;
 
 EdgeSegment:
     startType=EdgeStart
