@@ -1,0 +1,33 @@
+machine "arrow types"
+s1;
+s2;
+s3;
+s4;
+s5;
+s6;
+
+// Basic arrows
+s1 -> s2;          // Single dash
+s2 --> s3;         // Double dash
+s3 => s4;          // Fat arrow
+
+// // Simple bidirectional
+// s4 <-> s5;         // Single dash
+// s5 <--> s6;        // Double dash
+// s6 <=> s1;         // Fat arrow
+
+// // Labeled bidirectional
+// s1 <-sync-> s2;
+// s2 <--process--> s3;
+// s3 <=compute=> s4;
+
+// Asymmetric bidirectional
+// s4 <--process-> s5;    // Double to single
+// s5 <-process--> s6;    // Single to double
+// s6 <=process-> s1;     // Fat to single
+// s1 <-process=> s2;     // Single to fat
+
+// // With whitespace variations
+// s1    <  -  sync  -  >    s2;
+// s2    < -- process -- >   s3;
+// s3    < = compute = >     s4;

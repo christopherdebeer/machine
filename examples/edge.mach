@@ -15,7 +15,7 @@ state2;
 
 start s1 {
     timeout: 1000;
-};
+}
 
 middle s2;
 middle s3;
