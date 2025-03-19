@@ -2,7 +2,6 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { EmptyFileSystem, type LangiumDocument } from "langium";
 import { expandToString as s } from "langium/generate";
 import { parseHelper } from "langium/test";
-import type { Diagnostic } from "vscode-languageserver-types";
 import { createMachineServices } from "../../src/language/machine-module.js";
 import { Machine, isMachine } from "../../src/language/generated/ast.js";
 
@@ -109,8 +108,4 @@ function checkDocumentValid(document: LangiumDocument): string | undefined {
         return `Root AST object is a ${document.parseResult.value.$type}, expected a 'Machine'.`;
     }
     return undefined;
-}
-
-function diagnosticToString(d: Diagnostic) {
-    return `[${d.range.start.line}:${d.range.start.character}..${d.range.end.line}:${d.range.end.character}]: ${d.message}`;
 }

@@ -2,6 +2,7 @@ import { type Module, inject } from 'langium';
 import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
 import { MachineGeneratedModule, MachineGeneratedSharedModule } from './generated/module.js';
 import { MachineValidator, MachineValidationRegistry } from './machine-validator.js';
+import { MachineScopeProvider } from './machine-scope.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -27,6 +28,9 @@ export const MachineModule: Module<MachineServices, PartialLangiumServices & Mac
     validation: {
         ValidationRegistry: (services) => new MachineValidationRegistry(services),
         MachineValidator: () => new MachineValidator()
+    },
+    references: {
+        ScopeProvider: (services) => new MachineScopeProvider(services)
     }
 };
 

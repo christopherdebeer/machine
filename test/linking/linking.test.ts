@@ -57,7 +57,7 @@ describe('Linking tests', () => {
             expect(errors).toBeUndefined();
             return;
         }
-
+        console.log(document)
         // We expect validation errors for the non-existent state
         expect(document.diagnostics?.some(d =>
             d.message.includes('Reference to undefined state: NonExistentState')
