@@ -9,9 +9,8 @@ export default defineConfig(() => {
             target: 'esnext',
             rollupOptions: {
                 input: {
-                    index: path.resolve(__dirname, 'index.html'),
-                    monacoClassic: path.resolve(__dirname, 'static/monacoClassic.html'),
-                    monacoExtended: path.resolve(__dirname, 'static/monacoExtended.html'),
+                    index: path.resolve(__dirname, 'static/index.html'),
+                    playground: path.resolve(__dirname, 'static/playground.html'),
                 }
             }
         },

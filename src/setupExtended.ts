@@ -2,6 +2,13 @@ import { MonacoEditorLanguageClientWrapper, UserConfig } from 'monaco-editor-wra
 import { configureWorker, defineUserServices } from './setupCommon.js';
 import { MachineExecutor } from './language/machine-executor.js';
 
+// define render on window to make typescript happy
+declare global {
+    interface Window {
+        render: (mermaid: string) => void;
+    }
+}
+
 export const setupConfigExtended = (): UserConfig => {
     const extensionFilesOrContents = new Map();
     extensionFilesOrContents.set('/language-configuration.json', new URL('../language-configuration.json', import.meta.url));
