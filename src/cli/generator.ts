@@ -87,18 +87,25 @@ class JSONGenerator extends BaseGenerator {
             target: string | undefined;
         }
         const edges: ChainEdge[] = [];
-        let currentSource = edge.source?.ref?.name;
+        let currentSources = edge.source.map(s => s.ref?.name);
 
         // Process each segment in the chain to create sequential edges
         edge.segments.forEach(segment => {
-            edges.push({
-                source: currentSource,
-                label: segment.label?.toString(),
-                target: segment.target?.ref?.name
+            const targets = segment.target.map(t => t.ref?.name);
+
+            // Create edges from each source to each target
+            currentSources.forEach(source => {
+                targets.forEach(target => {
+                    edges.push({
+                        source: source,
+                        label: segment.label?.toString(),
+                        target: target
+                    });
+                });
             });
-            currentSource = segment.target?.ref?.name; // Update source for next segment
+            currentSources = targets; // Update sources for next segment
         });
-        return joinToNode(edges, e => `{"source": "${e.source}"${e.label ? `, "type": "${e.label}"` : ''}, "target": "${e.target}"}`, {
+        return joinToNode(edges.filter(e => e.source && e.target), e => `{"source": "${e.source}"${e.label ? `, "type": "${e.label}"` : ''}, "target": "${e.target}"}`, {
             separator: ',',
             appendNewLineIfNotEmpty: true,
             skipNewLineAfterLastItem: true
