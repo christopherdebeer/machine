@@ -6,7 +6,7 @@ hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
 
 // Basic terminals
 terminal ID: /[A-Za-z_0-9][A-Za-z0-9_]*/;              // identifiers for class and attribute names
-terminal STR: /"([^"\\]|\\.)([^"\\]|\\.)*"/;        // double-quoted strings for titles and default values
+terminal STR: /"([^"\\]|\\.)*"/;        // double-quoted strings for titles and default values
 terminal MLSTR: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;  // multiline strings
 terminal INT returns number: /[0-9]+/;         // integer numbers for numeric values
 
@@ -40,12 +40,13 @@ EdgeStart returns string: '--';
 EdgeEnd returns string: '-->';
 
 EdgeSegment:
-    (startType=EdgeStart
-        label=(EXTID|STRING|ID|INT|BASICTYPE)
-	)? endType=EdgeEnd target=[Node:ID]
+    startType=EdgeStart
+    (label=(EXTID|STRING|ID|INT|BASICTYPE))?
+    endType=EdgeEnd
+    target=[Node:ID]
 ;
 
 Edge<isRoot>:
     (<isRoot> source=[Node:ID])
-	 (segments+=EdgeSegment*) ';'
+    segments+=EdgeSegment+ ';'
 ;

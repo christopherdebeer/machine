@@ -81,11 +81,27 @@ class JSONGenerator extends BaseGenerator {
   ],
   "edges": [
     ${joinToNode(this.machine.edges, edge => {
-        let lastInChain = edge.source?.ref?.name;
-        return joinToNode(edge.segments, segment => `{"source": "${lastInChain}"${segment.label ? `, "type": "${segment.label}"` : ''}, "target": "${segment.target?.ref?.name}"}`, {
+        interface ChainEdge {
+            source: string | undefined;
+            label: string | undefined;
+            target: string | undefined;
+        }
+        const edges: ChainEdge[] = [];
+        let currentSource = edge.source?.ref?.name;
+
+        // Process each segment in the chain to create sequential edges
+        edge.segments.forEach(segment => {
+            edges.push({
+                source: currentSource,
+                label: segment.label?.toString(),
+                target: segment.target?.ref?.name
+            });
+            currentSource = segment.target?.ref?.name; // Update source for next segment
+        });
+        return joinToNode(edges, e => `{"source": "${e.source}"${e.label ? `, "type": "${e.label}"` : ''}, "target": "${e.target}"}`, {
             separator: ',',
             appendNewLineIfNotEmpty: true,
-            skipNewLineAfterLastItem: true,
+            skipNewLineAfterLastItem: true
         })
     }, {
         separator: ',',

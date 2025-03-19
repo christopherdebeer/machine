@@ -59,7 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.TaskScope.Workspace,
             'generate mermaid output',
             'shell',
-            new vscode.ShellExecution(`dygram generate --format html ${activeEditor.document.fileName} -d ${path.dirname(activeEditor.document.fileName)}/out`)
+            new vscode.ShellExecution(`dygram generate --format html ${activeEditor.document.fileName}`)
         ));
 
         // Wait for task completion
