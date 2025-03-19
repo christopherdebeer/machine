@@ -17,31 +17,25 @@ ProcessingState {
     retryable: true;
 };
 
-FinalState {
-    type: State;
+State FinalState {
     desc: "End state";
     final: true;
 };
 
 // Define states with their types
-start {
-    type: InitialState;
+InitialState start {
     timeout: 1000;
 };
 
-processing {
-    type: ProcessingState;
+ProcessingState processing {
     retry: 3;
 };
 
-error {
-    type: State;
+State error {
     maxRetries: 3;
 };
 
-complete {
-    type: FinalState;
-};
+FinalState complete;
 
 // Transitions with labels
 start -- ready --> processing;

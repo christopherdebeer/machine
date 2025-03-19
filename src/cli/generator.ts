@@ -108,6 +108,13 @@ interface MachineJSON {
     edges: { source: string; type: string; target: string; }[];
 }
 
+interface TypeHierarchy {
+    [key: string]: {
+        nodes: Node[];
+        subtypes: string[];
+    };
+}
+
 class MermaidGenerator extends BaseGenerator {
     protected fileExtension = 'md';
 
@@ -118,9 +125,9 @@ class MermaidGenerator extends BaseGenerator {
         const jsonContent = fs.readFileSync(jsonPath, 'utf8');
         const machineJson: MachineJSON = JSON.parse(jsonContent);
 
-        // Group nodes by type
-        const groups = this.groupNodesByType(machineJson.nodes);
-        const groupNames = Object.keys(groups);
+        // Build type hierarchy
+        const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
+        const rootTypes = this.getRootTypes(hierarchy);
 
         const fileNode = expandToNode`\`\`\`machine
 ${this.machine.$document?.textDocument.getText()}
@@ -134,30 +141,8 @@ config:
         hideEmptyMembersBox: true
 ---
 classDiagram-v2
-  ${joinToNode(groupNames, (groupName) => {
-            if (groupName === 'undefined') {
-                // Handle ungrouped nodes directly
-                const nodes = this.formatNodes(groups[groupName]);
-                return nodes ? toString(nodes) : '';
-            }
-            // Wrap other groups in namespaces
-            const nodes = this.formatNodes(groups[groupName]);
-            if (!nodes) return '';
-            return `namespace ${groupName} {
-    ${toString(nodes)}
-  }`;
-        }, {
-            separator: '\n',
-            appendNewLineIfNotEmpty: true,
-            skipNewLineAfterLastItem: true,
-        })}
-  ${joinToNode(machineJson.edges, edge => {
-            return `${edge.source} --> ${edge.target}${edge.type ? ` : ${edge.type}` : ''}`
-        }, {
-            separator: '\n',
-            appendNewLineIfNotEmpty: true,
-            skipNewLineAfterLastItem: true,
-        })}
+  ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
+  ${toString(this.generateEdges(machineJson.edges))}
 \`\`\`
 `.appendNewLineIfNotEmpty();
 
@@ -167,34 +152,87 @@ classDiagram-v2
         };
     }
 
-    private formatNodes(nodes: Node[]): string | undefined {
-        const result = joinToNode(nodes, (node) => {
-            if (nodes.find(n => n.name === node.type)) {
-                return ''; // Skip nodes that are types themselves
+    private buildTypeHierarchy(nodes: Node[]): TypeHierarchy {
+        const hierarchy: TypeHierarchy = {};
+
+        // Initialize hierarchy with all nodes
+        nodes.forEach(node => {
+            const type = node.type || 'undefined';
+            if (!hierarchy[type]) {
+                hierarchy[type] = { nodes: [], subtypes: [] };
+            }
+            hierarchy[type].nodes.push(node);
+        });
+
+        // Build subtype relationships
+        nodes.forEach(node => {
+            if (node.type && hierarchy[node.name]) {
+                hierarchy[node.type].subtypes.push(node.name);
+            }
+        });
+
+        return hierarchy;
+    }
+
+    private getRootTypes(hierarchy: TypeHierarchy): string[] {
+        const allTypes = new Set(Object.keys(hierarchy));
+        const subTypes = new Set(
+            Object.values(hierarchy)
+                .flatMap(h => h.subtypes)
+        );
+        return Array.from(allTypes)
+            .filter(type => !subTypes.has(type))
+            .filter(type => type !== 'undefined');
+    }
+
+    private generateTypeHierarchy(hierarchy: TypeHierarchy, types: string[], level = 0): string {
+        const result = joinToNode(types, type => {
+            const { nodes, subtypes } = hierarchy[type];
+            const indent = '  '.repeat(level);
+
+            // Generate namespace content
+            const content = joinToNode(nodes, node => {
+                const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
+                const header = `class ${node.name}${desc ? `["${desc.value}"]` : ''}`;
+                return `${indent}  ${header} {
+${indent}    ${node.type ? `<<${node.type}>>` : ''}${node.attributes?.length ? ("\n" + indent + "    " + node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt').map(a => `${a.name}: ${a.value}`).join('\n' + indent + "    ")) : ''}
+${indent}  }`;
+            }, {
+                separator: '\n',
+                appendNewLineIfNotEmpty: true,
+                skipNewLineAfterLastItem: true,
+            });
+
+            // Generate subtype hierarchy
+            const subtypeContent = subtypes.length > 0 ?
+                this.generateTypeHierarchy(hierarchy, subtypes, level + 1) : '';
+
+            // Only create namespace if there are nodes or subtypes
+            if (nodes.length === 0 && subtypes.length === 0) {
+                return '';
             }
 
-            const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
-            const header = `class ${node.name}${desc ? `["${desc.value}"]` : ''}`;
-            return `${header} {
-      ${node.type ? `<<${node.type}>>` : ''}${node.attributes?.length ? ("\n   " + node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt').map(a => `${a.name}: ${a.value}`).join('\n')) : ''}
-    }`;
+            return toString(expandToNode`${indent}namespace ${type} {
+${toString(content)}${subtypeContent ? '\n' + toString(subtypeContent) : ''}
+${indent}}`);
         }, {
             separator: '\n',
             appendNewLineIfNotEmpty: true,
             skipNewLineAfterLastItem: true,
         });
-        return result ? toString(result) : undefined;
+
+        return toString(result);
     }
 
-    private groupNodesByType(nodes: Node[]): Record<string, Node[]> {
-        return nodes.reduce((acc: Record<string, Node[]>, item) => {
-            const key = item.type || 'undefined';
-            if (!acc[key]) {
-                acc[key] = [];
-            }
-            acc[key].push(item);
-            return acc;
-        }, {});
+    private generateEdges(edges: { source: string; type: string; target: string; }[]): string {
+        const result = joinToNode(edges, edge => {
+            return `  ${edge.source} --> ${edge.target}${edge.type ? ` : ${edge.type}` : ''}`
+        }, {
+            separator: '\n',
+            appendNewLineIfNotEmpty: true,
+            skipNewLineAfterLastItem: true,
+        });
+        return toString(result);
     }
 }
 
