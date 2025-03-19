@@ -1,8 +1,9 @@
-import type { Attribute, EdgeType, Machine, Node } from '../language/generated/ast.js';
+import type { EdgeType, Machine, Node } from '../generated/ast.js';
 import { expandToNode, joinToNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { extractDestinationAndName } from './cli-util.js';
+import { extractDestinationAndName } from '../../cli/cli-util.js';
+import { Edge, MachineJSON } from '../machine-module.js';
 
 // Common interfaces
 interface GeneratorOptions {
@@ -15,12 +16,7 @@ export interface FileGenerationResult {
     content: string;
 }
 
-interface Edge { source: string; value: Record<string, any>; target: string; }
-interface MachineJSON {
-    title: string;
-    nodes: Node[];
-    edges: Edge[];
-}
+
 
 // Base generator class
 abstract class BaseGenerator {
@@ -30,7 +26,7 @@ abstract class BaseGenerator {
 
     public generate(): FileGenerationResult {
         const result = this.generateContent();
-        this.writeToFile(result);
+        if (this.options.destination) this.writeToFile(result);
         return result;
     }
 
@@ -45,20 +41,6 @@ abstract class BaseGenerator {
         }
         fs.writeFileSync(generatedFilePath, result.content);
         return generatedFilePath;
-    }
-
-    protected formatAttributes(node: Node): string {
-        if (!node.attributes || node.attributes.length === 0) {
-            return '';
-        }
-        const result = joinToNode(node.attributes, (attr: Attribute) => {
-            return `{"name": "${attr.name}", "type": "${attr.type}", "value":"${attr.value}"}`;
-        }, {
-            separator: ',',
-            appendNewLineIfNotEmpty: true,
-            skipNewLineAfterLastItem: true,
-        });
-        return toString(result);
     }
 }
 
@@ -168,6 +150,157 @@ class MermaidGenerator extends BaseGenerator {
         const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
         const rootTypes = this.getRootTypes(hierarchy);
 
+        const fileNode = expandToNode`---
+"title": "${this.machine.title}"
+config:
+    class:
+        hideEmptyMembersBox: true
+---
+classDiagram-v2
+  ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
+  ${toString(this.generateEdges(machineJson.edges))}
+`.appendNewLineIfNotEmpty();
+
+        return {
+            filePath: this.filePath,
+            content: toString(fileNode)
+        };
+    }
+
+    public getMermaidDefinition(): string {
+        // First generate JSON as intermediate format
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+
+        // Build type hierarchy
+        const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
+        const rootTypes = this.getRootTypes(hierarchy);
+
+        return toString(expandToNode`---
+title: "${this.machine.title}"
+config:
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram-v2
+  ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
+  ${toString(this.generateEdges(machineJson.edges))}`);
+    }
+
+    private buildTypeHierarchy(nodes: Node[]): TypeHierarchy {
+        const hierarchy: TypeHierarchy = {};
+
+        // Initialize hierarchy with all nodes
+        nodes.forEach(node => {
+            const type = node.type || 'undefined';
+            if (!hierarchy[type]) {
+                hierarchy[type] = { nodes: [], subtypes: [] };
+            }
+            hierarchy[type].nodes.push(node);
+        });
+
+        // Build subtype relationships
+        nodes.forEach(node => {
+            if (node.type && hierarchy[node.name]) {
+                hierarchy[node.type].subtypes.push(node.name);
+            }
+        });
+
+        return hierarchy;
+    }
+
+    private getRootTypes(hierarchy: TypeHierarchy): string[] {
+        const allTypes = new Set(Object.keys(hierarchy));
+        const subTypes = new Set(
+            Object.values(hierarchy)
+                .flatMap(h => h.subtypes)
+        );
+        return Array.from(allTypes)
+            .filter(type => !subTypes.has(type))
+            .filter(type => type !== 'undefined');
+    }
+
+    private generateTypeHierarchy(hierarchy: TypeHierarchy, types: string[], level = 0): string {
+        const result = joinToNode(types, type => {
+            const { nodes, subtypes } = hierarchy[type];
+            const indent = '  '.repeat(level);
+
+            // Generate namespace content
+            const content = joinToNode(nodes, node => {
+                const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
+                const header = `class ${node.name}${desc ? `[\"${desc.value}\"]` : ''}`;
+
+                // Format all attributes except desc/prompt for the class body
+                const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
+                const attributeLines = attributes.length > 0
+                    ? attributes.map(a => `+${a.name} ${a.type ? `: ${a.type}` : ''} = ${a.value}`).join('\\n')
+                    : '';
+
+                return `${indent}  ${header} {
+${indent}    ${node.type ? `<<${node.type}>>` : ''}${attributeLines ? '\n' + indent + '    ' + attributeLines : ''}
+${indent}  }`;
+            }, {
+                separator: '\n',
+                appendNewLineIfNotEmpty: true,
+                skipNewLineAfterLastItem: true,
+            });
+
+            // Generate subtype hierarchy
+            const subtypeContent = subtypes.length > 0 ?
+                this.generateTypeHierarchy(hierarchy, subtypes, level + 1) : '';
+
+            // Only create namespace if there are nodes or subtypes
+            if (nodes.length <= 1 && subtypes.length === 0) {
+                return '';
+            }
+
+            return toString(expandToNode`${indent}namespace ${type} {
+${toString(content)}${subtypeContent ? '\n' + toString(subtypeContent) : ''}
+${indent}}`);
+        }, {
+            separator: '\n',
+            appendNewLineIfNotEmpty: true,
+            skipNewLineAfterLastItem: true,
+        });
+
+        return toString(result);
+    }
+
+    private generateEdges(edges: Edge[]): string {
+        
+        const result = joinToNode(edges, edge => {
+            let labelJSON = ``;
+            Object.keys(edge.value || {}).forEach((key, idx) => {
+                if (key === 'text') {
+                    labelJSON += `${edge.value[key]}`;
+                } else {
+                    labelJSON += `${idx > 0 ? ', ' : ''}${key}=${edge.value[key]}`;
+                }
+            });
+            return `  ${edge.source} --> ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
+        }, {
+            separator: '\n',
+            appendNewLineIfNotEmpty: true,
+            skipNewLineAfterLastItem: true,
+        });
+        return toString(result);
+    }
+}
+
+class MarkdownGenerator extends BaseGenerator {
+    protected fileExtension = 'md';
+
+    protected generateContent(): FileGenerationResult {
+        // First generate JSON as intermediate format
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+
+        // Build type hierarchy
+        const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
+        const rootTypes = this.getRootTypes(hierarchy);
+
         const fileNode = expandToNode`\`\`\`machine
 ${this.machine.$document?.textDocument.getText()}
 \`\`\`
@@ -194,6 +327,10 @@ config:
 classDiagram-v2
   ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
   ${toString(this.generateEdges(machineJson.edges))}
+\`\`\`
+
+\`\`\`raw
+${JSON.stringify(machineJson, null, 2)}
 \`\`\`
 `.appendNewLineIfNotEmpty();
 
@@ -580,6 +717,8 @@ class GeneratorFactory {
                 return new JSONGenerator(machine, filePath, options);
             case 'mermaid':
                 return new MermaidGenerator(machine, filePath, options);
+            case 'markdown':
+                return new MarkdownGenerator(machine, filePath, options);
             case 'html':
                 return new HTMLGenerator(machine, filePath, options);
             default:
@@ -595,6 +734,10 @@ export function generateJSON(machine: Machine, filePath: string, destination: st
 
 export function generateMermaid(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
     return GeneratorFactory.createGenerator('mermaid', machine, filePath, { destination }).generate();
+}
+
+export function generateMarkdown(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
+    return GeneratorFactory.createGenerator('markdown', machine, filePath, { destination }).generate();
 }
 
 export function generateHTML(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {

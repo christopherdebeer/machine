@@ -1,5 +1,6 @@
 import { MonacoEditorLanguageClientWrapper, UserConfig } from 'monaco-editor-wrapper';
 import { configureWorker, defineUserServices } from './setupCommon.js';
+import { MachineExecutor } from './language/machine-executor.js';
 
 export const setupConfigExtended = (): UserConfig => {
     const extensionFilesOrContents = new Map();
@@ -78,4 +79,63 @@ export const executeExtended = async (htmlElement: HTMLElement) => {
     const userConfig = setupConfigExtended();
     const wrapper = new MonacoEditorLanguageClientWrapper();
     await wrapper.initAndStart(userConfig, htmlElement);
+    const src = wrapper.getEditor()?.getValue();
+    console.log(src);
+
+    const client = wrapper.getLanguageClient();
+    if (!client) {
+        throw new Error('Unable to obtain language client for the Minilogo!');
+    }
+
+    let running = false;
+    let timeout: NodeJS.Timeout | null = null;
+    client.onNotification('browser/DocumentChange', (resp) => {
+
+        // always store this new program in local storage
+        const value = wrapper.getModel()?.getValue();
+        if (window.localStorage && value) {
+            window.localStorage.setItem('mainCode', value);
+        }
+
+        // block until we're finished with a given run
+        if (running) {
+            return;
+        }
+        
+        // clear previous timeouts
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+
+        // set a timeout to run the current code
+        timeout = setTimeout(async () => {
+            running = true;
+            // setStatus('');
+            console.info('generating & running current code...');
+            let result = JSON.parse(resp.content);
+            let data = result.$data;
+            let mermaid = result.$mermaid;
+            try {
+                const executor = new MachineExecutor({
+                    title: 'asdas',
+                    nodes: [{
+                        name: 'foo'
+                    }],
+                    edges: []
+                })
+                // await executor.step();
+                running = false;
+                console.log(resp, data, mermaid, executor)
+                window.render(mermaid)
+            } catch (e) {
+                // failed at some point, log & disable running so we can try again
+                console.error(e);
+                running = false;
+            }
+
+        }, 200);
+    });
+
+    
+    
 };

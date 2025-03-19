@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <!-- Page & Monaco styling -->
+        <link href="styles.css" rel="stylesheet"/>
+        <title>Dygram : Machine lang</title>
+    </head>
+    <body>
+        <div class="wrapper">
+            <div id="diagram"></div>
+            <!-- Monaco Root -->
+            <div id="monaco-editor-root"></div>
+        </div>
+        <!-- Monaco Configuration -->
+        <script type="module">
+            import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    
+            // Initialize mermaid with custom settings
+            mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'loose',
+                logLevel: 0,
+                htmlLabels: true
+            });
+    
+            // Function to toggle dark/light mode
+            window.toggleTheme = function() {
+                const isDark = document.body.classList.toggle('dark-theme');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                location.reload(); // Refresh to update the diagram
+            }
+    
+            // Function to download the diagram as SVG
+            window.downloadSVG = function() {
+                const svg = document.querySelector('#diagram svg');
+                const serializer = new XMLSerializer();
+                const source = serializer.serializeToString(svg);
+                const blob = new Blob([source], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tmpID_diagram.svg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+    
+            // Function to execute the machine
+            // window.executeMachineProgram = function() {
+            //     const machineData = ${machineJson};
+            //     const executor = new MachineExecutor(machineData);
+            //     const result = executor.execute();
+    
+            //     // Display execution results
+            //     const resultDiv = document.getElementById('executionResult');
+            //     resultDiv.innerHTML = '<h3>Execution Path:</h3>';
+            //     const pathList = document.createElement('ul');
+            //     result.history?.forEach(step => {
+            //         const li = document.createElement('li');
+            //         li.textContent = `${step.from} --(${step.transition})--> ${step.to}`;
+            //         pathList.appendChild(li);
+            //     });
+            //     resultDiv.appendChild(pathList);
+    
+            //     // Show the results section
+            //     document.getElementById('results').style.display = 'block';
+            // }
+    
+            // Function to download the diagram as PNG
+            window.downloadPNG = function() {
+                const svg = document.querySelector('#diagram svg');
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const loader = new Image();
+    
+                loader.onload = function() {
+                    canvas.width = loader.width;
+                    canvas.height = loader.height;
+                    ctx.drawImage(loader, 0, 0);
+                    const a = document.createElement('a');
+                    a.href = canvas.toDataURL('image/png');
+                    a.download = 'tempid_diagram.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+    
+                const serializer = new XMLSerializer();
+                const source = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serializer.serializeToString(svg));
+                loader.src = source;
+            }
+    
+            // Set initial theme
+            document.addEventListener('DOMContentLoaded', () => {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-theme');
+                }
+            });
+            
+            async function render (code) {
+                const uniqueId = "mermaid-svg-" + Date.now();
+                console.log(code);
+                let Diagram = window.Diagram = await mermaid.mermaidAPI.getDiagramFromText(code);
+                console.log(Diagram)
+                const svg = document.createElement('svg')
+                const render = await mermaid.render(uniqueId, code);
+                console.log("Render", render);
+                const container = document.querySelector('#diagram');
+                container.innerHTML = "";
+                container.appendChild(svg)
+                svg.outerHTML = render.svg
+                render.bindFunctions?.(container);
+            }
+
+            window.render = render;
+            console.log("Mermaid setup...", render)
+    
+        </script>
+        <script type="module">
+            // vite is used to resolve the included TypeScript files
+            import { configureMonacoWorkers } from '../src/setupCommon';
+            import { executeExtended } from '../src/setupExtended';
+
+            configureMonacoWorkers();
+            // keep a reference to a promise for when the editor is finished starting, we'll use this to setup the canvas on load
+            const startingPromise = executeExtended(document.getElementById('monaco-editor-root'));
+        </script>
+    </body>
+</html>

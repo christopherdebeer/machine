@@ -5,7 +5,7 @@ import { MachineLanguageMetaData } from '../language/generated/module.js';
 import { createMachineServices } from '../language/machine-module.js';
 import { extractAstNode, extractDocument, extractDestinationAndName } from './cli-util.js';
 import { MachineExecutor, type MachineData } from '../language/machine-executor.js';
-import { generateJSON, generateMermaid, generateHTML, FileGenerationResult } from './generator.js';
+import { generateJSON, generateMermaid, generateHTML, FileGenerationResult } from '../language/generator/generator.js';
 import { NodeFileSystem } from 'langium/node';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';

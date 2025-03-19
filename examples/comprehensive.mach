@@ -60,7 +60,7 @@ s2 -update: score;-> userData;
 s1 -if: 'userData.name == "start"';-> s2;
 
 // Chained transition combining multiple modifiers.
-s1 -> s2 -catch-> s3 -"if error unresolved, escalate"-> s4 s5 -timeout: 5000; logLevel: 0;-> s6;
+s1 -> s2 -catch-> s3 -"if error unresolved, escalate"-> s4, s5 -timeout: 5000; logLevel: 0;-> s6;
 
 // Event-driven transition: s2 transitions to s4 when event "eventComplete" occurs.
 s2 -on: eventComplete;-> s4;
@@ -82,10 +82,10 @@ s2 -update: score;-> userData;
 
 // parallel and map
 
-s1 s2 -> s3;
+s1, s2 -> s3;
 
 
-s3 -> s4 s5;
+s3 -> s4, s5;
 
 
-s1 s2 => s3 s4;
+s1, s2 => s3, s4;

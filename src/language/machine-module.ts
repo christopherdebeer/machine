@@ -4,6 +4,7 @@ import { MachineGeneratedModule, MachineGeneratedSharedModule } from './generate
 import { MachineValidator, MachineValidationRegistry } from './machine-validator.js';
 import { MachineScopeProvider } from './machine-scope.js';
 import { MachineSemanticTokenProvider } from './machine-semantic-token-provider.js';
+import { Node } from './generated/ast.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -12,6 +13,13 @@ export type MachineAddedServices = {
     validation: {
         MachineValidator: MachineValidator
     }
+}
+
+export interface Edge { source: string; value: Record<string, any>; target: string; }
+export interface MachineJSON {
+    title: string;
+    nodes: Node[];
+    edges: Edge[];
 }
 
 /**
