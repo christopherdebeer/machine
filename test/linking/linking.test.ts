@@ -3,18 +3,15 @@ import { EmptyFileSystem, type LangiumDocument } from "langium";
 import { expandToString as s } from "langium/generate";
 import { clearDocuments, parseHelper } from "langium/test";
 import { createMachineServices } from "../../src/language/machine-module.js";
-import { Model, isModel } from "../../src/language/generated/ast.js";
+import { Machine, isMachine } from "../../src/language/generated/ast.js";
 
 let services: ReturnType<typeof createMachineServices>;
-let parse:    ReturnType<typeof parseHelper<Model>>;
-let document: LangiumDocument<Model> | undefined;
+let parse:    ReturnType<typeof parseHelper<Machine>>;
+let document: LangiumDocument<Machine> | undefined;
 
 beforeAll(async () => {
     services = createMachineServices(EmptyFileSystem);
-    parse = parseHelper<Model>(services.Machine);
-
-    // activate the following if your linking test requires elements from a built-in library, for example
-    // await services.shared.workspace.WorkspaceManager.initializeWorkspace([]);
+    parse = parseHelper<Machine>(services.Machine);
 });
 
 afterEach(async () => {
@@ -23,31 +20,89 @@ afterEach(async () => {
 
 describe('Linking tests', () => {
 
-    test('linking of greetings', async () => {
+    test('linking of node references in edges', async () => {
         document = await parse(`
-            person Langium
-            Hello Langium!
+            machine "Test Machine"
+
+            State1;
+            State2;
+
+            State1 --> State2;
         `);
 
-        expect(
-            // here we first check for validity of the parsed document object by means of the reusable function
-            //  'checkDocumentValid()' to sort out (critical) typos first,
-            // and then evaluate the cross references we're interested in by checking
-            //  the referenced AST element as well as for a potential error message;
-            checkDocumentValid(document)
-                || document.parseResult.value.greetings.map(g => g.person.ref?.name || g.person.error?.message).join('\n')
-        ).toBe(s`
-            Langium
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
+        expect(machine.edges).toHaveLength(1);
+
+        const edge = machine.edges[0];
+        expect(edge.source?.ref?.name).toBe('State1');
+        expect(edge.segments[0].target.ref?.name).toBe('State2');
+    });
+
+    test('linking of non-existent nodes shows errors', async () => {
+        document = await parse(`
+            machine "Test Machine"
+
+            State1;
+            State1 --> NonExistentState;
         `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        // We expect validation errors for the non-existent state
+        expect(document.diagnostics?.some(d =>
+            d.message.includes('Reference to undefined state: NonExistentState')
+        )).toBe(true);
+    });
+
+    test('linking of nodes in nested structure', async () => {
+        document = await parse(`
+            machine "Test Machine"
+
+            Group1 {
+                State1;
+                State2;
+            };
+
+            State1 --> State2;
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
+        expect(machine.edges).toHaveLength(1);
+
+        const edge = machine.edges[0];
+        expect(edge.source?.ref?.name).toBe('State1');
+        expect(edge.segments[0].target.ref?.name).toBe('State2');
     });
 });
 
 function checkDocumentValid(document: LangiumDocument): string | undefined {
-    return document.parseResult.parserErrors.length && s`
-        Parser errors:
-          ${document.parseResult.parserErrors.map(e => e.message).join('\n  ')}
-    `
-        || document.parseResult.value === undefined && `ParseResult is 'undefined'.`
-        || !isModel(document.parseResult.value) && `Root AST object is a ${document.parseResult.value.$type}, expected a '${Model}'.`
-        || undefined;
+    if (document.parseResult.parserErrors.length > 0) {
+        return s`
+            Parser errors:
+              ${document.parseResult.parserErrors.map(e => e.message).join('\n  ')}
+        `;
+    }
+    if (document.parseResult.value === undefined) {
+        return `ParseResult is 'undefined'.`;
+    }
+    if (!isMachine(document.parseResult.value)) {
+        return `Root AST object is a ${document.parseResult.value.$type}, expected a 'Machine'.`;
+    }
+    return undefined;
 }

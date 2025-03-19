@@ -1,0 +1,23 @@
+machine "complex example"
+
+// States with attributes
+start {
+    initial: true;
+    timeout: 1000;
+};
+processing {
+    retry: 3;
+};
+error {
+    maxRetries: 3;
+};
+complete {
+    final: true;
+};
+
+// Transitions with labels
+start -- ready --> processing;
+processing -- success --> complete;
+processing -- failed --> error;
+error -- "retry < 3" --> start;
+error -- "retry >= 3" --> complete;

@@ -1,0 +1,12 @@
+machine "basic example"
+
+// Basic states
+main;
+init;
+processing;
+complete;
+
+// Basic transitions
+main --> init;
+init --> processing;
+processing --> complete;

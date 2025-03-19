@@ -3,53 +3,157 @@ import { EmptyFileSystem, type LangiumDocument } from "langium";
 import { expandToString as s } from "langium/generate";
 import { parseHelper } from "langium/test";
 import { createMachineServices } from "../../src/language/machine-module.js";
-import { Model, isModel } from "../../src/language/generated/ast.js";
+import { Machine, isMachine } from "../../src/language/generated/ast.js";
+import { MachineValidator } from "../../src/language/machine-validator.js";
 
 let services: ReturnType<typeof createMachineServices>;
-let parse:    ReturnType<typeof parseHelper<Model>>;
-let document: LangiumDocument<Model> | undefined;
+let parse: ReturnType<typeof parseHelper<Machine>>;
+let document: LangiumDocument<Machine> | undefined;
+let validator: MachineValidator;
 
 beforeAll(async () => {
     services = createMachineServices(EmptyFileSystem);
-    parse = parseHelper<Model>(services.Machine);
-
-    // activate the following if your linking test requires elements from a built-in library, for example
-    // await services.shared.workspace.WorkspaceManager.initializeWorkspace([]);
+    parse = parseHelper<Machine>(services.Machine);
+    validator = new MachineValidator();
 });
 
-describe('Parsing tests', () => {
-
-    test('parse simple model', async () => {
+describe('Basic syntax tests', () => {
+    test('parse simple machine', async () => {
         document = await parse(`
             machine "test machine"
-
             main;
             init;
-
             main --> init;
         `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
 
-        // check for absence of parser errors the classic way:
-        //  deactivated, find a much more human readable way below!
-        // expect(document.parseResult.parserErrors).toHaveLength(0);
-
-        expect(
-            // here we use a (tagged) template expression to create a human readable representation
-            //  of the AST part we are interested in and that is to be compared to our expectation;
-            // prior to the tagged template expression we check for validity of the parsed document object
-            //  by means of the reusable function 'checkDocumentValid()' to sort out (critical) typos first;
-            checkDocumentValid(document) || s`
-                Persons:
-                  ${document.parseResult.value?.persons?.map(p => p.name)?.join('\n  ')}
-                Greetings to:
-                  ${document.parseResult.value?.greetings?.map(g => g.person.$refText)?.join('\n  ')}
-            `
-        ).toBe(s`
-            Persons:
-              Langium
-            Greetings to:
-              Langium
+    test('parse machine with multiple states and transitions', async () => {
+        document = await parse(`
+            machine "multi state"
+            start;
+            middle;
+            end;
+            start --> middle;
+            middle --> end;
         `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+});
+
+describe('Complex feature tests', () => {
+    test('parse machine with node attributes', async () => {
+        document = await parse(`
+            machine "attribute test"
+            start {
+                initial: true;
+                timeout: 1000;
+            };
+            end {
+                final: true;
+            };
+            start --> end;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse machine with labeled transitions', async () => {
+        document = await parse(`
+            machine "labeled test"
+            start;
+            success;
+            error;
+            start -- valid --> success;
+            start -- invalid --> error;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+});
+
+describe('Edge case tests', () => {
+    test('parse empty machine', async () => {
+        document = await parse('machine "empty"');
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse single state machine', async () => {
+        document = await parse(`
+            machine "singleton"
+            alone;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse self-referential machine', async () => {
+        document = await parse(`
+            machine "self ref"
+            loop;
+            loop --> loop;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse machine with whitespace variations', async () => {
+        document = await parse(`
+            machine    "whitespace"
+                state1    ;
+                state2;
+                state1    -->     state2;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+});
+
+describe('Error case tests', () => {
+    test('detect missing machine name', async () => {
+        document = await parse('machine;');
+        expect(checkDocumentValid(document)).toBeDefined();
+    });
+
+    test('detect invalid state reference', async () => {
+        document = await parse(`
+            machine "invalid ref"
+            start;
+            start --> nonexistent;
+        `);
+        const errors: any[] = [];
+        const accept = (severity: string, message: string, options: any) => {
+            errors.push({ severity, message, options });
+        };
+        validator.checkInvalidStateReferences(
+            document.parseResult.value as Machine,
+            accept
+        );
+        expect(errors.length).toBeGreaterThan(0);
+        expect(errors.some(e => e.message.includes('undefined state'))).toBe(true);
+    });
+
+    test('detect duplicate state definitions', async () => {
+        document = await parse(`
+            machine "duplicates"
+            state;
+            state;
+        `);
+        const errors: any[] = [];
+        const  accept = (severity: string, message: string, options: any) => {
+            errors.push({ severity, message, options });
+        };
+        validator.checkDuplicateStates(
+            document.parseResult.value as Machine,
+            accept
+        );
+        expect(errors.length).toBeGreaterThan(0);
+        expect(errors.some(e => e.message.includes('Duplicate state'))).toBe(true);
+    });
+
+    test('detect invalid transition syntax', async () => {
+        document = await parse(`
+            machine "bad syntax"
+            start;
+            end;
+            start ->-> end;
+        `);
+        expect(checkDocumentValid(document)).toBeDefined();
     });
 });
 
@@ -59,6 +163,6 @@ function checkDocumentValid(document: LangiumDocument): string | undefined {
           ${document.parseResult.parserErrors.map(e => e.message).join('\n  ')}
     `
         || document.parseResult.value === undefined && `ParseResult is 'undefined'.`
-        || !isModel(document.parseResult.value) && `Root AST object is a ${document.parseResult.value.$type}, expected a '${Model}'.`
+        || !isMachine(document.parseResult.value) && `Root AST object is a ${document.parseResult.value.$type}, expected a 'Machine'.`
         || undefined;
 }

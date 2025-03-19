@@ -1,7 +1,7 @@
 import { type Module, inject } from 'langium';
 import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
 import { MachineGeneratedModule, MachineGeneratedSharedModule } from './generated/module.js';
-import { MachineValidator, registerValidationChecks } from './machine-validator.js';
+import { MachineValidator, MachineValidationRegistry } from './machine-validator.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -25,6 +25,7 @@ export type MachineServices = LangiumServices & MachineAddedServices
  */
 export const MachineModule: Module<MachineServices, PartialLangiumServices & MachineAddedServices> = {
     validation: {
+        ValidationRegistry: (services) => new MachineValidationRegistry(services),
         MachineValidator: () => new MachineValidator()
     }
 };
@@ -58,7 +59,7 @@ export function createMachineServices(context: DefaultSharedModuleContext): {
         MachineModule
     );
     shared.ServiceRegistry.register(Machine);
-    registerValidationChecks(Machine);
+
     if (!context.connection) {
         // We don't run inside a language server
         // Therefore, initialize the configuration provider instantly

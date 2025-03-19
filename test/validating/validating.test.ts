@@ -4,61 +4,111 @@ import { expandToString as s } from "langium/generate";
 import { parseHelper } from "langium/test";
 import type { Diagnostic } from "vscode-languageserver-types";
 import { createMachineServices } from "../../src/language/machine-module.js";
-import { Model, isModel } from "../../src/language/generated/ast.js";
+import { Machine, isMachine } from "../../src/language/generated/ast.js";
 
 let services: ReturnType<typeof createMachineServices>;
-let parse:    ReturnType<typeof parseHelper<Model>>;
-let document: LangiumDocument<Model> | undefined;
+let parse:    ReturnType<typeof parseHelper<Machine>>;
+let document: LangiumDocument<Machine> | undefined;
 
 beforeAll(async () => {
     services = createMachineServices(EmptyFileSystem);
-    const doParse = parseHelper<Model>(services.Machine);
+    const doParse = parseHelper<Machine>(services.Machine);
     parse = (input: string) => doParse(input, { validation: true });
-
-    // activate the following if your linking test requires elements from a built-in library, for example
-    // await services.shared.workspace.WorkspaceManager.initializeWorkspace([]);
 });
 
 describe('Validating', () => {
   
-    test('check no errors', async () => {
+    test('check valid machine has no errors', async () => {
         document = await parse(`
-            person Langium
+            machine "Test Machine"
+
+            State1;
+            State2;
+
+            State1 --> State2;
         `);
 
-        expect(
-            // here we first check for validity of the parsed document object by means of the reusable function
-            //  'checkDocumentValid()' to sort out (critical) typos first,
-            // and then evaluate the diagnostics by converting them into human readable strings;
-            // note that 'toHaveLength()' works for arrays and strings alike ;-)
-            checkDocumentValid(document) || document?.diagnostics?.map(diagnosticToString)?.join('\n')
-        ).toHaveLength(0);
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        expect(document.diagnostics?.length || 0).toBe(0);
     });
 
-    test('check capital letter validation', async () => {
+    test('check machine title is required', async () => {
         document = await parse(`
-            person langium
+            machine ""
+
+            State1;
+            State2;
         `);
 
-        expect(
-            checkDocumentValid(document) || document?.diagnostics?.map(diagnosticToString)?.join('\n')
-        ).toEqual(
-            // 'expect.stringContaining()' makes our test robust against future additions of further validation rules
-            expect.stringContaining(s`
-                [1:19..1:26]: Person name should start with a capital.
-            `)
-        );
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        expect(document.diagnostics?.some(d =>
+            d.message.includes('Machine must have a title')
+        )).toBe(true);
+    });
+
+    test('check duplicate state names are detected', async () => {
+        document = await parse(`
+            machine "Test Machine"
+
+            State1;
+            State1;  // Duplicate
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        expect(document.diagnostics?.some(d =>
+            d.message.includes('Duplicate state name: State1')
+        )).toBe(true);
+    });
+
+    test('check invalid state references in edges', async () => {
+        document = await parse(`
+            machine "Test Machine"
+
+            State1;
+            State1 --> NonExistentState;
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        expect(document.diagnostics?.some(d =>
+            d.message.includes('Reference to undefined state: NonExistentState')
+        )).toBe(true);
     });
 });
 
 function checkDocumentValid(document: LangiumDocument): string | undefined {
-    return document.parseResult.parserErrors.length && s`
-        Parser errors:
-          ${document.parseResult.parserErrors.map(e => e.message).join('\n  ')}
-    `
-        || document.parseResult.value === undefined && `ParseResult is 'undefined'.`
-        || !isModel(document.parseResult.value) && `Root AST object is a ${document.parseResult.value.$type}, expected a '${Model}'.`
-        || undefined;
+    if (document.parseResult.parserErrors.length > 0) {
+        return s`
+            Parser errors:
+              ${document.parseResult.parserErrors.map(e => e.message).join('\n  ')}
+        `;
+    }
+    if (document.parseResult.value === undefined) {
+        return `ParseResult is 'undefined'.`;
+    }
+    if (!isMachine(document.parseResult.value)) {
+        return `Root AST object is a ${document.parseResult.value.$type}, expected a 'Machine'.`;
+    }
+    return undefined;
 }
 
 function diagnosticToString(d: Diagnostic) {
