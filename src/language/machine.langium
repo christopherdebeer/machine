@@ -47,8 +47,18 @@ Node<isRoot>:
     '}' | ';')
 ;
 
+
+EdgeAttributeValue returns string: EXTID|STRING|ID|INT;
+
+EdgeAttribute:
+    name=ID ':' (value=EdgeAttributeValue)? ';'
+;
+
 EdgeLabel:
-    value=Attribute | STRING | ID;
+    value=STRING | ID;
+
+EdgeType:
+    (value=STRING | ID) | value+=EdgeAttribute+;
 
 EdgeSegment:
     (
@@ -56,13 +66,13 @@ EdgeSegment:
         endType=BIDIRECTIONAL_ARROW |
         endType=BIDIRECTIONAL_LABELED |
         // Double dash arrows
-        (startType=ARROW_LABEL_START_DOUBLE label=EdgeLabel endType=ARROW_DOUBLE) |
+        (startType=ARROW_LABEL_START_DOUBLE label=EdgeType endType=ARROW_DOUBLE) |
         endType=ARROW_DOUBLE |
         // Fat arrows
-        (startType=FAT_ARROW_LABEL_START label=EdgeLabel endType=FAT_ARROW) |
+        (startType=FAT_ARROW_LABEL_START label=EdgeType endType=FAT_ARROW) |
         endType=FAT_ARROW |
         // Single dash arrows
-        (startType=ARROW_LABEL_START_SINGLE label=EdgeLabel endType=ARROW_SINGLE) |
+        (startType=ARROW_LABEL_START_SINGLE label=EdgeType endType=ARROW_SINGLE) |
         endType=ARROW_SINGLE
     )
     target+=[Node:ID]+

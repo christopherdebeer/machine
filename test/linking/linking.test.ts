@@ -40,8 +40,8 @@ describe('Linking tests', () => {
         expect(machine.edges).toHaveLength(1);
 
         const edge = machine.edges[0];
-        expect(edge.source?.ref?.name).toBe('State1');
-        expect(edge.segments[0].target.ref?.name).toBe('State2');
+        expect(edge.source?.[0].ref?.name).toBe('State1');
+        expect(edge.segments[0].target[0].ref?.name).toBe('State2');
     });
 
     test.skip('linking of non-existent nodes shows errors', async () => {
@@ -86,8 +86,8 @@ describe('Linking tests', () => {
         expect(machine.edges).toHaveLength(1);
 
         const edge = machine.edges[0];
-        expect(edge.source?.ref?.name).toBe('State1');
-        expect(edge.segments[0].target.ref?.name).toBe('State2');
+        expect(edge.source[0].ref?.name).toBe('State1');
+        expect(edge.segments[0].target[0].ref?.name).toBe('State2');
     });
 });
 

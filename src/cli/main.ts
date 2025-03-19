@@ -21,6 +21,7 @@ type GenerateFormat = 'json' | 'mermaid' | 'html';
 interface GenerateOptions {
     destination?: string;
     format?: string;
+    debug?: boolean;
 }
 
 const VALID_FORMATS: GenerateFormat[] = ['json', 'mermaid', 'html'];
@@ -50,7 +51,7 @@ function parseFormats(formatStr?: string): GenerateFormat[] {
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     const services = createMachineServices(NodeFileSystem).Machine;
     const model = await extractAstNode<Machine>(fileName, services);
-    // await generateSerialized(fileName, opts);
+    if (opts.debug) await generateSerialized(fileName, opts);
 
     const formats = parseFormats(opts.format);
     const results: string[] = [];
@@ -104,8 +105,6 @@ export const generateSerialized = async (file: string, opts: SerialiseOptions): 
         const generatedFilePath = `${path.join(opts.destination || path.dirname(file), path.basename(file, path.extname(file)))}-raw.json`;
         await fs.writeFile(generatedFilePath, json);
         console.log(chalk.green(`Output generated successfully: ${generatedFilePath}`));
-    } else {
-        console.log(json);
     }
 }
 
@@ -200,6 +199,7 @@ function initializeCLI(): Promise<void> {
                     .aliases(['g'])
                     .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
                     .option('-d, --destination <dir>', 'destination directory for generated files')
+                    .option('--debug', 'debug output raw ast', false)
                     .option('-f, --format <formats>',
                         'comma-separated list of output formats (json,mermaid,html). Default: json',
                         'json')

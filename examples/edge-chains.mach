@@ -4,4 +4,6 @@ state1;
 state2;
 state3;
 
+state1 -> state3;
 state1 --> state2 -- "labels in chains" --> state3;
+state3 -catch: "womp womp";-> state1;

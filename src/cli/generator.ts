@@ -1,4 +1,4 @@
-import type { Attribute, Machine, Node } from '../language/generated/ast.js';
+import type { Attribute, EdgeAttribute, EdgeType, Machine, Node } from '../language/generated/ast.js';
 import { expandToNode, joinToNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -83,7 +83,7 @@ class JSONGenerator extends BaseGenerator {
     ${joinToNode(this.machine.edges, edge => {
         interface ChainEdge {
             source: string | undefined;
-            label: string | undefined;
+            label?: EdgeType;
             target: string | undefined;
         }
         const edges: ChainEdge[] = [];
@@ -98,14 +98,28 @@ class JSONGenerator extends BaseGenerator {
                 targets.forEach(target => {
                     edges.push({
                         source: source,
-                        label: segment.label?.toString(),
+                        label: segment.label,
                         target: target
                     });
                 });
             });
             currentSources = targets; // Update sources for next segment
         });
-        return joinToNode(edges.filter(e => e.source && e.target), e => `{"source": "${e.source}"${e.label ? `, "type": "${e.label}"` : ''}, "target": "${e.target}"}`, {
+        return joinToNode(edges.filter(e => e.source && e.target), e => {
+            let type = 'string';
+            let value : string | any = e.label?.value;
+            
+            if (typeof value === 'object') {
+                value = value.reduce((acc : Record<string, any>, curr : EdgeAttribute) => {
+                    acc[curr.name] = curr.value;
+                    return acc;
+                }, {});
+            }
+
+            console.log(`Edge from ${e.source} to ${e.target} has type and value:`, {type, value: value})
+
+            return `{"source": "${e.source}"${type ? `, "type": "${type}"` : ''}${value ? `, "value": ${JSON.stringify(value)}` : ''}, "target": "${e.target}"}`;
+        }, {
             separator: ',',
             appendNewLineIfNotEmpty: true,
             skipNewLineAfterLastItem: true
