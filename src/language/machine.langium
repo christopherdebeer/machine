@@ -35,15 +35,17 @@ entry Machine:
 AttributeValue returns string: EXTID|STRING|ID|INT;
 
 Attribute:
-    name=ID ('<' type=ID '>')? ':' (value=AttributeValue)? ';'
+    name=ID ('<' type=ID '>')? (':' value=AttributeValue)? ';'
 ;
 
 Node<isRoot>:
     (<isRoot> type=ID)? 
     name=ID 
+    (title=STRING)?
     ('{' 
-        nodes+=(Node<false>)*
         attributes+=Attribute*
+        (nodes+=Node<false>)*
+        (edges+=Edge<false>)*
     '}' | ';')
 ;
 
@@ -51,11 +53,8 @@ Node<isRoot>:
 EdgeAttributeValue returns string: EXTID|STRING|ID|INT;
 
 EdgeAttribute:
-    name=ID ':' (value=EdgeAttributeValue)? ';'
+    name=ID (':' value=EdgeAttributeValue)? ';'?
 ;
-
-EdgeLabel:
-    value=STRING | ID;
 
 EdgeType:
     (value=STRING | ID) | value+=EdgeAttribute+;
@@ -66,18 +65,18 @@ EdgeSegment:
         endType=BIDIRECTIONAL_ARROW |
         endType=BIDIRECTIONAL_LABELED |
         // Double dash arrows
-        (startType=ARROW_LABEL_START_DOUBLE label=EdgeType endType=ARROW_DOUBLE) |
+        (startType=ARROW_LABEL_START_DOUBLE (label+=EdgeType (',' label+=EdgeType)*)? endType=ARROW_DOUBLE) |
         endType=ARROW_DOUBLE |
         // Fat arrows
-        (startType=FAT_ARROW_LABEL_START label=EdgeType endType=FAT_ARROW) |
+        (startType=FAT_ARROW_LABEL_START (label+=EdgeType (',' label+=EdgeType)*)? endType=FAT_ARROW) |
         endType=FAT_ARROW |
         // Single dash arrows
-        (startType=ARROW_LABEL_START_SINGLE label=EdgeType endType=ARROW_SINGLE) |
+        (startType=ARROW_LABEL_START_SINGLE (label+=EdgeType (',' label+=EdgeType)*)? endType=ARROW_SINGLE) |
         endType=ARROW_SINGLE
     )
-    target+=[Node:ID]+
+    (target+=[Node:ID] (',' target+=[Node:ID])*)
 ;
 
 Edge<isRoot>:
-    (<isRoot> source+=[Node:ID]+)
+    (<isRoot> (source+=[Node:ID] (',' source+=[Node:ID])*)?)
     segments+=EdgeSegment+ ';';

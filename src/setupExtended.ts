@@ -12,7 +12,30 @@ export const setupConfigExtended = (): UserConfig => {
             editorAppConfig: {
                 $type: 'extended',
                 languageId: 'machine',
-                code: `// Machine is running in the web!`,
+                code: `// Machine is running in the web!
+machine "Example machine, with various nodes"
+
+state init;
+state s1;
+state s2;
+tool validator;
+
+context input {
+  query<string>;
+}
+
+context data {
+  meta<any>;
+}
+
+init -reads: query-> data;
+init -"Use validator tool to vaidate query"-> validator;
+init -"Once valid", writes: meta-> data;
+init -then-> s1;
+s1 -reads: meta-> data;
+s1 -finailise-> s2;
+s1 -catch-> init;
+`,
                 useDiffEditor: false,
                 extensions: [{
                     config: {

@@ -1,4 +1,4 @@
-import type { Attribute, EdgeAttribute, EdgeType, Machine, Node } from '../language/generated/ast.js';
+import type { Attribute, EdgeType, Machine, Node } from '../language/generated/ast.js';
 import { expandToNode, joinToNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -60,6 +60,11 @@ class JSONGenerator extends BaseGenerator {
     protected fileExtension = 'json';
 
     protected generateContent(): FileGenerationResult {
+
+        // TODO: Instead of manually constructing JSON by string building
+        // simply iterate over the AST at this.machine and create a javscript object that
+        // can be serialised with JSON.stringify (ie no circular references)
+
         const fileNode = expandToNode`{
   "title": "${this.machine.title}",
   "nodes": [
@@ -83,7 +88,7 @@ class JSONGenerator extends BaseGenerator {
     ${joinToNode(this.machine.edges, edge => {
         interface ChainEdge {
             source: string | undefined;
-            label?: EdgeType;
+            label?: EdgeType[];
             target: string | undefined;
         }
         const edges: ChainEdge[] = [];
@@ -107,18 +112,21 @@ class JSONGenerator extends BaseGenerator {
         });
         return joinToNode(edges.filter(e => e.source && e.target), e => {
             let type = 'string';
-            let value : string | any = e.label?.value;
-            
-            if (typeof value === 'object') {
-                value = value.reduce((acc : Record<string, any>, curr : EdgeAttribute) => {
-                    acc[curr.name] = curr.value;
-                    return acc;
-                }, {});
-            }
+            let val : Record<string, any> = {};
+            let value : EdgeType[] | undefined = e.label;
 
-            console.log(`Edge from ${e.source} to ${e.target} has type and value:`, {type, value: value})
 
-            return `{"source": "${e.source}"${type ? `, "type": "${type}"` : ''}${value ? `, "value": ${JSON.stringify(value)}` : ''}, "target": "${e.target}"}`;
+            value?.map( (el : EdgeType) => {
+                if (typeof el.value === 'string') {
+                    val.text = el.value;
+                } else if (typeof value === 'object') {
+                    val = el.value?.reduce((acc : Record<string, any>, curr) => {
+                        acc[curr.name] = curr.value;
+                        return acc;
+                    }, val);
+                }
+            })
+            return `{"source": "${e.source}"${type ? `, "type": "${type}"` : ''}${val ? `, "value": ${JSON.stringify(val)}` : ''}, "target": "${e.target}"}`;
         }, {
             separator: ',',
             appendNewLineIfNotEmpty: true,
@@ -135,6 +143,7 @@ class JSONGenerator extends BaseGenerator {
         return {
             filePath: this.filePath,
             content: toString(fileNode)
+            // content: JSON.stringify(json, null, 2)
         };
     }
 }
