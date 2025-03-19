@@ -4,10 +4,13 @@ init {
     query: "string";
 };
 analyse;
-tool feedback;
+tool feedback {
+    retry<int>: 4;
+};
 complete;
 tool another;
 
 init --> analyse;
+analyse -- next --> another;
 analyse --> feedback;
 feedback --> complete;

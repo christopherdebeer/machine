@@ -224,7 +224,7 @@ classDiagram-v2
                     : '';
 
                 return `${indent}  ${header} {
-${indent}    ${node.type ? `<<${node.type}>>` : ''}${attributeLines ? '\\n' + indent + '    ' + attributeLines : ''}
+${indent}    ${node.type ? `<<${node.type}>>` : ''}${attributeLines ? '\n' + indent + '    ' + attributeLines : ''}
 ${indent}  }`;
             }, {
                 separator: '\n',
