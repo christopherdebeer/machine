@@ -48,19 +48,19 @@ s1 -> s2;
 s2 -"natural language label"-> s3;
 
 // Context edge: Read user name from userData during transition.
-s1 -read: userData.name-> s2 ;
+s1 -read: userData;-> s2 ;
 
 // Transition with explicit error handling (retry up to 3 times).
-s2 -catch: retry(3);-> s3;
+s2 -catch: retry;-> s3;
 
 // Context edge: Update the user's score during a transition.
-s2 -update: score-> userData;
+s2 -update: score;-> userData;
 
 // Conditional transition: Only if userData.name equals "start".
-s1 -if: (userData.name == "start")-> s2;
+s1 -if: 'userData.name == "start"';-> s2;
 
 // Chained transition combining multiple modifiers.
-s1 -> s2 -catch: retry(3);-> s3 -"if error unresolved, escalate"-> s4, s5 -timeout: 5000; logLevel: 0;-> s6;
+s1 -> s2 -catch-> s3 -"if error unresolved, escalate"-> s4, s5 -timeout: 5000; logLevel: 0;-> s6;
 
 // Event-driven transition: s2 transitions to s4 when event "eventComplete" occurs.
 s2 -on: eventComplete;-> s4;
@@ -70,11 +70,22 @@ s4 -weight: 0.7;-> s6;
 s4 -weight: 0.3;-> s3;
 
 // Data transformation edge: Apply a function to transform data during the transition.
-s5 -transform: (x => x * 2);-> s6;
+s5 -transform: '(x => x * 2)';-> s6;
 
 // Asynchronous transition: s2 triggers s4 via an external event.
 s2 => s4;
 
 // Context edges: Explicitly read from and update context nodes.
-s2 -read: name-> userData;
-s2 -update: score-> userData;
+s2 -read: name;-> userData;
+s2 -update: score;-> userData;
+
+
+// parallel and map
+
+s1 s2 -> s3;
+
+
+s3 -> s4 s5;
+
+
+s1 s2 => s3 s4;

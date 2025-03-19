@@ -138,10 +138,10 @@ describe('Complex feature tests', () => {
             start {
                 initial: true;
                 timeout: 1000;
-            };
+            }
             end {
                 final: true;
-            };
+            }
             start => end;
         `);
         expect(checkDocumentValid(document)).toBeUndefined();
@@ -152,16 +152,16 @@ describe('Complex feature tests', () => {
             machine "complete test"
             start {
                 initial: true;
-            };
+            }
             process {
                 timeout: 500;
-            };
+            }
             sync {
                 type: "async";
-            };
+            }
             end {
                 final: true;
-            };
+            }
             start -begin-> process;
             process --work--> sync;
             sync =compute=> end;
@@ -258,6 +258,131 @@ describe('Error case tests', () => {
             start ==> end;
         `);
         expect(checkDocumentValid(document)).toBeDefined();
+    });
+});
+
+describe('Context and advanced features from examples', () => {
+    test('parse context node definition', async () => {
+        document = await parse(`
+            machine "context test"
+            context userData {
+                name<string>: "defaultUser";
+                score<number>: 0;
+            }
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse init state definition', async () => {
+        document = await parse(`
+            machine "init state test"
+            init s1 {
+                // Initial state
+            }
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse task state definition', async () => {
+        document = await parse(`
+            machine "task state test"
+            task s2 {
+                // Task state
+            }
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse transition with natural language label', async () => {
+        document = await parse(`
+            machine "natural language label test"
+            s1;
+            s2;
+            s1 -"natural language label"-> s2;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse context read transition', async () => {
+        document = await parse(`
+            machine "context read test"
+            context userData {
+                name<string>: "defaultUser";
+            }
+            s1;
+            s2;
+            s1 -read: 'userData.name';-> s2;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse transition with retry catch', async () => {
+        document = await parse(`
+            machine "retry catch test"
+            s1;
+            s2;
+            s1 -catch: 'retry(3)';-> s2;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse conditional transition', async () => {
+        document = await parse(`
+            machine "conditional test"
+            context userData {
+                name<string>: "start";
+            }
+            s1;
+            s2;
+            s1 -if: '(userData.name == "start")';-> s2;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse event-driven transition', async () => {
+        document = await parse(`
+            machine "event test"
+            s1;
+            s2;
+            s1 -on: eventComplete;-> s2;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse weighted transitions', async () => {
+        document = await parse(`
+            machine "weighted test"
+            s1;
+            s2;
+            s3;
+            s1 -weight: 0.7;-> s2;
+            s1 -weight: 0.3;-> s3;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse data transformation transition', async () => {
+        document = await parse(`
+            machine "transform test"
+            s1;
+            s2;
+            s1 -transform: '(x => x * 2)';-> s2;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
+    test('parse complex chained transition', async () => {
+        document = await parse(`
+            machine "chain test"
+            s1;
+            s2;
+            s3;
+            s4;
+            s5;
+            s6;
+            s1 -> s2 -catch: 'retry(3)';-> s3 -"if error unresolved, escalate"-> s4, s5 -timeout: 5000; logLevel: 0;-> s6;
+        `);
+        expect(checkDocumentValid(document)).toBeUndefined();
     });
 });
 

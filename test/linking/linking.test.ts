@@ -71,7 +71,7 @@ describe('Linking tests', () => {
             Group1 {
                 State1;
                 State2;
-            };
+            }
 
             State1 --> State2;
         `);

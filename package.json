@@ -1,7 +1,7 @@
 {
     "name": "machine-lang",
     "description": "Dynamic state machine prototyping language",
-    "version": "0.0.17",
+    "version": "0.0.21",
     "files": [
         "bin",
         "out",
