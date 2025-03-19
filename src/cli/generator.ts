@@ -283,6 +283,10 @@ class HTMLGenerator extends BaseGenerator {
 
     protected generateContent(): FileGenerationResult {
         const mermaidGen = new MermaidGenerator(this.machine, this.filePath, this.options);
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonPath = jsonGen.generate();
+        const jsonContent = fs.readFileSync(jsonPath, 'utf8');
+        const machineJson = jsonContent;
         const mermaidDefinition = escapeHTML(mermaidGen.getMermaidDefinition());
 
         const fileNode = expandToNode`<!DOCTYPE html>
@@ -328,7 +332,7 @@ class HTMLGenerator extends BaseGenerator {
 
         // Function to execute the machine
         window.executeMachineProgram = function() {
-            const machineData = ${JSON.stringify(this.machine)};
+            const machineData = ${machineJson};
             const executor = new MachineExecutor(machineData);
             const result = executor.execute();
 
