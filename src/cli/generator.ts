@@ -132,11 +132,8 @@ class JSONGenerator extends BaseGenerator {
         if (!labels || labels.length === 0) {
             return undefined;
         };
-
         const value: Record<string, any> = {};
-
         labels.forEach((label, idx) => {
-            console.log(`label ${idx}: `, label.$type, label.value.map( lv => lv))
             label.value.forEach(attr => {
                 if (!attr.name && attr.text) {
                     value['text'] = attr.text;
@@ -311,7 +308,6 @@ ${indent}}`);
         const result = joinToNode(edges, edge => {
             let labelJSON = ``;
             Object.keys(edge.value || {}).forEach((key, idx) => {
-                console.log(idx, `"${key}"`, edge.value[key])
                 if (key === 'text') {
                     labelJSON += `${edge.value[key]}`;
                 } else {

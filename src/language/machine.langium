@@ -22,15 +22,30 @@ terminal FAT_ARROW_LABEL_START: '=';
 terminal ARROW_SINGLE: '->';
 terminal ARROW_LABEL_START_SINGLE: '-';
 
-STRING returns string: STR | MLSTR;
+// Arrow terminals - ordered from most specific to least specific
 
+terminal SHAFT_THIN: '-';
+terminal SHAFT_THICK: '=';
+terminal SHAFT_DOT: '.';
+
+terminal LEFT_ARROW: '<';
+terminal RIGHT_ARROW: '>';
+terminal LOLIPOP: '()';
+
+terminal SHAFT:
+    (SHAFT_THIN | SHAFT_THICK | SHAFT_DOT)+
+;
+
+ArrowHead:
+    left?=(LEFT_ARROW | LOLIPOP) SHAFT+ right?=(RIGHT_ARROW | LOLIPOP)
+;
+
+STRING returns string: STR | MLSTR;
 
 entry Machine:
     'machine' title=STRING
-    (nodes+=Node<true>)*
-    (edges+=Edge<true>)*
+    (nodes+=Node<true> | edges+=Edge<true>)*
 ;
-
 
 AttributeValue returns string: EXTID|STRING|ID|INT;
 
@@ -42,13 +57,10 @@ Node<isRoot>:
     (<isRoot> type=ID)? 
     name=ID 
     (title=STRING)?
-    ('{' 
-        attributes+=Attribute*
-        (nodes+=Node<false>)*
-        (edges+=Edge<false>)*
-    '}' | ';')
+    (('{'
+        (nodes+=Node<true> | edges+=Edge<true> | attributes+=Attribute)*
+    '}' ';'?) | ';')
 ;
-
 
 EdgeAttributeValue returns string: EXTID|STRING|ID|INT;
 
@@ -77,6 +89,7 @@ EdgeSegment:
     )
     (target+=[Node:ID] (',' target+=[Node:ID])*)
 ;
+
 
 Edge<isRoot>:
     (<isRoot> (source+=[Node:ID] (',' source+=[Node:ID])*)?)
