@@ -6,6 +6,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig(() => {
     const config = {
+        base: '/machine/',
         build: {
             target: 'esnext',
             rollupOptions: {
