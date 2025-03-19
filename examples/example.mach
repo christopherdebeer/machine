@@ -1,61 +1,17 @@
-machine "CrX rewire"
+machine "Example"
 
+init;
+analyse;
+feedback;
+complete;
 
-System DSP_API;
-System TUFF;
-
-Product 1PVideoCreativeApplet;
-Product PauseAdsApplet;
-Product 3PVideoCreativeApplet;
-Product Y;
-
-
-System Orion;
-LegacySystem Kapow;
-
-
-LegacySystem Hugh;
-LegacySystem Oakridge;
-
-MFE CreativeEdit;
-MFE CreativePreview;
-MFE X;
-
-
-System Cornerstone;
-System Tenor;
-System CMaaS;
-System AAX {
-    test: "3e22";
-};
-
-DSP_API --> TUFF;
-TUFF --> 1PVideoCreativeApplet;
-TUFF --> PauseAdsApplet;
-TUFF --> 3PVideoCreativeApplet;
-TUFF --> Y;
-
-
-Orion --> DSP_API;
-Kapow --> TUFF;
-
-
-Hugh --> CMaaS;
-
-Oakridge --> Tenor;
-Kapow --> Hugh;
-TUFF --> CMaaS;
-CMaaS --> Cornerstone;
-
-AAX --> Cornerstone;
-Cornerstone --> Tenor;
-
-Tenor -- Render --> Y;
-Tenor -- Render --> 1PVideoCreativeApplet;
-Tenor -- Render --> PauseAdsApplet;
-Tenor -- Render --> 3PVideoCreativeApplet;
+init --> analyse;
+analyse --> feedback;
+feedback --> complete;
 
 
 
+feedback .. dotted ..> analyse;
 
+analyse == thick ==> complete;
 

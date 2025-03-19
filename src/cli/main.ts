@@ -14,30 +14,74 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 const packagePath = path.resolve(__dirname, '..', '..', 'package.json');
 const packageContent = await fs.readFile(packagePath, 'utf-8');
 
+type GenerateFormat = 'json' | 'mermaid' | 'html';
+
+interface GenerateOptions {
+    destination?: string;
+    format?: string;
+}
+
+const VALID_FORMATS: GenerateFormat[] = ['json', 'mermaid', 'html'];
+
+function isValidFormat(format: string): format is GenerateFormat {
+    return VALID_FORMATS.includes(format as GenerateFormat);
+}
+
+function parseFormats(formatStr?: string): GenerateFormat[] {
+    if (!formatStr) {
+        return ['json']; // Default to JSON only
+    }
+
+    const formats = formatStr.toLowerCase().split(',')
+        .map(f => f.trim())
+        .filter((f): f is GenerateFormat => {
+            const valid = isValidFormat(f);
+            if (!valid) {
+                console.log(chalk.yellow(`Warning: Ignoring invalid format '${f}'. Valid formats are: ${VALID_FORMATS.join(', ')}`));
+            }
+            return valid;
+        });
+
+    return formats.length > 0 ? formats : ['json'];
+}
+
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     const services = createMachineServices(NodeFileSystem).Machine;
     const model = await extractAstNode<Machine>(fileName, services);
-    await generateSerialized(fileName, opts)
-    const generatedFilePath = generateJSON(model, fileName, opts.destination);
-    console.log(chalk.green(`Output generated successfully: ${generatedFilePath}`));
+    await generateSerialized(fileName, opts);
+
+    const formats = parseFormats(opts.format);
+    const results: string[] = [];
+
+    for (const format of formats) {
+        try {
+            let generatedFilePath: string;
+            switch (format) {
+                case 'json':
+                    generatedFilePath = generateJSON(model, fileName, opts.destination);
+                    break;
+                case 'mermaid':
+                    generatedFilePath = generateMermaid(model, fileName, opts.destination);
+                    break;
+                case 'html':
+                    generatedFilePath = generateHTML(model, fileName, opts.destination);
+                    break;
+            }
+            results.push(chalk.green(`Generated ${format.toUpperCase()}: ${generatedFilePath}`));
+        } catch (error) {
+            results.push(chalk.red(`Failed to generate ${format.toUpperCase()}: ${error instanceof Error ? error.message : String(error)}`));
+        }
+    }
+
+    // Print all results together
+    console.log('\nGeneration Results:');
+    results.forEach(result => console.log(result));
+
+    // If HTML was generated, show the tip
+    if (formats.includes('html')) {
+        console.log(chalk.blue('\nTip: Open the HTML file in a browser to view the interactive diagram'));
+    }
 };
-
-export const generateMermaidAction = async (file: string, opts: GenerateOptions): Promise<void> => {
-    const services = createMachineServices(NodeFileSystem).Machine;
-    const model = await extractAstNode<Machine>(file, services);
-    await generateSerialized(file, opts)
-    const generatedFilePath = generateMermaid(model, file, opts.destination);
-    console.log(chalk.green(`Output generated successfully: ${generatedFilePath}`));
-}
-
-export const generateHTMLAction = async (file: string, opts: GenerateOptions): Promise<void> => {
-    const services = createMachineServices(NodeFileSystem).Machine;
-    const model = await extractAstNode<Machine>(file, services);
-    await generateSerialized(file, opts)
-    const generatedFilePath = generateHTML(model, file, opts.destination);
-    console.log(chalk.green(`Output generated successfully: ${generatedFilePath}`));
-    console.log(chalk.blue('Tip: Open the HTML file in a browser to view the interactive diagram'));
-}
 
 export const generateSerialized = async (file: string, opts: SerialiseOptions): Promise<void> => {
     const services = createMachineServices(NodeFileSystem).Machine;
@@ -55,17 +99,12 @@ export const generateSerialized = async (file: string, opts: SerialiseOptions): 
     } else {
         console.log(json);
     }
-    
 }
 
 export type SerialiseOptions = {
     destination?: string;
     textRegions?: boolean;
     sourceText?: boolean;
-}
-
-export type GenerateOptions = {
-    destination?: string;
 }
 
 /**
@@ -102,25 +141,12 @@ export default function(): void {
         .command('generate')
         .aliases(['g'])
         .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
-        .option('-d, --destination <dir>', 'destination directory of generating')
-        .description('generates JSON that represents the state machine')
+        .option('-d, --destination <dir>', 'destination directory for generated files')
+        .option('-f, --format <formats>',
+            'comma-separated list of output formats (json,mermaid,html). Default: json',
+            'json')
+        .description('generates output in specified formats (json, mermaid, html)')
         .action(generateAction);
-    
-    program
-        .command('generate-mermaid')
-        .aliases(['gm'])
-        .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
-        .option('-d, --destination <dir>', 'destination directory of generating')
-        .description('generates mermaid diagram that represents the state machine')
-        .action(generateMermaidAction);
-
-    program
-        .command('generate-html')
-        .aliases(['gh'])
-        .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
-        .option('-d, --destination <dir>', 'destination directory of generating')
-        .description('generates interactive HTML page with mermaid diagram')
-        .action(generateHTMLAction);
 
     program
         .command('debug')

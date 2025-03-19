@@ -17,7 +17,7 @@
             }
         }, {
             "label": "generate mermaid ouput ",
-            "command": "dygram generate-mermaid ${file} -d ${fileDirname}/out",
+            "command": "dygram generate --format mermaid ${file} -d ${fileDirname}/out",
             "type": "shell",
             "group": {
                 "kind": "build",
