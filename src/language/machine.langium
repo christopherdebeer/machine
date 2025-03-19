@@ -5,12 +5,11 @@ hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
 hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
 
 // Basic terminals
-terminal ID: /[A-Za-z_0-9][A-Za-z0-9_]*/;              // identifiers for class and attribute names
+terminal ID: /[A-Za-z_0-9][A-Za-z0-9_.]*/;              // identifiers for class and attribute names
 terminal STR: /"([^"\\]|\\.)*"/;        // double-quoted strings for titles and default values
 terminal MLSTR: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;  // multiline strings
 terminal INT returns number: /[0-9]+/;         // integer numbers for numeric values
 
-terminal BASICTYPE: "string" | "number" | "boolean";
 terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
 
 // Arrow terminals - ordered from most specific to least specific
@@ -49,7 +48,7 @@ Node<isRoot>:
 ;
 
 EdgeLabel:
-    STRING | ID | Attribute;
+    value=Attribute | STRING | ID;
 
 EdgeSegment:
     (
@@ -57,18 +56,18 @@ EdgeSegment:
         endType=BIDIRECTIONAL_ARROW |
         endType=BIDIRECTIONAL_LABELED |
         // Double dash arrows
-        (startType=ARROW_LABEL_START_DOUBLE label=(EXTID|STRING|ID|INT|BASICTYPE) endType=ARROW_DOUBLE) |
+        (startType=ARROW_LABEL_START_DOUBLE label=EdgeLabel endType=ARROW_DOUBLE) |
         endType=ARROW_DOUBLE |
         // Fat arrows
-        (startType=FAT_ARROW_LABEL_START label=(EXTID|STRING|ID|INT|BASICTYPE) endType=FAT_ARROW) |
+        (startType=FAT_ARROW_LABEL_START label=EdgeLabel endType=FAT_ARROW) |
         endType=FAT_ARROW |
         // Single dash arrows
-        (startType=ARROW_LABEL_START_SINGLE label=(EXTID|STRING|ID|INT|BASICTYPE) endType=ARROW_SINGLE) |
+        (startType=ARROW_LABEL_START_SINGLE label=EdgeLabel endType=ARROW_SINGLE) |
         endType=ARROW_SINGLE
     )
-    target=[Node:ID]
+    target+=[Node:ID]+
 ;
 
 Edge<isRoot>:
-    (<isRoot> source=[Node:ID])
+    (<isRoot> source+=[Node:ID]+)
     segments+=EdgeSegment+ ';';

@@ -311,7 +311,7 @@ describe('Context and advanced features from examples', () => {
             }
             s1;
             s2;
-            s1 -read: 'userData.name'-> s2;
+            s1 -read: 'userData.name';-> s2;
         `);
         const errors = checkDocumentValid(document)
         if (errors) console.log("Full parser errors:", errors);
