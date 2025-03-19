@@ -45,8 +45,10 @@ s6 {
 // Basic sequential transition.
 s1 -> s2;
 
+s2 -"natural language label"-> s3;
+
 // Context edge: Read user name from userData during transition.
-s1 -> s2 [read: userData.name];
+s1 -read: userData.name-> s2 ;
 
 // Transition with explicit error handling (retry up to 3 times).
 s2 -catch: retry(3);-> s3;
@@ -55,10 +57,10 @@ s2 -catch: retry(3);-> s3;
 s2 -update: score-> userData;
 
 // Conditional transition: Only if userData.name equals "start".
-s1 -> [if (userData.name == "start")] s2;
+s1 -if: (userData.name == "start")-> s2;
 
 // Chained transition combining multiple modifiers.
-s1 -> s2 -catch: retry(3);-> s3 -"if error unresolved, escalate";-> s4, s5 -timeout: 5000;-> s6;
+s1 -> s2 -catch: retry(3);-> s3 -"if error unresolved, escalate"-> s4, s5 -timeout: 5000; logLevel: 0;-> s6;
 
 // Event-driven transition: s2 transitions to s4 when event "eventComplete" occurs.
 s2 -on: eventComplete;-> s4;

@@ -48,6 +48,9 @@ Node<isRoot>:
     '}' | ';')
 ;
 
+EdgeLabel:
+    STRING | ID | Attribute;
+
 EdgeSegment:
     (
         // Bidirectional arrows
