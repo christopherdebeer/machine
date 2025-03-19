@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import * as path from 'path';
 import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig(() => {
     const config = {
@@ -11,9 +12,21 @@ export default defineConfig(() => {
                 input: {
                     index: path.resolve(__dirname, 'static/index.html'),
                     playground: path.resolve(__dirname, 'static/playground.html'),
-                }
-            }
+                },
+            },
+            outDir: 'dist'
         },
+        
+        plugins: [
+            viteStaticCopy({
+                targets: [
+                    {
+                        src: 'static/styles.css',
+                        dest: '.'
+                    }
+                ]
+            })
+        ],
         resolve: {
             dedupe: ['vscode']
         },
