@@ -8,6 +8,10 @@
         "src"
     ],
     "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "none"
+    },
     "scripts": {
         "build": "tsc -b tsconfig.src.json && node esbuild.mjs",
         "watch": "concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild.mjs --watch\"",
@@ -83,6 +87,12 @@
                 "language": "machine",
                 "scopeName": "source.machine",
                 "path": "syntaxes/machine.tmLanguage.json"
+            }
+        ],
+        "commands": [
+            {
+                "command": "extension.generateAndPreview",
+                "title": "Generate and Preview Mermaid"
             }
         ]
     },

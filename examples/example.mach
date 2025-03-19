@@ -1,17 +1,13 @@
 machine "Example"
 
-init;
+init {
+    query: "string";
+};
 analyse;
-feedback;
+tool feedback;
 complete;
+tool another;
 
 init --> analyse;
 analyse --> feedback;
 feedback --> complete;
-
-
-
-feedback .. dotted ..> analyse;
-
-analyse == thick ==> complete;
-

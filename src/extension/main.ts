@@ -1,14 +1,9 @@
 import type { LanguageClientOptions, ServerOptions} from 'vscode-languageclient/node.js';
-import type * as vscode from 'vscode';
+import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { LanguageClient, TransportKind } from 'vscode-languageclient/node.js';
 
 let client: LanguageClient;
-
-// This function is called when the extension is activated.
-export function activate(context: vscode.ExtensionContext): void {
-    client = startLanguageClient(context);
-}
 
 // This function is called when the extension is deactivated.
 export function deactivate(): Thenable<void> | undefined {
@@ -48,4 +43,52 @@ function startLanguageClient(context: vscode.ExtensionContext): LanguageClient {
     // Start the client. This will also launch the server
     client.start();
     return client;
+}
+
+export function activate(context: vscode.ExtensionContext) {
+    client = startLanguageClient(context);
+    let disposable = vscode.commands.registerCommand('extension.generateAndPreview', async () => {
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor) {
+            return;
+        }
+
+        // Execute the task
+        const task = await vscode.tasks.executeTask(new vscode.Task(
+            { type: 'shell' },
+            vscode.TaskScope.Workspace,
+            'generate mermaid output',
+            'shell',
+            new vscode.ShellExecution(`dygram generate --format html ${activeEditor.document.fileName} -d ${path.dirname(activeEditor.document.fileName)}/out`)
+        ));
+
+        // Wait for task completion
+        await new Promise<vscode.TaskExecution>((resolve) => {
+            const disposable = vscode.tasks.onDidEndTask((e) => {
+                if (e.execution === task) {
+                    disposable.dispose();
+                    resolve(e.execution);
+                }
+            });
+        });
+
+        // Create and show preview panel
+        const panel = vscode.window.createWebviewPanel(
+            'mermaidPreview',
+            'DyGram Preview',
+            vscode.ViewColumn.Beside,
+            {
+                enableScripts: true,
+                
+            }
+        );
+
+        // Load and display the generated file
+        const outputPath = path.join(path.dirname(activeEditor.document.fileName), 'out', path.basename(activeEditor.document.fileName, path.extname(activeEditor.document.fileName)) + '.html');
+        const content = await vscode.workspace.fs.readFile(vscode.Uri.file(outputPath));
+        
+        panel.webview.html = content.toString();
+    });
+
+    context.subscriptions.push(disposable);
 }

@@ -64,7 +64,7 @@ class JSONGenerator extends BaseGenerator {
   "nodes": [
     ${joinToNode(this.machine.nodes, node => {
         return joinToNode([node].flatMap(n => {
-            return [n, ...n.nodes.map(m => ({ ...m, type: n.name }))];
+            return [n, ...n.nodes.map(m => ({ ...m, type: n.name }))]
         }), n => {
             return `{"name": "${n.name}"${n.type ? `, "type": "${n.type}"` : ''}${n.attributes.length ? `, "attributes":[ ${this.formatAttributes(n)} ]` : ''} }`;
         }, {
@@ -138,7 +138,7 @@ ${this.machine.$document?.textDocument.getText()}
 "title": "${this.machine.title}"
 config:
     class:
-        hideEmptyMembersBox: true
+        hideEmptyMembersBox: false
 ---
 classDiagram-v2
   ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
@@ -164,10 +164,10 @@ classDiagram-v2
         const rootTypes = this.getRootTypes(hierarchy);
 
         return toString(expandToNode`---
-"title": "${this.machine.title}"
+title: "${this.machine.title}"
 config:
-    class:
-        hideEmptyMembersBox: true
+  class:
+    hideEmptyMembersBox: true
 ---
 classDiagram-v2
   ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
@@ -215,9 +215,16 @@ classDiagram-v2
             // Generate namespace content
             const content = joinToNode(nodes, node => {
                 const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
-                const header = `class ${node.name}${desc ? `["${desc.value}"]` : ''}`;
+                const header = `class ${node.name}${desc ? `[\"${desc.value}\"]` : ''}`;
+
+                // Format all attributes except desc/prompt for the class body
+                const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
+                const attributeLines = attributes.length > 0
+                    ? attributes.map(a => `+${a.name} ${a.type ? `: ${a.type}` : ''} = ${a.value}`).join('\\n')
+                    : '';
+
                 return `${indent}  ${header} {
-${indent}    ${node.type ? `<<${node.type}>>` : ''}${node.attributes?.length ? ("\n" + indent + "    " + node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt').map(a => `${a.name}: ${a.value}`).join('\n' + indent + "    ")) : ''}
+${indent}    ${node.type ? `<<${node.type}>>` : ''}${attributeLines ? '\\n' + indent + '    ' + attributeLines : ''}
 ${indent}  }`;
             }, {
                 separator: '\n',
@@ -230,7 +237,7 @@ ${indent}  }`;
                 this.generateTypeHierarchy(hierarchy, subtypes, level + 1) : '';
 
             // Only create namespace if there are nodes or subtypes
-            if (nodes.length === 0 && subtypes.length === 0) {
+            if (nodes.length <= 1 && subtypes.length === 0) {
                 return '';
             }
 
@@ -258,13 +265,25 @@ ${indent}}`);
     }
 }
 
+const escapeHTML = (str : string) : string => str.replace(/[&<>'"]/g, 
+    tag => {
+        const tags : {[key: string]: string} = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+          };
+        return tags[tag];
+    });
+
 // HTML Generator
 class HTMLGenerator extends BaseGenerator {
     protected fileExtension = 'html';
 
     protected generateContent(): FileGenerationResult {
         const mermaidGen = new MermaidGenerator(this.machine, this.filePath, this.options);
-        const mermaidDefinition = mermaidGen.getMermaidDefinition();
+        const mermaidDefinition = escapeHTML(mermaidGen.getMermaidDefinition());
 
         const fileNode = expandToNode`<!DOCTYPE html>
 <html lang="en">
@@ -277,10 +296,10 @@ class HTMLGenerator extends BaseGenerator {
 
         // Initialize mermaid with custom settings
         mermaid.initialize({
-            startOnLoad: true,
-            theme: 'default',
+            startOnLoad: false,
             securityLevel: 'loose',
-            fontFamily: 'monospace',
+            logLevel: 0,
+            htmlLabels: true
         });
 
         // Function to toggle dark/light mode
@@ -337,6 +356,21 @@ class HTMLGenerator extends BaseGenerator {
                 document.body.classList.add('dark-theme');
             }
         });
+        const uniqueId = "mermaid-svg-" + Date.now();
+        const content = document.querySelector('.mermaid');
+        const code = content.textContent.trim();
+        console.log(code);
+        let Diagram = window.Diagram = await mermaid.mermaidAPI.getDiagramFromText(code);
+        console.log(Diagram)
+        const svg = document.createElement('svg')
+        const render = await mermaid.render(uniqueId, code);
+        console.log("Render", render);
+        const container = document.querySelector('#diagram');
+        container.innerHTML = "";
+        container.appendChild(svg)
+        svg.outerHTML = render.svg
+        render.bindFunctions?.(container);
+
     </script>
     <style>
         body {
@@ -419,8 +453,8 @@ class HTMLGenerator extends BaseGenerator {
         <button onclick="downloadPNG()">Download PNG</button>
     </div>
     <div class="title">${this.machine.title}</div>
-    <div id="diagram" class="mermaid">
-${mermaidDefinition}
+    <div id="diagram">
+        <code class="mermaid">${mermaidDefinition}</code>
     </div>
 </body>
 </html>`.appendNewLineIfNotEmpty();
