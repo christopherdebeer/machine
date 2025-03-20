@@ -1,13 +1,23 @@
 import { MonacoEditorLanguageClientWrapper, UserConfig } from 'monaco-editor-wrapper';
 import { configureWorker, defineUserServices } from './setupCommon.js';
 import { MachineExecutor } from './language/machine-executor.js';
+import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './language/diagram-controls.js';
 
-// define render on window to make typescript happy
+// define global functions for TypeScript
 declare global {
     interface Window {
-        render: (mermaid: string) => void;
+        render: typeof render;
+        downloadSVG: typeof downloadSVG;
+        downloadPNG: typeof downloadPNG;
+        toggleTheme: typeof toggleTheme;
     }
 }
+
+// Make functions available globally
+window.render = render;
+window.downloadSVG = downloadSVG;
+window.downloadPNG = downloadPNG;
+window.toggleTheme = toggleTheme;
 
 export const setupConfigExtended = (): UserConfig => {
     const extensionFilesOrContents = new Map();
@@ -83,6 +93,9 @@ s1 -catch-> init;
 };
 
 export const executeExtended = async (htmlElement: HTMLElement) => {
+    // Initialize theme when the editor starts
+    initTheme();
+
     const userConfig = setupConfigExtended();
     const wrapper = new MonacoEditorLanguageClientWrapper();
     await wrapper.initAndStart(userConfig, htmlElement);
@@ -100,7 +113,6 @@ export const executeExtended = async (htmlElement: HTMLElement) => {
     let running = false;
     let timeout: NodeJS.Timeout | null = null;
     client.onNotification('browser/DocumentChange', (resp) => {
-
         // always store this new program in local storage
         const value = wrapper.getModel()?.getValue();
         if (window.localStorage && value) {
@@ -120,7 +132,6 @@ export const executeExtended = async (htmlElement: HTMLElement) => {
         // set a timeout to run the current code
         timeout = setTimeout(async () => {
             running = true;
-            // setStatus('');
             console.info('generating & running current code...');
             let result = JSON.parse(resp.content);
             let data = result.$data;
@@ -142,10 +153,6 @@ export const executeExtended = async (htmlElement: HTMLElement) => {
                 console.error(e);
                 running = false;
             }
-
         }, 200);
     });
-
-    
-    
 };

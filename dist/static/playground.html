@@ -5,15 +5,23 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <!-- Page & Monaco styling -->
         <title>Dygram : Machine lang</title>
-      <script type="module" crossorigin src="/machine/assets/playground-CDgw03Lm.js"></script>
-      <link rel="stylesheet" crossorigin href="/machine/assets/styles-CF5noTCH.css">
+      <script type="module" crossorigin src="/machine/assets/playground-DiP0IZny.js"></script>
+      <link rel="stylesheet" crossorigin href="/machine/assets/styles-BwPQ9h_0.css">
     </head>
     <body>
+        <!-- Header Controls -->
+        <div class="header-controls">
+            <button onclick="window.downloadSVG()">Download SVG</button>
+            <button onclick="window.downloadPNG()">Download PNG</button>
+            <button onclick="window.toggleTheme()">Toggle Theme</button>
+        </div>
+
         <div class="wrapper">
             <div id="diagram"></div>
             <!-- Monaco Root -->
             <div id="monaco-editor-root"></div>
         </div>
+
         <!-- Monaco Configuration -->
     </body>
 </html>
