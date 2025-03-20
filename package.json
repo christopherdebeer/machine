@@ -1,7 +1,7 @@
 {
     "name": "machine-lang",
     "description": "Dynamic state machine prototyping language",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "displayName": "Machine",
     "icon": "icon.jpg",
     "publisher": "c15r",
@@ -103,6 +103,7 @@
     },
     "main": "./out/extension/main.cjs",
     "bin": {
-        "dygram": "./bin/cli.js"
+        "dygram": "./bin/cli.js",
+        "machine": "./bin/cli.js"
     }
 }
