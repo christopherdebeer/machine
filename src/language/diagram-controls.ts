@@ -68,9 +68,9 @@ export function downloadPNG(): void {
 }
 
 // Function to render the diagram
-export async function render(code: string, containerOveride?: Element): Promise<void> {
+export async function render(code: string, containerOveride?: Element, id?: string): Promise<void> {
     try {
-        const uniqueId = "mermaid-svg-" + Date.now();
+        const uniqueId = "mermaid-svg-" + (id || Date.now());
         console.log("Rendering diagram with code:", code);
         await mermaid.mermaidAPI.getDiagramFromText(code);
         const svg = document.createElement('svg');

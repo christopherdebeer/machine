@@ -3,6 +3,7 @@ import { configureWorker, defineUserServices } from './setupCommon.js';
 import { MachineExecutor } from './language/machine-executor.js';
 import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './language/diagram-controls.js';
 import { IDimension } from 'vscode/services';
+import { KeyCode, KeyMod } from 'monaco-editor';
 
 // define global functions for TypeScript
 declare global {
@@ -144,6 +145,40 @@ s1 -catch-> init;
         editor?.layout({} as IDimension);
     };
 
+    editor?.addAction({
+        // An unique identifier of the contributed action.
+        id: "machine-exec",
+    
+        // A label of the action that will be presented to the user.
+        label: "Execute Machine",
+    
+        // An optional array of keybindings for the action.
+        keybindings: [
+            KeyMod.CtrlCmd | KeyCode.F10,
+            // chord
+            KeyMod.chord(
+                KeyMod.CtrlCmd | KeyCode.KeyK,
+                KeyMod.CtrlCmd | KeyCode.KeyM
+            ),
+        ],
+    
+        // A precondition for this action.
+        precondition: undefined,
+    
+        // A rule to evaluate on top of the precondition in order to dispatch the keybindings.
+        keybindingContext: undefined,
+    
+        contextMenuGroupId: "navigation",
+    
+        contextMenuOrder: 1.5,
+    
+        // Method that will be executed when the action is triggered.
+        // @param editor The editor instance is passed in as a convenience
+        run: function (ed) {
+            alert("i'm running => " + ed.getPosition());
+        },
+    });
+
     let running = false;
     let timeout: NodeJS.Timeout | null = null;
     client.onNotification('browser/DocumentChange', (resp) => {
@@ -185,7 +220,7 @@ s1 -catch-> init;
                 // await executor.step();
                 running = false;
                 console.log(resp, data, mermaid, executor)
-                window.render(mermaid, outputEl)
+                window.render(mermaid, outputEl, `${Math.floor(Math.random()  * 1000000000)}`)
             } catch (e) {
                 // failed at some point, log & disable running so we can try again
                 console.error(e);
