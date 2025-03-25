@@ -65,7 +65,7 @@ const webExecCtx = await esbuild.context({
 });
 // Build web-compatible executor
 const webCtx = await esbuild.context({
-    entryPoints: ['src/wev/index.ts'],
+    entryPoints: ['src/web/index.ts'],
     outdir: 'out/web',
     bundle: true,
     target: "ES2017",

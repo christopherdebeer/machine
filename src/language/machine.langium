@@ -8,7 +8,8 @@ hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
 terminal ID: /[A-Za-z_0-9][A-Za-z0-9_.]*/;              // identifiers for class and attribute names
 terminal STR: /"([^"\\]|\\.)*"/;        // double-quoted strings for titles and default values
 terminal MLSTR: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;  // multiline strings
-terminal INT returns number: /[0-9]+/;         // integer numbers for numeric values
+terminal NUMBER returns number: /[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?/;
+
 
 terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
 
@@ -47,10 +48,12 @@ entry Machine:
     (nodes+=Node<true> | edges+=Edge<true>)*
 ;
 
-AttributeValue returns string: EXTID|STRING|ID|INT;
+AttributeValue: 
+    ('[' (value+=(EXTID|STRING|ID|NUMBER) (',' value+=(EXTID|STRING|ID|NUMBER))*)? ']')
+    | value=EXTID|STRING|ID|NUMBER;
 
 Attribute:
-    name=ID ('<' type=ID '>')? (':' value=AttributeValue)? ';'
+name=ID ('<' type=ID '>')? (':' value=AttributeValue)? ';'
 ;
 
 Node<isRoot>:
@@ -62,11 +65,12 @@ Node<isRoot>:
     '}' ';'?) | ';')
 ;
 
-EdgeAttributeValue returns string: EXTID|STRING|ID|INT;
+EdgeAttributeValue returns string: EXTID|STRING|ID|NUMBER;
 
 EdgeAttribute:
     (name=ID (':' value=EdgeAttributeValue)? ';'?)
     | (text=EdgeAttributeValue)
+    | '[' (params+=EdgeAttributeValue (',' params+=EdgeAttributeValue)*)? ']'
 ;
 
 EdgeType:
