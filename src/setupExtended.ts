@@ -2,6 +2,7 @@ import { MonacoEditorLanguageClientWrapper, UserConfig, EditorAppConfigExtended 
 import { configureWorker, defineUserServices } from './setupCommon.js';
 import { MachineExecutor } from './language/machine-executor.js';
 import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './language/diagram-controls.js';
+import { IDimension } from 'vscode/services';
 
 // define global functions for TypeScript
 declare global {
@@ -31,6 +32,7 @@ export const setupConfigExtended = (src: string, options: any): UserConfig => {
         useDiffEditor: false,
         editorOptions: {
             wordWrap: "on",
+            automaticLayout: true,
             ...options,
             
         },
@@ -123,6 +125,24 @@ s1 -catch-> init;
     if (!client) {
         throw new Error('Unable to obtain language client for the Machine!');
     }
+
+    const editor = wrapper.getEditor();
+    const updateHeight = () => {
+        if (!editor) return;
+        
+        const contentHeight = Math.min(1000, editor.getContentHeight());
+        htmlElement.style.height = `${contentHeight}px`;
+        try {
+            editor.layout({ width: htmlElement.clientWidth, height: contentHeight });
+        } finally {
+            
+        }
+    };
+    editor?.onDidContentSizeChange(updateHeight);
+    updateHeight();
+    window.onresize = function (){
+        editor?.layout({} as IDimension);
+    };
 
     let running = false;
     let timeout: NodeJS.Timeout | null = null;

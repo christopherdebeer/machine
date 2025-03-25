@@ -253,11 +253,11 @@ ${indent}  }`;
             const subtypeContent = subtypes.length > 0 ?
                 this.generateTypeHierarchy(hierarchy, subtypes, level + 1) : '';
 
-            if (type === 'undefined') {
-                return toString(expandToNode`${toString(content)}${subtypeContent ? '\n' + toString(subtypeContent) : ''}`)
+            if (type === 'undefined' || nodes.length === 1) {
+                return toString(expandToNode`${toString(content)}${subtypeContent ? "\n" + toString(subtypeContent) : ''}`)
             }
 
-            return toString(expandToNode`${indent}namespace ${type} {
+            return toString(expandToNode`${indent}namespace ${type}s {
 ${toString(content)}${subtypeContent ? '\n' + toString(subtypeContent) : ''}
 ${indent}}`);
         }, {

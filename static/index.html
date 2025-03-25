@@ -61,25 +61,32 @@
                         <div class="code-block carousel-container">
                             <div class="carousel">
                                 <div class="carousel-slide active">
-                                    <div class="code machine-lang" id="example-001" data-language="machine" style="height: 150px;">machine "Solution Sketch"
+                                    <div class="code machine-lang" id="example-001" data-language="machine" >machine "Solution Sketch"
 
-Concept problem;
-Concept solution;
+problem;
+solution;
 
 problem -> solution;</div>
                                 </div>
                                 <div class="carousel-slide">
-                                    <div class="code machine-lang" id="example-002" data-language="machine" style="height: 150px;">machine "Solution Sketch"
+                                    <div class="code machine-lang" id="example-002" data-language="machine" >machine "Solution Sketch"
 
-Concept problem {};
-Concept solution {
+Input problem {
+    query<string>: "TBD";
+};
 
+Task process {
+    prompt: "Given the problem statement {{ problem.query }} identify a plan to achieve a solution.";
+}
+
+Result solution {
+    value: "TBD";
 };
 
 problem -necessitates-> solution;</div>
                                 </div>
                                 <div class="carousel-slide">
-                                    <div class="code machine-lang" id="example-003" data-language="machine" style="height: 150px;">machine "Data Pipeline"
+                                    <div class="code machine-lang" id="example-003" data-language="machine" >machine "Data Pipeline"
 
 Concept source;
 Concept processor;
@@ -112,7 +119,7 @@ source -> processor -> destination;</div>
                         <div class="code-block carousel-container">
                             <div class="carousel">
                                 <div class="carousel-slide active">
-                                    <div class="code machine-lang" id="example-004" data-language="machine" style="height: 300px;">machine "Solution Framework"
+                                    <div class="code machine-lang" id="example-004" data-language="machine" s>machine "Solution Framework"
 
 Concept problem "User Authentication" {
     domain: "Security";
@@ -129,7 +136,7 @@ Concept solution "Token-based Auth" {
 problem -addresses-> solution;</div>
                                 </div>
                                 <div class="carousel-slide">
-                                    <div class="code machine-lang" id="example-005" data-language="machine" style="height: 300px;">machine "Solution Framework"
+                                    <div class="code machine-lang" id="example-005" data-language="machine" s>machine "Solution Framework"
 
 Concept problem "User Authentication" {
     domain: "Security";
@@ -148,7 +155,7 @@ Concept solution "Token-based Auth" {
 problem -addresses, confidence: 0.8-> solution;</div>
                                 </div>
                                 <div class="carousel-slide">
-                                    <div class="code machine-lang" id="example-006" data-language="machine" style="height: 300px;">machine "Solution Framework"
+                                    <div class="code machine-lang" id="example-006" data-language="machine" s>machine "Solution Framework"
 
 Concept problem "User Authentication" {
     domain: "Security";
@@ -199,7 +206,7 @@ solution -documented_by-> documentation;</div>
                         <div class="code-block carousel-container">
                             <div class="carousel">
                                 <div class="carousel-slide active">
-                                    <div class="code machine-lang" id="example-007" data-language="machine" style="height: 400px;">machine "Knowledge Management System";
+                                    <div class="code machine-lang" id="example-007" data-language="machine" >machine "Knowledge Management System";
 
 Concept idea "Neural Interface" {
     creator: "Research Team";
@@ -230,7 +237,7 @@ idea -documented_in-> resource1;
 implementation -references-> resource1;</div>
                                 </div>
                                 <div class="carousel-slide">
-                                    <div class="code machine-lang" id="example-008" data-language="machine" style="height: 400px;">machine "Project Management System";
+                                    <div class="code machine-lang" id="example-008" data-language="machine" >machine "Project Management System";
 
 Team team "Development Squad" {
     lead: "Jane Smith";
@@ -269,7 +276,7 @@ team -responsible_for-> feature;
 team.members[0] -assigned_to-> task1;</div>
                                 </div>
                                 <div class="carousel-slide">
-                                    <div class="code machine-lang" id="example-009" data-language="machine" style="height: 400px;">machine "Supply Chain System";
+                                    <div class="code machine-lang" id="example-009" data-language="machine" >machine "Supply Chain System";
 
 Entity supplier "Global Electronics Inc" {
     id<UUID>: "a1b2c3d4-e5f6-7890-abcd-ef1234567890";

@@ -117,6 +117,7 @@ section {
     background-color: var(--code-bg);
     border-left: 8px solid var(--accent);
     padding: 1em 0;
+    box-sizing: content-box;
 }
 
 .evolution {
