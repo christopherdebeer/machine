@@ -11,3 +11,4 @@ examples/*
 *.vsix
 generated
 .DS_Store
+dist/

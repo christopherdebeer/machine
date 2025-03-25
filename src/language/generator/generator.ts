@@ -101,7 +101,7 @@ class JSONGenerator extends BaseGenerator {
                     targets.map(target => ({
                         source,
                         target,
-                        value: this.serializeEdgeValue(segment.label)
+                        attributes: this.serializeEdgeValue(segment.label)
                     })).filter(e => e.source && e.target)
                 );
                 currentSources = targets; // Update sources for next segment
@@ -206,7 +206,7 @@ classDiagram-v2
                 hierarchy[node.type].subtypes.push(node.name);
             }
         });
-
+        console.log('buildTypeHierarchy', hierarchy)
         return hierarchy;
     }
 
@@ -216,15 +216,18 @@ classDiagram-v2
             Object.values(hierarchy)
                 .flatMap(h => h.subtypes)
         );
+        console.log('------------', Array.from(allTypes), Array.from(subTypes))
         return Array.from(allTypes)
             .filter(type => !subTypes.has(type))
-            .filter(type => type !== 'undefined');
+            // .filter(type => type !== 'undefined');
     }
 
     private generateTypeHierarchy(hierarchy: TypeHierarchy, types: string[], level = 0): string {
         const result = joinToNode(types, type => {
             const { nodes, subtypes } = hierarchy[type];
             const indent = '  '.repeat(level);
+
+            console.log("generateTypeHierarchy", types, type)
 
             // Generate namespace content
             const content = joinToNode(nodes, node => {
@@ -250,9 +253,8 @@ ${indent}  }`;
             const subtypeContent = subtypes.length > 0 ?
                 this.generateTypeHierarchy(hierarchy, subtypes, level + 1) : '';
 
-            // Only create namespace if there are nodes or subtypes
-            if (nodes.length <= 1 && subtypes.length === 0) {
-                return '';
+            if (type === 'undefined') {
+                return toString(expandToNode`${toString(content)}${subtypeContent ? '\n' + toString(subtypeContent) : ''}`)
             }
 
             return toString(expandToNode`${indent}namespace ${type} {
@@ -423,10 +425,6 @@ ${indent}  }`;
             const subtypeContent = subtypes.length > 0 ?
                 this.generateTypeHierarchy(hierarchy, subtypes, level + 1) : '';
 
-            // Only create namespace if there are nodes or subtypes
-            if (nodes.length <= 1 && subtypes.length === 0) {
-                return '';
-            }
 
             return toString(expandToNode`${indent}namespace ${type} {
 ${toString(content)}${subtypeContent ? '\n' + toString(subtypeContent) : ''}

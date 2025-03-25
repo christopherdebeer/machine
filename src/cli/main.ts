@@ -71,7 +71,9 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
                     break;
             }
             if (opts.destination) results.push(chalk.green(`Generated ${format.toUpperCase()}: ${res.filePath}`));
-            else console.log(res.content);
+            else {
+                console.log(res.content);
+            }
         } catch (error) {
             results.push(chalk.red(`Failed to generate ${format.toUpperCase()}: ${error instanceof Error ? error.message : String(error)}`));
         }
@@ -86,8 +88,6 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
         if (formats.includes('html')) {
             console.log(chalk.blue('\nTip: Open the HTML file in a browser to view the interactive diagram'));
         }
-    } else {
-        console.log()
     }
     
 };
@@ -105,6 +105,8 @@ export const generateSerialized = async (file: string, opts: SerialiseOptions): 
         const generatedFilePath = `${path.join(opts.destination || path.dirname(file), path.basename(file, path.extname(file)))}-raw.json`;
         await fs.writeFile(generatedFilePath, json);
         console.log(chalk.green(`Output generated successfully: ${generatedFilePath}`));
+    } else {
+        console.log(json);
     }
 }
 

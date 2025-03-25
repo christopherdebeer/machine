@@ -1,0 +1,6 @@
+// Machine is running in the web!
+machine "Example machine, with various nodes"
+
+one;
+two;
+task three;

@@ -4,7 +4,7 @@ import mermaid from 'mermaid';
 mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'loose',
-    logLevel: 0,
+    // logLevel: 0,
     htmlLabels: true
 });
 

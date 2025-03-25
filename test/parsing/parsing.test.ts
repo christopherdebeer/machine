@@ -17,7 +17,31 @@ beforeAll(async () => {
     validator = new MachineValidator();
 });
 
+
+const debug = (doc: LangiumDocument<Machine>, full=false) => {
+    console.log('-----diagnostics----', doc.diagnostics?.map( d => {
+        return {
+            message: d.message,
+            range: d.range,
+            severity: d.severity
+        }
+    }) || 'none')
+    console.log('-----parserErrors----', doc.parseResult.parserErrors)
+    console.log('-----lexerErrors----', doc.parseResult.lexerErrors)
+    if(full) console.log('-----value----', doc.parseResult.value)
+}
+
 describe('Arrow syntax tests', () => {
+    test('parse machine with only nodes', async () => {
+        document = await parse(`
+            machine "test machine"
+            main;
+            init;
+        `);
+        debug(document);
+        expect(checkDocumentValid(document)).toBeUndefined();
+    });
+
     test('parse machine with single dash arrow', async () => {
         document = await parse(`
             machine "test machine"
@@ -25,6 +49,7 @@ describe('Arrow syntax tests', () => {
             init;
             main -> init;
         `);
+       
         expect(checkDocumentValid(document)).toBeUndefined();
     });
 
