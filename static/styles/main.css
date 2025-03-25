@@ -1,0 +1,249 @@
+:root {
+    --primary: #0F0F0F;
+    --secondary: #303030;
+    --accent: #FF5E5B;
+    --light: #F7F7F7;
+    --code-bg: #1A1A1A;
+    --spacing: clamp(1rem, 5vw, 5rem);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Space Mono', monospace, system-ui;
+}
+
+body {
+    background-color: var(--light);
+    color: var(--primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing);
+}
+
+header {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.title-block {
+    font-size: clamp(2rem, 12vw, 8rem);
+    line-height: 0.9;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+.tagline {
+    font-size: clamp(1rem, 5vw, 2rem);
+    margin-bottom: 3rem;
+    max-width: 800px;
+}
+
+.accent {
+    color: var(--accent);
+}
+
+.btn {
+    display: inline-block;
+    background-color: var(--primary);
+    color: white;
+    padding: 1rem 2rem;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.2rem;
+    border: none;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.btn:hover {
+    background-color: var(--accent);
+}
+
+section {
+    padding: var(--spacing) 0;
+}
+
+.section-title {
+    font-size: clamp(2rem, 8vw, 4rem);
+    margin-bottom: 2rem;
+    line-height: 1;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 4rem;
+}
+
+.feature {
+    border-top: 4px solid var(--primary);
+    padding-top: 1rem;
+}
+
+.feature-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.feature p {
+    font-size: 1.1rem;
+}
+
+.code-block {
+    background-color: var(--code-bg);
+    color: white;
+    padding: 2rem;
+    overflow-x: auto;
+    margin: 3rem 0;
+    font-family: 'Fira Code', monospace;
+    font-size: 1rem;
+    border-left: 8px solid var(--accent);
+}
+
+.evolution {
+    display: flex;
+    flex-direction: column;
+    margin: 4rem 0;
+}
+
+.stage {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 4rem;
+}
+
+.stage-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stage-number {
+    font-size: 5rem;
+    font-weight: bold;
+    opacity: 0.1;
+    margin-right: 1rem;
+}
+
+.stage-title {
+    font-size: 2rem;
+}
+
+.stage-content {
+    margin-left: 5rem;
+}
+
+.diagram {
+    width: 100%;
+    height: 400px;
+    background-color: white;
+    margin: 2rem 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.diagram svg {
+    width: 100%;
+    height: 100%;
+}
+
+.node {
+    fill: white;
+    stroke: var(--primary);
+    stroke-width: 2px;
+}
+
+.node-text {
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+.edge {
+    stroke: var(--primary);
+    stroke-width: 2px;
+}
+
+.edge-text {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    text-anchor: middle;
+    fill: var(--primary);
+}
+
+.arrow {
+    fill: var(--primary);
+}
+
+.cta {
+    background-color: var(--primary);
+    color: white;
+    text-align: center;
+    padding: calc(var(--spacing) * 2) 0;
+}
+
+.cta h2 {
+    font-size: clamp(2rem, 6vw, 4rem);
+    margin-bottom: 2rem;
+}
+
+footer {
+    background-color: var(--primary);
+    color: white;
+    padding: var(--spacing) 0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.footer-links h3 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.footer-links ul {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.footer-links a:hover {
+    opacity: 1;
+}
+
+.copyright {
+    margin-top: 4rem;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .stage-content {
+        margin-left: 0;
+    }
+}
