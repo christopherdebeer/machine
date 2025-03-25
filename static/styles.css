@@ -54,6 +54,40 @@ a:visited {
     background: #666;
 }
 
+/* Monaco editor styles */
+.monaco-editor {
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.code-block {
+    background: #1e1e1e;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+/* Carousel container adjustments for Monaco */
+.carousel-container {
+    position: relative;
+    margin: 20px 0;
+}
+
+.carousel {
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-slide {
+    display: none;
+    padding: 1rem;
+}
+
+.carousel-slide.active {
+    display: block;
+}
+
 /* for monaco */
 .wrapper {
     display: flex;
@@ -95,4 +129,22 @@ body.dark-theme #diagram .edgePath path {
 
 body.dark-theme #diagram text {
     fill: #ddd;
+}
+
+/* Additional Monaco editor customizations */
+.monaco-editor .margin,
+.monaco-editor .monaco-editor-background {
+    background-color: #1e1e1e !important;
+}
+
+.monaco-editor .line-numbers {
+    display: none !important;
+}
+
+.monaco-editor .decorationsOverviewRuler {
+    display: none !important;
+}
+
+.monaco-editor .scrollbar {
+    display: none !important;
 }

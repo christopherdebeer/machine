@@ -5,6 +5,7 @@
     <title>DyGram | Thought → System</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/carousel.css">
+    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 </head>
 <body>
     <header>
@@ -60,30 +61,31 @@
                         <div class="code-block carousel-container">
                             <div class="carousel">
                                 <div class="carousel-slide active">
-<pre>machine "Solution Sketch";
+                                    <div class="code machine-lang" data-language="machine" style="height: 150px;">machine "Solution Sketch"
 
 Concept problem;
 Concept solution;
 
-problem -> solution;</pre>
+problem -> solution;</div>
                                 </div>
                                 <div class="carousel-slide">
-<pre>machine "Auth Flow";
+                                    <div class="code machine-lang" data-language="machine" style="height: 150px;">machine "Solution Sketch"
 
-Concept user;
-Concept credentials;
-Concept session;
+Concept problem {};
+Concept solution {
 
-user -> credentials -> session;</pre>
+};
+
+problem -necessitates-> solution;</div>
                                 </div>
                                 <div class="carousel-slide">
-<pre>machine "Data Pipeline";
+                                    <div class="code machine-lang" data-language="machine" style="height: 150px;">machine "Data Pipeline";
 
 Concept source;
 Concept processor;
 Concept destination;
 
-source -> processor -> destination;</pre>
+source -> processor -> destination;</div>
                                 </div>
                             </div>
                             <div class="carousel-nav">
@@ -110,7 +112,7 @@ source -> processor -> destination;</pre>
                         <div class="code-block carousel-container">
                             <div class="carousel">
                                 <div class="carousel-slide active">
-<pre>machine "Solution Framework";
+                                    <div class="code machine-lang" data-language="machine" style="height: 300px;">machine "Solution Framework";
 
 Concept problem "User Authentication" {
     domain: "Security";
@@ -124,10 +126,10 @@ Concept solution "Token-based Auth" {
     metrics: ["Security", "Performance", "UX"];
 };
 
-problem -addresses-> solution;</pre>
+problem -addresses-> solution;</div>
                                 </div>
                                 <div class="carousel-slide">
-<pre>machine "Solution Framework";
+                                    <div class="code machine-lang" data-language="machine" style="height: 300px;">machine "Solution Framework";
 
 Concept problem "User Authentication" {
     domain: "Security";
@@ -143,10 +145,10 @@ Concept solution "Token-based Auth" {
     components: ["JWT Generator", "Token Validator"];
 };
 
-problem -addresses, confidence: 0.8-> solution;</pre>
+problem -addresses, confidence: 0.8-> solution;</div>
                                 </div>
                                 <div class="carousel-slide">
-<pre>machine "Solution Framework";
+                                    <div class="code machine-lang" data-language="machine" style="height: 300px;">machine "Solution Framework";
 
 Concept problem "User Authentication" {
     domain: "Security";
@@ -170,7 +172,7 @@ Resource documentation "Auth Flow Diagram" {
 };
 
 problem -addresses, confidence: 0.9-> solution;
-solution -documented_by-> documentation;</pre>
+solution -documented_by-> documentation;</div>
                                 </div>
                             </div>
                             <div class="carousel-nav">
@@ -197,7 +199,7 @@ solution -documented_by-> documentation;</pre>
                         <div class="code-block carousel-container">
                             <div class="carousel">
                                 <div class="carousel-slide active">
-<pre>machine "Knowledge Management System";
+                                    <div class="code machine-lang" data-language="machine" style="height: 400px;">machine "Knowledge Management System";
 
 Concept idea "Neural Interface" {
     creator: "Research Team";
@@ -225,10 +227,10 @@ Resource resource1 "Research Paper" {
 
 idea -inspires, confidence: 0.85-> implementation;
 idea -documented_in-> resource1;
-implementation -references-> resource1;</pre>
+implementation -references-> resource1;</div>
                                 </div>
                                 <div class="carousel-slide">
-<pre>machine "Project Management System";
+                                    <div class="code machine-lang" data-language="machine" style="height: 400px;">machine "Project Management System";
 
 Team team "Development Squad" {
     lead: "Jane Smith";
@@ -264,10 +266,10 @@ Task task2 "Implement API" {
 feature -broken_down_into-> task1;
 feature -broken_down_into-> task2;
 team -responsible_for-> feature;
-team.members[0] -assigned_to-> task1;</pre>
+team.members[0] -assigned_to-> task1;</div>
                                 </div>
                                 <div class="carousel-slide">
-<pre>machine "Supply Chain System";
+                                    <div class="code machine-lang" data-language="machine" style="height: 400px;">machine "Supply Chain System";
 
 Entity supplier "Global Electronics Inc" {
     id<UUID>: "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
@@ -300,7 +302,7 @@ Process ordering "Procurement Process" {
 
 supplier -provides-> component;
 component -used_in-> ordering;
-ordering -involves-> supplier;</pre>
+ordering -involves-> supplier;</div>
                                 </div>
                             </div>
                             <div class="carousel-nav">
@@ -402,7 +404,23 @@ ordering -involves-> supplier;</pre>
             </div>
         </div>
     </footer>
+
     <script type="module">
+        // vite is used to resolve the included TypeScript files
+        import { configureMonacoWorkers } from '../src/setupCommon';
+        import { executeExtended } from '../src/setupExtended';
+
+        configureMonacoWorkers();
+        // keep a reference to a promise for when the editor is finished starting
+        Array.from(document.querySelectorAll('.code.machine-lang')).map( (el) => {
+            const out = document.createElement('div')
+            out.classList.add('output')
+            executeExtended(el, false, out);
+            el.closest('.carousel-slide').appendChild(out)
+        })
+        
+
+        // Initialize carousels
         import { initializeCarousels } from '../src/web';
         initializeCarousels();
     </script>

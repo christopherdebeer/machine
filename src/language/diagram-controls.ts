@@ -68,14 +68,14 @@ export function downloadPNG(): void {
 }
 
 // Function to render the diagram
-export async function render(code: string): Promise<void> {
+export async function render(code: string, containerOveride?: Element): Promise<void> {
     try {
         const uniqueId = "mermaid-svg-" + Date.now();
         console.log("Rendering diagram with code:", code);
         await mermaid.mermaidAPI.getDiagramFromText(code);
         const svg = document.createElement('svg');
         const render = await mermaid.render(uniqueId, code);
-        const container = document.querySelector('#diagram');
+        const container = containerOveride || document.querySelector('#diagram');
         if (!container) {
             throw new Error('Diagram container not found');
         }
