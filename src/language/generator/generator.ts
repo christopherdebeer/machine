@@ -56,6 +56,16 @@ class JSONGenerator extends BaseGenerator {
             edges: this.serializeEdges()
         };
 
+        console.log(JSON.stringify(machineObject))
+
+        try {
+            const str = JSON.stringify(machineObject, null, 2)
+            console.log(str)
+        } catch(err) {
+            // console.error(err)
+            throw new Error(`Failed to serialize machine to JSON: ${err}`)
+        }
+
         return {
             filePath: this.filePath,
             content: JSON.stringify(machineObject, null, 2)
@@ -86,7 +96,7 @@ class JSONGenerator extends BaseGenerator {
         return node.attributes?.map(attr => ({
             name: attr.name,
             type: attr.type,
-            value: attr.value
+            value: attr.value?.value
         })) || [];
     }
 
@@ -409,7 +419,7 @@ classDiagram-v2
                 // Format all attributes except desc/prompt for the class body
                 const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
                 const attributeLines = attributes.length > 0
-                    ? attributes.map(a => `+${a.name} ${a.type ? `: ${a.type}` : ''} = ${a.value}`).join('\\n')
+                    ? attributes.map(a => `+${a.name} ${a.type ? `: ${a.type}` : ''} = ${a.value}`).join('\n')
                     : '';
 
                 return `${indent}  ${header} {

@@ -1,0 +1,9 @@
+machine "Data Pipeline"
+
+one {
+    item: ["val1", "val2"];
+}
+
+two {
+    item: "value";
+}
