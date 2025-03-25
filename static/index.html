@@ -1,18 +1,731 @@
-<!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Machine lang</title>
-    <link href="./styles.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DyGram | Thought → System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --primary: #0F0F0F;
+            --secondary: #303030;
+            --accent: #FF5E5B;
+            --light: #F7F7F7;
+            --code-bg: #1A1A1A;
+            --spacing: clamp(1rem, 5vw, 5rem);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Space Mono', monospace, system-ui;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing);
+        }
+        
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .title-block {
+            font-size: clamp(2rem, 12vw, 8rem);
+            line-height: 0.9;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+        
+        .tagline {
+            font-size: clamp(1rem, 5vw, 2rem);
+            margin-bottom: 3rem;
+            max-width: 800px;
+        }
+        
+        .accent {
+            color: var(--accent);
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--accent);
+        }
+        
+        section {
+            padding: var(--spacing) 0;
+        }
+        
+        .section-title {
+            font-size: clamp(2rem, 8vw, 4rem);
+            margin-bottom: 2rem;
+            line-height: 1;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        
+        .feature {
+            border-top: 4px solid var(--primary);
+            padding-top: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature p {
+            font-size: 1.1rem;
+        }
+        
+        .code-block {
+            background-color: var(--code-bg);
+            color: white;
+            padding: 2rem;
+            overflow-x: auto;
+            margin: 3rem 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            border-left: 8px solid var(--accent);
+        }
+        
+        .evolution {
+            display: flex;
+            flex-direction: column;
+            margin: 4rem 0;
+        }
+        
+        .stage {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 4rem;
+        }
+        
+        .stage-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stage-number {
+            font-size: 5rem;
+            font-weight: bold;
+            opacity: 0.1;
+            margin-right: 1rem;
+        }
+        
+        .stage-title {
+            font-size: 2rem;
+        }
+        
+        .stage-content {
+            margin-left: 5rem;
+        }
+        
+        .diagram {
+            width: 100%;
+            height: 400px;
+            background-color: white;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .diagram svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .node {
+            fill: white;
+            stroke: var(--primary);
+            stroke-width: 2px;
+        }
+        
+        .node-text {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        
+        .edge {
+            stroke: var(--primary);
+            stroke-width: 2px;
+        }
+        
+        .edge-text {
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            text-anchor: middle;
+            fill: var(--primary);
+        }
+        
+        .arrow {
+            fill: var(--primary);
+        }
+        
+        .cta {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: calc(var(--spacing) * 2) 0;
+        }
+        
+        .cta h2 {
+            font-size: clamp(2rem, 6vw, 4rem);
+            margin-bottom: 2rem;
+        }
+        
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: var(--spacing) 0;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-links h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            opacity: 1;
+        }
+        
+        .copyright {
+            margin-top: 4rem;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .stage-content {
+                margin-left: 0;
+            }
+        }
+    </style>
 </head>
-
 <body>
-    <div style="padding: 5px">
-        <h1>Machine in Langium</h1>    
-        <a href="./playground.html">Playground</a>
-    </div>
-</body>
+    <header>
+        <div class="container">
+            <div class="title-block">
+                DyGram<span class="accent">.</span><br>
+                IDEATION → SYSTEM
+            </div>
+            <div class="tagline">
+                A lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting.
+            </div>
+            <a href="#evolution" class="btn">EXPLORE →</a>
+        </div>
+    </header>
+    
+    <section id="about">
+        <div class="container">
+            <h2 class="section-title">RAPID PROTOTYPING</h2>
+            <p style="font-size: 1.5rem; max-width: 800px;">
+                DyGram starts broad and unstructured but is immediately executable, evolving toward more structured and complex systems through feedback and iteration.
+            </p>
+            
+            <div class="feature-grid">
+                <div class="feature">
+                    <h3 class="feature-title">LEAN CORE DSL</h3>
+                    <p>Begin with a minimal, intuitive language that captures domain concepts without unnecessary complexity.</p>
+                </div>
+                <div class="feature">
+                    <h3 class="feature-title">ITERATIVE EVOLUTION</h3>
+                    <p>Refine your model through execution, generative prompting, and continuous feedback loops.</p>
+                </div>
+                <div class="feature">
+                    <h3 class="feature-title">STRUCTURED EMERGENCE</h3>
+                    <p>Watch your system naturally evolve from explorative sketches to structured implementations as requirements clarify.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="evolution" class="dark">
+        <div class="container">
+            <h2 class="section-title">EVOLUTION IN ACTION</h2>
+            
+            <div class="evolution">
+                <div class="stage">
+                    <div class="stage-header">
+                        <div class="stage-number">01</div>
+                        <h3 class="stage-title">INITIAL EXPLORATION</h3>
+                    </div>
+                    <div class="stage-content">
+                        <p>Start with an immediately executable, unstructured representation of your domain.</p>
+                        
+                        <div class="code-block carousel-container">
+                            <div class="carousel">
+                                <div class="carousel-slide active">
+<pre>machine "Solution Sketch";
 
+Concept problem;
+Concept solution;
+
+problem -> solution;</pre>
+                                </div>
+                                <div class="carousel-slide">
+<pre>machine "Auth Flow";
+
+Concept user;
+Concept credentials;
+Concept session;
+
+user -> credentials -> session;</pre>
+                                </div>
+                                <div class="carousel-slide">
+<pre>machine "Data Pipeline";
+
+Concept source;
+Concept processor;
+Concept destination;
+
+source -> processor -> destination;</pre>
+                                </div>
+                            </div>
+                            <div class="carousel-nav">
+                                <button class="prev-btn">&lt;</button>
+                                <div class="carousel-dots">
+                                    <span class="dot active" data-index="0"></span>
+                                    <span class="dot" data-index="1"></span>
+                                    <span class="dot" data-index="2"></span>
+                                </div>
+                                <button class="next-btn">&gt;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stage">
+                    <div class="stage-header">
+                        <div class="stage-number">02</div>
+                        <h3 class="stage-title">ITERATIVE REFINEMENT</h3>
+                    </div>
+                    <div class="stage-content">
+                        <p>Through execution and feedback, add context and structure to your prototype.</p>
+                        
+                        <div class="code-block carousel-container">
+                            <div class="carousel">
+                                <div class="carousel-slide active">
+<pre>machine "Solution Framework";
+
+Concept problem "User Authentication" {
+    domain: "Security";
+    priority<Integer>: 9;
+    constraints: ["GDPR Compliance", "Low Latency"];
+};
+
+Concept solution "Token-based Auth" {
+    status: "Prototyping";
+    approach: "JWT Implementation";
+    metrics: ["Security", "Performance", "UX"];
+};
+
+problem -addresses-> solution;</pre>
+                                </div>
+                                <div class="carousel-slide">
+<pre>machine "Solution Framework";
+
+Concept problem "User Authentication" {
+    domain: "Security";
+    priority<Integer>: 9;
+    constraints: ["GDPR Compliance", "Low Latency"];
+    stakeholders: ["Security Team", "UX Team"];
+};
+
+Concept solution "Token-based Auth" {
+    status: "In Progress";
+    approach: "JWT Implementation";
+    metrics: ["Security", "Performance", "UX"];
+    components: ["JWT Generator", "Token Validator"];
+};
+
+problem -addresses, confidence: 0.8-> solution;</pre>
+                                </div>
+                                <div class="carousel-slide">
+<pre>machine "Solution Framework";
+
+Concept problem "User Authentication" {
+    domain: "Security";
+    priority<Integer>: 9;
+    constraints: ["GDPR Compliance", "Low Latency"];
+    stakeholders: ["Security Team", "UX Team"];
+    risks: ["Token Theft", "Session Hijacking"];
+};
+
+Concept solution "Token-based Auth" {
+    status: "Testing";
+    approach: "JWT Implementation";
+    metrics: ["Security", "Performance", "UX"];
+    components: ["JWT Generator", "Token Validator", "Refresh Logic"];
+    tests: ["Penetration Testing", "Load Testing"];
+};
+
+Resource documentation "Auth Flow Diagram" {
+    url: "https://repo.example.com/auth-flow.pdf";
+    access: "Internal";
+};
+
+problem -addresses, confidence: 0.9-> solution;
+solution -documented_by-> documentation;</pre>
+                                </div>
+                            </div>
+                            <div class="carousel-nav">
+                                <button class="prev-btn">&lt;</button>
+                                <div class="carousel-dots">
+                                    <span class="dot active" data-index="0"></span>
+                                    <span class="dot" data-index="1"></span>
+                                    <span class="dot" data-index="2"></span>
+                                </div>
+                                <button class="next-btn">&gt;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stage">
+                    <div class="stage-header">
+                        <div class="stage-number">03</div>
+                        <h3 class="stage-title">STRUCTURED SYSTEM</h3>
+                    </div>
+                    <div class="stage-content">
+                        <p>Evolve into a comprehensive executable model that bridges conceptual and technical domains.</p>
+                        
+                        <div class="code-block carousel-container">
+                            <div class="carousel">
+                                <div class="carousel-slide active">
+<pre>machine "Knowledge Management System";
+
+Concept idea "Neural Interface" {
+    creator: "Research Team";
+    created<Date>: "2025-01-15";
+    priority<Integer>: 8;
+    domain: "Neuroscience";
+    description: "Direct neural interface for thought-to-text";
+    tags: ["neural", "interface", "breakthrough"];
+};
+
+Implementation implementation "Neural Interface Prototype" {
+    status: "In Progress";
+    owner: "Engineering";
+    deadline<Date>: "2025-03-30";
+    repository: "github.com/org/neural-interface";
+    version<SemanticVersion>: "0.1.0";
+    dependencies: ["tensorflow", "brain-compute-sdk"];
+};
+
+Resource resource1 "Research Paper" {
+    url: "https://example.com/papers/neural-interfaces-2024";
+    format: "PDF";
+    access<AccessLevel>: "Confidential";
+};
+
+idea -inspires, confidence: 0.85-> implementation;
+idea -documented_in-> resource1;
+implementation -references-> resource1;</pre>
+                                </div>
+                                <div class="carousel-slide">
+<pre>machine "Project Management System";
+
+Team team "Development Squad" {
+    lead: "Jane Smith";
+    members: ["Alice", "Bob", "Charlie"];
+    skills: ["Frontend", "Backend", "DevOps"];
+};
+
+Feature feature "User Dashboard" {
+    priority<Integer>: 8;
+    epic: "User Experience";
+    status: "In Progress";
+    description: "Interactive dashboard showing user activity";
+    acceptance_criteria: [
+        "Shows activity graph for last 30 days",
+        "Allows filtering by activity type",
+        "Exports data in CSV format"
+    ];
+};
+
+Task task1 "Design Dashboard UI" {
+    assignee: "Alice";
+    estimated_hours<Float>: 8.5;
+    status: "Completed";
+};
+
+Task task2 "Implement API" {
+    assignee: "Bob";
+    estimated_hours<Float>: 16.0;
+    status: "In Progress";
+    dependencies: ["Database Schema Update"];
+};
+
+feature -broken_down_into-> task1;
+feature -broken_down_into-> task2;
+team -responsible_for-> feature;
+team.members[0] -assigned_to-> task1;</pre>
+                                </div>
+                                <div class="carousel-slide">
+<pre>machine "Supply Chain System";
+
+Entity supplier "Global Electronics Inc" {
+    id<UUID>: "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
+    location: "Shanghai, China";
+    reliability<Float>: 0.92;
+    lead_time_days<Integer>: 14;
+    certification: ["ISO9001", "ISO14001"];
+};
+
+Entity component "CPU-X5000" {
+    sku: "CP-X5000-01";
+    category: "Processor";
+    unit_cost<Currency>: "USD 120.50";
+    stock<Integer>: 250;
+    reorder_point<Integer>: 100;
+};
+
+Process ordering "Procurement Process" {
+    trigger: "Stock below reorder point";
+    steps: [
+        "Generate purchase request",
+        "Approve purchase order",
+        "Send to supplier",
+        "Confirm receipt",
+        "Update inventory"
+    ];
+    avg_cycle_time_days<Float>: 18.5;
+    owner: "Procurement Team";
+};
+
+supplier -provides-> component;
+component -used_in-> ordering;
+ordering -involves-> supplier;</pre>
+                                </div>
+                            </div>
+                            <div class="carousel-nav">
+                                <button class="prev-btn">&lt;</button>
+                                <div class="carousel-dots">
+                                    <span class="dot active" data-index="0"></span>
+                                    <span class="dot" data-index="1"></span>
+                                    <span class="dot" data-index="2"></span>
+                                </div>
+                                <button class="next-btn">&gt;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="diagram">
+                <svg viewBox="0 0 800 350">
+                    <!-- Idea Node -->
+                    <rect class="node" x="100" y="100" width="200" height="120" rx="4" ry="4"></rect>
+                    <text class="node-text" x="200" y="130" font-weight="bold">Concept: idea</text>
+                    <text class="node-text" x="200" y="150" font-style="italic">"Neural Interface"</text>
+                    <text class="node-text" x="200" y="175" font-size="12">creator: "Research Team"</text>
+                    <text class="node-text" x="200" y="195" font-size="12">priority: 8</text>
+                    
+                    <!-- Implementation Node -->
+                    <rect class="node" x="500" y="100" width="200" height="120" rx="4" ry="4"></rect>
+                    <text class="node-text" x="600" y="130" font-weight="bold">Implementation: implementation</text>
+                    <text class="node-text" x="600" y="150" font-style="italic">"Neural Interface Prototype"</text>
+                    <text class="node-text" x="600" y="175" font-size="12">status: "In Progress"</text>
+                    <text class="node-text" x="600" y="195" font-size="12">owner: "Engineering"</text>
+                    
+                    <!-- Resource Node -->
+                    <rect class="node" x="300" y="280" width="200" height="100" rx="4" ry="4"></rect>
+                    <text class="node-text" x="400" y="310" font-weight="bold">Resource: resource1</text>
+                    <text class="node-text" x="400" y="330" font-style="italic">"Research Paper"</text>
+                    <text class="node-text" x="400" y="350" font-size="12">access: "Confidential"</text>
+                    
+                    <!-- Idea to Implementation Edge -->
+                    <line class="edge" x1="300" y1="140" x2="500" y2="140"></line>
+                    <polygon class="arrow" points="495,135 500,140 495,145"></polygon>
+                    <text class="edge-text" x="400" y="130">inspires</text>
+                    <text class="edge-text" x="400" y="150" font-size="10">confidence: 0.85</text>
+                    
+                    <!-- Idea to Resource Edge -->
+                    <line class="edge" x1="200" y1="220" x2="300" y2="280"></line>
+                    <polygon class="arrow" points="295,275 300,280 291,278"></polygon>
+                    <text class="edge-text" x="230" y="260">documented_in</text>
+                    
+                    <!-- Implementation to Resource Edge -->
+                    <line class="edge" x1="500" y1="220" x2="400" y2="280"></line>
+                    <polygon class="arrow" points="398,272 400,280 391,275"></polygon>
+                    <text class="edge-text" x="470" y="260">references</text>
+                </svg>
+            </div>
+        </div>
+    </section>
+    
+    <section class="cta">
+        <div class="container">
+            <h2>EXPLORATION → IMPLEMENTATION</h2>
+            <a href="playground.html" class="btn">GET STARTED →</a>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-links">
+                    <h3>DOCUMENTATION</h3>
+                    <ul>
+                        <li><a href="#">Quick Start</a></li>
+                        <li><a href="#">Grammar Reference</a></li>
+                        <li><a href="#">Examples</a></li>
+                        <li><a href="#">Integration</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>RESOURCES</h3>
+                    <ul>
+                        <li><a href="#">GitHub</a></li>
+                        <li><a href="#">VS Code Extension</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">Libraries</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>COMMUNITY</h3>
+                    <ul>
+                        <li><a href="#">Discord</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Events</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 DyGram. All rights reserved.
+            </div>
+        </div>
+    </footer>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all carousels
+    const carousels = document.querySelectorAll('.carousel-container');
+    
+    carousels.forEach(carousel => {
+        const slides = carousel.querySelectorAll('.carousel-slide');
+        const dots = carousel.querySelectorAll('.dot');
+        const prevBtn = carousel.querySelector('.prev-btn');
+        const nextBtn = carousel.querySelector('.next-btn');
+        
+        // Setup navigation
+        prevBtn.addEventListener('click', () => {
+            navigateSlide(-1, carousel);
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            navigateSlide(1, carousel);
+        });
+        
+        // Setup dots navigation
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const slideIndex = parseInt(dot.getAttribute('data-index'));
+                showSlide(slideIndex, carousel);
+            });
+        });
+    });
+    
+    // Function to navigate slides
+    function navigateSlide(direction, carousel) {
+        const slides = carousel.querySelectorAll('.carousel-slide');
+        let currentIndex = 0;
+        
+        // Find the current active slide index
+        slides.forEach((slide, index) => {
+            if (slide.classList.contains('active')) {
+                currentIndex = index;
+            }
+        });
+        
+        // Calculate new index
+        let newIndex = currentIndex + direction;
+        
+        // Handle wraparound
+        if (newIndex < 0) {
+            newIndex = slides.length - 1;
+        } else if (newIndex >= slides.length) {
+            newIndex = 0;
+        }
+        
+        // Show the new slide
+        showSlide(newIndex, carousel);
+    }
+    
+    // Function to show a specific slide
+    function showSlide(index, carousel) {
+        const slides = carousel.querySelectorAll('.carousel-slide');
+        const dots = carousel.querySelectorAll('.dot');
+        
+        // Hide all slides and deactivate all dots
+        slides.forEach(slide => {
+            slide.classList.remove('active');
+        });
+        
+        dots.forEach(dot => {
+            dot.classList.remove('active');
+        });
+        
+        // Show the selected slide and activate the corresponding dot
+        slides[index].classList.add('active');
+        dots[index].classList.add('active');
+    }
+});
+    </script>
+</body>
 </html>
