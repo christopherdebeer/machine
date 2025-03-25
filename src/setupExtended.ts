@@ -27,9 +27,12 @@ export const setupConfigExtended = (src: string, options: any): UserConfig => {
         $type: 'extended',
         languageId: 'machine',
         code: src,
+        codeUri: `example-${Math.random() * 1000000000}.machine`,
         useDiffEditor: false,
         editorOptions: {
+            wordWrap: "on",
             ...options,
+            
         },
         extensions: [{
             config: {
@@ -114,24 +117,24 @@ s1 -catch-> init;
     });
     const wrapper = new MonacoEditorLanguageClientWrapper();
     await wrapper.initAndStart(userConfig, htmlElement);
-    wrapper.getEditor()?.updateOptions({
-        wordWrap: "on"
-    })
-    const src = wrapper.getEditor()?.getValue();
-    console.log(src);
+    // const src = wrapper.getEditor()?.getValue();
 
     const client = wrapper.getLanguageClient();
     if (!client) {
-        throw new Error('Unable to obtain language client for the Minilogo!');
+        throw new Error('Unable to obtain language client for the Machine!');
     }
 
     let running = false;
     let timeout: NodeJS.Timeout | null = null;
     client.onNotification('browser/DocumentChange', (resp) => {
         // always store this new program in local storage
+        if (!resp.uri.endsWith(userConfig.wrapperConfig.editorAppConfig.codeUri)) {
+            return;
+        }
+        console.log("browser/DocumentChange", resp, userConfig)
         const value = wrapper.getModel()?.getValue();
         if (window.localStorage && value) {
-            window.localStorage.setItem('mainCode', value);
+            window.localStorage.setItem(resp.uri, value);
         }
 
         // block until we're finished with a given run
