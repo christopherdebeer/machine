@@ -379,8 +379,8 @@ ordering -involves-> supplier;</div>
 
     <script type="module">
         // vite is used to resolve the included TypeScript files
-        import { configureMonacoWorkers } from '../src/setupCommon';
-        import { executeExtended } from '../src/setupExtended';
+        import { configureMonacoWorkers } from './src/setupCommon.ts';
+        import { executeExtended } from './src/setupExtended.ts';
 
         configureMonacoWorkers();
         // keep a reference to a promise for when the editor is finished starting
@@ -390,10 +390,10 @@ ordering -involves-> supplier;</div>
             executeExtended(el, false, out);
             el.closest('.carousel-slide').appendChild(out)
         })
-        
+
 
         // Initialize carousels
-        import { initializeCarousels } from '../src/web';
+        import { initializeCarousels } from './src/web/index.ts';
         initializeCarousels();
     </script>
 </body>
