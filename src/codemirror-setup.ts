@@ -6,6 +6,14 @@ import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } 
 import { foldGutter, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldKeymap } from '@codemirror/language';
 import { lintKeymap } from '@codemirror/lint';
 import { oneDark } from '@codemirror/theme-one-dark';
+import mermaid from 'mermaid';
+
+// Initialize mermaid with custom settings
+mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    htmlLabels: true
+});
 
 // Example code snippets
 const examples = {
@@ -58,12 +66,89 @@ processor -stores-> destination;`
 let editorView: EditorView | null = null;
 
 /**
+ * Download the diagram as SVG
+ */
+function downloadSVG(): void {
+    const svg = document.querySelector('#diagram svg');
+    if (!svg) {
+        alert('No diagram to download. Please run the code first.');
+        return;
+    }
+    const serializer = new XMLSerializer();
+    const source = serializer.serializeToString(svg);
+    const blob = new Blob([source], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'machine_diagram.svg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Download the diagram as PNG
+ */
+function downloadPNG(): void {
+    const svg = document.querySelector('#diagram svg');
+    if (!svg) {
+        alert('No diagram to download. Please run the code first.');
+        return;
+    }
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Could not get 2D context for canvas');
+        return;
+    }
+    const loader = new Image();
+
+    loader.onload = function() {
+        canvas.width = loader.width;
+        canvas.height = loader.height;
+        ctx.drawImage(loader, 0, 0);
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = 'machine_diagram.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    const serializer = new XMLSerializer();
+    const source = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serializer.serializeToString(svg));
+    loader.src = source;
+}
+
+/**
+ * Render Mermaid diagram
+ */
+async function renderDiagram(mermaidCode: string, container: HTMLElement): Promise<void> {
+    try {
+        const uniqueId = "mermaid-svg-" + Date.now();
+        await mermaid.mermaidAPI.getDiagramFromText(mermaidCode);
+        const render = await mermaid.render(uniqueId, mermaidCode);
+        container.innerHTML = render.svg;
+        render.bindFunctions?.(container);
+    } catch (error) {
+        console.error('Error rendering diagram:', error);
+        container.innerHTML = `
+            <div class="error">
+                <strong>Diagram Error:</strong> ${error instanceof Error ? error.message : 'Unknown error'}
+            </div>
+        `;
+    }
+}
+
+/**
  * Set up CodeMirror editor with mobile-optimized configuration
  */
 export function setupCodeMirrorPlayground(): void {
     const editorElement = document.getElementById('editor');
     const runBtn = document.getElementById('run-btn');
-    const shareBtn = document.getElementById('share-btn');
+    const downloadSvgBtn = document.getElementById('download-svg-btn');
+    const downloadPngBtn = document.getElementById('download-png-btn');
     const outputElement = document.getElementById('output');
     const diagramElement = document.getElementById('diagram');
 
@@ -152,13 +237,17 @@ export function setupCodeMirrorPlayground(): void {
         });
     }
 
-    // Set up share button
-    if (shareBtn) {
-        shareBtn.addEventListener('click', () => {
-            if (editorView) {
-                const code = editorView.state.doc.toString();
-                shareCode(code);
-            }
+    // Set up download SVG button
+    if (downloadSvgBtn) {
+        downloadSvgBtn.addEventListener('click', () => {
+            downloadSVG();
+        });
+    }
+
+    // Set up download PNG button
+    if (downloadPngBtn) {
+        downloadPngBtn.addEventListener('click', () => {
+            downloadPNG();
         });
     }
 
@@ -172,9 +261,56 @@ export function setupCodeMirrorPlayground(): void {
 }
 
 /**
+ * Generate a simple Mermaid diagram from Machine DSL code
+ */
+function generateMermaidFromCode(code: string): string {
+    // This is a simplified parser - in production this would use the Langium parser
+    // Extract states
+    const states: string[] = [];
+    const stateRegex = /state\s+(\w+)/g;
+    let match;
+    while ((match = stateRegex.exec(code)) !== null) {
+        states.push(match[1]);
+    }
+
+    // Extract transitions
+    const transitions: Array<{from: string, to: string, label?: string}> = [];
+    const transitionRegex = /(\w+)\s*-([^>]*)->\s*(\w+)/g;
+    while ((match = transitionRegex.exec(code)) !== null) {
+        const label = match[2].trim();
+        transitions.push({
+            from: match[1],
+            to: match[3],
+            label: label || undefined
+        });
+    }
+
+    // Generate Mermaid code
+    let mermaid = 'stateDiagram-v2\n';
+
+    // Add transitions (which will implicitly define states)
+    for (const t of transitions) {
+        if (t.label) {
+            mermaid += `    ${t.from} --> ${t.to}: ${t.label}\n`;
+        } else {
+            mermaid += `    ${t.from} --> ${t.to}\n`;
+        }
+    }
+
+    // If no transitions but we have states, just list them
+    if (transitions.length === 0 && states.length > 0) {
+        for (const state of states) {
+            mermaid += `    ${state}\n`;
+        }
+    }
+
+    return mermaid;
+}
+
+/**
  * Execute the code and display results
  */
-function executeCode(code: string, outputElement: HTMLElement | null, diagramElement: HTMLElement | null): void {
+async function executeCode(code: string, outputElement: HTMLElement | null, diagramElement: HTMLElement | null): Promise<void> {
     if (!outputElement) return;
 
     outputElement.innerHTML = '<div class="loading">Processing...</div>';
@@ -189,6 +325,9 @@ function executeCode(code: string, outputElement: HTMLElement | null, diagramEle
             timestamp: new Date().toISOString(),
         };
 
+        // Generate Mermaid diagram
+        const mermaidCode = generateMermaidFromCode(code);
+
         // Display results
         outputElement.innerHTML = `
             <div style="color: #4ec9b0; margin-bottom: 12px;">
@@ -200,27 +339,10 @@ function executeCode(code: string, outputElement: HTMLElement | null, diagramEle
             </div>
         `;
 
-        // In a real implementation, this would generate and render a Mermaid diagram
+        // Render Mermaid diagram
         if (diagramElement) {
-            diagramElement.innerHTML = `
-                <div style="text-align: center; padding: 24px; color: #858585;">
-                    <svg width="200" height="100" viewBox="0 0 200 100">
-                        <rect x="10" y="10" width="80" height="40" fill="#0e639c" rx="4"/>
-                        <text x="50" y="35" text-anchor="middle" fill="white" font-size="12">Start</text>
-                        <line x1="90" y1="30" x2="110" y2="30" stroke="#858585" stroke-width="2" marker-end="url(#arrowhead)"/>
-                        <rect x="110" y="10" width="80" height="40" fill="#0e639c" rx="4"/>
-                        <text x="150" y="35" text-anchor="middle" fill="white" font-size="12">End</text>
-                        <defs>
-                            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                                <polygon points="0 0, 10 3, 0 6" fill="#858585"/>
-                            </marker>
-                        </defs>
-                    </svg>
-                    <div style="margin-top: 12px; font-size: 12px;">
-                        Diagram visualization (simplified)
-                    </div>
-                </div>
-            `;
+            diagramElement.innerHTML = '<div class="loading">Rendering diagram...</div>';
+            await renderDiagram(mermaidCode, diagramElement);
         }
     } catch (error) {
         outputElement.innerHTML = `
@@ -231,35 +353,3 @@ function executeCode(code: string, outputElement: HTMLElement | null, diagramEle
     }
 }
 
-/**
- * Share code via clipboard or Web Share API
- */
-function shareCode(code: string): void {
-    if (navigator.share) {
-        navigator.share({
-            title: 'DyGram Code',
-            text: code,
-        }).catch(err => {
-            console.error('Error sharing:', err);
-            fallbackCopyToClipboard(code);
-        });
-    } else {
-        fallbackCopyToClipboard(code);
-    }
-}
-
-/**
- * Fallback copy to clipboard
- */
-function fallbackCopyToClipboard(text: string): void {
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => {
-            alert('Code copied to clipboard!');
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-            alert('Failed to copy code');
-        });
-    } else {
-        alert('Sharing not supported in this browser');
-    }
-}
