@@ -11,19 +11,24 @@ export default defineConfig(() => {
             target: 'esnext',
             rollupOptions: {
                 input: {
-                    index: path.resolve(__dirname, 'static/index.html'),
-                    playground: path.resolve(__dirname, 'static/playground.html'),
+                    index: path.resolve(__dirname, 'index.html'),
+                    playground: path.resolve(__dirname, 'playground.html'),
+                    'playground-mobile': path.resolve(__dirname, 'playground-mobile.html'),
                 },
             },
             outDir: 'dist'
         },
-        
+
         plugins: [
             viteStaticCopy({
                 targets: [
                     {
                         src: 'static/styles.css',
-                        dest: '.'
+                        dest: 'static'
+                    },
+                    {
+                        src: 'static/styles/*',
+                        dest: 'static/styles'
                     }
                 ]
             })
