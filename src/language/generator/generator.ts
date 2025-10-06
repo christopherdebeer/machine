@@ -93,11 +93,28 @@ class JSONGenerator extends BaseGenerator {
     }
 
     private serializeAttributes(node: Node): any[] {
-        return node.attributes?.map(attr => ({
-            name: attr.name,
-            type: attr.type,
-            value: attr.value?.value
-        })) || [];
+        return node.attributes?.map(attr => {
+            // Extract the actual value from the AttributeValue
+            let value: any = attr.value?.value;
+
+            // If value property doesn't exist but we have a CST node, extract text from CST
+            if (value === undefined && attr.value?.$cstNode) {
+                const text = attr.value.$cstNode.text;
+                // Try to parse the text value
+                value = text;
+            }
+
+            // If value is an array, use the first element (or keep as array if needed)
+            // If it's a single value, use it directly
+            if (Array.isArray(value) && value.length === 1) {
+                value = value[0];
+            }
+            return {
+                name: attr.name,
+                type: attr.type,
+                value: value
+            };
+        }) || [];
     }
 
     private serializeEdges(): any[] {
@@ -128,9 +145,13 @@ class JSONGenerator extends BaseGenerator {
         labels.forEach((label, idx) => {
             label.value.forEach(attr => {
                 if (!attr.name && attr.text) {
-                    value['text'] = attr.text;
-                } else if (attr.name) {
-                    value[attr.name] = attr.value;
+                    // Extract the actual string value, removing quotes if present
+                    const textValue = typeof attr.text === 'string' ? attr.text.replace(/^["']|["']$/g, '') : attr.text;
+                    value['text'] = textValue;
+                } else if (attr.name && attr.value) {
+                    // Extract the actual value, handling nested value property
+                    const attrValue = typeof attr.value === 'object' && attr.value !== null && 'value' in attr.value ? (attr.value as any).value : attr.value;
+                    value[attr.name] = typeof attrValue === 'string' ? attrValue.replace(/^["']|["']$/g, '') : attrValue;
                 }
             });
         });
@@ -247,7 +268,15 @@ classDiagram-v2
                 // Format all attributes except desc/prompt for the class body
                 const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
                 const attributeLines = attributes.length > 0
-                    ? attributes.map(a => `+${a.name} ${a.type ? `: ${a.type}` : ''} = ${a.value}`).join('\\n')
+                    ? attributes.map(a => {
+                        // Extract the actual value from the attribute
+                        let displayValue = a.value?.value ?? a.value;
+                        // Remove quotes from string values for display
+                        if (typeof displayValue === 'string') {
+                            displayValue = displayValue.replace(/^["']|["']$/g, '');
+                        }
+                        return `+${a.name}${a.type ? ` : ${a.type}` : ''} = ${displayValue}`;
+                    }).join('\n')
                     : '';
 
                 return `${indent}  ${header} {
@@ -419,7 +448,15 @@ classDiagram-v2
                 // Format all attributes except desc/prompt for the class body
                 const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
                 const attributeLines = attributes.length > 0
-                    ? attributes.map(a => `+${a.name} ${a.type ? `: ${a.type}` : ''} = ${a.value}`).join('\n')
+                    ? attributes.map(a => {
+                        // Extract the actual value from the attribute
+                        let displayValue = a.value?.value ?? a.value;
+                        // Remove quotes from string values for display
+                        if (typeof displayValue === 'string') {
+                            displayValue = displayValue.replace(/^["']|["']$/g, '');
+                        }
+                        return `+${a.name}${a.type ? ` : ${a.type}` : ''} = ${displayValue}`;
+                    }).join('\n')
                     : '';
 
                 return `${indent}  ${header} {
