@@ -73,23 +73,23 @@ class JSONGenerator extends BaseGenerator {
     }
 
     private serializeNodes(): any[] {
-        // Flatten and transform nodes
-        return this.machine.nodes.flatMap(node => {
-            const baseNodes = [{
+        // Flatten and transform nodes recursively
+        const flattenNode = (node: Node, parentName?: string): any[] => {
+            const baseNode = {
                 name: node.name,
-                type: node.type,
+                type: parentName || node.type,
                 attributes: this.serializeAttributes(node)
-            }];
+            };
 
-            // Include child nodes with parent's name as their type
-            const childNodes = node.nodes.map(child => ({
-                name: child.name,
-                type: node.name,
-                attributes: this.serializeAttributes(child)
-            }));
+            // Recursively flatten child nodes
+            const childNodes = node.nodes.flatMap(child =>
+                flattenNode(child, node.name)
+            );
 
-            return [...baseNodes, ...childNodes];
-        });
+            return [baseNode, ...childNodes];
+        };
+
+        return this.machine.nodes.flatMap(node => flattenNode(node));
     }
 
     private serializeAttributes(node: Node): any[] {
@@ -124,11 +124,13 @@ class JSONGenerator extends BaseGenerator {
 
             return edge.segments.flatMap(segment => {
                 const targets = segment.target.map(t => t.ref?.name);
+                const edgeValue = this.serializeEdgeValue(segment.label);
                 const edges = currentSources.flatMap(source =>
                     targets.map(target => ({
                         source,
                         target,
-                        attributes: this.serializeEdgeValue(segment.label)
+                        value: edgeValue,
+                        attributes: edgeValue  // Keep for backward compatibility
                     })).filter(e => e.source && e.target)
                 );
                 currentSources = targets; // Update sources for next segment
