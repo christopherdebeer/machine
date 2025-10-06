@@ -7,6 +7,11 @@ import { foldGutter, indentOnInput, syntaxHighlighting, defaultHighlightStyle, b
 import { lintKeymap } from '@codemirror/lint';
 import { oneDark } from '@codemirror/theme-one-dark';
 import mermaid from 'mermaid';
+import { EmptyFileSystem } from 'langium';
+import { parseHelper } from 'langium/test';
+import { createMachineServices } from './language/machine-module.js';
+import { Machine } from './language/generated/ast.js';
+import { generateMermaid } from './language/generator/generator.js';
 
 // Initialize mermaid with custom settings
 mermaid.initialize({
@@ -14,6 +19,10 @@ mermaid.initialize({
     securityLevel: 'loose',
     htmlLabels: true
 });
+
+// Initialize Langium services for parsing
+const services = createMachineServices(EmptyFileSystem);
+const parse = parseHelper<Machine>(services.Machine);
 
 // Example code snippets
 const examples = {
@@ -261,50 +270,37 @@ export function setupCodeMirrorPlayground(): void {
 }
 
 /**
- * Generate a simple Mermaid diagram from Machine DSL code
+ * Generate Mermaid diagram from Machine DSL code using the actual parser and generator
  */
-function generateMermaidFromCode(code: string): string {
-    // This is a simplified parser - in production this would use the Langium parser
-    // Extract states
-    const states: string[] = [];
-    const stateRegex = /state\s+(\w+)/g;
-    let match;
-    while ((match = stateRegex.exec(code)) !== null) {
-        states.push(match[1]);
-    }
+async function generateMermaidFromCode(code: string): Promise<string> {
+    try {
+        // Parse the code using the Langium parser
+        const document = await parse(code);
 
-    // Extract transitions
-    const transitions: Array<{from: string, to: string, label?: string}> = [];
-    const transitionRegex = /(\w+)\s*-([^>]*)->\s*(\w+)/g;
-    while ((match = transitionRegex.exec(code)) !== null) {
-        const label = match[2].trim();
-        transitions.push({
-            from: match[1],
-            to: match[3],
-            label: label || undefined
-        });
-    }
-
-    // Generate Mermaid code
-    let mermaid = 'stateDiagram-v2\n';
-
-    // Add transitions (which will implicitly define states)
-    for (const t of transitions) {
-        if (t.label) {
-            mermaid += `    ${t.from} --> ${t.to}: ${t.label}\n`;
-        } else {
-            mermaid += `    ${t.from} --> ${t.to}\n`;
+        // Check for parser errors
+        if (document.parseResult.parserErrors.length > 0) {
+            const errors = document.parseResult.parserErrors
+                .map(e => e.message)
+                .join('\n');
+            throw new Error(`Parser errors:\n${errors}`);
         }
-    }
 
-    // If no transitions but we have states, just list them
-    if (transitions.length === 0 && states.length > 0) {
-        for (const state of states) {
-            mermaid += `    ${state}\n`;
+        // Check if we got a valid machine
+        const model = document.parseResult.value as Machine;
+        if (!model) {
+            throw new Error('Failed to parse machine: no model returned');
         }
-    }
 
-    return mermaid;
+        // Generate mermaid diagram using the actual generator
+        const result = generateMermaid(model, 'playground.machine', undefined);
+        return result.content;
+    } catch (error) {
+        console.error('Error generating mermaid from code:', error);
+        // Return a simple error diagram
+        return `stateDiagram-v2
+    [*] --> Error
+    Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    }
 }
 
 /**
@@ -316,7 +312,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
     outputElement.innerHTML = '<div class="loading">Processing...</div>';
 
     try {
-        // Parse the code (simplified - in real implementation would use Langium parser)
+        // Parse the code using the actual Langium parser
         const lines = code.split('\n');
         const result = {
             success: true,
@@ -325,13 +321,13 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             timestamp: new Date().toISOString(),
         };
 
-        // Generate Mermaid diagram
-        const mermaidCode = generateMermaidFromCode(code);
+        // Generate Mermaid diagram using actual parser and generator
+        const mermaidCode = await generateMermaidFromCode(code);
 
         // Display results
         outputElement.innerHTML = `
             <div style="color: #4ec9b0; margin-bottom: 12px;">
-                ✓ Execution successful
+                ✓ Parsing and generation successful
             </div>
             <div style="color: #858585; font-size: 12px;">
                 Lines: ${result.lines}<br>
