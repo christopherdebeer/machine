@@ -149,7 +149,7 @@ export function setupCodeMirrorPlayground(): void {
     const runBtn = document.getElementById('run-btn');
     const downloadSvgBtn = document.getElementById('download-svg-btn');
     const downloadPngBtn = document.getElementById('download-png-btn');
-    const outputElement = document.getElementById('output');
+    const outputElement = document.getElementById('outputInfo');
     const diagramElement = document.getElementById('diagram');
 
     if (!editorElement) {
