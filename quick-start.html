@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Start | DyGram</title>
+    <link rel="stylesheet" href="static/styles/main.css">
+</head>
+<body>
+    <header style="height: auto; padding: 4rem 0;">
+        <div class="container">
+            <a href="index.html" style="color: var(--primary); text-decoration: none; font-size: 1.2rem;">← Back to Home</a>
+            <div class="title-block" style="margin-top: 2rem;">
+                Quick Start<span class="accent">.</span>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <div class="container">
+            <h2 class="section-title">Getting Started</h2>
+
+            <div class="feature-grid">
+                <div class="feature">
+                    <h3 class="feature-title">01. INSTALLATION</h3>
+                    <p>Install DyGram via npm:</p>
+                    <div class="code-block" style="margin-top: 1rem;">
+                        <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">npm install</pre>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <h3 class="feature-title">02. DEVELOPMENT</h3>
+                    <p>Start the development server:</p>
+                    <div class="code-block" style="margin-top: 1rem;">
+                        <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">npm run dev</pre>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <h3 class="feature-title">03. CLI USAGE</h3>
+                    <p>Execute .mach files directly:</p>
+                    <div class="code-block" style="margin-top: 1rem;">
+                        <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">npx dygram your-file.mach</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem;">
+                <h2 class="section-title" style="font-size: 2rem;">Your First Machine</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                    Create a file called <code>hello.mach</code> with the following content:
+                </p>
+                <div class="code-block">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 1rem;">machine "Hello World"
+
+state start;
+state process;
+state end;
+
+start -> process -> end;</pre>
+                </div>
+
+                <p style="font-size: 1.2rem; margin-top: 2rem;">
+                    Run it:
+                </p>
+                <div class="code-block">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">npx dygram hello.mach</pre>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem;">
+                <h2 class="section-title" style="font-size: 2rem;">Playground</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                    Try DyGram instantly in your browser without installation:
+                </p>
+                <a href="playground-mobile.html" class="btn">MOBILE PLAYGROUND →</a>
+                <a href="playground.html" class="btn btn-secondary" style="margin-left: 12px; background: #3e3e42;">MONACO PLAYGROUND →</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-links">
+                    <h3>DOCUMENTATION</h3>
+                    <ul>
+                        <li><a href="quick-start.html">Quick Start</a></li>
+                        <li><a href="grammar-reference.html">Grammar Reference</a></li>
+                        <li><a href="examples.html">Examples</a></li>
+                        <li><a href="integration.html">Integration</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>RESOURCES</h3>
+                    <ul>
+                        <li><a href="https://github.com/christopherdebeer/machine" target="_blank">GitHub</a></li>
+                        <li><a href="vscode-extension.html">VS Code Extension</a></li>
+                        <li><a href="api.html">API</a></li>
+                        <li><a href="libraries.html">Libraries</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>COMMUNITY</h3>
+                    <ul>
+                        <li><a href="#">Discord</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="events.html">Events</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 DyGram. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

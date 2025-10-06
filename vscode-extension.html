@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VS Code Extension | DyGram</title>
+    <link rel="stylesheet" href="static/styles/main.css">
+</head>
+<body>
+    <header style="height: auto; padding: 4rem 0;">
+        <div class="container">
+            <a href="index.html" style="color: var(--primary); text-decoration: none; font-size: 1.2rem;">← Back to Home</a>
+            <div class="title-block" style="margin-top: 2rem;">
+                VS Code Extension<span class="accent">.</span>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <div class="container">
+            <h2 class="section-title">Editor Integration</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 3rem;">
+                Full DyGram language support in Visual Studio Code.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature">
+                    <h3 class="feature-title">SYNTAX HIGHLIGHTING</h3>
+                    <p>Beautiful, semantic syntax highlighting for .mach files with support for:</p>
+                    <ul style="margin-top: 1rem; line-height: 1.8;">
+                        <li>Keywords and entity types</li>
+                        <li>Relationships and connections</li>
+                        <li>Type annotations</li>
+                        <li>String interpolation</li>
+                        <li>Comments</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h3 class="feature-title">INTELLISENSE</h3>
+                    <p>Smart code completion powered by Langium LSP:</p>
+                    <ul style="margin-top: 1rem; line-height: 1.8;">
+                        <li>Entity type suggestions</li>
+                        <li>Attribute completions</li>
+                        <li>Relationship labels</li>
+                        <li>Type annotations</li>
+                        <li>Context-aware suggestions</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h3 class="feature-title">REAL-TIME VALIDATION</h3>
+                    <p>Instant feedback on syntax and semantic errors:</p>
+                    <ul style="margin-top: 1rem; line-height: 1.8;">
+                        <li>Syntax error detection</li>
+                        <li>Type checking</li>
+                        <li>Undefined reference warnings</li>
+                        <li>Quick fixes</li>
+                        <li>Inline diagnostics</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h3 class="feature-title">DIAGRAM PREVIEW</h3>
+                    <p>Visualize your DyGram models as Mermaid diagrams directly in the editor:</p>
+                    <ul style="margin-top: 1rem; line-height: 1.8;">
+                        <li>Live diagram generation</li>
+                        <li>Side-by-side view</li>
+                        <li>Auto-refresh on save</li>
+                        <li>Export to PNG/SVG</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h3 class="feature-title">CODE NAVIGATION</h3>
+                    <p>Navigate large DyGram files with ease:</p>
+                    <ul style="margin-top: 1rem; line-height: 1.8;">
+                        <li>Go to definition</li>
+                        <li>Find all references</li>
+                        <li>Symbol outline</li>
+                        <li>Breadcrumb navigation</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h3 class="feature-title">FORMATTING</h3>
+                    <p>Keep your code clean and consistent:</p>
+                    <ul style="margin-top: 1rem; line-height: 1.8;">
+                        <li>Auto-formatting on save</li>
+                        <li>Configurable indentation</li>
+                        <li>Code folding</li>
+                        <li>Comment toggling</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem;">
+                <h2 class="section-title" style="font-size: 2rem;">Installation</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                    The extension is built into the project. To develop with it:
+                </p>
+                <div class="code-block">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;"># Clone the repository
+git clone https://github.com/christopherdebeer/machine.git
+
+# Install dependencies
+npm install
+
+# Build the extension
+npm run build
+
+# Open in VS Code
+code .</pre>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem;">
+                <h2 class="section-title" style="font-size: 2rem;">Usage</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 1rem;">
+                    Create a new file with the <code>.mach</code> extension and start typing. The extension will automatically activate and provide language support.
+                </p>
+                <p style="font-size: 1.2rem;">
+                    Press <strong>F5</strong> to launch a development instance of VS Code with the extension loaded.
+                </p>
+            </div>
+
+            <div style="margin-top: 4rem;">
+                <h2 class="section-title" style="font-size: 2rem;">Technology</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                    Built with modern language server technology:
+                </p>
+                <div class="feature-grid">
+                    <div class="feature">
+                        <h3 class="feature-title">LANGIUM</h3>
+                        <p>Powerful language engineering framework that provides the foundation for all language features.</p>
+                    </div>
+                    <div class="feature">
+                        <h3 class="feature-title">LSP</h3>
+                        <p>Language Server Protocol ensures consistent behavior across all editors that support LSP.</p>
+                    </div>
+                    <div class="feature">
+                        <h3 class="feature-title">MONACO</h3>
+                        <p>VS Code's editor component provides rich editing capabilities in the browser playground.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-links">
+                    <h3>DOCUMENTATION</h3>
+                    <ul>
+                        <li><a href="quick-start.html">Quick Start</a></li>
+                        <li><a href="grammar-reference.html">Grammar Reference</a></li>
+                        <li><a href="examples.html">Examples</a></li>
+                        <li><a href="integration.html">Integration</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>RESOURCES</h3>
+                    <ul>
+                        <li><a href="https://github.com/christopherdebeer/machine" target="_blank">GitHub</a></li>
+                        <li><a href="vscode-extension.html">VS Code Extension</a></li>
+                        <li><a href="api.html">API</a></li>
+                        <li><a href="libraries.html">Libraries</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>COMMUNITY</h3>
+                    <ul>
+                        <li><a href="#">Discord</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="events.html">Events</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 DyGram. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
