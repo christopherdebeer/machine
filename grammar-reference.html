@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Reference | DyGram</title>
+    <link rel="stylesheet" href="static/styles/main.css">
+</head>
+<body>
+    <header style="height: auto; padding: 4rem 0;">
+        <div class="container">
+            <a href="index.html" style="color: var(--primary); text-decoration: none; font-size: 1.2rem;">← Back to Home</a>
+            <div class="title-block" style="margin-top: 2rem;">
+                Grammar Reference<span class="accent">.</span>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <div class="container">
+            <h2 class="section-title">Language Syntax</h2>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">BASIC STRUCTURE</h3>
+                <p>Every DyGram program starts with a machine declaration:</p>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">machine "My System"
+
+// Define states
+state start;
+state process;
+state end;
+
+// Define connections
+start -> process -> end;</pre>
+                </div>
+            </div>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">TYPED CONCEPTS</h3>
+                <p>Add structure and metadata to your concepts:</p>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">Concept task "User Story" {
+    description&lt;string&gt;: "Implement feature";
+    priority&lt;Integer&gt;: 8;
+    tags: ["backend", "api"];
+};
+
+Concept implementation {
+    status: "In Progress";
+    owner: "Engineering";
+};
+
+task -drives-> implementation;</pre>
+                </div>
+            </div>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">GENERATIVE TASKS</h3>
+                <p>Integrate AI-powered tasks with prompt templates:</p>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">Input query {
+    text&lt;string&gt;: "Analyze sentiment";
+};
+
+Task analyze {
+    prompt: "Given {{ query.text }}, provide analysis";
+};
+
+Result output {
+    sentiment: "TBD";
+};
+
+query -> analyze -> output;</pre>
+                </div>
+            </div>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">ENTITY TYPES</h3>
+                <p>DyGram supports multiple entity types:</p>
+                <ul style="margin-top: 1rem; font-size: 1.1rem; line-height: 1.8;">
+                    <li><strong>Concept</strong> - Abstract ideas and domain concepts</li>
+                    <li><strong>Entity</strong> - Concrete domain objects</li>
+                    <li><strong>Task</strong> - Generative AI tasks with prompts</li>
+                    <li><strong>Input</strong> - System inputs and parameters</li>
+                    <li><strong>Result</strong> - Output values and results</li>
+                    <li><strong>Resource</strong> - External resources and references</li>
+                    <li><strong>Process</strong> - Business processes and workflows</li>
+                    <li><strong>Implementation</strong> - Technical implementations</li>
+                    <li><strong>Feature</strong> - Product features</li>
+                    <li><strong>Team</strong> - Teams and organizational units</li>
+                </ul>
+            </div>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">TYPE ANNOTATIONS</h3>
+                <p>Supported type annotations:</p>
+                <ul style="margin-top: 1rem; font-size: 1.1rem; line-height: 1.8;">
+                    <li><strong>&lt;string&gt;</strong> - Text values</li>
+                    <li><strong>&lt;Integer&gt;</strong> - Whole numbers</li>
+                    <li><strong>&lt;Float&gt;</strong> - Decimal numbers</li>
+                    <li><strong>&lt;Date&gt;</strong> - Date values</li>
+                    <li><strong>&lt;UUID&gt;</strong> - Unique identifiers</li>
+                    <li><strong>&lt;Currency&gt;</strong> - Monetary values</li>
+                    <li><strong>&lt;SemanticVersion&gt;</strong> - Version numbers</li>
+                    <li><strong>&lt;AccessLevel&gt;</strong> - Access control levels</li>
+                </ul>
+            </div>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">RELATIONSHIPS</h3>
+                <p>Connect entities with labeled relationships:</p>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">// Simple connection
+a -> b;
+
+// Labeled relationship
+a -drives-> b;
+
+// Relationship with metadata
+a -addresses, confidence: 0.9-> b;</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-links">
+                    <h3>DOCUMENTATION</h3>
+                    <ul>
+                        <li><a href="quick-start.html">Quick Start</a></li>
+                        <li><a href="grammar-reference.html">Grammar Reference</a></li>
+                        <li><a href="examples.html">Examples</a></li>
+                        <li><a href="integration.html">Integration</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>RESOURCES</h3>
+                    <ul>
+                        <li><a href="https://github.com/christopherdebeer/machine" target="_blank">GitHub</a></li>
+                        <li><a href="vscode-extension.html">VS Code Extension</a></li>
+                        <li><a href="api.html">API</a></li>
+                        <li><a href="libraries.html">Libraries</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>COMMUNITY</h3>
+                    <ul>
+                        <li><a href="#">Discord</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="events.html">Events</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 DyGram. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

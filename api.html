@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference | DyGram</title>
+    <link rel="stylesheet" href="static/styles/main.css">
+</head>
+<body>
+    <header style="height: auto; padding: 4rem 0;">
+        <div class="container">
+            <a href="index.html" style="color: var(--primary); text-decoration: none; font-size: 1.2rem;">← Back to Home</a>
+            <div class="title-block" style="margin-top: 2rem;">
+                API Reference<span class="accent">.</span>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <div class="container">
+            <h2 class="section-title">Programmatic API</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 3rem;">
+                Use DyGram as a library in your Node.js applications.
+            </p>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">INSTALLATION</h3>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">npm install dygram</pre>
+                </div>
+            </div>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">PARSING</h3>
+                <p>Parse DyGram source code into an Abstract Syntax Tree (AST):</p>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;">import { createMachineServices } from 'dygram';
+import { EmptyFileSystem } from 'langium';
+
+const services = createMachineServices(EmptyFileSystem);
+const parser = services.Machine.parser.LangiumParser;
+
+const code = `machine "Example"
+  state a;
+  state b;
+  a -> b;`;
+
+const result = parser.parse(code);
+
+if (result.lexerErrors.length === 0 &&
+    result.parserErrors.length === 0) {
+  console.log('Parsed successfully!');
+  console.log(result.value);
+}</pre>
+                </div>
+            </div>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">EXECUTION</h3>
+                <p>Execute DyGram programs and access results:</p>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;">import { execute } from 'dygram/cli';
+
+const code = `machine "Task"
+  Input query { text: "Hello" };
+  Task process {
+    prompt: "Process {{ query.text }}"
+  };
+  Result output { value: "TBD" };
+
+  query -> process -> output;`;
+
+const result = await execute(code);
+console.log(result.output);</pre>
+                </div>
+            </div>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">VALIDATION</h3>
+                <p>Validate DyGram code and get diagnostic messages:</p>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;">import { createMachineServices } from 'dygram';
+import { EmptyFileSystem } from 'langium';
+
+const services = createMachineServices(EmptyFileSystem);
+const validator = services.Machine.validation.DocumentValidator;
+
+// Parse and validate
+const document = await services.shared.workspace
+  .LangiumDocuments.getOrCreateDocument(uri, code);
+
+const diagnostics = await validator.validateDocument(document);
+
+diagnostics.forEach(diag => {
+  console.log(`${diag.severity}: ${diag.message}`);
+});</pre>
+                </div>
+            </div>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">DIAGRAM GENERATION</h3>
+                <p>Generate Mermaid diagrams from DyGram code:</p>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;">import { generateMermaid } from 'dygram/cli';
+
+const code = `machine "Flow"
+  state start;
+  state end;
+  start -> end;`;
+
+const mermaid = generateMermaid(code);
+console.log(mermaid);
+
+// Output:
+// graph TD
+//   start --> end</pre>
+                </div>
+            </div>
+
+            <div class="feature" style="margin-bottom: 3rem;">
+                <h3 class="feature-title">LANGUAGE SERVER</h3>
+                <p>Start a language server for editor integration:</p>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;">import { startLanguageServer } from 'dygram/language-server';
+import { createConnection, ProposedFeatures } from 'vscode-languageserver/node';
+
+const connection = createConnection(ProposedFeatures.all);
+
+startLanguageServer(connection);</pre>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem;">
+                <h2 class="section-title" style="font-size: 2rem;">CLI Commands</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                    DyGram provides a command-line interface:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature">
+                        <h3 class="feature-title">EXECUTE</h3>
+                        <div class="code-block">
+                            <pre style="background: var(--code-bg); color: var(--light); padding: 1rem; overflow-x: auto; border-radius: 4px; font-size: 0.9rem;">npx dygram file.mach</pre>
+                        </div>
+                        <p style="margin-top: 0.5rem;">Execute a DyGram file</p>
+                    </div>
+
+                    <div class="feature">
+                        <h3 class="feature-title">VALIDATE</h3>
+                        <div class="code-block">
+                            <pre style="background: var(--code-bg); color: var(--light); padding: 1rem; overflow-x: auto; border-radius: 4px; font-size: 0.9rem;">npx dygram validate file.mach</pre>
+                        </div>
+                        <p style="margin-top: 0.5rem;">Check syntax and semantics</p>
+                    </div>
+
+                    <div class="feature">
+                        <h3 class="feature-title">EXPORT</h3>
+                        <div class="code-block">
+                            <pre style="background: var(--code-bg); color: var(--light); padding: 1rem; overflow-x: auto; border-radius: 4px; font-size: 0.9rem;">npx dygram export --format mermaid file.mach</pre>
+                        </div>
+                        <p style="margin-top: 0.5rem;">Generate diagrams and documentation</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem;">
+                <h2 class="section-title" style="font-size: 2rem;">TypeScript Support</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 1rem;">
+                    DyGram is written in TypeScript and provides full type definitions for all APIs.
+                </p>
+                <p style="font-size: 1.2rem;">
+                    See the <a href="https://github.com/christopherdebeer/machine" style="color: var(--accent); text-decoration: none;">GitHub repository</a> for detailed type information and source code.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-links">
+                    <h3>DOCUMENTATION</h3>
+                    <ul>
+                        <li><a href="quick-start.html">Quick Start</a></li>
+                        <li><a href="grammar-reference.html">Grammar Reference</a></li>
+                        <li><a href="examples.html">Examples</a></li>
+                        <li><a href="integration.html">Integration</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>RESOURCES</h3>
+                    <ul>
+                        <li><a href="https://github.com/christopherdebeer/machine" target="_blank">GitHub</a></li>
+                        <li><a href="vscode-extension.html">VS Code Extension</a></li>
+                        <li><a href="api.html">API</a></li>
+                        <li><a href="libraries.html">Libraries</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>COMMUNITY</h3>
+                    <ul>
+                        <li><a href="#">Discord</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="events.html">Events</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 DyGram. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
