@@ -19,374 +19,14 @@ beforeAll(async () => {
 /**
  * Generative Integration Test Suite
  *
- * Instead of static test cases, this suite:
- * 1. Generates diverse DyGram machines programmatically
+ * This suite validates the complete DyGram transformation pipeline:
+ * 1. Loads examples from the examples/ directory
  * 2. Transforms through full pipeline: DyGram → AST → JSON → Mermaid
  * 3. Validates completeness and losslessness
  * 4. Outputs visual inspection data
+ *
+ * See docs/testing-approach.md for methodology details.
  */
-
-// Helper to generate random valid identifiers
-function randomId(prefix: string = "node"): string {
-    return `${prefix}${Math.random().toString(36).substr(2, 6)}`;
-}
-
-// Helper to generate random attribute values
-function randomValue(): string | number | boolean | string[] {
-    const type = Math.floor(Math.random() * 4);
-    switch (type) {
-        case 0: return `"value${Math.random().toString(36).substr(2, 8)}"`;
-        case 1: return Math.floor(Math.random() * 1000);
-        case 2: return Math.random() > 0.5;
-        case 3: return `["item1", "item2", "item3"]`;
-        default: return "default";
-    }
-}
-
-// Machine generator that creates increasingly complex machines
-class MachineGenerator {
-    private nodeCounter = 0;
-
-    generateMinimalMachine(): string {
-        return `machine "Generated Minimal Machine"`;
-    }
-
-    generateSimpleNodeMachine(nodeCount: number = 3): string {
-        const nodes: string[] = [];
-        for (let i = 0; i < nodeCount; i++) {
-            nodes.push(`    ${randomId()};`);
-        }
-        return `machine "Simple Node Machine"\n${nodes.join('\n')}`;
-    }
-
-    generateTypedNodesMachine(): string {
-        const types = ['task', 'state', 'init', 'context'];
-        const nodes: string[] = [];
-
-        for (const type of types) {
-            for (let i = 0; i < 2; i++) {
-                const nodeName = randomId(type);
-                nodes.push(`    ${type} ${nodeName};`);
-            }
-        }
-
-        return `machine "Typed Nodes Machine"\n${nodes.join('\n')}`;
-    }
-
-    generateAttributesMachine(): string {
-        const node = randomId();
-        const attributes: string[] = [];
-
-        // Generate various attribute types
-        attributes.push(`        stringAttr<string>: "test value";`);
-        attributes.push(`        numberAttr<number>: ${Math.random() * 100};`);
-        attributes.push(`        boolAttr<boolean>: ${Math.random() > 0.5};`);
-        attributes.push(`        arrayAttr: ["a", "b", "c"];`);
-        attributes.push(`        untypedAttr: "untyped";`);
-
-        return `machine "Attributes Machine"\n    ${node} {\n${attributes.join('\n')}\n    }`;
-    }
-
-    generateEdgesMachine(nodeCount: number = 5, edgeCount: number = 7): string {
-        const nodes: string[] = [];
-        const edges: string[] = [];
-        const nodeNames: string[] = [];
-
-        // Generate nodes
-        for (let i = 0; i < nodeCount; i++) {
-            const name = randomId();
-            nodeNames.push(name);
-            nodes.push(`    ${name};`);
-        }
-
-        // Generate edges with various patterns
-        for (let i = 0; i < edgeCount; i++) {
-            const source = nodeNames[Math.floor(Math.random() * nodeNames.length)];
-            const target = nodeNames[Math.floor(Math.random() * nodeNames.length)];
-            const arrowTypes = ['->', '-->', '=>', '<-->'];
-            const arrow = arrowTypes[Math.floor(Math.random() * arrowTypes.length)];
-
-            edges.push(`    ${source} ${arrow} ${target};`);
-        }
-
-        return `machine "Edges Machine"\n${nodes.join('\n')}\n${edges.join('\n')}`;
-    }
-
-    generateLabeledEdgesMachine(): string {
-        const nodes = ['start', 'middle', 'end', 'error'];
-        const nodeDecls = nodes.map(n => `    ${n};`).join('\n');
-
-        const edges: string[] = [];
-        edges.push(`    start -init-> middle;`);
-        edges.push(`    middle -"process complete"-> end;`);
-        edges.push(`    middle -timeout: 5000;-> error;`);
-        edges.push(`    error -retry: 3; logLevel: 0;-> start;`);
-        edges.push(`    end -if: '(count > 10)';-> start;`);
-
-        return `machine "Labeled Edges Machine"\n${nodeDecls}\n${edges.join('\n')}`;
-    }
-
-    generateNestedMachine(depth: number = 2): string {
-        const generateNested = (level: number, maxLevel: number): string => {
-            const nodeName = randomId('level' + level);
-
-            if (level >= maxLevel) {
-                return `        ${'  '.repeat(level - 1)}${nodeName};`;
-            }
-
-            const children: string[] = [];
-            for (let i = 0; i < 2; i++) {
-                children.push(generateNested(level + 1, maxLevel));
-            }
-
-            return `        ${'  '.repeat(level - 1)}${nodeName} {\n${children.join('\n')}\n        ${'  '.repeat(level - 1)}}`;
-        };
-
-        const root = generateNested(1, depth);
-        return `machine "Nested Machine"\n${root}`;
-    }
-
-    generateComplexMachine(): string {
-        return `machine "Complex Generated Machine"
-
-        context config {
-            env<string>: "production";
-            maxRetries<number>: 3;
-            debug<boolean>: false;
-            tags: ["generated", "test"];
-        }
-
-        init startup "System Start" {
-            priority: "high";
-            timeout: 10000;
-        }
-
-        task process1 {
-            parallelism: 4;
-        }
-
-        task process2 {
-            batchSize: 100;
-        }
-
-        state validation;
-        state cleanup;
-
-        workflow recovery {
-            detect;
-            analyze;
-            fix;
-            detect -> analyze -> fix;
-        }
-
-        startup -> process1;
-        process1 -> process2;
-        process2 -> validation;
-        validation -> cleanup;
-        process1 -on: error;-> recovery;
-        recovery -timeout: 30000;-> process1;
-        cleanup -if: '(config.debug == true)';-> startup;`;
-    }
-
-    generateUnicodeMachine(): string {
-        return `machine "Unicode Machine 🔄"
-        start "開始" {
-            desc: "Starting point 开始";
-        }
-        process "処理" {
-            desc: "Processing 处理";
-        }
-        end "終了";
-
-        start -"ユーザーイベント"-> process;
-        process -"完成"-> end;`;
-    }
-
-    generateLargeMachine(nodeCount: number = 50): string {
-        const nodes: string[] = [];
-        const edges: string[] = [];
-
-        for (let i = 0; i < nodeCount; i++) {
-            const nodeName = `node${i}`;
-            const attrs: string[] = [];
-
-            // Add some attributes to make it interesting
-            if (i % 5 === 0) {
-                attrs.push(`            id<number>: ${i};`);
-                attrs.push(`            name<string>: "Node ${i}";`);
-            }
-
-            if (attrs.length > 0) {
-                nodes.push(`    ${nodeName} {\n${attrs.join('\n')}\n    }`);
-            } else {
-                nodes.push(`    ${nodeName};`);
-            }
-
-            // Create edges to form a connected graph
-            if (i > 0) {
-                edges.push(`    node${i - 1} -> node${i};`);
-            }
-
-            // Add some cross connections
-            if (i > 5 && i % 10 === 0) {
-                edges.push(`    node${i} -> node${i - 5};`);
-            }
-        }
-
-        // Close the loop
-        edges.push(`    node${nodeCount - 1} -> node0;`);
-
-        return `machine "Large Machine"\n${nodes.join('\n')}\n${edges.join('\n')}`;
-    }
-
-    generateSpecialCharactersMachine(): string {
-        // Note: Quoted node identifiers like "node with spaces" are not currently supported by the grammar
-        // This test uses valid identifiers with underscores and numbers
-        return `machine "Special Characters Test 🚀"
-        node_with_underscores;
-        nodeWithSpaces;
-        node123;
-        _privateNode;
-
-        node_with_underscores -> nodeWithSpaces;
-        nodeWithSpaces -"transition: with-dashes"-> node123;
-        node123 -"emoji: 🎉"-> _privateNode;`;
-    }
-
-    generateDeepAttributesMachine(): string {
-        // Note: Negative numbers in attributes are not currently supported by the grammar
-        // This test uses positive numbers and various other attribute types
-        return `machine "Deep Attributes Test"
-        node1 {
-            name<string>: "Primary Node";
-            count<number>: 42;
-            enabled<boolean>: true;
-            items: ["alpha", "beta", "gamma"];
-            ratio<number>: 3.14159;
-            status: "active";
-        }
-
-        node2 {
-            config: ["opt1", "opt2", "opt3"];
-            maxValue<number>: 99999;
-            minValue<number>: 0;
-            description<string>: "This is a very long description that contains multiple words and should be preserved exactly as written in the transformation pipeline";
-        }
-
-        node1 -config: "primary";-> node2;`;
-    }
-
-    generateEdgeCasesMachine(): string {
-        return `machine "Edge Cases Collection"
-        empty;
-        singleChar {
-            a: "x";
-        }
-
-        multipleEdges;
-        target1;
-        target2;
-        target3;
-
-        multipleEdges -> target1;
-        multipleEdges -> target2;
-        multipleEdges -> target3;
-
-        target1 -> target2 -> target3 -> empty;`;
-    }
-
-    generateComplexNestingMachine(): string {
-        return `machine "Complex Nesting Test"
-        root {
-            level1a {
-                level2a {
-                    level3a;
-                    level3b {
-                        level4;
-                    }
-                }
-                level2b;
-            }
-            level1b {
-                level2c;
-                level2d {
-                    level3c;
-                }
-            }
-        }`;
-    }
-
-    generateMixedArrowTypesMachine(): string {
-        return `machine "Mixed Arrow Types"
-        a;
-        b;
-        c;
-        d;
-        e;
-
-        a -> b;
-        b --> c;
-        c => d;
-        d <--> e;
-        e -> a;`;
-    }
-
-    generateContextHeavyMachine(): string {
-        return `machine "Context Heavy Machine"
-        context appConfig {
-            environment<string>: "production";
-            version<string>: "2.0.1";
-            debug<boolean>: false;
-            maxConnections<number>: 1000;
-            features: ["auth", "logging", "metrics"];
-        }
-
-        context userPrefs {
-            theme<string>: "dark";
-            language<string>: "en-US";
-            notifications<boolean>: true;
-        }
-
-        init bootstrap;
-        state ready;
-
-        bootstrap -> ready;`;
-    }
-
-    generateAllNodeTypesMachine(): string {
-        return `machine "All Node Types Test"
-        init startNode "Initialization Phase";
-        task processTask "Process Data";
-        state waitingState;
-        context configContext {
-            setting: "value";
-        }
-
-        regularNode;
-
-        startNode -> processTask;
-        processTask -> waitingState;
-        waitingState -> regularNode;`;
-    }
-
-    generateQuotedLabelsMachine(): string {
-        return `machine "Quoted Labels Machine"
-        start;
-        middle;
-        end;
-        error;
-
-        start -"user clicks button"-> middle;
-        middle -"validation: passed; retry: 3;"-> end;
-        middle -"error: timeout"-> error;
-        error -"retry attempt"-> start;`;
-    }
-
-    generateEmptyAndMinimalMachine(): string {
-        return `machine "Minimal Test"
-        a;`;
-    }
-}
 
 interface ValidationResult {
     testName: string;
@@ -486,13 +126,13 @@ class ValidationReporter {
 }
 
 describe('Generative Integration Tests', () => {
-    const generator = new MachineGenerator();
     const reporter = new ValidationReporter();
+    const examplesDir = path.join(process.cwd(), 'examples');
 
-    const runGenerativeTest = async (testName: string, sourceGenerator: () => string) => {
+    const runGenerativeTest = async (testName: string, source: string) => {
         const result: ValidationResult = {
             testName,
-            source: '',
+            source,
             passed: true,
             parseErrors: [],
             transformErrors: [],
@@ -502,11 +142,8 @@ describe('Generative Integration Tests', () => {
         };
 
         try {
-            // Generate source
-            result.source = sourceGenerator();
-
             // Parse
-            const document = await parse(result.source);
+            const document = await parse(source);
 
             // Check for parse errors
             if (document.parseResult.parserErrors.length > 0) {
@@ -534,7 +171,7 @@ describe('Generative Integration Tests', () => {
                 result.jsonOutput = JSON.parse(jsonResult.content);
 
                 // Validate completeness: all nodes should be in JSON
-                const sourceNodeNames = extractNodeNamesFromSource(result.source);
+                const sourceNodeNames = extractNodeNamesFromSource(source);
                 const jsonNodeNames = result.jsonOutput.nodes.map((n: any) => n.name);
 
                 for (const nodeName of sourceNodeNames) {
@@ -545,10 +182,10 @@ describe('Generative Integration Tests', () => {
                 }
 
                 // Check edge preservation
-                const sourceEdgeCount = (result.source.match(/->/g) || []).length +
-                                      (result.source.match(/-->/g) || []).length +
-                                      (result.source.match(/=>/g) || []).length +
-                                      (result.source.match(/<-->/g) || []).length;
+                const sourceEdgeCount = (source.match(/->/g) || []).length +
+                                      (source.match(/-->/g) || []).length +
+                                      (source.match(/=>/g) || []).length +
+                                      (source.match(/<-->/g) || []).length;
 
                 if (sourceEdgeCount > 0 && result.jsonOutput.edges.length === 0) {
                     result.completenessIssues.push(`Source has ${sourceEdgeCount} edges, but JSON has none`);
@@ -577,7 +214,7 @@ describe('Generative Integration Tests', () => {
                 }
 
                 // Check that nodes appear in Mermaid
-                const sourceNodeNames = extractNodeNamesFromSource(result.source);
+                const sourceNodeNames = extractNodeNamesFromSource(source);
                 for (const nodeName of sourceNodeNames) {
                     if (!result.mermaidOutput.includes(nodeName)) {
                         result.losslessnessIssues.push(`Node "${nodeName}" not found in Mermaid output`);
@@ -655,143 +292,144 @@ describe('Generative Integration Tests', () => {
         return [...new Set(names)]; // Remove duplicates
     };
 
-    test('Generated: Minimal Machine', async () => {
-        const result = await runGenerativeTest('Minimal Machine', () => generator.generateMinimalMachine());
+    // Helper to load example file
+    const loadExample = (category: string, filename: string): string => {
+        const filePath = path.join(examplesDir, category, filename);
+        return fs.readFileSync(filePath, 'utf-8');
+    };
+
+    // Basic Examples
+    test('Basic: Minimal Machine', async () => {
+        const source = loadExample('basic', 'minimal.dygram');
+        const result = await runGenerativeTest('Minimal Machine', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Simple Nodes (3)', async () => {
-        const result = await runGenerativeTest('Simple Nodes (3)', () => generator.generateSimpleNodeMachine(3));
+    test('Basic: Empty and Minimal', async () => {
+        const source = loadExample('basic', 'empty-and-minimal.dygram');
+        const result = await runGenerativeTest('Empty and Minimal', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Simple Nodes (10)', async () => {
-        const result = await runGenerativeTest('Simple Nodes (10)', () => generator.generateSimpleNodeMachine(10));
+    test('Basic: Simple Nodes (3)', async () => {
+        const source = loadExample('basic', 'simple-nodes-3.dygram');
+        const result = await runGenerativeTest('Simple Nodes (3)', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Typed Nodes', async () => {
-        const result = await runGenerativeTest('Typed Nodes', () => generator.generateTypedNodesMachine());
+    test('Basic: Typed Nodes', async () => {
+        const source = loadExample('basic', 'typed-nodes.dygram');
+        const result = await runGenerativeTest('Typed Nodes', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Attributes Machine', async () => {
-        const result = await runGenerativeTest('Attributes Machine', () => generator.generateAttributesMachine());
+    test('Basic: All Node Types', async () => {
+        const source = loadExample('basic', 'all-node-types.dygram');
+        const result = await runGenerativeTest('All Node Types', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Edges Machine (5 nodes, 7 edges)', async () => {
-        const result = await runGenerativeTest('Edges Machine', () => generator.generateEdgesMachine(5, 7));
+    // Attribute Examples
+    test('Attributes: Basic Attributes', async () => {
+        const source = loadExample('attributes', 'basic-attributes.dygram');
+        const result = await runGenerativeTest('Basic Attributes', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Labeled Edges', async () => {
-        const result = await runGenerativeTest('Labeled Edges', () => generator.generateLabeledEdgesMachine());
+    test('Attributes: Deep Attributes', async () => {
+        const source = loadExample('attributes', 'deep-attributes.dygram');
+        const result = await runGenerativeTest('Deep Attributes', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Nested Machine (2 levels)', async () => {
-        const result = await runGenerativeTest('Nested Machine (2 levels)', () => generator.generateNestedMachine(2));
+    // Edge Examples
+    test('Edges: Basic Edges', async () => {
+        const source = loadExample('edges', 'basic-edges.dygram');
+        const result = await runGenerativeTest('Basic Edges', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Nested Machine (3 levels)', async () => {
-        const result = await runGenerativeTest('Nested Machine (3 levels)', () => generator.generateNestedMachine(3));
+    test('Edges: Labeled Edges', async () => {
+        const source = loadExample('edges', 'labeled-edges.dygram');
+        const result = await runGenerativeTest('Labeled Edges', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Complex Machine', async () => {
-        const result = await runGenerativeTest('Complex Machine', () => generator.generateComplexMachine());
+    test('Edges: Mixed Arrow Types', async () => {
+        const source = loadExample('edges', 'mixed-arrow-types.dygram');
+        const result = await runGenerativeTest('Mixed Arrow Types', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Unicode Machine', async () => {
-        const result = await runGenerativeTest('Unicode Machine', () => generator.generateUnicodeMachine());
+    test('Edges: Quoted Labels', async () => {
+        const source = loadExample('edges', 'quoted-labels.dygram');
+        const result = await runGenerativeTest('Quoted Labels', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Large Machine (50 nodes)', async () => {
-        const result = await runGenerativeTest('Large Machine', () => generator.generateLargeMachine(50));
+    // Nesting Examples
+    test('Nesting: Nested (2 levels)', async () => {
+        const source = loadExample('nesting', 'nested-2-levels.dygram');
+        const result = await runGenerativeTest('Nested (2 levels)', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Large Machine (100 nodes)', async () => {
-        const result = await runGenerativeTest('Large Machine (100)', () => generator.generateLargeMachine(100));
+    test('Nesting: Nested (3 levels)', async () => {
+        const source = loadExample('nesting', 'nested-3-levels.dygram');
+        const result = await runGenerativeTest('Nested (3 levels)', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Special Characters Machine', async () => {
-        const result = await runGenerativeTest('Special Characters', () => generator.generateSpecialCharactersMachine());
+    test('Nesting: Complex Nesting', async () => {
+        const source = loadExample('nesting', 'complex-nesting.dygram');
+        const result = await runGenerativeTest('Complex Nesting', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Deep Attributes Machine', async () => {
-        const result = await runGenerativeTest('Deep Attributes', () => generator.generateDeepAttributesMachine());
+    test('Nesting: Deep Nested (5 levels)', async () => {
+        const source = loadExample('nesting', 'deep-nested-5-levels.dygram');
+        const result = await runGenerativeTest('Deep Nested (5 levels)', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Edge Cases Collection', async () => {
-        const result = await runGenerativeTest('Edge Cases Collection', () => generator.generateEdgeCasesMachine());
+    // Complex Examples
+    test('Complex: Complex Machine', async () => {
+        const source = loadExample('complex', 'complex-machine.dygram');
+        const result = await runGenerativeTest('Complex Machine', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Complex Nesting (4+ levels)', async () => {
-        const result = await runGenerativeTest('Complex Nesting', () => generator.generateComplexNestingMachine());
+    test('Complex: Unicode Machine', async () => {
+        const source = loadExample('complex', 'unicode-machine.dygram');
+        const result = await runGenerativeTest('Unicode Machine', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Mixed Arrow Types', async () => {
-        const result = await runGenerativeTest('Mixed Arrow Types', () => generator.generateMixedArrowTypesMachine());
+    test('Complex: Context Heavy', async () => {
+        const source = loadExample('complex', 'context-heavy.dygram');
+        const result = await runGenerativeTest('Context Heavy', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Context Heavy Machine', async () => {
-        const result = await runGenerativeTest('Context Heavy', () => generator.generateContextHeavyMachine());
+    // Stress Test Examples
+    test('Stress: Large Machine (50 nodes)', async () => {
+        const source = loadExample('stress', 'large-50-nodes.dygram');
+        const result = await runGenerativeTest('Large Machine (50 nodes)', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: All Node Types', async () => {
-        const result = await runGenerativeTest('All Node Types', () => generator.generateAllNodeTypesMachine());
+    // Edge Case Examples
+    test('Edge Cases: Special Characters', async () => {
+        const source = loadExample('edge-cases', 'special-characters.dygram');
+        const result = await runGenerativeTest('Special Characters', source);
         expect(result.passed).toBe(true);
     });
 
-    test('Generated: Quoted Labels Machine', async () => {
-        const result = await runGenerativeTest('Quoted Labels', () => generator.generateQuotedLabelsMachine());
+    test('Edge Cases: Edge Cases Collection', async () => {
+        const source = loadExample('edge-cases', 'edge-cases-collection.dygram');
+        const result = await runGenerativeTest('Edge Cases Collection', source);
         expect(result.passed).toBe(true);
     });
-
-    test('Generated: Empty and Minimal', async () => {
-        const result = await runGenerativeTest('Empty and Minimal', () => generator.generateEmptyAndMinimalMachine());
-        expect(result.passed).toBe(true);
-    });
-
-    test('Generated: Deep Nested Machine (5 levels)', async () => {
-        const result = await runGenerativeTest('Deep Nested (5 levels)', () => generator.generateNestedMachine(5));
-        expect(result.passed).toBe(true);
-    });
-
-    test('Generated: Large Machine (200 nodes)', async () => {
-        const result = await runGenerativeTest('Large Machine (200)', () => generator.generateLargeMachine(200));
-        expect(result.passed).toBe(true);
-    });
-
-    // Randomized stress tests
-    for (let i = 0; i < 10; i++) {
-        test(`Generated: Random Machine ${i + 1}`, async () => {
-            const generators = [
-                () => generator.generateSimpleNodeMachine(Math.floor(Math.random() * 20) + 1),
-                () => generator.generateEdgesMachine(
-                    Math.floor(Math.random() * 10) + 3,
-                    Math.floor(Math.random() * 15) + 5
-                ),
-                () => generator.generateNestedMachine(Math.floor(Math.random() * 3) + 1),
-            ];
-
-            const selectedGenerator = generators[Math.floor(Math.random() * generators.length)];
-            const result = await runGenerativeTest(`Random Machine ${i + 1}`, selectedGenerator);
-            expect(result.passed).toBe(true);
-        });
-    }
 
     // Write report after all tests
     test('Generate Report', () => {

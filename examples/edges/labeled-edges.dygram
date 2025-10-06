@@ -1,0 +1,11 @@
+machine "Labeled Edges Machine"
+start;
+middle;
+end;
+error;
+
+start -init-> middle;
+middle -"process complete"-> end;
+middle -timeout: 5000;-> error;
+error -retry: 3; logLevel: 0;-> start;
+end -if: '(count > 10)';-> start;

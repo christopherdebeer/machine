@@ -1,0 +1,9 @@
+machine "Special Characters Test 🚀"
+node_with_underscores;
+nodeWithSpaces;
+node123;
+_privateNode;
+
+node_with_underscores -> nodeWithSpaces;
+nodeWithSpaces -"transition: with-dashes"-> node123;
+node123 -"emoji: 🎉"-> _privateNode;

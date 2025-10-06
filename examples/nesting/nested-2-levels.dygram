@@ -1,0 +1,5 @@
+machine "Nested Machine"
+level1 {
+    level2a;
+    level2b;
+}

@@ -1,0 +1,18 @@
+machine "Complex Nesting Test"
+root {
+    level1a {
+        level2a {
+            level3a;
+            level3b {
+                level4;
+            }
+        }
+        level2b;
+    }
+    level1b {
+        level2c;
+        level2d {
+            level3c;
+        }
+    }
+}
