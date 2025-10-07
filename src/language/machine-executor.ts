@@ -313,6 +313,62 @@ export class MachineExecutor {
     }
 
     /**
+     * Generate context management tools for working with context nodes
+     */
+    private generateContextTools(): ToolDefinition[] {
+        return [
+            {
+                name: 'set_context_value',
+                description: 'Set a value in a context node attribute with type validation',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        nodeName: {
+                            type: 'string',
+                            description: 'Name of the context node to update'
+                        },
+                        attributeName: {
+                            type: 'string',
+                            description: 'Name of the attribute to set'
+                        },
+                        value: {
+                            type: ['string', 'number', 'boolean', 'object', 'array'],
+                            description: 'Value to set (will be validated against declared type)'
+                        }
+                    },
+                    required: ['nodeName', 'attributeName', 'value']
+                }
+            },
+            {
+                name: 'get_context_value',
+                description: 'Get a value from a context node attribute',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        nodeName: {
+                            type: 'string',
+                            description: 'Name of the context node to read from'
+                        },
+                        attributeName: {
+                            type: 'string',
+                            description: 'Name of the attribute to get'
+                        }
+                    },
+                    required: ['nodeName', 'attributeName']
+                }
+            },
+            {
+                name: 'list_context_nodes',
+                description: 'List all context nodes and their current values',
+                input_schema: {
+                    type: 'object',
+                    properties: {}
+                }
+            }
+        ];
+    }
+
+    /**
      * Handle tool use invocations
      */
     private handleToolUse(toolName: string, toolInput: any): any {
@@ -341,6 +397,15 @@ export class MachineExecutor {
 
             case 'get_execution_context':
                 return this.getContextSnapshot();
+
+            case 'set_context_value':
+                return this.setContextValue(toolInput.nodeName, toolInput.attributeName, toolInput.value);
+
+            case 'get_context_value':
+                return this.getContextValue(toolInput.nodeName, toolInput.attributeName);
+
+            case 'list_context_nodes':
+                return this.listContextNodes();
 
             default:
                 throw new Error(`Unknown tool: ${toolName}`);
@@ -495,6 +560,172 @@ export class MachineExecutor {
     }
 
     /**
+     * Set a value in a context node attribute with type validation
+     */
+    public setContextValue(nodeName: string, attributeName: string, value: any): any {
+        const node = this.machineData.nodes.find(n => n.name === nodeName);
+        if (!node) {
+            throw new Error(`Node ${nodeName} not found`);
+        }
+
+        // Find the attribute to get its declared type
+        const attribute = node.attributes?.find(a => a.name === attributeName);
+        if (!attribute) {
+            throw new Error(`Attribute ${attributeName} not found in node ${nodeName}`);
+        }
+
+        // Validate type if declared
+        if (attribute.type) {
+            const isValidType = this.validateValueType(value, attribute.type);
+            if (!isValidType) {
+                throw new Error(`Value type mismatch: expected ${attribute.type}, got ${typeof value}`);
+            }
+        }
+
+        // Update the attribute value
+        attribute.value = this.serializeValue(value);
+
+        // Record the mutation
+        this.recordMutation({
+            type: 'modify_node',
+            timestamp: new Date().toISOString(),
+            data: { name: nodeName, attributes: { [attributeName]: value } }
+        });
+
+        return {
+            success: true,
+            message: `Set ${nodeName}.${attributeName} = ${this.serializeValue(value)}`,
+            nodeName,
+            attributeName,
+            value: this.serializeValue(value),
+            type: attribute.type
+        };
+    }
+
+    /**
+     * Get a value from a context node attribute
+     */
+    public getContextValue(nodeName: string, attributeName: string): any {
+        const node = this.machineData.nodes.find(n => n.name === nodeName);
+        if (!node) {
+            throw new Error(`Node ${nodeName} not found`);
+        }
+
+        const attribute = node.attributes?.find(a => a.name === attributeName);
+        if (!attribute) {
+            throw new Error(`Attribute ${attributeName} not found in node ${nodeName}`);
+        }
+
+        // Parse the value back to its original type
+        const parsedValue = this.parseValue(attribute.value, attribute.type);
+
+        return {
+            success: true,
+            nodeName,
+            attributeName,
+            value: parsedValue,
+            type: attribute.type,
+            rawValue: attribute.value
+        };
+    }
+
+    /**
+     * List all context nodes and their current values
+     */
+    public listContextNodes(): any {
+        const contextNodes = this.machineData.nodes.filter(n => 
+            n.type?.toLowerCase() === 'context' || 
+            n.name.toLowerCase().includes('context') ||
+            n.name.toLowerCase().includes('output') ||
+            n.name.toLowerCase().includes('input')
+        );
+
+        const nodeData = contextNodes.map(node => ({
+            name: node.name,
+            type: node.type,
+            attributes: node.attributes?.map(attr => ({
+                name: attr.name,
+                type: attr.type,
+                value: this.parseValue(attr.value, attr.type),
+                rawValue: attr.value
+            })) || []
+        }));
+
+        return {
+            success: true,
+            contextNodes: nodeData,
+            count: contextNodes.length
+        };
+    }
+
+    /**
+     * Validate if a value matches the expected type
+     */
+    private validateValueType(value: any, expectedType: string): boolean {
+        switch (expectedType.toLowerCase()) {
+            case 'string':
+                return typeof value === 'string';
+            case 'number':
+                return typeof value === 'number';
+            case 'boolean':
+                return typeof value === 'boolean';
+            case 'array':
+                return Array.isArray(value);
+            case 'object':
+                return typeof value === 'object' && value !== null && !Array.isArray(value);
+            default:
+                // For custom types or unknown types, allow any value
+                return true;
+        }
+    }
+
+    /**
+     * Serialize a value for storage in the machine data
+     */
+    private serializeValue(value: any): string {
+        if (typeof value === 'string') {
+            return value;
+        }
+        return JSON.stringify(value);
+    }
+
+    /**
+     * Parse a stored value back to its original type
+     */
+    private parseValue(rawValue: string, type?: string): any {
+        // Remove quotes if present
+        let cleanValue = rawValue.replace(/^["']|["']$/g, '');
+        
+        if (!type) {
+            // Try to auto-detect and parse
+            try {
+                return JSON.parse(rawValue);
+            } catch {
+                return cleanValue;
+            }
+        }
+
+        switch (type.toLowerCase()) {
+            case 'string':
+                return cleanValue;
+            case 'number':
+                const num = Number(cleanValue);
+                return isNaN(num) ? cleanValue : num;
+            case 'boolean':
+                return cleanValue.toLowerCase() === 'true';
+            case 'array':
+            case 'object':
+                try {
+                    return JSON.parse(rawValue);
+                } catch {
+                    return cleanValue;
+                }
+            default:
+                return cleanValue;
+        }
+    }
+
+    /**
      * Serialize the current machine back to .mach DSL
      */
     public toMachineDefinition(): string {
@@ -563,6 +794,9 @@ export class MachineExecutor {
         if (isMeta) {
             tools.push(...this.generateMetaTools());
         }
+
+        // Always add context tools for working with context nodes
+        tools.push(...this.generateContextTools());
 
         console.log('🛠️ Generated tools:', tools.map(t => t.name));
 

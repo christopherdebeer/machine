@@ -86,7 +86,7 @@ parent {
 [Example: examples/nesting/complex-nesting.dygram](../examples/nesting/complex-nesting.dygram)
 
 ### Context Nodes
-Context nodes define shared configuration:
+Context nodes define shared configuration and data storage:
 ```dygram
 context appConfig {
     environment<string>: "production";
@@ -95,6 +95,36 @@ context appConfig {
 }
 ```
 [Example: examples/complex/context-heavy.dygram](../examples/complex/context-heavy.dygram)
+
+### Enhanced Context Management
+Tasks can dynamically read and write context values using built-in tools:
+
+**Setting context values:**
+```dygram
+Task generateData {
+  meta: true;
+  prompt: "Generate data and store it using set_context_value tool";
+};
+
+context output {
+  result<string>: "";
+  timestamp<number>: 0;
+};
+```
+
+**Reading context values with template variables:**
+```dygram
+Task processData {
+  prompt: "Process the data: {{output.result}} from {{output.timestamp}}";
+};
+```
+[Example: examples/context-management.mach](../examples/context-management.mach)
+[Example: examples/template-variables.mach](../examples/template-variables.mach)
+
+**Available Context Tools:**
+- `set_context_value(nodeName, attributeName, value)` - Store values with type validation
+- `get_context_value(nodeName, attributeName)` - Retrieve stored values
+- `list_context_nodes()` - List all context nodes and their values
 
 ## Real-World Example
 

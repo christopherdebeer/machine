@@ -160,8 +160,24 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     console.log(chalk.yellow('Machine structure:'));
     console.log(JSON.stringify(machineData, null, 2));
 
-    // Execute the machine
-    const executor = new MachineExecutor(machineData);
+    // Configure LLM client to use Anthropic with API key from environment
+    const config = {
+        llm: {
+            provider: 'anthropic' as const,
+            apiKey: process.env.ANTHROPIC_API_KEY,
+            model: 'claude-3-5-sonnet-20241022'
+        }
+    };
+
+    // Check if API key is available
+    if (!process.env.ANTHROPIC_API_KEY) {
+        console.log(chalk.yellow('Warning: ANTHROPIC_API_KEY environment variable not set.'));
+        console.log(chalk.yellow('Set it with: export ANTHROPIC_API_KEY=your_api_key_here'));
+        console.log(chalk.red('Execution will fail for Task nodes that require LLM processing.'));
+    }
+
+    // Execute the machine with Anthropic client configuration
+    const executor = await MachineExecutor.create(machineData, config);
     const executionResult = await executor.execute();
 
     // Write execution results

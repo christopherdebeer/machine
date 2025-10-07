@@ -31,6 +31,11 @@ Hierarchical node structures:
 - `complex-nesting.dygram` - Mixed nesting with 4+ levels
 - `deep-nested-5-levels.dygram` - Deep hierarchy validation
 
+### `/context-management`
+Enhanced context value management and schema validation:
+- `context-management.mach` - Context value storage and retrieval with set_context_value/get_context_value tools
+- `template-variables.mach` - Template variable resolution using {{nodeName.attributeName}} syntax
+
 ### `/complex`
 Real-world patterns and advanced features:
 - `complex-machine.dygram` - Full-featured machine with context, workflows, and conditions

@@ -45,6 +45,15 @@ Hierarchical structures with parent-child relationships.
 | [complex-nesting.dygram](../examples/nesting/complex-nesting.dygram) | Mixed nesting patterns | 4+ levels, multiple branches |
 | [deep-nested-5-levels.dygram](../examples/nesting/deep-nested-5-levels.dygram) | Deep hierarchy validation | 5 levels of nesting |
 
+## Context Management Examples
+
+Advanced context value management and schema validation.
+
+| Example | Description | Features |
+|---------|-------------|----------|
+| [context-management.mach](../examples/context-management.mach) | Context value storage and retrieval | set_context_value, get_context_value, typed attributes |
+| [template-variables.mach](../examples/template-variables.mach) | Template variable resolution | {{nodeName.attributeName}} syntax, dynamic prompts |
+
 ## Complex Examples
 
 Real-world patterns and advanced features.
