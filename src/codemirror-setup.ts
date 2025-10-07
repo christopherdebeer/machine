@@ -73,6 +73,13 @@ processor -stores-> destination;`
 };
 
 let editorView: EditorView | null = null;
+let updateDiagramTimeout: number | null = null;
+
+// LocalStorage keys
+const STORAGE_KEYS = {
+    MODEL: 'dygram_selected_model',
+    API_KEY: 'dygram_api_key'
+};
 
 /**
  * Download the diagram as SVG
@@ -151,6 +158,44 @@ async function renderDiagram(mermaidCode: string, container: HTMLElement): Promi
 }
 
 /**
+ * Load settings from localStorage
+ */
+function loadSettings(): { model: string; apiKey: string } {
+    return {
+        model: localStorage.getItem(STORAGE_KEYS.MODEL) || 'anthropic.claude-3-sonnet-20240229-v1:0',
+        apiKey: localStorage.getItem(STORAGE_KEYS.API_KEY) || ''
+    };
+}
+
+/**
+ * Save settings to localStorage
+ */
+function saveSettings(model: string, apiKey: string): void {
+    localStorage.setItem(STORAGE_KEYS.MODEL, model);
+    localStorage.setItem(STORAGE_KEYS.API_KEY, apiKey);
+}
+
+/**
+ * Update diagram with debouncing
+ */
+function scheduleUpdateDiagram(code: string, diagramElement: HTMLElement | null): void {
+    if (updateDiagramTimeout !== null) {
+        clearTimeout(updateDiagramTimeout);
+    }
+
+    updateDiagramTimeout = window.setTimeout(async () => {
+        if (diagramElement) {
+            try {
+                const mermaidCode = await generateMermaidFromCode(code);
+                await renderDiagram(mermaidCode, diagramElement);
+            } catch (error) {
+                console.error('Error updating diagram:', error);
+            }
+        }
+    }, 500); // 500ms debounce
+}
+
+/**
  * Set up CodeMirror editor with mobile-optimized configuration
  */
 export function setupCodeMirrorPlayground(): void {
@@ -160,10 +205,21 @@ export function setupCodeMirrorPlayground(): void {
     const downloadPngBtn = document.getElementById('download-png-btn');
     const outputElement = document.getElementById('outputInfo');
     const diagramElement = document.getElementById('diagram');
+    const modelSelect = document.getElementById('model-select') as HTMLSelectElement;
+    const apiKeyInput = document.getElementById('api-key-input') as HTMLInputElement;
 
     if (!editorElement) {
         console.error('Editor element not found');
         return;
+    }
+
+    // Load saved settings
+    const settings = loadSettings();
+    if (modelSelect) {
+        modelSelect.value = settings.model;
+    }
+    if (apiKeyInput) {
+        apiKeyInput.value = settings.apiKey;
     }
 
     // Create editor state with extensions
@@ -217,6 +273,15 @@ export function setupCodeMirrorPlayground(): void {
     editorView = new EditorView({
         state: startState,
         parent: editorElement,
+        dispatch: (transaction) => {
+            editorView?.update([transaction]);
+
+            // Update diagram on code changes
+            if (transaction.docChanged && diagramElement) {
+                const code = editorView?.state.doc.toString() || '';
+                scheduleUpdateDiagram(code, diagramElement);
+            }
+        }
     });
 
     // Set up example buttons
@@ -257,6 +322,19 @@ export function setupCodeMirrorPlayground(): void {
     if (downloadPngBtn) {
         downloadPngBtn.addEventListener('click', () => {
             downloadPNG();
+        });
+    }
+
+    // Set up settings change listeners
+    if (modelSelect) {
+        modelSelect.addEventListener('change', () => {
+            saveSettings(modelSelect.value, apiKeyInput?.value || '');
+        });
+    }
+
+    if (apiKeyInput) {
+        apiKeyInput.addEventListener('input', () => {
+            saveSettings(modelSelect?.value || '', apiKeyInput.value);
         });
     }
 

@@ -219,6 +219,50 @@
             margin: 8px;
             border-radius: 4px;
         }
+
+        .settings-panel {
+            background: #252526;
+            padding: 12px 16px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .settings-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .settings-group label {
+            font-size: 12px;
+            color: #cccccc;
+            white-space: nowrap;
+        }
+
+        .settings-input {
+            flex: 1;
+            background: #3e3e42;
+            color: #d4d4d4;
+            border: 1px solid #505053;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .settings-input:focus {
+            outline: none;
+            border-color: #0e639c;
+        }
+
+        select.settings-input {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -227,7 +271,24 @@
         <div class="header-actions">
             <button class="btn btn-secondary" id="download-svg-btn">SVG</button>
             <button class="btn btn-secondary" id="download-png-btn">PNG</button>
-            <button class="btn btn-secondary" id="run-btn">Run</button>
+            <button class="btn" id="run-btn">Run</button>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel">
+        <div class="settings-group">
+            <label for="model-select">Model:</label>
+            <select id="model-select" class="settings-input">
+                <option value="anthropic.claude-3-5-sonnet-20241022-v2:0">Claude 3.5 Sonnet v2</option>
+                <option value="anthropic.claude-3-5-sonnet-20240620-v1:0">Claude 3.5 Sonnet</option>
+                <option value="anthropic.claude-3-sonnet-20240229-v1:0">Claude 3 Sonnet</option>
+                <option value="anthropic.claude-3-haiku-20240307-v1:0">Claude 3 Haiku</option>
+            </select>
+        </div>
+        <div class="settings-group">
+            <label for="api-key-input">API Key:</label>
+            <input type="password" id="api-key-input" class="settings-input" placeholder="AWS credentials...">
         </div>
     </div>
 

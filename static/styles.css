@@ -30,9 +30,54 @@ a:visited {
     background: #2d2d2d;
     padding: 10px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     gap: 10px;
     border-bottom: 1px solid #444;
+}
+
+.header-controls-left {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex: 1;
+}
+
+.header-controls-right {
+    display: flex;
+    gap: 10px;
+}
+
+.settings-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-group label {
+    font-size: 13px;
+    color: #ccc;
+    white-space: nowrap;
+}
+
+.settings-input {
+    background: #1e1e1e;
+    color: #ddd;
+    border: 1px solid #444;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    min-width: 200px;
+}
+
+.settings-input:focus {
+    outline: none;
+    border-color: #0e639c;
+}
+
+select.settings-input {
+    cursor: pointer;
+    min-width: 250px;
 }
 
 .header-controls button {

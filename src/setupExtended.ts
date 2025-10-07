@@ -5,6 +5,12 @@ import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './lang
 import { IDimension } from 'vscode/services';
 import { KeyCode, KeyMod } from 'monaco-editor';
 
+// LocalStorage keys
+const STORAGE_KEYS = {
+    MODEL: 'dygram_selected_model',
+    API_KEY: 'dygram_api_key'
+};
+
 // define global functions for TypeScript
 declare global {
     interface Window {
@@ -78,9 +84,56 @@ export const setupConfigExtended = (src: string, options: any): UserConfig => {
     };
 };
 
+/**
+ * Load settings from localStorage
+ */
+function loadSettings(): { model: string; apiKey: string } {
+    return {
+        model: localStorage.getItem(STORAGE_KEYS.MODEL) || 'anthropic.claude-3-sonnet-20240229-v1:0',
+        apiKey: localStorage.getItem(STORAGE_KEYS.API_KEY) || ''
+    };
+}
+
+/**
+ * Save settings to localStorage
+ */
+function saveSettings(model: string, apiKey: string): void {
+    localStorage.setItem(STORAGE_KEYS.MODEL, model);
+    localStorage.setItem(STORAGE_KEYS.API_KEY, apiKey);
+}
+
+/**
+ * Setup settings UI
+ */
+function setupSettingsUI(): void {
+    const modelSelect = document.getElementById('model-select-desktop') as HTMLSelectElement;
+    const apiKeyInput = document.getElementById('api-key-input-desktop') as HTMLInputElement;
+
+    if (!modelSelect || !apiKeyInput) {
+        return;
+    }
+
+    // Load saved settings
+    const settings = loadSettings();
+    modelSelect.value = settings.model;
+    apiKeyInput.value = settings.apiKey;
+
+    // Save on change
+    modelSelect.addEventListener('change', () => {
+        saveSettings(modelSelect.value, apiKeyInput.value);
+    });
+
+    apiKeyInput.addEventListener('input', () => {
+        saveSettings(modelSelect.value, apiKeyInput.value);
+    });
+}
+
 export const executeExtended = async (htmlElement: HTMLElement, useDefault : boolean, outputEl : HTMLElement) => {
     // Initialize theme when the editor starts
     initTheme();
+
+    // Setup settings UI
+    setupSettingsUI();
     const defaultSrc = `// Machine is running in the web!
 machine "Example machine, with various nodes"
 
