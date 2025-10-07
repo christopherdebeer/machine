@@ -39,6 +39,10 @@ export default defineConfig(() => {
                     {
                         src: 'static/styles/*',
                         dest: 'static/styles'
+                    },
+                    {
+                        src: 'examples/**/*.dygram',
+                        dest: 'examples'
                     }
                 ]
             })
