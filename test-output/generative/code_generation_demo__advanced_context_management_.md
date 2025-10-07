@@ -96,27 +96,27 @@ classDiagram-v2
 }
 
 namespace Tasks {
-  class define_requirements["You are generating a simple JavaScript utility function. Create requirements for a function that validates email addresses. Use set_context_value to store the requirements in the 'requirements' context node with key 'spec' as a string describing: function name, parameters, return value, and test cases."] {
+  class define_requirements["You are generating a simple JavaScript utility function.<br/>Create requirements for a function that validates email<br/>addresses. Use set_context_value to store the requirements<br/>in the 'requirements' context node with key 'spec' as a<br/>string describing: function name, parameters, return value,<br/>and test cases."] {
     <<Task>>
     +meta = true
   }
 
-  class generate_code["Read the requirements from the 'requirements' context using get_context_value. Generate JavaScript code for the email validation function. Use set_context_value to store the generated code in the 'code' context node with key 'implementation' as a string containing the complete function implementation."] {
+  class generate_code["Read the requirements from the 'requirements' context using<br/>get_context_value. Generate JavaScript code for the email<br/>validation function. Use set_context_value to store the<br/>generated code in the 'code' context node with key<br/>'implementation' as a string containing the complete<br/>function implementation."] {
     <<Task>>
     +meta = true
   }
 
-  class generate_tests["Read the requirements from 'requirements' context and the implementation from 'code' context using get_context_value. Generate comprehensive test cases using a simple testing approach (no framework needed). Use set_context_value to store the test code in the 'tests' context node with key 'testCode' as a string."] {
+  class generate_tests["Read the requirements from 'requirements' context and the<br/>implementation from 'code' context using get_context_value.<br/>Generate comprehensive test cases using a simple testing<br/>approach (no framework needed). Use set_context_value to<br/>store the test code in the 'tests' context node with key<br/>'testCode' as a string."] {
     <<Task>>
     +meta = true
   }
 
-  class generate_documentation["Read the requirements, code implementation, and tests from their respective context nodes using get_context_value. Generate markdown documentation including: function signature, description, parameters, return value, examples, and how to run tests. Use set_context_value to store the documentation in the 'documentation' context node with key 'markdown' as a string."] {
+  class generate_documentation["Read the requirements, code implementation, and tests from<br/>their respective context nodes using get_context_value.<br/>Generate markdown documentation including: function<br/>signature, description, parameters, return value, examples,<br/>and how to run tests. Use set_context_value to store the<br/>documentation in the 'documentation' context node with key<br/>'markdown' as a string."] {
     <<Task>>
     +meta = true
   }
 
-  class validation["Review the generated code, tests, and documentation from their context nodes using get_context_value. Check for completeness and quality. If everything looks good, use set_context_value to store a validation summary in 'validation_result' context with key 'status' as 'passed' and 'summary' with any notes. Then use the transition tool to move to 'complete'."] {
+  class validation["Review the generated code, tests, and documentation from<br/>their context nodes using get_context_value. Check for<br/>completeness and quality. If everything looks good, use<br/>set_context_value to store a validation summary in<br/>'validation_result' context with key 'status' as 'passed'<br/>and 'summary' with any notes. Then use the transition tool<br/>to move to 'complete'."] {
     <<Task>>
     +meta = true
   }

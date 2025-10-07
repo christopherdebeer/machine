@@ -67,17 +67,17 @@ classDiagram-v2
 }
 
 namespace Tasks {
-  class analyze_tasks["You are helping prioritize a list of tasks. Here are the tasks: 1) Fix critical security bug, 2) Write documentation, 3) Implement new feature, 4) Code review. Analyze these tasks and use set_context_value to store a prioritized list in the 'analysis' context node with key 'prioritizedTasks' as a JSON string containing an array of objects with fields: task, priority (1-4), reasoning."] {
+  class analyze_tasks["You are helping prioritize a list of tasks. Here are the<br/>tasks: 1) Fix critical security bug, 2) Write documentation,<br/>3) Implement new feature, 4) Code review. Analyze these<br/>tasks and use set_context_value to store a prioritized list<br/>in the 'analysis' context node with key 'prioritizedTasks'<br/>as a JSON string containing an array of objects with fields:<br/>task, priority (1-4), reasoning."] {
     <<Task>>
     +meta = true
   }
 
-  class generate_action_plan["Read the prioritized tasks from 'analysis' context using get_context_value. Create a detailed action plan for the top 2 priority tasks. Use set_context_value to store the action plan in 'action_plan' context with key 'plan' as a string with clear steps for each task."] {
+  class generate_action_plan["Read the prioritized tasks from 'analysis' context using<br/>get_context_value. Create a detailed action plan for the top<br/>2 priority tasks. Use set_context_value to store the action<br/>plan in 'action_plan' context with key 'plan' as a string<br/>with clear steps for each task."] {
     <<Task>>
     +meta = true
   }
 
-  class finalize["Read the action plan from 'action_plan' context. Summarize the workflow completion and use the transition tool to move to 'complete' state."] {
+  class finalize["Read the action plan from 'action_plan' context. Summarize<br/>the workflow completion and use the transition tool to move<br/>to 'complete' state."] {
     <<Task>>
     +meta = true
   }

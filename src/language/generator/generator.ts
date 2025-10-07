@@ -213,6 +213,28 @@ interface TypeHierarchy {
     };
 }
 
+// Helper function to wrap text at word boundaries
+function wrapText(text: string, maxWidth: number = 60): string {
+    if (text.length <= maxWidth) return text;
+
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+        const testLine = currentLine ? currentLine + ' ' + word : word;
+        if (testLine.length <= maxWidth) {
+            currentLine = testLine;
+        } else {
+            if (currentLine) lines.push(currentLine);
+            currentLine = word;
+        }
+    }
+    if (currentLine) lines.push(currentLine);
+
+    return lines.join('<br/>');
+}
+
 class MermaidGenerator extends BaseGenerator {
     protected fileExtension = 'md';
 
@@ -306,6 +328,7 @@ classDiagram-v2
                 let displayValue: any = desc?.value;
                 if (desc && typeof displayValue === 'string') {
                     displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
+                    displayValue = wrapText(displayValue, 60); // Apply text wrapping
                 }
                 const header = `class ${node.name}${desc ? `["${displayValue}"]` : ''}`;
 
@@ -318,6 +341,7 @@ classDiagram-v2
                         // Remove quotes from string values for display
                         if (typeof displayValue === 'string') {
                             displayValue = displayValue.replace(/^["']|["']$/g, '');
+                            displayValue = wrapText(displayValue, 60); // Apply text wrapping
                         }
                         return `+${a.name}${a.type ? ` : ${a.type}` : ''} = ${displayValue}`;
                     }).join('\n')
@@ -490,6 +514,7 @@ classDiagram-v2
                 let displayValue: any = desc?.value;
                 if (desc && typeof displayValue === 'string') {
                     displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
+                    displayValue = wrapText(displayValue, 60); // Apply text wrapping
                 }
                 const header = `class ${node.name}${desc ? `["${displayValue}"]` : ''}`;
 
@@ -502,6 +527,7 @@ classDiagram-v2
                         // Remove quotes from string values for display
                         if (typeof displayValue === 'string') {
                             displayValue = displayValue.replace(/^["']|["']$/g, '');
+                            displayValue = wrapText(displayValue, 60); // Apply text wrapping
                         }
                         return `+${a.name}${a.type ? ` : ${a.type}` : ''} = ${displayValue}`;
                     }).join('\n')

@@ -46,7 +46,7 @@ classDiagram-v2
     +config = opt1,opt2,opt3
 +maxValue : number = 99999
 +minValue : number = 0
-+description : string = This is a very long description that contains multiple words and should be preserved exactly as written in the transformation pipeline
++description : string = This is a very long description that contains multiple words<br/>and should be preserved exactly as written in the<br/>transformation pipeline
   }
     node1 --> node2 : config: "primary";, config=primary
 
