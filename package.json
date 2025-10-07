@@ -27,7 +27,7 @@
         "build:web": "npm run build",
         "bundle": "vite build",
         "bundle:serve": "http-server ./dist --port 5175",
-        "dev": "vite",
+        "dev": "npm run langium:generate && vite",
         "dev:debug": "vite --debug --force",
         "serve": "npm run dev",
         "test": "vitest run",
