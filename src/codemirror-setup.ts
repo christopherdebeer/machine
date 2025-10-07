@@ -12,6 +12,7 @@ import { parseHelper } from 'langium/test';
 import { createMachineServices } from './language/machine-module.js';
 import { Machine } from './language/generated/ast.js';
 import { generateMermaid } from './language/generator/generator.js';
+import { MachineExecutor } from './language/machine-executor.js';
 
 // Initialize mermaid with custom settings
 mermaid.initialize({
@@ -348,6 +349,79 @@ export function setupCodeMirrorPlayground(): void {
 }
 
 /**
+ * Convert parsed Machine AST to MachineData format for executor
+ */
+function convertToMachineData(machine: Machine): any {
+    const nodes: any[] = [];
+    const edges: any[] = [];
+
+    // Process nodes
+    machine.nodes?.forEach(node => {
+        const nodeData: any = {
+            name: node.name,
+            type: node.type || 'state'
+        };
+
+        // Convert attributes
+        if (node.attributes && node.attributes.length > 0) {
+            nodeData.attributes = node.attributes.map(attr => ({
+                name: attr.name,
+                type: attr.type || 'string',
+                value: attr.value?.value || attr.value || ''
+            }));
+        }
+
+        nodes.push(nodeData);
+    });
+
+    // Process edges - the AST has a more complex structure with segments
+    machine.edges?.forEach(edge => {
+        // Each edge can have multiple segments
+        edge.segments?.forEach(segment => {
+            // Each segment connects source nodes to target nodes
+            edge.source?.forEach(sourceRef => {
+                segment.target?.forEach(targetRef => {
+                    const edgeData: any = {
+                        source: sourceRef.ref?.name || '',
+                        target: targetRef.ref?.name || ''
+                    };
+
+                    // Extract label information from segment
+                    if (segment.label && segment.label.length > 0) {
+                        const labelParts: string[] = [];
+                        segment.label.forEach(edgeType => {
+                            edgeType.value?.forEach(attr => {
+                                if (attr.text) {
+                                    labelParts.push(String(attr.text));
+                                } else if (attr.name) {
+                                    labelParts.push(attr.name);
+                                }
+                            });
+                        });
+                        if (labelParts.length > 0) {
+                            edgeData.label = labelParts.join(' ');
+                        }
+                    }
+
+                    // Set edge type based on arrow type
+                    if (segment.endType) {
+                        edgeData.type = segment.endType;
+                    }
+
+                    edges.push(edgeData);
+                });
+            });
+        });
+    });
+
+    return {
+        title: machine.title || 'Untitled Machine',
+        nodes,
+        edges
+    };
+}
+
+/**
  * Generate Mermaid diagram from Machine DSL code using the actual parser and generator
  */
 async function generateMermaidFromCode(code: string): Promise<string> {
@@ -382,7 +456,7 @@ async function generateMermaidFromCode(code: string): Promise<string> {
 }
 
 /**
- * Execute the code and display results
+ * Execute the code and display results using the MachineExecutor
  */
 async function executeCode(code: string, outputElement: HTMLElement | null, diagramElement: HTMLElement | null): Promise<void> {
     if (!outputElement) return;
@@ -391,33 +465,118 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
 
     try {
         // Parse the code using the actual Langium parser
-        const lines = code.split('\n');
-        const result = {
-            success: true,
-            message: 'Code parsed successfully',
-            lines: lines.length,
-            timestamp: new Date().toISOString(),
-        };
+        const document = await parse(code);
 
-        // Generate Mermaid diagram using actual parser and generator
-        const mermaidCode = await generateMermaidFromCode(code);
+        // Check for parser errors
+        if (document.parseResult.parserErrors.length > 0) {
+            const errors = document.parseResult.parserErrors
+                .map(e => e.message)
+                .join('\n');
+            throw new Error(`Parser errors:\n${errors}`);
+        }
+
+        // Check if we got a valid machine
+        const model = document.parseResult.value as Machine;
+        if (!model) {
+            throw new Error('Failed to parse machine: no model returned');
+        }
+
+        // Convert to MachineData format for executor
+        const machineData = convertToMachineData(model);
+        
+        // Get settings for LLM configuration
+        const settings = loadSettings();
+        
+        // Create executor with LLM configuration if API key is provided
+        let executor: MachineExecutor;
+        if (settings.apiKey.trim()) {
+            executor = await MachineExecutor.create(machineData, {
+                llm: {
+                    provider: 'bedrock',
+                    region: 'us-west-2',
+                    modelId: settings.model,
+                    // Note: In a real implementation, you'd need to handle AWS credentials properly
+                    // For now, we'll create the executor but it may not be able to make LLM calls
+                }
+            });
+        } else {
+            // Create executor without LLM config (will use default Bedrock)
+            executor = new MachineExecutor(machineData);
+        }
+
+        // Try to execute one step if there are task nodes
+        let executionResult = null;
+        const hasTaskNodes = machineData.nodes.some((node: any) => node.type === 'task');
+        
+        if (hasTaskNodes && settings.apiKey.trim()) {
+            try {
+                // Attempt to execute one step
+                const stepped = await executor.step();
+                if (stepped) {
+                    executionResult = executor.getContext();
+                }
+            } catch (execError) {
+                console.warn('Execution step failed:', execError);
+                // Continue with static analysis even if execution fails
+            }
+        }
+
+        // Generate both static and runtime diagrams
+        const staticMermaidCode = await generateMermaidFromCode(code);
+        let runtimeMermaidCode = staticMermaidCode;
+        
+        if (executionResult) {
+            // Generate runtime diagram showing execution state
+            runtimeMermaidCode = executor.toMermaidRuntime();
+        }
 
         // Display results
+        const lines = code.split('\n').length;
+        const timestamp = new Date().toISOString();
+        
+        let statusMessage = '✓ Parsing and generation successful';
+        let statusColor = '#4ec9b0';
+        
+        if (executionResult) {
+            statusMessage = `✓ Machine executed successfully - Current node: ${executionResult.currentNode}`;
+            statusColor = '#4ec9b0';
+        } else if (hasTaskNodes && !settings.apiKey.trim()) {
+            statusMessage = '⚠ Machine parsed successfully (API key required for execution)';
+            statusColor = '#ffa500';
+        } else if (hasTaskNodes) {
+            statusMessage = '⚠ Machine parsed successfully (execution failed - check credentials)';
+            statusColor = '#ffa500';
+        }
+
         outputElement.innerHTML = `
-            <div style="color: #4ec9b0; margin-bottom: 12px;">
-                ✓ Parsing and generation successful
+            <div style="color: ${statusColor}; margin-bottom: 12px;">
+                ${statusMessage}
             </div>
             <div style="color: #858585; font-size: 12px;">
-                Lines: ${result.lines}<br>
-                Time: ${result.timestamp}
+                Lines: ${lines}<br>
+                Nodes: ${machineData.nodes.length}<br>
+                Edges: ${machineData.edges.length}<br>
+                ${executionResult ? `Visited: ${executionResult.visitedNodes.size}<br>` : ''}
+                Time: ${timestamp}
             </div>
+            ${executionResult && executionResult.history.length > 0 ? `
+                <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
+                    <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Execution History:</div>
+                    ${executionResult.history.map((step: any, idx: number) => `
+                        <div style="color: #d4d4d4; font-size: 11px;">
+                            ${idx + 1}. ${step.from} → ${step.to} (${step.transition})
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
         `;
 
-        // Render Mermaid diagram
+        // Render the appropriate diagram (runtime if available, otherwise static)
         if (diagramElement) {
             diagramElement.innerHTML = '<div class="loading">Rendering diagram...</div>';
-            await renderDiagram(mermaidCode, diagramElement);
+            await renderDiagram(runtimeMermaidCode, diagramElement);
         }
+
     } catch (error) {
         outputElement.innerHTML = `
             <div class="error">
@@ -426,4 +585,3 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         `;
     }
 }
-
