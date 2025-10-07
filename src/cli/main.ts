@@ -81,12 +81,12 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
 
     if (opts.destination) {
         // Print all results together
-        console.log('\nGeneration Results:');
-        results.forEach(result => console.log(result));
+        console.log(chalk.bold('\n✓ Generation Complete'));
+        results.forEach(result => console.log('  ' + result));
 
         // If HTML was generated, show the tip
         if (formats.includes('html')) {
-            console.log(chalk.blue('\nTip: Open the HTML file in a browser to view the interactive diagram'));
+            console.log(chalk.blue('\n💡 Tip: Open the HTML file in a browser to view the interactive diagram'));
         }
     }
     
@@ -131,12 +131,20 @@ export const parseAndValidate = async (fileName: string): Promise<void> => {
     // extract the parse result details
     const parseResult = document.parseResult;
     // verify no lexer, parser, or general diagnostic errors show up
-    if (parseResult.lexerErrors.length === 0 && 
+    if (parseResult.lexerErrors.length === 0 &&
         parseResult.parserErrors.length === 0
     ) {
-        console.log(chalk.green(`Parsed and validated ${fileName} successfully!`));
+        console.log(chalk.green(`✓ Parsed and validated ${fileName} successfully!`));
     } else {
-        console.log(chalk.red(`Failed to parse and validate ${fileName}!`));
+        console.log(chalk.red(`✗ Failed to parse and validate ${fileName}!`));
+        if (parseResult.lexerErrors.length > 0) {
+            console.log(chalk.red('\nLexer errors:'));
+            parseResult.lexerErrors.forEach(err => console.log(`  ${err.message}`));
+        }
+        if (parseResult.parserErrors.length > 0) {
+            console.log(chalk.red('\nParser errors:'));
+            parseResult.parserErrors.forEach(err => console.log(`  ${err.message}`));
+        }
     }
 };
 
@@ -156,9 +164,7 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     const jsonContent = generateJSON(machine, fileName, opts.destination);
     const machineData = JSON.parse(jsonContent.content) as MachineData;
 
-    console.log(chalk.blue('Executing machine program...'));
-    console.log(chalk.yellow('Machine structure:'));
-    console.log(JSON.stringify(machineData, null, 2));
+    console.log(chalk.blue('\n⚙️  Executing machine program...'));
 
     // Configure LLM client to use Anthropic with API key from environment
     const config = {
@@ -171,9 +177,9 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
 
     // Check if API key is available
     if (!process.env.ANTHROPIC_API_KEY) {
-        console.log(chalk.yellow('Warning: ANTHROPIC_API_KEY environment variable not set.'));
-        console.log(chalk.yellow('Set it with: export ANTHROPIC_API_KEY=your_api_key_here'));
-        console.log(chalk.red('Execution will fail for Task nodes that require LLM processing.'));
+        console.log(chalk.yellow('\n⚠️  Warning: ANTHROPIC_API_KEY environment variable not set.'));
+        console.log(chalk.gray('   Set it with: export ANTHROPIC_API_KEY=your_api_key_here'));
+        console.log(chalk.gray('   Note: Execution will fail for Task nodes that require LLM processing.\n'));
     }
 
     // Execute the machine with Anthropic client configuration
@@ -182,6 +188,8 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
 
     // Write execution results
     const data = extractDestinationAndName(fileName, opts.destination);
+    // Ensure the destination directory exists
+    await fs.mkdir(data.destination, { recursive: true });
     const resultPath = path.join(data.destination, `${data.name}-result.json`);
     await fs.writeFile(resultPath, JSON.stringify(
         {
@@ -192,12 +200,12 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
         null,
         2
     ));
-    console.log(chalk.green(`Execution results written to: ${resultPath}`));
-    console.log(chalk.blue('\nExecution path:'));
+    console.log(chalk.green(`\n✓ Execution results written to: ${resultPath}`));
+    console.log(chalk.blue('\n📋 Execution path:'));
     executionResult.history.forEach(step => {
-        console.log(`${step.from} --(${step.transition})--> ${step.to}`);
+        console.log(chalk.cyan(`  ${step.from}`) + chalk.gray(` --(${step.transition})--> `) + chalk.cyan(`${step.to}`));
         if (step.output) {
-            console.log(chalk.gray(`Output: ${step.output}`));
+            console.log(chalk.gray(`    Output: ${step.output}`));
         }
     });
 };

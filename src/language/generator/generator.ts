@@ -56,16 +56,6 @@ class JSONGenerator extends BaseGenerator {
             edges: this.serializeEdges()
         };
 
-        console.log(JSON.stringify(machineObject))
-
-        try {
-            const str = JSON.stringify(machineObject, null, 2)
-            console.log(str)
-        } catch(err) {
-            // console.error(err)
-            throw new Error(`Failed to serialize machine to JSON: ${err}`)
-        }
-
         return {
             filePath: this.filePath,
             content: JSON.stringify(machineObject, null, 2)
@@ -143,47 +133,36 @@ class JSONGenerator extends BaseGenerator {
         if (!labels || labels.length === 0) {
             return undefined;
         }
-        
-        console.log('🔍 serializeEdgeValue called with labels:', labels);
-        
+
         const value: Record<string, any> = {};
-        labels.forEach((label, idx) => {
-            console.log(`🏷️ Processing label ${idx}:`, label);
-            console.log(`🏷️ Label value array:`, label.value);
-            
+        labels.forEach((label) => {
             // Check if the label itself has text content in its CST node
             if (label.$cstNode && 'text' in label.$cstNode) {
                 const labelText = label.$cstNode.text;
-                console.log(`🏷️ Label CST text:`, labelText);
-                
+
                 // For simple labels, the CST text is just the label name (e.g., "feeds", "stores")
                 // For complex patterns, try to extract from full syntax
                 if (labelText && labelText.trim()) {
                     // Check if it's a simple label (just the text)
                     if (!labelText.includes('-') && !labelText.includes('=') && !labelText.includes('>')) {
-                        console.log(`✅ Found simple label:`, labelText);
                         value['text'] = labelText.trim();
                     } else {
                         // Try to extract from complex patterns like "-feeds->" or "--compute-->" or "=finalize=>"
                         const match = labelText.match(/^-+([^-]+)-+>?$|^=+([^=]+)=+>?$/);
                         if (match) {
                             const extractedLabel = match[1] || match[2];
-                            console.log(`✅ Extracted label from pattern:`, extractedLabel);
                             value['text'] = extractedLabel;
                         }
                     }
                 }
             }
-            
+
             // Also process the value array as before
-            label.value.forEach((attr, attrIdx) => {
-                console.log(`📝 Processing attribute ${attrIdx}:`, attr);
-                console.log(`📝 Attribute properties:`, { name: attr.name, text: attr.text, value: attr.value });
-                
+            label.value.forEach((attr) => {
                 if (!attr.name && attr.text) {
                     // Extract the actual string value, removing quotes if present
                     let textValue = attr.text;
-                    
+
                     // Handle AST objects for text values
                     if (textValue && typeof textValue === 'object' && '$cstNode' in textValue) {
                         const astNode = textValue as any;
@@ -191,17 +170,16 @@ class JSONGenerator extends BaseGenerator {
                             textValue = astNode.$cstNode.text;
                         }
                     }
-                    
+
                     if (typeof textValue === 'string') {
                         textValue = textValue.replace(/^["']|["']$/g, '');
                     }
-                    
-                    console.log(`✅ Found text value:`, textValue);
+
                     value['text'] = textValue;
                 } else if (attr.name && attr.value) {
                     // Extract the actual value, handling nested value property
                     let attrValue = attr.value;
-                    
+
                     // Handle AST objects for attribute values
                     if (attrValue && typeof attrValue === 'object' && '$cstNode' in attrValue) {
                         const astNode = attrValue as any;
@@ -213,18 +191,16 @@ class JSONGenerator extends BaseGenerator {
                     } else if (typeof attrValue === 'object' && attrValue !== null && 'value' in attrValue) {
                         attrValue = (attrValue as any).value;
                     }
-                    
+
                     if (typeof attrValue === 'string') {
                         attrValue = attrValue.replace(/^["']|["']$/g, '');
                     }
-                    
-                    console.log(`✅ Found named attribute:`, { name: attr.name, value: attrValue });
+
                     value[attr.name] = attrValue;
                 }
             });
         });
 
-        console.log('🎯 Final edge value:', value);
         return Object.keys(value).length > 0 ? value : undefined;
     }
 }
@@ -306,7 +282,6 @@ classDiagram-v2
                 hierarchy[node.type].subtypes.push(node.name);
             }
         });
-        console.log('buildTypeHierarchy', hierarchy)
         return hierarchy;
     }
 
@@ -316,18 +291,14 @@ classDiagram-v2
             Object.values(hierarchy)
                 .flatMap(h => h.subtypes)
         );
-        console.log('------------', Array.from(allTypes), Array.from(subTypes))
         return Array.from(allTypes)
-            .filter(type => !subTypes.has(type))
-            // .filter(type => type !== 'undefined');
+            .filter(type => !subTypes.has(type));
     }
 
     private generateTypeHierarchy(hierarchy: TypeHierarchy, types: string[], level = 0): string {
         const result = joinToNode(types, type => {
             const { nodes, subtypes } = hierarchy[type];
             const indent = '  '.repeat(level);
-
-            console.log("generateTypeHierarchy", types, type)
 
             // Generate namespace content
             const content = joinToNode(nodes, node => {

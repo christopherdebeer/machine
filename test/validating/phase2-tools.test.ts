@@ -98,10 +98,12 @@ describe('Phase 2: Tool-Based Execution', () => {
             const callArgs = mockBedrockClient.invokeWithTools.mock.calls[0];
             const tools: ToolDefinition[] = callArgs[1];
 
-            expect(tools).toHaveLength(1);
-            expect(tools[0].name).toBe('transition');
-            expect(tools[0].input_schema.properties.target.enum).toContain('pathA');
-            expect(tools[0].input_schema.properties.target.enum).toContain('pathB');
+            // Should have transition tool plus context tools (set_context_value, get_context_value, list_context_nodes)
+            expect(tools.length).toBeGreaterThanOrEqual(1);
+            const transitionTool = tools.find(t => t.name === 'transition');
+            expect(transitionTool).toBeDefined();
+            expect(transitionTool!.input_schema.properties.target.enum).toContain('pathA');
+            expect(transitionTool!.input_schema.properties.target.enum).toContain('pathB');
 
             // Verify the transition was made
             const context = executor.getContext();
