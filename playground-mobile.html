@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>DyGram Mobile Playground</title>
+    <title>DyGram CodeMirror Playground</title>
     <style>
         * {
             margin: 0;
@@ -37,6 +37,10 @@
             font-size: 18px;
             font-weight: 600;
             color: #ffffff;
+        }
+        .header-title a {
+            color: #ffffff;
+            text-decoration: none;
         }
 
         .header-actions {
@@ -218,6 +222,7 @@
             border-left: 3px solid #f48771;
             margin: 8px;
             border-radius: 4px;
+            white-space: pre;
         }
 
         .settings-panel {
@@ -267,7 +272,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="header-title">DyGram Mobile</div>
+        <div class="header-title"><a href="./">DyGram</a></div>
         <div class="header-actions">
             <button class="btn btn-secondary" id="download-svg-btn">SVG</button>
             <button class="btn btn-secondary" id="download-png-btn">PNG</button>

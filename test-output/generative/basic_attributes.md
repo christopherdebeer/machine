@@ -9,6 +9,7 @@ node1 {
     boolAttr<boolean>: true;
     arrayAttr: ["a", "b", "c"];
     untypedAttr: "untyped";
+    prompt: "an llm prompt";
 }
 ```
 
@@ -21,7 +22,7 @@ config:
         hideEmptyMembersBox: true
 ---
 classDiagram-v2
-    class node1 {
+    class node1[""an llm prompt""] {
     
     +stringAttr : string = test value
 +numberAttr : number = 42.5
@@ -67,6 +68,10 @@ classDiagram-v2
         {
           "name": "untypedAttr",
           "value": "\"untyped\""
+        },
+        {
+          "name": "prompt",
+          "value": "\"an llm prompt\""
         }
       ]
     }
@@ -81,4 +86,8 @@ classDiagram-v2
 - Transform Errors: 0
 - Completeness Issues: 0
 - Losslessness Issues: 0
-- Mermaid Parse Errors: 0
+- Mermaid Parse Errors: 1
+  - Mermaid parse failed: Parse error on line 2:
+...2    class node1[""an llm prompt""] { 
+----------------------^
+Expecting 'STR', got 'ALPHA'

@@ -5,4 +5,5 @@ node1 {
     boolAttr<boolean>: true;
     arrayAttr: ["a", "b", "c"];
     untypedAttr: "untyped";
+    prompt: "an llm prompt";
 }
