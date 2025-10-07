@@ -10,9 +10,26 @@
     <body>
         <!-- Header Controls -->
         <div class="header-controls">
-            <button onclick="window.downloadSVG()">Download SVG</button>
-            <button onclick="window.downloadPNG()">Download PNG</button>
-            <button onclick="window.toggleTheme()">Toggle Theme</button>
+            <div class="header-controls-left">
+                <div class="settings-group">
+                    <label for="model-select-desktop">Model:</label>
+                    <select id="model-select-desktop" class="settings-input">
+                        <option value="anthropic.claude-3-5-sonnet-20241022-v2:0">Claude 3.5 Sonnet v2</option>
+                        <option value="anthropic.claude-3-5-sonnet-20240620-v1:0">Claude 3.5 Sonnet</option>
+                        <option value="anthropic.claude-3-sonnet-20240229-v1:0">Claude 3 Sonnet</option>
+                        <option value="anthropic.claude-3-haiku-20240307-v1:0">Claude 3 Haiku</option>
+                    </select>
+                </div>
+                <div class="settings-group">
+                    <label for="api-key-input-desktop">API Key:</label>
+                    <input type="password" id="api-key-input-desktop" class="settings-input" placeholder="AWS credentials...">
+                </div>
+            </div>
+            <div class="header-controls-right">
+                <button onclick="window.downloadSVG()">Download SVG</button>
+                <button onclick="window.downloadPNG()">Download PNG</button>
+                <button onclick="window.toggleTheme()">Toggle Theme</button>
+            </div>
         </div>
 
         <div class="wrapper">
