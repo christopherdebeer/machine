@@ -84,7 +84,12 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border-bottom: 1px solid #3e3e42;
+            transition: flex 0.3s ease;
+        }
+
+        .editor-section.collapsed {
+            flex: 0 0 auto;
+            min-height: 0;
         }
 
         .section-header {
@@ -147,6 +152,12 @@
             flex-direction: column;
             overflow: hidden;
             background: #1e1e1e;
+            transition: flex 0.3s ease;
+        }
+
+        .output-section.collapsed {
+            flex: 0 0 auto;
+            min-height: 0;
         }
 
         #output {
@@ -223,7 +234,6 @@
             }
 
             .editor-section {
-                border-bottom: none;
                 border-right: 1px solid #3e3e42;
             }
 
@@ -239,7 +249,6 @@
             }
 
             .editor-section {
-                border-bottom: none;
                 border-right: 1px solid #3e3e42;
             }
         }
@@ -386,6 +395,14 @@
             } else {
                 content.classList.add('collapsed');
                 toggleBtn.textContent = '▶';
+            }
+
+            // Also toggle collapsed class on parent section for flex behavior
+            if (section === 'editor' || section === 'output') {
+                const parentSection = content.closest(`.${section}-section`);
+                if (parentSection) {
+                    parentSection.classList.toggle('collapsed');
+                }
             }
         };
 
