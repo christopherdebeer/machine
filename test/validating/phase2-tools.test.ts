@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MachineExecutor, MachineData } from '../../src/language/machine-executor';
+import { MachineExecutor, MachineData } from '../../src/language/machine-executor.js';
 import {
     ToolDefinition,
     ModelResponse,
     ConversationMessage
-} from '../../src/language/llm-client';
-import { BedrockClient } from '../../src/language/bedrock-client';
+} from '../../src/language/llm-client.js';
+import { BedrockClient } from '../../src/language/bedrock-client.js';
 
 // Mock the BedrockClient
 vi.mock('../../src/language/bedrock-client', () => {
@@ -354,7 +354,7 @@ describe('Phase 2: Tool-Based Execution', () => {
     });
 
     describe('Runtime Visualization', () => {
-        it('should generate runtime Mermaid state diagram', async () => {
+        it('should generate runtime Mermaid class diagram with runtime state', async () => {
             mockBedrockClient.invokeWithTools.mockResolvedValueOnce({
                 content: [
                     {
@@ -371,9 +371,12 @@ describe('Phase 2: Tool-Based Execution', () => {
 
             const mermaid = executor.toMermaidRuntime();
 
-            expect(mermaid).toContain('stateDiagram-v2');
-            expect(mermaid).toContain('▶️ CURRENT'); // Current node marker
-            expect(mermaid).toContain('✓ VISITED'); // Visited node marker
+            expect(mermaid).toContain('classDiagram-v2');
+            expect(mermaid).toContain('[RUNTIME]'); // Runtime indicator in title
+            expect(mermaid).toContain('▶️'); // Current node emoji
+            expect(mermaid).toContain('✅'); // Visited node emoji
+            expect(mermaid).toContain('CURRENT'); // Current status text
+            expect(mermaid).toContain('VISITED'); // Visited status text
             expect(mermaid).toContain('%% Execution Path:'); // Path comment
         });
 

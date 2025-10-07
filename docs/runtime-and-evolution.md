@@ -36,6 +36,105 @@ The executor maintains:
 - **Mutations** - Record of runtime changes to the machine
 - **Task outputs** - Results from executed tasks
 
+### Runtime Visualization
+
+The executor provides rich runtime visualization capabilities that show the current execution state with visual indicators and execution history.
+
+#### Runtime Diagram Generation
+
+```typescript
+// Generate runtime visualization
+const runtimeDiagram = executor.toMermaidRuntime();
+console.log(runtimeDiagram);
+```
+
+**Runtime diagrams include:**
+- **Status indicators**: ▶️ (current), ✅ (visited), ⏸️ (pending)
+- **Execution counts**: Visit counts and edge traversal counts
+- **Runtime values**: Current attribute values and execution status
+- **Execution history**: Complete path with timestamps and outputs
+- **Color coding**: Green (current), blue (visited), yellow (pending)
+
+#### Visual State Representation
+
+Runtime diagrams use the same `classDiagram-v2` format as static diagrams for consistency, but with enhanced runtime overlays:
+
+```mermaid
+---
+title: "Task Management [RUNTIME]"
+config:
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram-v2
+
+  class task["✅ task"] {
+    <<Input>>
+    +status: VISITED
+    +visits: 1
+    +description: "Process this task"
+    +priority: 5
+  }
+
+  class process["▶️ process"] {
+    <<Task>>
+    +status: CURRENT
+    +prompt: "Analyze task: {{ task.description }}"
+  }
+
+  class output["⏸️ output"] {
+    <<Result>>
+    +status: PENDING
+    +result: "TBD"
+  }
+
+  %% Runtime State Styling
+  classDef currentNode fill:#4CAF50,stroke:#2E7D32,stroke-width:4px,color:#fff
+  classDef visitedNode fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+  classDef pendingNode fill:#FFC107,stroke:#F57F17,stroke-width:1px,color:#000
+
+  class task visitedNode
+  class process currentNode
+  class output pendingNode
+
+  task --> process : requires [1x]
+  process --> output : produces
+
+  %% Execution Path:
+  %% 1. task → process (requires) at 15:30:45
+  %%    Output: Task analyzed successfully
+```
+
+#### Mobile Playground Integration
+
+The mobile playground provides an interactive runtime visualization experience:
+
+- **Real-time updates**: Diagrams update as execution progresses
+- **Execution history**: Shows step-by-step execution with LLM outputs
+- **Error handling**: Graceful handling of empty machines and errors
+- **Environment variables**: Support for `ANTHROPIC_API_KEY` configuration
+
+#### Advanced Visualization Features
+
+```typescript
+import { VisualizingMachineExecutor } from 'dygram/language/runtime-visualizer';
+
+// Enhanced executor with visualization features
+const visualExecutor = new VisualizingMachineExecutor(machineData, config);
+
+// Execute with visualization
+await visualExecutor.step();
+
+// Generate enhanced runtime diagram
+const diagram = visualExecutor.generateRuntimeVisualization();
+```
+
+**Enhanced features:**
+- **Safe context handling**: Prevents circular reference errors
+- **Mobile optimization**: Optimized for mobile playground rendering
+- **Runtime summaries**: Condensed execution information
+- **Performance metrics**: Execution timing and statistics
+
 ## Task Evolution System
 
 Tasks in DyGram can automatically evolve from LLM-based exploration to efficient code execution through four stages.

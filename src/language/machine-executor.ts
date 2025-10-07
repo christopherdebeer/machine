@@ -70,7 +70,7 @@ export class MachineExecutor {
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
         this.machineData = machineData;
         this.context = {
-            currentNode: this.findStartNode(),
+            currentNode: this.machineData.nodes.length > 0 ? this.findStartNode() : '',
             visitedNodes: new Set(),
             attributes: new Map(),
             history: []
@@ -829,14 +829,33 @@ export class MachineExecutor {
     }
 
     /**
-     * Generate a Mermaid state diagram showing the current execution state
+     * Generate a Mermaid class diagram showing the current execution state
      */
     public toMermaidRuntime(): string {
         const lines: string[] = [];
 
-        // Header
-        lines.push('stateDiagram-v2');
+        // Header with runtime indicator
+        lines.push('---');
+        lines.push(`title: "${this.machineData.title} [RUNTIME]"`);
+        lines.push('config:');
+        lines.push('  class:');
+        lines.push('    hideEmptyMembersBox: true');
+        lines.push('---');
+        lines.push('classDiagram-v2');
         lines.push('');
+
+        // Handle empty machine case
+        if (this.machineData.nodes.length === 0) {
+            lines.push('  class EmptyMachine["⚠️ Empty Machine"] {');
+            lines.push('    <<empty>>');
+            lines.push('    +status: NO_NODES');
+            lines.push('    +message: "Machine has no nodes to execute"');
+            lines.push('  }');
+            lines.push('');
+            lines.push('  classDef emptyNode fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff');
+            lines.push('  class EmptyMachine emptyNode');
+            return lines.join('\n');
+        }
 
         // Calculate edge transition counts from history
         const edgeCounts = new Map<string, number>();
@@ -849,15 +868,54 @@ export class MachineExecutor {
         this.machineData.nodes.forEach(node => {
             const isCurrent = node.name === this.context.currentNode;
             const isVisited = this.context.visitedNodes.has(node.name);
+            const visitCount = this.context.history.filter(h => h.from === node.name).length;
 
-            lines.push(`  ${node.name}: ${node.name}`);
+            const statusEmoji = isCurrent ? '▶️' : (isVisited ? '✅' : '⏸️');
+            const statusText = isCurrent ? 'CURRENT' : (isVisited ? 'VISITED' : 'PENDING');
 
-            // Add note with status
-            if (isCurrent) {
-                lines.push(`  note right of ${node.name}: ▶️ CURRENT`);
-            } else if (isVisited) {
-                lines.push(`  note right of ${node.name}: ✓ VISITED`);
+            // Build class header with runtime status
+            const classHeader = `class ${node.name}["${statusEmoji} ${node.name}"]`;
+            lines.push(`  ${classHeader} {`);
+            
+            // Add type annotation
+            if (node.type) {
+                lines.push(`    <<${node.type}>>`);
             }
+
+            // Add runtime status info
+            lines.push(`    +status: ${statusText}`);
+            if (visitCount > 0) {
+                lines.push(`    +visits: ${visitCount}`);
+            }
+
+            // Add attributes
+            if (node.attributes && node.attributes.length > 0) {
+                node.attributes.forEach(attr => {
+                    if (attr.name === 'prompt' || attr.name === 'desc') return; // Skip display attributes
+                    
+                    let displayValue = this.formatAttributeValue(attr.value);
+                    const typeAnnotation = attr.type ? ` : ${attr.type}` : '';
+                    lines.push(`    +${attr.name}${typeAnnotation} = ${displayValue}`);
+                });
+            }
+
+            lines.push('  }');
+            lines.push('');
+        });
+
+        // Add styling for different states
+        lines.push('  %% Runtime State Styling');
+        lines.push('  classDef currentNode fill:#4CAF50,stroke:#2E7D32,stroke-width:4px,color:#fff');
+        lines.push('  classDef visitedNode fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff');
+        lines.push('  classDef pendingNode fill:#FFC107,stroke:#F57F17,stroke-width:1px,color:#000');
+        lines.push('');
+
+        // Apply styling to nodes
+        this.machineData.nodes.forEach(node => {
+            const isCurrent = node.name === this.context.currentNode;
+            const isVisited = this.context.visitedNodes.has(node.name);
+            const styleClass = isCurrent ? 'currentNode' : (isVisited ? 'visitedNode' : 'pendingNode');
+            lines.push(`  class ${node.name} ${styleClass}`);
         });
 
         lines.push('');
@@ -867,10 +925,7 @@ export class MachineExecutor {
             const key = `${edge.source}->${edge.target}`;
             const count = edgeCounts.get(key) || 0;
 
-            let label = '';
-            if (edge.type) {
-                label = edge.type;
-            }
+            let label = edge.label || edge.type || '';
             if (count > 0) {
                 label += (label ? ' ' : '') + `[${count}x]`;
             }
@@ -883,7 +938,14 @@ export class MachineExecutor {
             lines.push('');
             lines.push('  %% Execution Path:');
             this.context.history.forEach((step, idx) => {
-                lines.push(`  %% ${idx + 1}. ${step.from} -> ${step.to} (${step.transition})`);
+                const timestamp = new Date(step.timestamp).toLocaleTimeString();
+                lines.push(`  %% ${idx + 1}. ${step.from} → ${step.to} (${step.transition}) at ${timestamp}`);
+                if (step.output) {
+                    const truncatedOutput = step.output.length > 50 
+                        ? step.output.substring(0, 50) + '...' 
+                        : step.output;
+                    lines.push(`  %%    Output: ${truncatedOutput}`);
+                }
             });
         }
 
@@ -897,6 +959,35 @@ export class MachineExecutor {
         }
 
         return lines.join('\n');
+    }
+
+    /**
+     * Format attribute values for display
+     */
+    private formatAttributeValue(value: any): string {
+        if (value === null || value === undefined) {
+            return 'null';
+        }
+        
+        if (typeof value === 'string') {
+            // Remove quotes and truncate if too long
+            const cleaned = value.replace(/^["']|["']$/g, '');
+            return cleaned.length > 30 ? cleaned.substring(0, 30) + '...' : cleaned;
+        }
+        
+        if (Array.isArray(value)) {
+            return `[${value.join(', ')}]`;
+        }
+        
+        if (typeof value === 'object') {
+            try {
+                return JSON.stringify(value);
+            } catch (error) {
+                return String(value);
+            }
+        }
+        
+        return String(value);
     }
 
     /**

@@ -14,6 +14,7 @@ import { Machine } from './language/generated/ast.js';
 import { generateMermaid } from './language/generator/generator.js';
 import { MachineExecutor } from './language/machine-executor.js';
 import { EvolutionaryExecutor } from './language/task-evolution.js';
+import { VisualizingMachineExecutor } from './language/runtime-visualizer.js';
 import { createStorage } from './language/storage.js';
 
 // Initialize mermaid with custom settings
@@ -161,12 +162,25 @@ async function renderDiagram(mermaidCode: string, container: HTMLElement): Promi
 }
 
 /**
- * Load settings from localStorage
+ * Get API key from environment variable or localStorage
+ */
+function getApiKey(): string {
+    // In browser environment, we can't access process.env directly
+    // But we can check if it was injected during build time
+    const envApiKey = typeof process !== 'undefined' && process.env?.ANTHROPIC_API_KEY;
+    const localStorageApiKey = localStorage.getItem(STORAGE_KEYS.API_KEY);
+    
+    // Priority: environment variable > localStorage > default
+    return envApiKey || localStorageApiKey || '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';
+}
+
+/**
+ * Load settings from localStorage with environment variable support
  */
 function loadSettings(): { model: string; apiKey: string } {
     return {
         model: localStorage.getItem(STORAGE_KEYS.MODEL) || 'claude-3-5-sonnet-20241022',
-        apiKey: localStorage.getItem(STORAGE_KEYS.API_KEY) || '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'
+        apiKey: getApiKey()
     };
 }
 
@@ -352,31 +366,49 @@ export function setupCodeMirrorPlayground(): void {
 
 /**
  * Convert parsed Machine AST to MachineData format for executor
+ * This function safely extracts data from the Langium AST without circular references
  */
 function convertToMachineData(machine: Machine): any {
     const nodes: any[] = [];
     const edges: any[] = [];
 
-    // Process nodes
+    // Process nodes - safely extract only the data we need
     machine.nodes?.forEach(node => {
         const nodeData: any = {
-            name: node.name,
-            type: node.type || 'state'
+            name: String(node.name || ''),
+            type: String(node.type || 'state')
         };
 
-        // Convert attributes
+        // Convert attributes safely
         if (node.attributes && node.attributes.length > 0) {
-            nodeData.attributes = node.attributes.map(attr => ({
-                name: attr.name,
-                type: attr.type || 'string',
-                value: attr.value?.value || attr.value || ''
-            }));
+            nodeData.attributes = [];
+            node.attributes.forEach(attr => {
+                const attrData: any = {
+                    name: String(attr.name || ''),
+                    type: String(attr.type || 'string')
+                };
+                
+                // Safely extract attribute value
+                if (attr.value) {
+                    if (typeof attr.value === 'string') {
+                        attrData.value = attr.value;
+                    } else if (attr.value.value !== undefined) {
+                        attrData.value = String(attr.value.value);
+                    } else {
+                        attrData.value = String(attr.value);
+                    }
+                } else {
+                    attrData.value = '';
+                }
+                
+                nodeData.attributes.push(attrData);
+            });
         }
 
         nodes.push(nodeData);
     });
 
-    // Process edges - the AST has a more complex structure with segments
+    // Process edges - safely extract edge data without AST references
     machine.edges?.forEach(edge => {
         // Each edge can have multiple segments
         edge.segments?.forEach(segment => {
@@ -384,11 +416,11 @@ function convertToMachineData(machine: Machine): any {
             edge.source?.forEach(sourceRef => {
                 segment.target?.forEach(targetRef => {
                     const edgeData: any = {
-                        source: sourceRef.ref?.name || '',
-                        target: targetRef.ref?.name || ''
+                        source: String(sourceRef.ref?.name || ''),
+                        target: String(targetRef.ref?.name || '')
                     };
 
-                    // Extract label information from segment
+                    // Extract label information from segment safely
                     if (segment.label && segment.label.length > 0) {
                         const labelParts: string[] = [];
                         segment.label.forEach(edgeType => {
@@ -396,7 +428,7 @@ function convertToMachineData(machine: Machine): any {
                                 if (attr.text) {
                                     labelParts.push(String(attr.text));
                                 } else if (attr.name) {
-                                    labelParts.push(attr.name);
+                                    labelParts.push(String(attr.name));
                                 }
                             });
                         });
@@ -407,7 +439,7 @@ function convertToMachineData(machine: Machine): any {
 
                     // Set edge type based on arrow type
                     if (segment.endType) {
-                        edgeData.type = segment.endType;
+                        edgeData.type = String(segment.endType);
                     }
 
                     edges.push(edgeData);
@@ -417,7 +449,7 @@ function convertToMachineData(machine: Machine): any {
     });
 
     return {
-        title: machine.title || 'Untitled Machine',
+        title: String(machine.title || 'Untitled Machine'),
         nodes,
         edges
     };
@@ -530,6 +562,19 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             await MachineExecutor.create(machineData, llmConfig) :
             new MachineExecutor(machineData, llmConfig);
         
+        // Create VisualizingMachineExecutor for enhanced runtime visualization
+        console.log('🔧 Creating VisualizingMachineExecutor...');
+        const visualizingExecutor: VisualizingMachineExecutor = llmConfig.llm ? 
+            await VisualizingMachineExecutor.create(machineData, llmConfig) :
+            new VisualizingMachineExecutor(machineData, llmConfig);
+        
+        console.log('✅ VisualizingMachineExecutor created:', {
+            type: visualizingExecutor.constructor.name,
+            hasGetMobileRuntimeVisualization: typeof visualizingExecutor.getMobileRuntimeVisualization === 'function',
+            machineTitle: machineData.title,
+            nodeCount: machineData.nodes.length
+        });
+        
         // Create EvolutionaryExecutor by extending the properly configured base executor
         executor = new EvolutionaryExecutor(machineData, llmConfig, storage);
         
@@ -612,9 +657,26 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         const staticMermaidCode = await generateMermaidFromCode(code);
         let runtimeMermaidCode = staticMermaidCode;
         
+        console.log('🎨 Diagram generation:', {
+            hasExecutionResult: !!executionResult,
+            visualizingExecutorType: visualizingExecutor.constructor.name,
+            isVisualizingMachineExecutor: visualizingExecutor instanceof VisualizingMachineExecutor
+        });
+        
         if (executionResult) {
-            // Generate runtime diagram showing execution state
-            runtimeMermaidCode = executor.toMermaidRuntime();
+            // Generate enhanced runtime diagram showing execution state
+            // Use the main executor that has the actual execution state
+            console.log('🔄 Using main executor for runtime diagram');
+            try {
+                runtimeMermaidCode = executor.toMermaidRuntime();
+                console.log('🎯 Generated runtime mermaid code:', runtimeMermaidCode.substring(0, 200) + '...');
+            } catch (runtimeError) {
+                console.error('❌ Error generating runtime diagram:', runtimeError);
+                // Fall back to static diagram
+                runtimeMermaidCode = staticMermaidCode;
+            }
+        } else {
+            console.log('ℹ️ No execution result - using static diagram');
         }
 
         // Display comprehensive results
@@ -721,11 +783,43 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             const machineId = machineData.title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
             const versionKey = `machine_${machineId}_${Date.now()}`;
             
+            // Create a safe copy of machine data without circular references
+            const safeMachineData = {
+                title: machineData.title,
+                nodes: machineData.nodes.map((node: any) => ({
+                    name: node.name,
+                    type: node.type,
+                    attributes: node.attributes ? node.attributes.map((attr: any) => ({
+                        name: attr.name,
+                        type: attr.type,
+                        value: attr.value
+                    })) : []
+                })),
+                edges: machineData.edges.map((edge: any) => ({
+                    source: edge.source,
+                    target: edge.target,
+                    label: edge.label,
+                    type: edge.type
+                }))
+            };
+            
+            // Create safe mutations copy
+            const safeMutations = mutations.map((mutation: any) => ({
+                type: mutation.type,
+                timestamp: mutation.timestamp,
+                data: mutation.data ? {
+                    task: mutation.data.task,
+                    from_stage: mutation.data.from_stage,
+                    to_stage: mutation.data.to_stage,
+                    code_path: mutation.data.code_path
+                } : {}
+            }));
+            
             await storage.saveMachineVersion(versionKey, {
                 version: `v${Date.now()}`,
                 timestamp: new Date().toISOString(),
-                machine_data: machineData,
-                mutations_since_last: mutations,
+                machine_data: safeMachineData,
+                mutations_since_last: safeMutations,
                 performance_metrics: {
                     avg_execution_time_ms: executionSteps * 100, // Rough estimate
                     success_rate: executionResult ? 1.0 : 0.5,

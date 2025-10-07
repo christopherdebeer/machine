@@ -39,13 +39,13 @@ classDiagram-v2
   class error {
     
   }
-    start --> middle
+    start --> middle : init
 
   middle --> end : process complete
 
-  middle --> error : timeout=5000
+  middle --> error : timeout: 5000;, timeout=5000
 
-  error --> start : retry=3, logLevel=0
+  error --> start : retry: 3; logLevel: 0;, retry=3, logLevel=0
 
   end --> start : if=(count > 10)
 
@@ -76,7 +76,13 @@ classDiagram-v2
   "edges": [
     {
       "source": "start",
-      "target": "middle"
+      "target": "middle",
+      "value": {
+        "text": "init"
+      },
+      "attributes": {
+        "text": "init"
+      }
     },
     {
       "source": "middle",
@@ -92,9 +98,11 @@ classDiagram-v2
       "source": "middle",
       "target": "error",
       "value": {
+        "text": "timeout: 5000;",
         "timeout": "5000"
       },
       "attributes": {
+        "text": "timeout: 5000;",
         "timeout": "5000"
       }
     },
@@ -102,10 +110,12 @@ classDiagram-v2
       "source": "error",
       "target": "start",
       "value": {
+        "text": "retry: 3; logLevel: 0;",
         "retry": "3",
         "logLevel": "0"
       },
       "attributes": {
+        "text": "retry: 3; logLevel: 0;",
         "retry": "3",
         "logLevel": "0"
       }

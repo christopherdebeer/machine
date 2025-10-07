@@ -30,7 +30,10 @@
         "dev": "vite",
         "dev:debug": "vite --debug --force",
         "serve": "npm run dev",
-        "test": "vitest run"
+        "test": "vitest run",
+        "test:runtime": "vitest run test/integration/runtime-visualization.test.ts",
+        "test:env": "vitest run test/scripts/test-with-env.ts",
+        "test:all": "npm run test && npm run test:runtime"
     },
     "dependencies": {
         "@anthropic-ai/sdk": "^0.32.1",

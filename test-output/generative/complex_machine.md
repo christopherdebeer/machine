@@ -112,9 +112,9 @@ namespace states {
 
   validation --> cleanup
 
-  process1 --> recovery : on=error
+  process1 --> recovery : on: error;, on=error
 
-  recovery --> process1 : timeout=30000
+  recovery --> process1 : timeout: 30000;, timeout=30000
 
   cleanup --> startup : if=(config.debug == true)
 
@@ -239,9 +239,11 @@ namespace states {
       "source": "process1",
       "target": "recovery",
       "value": {
+        "text": "on: error;",
         "on": "error"
       },
       "attributes": {
+        "text": "on: error;",
         "on": "error"
       }
     },
@@ -249,9 +251,11 @@ namespace states {
       "source": "recovery",
       "target": "process1",
       "value": {
+        "text": "timeout: 30000;",
         "timeout": "30000"
       },
       "attributes": {
+        "text": "timeout: 30000;",
         "timeout": "30000"
       }
     },

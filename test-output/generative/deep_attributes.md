@@ -48,7 +48,7 @@ classDiagram-v2
 +minValue : number = 0
 +description : string = This is a very long description that contains multiple words and should be preserved exactly as written in the transformation pipeline
   }
-    node1 --> node2 : config=primary
+    node1 --> node2 : config: "primary";, config=primary
 
 ```
 
@@ -128,9 +128,11 @@ classDiagram-v2
       "source": "node1",
       "target": "node2",
       "value": {
+        "text": "config: \"primary\";",
         "config": "primary"
       },
       "attributes": {
+        "text": "config: \"primary\";",
         "config": "primary"
       }
     }
