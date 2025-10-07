@@ -51,6 +51,12 @@ Boundary conditions and unusual patterns:
 - `special-characters.dygram` - Underscores, numbers, emojis in identifiers
 - `edge-cases-collection.dygram` - Empty nodes, multiple edges, chained transitions
 
+### `/workflows`
+Real-world workflow examples:
+- `user-onboarding.dygram` - User registration and onboarding flow
+- `order-processing.dygram` - E-commerce order lifecycle
+- `ci-cd-pipeline.dygram` - Continuous integration and deployment pipeline
+
 ## Usage
 
 These examples are referenced by:
