@@ -28,9 +28,10 @@ export class AnthropicClient implements LLMClient {
         }
 
         this.client = new Anthropic({
+            dangerouslyAllowBrowser: true, 
             apiKey: config.apiKey || process.env.ANTHROPIC_API_KEY
         });
-        this.modelId = config.modelId || 'claude-3-5-sonnet-20241022';
+        this.modelId = config.modelId || 'claude-sonnet-4-20250514';
     }
 
     /**

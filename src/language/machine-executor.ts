@@ -80,9 +80,9 @@ export class MachineExecutor {
         if (config.bedrock && !config.llm) {
             this.llmClient = new BedrockClient(config.bedrock);
         } else if (config.llm) {
-            // Async client creation will be handled in a separate init method if needed
-            // For now, default to Bedrock for sync construction
-            this.llmClient = new BedrockClient(config.bedrock);
+            // For sync construction, we'll create a placeholder that will be replaced in the static create method
+            // This is a temporary client that will be replaced
+            this.llmClient = new BedrockClient();
         } else {
             // Default to Bedrock with default config
             this.llmClient = new BedrockClient();
@@ -502,9 +502,11 @@ export class MachineExecutor {
     }
 
     /**
-     * Execute a task node using Bedrock with tool support
+     * Execute a task node using LLM with tool support
      */
     private async executeTaskNode(): Promise<{ output: string; nextNode?: string }> {
+        console.log('🤖 executeTaskNode called for:', this.context.currentNode);
+        
         const node = this.machineData.nodes.find(n => n.name === this.context.currentNode);
         if (!node) {
             throw new Error(`Node ${this.context.currentNode} not found`);
@@ -512,6 +514,9 @@ export class MachineExecutor {
 
         const attributes = this.getCurrentNodeAttributes();
         const isMeta = attributes.meta === 'true' || attributes.meta === 'True';
+
+        console.log('📋 Task node attributes:', attributes);
+        console.log('🔧 LLM Client type:', this.llmClient.constructor.name);
 
         // Build tools array
         const tools: ToolDefinition[] = [];
@@ -526,6 +531,8 @@ export class MachineExecutor {
         if (isMeta) {
             tools.push(...this.generateMetaTools());
         }
+
+        console.log('🛠️ Generated tools:', tools.map(t => t.name));
 
         const promptContext: TaskPromptContext = {
             title: attributes.title,
@@ -544,10 +551,13 @@ export class MachineExecutor {
 
         // Compile the prompt
         const prompt = compilePrompt(template, promptContext);
+        console.log('📝 Compiled prompt:', prompt.substring(0, 200) + '...');
 
         // If no tools, use simple invocation
         if (tools.length === 0) {
+            console.log('🔄 Making simple LLM call (no tools)...');
             const output = await this.llmClient.invokeModel(prompt);
+            console.log('✅ LLM response received:', output.substring(0, 100) + '...');
             return { output };
         }
 
@@ -559,21 +569,28 @@ export class MachineExecutor {
         let nextNode: string | undefined;
         let finalText = '';
 
+        console.log('🔄 Starting multi-turn conversation with tools...');
+
         // Tool use loop
         while (true) {
+            console.log('📞 Making LLM call with tools...');
             const response = await this.llmClient.invokeWithTools(messages, tools);
+            console.log('📨 LLM response received:', response);
 
             // Extract text
             const text = this.llmClient.extractText(response);
             if (text) {
                 finalText += (finalText ? '\n' : '') + text;
+                console.log('📄 Extracted text:', text.substring(0, 100) + '...');
             }
 
             // Check for tool uses
             const toolUses = this.llmClient.extractToolUses(response);
+            console.log('🔧 Tool uses found:', toolUses.length);
 
             if (toolUses.length === 0) {
                 // No more tools to invoke, we're done
+                console.log('🏁 No more tools to invoke, conversation complete');
                 break;
             }
 
@@ -587,12 +604,14 @@ export class MachineExecutor {
             const toolResults: ContentBlock[] = [];
 
             for (const toolUse of toolUses) {
+                console.log('⚙️ Processing tool use:', toolUse.name, toolUse.input);
                 try {
                     const result = this.handleToolUse(toolUse.name, toolUse.input);
 
                     // Special handling for transition tool
                     if (toolUse.name === 'transition') {
                         nextNode = result.target;
+                        console.log('🎯 Transition chosen:', nextNode);
                     }
 
                     toolResults.push({
@@ -602,6 +621,7 @@ export class MachineExecutor {
                     } as any);
                 } catch (error: unknown) {
                     const errorMessage = error instanceof Error ? error.message : String(error);
+                    console.error('❌ Tool execution error:', errorMessage);
                     toolResults.push({
                         type: 'tool_result' as any,
                         tool_use_id: toolUse.id,
@@ -619,10 +639,12 @@ export class MachineExecutor {
 
             // If we got a transition, we can stop the loop
             if (nextNode) {
+                console.log('🎯 Transition received, ending conversation');
                 break;
             }
         }
 
+        console.log('✅ Task execution complete:', { finalText: finalText.substring(0, 100) + '...', nextNode });
         return { output: finalText, nextNode };
     }
 
@@ -646,10 +668,23 @@ export class MachineExecutor {
         let output: string | undefined;
         let nextNode: string | undefined;
 
-        if (currentNode.type === 'task') {
+        // Check if this is a task node (case-insensitive) or has a prompt attribute
+        const isTaskNode = currentNode.type?.toLowerCase() === 'task' || 
+                          currentNode.attributes?.some(attr => attr.name === 'prompt');
+
+        console.log('🔍 Node execution check:', {
+            nodeName: currentNode.name,
+            nodeType: currentNode.type,
+            isTaskNode,
+            attributes: currentNode.attributes
+        });
+
+        if (isTaskNode) {
+            console.log('🤖 Executing task node with LLM...');
             const result = await this.executeTaskNode();
             output = result.output;
             nextNode = result.nextNode;
+            console.log('✅ Task execution result:', { output: output?.substring(0, 100), nextNode });
         }
 
         // If no next node chosen by LLM, take the first available transition

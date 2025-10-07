@@ -13,6 +13,8 @@ import { createMachineServices } from './language/machine-module.js';
 import { Machine } from './language/generated/ast.js';
 import { generateMermaid } from './language/generator/generator.js';
 import { MachineExecutor } from './language/machine-executor.js';
+import { EvolutionaryExecutor } from './language/task-evolution.js';
+import { createStorage } from './language/storage.js';
 
 // Initialize mermaid with custom settings
 mermaid.initialize({
@@ -455,13 +457,26 @@ async function generateMermaidFromCode(code: string): Promise<string> {
     }
 }
 
+// Global storage instance for persistence
+let globalStorage: any = null;
+
 /**
- * Execute the code and display results using the MachineExecutor
+ * Get or create storage instance
+ */
+function getStorage() {
+    if (!globalStorage) {
+        globalStorage = createStorage(); // Auto-selects best available (IndexedDB > localStorage > memory)
+    }
+    return globalStorage;
+}
+
+/**
+ * Execute the code using the full EvolutionaryExecutor system
  */
 async function executeCode(code: string, outputElement: HTMLElement | null, diagramElement: HTMLElement | null): Promise<void> {
     if (!outputElement) return;
 
-    outputElement.innerHTML = '<div class="loading">Processing...</div>';
+    outputElement.innerHTML = '<div class="loading">Initializing runtime system...</div>';
 
     try {
         // Parse the code using the actual Langium parser
@@ -487,39 +502,111 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         // Get settings for LLM configuration
         const settings = loadSettings();
         
-        // Create executor with LLM configuration if API key is provided
-        let executor: MachineExecutor;
-        if (settings.apiKey.trim()) {
-            executor = await MachineExecutor.create(machineData, {
-                llm: {
-                    provider: 'bedrock',
-                    region: 'us-west-2',
-                    modelId: settings.model,
-                    // Note: In a real implementation, you'd need to handle AWS credentials properly
-                    // For now, we'll create the executor but it may not be able to make LLM calls
-                }
-            });
-        } else {
-            // Create executor without LLM config (will use default Bedrock)
-            executor = new MachineExecutor(machineData);
+        // Initialize storage system
+        const storage = getStorage();
+        
+        outputElement.innerHTML = '<div class="loading">Creating evolutionary executor...</div>';
+
+        // Create EvolutionaryExecutor with storage and LLM configuration
+        let executor: EvolutionaryExecutor;
+        
+        const llmConfig = settings.apiKey.trim() ? {
+            llm: {
+                provider: 'anthropic' as const, // Use Anthropic for better browser compatibility
+                apiKey: settings.apiKey,
+                modelId: settings.model
+            }
+        } : {};
+
+        console.log('🔧 Creating EvolutionaryExecutor with config:', {
+            hasApiKey: !!settings.apiKey.trim(),
+            apiKeyPrefix: settings.apiKey.substring(0, 10) + '...',
+            model: settings.model,
+            llmConfig
+        });
+
+        // Create base executor first with proper LLM client
+        const baseExecutor = llmConfig.llm ? 
+            await MachineExecutor.create(machineData, llmConfig) :
+            new MachineExecutor(machineData, llmConfig);
+        
+        // Create EvolutionaryExecutor by extending the properly configured base executor
+        executor = new EvolutionaryExecutor(machineData, llmConfig, storage);
+        
+        // Replace the LLM client with the properly configured one
+        if (llmConfig.llm && baseExecutor) {
+            (executor as any).llmClient = (baseExecutor as any).llmClient;
         }
 
-        // Try to execute one step if there are task nodes
+        // Identify task nodes for execution
+        const taskNodes = machineData.nodes.filter((node: any) => 
+            node.type === 'Task' || node.type === 'task' || 
+            (node.attributes && node.attributes.some((attr: any) => attr.name === 'prompt'))
+        );
+
+        const hasTaskNodes = taskNodes.length > 0;
+        const hasApiKey = settings.apiKey.trim().length > 0;
+
+        console.log('🔍 Task analysis:', {
+            totalNodes: machineData.nodes.length,
+            taskNodes: taskNodes.map((n: any) => ({ name: n.name, type: n.type, attributes: n.attributes })),
+            hasTaskNodes,
+            hasApiKey,
+            apiKeyLength: settings.apiKey.length
+        });
+
+        outputElement.innerHTML = '<div class="loading">Executing machine...</div>';
+
         let executionResult = null;
-        const hasTaskNodes = machineData.nodes.some((node: any) => node.type === 'task');
+        let executionSteps = 0;
+        let maxSteps = 10; // Prevent infinite loops in demo
         
-        if (hasTaskNodes && settings.apiKey.trim()) {
+        if (hasTaskNodes && hasApiKey) {
+            console.log('🚀 Starting execution with LLM support...');
             try {
-                // Attempt to execute one step
+                // Execute the machine step by step until completion or max steps
+                while (executionSteps < maxSteps) {
+                    console.log(`🔄 Attempting step ${executionSteps + 1}...`);
+                    const stepped = await executor.step();
+                    executionSteps++;
+                    
+                    console.log(`✅ Step ${executionSteps} result:`, { stepped, currentContext: executor.getContext() });
+                    
+                    if (!stepped) {
+                        console.log('🛑 No more transitions available');
+                        break;
+                    }
+                    
+                    // Update UI with progress
+                    outputElement.innerHTML = `<div class="loading">Executing step ${executionSteps}...</div>`;
+                }
+                
+                executionResult = executor.getContext();
+                console.log('🏁 Final execution result:', executionResult);
+            } catch (execError) {
+                console.error('❌ Execution failed:', execError);
+                // Continue with static analysis even if execution fails
+            }
+        } else if (hasTaskNodes && !hasApiKey) {
+            console.log('⚠️ Simulating execution without API key...');
+            // Simulate execution without LLM calls for demo purposes
+            try {
                 const stepped = await executor.step();
                 if (stepped) {
                     executionResult = executor.getContext();
                 }
+                console.log('🔄 Simulated execution result:', { stepped, executionResult });
             } catch (execError) {
-                console.warn('Execution step failed:', execError);
-                // Continue with static analysis even if execution fails
+                console.warn('❌ Simulated execution failed:', execError);
             }
+        } else {
+            console.log('ℹ️ No task nodes or API key - skipping execution');
         }
+
+        // Get task metrics and evolution information
+        const taskMetrics = executor.getTaskMetrics();
+        const mutations = executor.getMutations();
+        const evolutions = mutations.filter((m: any) => m.type === 'task_evolution');
 
         // Generate both static and runtime diagrams
         const staticMermaidCode = await generateMermaidFromCode(code);
@@ -530,46 +617,98 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             runtimeMermaidCode = executor.toMermaidRuntime();
         }
 
-        // Display results
+        // Display comprehensive results
         const lines = code.split('\n').length;
         const timestamp = new Date().toISOString();
         
-        let statusMessage = '✓ Parsing and generation successful';
+        let statusMessage = '✓ Machine parsed and analyzed';
         let statusColor = '#4ec9b0';
         
-        if (executionResult) {
-            statusMessage = `✓ Machine executed successfully - Current node: ${executionResult.currentNode}`;
+        if (executionResult && executionSteps > 0) {
+            statusMessage = `✓ Machine executed (${executionSteps} steps) - Current: ${executionResult.currentNode}`;
             statusColor = '#4ec9b0';
-        } else if (hasTaskNodes && !settings.apiKey.trim()) {
-            statusMessage = '⚠ Machine parsed successfully (API key required for execution)';
+        } else if (hasTaskNodes && !hasApiKey) {
+            statusMessage = '⚠ Machine ready (API key required for task execution)';
             statusColor = '#ffa500';
-        } else if (hasTaskNodes) {
-            statusMessage = '⚠ Machine parsed successfully (execution failed - check credentials)';
+        } else if (hasTaskNodes && hasApiKey) {
+            statusMessage = '⚠ Machine parsed (execution failed - check credentials)';
             statusColor = '#ffa500';
         }
 
-        outputElement.innerHTML = `
+        // Build detailed output
+        let outputHTML = `
             <div style="color: ${statusColor}; margin-bottom: 12px;">
                 ${statusMessage}
             </div>
             <div style="color: #858585; font-size: 12px;">
                 Lines: ${lines}<br>
-                Nodes: ${machineData.nodes.length}<br>
+                Nodes: ${machineData.nodes.length} (${taskNodes.length} tasks)<br>
                 Edges: ${machineData.edges.length}<br>
                 ${executionResult ? `Visited: ${executionResult.visitedNodes.size}<br>` : ''}
+                ${evolutions.length > 0 ? `Evolutions: ${evolutions.length}<br>` : ''}
                 Time: ${timestamp}
             </div>
-            ${executionResult && executionResult.history.length > 0 ? `
+        `;
+
+        // Add execution history if available
+        if (executionResult && executionResult.history.length > 0) {
+            outputHTML += `
                 <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
                     <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Execution History:</div>
                     ${executionResult.history.map((step: any, idx: number) => `
                         <div style="color: #d4d4d4; font-size: 11px;">
                             ${idx + 1}. ${step.from} → ${step.to} (${step.transition})
+                            ${step.output ? `<br>&nbsp;&nbsp;&nbsp;&nbsp;Output: ${String(step.output).substring(0, 50)}${String(step.output).length > 50 ? '...' : ''}` : ''}
                         </div>
                     `).join('')}
                 </div>
-            ` : ''}
+            `;
+        }
+
+        // Add task evolution metrics if available
+        if (taskMetrics.size > 0) {
+            outputHTML += `
+                <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
+                    <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Task Evolution Status:</div>
+                    ${Array.from(taskMetrics.entries()).map(([taskName, metrics]) => `
+                        <div style="color: #d4d4d4; font-size: 11px; margin-bottom: 4px;">
+                            <strong>${taskName}</strong>: ${metrics.stage} 
+                            (${metrics.execution_count} runs, ${(metrics.success_rate * 100).toFixed(1)}% success)
+                            ${metrics.code_path ? `<br>&nbsp;&nbsp;&nbsp;&nbsp;Code: ${metrics.code_path}` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Add evolution events if any occurred
+        if (evolutions.length > 0) {
+            outputHTML += `
+                <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
+                    <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Evolution Events:</div>
+                    ${evolutions.map((evolution: any, idx: number) => `
+                        <div style="color: #4ec9b0; font-size: 11px;">
+                            ${idx + 1}. ${evolution.data.task}: ${evolution.data.from_stage} → ${evolution.data.to_stage}
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;Generated: ${evolution.data.code_path}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Add storage information
+        outputHTML += `
+            <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
+                <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Storage:</div>
+                <div style="color: #d4d4d4; font-size: 11px;">
+                    Backend: ${storage.constructor.name}<br>
+                    Patterns: Available for reuse<br>
+                    Persistence: ${storage.constructor.name !== 'MemoryStorage' ? 'Enabled' : 'Session-only'}
+                </div>
+            </div>
         `;
+
+        outputElement.innerHTML = outputHTML;
 
         // Render the appropriate diagram (runtime if available, otherwise static)
         if (diagramElement) {
@@ -577,10 +716,31 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             await renderDiagram(runtimeMermaidCode, diagramElement);
         }
 
+        // Save machine version to storage for future reference
+        try {
+            const machineId = machineData.title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const versionKey = `machine_${machineId}_${Date.now()}`;
+            
+            await storage.saveMachineVersion(versionKey, {
+                version: `v${Date.now()}`,
+                timestamp: new Date().toISOString(),
+                machine_data: machineData,
+                mutations_since_last: mutations,
+                performance_metrics: {
+                    avg_execution_time_ms: executionSteps * 100, // Rough estimate
+                    success_rate: executionResult ? 1.0 : 0.5,
+                    cost_per_execution: hasApiKey ? 0.01 : 0,
+                    execution_count: executionSteps
+                }
+            });
+        } catch (storageError) {
+            console.warn('Failed to save machine version:', storageError);
+        }
+
     } catch (error) {
         outputElement.innerHTML = `
             <div class="error">
-                <strong>Error:</strong> ${error instanceof Error ? error.message : 'Unknown error'}
+                <strong>Runtime Error:</strong> ${error instanceof Error ? error.message : 'Unknown error'}
             </div>
         `;
     }
