@@ -41,6 +41,35 @@ npx dygram generate examples/workflows/ci-cd-pipeline.dygram -f html -d output/
 # Open the generated HTML file to see the interactive visualization
 ```
 
+### `smart-task-prioritizer.dygram`
+AI-powered task prioritization workflow with:
+- Task analysis using LLM
+- Priority assignment with reasoning
+- Action plan generation
+- Context management for data flow
+
+**Test it:**
+```bash
+# Requires ANTHROPIC_API_KEY environment variable
+export ANTHROPIC_API_KEY=your_api_key_here
+npx dygram execute examples/workflows/smart-task-prioritizer.dygram
+```
+
+### `code-generation-demo.dygram`
+Complete code generation workflow demonstrating:
+- Requirements definition via LLM
+- JavaScript code generation
+- Test generation
+- Documentation generation
+- Validation and quality checks
+
+**Test it:**
+```bash
+# Requires ANTHROPIC_API_KEY environment variable
+export ANTHROPIC_API_KEY=your_api_key_here
+npx dygram execute examples/workflows/code-generation-demo.dygram
+```
+
 ## Usage Patterns
 
 These examples demonstrate:

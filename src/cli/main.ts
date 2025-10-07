@@ -188,6 +188,8 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
 
     // Write execution results
     const data = extractDestinationAndName(fileName, opts.destination);
+    // Ensure the destination directory exists
+    await fs.mkdir(data.destination, { recursive: true });
     const resultPath = path.join(data.destination, `${data.name}-result.json`);
     await fs.writeFile(resultPath, JSON.stringify(
         {
