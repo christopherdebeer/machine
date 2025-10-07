@@ -96,10 +96,48 @@
             letter-spacing: 0.5px;
             color: #cccccc;
             border-bottom: 1px solid #3e3e42;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-header:hover {
+            background: #333336;
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-content {
+            flex: 1;
+            overflow: hidden;
+            transition: flex 0.3s ease;
+        }
+
+        .section-content.collapsed {
+            flex: 0;
+            min-height: 0;
+        }
+
+        .settings-panel.collapsed {
+            display: none;
         }
 
         #editor {
-            flex: 1;
+            height: 100%;
             overflow: auto;
         }
 
@@ -112,7 +150,7 @@
         }
 
         #output {
-            flex: 1;
+            height: 100%;
             overflow: auto;
             padding: 16px;
             font-family: 'Monaco', 'Courier New', monospace;
@@ -281,7 +319,11 @@
     </div>
 
     <!-- Settings Panel -->
-    <div class="settings-panel">
+    <div class="section-header" onclick="toggleSection('settings')">
+        <span>Settings</span>
+        <button class="toggle-btn" id="settings-toggle">▼</button>
+    </div>
+    <div class="settings-panel" id="settings-panel">
         <div class="settings-group">
             <label for="model-select">Model:</label>
             <select id="model-select" class="settings-input">
@@ -305,27 +347,52 @@
 
     <div class="container">
         <div class="editor-section">
-            <div class="section-header">Editor</div>
-            <div id="editor">
-                <div class="loading">Loading editor...</div>
+            <div class="section-header" onclick="toggleSection('editor')">
+                <span>Editor</span>
+                <button class="toggle-btn" id="editor-toggle">▼</button>
+            </div>
+            <div class="section-content" id="editor-content">
+                <div id="editor">
+                    <div class="loading">Loading editor...</div>
+                </div>
             </div>
         </div>
 
         <div class="output-section">
-            <div class="section-header">Output</div>
-            <div id="output">
-                <div id="outputInfo"></div>
-                <div id="diagram"></div>
+            <div class="section-header" onclick="toggleSection('output')">
+                <span>Output</span>
+                <button class="toggle-btn" id="output-toggle">▼</button>
+            </div>
+            <div class="section-content" id="output-content">
+                <div id="output">
+                    <div id="outputInfo"></div>
+                    <div id="diagram"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        import { setupCodeMirrorPlayground } from './src/codemirror-setup.ts';
+        import { setupCodeMirrorPlayground, loadDynamicExamples } from './src/codemirror-setup.ts';
+
+        // Toggle section visibility
+        window.toggleSection = function(section) {
+            const toggleBtn = document.getElementById(`${section}-toggle`);
+            const content = document.getElementById(`${section}-${section === 'settings' ? 'panel' : 'content'}`);
+
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                toggleBtn.textContent = '▼';
+            } else {
+                content.classList.add('collapsed');
+                toggleBtn.textContent = '▶';
+            }
+        };
 
         // Initialize playground when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             setupCodeMirrorPlayground();
+            await loadDynamicExamples();
         });
     </script>
 </body>

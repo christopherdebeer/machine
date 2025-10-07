@@ -28,8 +28,8 @@ mermaid.initialize({
 const services = createMachineServices(EmptyFileSystem);
 const parse = parseHelper<Machine>(services.Machine);
 
-// Example code snippets
-const examples = {
+// Example code snippets - will be populated dynamically
+const examples: Record<string, string> = {
     basic: `machine "Hello World"
 
 state start;
@@ -75,6 +75,67 @@ Concept destination "Database" {
 source -feeds-> processor;
 processor -stores-> destination;`
 };
+
+/**
+ * Load examples dynamically from the examples directory
+ */
+export async function loadDynamicExamples(): Promise<void> {
+    try {
+        // List of example files to load from the examples directory
+        const exampleFiles = [
+            { path: 'examples/basic/minimal.dygram', name: 'Minimal' },
+            { path: 'examples/basic/typed-nodes.dygram', name: 'Typed Nodes' },
+            { path: 'examples/workflows/user-onboarding.dygram', name: 'User Onboarding' },
+            { path: 'examples/workflows/order-processing.dygram', name: 'Order Processing' },
+            { path: 'examples/workflows/ci-cd-pipeline.dygram', name: 'CI/CD Pipeline' },
+            { path: 'examples/attributes/basic-attributes.dygram', name: 'Attributes' },
+            { path: 'examples/edges/labeled-edges.dygram', name: 'Labeled Edges' },
+            { path: 'examples/nesting/nested-2-levels.dygram', name: 'Nested' },
+            { path: 'examples/complex/complex-machine.dygram', name: 'Complex' }
+        ];
+
+        const examplesContainer = document.querySelector('.examples');
+        if (!examplesContainer) return;
+
+        // Clear existing example buttons
+        examplesContainer.innerHTML = '';
+
+        // Load and create buttons for each example
+        for (const example of exampleFiles) {
+            try {
+                const response = await fetch(example.path);
+                if (response.ok) {
+                    const content = await response.text();
+                    const key = example.name.toLowerCase().replace(/\s+/g, '-');
+                    examples[key] = content;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'example-btn';
+                    btn.setAttribute('data-example', key);
+                    btn.textContent = example.name;
+                    examplesContainer.appendChild(btn);
+
+                    // Add click handler
+                    btn.addEventListener('click', () => {
+                        if (editorView && examples[key]) {
+                            editorView.dispatch({
+                                changes: {
+                                    from: 0,
+                                    to: editorView.state.doc.length,
+                                    insert: examples[key],
+                                },
+                            });
+                        }
+                    });
+                }
+            } catch (error) {
+                console.warn(`Failed to load example: ${example.path}`, error);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading dynamic examples:', error);
+    }
+}
 
 let editorView: EditorView | null = null;
 let updateDiagramTimeout: number | null = null;
@@ -301,22 +362,7 @@ export function setupCodeMirrorPlayground(): void {
         }
     });
 
-    // Set up example buttons
-    const exampleButtons = document.querySelectorAll('.example-btn');
-    exampleButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const example = btn.getAttribute('data-example') as keyof typeof examples;
-            if (example && examples[example] && editorView) {
-                editorView.dispatch({
-                    changes: {
-                        from: 0,
-                        to: editorView.state.doc.length,
-                        insert: examples[example],
-                    },
-                });
-            }
-        });
-    });
+    // Example buttons are now set up dynamically by loadDynamicExamples()
 
     // Set up run button
     if (runBtn) {
