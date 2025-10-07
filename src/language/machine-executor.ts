@@ -132,16 +132,48 @@ export class MachineExecutor {
     /**
      * Get the current node's attributes as a key-value object
      */
-    private getCurrentNodeAttributes(): Record<string, string> {
+    private getCurrentNodeAttributes(): Record<string, any> {
         const node = this.machineData.nodes.find(n => n.name === this.context.currentNode);
         if (!node?.attributes) {
             return {};
         }
 
         return node.attributes.reduce((acc, attr) => {
-            acc[attr.name] = attr.value;
+            // Handle the case where attr.value might be an object (from JSON parsing or AST)
+            let value = attr.value;
+            
+            // If it's a Langium AST node object, extract the actual value
+            if (value && typeof value === 'object' && '$type' in value) {
+                // This is a Langium AST node - extract the text content
+                const astNode = value as any;
+                if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
+                    value = astNode.$cstNode.text;
+                    // Remove quotes if present
+                    if (typeof value === 'string') {
+                        value = value.replace(/^["']|["']$/g, '');
+                    }
+                } else if ('value' in astNode) {
+                    // Try to get nested value property
+                    value = astNode.value;
+                }
+            }
+            
+            // If the value is a string that looks like JSON, try to parse it
+            if (typeof value === 'string') {
+                try {
+                    // Check if it looks like JSON (starts with { or [)
+                    if ((value.startsWith('{') && value.endsWith('}')) || 
+                        (value.startsWith('[') && value.endsWith(']'))) {
+                        value = JSON.parse(value);
+                    }
+                } catch (error) {
+                    // If parsing fails, keep the original string value
+                }
+            }
+            
+            acc[attr.name] = value;
             return acc;
-        }, {} as Record<string, string>);
+        }, {} as Record<string, any>);
     }
 
     /**
@@ -537,8 +569,31 @@ export class MachineExecutor {
         // Resolve template variables in the prompt
         let resolvedPrompt = attributes.prompt || '';
         
+        // Ensure resolvedPrompt is a string
+        if (typeof resolvedPrompt !== 'string') {
+            if (resolvedPrompt && typeof resolvedPrompt === 'object') {
+                // Handle object/array cases - could be a complex attribute value
+                // Check if it has a 'value' property (common in AST nodes)
+                const objPrompt = resolvedPrompt as any;
+                if ('value' in objPrompt && typeof objPrompt.value === 'string') {
+                    resolvedPrompt = objPrompt.value;
+                } else {
+                    // Try to safely stringify, handling circular references
+                    try {
+                        resolvedPrompt = JSON.stringify(resolvedPrompt);
+                    } catch (error) {
+                        // Fallback for circular references or other stringify errors
+                        resolvedPrompt = String(resolvedPrompt);
+                    }
+                }
+            } else {
+                // Convert other types to string
+                resolvedPrompt = String(resolvedPrompt);
+            }
+        }
+        
         // Simple template variable resolution for {{ variable.property }} syntax
-        resolvedPrompt = resolvedPrompt.replace(/\{\{\s*(\w+)\.(\w+)\s*\}\}/g, (match, nodeName, attrName) => {
+        resolvedPrompt = resolvedPrompt.replace(/\{\{\s*(\w+)\.(\w+)\s*\}\}/g, (match: string, nodeName: string, attrName: string) => {
             console.log('🔍 Resolving template variable:', { match, nodeName, attrName });
             
             // Find the referenced node in the machine
@@ -546,8 +601,30 @@ export class MachineExecutor {
             if (referencedNode && referencedNode.attributes) {
                 const referencedAttr = referencedNode.attributes.find(a => a.name === attrName);
                 if (referencedAttr) {
+                    // Extract the actual value, handling AST objects
+                    let value = referencedAttr.value;
+                    
+                    // If it's a Langium AST node object, extract the actual value
+                    if (value && typeof value === 'object' && '$type' in value) {
+                        const astNode = value as any;
+                        if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
+                            value = astNode.$cstNode.text;
+                            // Remove quotes if present
+                            if (typeof value === 'string') {
+                                value = value.replace(/^["']|["']$/g, '');
+                            }
+                        } else if ('value' in astNode) {
+                            value = astNode.value;
+                        }
+                    }
+                    
+                    // Ensure the value is a string
+                    if (typeof value !== 'string') {
+                        value = String(value);
+                    }
+                    
                     // Remove quotes if present and return the value
-                    const value = referencedAttr.value.replace(/^"(.*)"$/, '$1');
+                    value = value.replace(/^"(.*)"$/, '$1');
                     console.log('✅ Resolved template variable:', { match, value });
                     return value;
                 }

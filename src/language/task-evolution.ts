@@ -142,7 +142,28 @@ export class EvolutionaryExecutor extends MachineExecutor {
     private async executeLLMTask(attributes: Record<string, any>): Promise<TaskExecutionResult> {
         // Use the existing executeTaskNode from parent class
         // This is a simplified version - in reality, we'd call the parent's method
-        const output = attributes.prompt || 'LLM execution placeholder';
+        let output = attributes.prompt || 'LLM execution placeholder';
+        
+        // Ensure output is a string
+        if (typeof output !== 'string') {
+            if (output && typeof output === 'object') {
+                // Check if it has a 'value' property (common in AST nodes)
+                const objOutput = output as any;
+                if ('value' in objOutput && typeof objOutput.value === 'string') {
+                    output = objOutput.value;
+                } else {
+                    // Try to safely stringify, handling circular references
+                    try {
+                        output = JSON.stringify(output);
+                    } catch (error) {
+                        // Fallback for circular references or other stringify errors
+                        output = String(output);
+                    }
+                }
+            } else {
+                output = String(output);
+            }
+        }
 
         return {
             output,
