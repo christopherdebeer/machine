@@ -70,24 +70,24 @@ export type TaskType = keyof typeof TASK_PROMPT_TEMPLATES;
 export function compilePrompt(template: string, context: TaskPromptContext): string {
     let result = template;
 
-    // Replace simple placeholders
-    result = result.replace('{{title}}', context.title || 'Untitled Task');
-    result = result.replace('{{description}}', context.description || 'No description provided');
-    result = result.replace('{{prompt}}', context.prompt || 'No specific prompt provided');
+    // Replace simple placeholders with proper escaping
+    result = result.replace(/\{\{title\}\}/g, context.title || 'Untitled Task');
+    result = result.replace(/\{\{description\}\}/g, context.description || 'No description provided');
+    result = result.replace(/\{\{prompt\}\}/g, context.prompt || 'No specific prompt provided');
 
-    // Handle attributes section
+    // Handle attributes section more carefully
     if (context.attributes && Object.keys(context.attributes).length > 0) {
         const attributesSection = Object.entries(context.attributes)
-            .map(([key, value]) => `- ${key}: ${value}`)
+            .map(([key, value]) => `- ${key}: ${String(value)}`)
             .join('\n');
-        result = result.replace('{{#each attributes}}', '')
-            .replace('{{/each}}', '')
-            .replace('{{@key}}', '')
-            .replace('{{this}}', '')
-            .replace(/^.*attributes:.*$/m, `Additional Attributes:\n${attributesSection}`);
+        
+        // Replace the handlebars-style each block
+        result = result.replace(/\{\{#each attributes\}\}[\s\S]*?\{\{\/each\}\}/g, attributesSection);
     } else {
         // Remove the attributes section if no attributes
-        result = result.replace(/Additional Attributes:.*{{\/each}}/s, '');
+        result = result.replace(/Additional Attributes:\s*\{\{#each attributes\}\}[\s\S]*?\{\{\/each\}\}/g, '');
+        result = result.replace(/Key Points to Consider:\s*\{\{#each attributes\}\}[\s\S]*?\{\{\/each\}\}/g, '');
+        result = result.replace(/Relevant Context:\s*\{\{#each attributes\}\}[\s\S]*?\{\{\/each\}\}/g, '');
     }
 
     return result.trim();

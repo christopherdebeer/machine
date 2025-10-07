@@ -165,8 +165,8 @@ async function renderDiagram(mermaidCode: string, container: HTMLElement): Promi
  */
 function loadSettings(): { model: string; apiKey: string } {
     return {
-        model: localStorage.getItem(STORAGE_KEYS.MODEL) || 'anthropic.claude-3-sonnet-20240229-v1:0',
-        apiKey: localStorage.getItem(STORAGE_KEYS.API_KEY) || ''
+        model: localStorage.getItem(STORAGE_KEYS.MODEL) || 'claude-3-5-sonnet-20241022',
+        apiKey: localStorage.getItem(STORAGE_KEYS.API_KEY) || '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'
     };
 }
 

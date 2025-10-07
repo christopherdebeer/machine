@@ -265,7 +265,7 @@ classDiagram-v2
             // Generate namespace content
             const content = joinToNode(nodes, node => {
                 const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
-                let displayValue = desc?.value;
+                let displayValue: any = desc?.value;
                 if (desc && typeof displayValue === 'string') {
                     displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
                 }
@@ -449,7 +449,7 @@ classDiagram-v2
             // Generate namespace content
             const content = joinToNode(nodes, node => {
                 const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
-                let displayValue = desc?.value;
+                let displayValue: any = desc?.value;
                 if (desc && typeof displayValue === 'string') {
                     displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
                 }

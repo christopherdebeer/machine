@@ -534,10 +534,35 @@ export class MachineExecutor {
 
         console.log('🛠️ Generated tools:', tools.map(t => t.name));
 
+        // Resolve template variables in the prompt
+        let resolvedPrompt = attributes.prompt || '';
+        
+        // Simple template variable resolution for {{ variable.property }} syntax
+        resolvedPrompt = resolvedPrompt.replace(/\{\{\s*(\w+)\.(\w+)\s*\}\}/g, (match, nodeName, attrName) => {
+            console.log('🔍 Resolving template variable:', { match, nodeName, attrName });
+            
+            // Find the referenced node in the machine
+            const referencedNode = this.machineData.nodes.find(n => n.name === nodeName);
+            if (referencedNode && referencedNode.attributes) {
+                const referencedAttr = referencedNode.attributes.find(a => a.name === attrName);
+                if (referencedAttr) {
+                    // Remove quotes if present and return the value
+                    const value = referencedAttr.value.replace(/^"(.*)"$/, '$1');
+                    console.log('✅ Resolved template variable:', { match, value });
+                    return value;
+                }
+            }
+            console.log('⚠️ Could not resolve template variable:', match);
+            return match; // Return original if not found
+        });
+
+        console.log('📝 Original prompt:', attributes.prompt);
+        console.log('📝 Resolved prompt:', resolvedPrompt);
+
         const promptContext: TaskPromptContext = {
             title: attributes.title,
             description: attributes.desc,
-            prompt: attributes.prompt,
+            prompt: resolvedPrompt,
             attributes: Object.fromEntries(
                 Object.entries(attributes).filter(([key]) =>
                     !['title', 'desc', 'prompt', 'meta'].includes(key)
