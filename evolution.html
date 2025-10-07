@@ -212,7 +212,7 @@ const storage = createStorage();
 const executor = new EvolutionaryExecutor(machineData, {}, storage);
 
 // Execute many times - evolution happens automatically
-for (let i = 0; i < 500; i++) {
+for (let i = 0; i &lt; 500; i++) {
     await executor.step();
 }
 
