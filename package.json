@@ -33,6 +33,7 @@
         "test": "vitest run"
     },
     "dependencies": {
+        "@anthropic-ai/sdk": "^0.32.1",
         "@aws-sdk/client-bedrock-runtime": "^3.535.0",
         "@codingame/monaco-vscode-editor-service-override": "~3.2.3",
         "@codingame/monaco-vscode-keybindings-service-override": "~3.2.3",

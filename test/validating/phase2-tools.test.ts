@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MachineExecutor, MachineData } from '../../src/language/machine-executor';
 import {
-    BedrockClient,
     ToolDefinition,
     ModelResponse,
     ConversationMessage
-} from '../../src/language/bedrock-client';
+} from '../../src/language/llm-client';
+import { BedrockClient } from '../../src/language/bedrock-client';
 
 // Mock the BedrockClient
 vi.mock('../../src/language/bedrock-client', () => {
@@ -36,7 +36,7 @@ describe('Phase 2: Tool-Based Execution', () => {
     let mockMachineData: MachineData;
     let mockBedrockClient: any;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         vi.clearAllMocks();
 
         // Setup test machine data with branching paths
@@ -72,6 +72,7 @@ describe('Phase 2: Tool-Based Execution', () => {
         };
 
         executor = new MachineExecutor(mockMachineData);
+        // Access the mock through the module mock
         mockBedrockClient = (BedrockClient as any).mock.results[0].value;
     });
 
