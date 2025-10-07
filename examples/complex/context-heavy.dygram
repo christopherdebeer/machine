@@ -1,0 +1,19 @@
+machine "Context Heavy Machine"
+context appConfig {
+    environment<string>: "production";
+    version<string>: "2.0.1";
+    debug<boolean>: false;
+    maxConnections<number>: 1000;
+    features: ["auth", "logging", "metrics"];
+}
+
+context userPrefs {
+    theme<string>: "dark";
+    language<string>: "en-US";
+    notifications<boolean>: true;
+}
+
+init bootstrap;
+state ready;
+
+bootstrap -> ready;

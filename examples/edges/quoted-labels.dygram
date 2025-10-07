@@ -1,0 +1,10 @@
+machine "Quoted Labels Machine"
+start;
+middle;
+end;
+error;
+
+start -"user clicks button"-> middle;
+middle -"validation: passed; retry: 3;"-> end;
+middle -"error: timeout"-> error;
+error -"retry attempt"-> start;

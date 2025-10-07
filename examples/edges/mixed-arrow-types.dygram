@@ -1,0 +1,12 @@
+machine "Mixed Arrow Types"
+a;
+b;
+c;
+d;
+e;
+
+a -> b;
+b --> c;
+c => d;
+d <--> e;
+e -> a;

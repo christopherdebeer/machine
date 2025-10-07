@@ -1,0 +1,4 @@
+machine "Simple Node Machine"
+node1;
+node2;
+node3;
