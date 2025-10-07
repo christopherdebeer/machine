@@ -265,7 +265,11 @@ classDiagram-v2
             // Generate namespace content
             const content = joinToNode(nodes, node => {
                 const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
-                const header = `class ${node.name}${desc ? `[\"${desc.value}\"]` : ''}`;
+                let displayValue = desc?.value;
+                if (desc && typeof displayValue === 'string') {
+                    displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
+                }
+                const header = `class ${node.name}${desc ? `["${displayValue}"]` : ''}`;
 
                 // Format all attributes except desc/prompt for the class body
                 const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
@@ -445,7 +449,11 @@ classDiagram-v2
             // Generate namespace content
             const content = joinToNode(nodes, node => {
                 const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
-                const header = `class ${node.name}${desc ? `[\"${desc.value}\"]` : ''}`;
+                let displayValue = desc?.value;
+                if (desc && typeof displayValue === 'string') {
+                    displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
+                }
+                const header = `class ${node.name}${desc ? `["${displayValue}"]` : ''}`;
 
                 // Format all attributes except desc/prompt for the class body
                 const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];

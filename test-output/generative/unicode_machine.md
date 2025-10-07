@@ -24,11 +24,11 @@ config:
         hideEmptyMembersBox: true
 ---
 classDiagram-v2
-    class start[""Starting point 开始""] {
+    class start["Starting point 开始"] {
     
   }
 
-  class process[""Processing 处理""] {
+  class process["Processing 处理"] {
     
   }
 
@@ -100,8 +100,4 @@ classDiagram-v2
 - Transform Errors: 0
 - Completeness Issues: 0
 - Losslessness Issues: 0
-- Mermaid Parse Errors: 1
-  - Mermaid parse failed: Parse error on line 2:
-...2    class start[""Starting point 开始""]
-----------------------^
-Expecting 'STR', got 'ALPHA'
+- Mermaid Parse Errors: 0
