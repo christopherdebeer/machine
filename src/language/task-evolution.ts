@@ -281,7 +281,6 @@ export class EvolutionaryExecutor extends MachineExecutor {
                 last_evolution: new Date().toISOString(),
                 performance_metrics: {
                     avg_execution_time_ms: 0,
-                    avg_cost_per_execution: 0,
                     success_rate: 1.0,
                     execution_count: 0,
                     cost_per_execution: 0
@@ -370,7 +369,6 @@ export class EvolutionaryExecutor extends MachineExecutor {
                 last_evolution: new Date().toISOString(),
                 performance_metrics: {
                     avg_execution_time_ms: 0,
-                    avg_cost_per_execution: 0,
                     success_rate: 1.0,
                     execution_count: 0,
                     cost_per_execution: 0
