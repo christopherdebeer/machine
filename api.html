@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Reference | DyGram</title>
     <link rel="stylesheet" href="static/styles/main.css">
+    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 </head>
 <body>
     <header style="height: auto; padding: 4rem 0;">
@@ -34,44 +35,61 @@
                 <h3 class="feature-title">PARSING</h3>
                 <p>Parse DyGram source code into an Abstract Syntax Tree (AST):</p>
                 <div class="code-block" style="margin-top: 1rem;">
-                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;">import { createMachineServices } from 'dygram';
-import { EmptyFileSystem } from 'langium';
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;"><span style="color: #569cd6;">import</span> { <span style="color: #9cdcfe;">createMachineServices</span> } <span style="color: #569cd6;">from</span> <span style="color: #ce9178;">'dygram'</span>;
+<span style="color: #569cd6;">import</span> { <span style="color: #9cdcfe;">EmptyFileSystem</span> } <span style="color: #569cd6;">from</span> <span style="color: #ce9178;">'langium'</span>;
 
-const services = createMachineServices(EmptyFileSystem);
-const parser = services.Machine.parser.LangiumParser;
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">services</span> = <span style="color: #dcdcaa;">createMachineServices</span>(<span style="color: #9cdcfe;">EmptyFileSystem</span>);
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">parser</span> = <span style="color: #9cdcfe;">services</span>.<span style="color: #9cdcfe;">Machine</span>.<span style="color: #9cdcfe;">parser</span>.<span style="color: #9cdcfe;">LangiumParser</span>;
 
-const code = `machine "Example"
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">code</span> = <span style="color: #ce9178;">`machine "Example"
   state a;
   state b;
-  a -> b;`;
+  a -> b;`</span>;
 
-const result = parser.parse(code);
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">result</span> = <span style="color: #9cdcfe;">parser</span>.<span style="color: #dcdcaa;">parse</span>(<span style="color: #9cdcfe;">code</span>);
 
-if (result.lexerErrors.length === 0 &&
-    result.parserErrors.length === 0) {
-  console.log('Parsed successfully!');
-  console.log(result.value);
+<span style="color: #c586c0;">if</span> (<span style="color: #9cdcfe;">result</span>.<span style="color: #9cdcfe;">lexerErrors</span>.<span style="color: #9cdcfe;">length</span> === <span style="color: #b5cea8;">0</span> &&
+    <span style="color: #9cdcfe;">result</span>.<span style="color: #9cdcfe;">parserErrors</span>.<span style="color: #9cdcfe;">length</span> === <span style="color: #b5cea8;">0</span>) {
+  <span style="color: #9cdcfe;">console</span>.<span style="color: #dcdcaa;">log</span>(<span style="color: #ce9178;">'Parsed successfully!'</span>);
+  <span style="color: #9cdcfe;">console</span>.<span style="color: #dcdcaa;">log</span>(<span style="color: #9cdcfe;">result</span>.<span style="color: #9cdcfe;">value</span>);
 }</pre>
                 </div>
             </div>
 
             <div class="feature" style="margin-bottom: 3rem;">
-                <h3 class="feature-title">EXECUTION</h3>
-                <p>Execute DyGram programs and access results:</p>
+                <h3 class="feature-title">CONTEXT MANAGEMENT</h3>
+                <p>Execute machines with enhanced context value management:</p>
                 <div class="code-block" style="margin-top: 1rem;">
-                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;">import { execute } from 'dygram/cli';
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;"><span style="color: #569cd6;">import</span> { <span style="color: #9cdcfe;">MachineExecutor</span> } <span style="color: #569cd6;">from</span> <span style="color: #ce9178;">'dygram'</span>;
 
-const code = `machine "Task"
-  Input query { text: "Hello" };
-  Task process {
-    prompt: "Process {{ query.text }}"
-  };
-  Result output { value: "TBD" };
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">machineData</span> = {
+  <span style="color: #9cdcfe;">title</span>: <span style="color: #ce9178;">"Context Demo"</span>,
+  <span style="color: #9cdcfe;">nodes</span>: [
+    { <span style="color: #9cdcfe;">name</span>: <span style="color: #ce9178;">"start"</span>, <span style="color: #9cdcfe;">type</span>: <span style="color: #ce9178;">"state"</span> },
+    { <span style="color: #9cdcfe;">name</span>: <span style="color: #ce9178;">"process"</span>, <span style="color: #9cdcfe;">type</span>: <span style="color: #ce9178;">"Task"</span>, <span style="color: #9cdcfe;">attributes</span>: [
+      { <span style="color: #9cdcfe;">name</span>: <span style="color: #ce9178;">"meta"</span>, <span style="color: #9cdcfe;">value</span>: <span style="color: #ce9178;">"true"</span> },
+      { <span style="color: #9cdcfe;">name</span>: <span style="color: #ce9178;">"prompt"</span>, <span style="color: #9cdcfe;">value</span>: <span style="color: #ce9178;">"Generate data and store using set_context_value"</span> }
+    ]},
+    { <span style="color: #9cdcfe;">name</span>: <span style="color: #ce9178;">"output"</span>, <span style="color: #9cdcfe;">type</span>: <span style="color: #ce9178;">"context"</span>, <span style="color: #9cdcfe;">attributes</span>: [
+      { <span style="color: #9cdcfe;">name</span>: <span style="color: #ce9178;">"result"</span>, <span style="color: #9cdcfe;">type</span>: <span style="color: #ce9178;">"string"</span>, <span style="color: #9cdcfe;">value</span>: <span style="color: #ce9178;">""</span> }
+    ]}
+  ],
+  <span style="color: #9cdcfe;">edges</span>: [
+    { <span style="color: #9cdcfe;">source</span>: <span style="color: #ce9178;">"start"</span>, <span style="color: #9cdcfe;">target</span>: <span style="color: #ce9178;">"process"</span> },
+    { <span style="color: #9cdcfe;">source</span>: <span style="color: #ce9178;">"process"</span>, <span style="color: #9cdcfe;">target</span>: <span style="color: #ce9178;">"output"</span> }
+  ]
+};
 
-  query -> process -> output;`;
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">config</span> = {
+  <span style="color: #9cdcfe;">llm</span>: {
+    <span style="color: #9cdcfe;">provider</span>: <span style="color: #ce9178;">'anthropic'</span>,
+    <span style="color: #9cdcfe;">apiKey</span>: <span style="color: #9cdcfe;">process</span>.<span style="color: #9cdcfe;">env</span>.<span style="color: #9cdcfe;">ANTHROPIC_API_KEY</span>,
+    <span style="color: #9cdcfe;">model</span>: <span style="color: #ce9178;">'claude-3-5-sonnet-20241022'</span>
+  }
+};
 
-const result = await execute(code);
-console.log(result.output);</pre>
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">executor</span> = <span style="color: #c586c0;">await</span> <span style="color: #9cdcfe;">MachineExecutor</span>.<span style="color: #dcdcaa;">create</span>(<span style="color: #9cdcfe;">machineData</span>, <span style="color: #9cdcfe;">config</span>);
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">result</span> = <span style="color: #c586c0;">await</span> <span style="color: #9cdcfe;">executor</span>.<span style="color: #dcdcaa;">execute</span>();</pre>
                 </div>
             </div>
 
@@ -79,20 +97,20 @@ console.log(result.output);</pre>
                 <h3 class="feature-title">VALIDATION</h3>
                 <p>Validate DyGram code and get diagnostic messages:</p>
                 <div class="code-block" style="margin-top: 1rem;">
-                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;">import { createMachineServices } from 'dygram';
-import { EmptyFileSystem } from 'langium';
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;"><span style="color: #569cd6;">import</span> { <span style="color: #9cdcfe;">createMachineServices</span> } <span style="color: #569cd6;">from</span> <span style="color: #ce9178;">'dygram'</span>;
+<span style="color: #569cd6;">import</span> { <span style="color: #9cdcfe;">EmptyFileSystem</span> } <span style="color: #569cd6;">from</span> <span style="color: #ce9178;">'langium'</span>;
 
-const services = createMachineServices(EmptyFileSystem);
-const validator = services.Machine.validation.DocumentValidator;
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">services</span> = <span style="color: #dcdcaa;">createMachineServices</span>(<span style="color: #9cdcfe;">EmptyFileSystem</span>);
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">validator</span> = <span style="color: #9cdcfe;">services</span>.<span style="color: #9cdcfe;">Machine</span>.<span style="color: #9cdcfe;">validation</span>.<span style="color: #9cdcfe;">DocumentValidator</span>;
 
-// Parse and validate
-const document = await services.shared.workspace
-  .LangiumDocuments.getOrCreateDocument(uri, code);
+<span style="color: #6a9955;">// Parse and validate</span>
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">document</span> = <span style="color: #c586c0;">await</span> <span style="color: #9cdcfe;">services</span>.<span style="color: #9cdcfe;">shared</span>.<span style="color: #9cdcfe;">workspace</span>
+  .<span style="color: #9cdcfe;">LangiumDocuments</span>.<span style="color: #dcdcaa;">getOrCreateDocument</span>(<span style="color: #9cdcfe;">uri</span>, <span style="color: #9cdcfe;">code</span>);
 
-const diagnostics = await validator.validateDocument(document);
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">diagnostics</span> = <span style="color: #c586c0;">await</span> <span style="color: #9cdcfe;">validator</span>.<span style="color: #dcdcaa;">validateDocument</span>(<span style="color: #9cdcfe;">document</span>);
 
-diagnostics.forEach(diag => {
-  console.log(`${diag.severity}: ${diag.message}`);
+<span style="color: #9cdcfe;">diagnostics</span>.<span style="color: #dcdcaa;">forEach</span>(<span style="color: #9cdcfe;">diag</span> <span style="color: #569cd6;">=></span> {
+  <span style="color: #9cdcfe;">console</span>.<span style="color: #dcdcaa;">log</span>(<span style="color: #ce9178;">`</span><span style="color: #569cd6;">${</span><span style="color: #9cdcfe;">diag</span>.<span style="color: #9cdcfe;">severity</span><span style="color: #569cd6;">}</span><span style="color: #ce9178;">: </span><span style="color: #569cd6;">${</span><span style="color: #9cdcfe;">diag</span>.<span style="color: #9cdcfe;">message</span><span style="color: #569cd6;">}</span><span style="color: #ce9178;">`</span>);
 });</pre>
                 </div>
             </div>
@@ -101,32 +119,19 @@ diagnostics.forEach(diag => {
                 <h3 class="feature-title">DIAGRAM GENERATION</h3>
                 <p>Generate Mermaid diagrams from DyGram code:</p>
                 <div class="code-block" style="margin-top: 1rem;">
-                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;">import { generateMermaid } from 'dygram/cli';
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;"><span style="color: #569cd6;">import</span> { <span style="color: #9cdcfe;">generateMermaid</span> } <span style="color: #569cd6;">from</span> <span style="color: #ce9178;">'dygram/cli'</span>;
 
-const code = `machine "Flow"
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">code</span> = <span style="color: #ce9178;">`machine "Flow"
   state start;
   state end;
-  start -> end;`;
+  start -> end;`</span>;
 
-const mermaid = generateMermaid(code);
-console.log(mermaid);
+<span style="color: #569cd6;">const</span> <span style="color: #9cdcfe;">mermaid</span> = <span style="color: #dcdcaa;">generateMermaid</span>(<span style="color: #9cdcfe;">code</span>);
+<span style="color: #9cdcfe;">console</span>.<span style="color: #dcdcaa;">log</span>(<span style="color: #9cdcfe;">mermaid</span>);
 
-// Output:
-// graph TD
-//   start --> end</pre>
-                </div>
-            </div>
-
-            <div class="feature" style="margin-bottom: 3rem;">
-                <h3 class="feature-title">LANGUAGE SERVER</h3>
-                <p>Start a language server for editor integration:</p>
-                <div class="code-block" style="margin-top: 1rem;">
-                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 0.95rem;">import { startLanguageServer } from 'dygram/language-server';
-import { createConnection, ProposedFeatures } from 'vscode-languageserver/node';
-
-const connection = createConnection(ProposedFeatures.all);
-
-startLanguageServer(connection);</pre>
+<span style="color: #6a9955;">// Output:</span>
+<span style="color: #6a9955;">// graph TD</span>
+<span style="color: #6a9955;">//   start --> end</span></pre>
                 </div>
             </div>
 
@@ -211,5 +216,7 @@ startLanguageServer(connection);</pre>
             </div>
         </div>
     </footer>
+
+</script>
 </body>
 </html>

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quick Start | DyGram</title>
     <link rel="stylesheet" href="static/styles/main.css">
+    <link rel="stylesheet" href="static/styles/carousel.css">
+    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 </head>
 <body>
     <header style="height: auto; padding: 4rem 0;">
@@ -51,21 +53,79 @@
                 <p style="font-size: 1.2rem; margin-bottom: 2rem;">
                     Create a file called <code>hello.mach</code> with the following content:
                 </p>
-                <div class="code-block">
-                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px; font-size: 1rem;">machine "Hello World"
+                <div class="code-block carousel-container">
+                    <div class="carousel">
+                        <div class="carousel-slide active">
+                            <div class="code machine-lang" id="quickstart-001" data-language="machine">machine "Hello World"
 
 state start;
 state process;
 state end;
 
-start -> process -> end;</pre>
+start -> process -> end;</div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="code machine-lang" id="quickstart-002" data-language="machine">machine "Task Processing"
+
+state start;
+
+Task processData {
+  prompt: "Process the input data";
+};
+
+context output {
+  result<string>: "";
+};
+
+state end;
+
+start --> processData;
+processData -stores-> output;
+output --> end;</div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="code machine-lang" id="quickstart-003" data-language="machine">machine "Context Management Demo"
+
+state start;
+
+Task generateContent {
+  meta: true;
+  prompt: "Generate content and store it using set_context_value";
+};
+
+context storage {
+  content<string>: "";
+  timestamp<number>: 0;
+};
+
+Task processContent {
+  prompt: "Process the content: {{storage.content}}";
+};
+
+state end;
+
+start --> generateContent;
+generateContent -stores-> storage;
+storage --> processContent;
+processContent --> end;</div>
+                        </div>
+                    </div>
+                    <div class="carousel-nav">
+                        <button class="prev-btn">&lt;</button>
+                        <div class="carousel-dots">
+                            <span class="dot active" data-index="0"></span>
+                            <span class="dot" data-index="1"></span>
+                            <span class="dot" data-index="2"></span>
+                        </div>
+                        <button class="next-btn">&gt;</button>
+                    </div>
                 </div>
 
                 <p style="font-size: 1.2rem; margin-top: 2rem;">
                     Run it:
                 </p>
                 <div class="code-block">
-                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">npx dygram hello.mach</pre>
+                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">node bin/cli.js execute hello.mach</pre>
                 </div>
             </div>
 
@@ -116,5 +176,24 @@ start -> process -> end;</pre>
             </div>
         </div>
     </footer>
+
+    <script type="module">
+        // vite is used to resolve the included TypeScript files
+        import { configureMonacoWorkers } from './src/setupCommon.ts';
+        import { executeExtended } from './src/setupExtended.ts';
+
+        configureMonacoWorkers();
+        // keep a reference to a promise for when the editor is finished starting
+        Array.from(document.querySelectorAll('.code.machine-lang')).map( (el) => {
+            const out = document.createElement('div')
+            out.classList.add('output')
+            executeExtended(el, false, out);
+            el.closest('.carousel-slide').appendChild(out)
+        })
+
+        // Initialize carousels
+        import { initializeCarousels } from './src/web/index.ts';
+        initializeCarousels();
+    </script>
 </body>
 </html>

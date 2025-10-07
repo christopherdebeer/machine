@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grammar Reference | DyGram</title>
     <link rel="stylesheet" href="static/styles/main.css">
+    <link rel="stylesheet" href="static/styles/carousel.css">
+    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 </head>
 <body>
     <header style="height: auto; padding: 4rem 0;">
@@ -24,7 +26,7 @@
                 <h3 class="feature-title">BASIC STRUCTURE</h3>
                 <p>Every DyGram program starts with a machine declaration:</p>
                 <div class="code-block" style="margin-top: 1rem;">
-                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">machine "My System"
+                    <div class="code machine-lang" id="grammar-001" data-language="machine">machine "My System"
 
 // Define states
 state start;
@@ -32,46 +34,58 @@ state process;
 state end;
 
 // Define connections
-start -> process -> end;</pre>
+start -> process -> end;</div>
                 </div>
             </div>
 
             <div class="feature" style="margin-bottom: 3rem;">
-                <h3 class="feature-title">TYPED CONCEPTS</h3>
-                <p>Add structure and metadata to your concepts:</p>
+                <h3 class="feature-title">CONTEXT MANAGEMENT</h3>
+                <p>Use context nodes for data storage with type validation:</p>
                 <div class="code-block" style="margin-top: 1rem;">
-                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">Concept task "User Story" {
-    description&lt;string&gt;: "Implement feature";
-    priority&lt;Integer&gt;: 8;
-    tags: ["backend", "api"];
+                    <div class="code machine-lang" id="grammar-002" data-language="machine">machine "Context Demo"
+
+Task generateData {
+  meta: true;
+  prompt: "Generate data and store using set_context_value";
 };
 
-Concept implementation {
-    status: "In Progress";
-    owner: "Engineering";
+context storage {
+  value<string>: "";
+  count<number>: 0;
+  metadata<object>: "{}";
 };
 
-task -drives-> implementation;</pre>
+Task processData {
+  prompt: "Process {{storage.value}} with count {{storage.count}}";
+};
+
+generateData -stores-> storage;
+storage --> processData;</div>
                 </div>
             </div>
 
             <div class="feature" style="margin-bottom: 3rem;">
-                <h3 class="feature-title">GENERATIVE TASKS</h3>
-                <p>Integrate AI-powered tasks with prompt templates:</p>
+                <h3 class="feature-title">TEMPLATE VARIABLES</h3>
+                <p>Reference context values in task prompts:</p>
                 <div class="code-block" style="margin-top: 1rem;">
-                    <pre style="background: var(--code-bg); color: var(--light); padding: 1.5rem; overflow-x: auto; border-radius: 4px;">Input query {
-    text&lt;string&gt;: "Analyze sentiment";
+                    <div class="code machine-lang" id="grammar-003" data-language="machine">machine "Template Demo"
+
+context input {
+  query<string>: "analyze sentiment";
+  language<string>: "english";
 };
 
 Task analyze {
-    prompt: "Given {{ query.text }}, provide analysis";
+  prompt: "Analyze the {{input.language}} text: {{input.query}}";
 };
 
-Result output {
-    sentiment: "TBD";
+context output {
+  result<string>: "";
+  confidence<number>: 0.0;
 };
 
-query -> analyze -> output;</pre>
+input --> analyze;
+analyze -produces-> output;</div>
                 </div>
             </div>
 
@@ -160,5 +174,20 @@ a -addresses, confidence: 0.9-> b;</pre>
             </div>
         </div>
     </footer>
+
+    <script type="module">
+        // vite is used to resolve the included TypeScript files
+        import { configureMonacoWorkers } from './src/setupCommon.ts';
+        import { executeExtended } from './src/setupExtended.ts';
+
+        configureMonacoWorkers();
+        // keep a reference to a promise for when the editor is finished starting
+        Array.from(document.querySelectorAll('.code.machine-lang')).map( (el) => {
+            const out = document.createElement('div')
+            out.classList.add('output')
+            executeExtended(el, false, out);
+            el.parentElement.appendChild(out)
+        })
+    </script>
 </body>
 </html>
