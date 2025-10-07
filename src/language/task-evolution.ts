@@ -9,7 +9,6 @@ import {
     TaskExecutionResult,
     EvolutionStage,
     generateTaskCode,
-    generateCodeGenerationPrompt,
     CodeGenerationOptions
 } from './code-generation.js';
 import { StorageBackend, PerformanceMetrics } from './storage.js';
@@ -224,8 +223,7 @@ export class EvolutionaryExecutor extends MachineExecutor {
                 return {
                     ...llmResult,
                     metadata: {
-                        ...llmResult.metadata,
-                        code_confidence: result.confidence
+                        ...llmResult.metadata
                     }
                 };
             }

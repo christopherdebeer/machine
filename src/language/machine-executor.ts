@@ -4,12 +4,14 @@
  */
 
 import {
-    BedrockClient,
-    BedrockClientConfig,
+    LLMClient,
+    LLMClientConfig,
+    createLLMClient,
     ToolDefinition,
     ConversationMessage,
     ContentBlock
-} from './bedrock-client.js';
+} from './llm-client.js';
+import { BedrockClient } from './bedrock-client.js';
 import { compilePrompt, TaskPromptContext, TASK_PROMPT_TEMPLATES } from './prompts/task-prompts.js';
 
 export interface MachineExecutionContext {
@@ -51,13 +53,18 @@ export interface MachineMutation {
 }
 
 export interface MachineExecutorConfig {
-    bedrock?: BedrockClientConfig;
+    llm?: LLMClientConfig;
+    // Deprecated: use llm config instead
+    bedrock?: {
+        region?: string;
+        modelId?: string;
+    };
 }
 
 export class MachineExecutor {
     private context: MachineExecutionContext;
     private machineData: MachineData;
-    private bedrockClient: BedrockClient;
+    private llmClient: LLMClient;
     private mutations: MachineMutation[] = [];
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
@@ -68,7 +75,31 @@ export class MachineExecutor {
             attributes: new Map(),
             history: []
         };
-        this.bedrockClient = new BedrockClient(config.bedrock);
+
+        // Support legacy bedrock config for backwards compatibility
+        if (config.bedrock && !config.llm) {
+            this.llmClient = new BedrockClient(config.bedrock);
+        } else if (config.llm) {
+            // Async client creation will be handled in a separate init method if needed
+            // For now, default to Bedrock for sync construction
+            this.llmClient = new BedrockClient(config.bedrock);
+        } else {
+            // Default to Bedrock with default config
+            this.llmClient = new BedrockClient();
+        }
+    }
+
+    /**
+     * Initialize with async LLM client creation
+     */
+    static async create(machineData: MachineData, config: MachineExecutorConfig = {}): Promise<MachineExecutor> {
+        const executor = new MachineExecutor(machineData, config);
+
+        if (config.llm) {
+            executor.llmClient = await createLLMClient(config.llm);
+        }
+
+        return executor;
     }
 
     /**
@@ -516,7 +547,7 @@ export class MachineExecutor {
 
         // If no tools, use simple invocation
         if (tools.length === 0) {
-            const output = await this.bedrockClient.invokeModel(prompt);
+            const output = await this.llmClient.invokeModel(prompt);
             return { output };
         }
 
@@ -530,16 +561,16 @@ export class MachineExecutor {
 
         // Tool use loop
         while (true) {
-            const response = await this.bedrockClient.invokeWithTools(messages, tools);
+            const response = await this.llmClient.invokeWithTools(messages, tools);
 
             // Extract text
-            const text = this.bedrockClient.extractText(response);
+            const text = this.llmClient.extractText(response);
             if (text) {
                 finalText += (finalText ? '\n' : '') + text;
             }
 
             // Check for tool uses
-            const toolUses = this.bedrockClient.extractToolUses(response);
+            const toolUses = this.llmClient.extractToolUses(response);
 
             if (toolUses.length === 0) {
                 // No more tools to invoke, we're done

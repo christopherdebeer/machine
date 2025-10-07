@@ -3,47 +3,21 @@
  */
 
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import {
+    LLMClient,
+    ToolDefinition,
+    ModelResponse,
+    ConversationMessage,
+    TextBlock,
+    ToolUseBlock
+} from './llm-client.js';
 
 export interface BedrockClientConfig {
     region?: string;
     modelId?: string;
 }
 
-export interface ToolDefinition {
-    name: string;
-    description: string;
-    input_schema: {
-        type: string;
-        properties: Record<string, any>;
-        required?: string[];
-    };
-}
-
-export interface ToolUseBlock {
-    type: 'tool_use';
-    id: string;
-    name: string;
-    input: any;
-}
-
-export interface TextBlock {
-    type: 'text';
-    text: string;
-}
-
-export type ContentBlock = ToolUseBlock | TextBlock;
-
-export interface ModelResponse {
-    content: ContentBlock[];
-    stop_reason: string;
-}
-
-export interface ConversationMessage {
-    role: 'user' | 'assistant';
-    content: string | ContentBlock[];
-}
-
-export class BedrockClient {
+export class BedrockClient implements LLMClient {
     private client: BedrockRuntimeClient;
     private modelId: string;
 
