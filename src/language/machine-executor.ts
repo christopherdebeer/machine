@@ -420,7 +420,7 @@ export class MachineExecutor {
     /**
      * Record a mutation for versioning
      */
-    private recordMutation(mutation: MachineMutation): void {
+    protected recordMutation(mutation: MachineMutation): void {
         this.mutations.push(mutation);
     }
 

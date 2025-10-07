@@ -5,8 +5,9 @@ DyGram is a domain-specific language for defining state machines, workflows, and
 ## Documentation Index
 
 ### Core Documentation
-- **[Syntax Guide](syntax-guide.md)** - Complete language syntax reference with examples
 - **[Language Overview](language-overview.md)** - High-level introduction to DyGram concepts
+- **[Syntax Guide](syntax-guide.md)** - Complete language syntax reference with examples
+- **[Runtime & Evolution](runtime-and-evolution.md)** - Execution engine, automatic code generation, and task evolution
 - **[Testing Approach](testing-approach.md)** - Generative testing methodology and validation
 - **[Examples Index](examples-index.md)** - Categorized list of all examples with descriptions
 
