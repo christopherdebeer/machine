@@ -12,6 +12,25 @@ vi.mock('../../src/language/bedrock-client', () => {
                     return 'Analysis complete: Mock analysis result';
                 }
                 return 'Task complete: Mock task result';
+            }),
+            invokeWithTools: vi.fn().mockImplementation(async (messages: any[], tools: any[]) => {
+                // Mock tool-based invocation
+                const prompt = typeof messages[0].content === 'string' ? messages[0].content : '';
+                const text = prompt.includes('analysis')
+                    ? 'Analysis complete: Mock analysis result'
+                    : 'Task complete: Mock task result';
+
+                return {
+                    content: [{ type: 'text', text }],
+                    stop_reason: 'end_turn'
+                };
+            }),
+            extractText: vi.fn().mockImplementation((response: any) => {
+                const textBlocks = response.content.filter((block: any) => block.type === 'text');
+                return textBlocks.map((block: any) => block.text).join('\n');
+            }),
+            extractToolUses: vi.fn().mockImplementation((response: any) => {
+                return response.content.filter((block: any) => block.type === 'tool_use');
             })
         }))
     };
