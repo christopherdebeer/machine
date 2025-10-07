@@ -431,6 +431,37 @@ describe('Generative Integration Tests', () => {
         expect(result.passed).toBe(true);
     });
 
+    // Workflow Examples
+    test('Workflows: User Onboarding', async () => {
+        const source = loadExample('workflows', 'user-onboarding.dygram');
+        const result = await runGenerativeTest('User Onboarding', source);
+        expect(result.passed).toBe(true);
+    });
+
+    test('Workflows: Order Processing', async () => {
+        const source = loadExample('workflows', 'order-processing.dygram');
+        const result = await runGenerativeTest('Order Processing', source);
+        expect(result.passed).toBe(true);
+    });
+
+    test('Workflows: CI/CD Pipeline', async () => {
+        const source = loadExample('workflows', 'ci-cd-pipeline.dygram');
+        const result = await runGenerativeTest('CI/CD Pipeline', source);
+        expect(result.passed).toBe(true);
+    });
+
+    test('Workflows: Smart Task Prioritizer (Context Management)', async () => {
+        const source = loadExample('workflows', 'smart-task-prioritizer.dygram');
+        const result = await runGenerativeTest('Smart Task Prioritizer (Context Management)', source);
+        expect(result.passed).toBe(true);
+    });
+
+    test('Workflows: Code Generation Demo (Advanced Context Management)', async () => {
+        const source = loadExample('workflows', 'code-generation-demo.dygram');
+        const result = await runGenerativeTest('Code Generation Demo (Advanced Context Management)', source);
+        expect(result.passed).toBe(true);
+    });
+
     // Write report after all tests
     test('Generate Report', () => {
         reporter.writeReport();
