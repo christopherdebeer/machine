@@ -93,7 +93,8 @@
                     "machine"
                 ],
                 "extensions": [
-                    ".mach"
+                    ".mach",
+                    ".dygram"
                 ],
                 "configuration": "./language-configuration.json"
             }
