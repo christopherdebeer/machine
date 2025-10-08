@@ -330,9 +330,13 @@
         select.settings-input {
             cursor: pointer;
         }
-    </style>
+    </style> 
 </head>
 <body>
+    <!-- Vite replaces this during build with the compiled JS bundle --> 
+    <!-- Eruda Debug Console - Initialize before main bundle --> 
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script> 
+    <script>eruda.init();</script>
     <div class="header">
         <div class="header-title"><a href="./">DyGram</a></div>
         <div class="header-actions">
