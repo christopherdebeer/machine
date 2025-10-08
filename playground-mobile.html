@@ -88,6 +88,13 @@
         }
 
         .editor-section.collapsed {
+            flex: 0 0 0;
+            min-height: 0;
+            height: auto;
+        }
+
+        /* Prevent empty space when both sections are collapsed */
+        .container:has(.editor-section.collapsed):has(.output-section.collapsed) {
             flex: 0 0 auto;
             min-height: 0;
         }
@@ -156,8 +163,9 @@
         }
 
         .output-section.collapsed {
-            flex: 0 0 auto;
+            flex: 0 0 0;
             min-height: 0;
+            height: auto;
         }
 
         #output {
@@ -184,6 +192,13 @@
             overflow-x: auto;
             border-bottom: 1px solid #3e3e42;
             -webkit-overflow-scrolling: touch;
+            min-height: 44px;
+        }
+
+        .examples:empty::after {
+            content: 'Loading examples...';
+            color: #858585;
+            font-size: 12px;
         }
 
         .example-btn {
@@ -349,9 +364,7 @@
     </div>
 
     <div class="examples">
-        <button class="example-btn" data-example="basic">Basic</button>
-        <button class="example-btn" data-example="workflow">Workflow</button>
-        <button class="example-btn" data-example="system">System</button>
+        <!-- Example buttons will be populated dynamically by loadDynamicExamples() -->
     </div>
 
     <div class="container">
@@ -374,8 +387,8 @@
             </div>
             <div class="section-content" id="output-content">
                 <div id="output">
-                    <div id="outputInfo"></div>
                     <div id="diagram"></div>
+                    <div id="outputInfo"></div>
                 </div>
             </div>
         </div>
