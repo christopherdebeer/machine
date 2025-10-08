@@ -16,6 +16,7 @@ import { MachineExecutor } from './language/machine-executor.js';
 import { EvolutionaryExecutor } from './language/task-evolution.js';
 import { VisualizingMachineExecutor } from './language/runtime-visualizer.js';
 import { createStorage } from './language/storage.js';
+import { createLangiumExtensions } from './codemirror-langium.js';
 
 // Initialize mermaid with custom settings
 mermaid.initialize({
@@ -341,6 +342,8 @@ export function setupCodeMirrorPlayground(): void {
                     fontSize: '13px',
                 },
             }),
+            // Langium LSP integration: diagnostics and semantic highlighting
+            ...createLangiumExtensions(),
         ],
     });
 
