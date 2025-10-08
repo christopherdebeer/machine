@@ -31,6 +31,7 @@ export default defineConfig(() => {
 
         plugins: [
             viteStaticCopy({
+                structured: true,
                 targets: [
                     {
                         src: 'static/styles.css',
