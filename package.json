@@ -5,16 +5,15 @@
     "displayName": "Machine",
     "icon": "icon.jpg",
     "publisher": "c15r",
-    "files": [
-        "bin",
-        "out",
-        "src"
-    ],
     "type": "module",
     "repository": {
         "type": "git",
-        "url": "none"
+        "url": "https://github.com/christopherdebeer/machine"
     },
+    "activationEvents": [
+        "onLanguage:machine",
+        "onCommand:extension.generateAndPreview"
+    ],
     "scripts": {
         "build": "npm run langium:generate && tsc -b tsconfig.src.json && node esbuild.mjs",
         "watch": "concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild.mjs --watch\"",
@@ -65,6 +64,7 @@
         "@types/vscode": "~1.67.0",
         "@typescript-eslint/eslint-plugin": "~7.3.1",
         "@typescript-eslint/parser": "~7.3.1",
+        "@vscode/vsce": "^3.2.1",
         "concurrently": "~8.2.1",
         "esbuild": "~0.20.2",
         "eslint": "~8.57.0",
