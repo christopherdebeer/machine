@@ -88,13 +88,15 @@
         }
 
         .editor-section.collapsed {
-            flex: 0 0 auto;
+            flex: 0 0 0;
             min-height: 0;
+            height: auto;
         }
 
         /* Prevent empty space when both sections are collapsed */
         .container:has(.editor-section.collapsed):has(.output-section.collapsed) {
-            flex: 0;
+            flex: 0 0 auto;
+            min-height: 0;
         }
 
         .section-header {
@@ -161,8 +163,9 @@
         }
 
         .output-section.collapsed {
-            flex: 0 0 auto;
+            flex: 0 0 0;
             min-height: 0;
+            height: auto;
         }
 
         #output {
