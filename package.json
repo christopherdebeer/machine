@@ -15,7 +15,8 @@
         "onCommand:extension.generateAndPreview"
     ],
     "scripts": {
-        "build": "npm run langium:generate && tsc -b tsconfig.src.json && node esbuild.mjs",
+        "generate:examples": "node scripts/generate-examples-list.js",
+        "build": "npm run generate:examples && npm run langium:generate && tsc -b tsconfig.src.json && node esbuild.mjs",
         "watch": "concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild.mjs --watch\"",
         "lint": "eslint src --ext ts",
         "langium:generate": "langium generate",
@@ -24,10 +25,10 @@
         "vscode:prepublish": "npm run build && npm run lint",
         "vscode:package": "vsce package",
         "build:web": "npm run build",
-        "bundle": "vite build",
+        "bundle": "npm run generate:examples && vite build",
         "bundle:serve": "http-server ./dist --port 5175",
-        "dev": "npm run langium:generate && vite",
-        "dev:debug": "vite --debug --force",
+        "dev": "npm run generate:examples && npm run langium:generate && vite",
+        "dev:debug": "npm run generate:examples && vite --debug --force",
         "serve": "npm run dev",
         "test": "vitest run",
         "test:runtime": "vitest run test/integration/runtime-visualization.test.ts",
