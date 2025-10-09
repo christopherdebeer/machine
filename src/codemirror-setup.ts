@@ -725,7 +725,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
                 runtimeMermaidCode = staticMermaidCode;
             }
         } else {
-            console.log('ℹ️ No execution result - using static diagram');
+            console.log('ℹ️ No execution result - using static diagram', staticMermaidCode);
         }
 
         // Display comprehensive results
@@ -818,13 +818,28 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
                 </div>
             </div>
         `;
+        
+        // Add intermediate information
+        outputHTML += `
+            <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
+                <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">[${machineData.title}] Diagram source:</div>
+                <div style="color: #d4d4d4; font-size: 11px;">
+                    <pre><code>${staticMermaidCode}</code></pre>
+                </div>
+            </div>
+        `;
 
         outputElement.innerHTML = outputHTML;
 
         // Render the appropriate diagram (runtime if available, otherwise static)
         if (diagramElement) {
             diagramElement.innerHTML = '<div class="loading">Rendering diagram...</div>';
-            await renderDiagram(runtimeMermaidCode, diagramElement);
+            try {
+                await renderDiagram(runtimeMermaidCode, diagramElement);
+            } catch (err) {
+                console.warn(`Failed to render diagram/`)
+                console.error(err);
+            } 
         }
 
         // Save machine version to storage for future reference

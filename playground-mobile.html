@@ -89,14 +89,7 @@
 
         .editor-section.collapsed {
             flex: 0 0 0;
-            min-height: 0;
-            height: auto;
-        }
-
-        /* Prevent empty space when both sections are collapsed */
-        .container:has(.editor-section.collapsed):has(.output-section.collapsed) {
-            flex: 0 0 auto;
-            min-height: 0;
+            height: 0;
         }
 
         .section-header {
@@ -148,6 +141,10 @@
             display: none;
         }
 
+        .section-header {
+            writing-mode: horizontal-tb;
+        }
+
         #editor {
             height: 100%;
             overflow: auto;
@@ -193,6 +190,7 @@
             border-bottom: 1px solid #3e3e42;
             -webkit-overflow-scrolling: touch;
             min-height: 44px;
+            flex-wrap: wrap;
         }
 
         .examples:empty::after {
@@ -246,6 +244,7 @@
         @media (min-width: 768px) {
             .container {
                 flex-direction: row;
+                flex-grow: 1;
             }
 
             .editor-section {
@@ -255,6 +254,10 @@
             .btn {
                 padding: 6px 12px;
                 font-size: 13px;
+            }
+
+            .section-header:not(.settings-header) {
+                writing-mode: sideways-lr;
             }
         }
 
@@ -267,6 +270,8 @@
                 border-right: 1px solid #3e3e42;
             }
         }
+
+        
 
         .loading {
             display: flex;
@@ -347,7 +352,7 @@
     </div>
 
     <!-- Settings Panel -->
-    <div class="section-header" onclick="toggleSection('settings')">
+    <div class="section-header settings-header" onclick="toggleSection('settings')">
         <span>Settings</span>
         <button class="toggle-btn" id="settings-toggle">▼</button>
     </div>
@@ -365,30 +370,27 @@
             <label for="api-key-input">API Key:</label>
             <input type="password" id="api-key-input" class="settings-input" placeholder="Anthropic API key...">
         </div>
+        <div class="examples">
+            <!-- Example buttons will be populated dynamically by loadDynamicExamples() -->
+        </div>
     </div>
-
-    <div class="examples">
-        <!-- Example buttons will be populated dynamically by loadDynamicExamples() -->
-    </div>
-
     <div class="container">
-        <div class="editor-section">
-            <div class="section-header" onclick="toggleSection('editor')">
+        <div class="section-header" onclick="toggleSection('editor')">
                 <span>Editor</span>
                 <button class="toggle-btn" id="editor-toggle">▼</button>
             </div>
+        <div class="editor-section">
             <div class="section-content" id="editor-content">
                 <div id="editor">
                     <div class="loading">Loading editor...</div>
                 </div>
             </div>
         </div>
-
-        <div class="output-section">
-            <div class="section-header" onclick="toggleSection('output')">
+        <div class="section-header" onclick="toggleSection('output')">
                 <span>Output</span>
                 <button class="toggle-btn" id="output-toggle">▼</button>
             </div>
+        <div class="output-section">
             <div class="section-content" id="output-content">
                 <div id="output">
                     <div id="diagram"></div>
