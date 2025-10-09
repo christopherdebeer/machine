@@ -23,7 +23,6 @@ terminal STR: /"([^"\\]|\\.)*"/;        // double-quoted strings for titles and 
 terminal MLSTR: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;  // multiline strings
 terminal NUMBER returns number: /[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?/;
 
-
 terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
 
 terminal SHAFT_THIN: '-';
@@ -49,18 +48,24 @@ entry Machine:
     (nodes+=Node<true> | edges+=Edge<true>)*
 ;
 
-AttributeValue: 
+AttributeValue:
     ('[' (value+=(EXTID|STRING|ID|NUMBER) (',' value+=(EXTID|STRING|ID|NUMBER))*)? ']')
     | value=EXTID|STRING|ID|NUMBER;
+
+// Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated)
+Annotation:
+    '@' name=ID ('(' value=STRING ')')?
+;
 
 Attribute:
 name=ID ('<' type=ID '>')? (':' value=AttributeValue)? ';'
 ;
 
 Node<isRoot>:
-    (<isRoot> type=ID)? 
-    name=ID 
+    (<isRoot> type=ID)?
+    name=ID
     (title=STRING)?
+    (annotations+=Annotation)*
     (('{'
         (nodes+=Node<true> | edges+=Edge<true> | attributes+=Attribute)*
     '}' ';'?) | ';')
@@ -78,6 +83,7 @@ EdgeType:
     value+=EdgeAttribute+;
 
 EdgeSegment:
+    (sourceMultiplicity=STRING)?
     (
         // Bidirectional arrows
         endType=BIDIRECTIONAL_ARROW |
@@ -96,6 +102,7 @@ EdgeSegment:
         (startType=ARROW_LABEL_START_SINGLE (label+=EdgeType (',' label+=EdgeType)*)? endType=ARROW_SINGLE) |
         endType=ARROW_SINGLE
     )
+    (targetMultiplicity=STRING)?
     (target+=[Node:ID] (',' target+=[Node:ID])*)
 ;
 

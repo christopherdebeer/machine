@@ -24,20 +24,21 @@ config:
         hideEmptyMembersBox: true
 ---
 classDiagram-v2
-    class start["Starting point 开始"] {
+    class start["開始"] {
     
   }
 
-  class process["Processing 处理"] {
+  class process["処理"] {
     
   }
 
-  class end {
+  class end["終了"] {
     
   }
     start --> process : ユーザーイベント
 
   process --> end : 完成
+  
 
 ```
 
@@ -53,7 +54,8 @@ classDiagram-v2
           "name": "desc",
           "value": "\"Starting point 开始\""
         }
-      ]
+      ],
+      "title": "開始"
     },
     {
       "name": "process",
@@ -62,11 +64,13 @@ classDiagram-v2
           "name": "desc",
           "value": "\"Processing 处理\""
         }
-      ]
+      ],
+      "title": "処理"
     },
     {
       "name": "end",
-      "attributes": []
+      "attributes": [],
+      "title": "終了"
     }
   ],
   "edges": [
@@ -78,7 +82,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "ユーザーイベント"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "process",
@@ -88,9 +93,11 @@ classDiagram-v2
       },
       "attributes": {
         "text": "完成"
-      }
+      },
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

@@ -20,11 +20,22 @@ export interface Edge {
     value: Record<string, any>;
     target: string;
     arrowType?: string;  // Arrow type for relationship mapping
+    sourceMultiplicity?: string;  // Source multiplicity (e.g., "1", "*", "0..1")
+    targetMultiplicity?: string;  // Target multiplicity (e.g., "1", "*", "1..*")
 }
+
+export interface InferredDependency {
+    source: string;
+    target: string;
+    reason: string;
+    path: string;
+}
+
 export interface MachineJSON {
     title: string;
     nodes: Node[];
     edges: Edge[];
+    inferredDependencies?: InferredDependency[];
 }
 
 /**

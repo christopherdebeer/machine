@@ -158,18 +158,34 @@ export class RuntimeVisualizer {
             lines.push('');
         });
 
-        // Add styling for different states
+        // Add styling for different states and node types
         lines.push('  %% Runtime State Styling');
         lines.push('  classDef currentNode fill:#4CAF50,stroke:#2E7D32,stroke-width:4px,color:#fff');
         lines.push('  classDef visitedNode fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff');
         lines.push('  classDef pendingNode fill:#FFC107,stroke:#F57F17,stroke-width:1px,color:#000');
         lines.push('');
+        lines.push('  %% Node Type Styling (subtle background colors)');
+        lines.push('  classDef taskType fill:#E3F2FD,stroke:#1976D2,stroke-width:2px');
+        lines.push('  classDef stateType fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px');
+        lines.push('  classDef contextType fill:#E8F5E9,stroke:#388E3C,stroke-width:2px');
+        lines.push('  classDef initType fill:#FFF3E0,stroke:#F57C00,stroke-width:2px');
+        lines.push('');
 
-        // Apply styling to nodes
+        // Apply styling to nodes (status takes precedence over type)
         nodeStates.forEach(node => {
-            const styleClass = node.status === 'current' ? 'currentNode' : 
-                             node.status === 'visited' ? 'visitedNode' : 'pendingNode';
-            lines.push(`  class ${node.name} ${styleClass}`);
+            if (node.status === 'current') {
+                lines.push(`  class ${node.name} currentNode`);
+            } else if (node.status === 'visited') {
+                lines.push(`  class ${node.name} visitedNode`);
+            } else {
+                // Use type-based styling for pending nodes
+                const typeClass = this.getTypeClass(node.type);
+                if (typeClass) {
+                    lines.push(`  class ${node.name} ${typeClass}`);
+                } else {
+                    lines.push(`  class ${node.name} pendingNode`);
+                }
+            }
         });
 
         lines.push('');
@@ -197,7 +213,33 @@ export class RuntimeVisualizer {
             lines.push(edgeLine);
         });
 
-        // Add execution path as comments if enabled
+        // Add notes for runtime execution state
+        if (options.showExecutionPath && this.context.history.length > 0) {
+            lines.push('');
+            lines.push('  %% Execution Notes');
+
+            // Add note for current node
+            if (this.context.currentNode) {
+                const currentSteps = this.context.history.filter(h => h.to === this.context.currentNode);
+                if (currentSteps.length > 0) {
+                    const lastStep = currentSteps[currentSteps.length - 1];
+                    lines.push(`  note for ${this.context.currentNode} "Currently executing\\nLast transition: ${lastStep.transition}"`);
+                }
+            }
+
+            // Add notes for visited nodes with execution details
+            const recentVisits = this.context.history.slice(-5); // Last 5 steps
+            recentVisits.forEach((step, idx) => {
+                if (step.output && step.output.length > 0) {
+                    const truncatedOutput = step.output.length > 40
+                        ? step.output.substring(0, 40) + '...'
+                        : step.output;
+                    lines.push(`  note for ${step.from} "Step ${this.context.history.length - recentVisits.length + idx + 1}: ${truncatedOutput}"`);
+                }
+            });
+        }
+
+        // Add execution path as comments
         if (options.showExecutionPath && this.context.history.length > 0) {
             lines.push('');
             lines.push('  %% Execution Path:');
@@ -205,8 +247,8 @@ export class RuntimeVisualizer {
                 const timestamp = new Date(step.timestamp).toLocaleTimeString();
                 lines.push(`  %% ${idx + 1}. ${step.from} → ${step.to} (${step.transition}) at ${timestamp}`);
                 if (step.output) {
-                    const truncatedOutput = step.output.length > 50 
-                        ? step.output.substring(0, 50) + '...' 
+                    const truncatedOutput = step.output.length > 50
+                        ? step.output.substring(0, 50) + '...'
                         : step.output;
                     lines.push(`  %%    Output: ${truncatedOutput}`);
                 }
@@ -350,6 +392,21 @@ export class RuntimeVisualizer {
                 runtimeData: Object.keys(runtimeData).length > 0 ? runtimeData : undefined
             };
         });
+    }
+
+    /**
+     * Get type-based CSS class for styling
+     */
+    private getTypeClass(type?: string): string | null {
+        if (!type) return null;
+
+        const typeLower = type.toLowerCase();
+        if (typeLower.includes('task')) return 'taskType';
+        if (typeLower.includes('state')) return 'stateType';
+        if (typeLower.includes('context')) return 'contextType';
+        if (typeLower.includes('init')) return 'initType';
+
+        return null;
     }
 
     /**

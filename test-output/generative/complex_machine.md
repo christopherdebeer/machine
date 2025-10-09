@@ -60,7 +60,7 @@ classDiagram-v2
 +tags = generated,test
   }
 
-  class startup {
+  class startup["System Start"] {
     <<init>>
     +priority = high
 +timeout = 10000
@@ -112,11 +112,12 @@ namespace states {
 
   validation --> cleanup
 
-  process1 --> recovery : on: error;, on=error
+  process1 --> recovery : on=error
 
-  recovery --> process1 : timeout: 30000;, timeout=30000
+  recovery --> process1 : timeout=30000
 
   cleanup --> startup : if=(config.debug == true)
+  
 
 ```
 
@@ -165,7 +166,8 @@ namespace states {
           "name": "timeout",
           "value": "10000"
         }
-      ]
+      ],
+      "title": "System Start"
     },
     {
       "name": "process1",
@@ -221,19 +223,23 @@ namespace states {
   "edges": [
     {
       "source": "startup",
-      "target": "process1"
+      "target": "process1",
+      "arrowType": "->"
     },
     {
       "source": "process1",
-      "target": "process2"
+      "target": "process2",
+      "arrowType": "->"
     },
     {
       "source": "process2",
-      "target": "validation"
+      "target": "validation",
+      "arrowType": "->"
     },
     {
       "source": "validation",
-      "target": "cleanup"
+      "target": "cleanup",
+      "arrowType": "->"
     },
     {
       "source": "process1",
@@ -245,7 +251,8 @@ namespace states {
       "attributes": {
         "text": "on: error;",
         "on": "error"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "recovery",
@@ -257,7 +264,8 @@ namespace states {
       "attributes": {
         "text": "timeout: 30000;",
         "timeout": "30000"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "cleanup",
@@ -267,9 +275,11 @@ namespace states {
       },
       "attributes": {
         "if": "(config.debug == true)"
-      }
+      },
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

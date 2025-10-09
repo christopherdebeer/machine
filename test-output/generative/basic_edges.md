@@ -59,6 +59,7 @@ classDiagram-v2
   node1 --> node3
 
   node2 --> node4
+  
 
 ```
 
@@ -91,33 +92,41 @@ classDiagram-v2
   "edges": [
     {
       "source": "node1",
-      "target": "node2"
+      "target": "node2",
+      "arrowType": "->"
     },
     {
       "source": "node2",
-      "target": "node3"
+      "target": "node3",
+      "arrowType": "->"
     },
     {
       "source": "node3",
-      "target": "node4"
+      "target": "node4",
+      "arrowType": "->"
     },
     {
       "source": "node4",
-      "target": "node5"
+      "target": "node5",
+      "arrowType": "->"
     },
     {
       "source": "node5",
-      "target": "node1"
+      "target": "node1",
+      "arrowType": "->"
     },
     {
       "source": "node1",
-      "target": "node3"
+      "target": "node3",
+      "arrowType": "->"
     },
     {
       "source": "node2",
-      "target": "node4"
+      "target": "node4",
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

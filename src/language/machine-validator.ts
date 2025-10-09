@@ -1,5 +1,5 @@
 import { ValidationRegistry, type ValidationAcceptor, type ValidationChecks } from 'langium';
-import type { MachineAstType, Machine, Node } from './generated/ast.js';
+import type { MachineAstType, Machine, Node, EdgeSegment } from './generated/ast.js';
 import type { MachineServices } from './machine-module.js';
 
 /**
@@ -14,6 +14,9 @@ export class MachineValidationRegistry extends ValidationRegistry {
                 validator.checkMachineStartsWithCapital.bind(validator),
                 validator.checkDuplicateStates.bind(validator),
                 validator.checkInvalidStateReferences.bind(validator),
+            ],
+            EdgeSegment: [
+                validator.checkMultiplicityFormat.bind(validator),
             ],
         };
         this.register(checks, validator);
@@ -79,5 +82,50 @@ export class MachineValidator {
                 })
             }
         }
+    }
+
+    /**
+     * Validate multiplicity format
+     * Valid formats: "1", "*", "0..1", "1..*", "0..*", "2..5", etc.
+     */
+    checkMultiplicityFormat(segment: EdgeSegment, accept: ValidationAcceptor): void {
+        const validateMultiplicity = (mult: string | undefined, label: string) => {
+            if (!mult) return;
+
+            // Remove quotes
+            const value = mult.replace(/^"|"$/g, '');
+
+            // Valid patterns: single number, *, or range (n..m where n and m are numbers or *)
+            const pattern = /^([0-9]+|\*)(\.\.[0-9*]+)?$/;
+
+            if (!pattern.test(value)) {
+                accept('error',
+                    `Invalid ${label} multiplicity format: "${value}". Expected format: "1", "*", "0..1", "1..*", etc.`,
+                    { node: segment, property: label === 'source' ? 'sourceMultiplicity' : 'targetMultiplicity' }
+                );
+                return;
+            }
+
+            // Additional validation for ranges
+            if (value.includes('..')) {
+                const [lower, upper] = value.split('..');
+
+                // If both are numbers, lower should be <= upper
+                if (lower !== '*' && upper !== '*') {
+                    const lowerNum = parseInt(lower);
+                    const upperNum = parseInt(upper);
+
+                    if (lowerNum > upperNum) {
+                        accept('warning',
+                            `${label} multiplicity range "${value}" has lower bound greater than upper bound`,
+                            { node: segment, property: label === 'source' ? 'sourceMultiplicity' : 'targetMultiplicity' }
+                        );
+                    }
+                }
+            }
+        };
+
+        validateMultiplicity(segment.sourceMultiplicity, 'source');
+        validateMultiplicity(segment.targetMultiplicity, 'target');
     }
 }

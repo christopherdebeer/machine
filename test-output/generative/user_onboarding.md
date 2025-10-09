@@ -79,6 +79,7 @@ classDiagram-v2
   email_verification --> abandoned : timeout
 
   registration --> abandoned : cancel
+  
 
 ```
 
@@ -156,7 +157,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "submit"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "email_verification",
@@ -166,7 +168,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "verified"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "profile_setup",
@@ -176,7 +179,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "completed"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "email_verification",
@@ -186,7 +190,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "timeout"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "registration",
@@ -196,9 +201,11 @@ classDiagram-v2
       },
       "attributes": {
         "text": "cancel"
-      }
+      },
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

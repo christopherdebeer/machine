@@ -64,6 +64,7 @@ classDiagram-v2
   target2 --> target3
 
   target3 --> empty
+  
 
 ```
 
@@ -105,29 +106,36 @@ classDiagram-v2
   "edges": [
     {
       "source": "multipleEdges",
-      "target": "target1"
+      "target": "target1",
+      "arrowType": "->"
     },
     {
       "source": "multipleEdges",
-      "target": "target2"
+      "target": "target2",
+      "arrowType": "->"
     },
     {
       "source": "multipleEdges",
-      "target": "target3"
+      "target": "target3",
+      "arrowType": "->"
     },
     {
       "source": "target1",
-      "target": "target2"
+      "target": "target2",
+      "arrowType": "->"
     },
     {
       "source": "target2",
-      "target": "target3"
+      "target": "target3",
+      "arrowType": "->"
     },
     {
       "source": "target3",
-      "target": "empty"
+      "target": "empty",
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

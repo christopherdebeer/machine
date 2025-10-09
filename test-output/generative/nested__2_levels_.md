@@ -32,6 +32,7 @@ namespace level1s {
   }
 }
   undefined
+  
 
 ```
 
@@ -55,7 +56,8 @@ namespace level1s {
       "attributes": []
     }
   ],
-  "edges": []
+  "edges": [],
+  "inferredDependencies": []
 }
 ```
 

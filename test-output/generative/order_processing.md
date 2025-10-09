@@ -105,11 +105,12 @@ classDiagram-v2
 
   shipped --> delivered : deliver
 
-  payment_pending --> cancelled : timeout: 900;, timeout=900
+  payment_pending --> cancelled : timeout=900
 
   payment_confirmed --> refunded : cancel_request
 
   preparing --> refunded : cancel_request
+  
 
 ```
 
@@ -213,7 +214,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "create"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "payment_pending",
@@ -223,7 +225,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "pay"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "payment_confirmed",
@@ -233,7 +236,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "prepare"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "preparing",
@@ -243,7 +247,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "ship"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "shipped",
@@ -253,7 +258,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "deliver"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "payment_pending",
@@ -265,7 +271,8 @@ classDiagram-v2
       "attributes": {
         "text": "timeout: 900;",
         "timeout": "900"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "payment_confirmed",
@@ -275,7 +282,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "cancel_request"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "preparing",
@@ -285,9 +293,11 @@ classDiagram-v2
       },
       "attributes": {
         "text": "cancel_request"
-      }
+      },
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

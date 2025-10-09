@@ -79,6 +79,7 @@ namespace roots {
   }
 }
   undefined
+  
 
 ```
 
@@ -142,7 +143,8 @@ namespace roots {
       "attributes": []
     }
   ],
-  "edges": []
+  "edges": [],
+  "inferredDependencies": []
 }
 ```
 

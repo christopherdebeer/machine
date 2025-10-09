@@ -48,7 +48,8 @@ classDiagram-v2
 +minValue : number = 0
 +description : string = This is a very long description that contains multiple words<br/>and should be preserved exactly as written in the<br/>transformation pipeline
   }
-    node1 --> node2 : config: "primary";, config=primary
+    node1 --> node2 : config=primary
+  
 
 ```
 
@@ -134,9 +135,11 @@ classDiagram-v2
       "attributes": {
         "text": "config: \"primary\";",
         "config": "primary"
-      }
+      },
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 
