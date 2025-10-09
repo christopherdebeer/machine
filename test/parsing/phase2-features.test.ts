@@ -28,7 +28,7 @@ describe('Phase 2.5: Multiplicity Parsing', () => {
 
         const machine = document.parseResult.value as Machine;
         const edge = machine.edges[0];
-        expect(edge.segments[0].sourceMultiplicity).toBe('"1"');
+        expect(edge.segments[0].sourceMultiplicity).toBe('1');
     });
 
     it('should parse edge with target multiplicity', async () => {
@@ -42,7 +42,7 @@ describe('Phase 2.5: Multiplicity Parsing', () => {
 
         const machine = document.parseResult.value as Machine;
         const edge = machine.edges[0];
-        expect(edge.segments[0].targetMultiplicity).toBe('"*"');
+        expect(edge.segments[0].targetMultiplicity).toBe('*');
     });
 
     it('should parse edge with both multiplicities', async () => {
@@ -56,8 +56,8 @@ describe('Phase 2.5: Multiplicity Parsing', () => {
 
         const machine = document.parseResult.value as Machine;
         const edge = machine.edges[0];
-        expect(edge.segments[0].sourceMultiplicity).toBe('"1"');
-        expect(edge.segments[0].targetMultiplicity).toBe('"*"');
+        expect(edge.segments[0].sourceMultiplicity).toBe('1');
+        expect(edge.segments[0].targetMultiplicity).toBe('*');
     });
 
     it('should parse range multiplicity', async () => {
@@ -71,8 +71,8 @@ describe('Phase 2.5: Multiplicity Parsing', () => {
 
         const machine = document.parseResult.value as Machine;
         const edge = machine.edges[0];
-        expect(edge.segments[0].sourceMultiplicity).toBe('"1..5"');
-        expect(edge.segments[0].targetMultiplicity).toBe('"2..10"');
+        expect(edge.segments[0].sourceMultiplicity).toBe('1..5');
+        expect(edge.segments[0].targetMultiplicity).toBe('2..10');
     });
 
     it('should parse optional multiplicity', async () => {
@@ -86,8 +86,8 @@ describe('Phase 2.5: Multiplicity Parsing', () => {
 
         const machine = document.parseResult.value as Machine;
         const edge = machine.edges[0];
-        expect(edge.segments[0].sourceMultiplicity).toBe('"0..1"');
-        expect(edge.segments[0].targetMultiplicity).toBe('"1..*"');
+        expect(edge.segments[0].sourceMultiplicity).toBe('0..1');
+        expect(edge.segments[0].targetMultiplicity).toBe('1..*');
     });
 
     it('should parse multiplicity with different arrow types', async () => {
@@ -107,16 +107,16 @@ describe('Phase 2.5: Multiplicity Parsing', () => {
         expect(machine.edges).toHaveLength(3);
 
         // Check first edge (dependency)
-        expect(machine.edges[0].segments[0].sourceMultiplicity).toBe('"1"');
-        expect(machine.edges[0].segments[0].targetMultiplicity).toBe('"*"');
+        expect(machine.edges[0].segments[0].sourceMultiplicity).toBe('1');
+        expect(machine.edges[0].segments[0].targetMultiplicity).toBe('*');
 
         // Check second edge (composition)
-        expect(machine.edges[1].segments[0].sourceMultiplicity).toBe('"1"');
-        expect(machine.edges[1].segments[0].targetMultiplicity).toBe('"1..*"');
+        expect(machine.edges[1].segments[0].sourceMultiplicity).toBe('1');
+        expect(machine.edges[1].segments[0].targetMultiplicity).toBe('1..*');
 
         // Check third edge (aggregation)
-        expect(machine.edges[2].segments[0].sourceMultiplicity).toBe('"0..1"');
-        expect(machine.edges[2].segments[0].targetMultiplicity).toBe('"*"');
+        expect(machine.edges[2].segments[0].sourceMultiplicity).toBe('0..1');
+        expect(machine.edges[2].segments[0].targetMultiplicity).toBe('*');
     });
 });
 
@@ -145,7 +145,7 @@ describe('Phase 2.7: Annotation Parsing', () => {
         const node = machine.nodes[0];
         expect(node.annotations).toHaveLength(1);
         expect(node.annotations[0].name).toBe('Deprecated');
-        expect(node.annotations[0].value).toBe('"Use NewNode instead"');
+        expect(node.annotations[0].value).toBe('Use NewNode instead');
     });
 
     it('should parse node with multiple annotations', async () => {
@@ -191,7 +191,7 @@ describe('Phase 2.7: Annotation Parsing', () => {
 
         const machine = document.parseResult.value as Machine;
         const node = machine.nodes[0];
-        expect(node.title).toBe('"My Node"');
+        expect(node.title).toBe('My Node');
         expect(node.annotations).toHaveLength(1);
         expect(node.annotations[0].name).toBe('Abstract');
     });
@@ -249,7 +249,7 @@ describe('Phase 2: Combined Features', () => {
 
         // Check multiplicity edge
         const multEdge = machine.edges[1];
-        expect(multEdge.segments[0].sourceMultiplicity).toBe('"1"');
-        expect(multEdge.segments[0].targetMultiplicity).toBe('"*"');
+        expect(multEdge.segments[0].sourceMultiplicity).toBe('1');
+        expect(multEdge.segments[0].targetMultiplicity).toBe('*');
     });
 });

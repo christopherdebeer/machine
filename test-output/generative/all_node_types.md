@@ -26,11 +26,11 @@ config:
         hideEmptyMembersBox: true
 ---
 classDiagram-v2
-    class startNode {
+    class startNode["Initialization Phase"] {
     <<init>>
   }
 
-  class processTask {
+  class processTask["Process Data"] {
     <<task>>
   }
 
@@ -51,6 +51,7 @@ classDiagram-v2
   processTask --> waitingState
 
   waitingState --> regularNode
+  
 
 ```
 
@@ -62,12 +63,14 @@ classDiagram-v2
     {
       "name": "startNode",
       "type": "init",
-      "attributes": []
+      "attributes": [],
+      "title": "Initialization Phase"
     },
     {
       "name": "processTask",
       "type": "task",
-      "attributes": []
+      "attributes": [],
+      "title": "Process Data"
     },
     {
       "name": "waitingState",
@@ -92,17 +95,21 @@ classDiagram-v2
   "edges": [
     {
       "source": "startNode",
-      "target": "processTask"
+      "target": "processTask",
+      "arrowType": "->"
     },
     {
       "source": "processTask",
-      "target": "waitingState"
+      "target": "waitingState",
+      "arrowType": "->"
     },
     {
       "source": "waitingState",
-      "target": "regularNode"
+      "target": "regularNode",
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

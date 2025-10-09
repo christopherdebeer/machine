@@ -107,6 +107,7 @@ namespace contexts {
   action_plan --> finalize
 
   finalize --> complete
+  
 
 ```
 
@@ -208,7 +209,8 @@ namespace contexts {
   "edges": [
     {
       "source": "start",
-      "target": "analyze_tasks"
+      "target": "analyze_tasks",
+      "arrowType": "->"
     },
     {
       "source": "analyze_tasks",
@@ -218,11 +220,13 @@ namespace contexts {
       },
       "attributes": {
         "text": "analyzed"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "analysis",
-      "target": "generate_action_plan"
+      "target": "generate_action_plan",
+      "arrowType": "->"
     },
     {
       "source": "generate_action_plan",
@@ -232,17 +236,21 @@ namespace contexts {
       },
       "attributes": {
         "text": "planned"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "action_plan",
-      "target": "finalize"
+      "target": "finalize",
+      "arrowType": "->"
     },
     {
       "source": "finalize",
-      "target": "complete"
+      "target": "complete",
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

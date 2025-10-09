@@ -173,6 +173,7 @@ namespace contexts {
   validation --> validation_result : validated
 
   validation_result --> complete
+  
 
 ```
 
@@ -345,7 +346,8 @@ namespace contexts {
   "edges": [
     {
       "source": "start",
-      "target": "define_requirements"
+      "target": "define_requirements",
+      "arrowType": "->"
     },
     {
       "source": "define_requirements",
@@ -355,11 +357,13 @@ namespace contexts {
       },
       "attributes": {
         "text": "specified"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "requirements",
-      "target": "generate_code"
+      "target": "generate_code",
+      "arrowType": "->"
     },
     {
       "source": "generate_code",
@@ -369,11 +373,13 @@ namespace contexts {
       },
       "attributes": {
         "text": "generated"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "code",
-      "target": "generate_tests"
+      "target": "generate_tests",
+      "arrowType": "->"
     },
     {
       "source": "generate_tests",
@@ -383,11 +389,13 @@ namespace contexts {
       },
       "attributes": {
         "text": "created"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "tests",
-      "target": "generate_documentation"
+      "target": "generate_documentation",
+      "arrowType": "->"
     },
     {
       "source": "generate_documentation",
@@ -397,11 +405,13 @@ namespace contexts {
       },
       "attributes": {
         "text": "documented"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "documentation",
-      "target": "validation"
+      "target": "validation",
+      "arrowType": "->"
     },
     {
       "source": "validation",
@@ -411,13 +421,16 @@ namespace contexts {
       },
       "attributes": {
         "text": "validated"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "validation_result",
-      "target": "complete"
+      "target": "complete",
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

@@ -31,6 +31,7 @@ classDiagram-v2
 +untypedAttr = untyped
   }
   undefined
+  
 
 ```
 
@@ -76,7 +77,8 @@ classDiagram-v2
       ]
     }
   ],
-  "edges": []
+  "edges": [],
+  "inferredDependencies": []
 }
 ```
 

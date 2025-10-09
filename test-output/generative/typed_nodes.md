@@ -62,6 +62,7 @@ namespace contexts {
   }
 }
   undefined
+  
 
 ```
 
@@ -111,7 +112,8 @@ namespace contexts {
       "attributes": []
     }
   ],
-  "edges": []
+  "edges": [],
+  "inferredDependencies": []
 }
 ```
 

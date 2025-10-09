@@ -42,6 +42,7 @@ classDiagram-v2
   nodeWithSpaces --> node123 : transition: with-dashes
 
   node123 --> _privateNode : emoji: 🎉
+  
 
 ```
 
@@ -70,7 +71,8 @@ classDiagram-v2
   "edges": [
     {
       "source": "node_with_underscores",
-      "target": "nodeWithSpaces"
+      "target": "nodeWithSpaces",
+      "arrowType": "->"
     },
     {
       "source": "nodeWithSpaces",
@@ -80,7 +82,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "transition: with-dashes"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "node123",
@@ -90,9 +93,11 @@ classDiagram-v2
       },
       "attributes": {
         "text": "emoji: 🎉"
-      }
+      },
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

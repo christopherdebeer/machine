@@ -43,11 +43,12 @@ classDiagram-v2
 
   middle --> end : process complete
 
-  middle --> error : timeout: 5000;, timeout=5000
+  middle --> error : timeout=5000
 
-  error --> start : retry: 3; logLevel: 0;, retry=3, logLevel=0
+  error --> start : retry=3, logLevel=0
 
   end --> start : if=(count > 10)
+  
 
 ```
 
@@ -82,7 +83,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "init"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "middle",
@@ -92,7 +94,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "process complete"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "middle",
@@ -104,7 +107,8 @@ classDiagram-v2
       "attributes": {
         "text": "timeout: 5000;",
         "timeout": "5000"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "error",
@@ -118,7 +122,8 @@ classDiagram-v2
         "text": "retry: 3; logLevel: 0;",
         "retry": "3",
         "logLevel": "0"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "end",
@@ -128,9 +133,11 @@ classDiagram-v2
       },
       "attributes": {
         "if": "(count > 10)"
-      }
+      },
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

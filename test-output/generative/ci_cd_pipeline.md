@@ -140,6 +140,7 @@ namespace States {
   security_scan --> failed : vulnerability
 
   integration_test --> failed : failure
+  
 
 ```
 
@@ -270,11 +271,13 @@ namespace States {
   "edges": [
     {
       "source": "source",
-      "target": "build"
+      "target": "build",
+      "arrowType": "->"
     },
     {
       "source": "build",
-      "target": "test"
+      "target": "test",
+      "arrowType": "->"
     },
     {
       "source": "test",
@@ -284,7 +287,8 @@ namespace States {
       },
       "attributes": {
         "text": "pass"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "security_scan",
@@ -294,7 +298,8 @@ namespace States {
       },
       "attributes": {
         "text": "clean"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "deploy_staging",
@@ -304,7 +309,8 @@ namespace States {
       },
       "attributes": {
         "text": "ready"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "integration_test",
@@ -314,11 +320,13 @@ namespace States {
       },
       "attributes": {
         "text": "pass"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "deploy_production",
-      "target": "success"
+      "target": "success",
+      "arrowType": "->"
     },
     {
       "source": "build",
@@ -328,7 +336,8 @@ namespace States {
       },
       "attributes": {
         "text": "error"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "test",
@@ -338,7 +347,8 @@ namespace States {
       },
       "attributes": {
         "text": "failure"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "security_scan",
@@ -348,7 +358,8 @@ namespace States {
       },
       "attributes": {
         "text": "vulnerability"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "integration_test",
@@ -358,9 +369,11 @@ namespace States {
       },
       "attributes": {
         "text": "failure"
-      }
+      },
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

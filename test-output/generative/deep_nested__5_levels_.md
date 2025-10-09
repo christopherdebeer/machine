@@ -47,6 +47,7 @@ classDiagram-v2
         }
       }
   undefined
+  
 
 ```
 
@@ -85,7 +86,8 @@ classDiagram-v2
       "attributes": []
     }
   ],
-  "edges": []
+  "edges": [],
+  "inferredDependencies": []
 }
 ```
 

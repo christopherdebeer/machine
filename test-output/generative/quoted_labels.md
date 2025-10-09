@@ -45,6 +45,7 @@ classDiagram-v2
   middle --> error : error: timeout
 
   error --> start : retry attempt
+  
 
 ```
 
@@ -79,7 +80,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "user clicks button"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "middle",
@@ -89,7 +91,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "validation: passed; retry: 3;"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "middle",
@@ -99,7 +102,8 @@ classDiagram-v2
       },
       "attributes": {
         "text": "error: timeout"
-      }
+      },
+      "arrowType": "->"
     },
     {
       "source": "error",
@@ -109,9 +113,11 @@ classDiagram-v2
       },
       "attributes": {
         "text": "retry attempt"
-      }
+      },
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

@@ -14,7 +14,8 @@ let parse: ReturnType<typeof parseHelper<Machine>>;
 
 beforeAll(async () => {
     services = createMachineServices(EmptyFileSystem);
-    parse = parseHelper<Machine>(services.Machine);
+    const doParse = parseHelper<Machine>(services.Machine);
+    parse = (input: string) => doParse(input, { validation: true });
 });
 
 describe('Phase 2: Multiplicity Validation', () => {

@@ -23,9 +23,6 @@ terminal STR: /"([^"\\]|\\.)*"/;        // double-quoted strings for titles and 
 terminal MLSTR: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;  // multiline strings
 terminal NUMBER returns number: /[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?/;
 
-// Multiplicity terminal for cardinality expressions (e.g., "1", "*", "0..1", "1..*")
-terminal MULTIPLICITY: /"([0-9]+|\*)(\.\.[0-9*]+)?"/;
-
 terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
 
 terminal SHAFT_THIN: '-';
@@ -51,7 +48,7 @@ entry Machine:
     (nodes+=Node<true> | edges+=Edge<true>)*
 ;
 
-AttributeValue: 
+AttributeValue:
     ('[' (value+=(EXTID|STRING|ID|NUMBER) (',' value+=(EXTID|STRING|ID|NUMBER))*)? ']')
     | value=EXTID|STRING|ID|NUMBER;
 
@@ -86,7 +83,7 @@ EdgeType:
     value+=EdgeAttribute+;
 
 EdgeSegment:
-    (sourceMultiplicity=MULTIPLICITY)?
+    (sourceMultiplicity=STRING)?
     (
         // Bidirectional arrows
         endType=BIDIRECTIONAL_ARROW |
@@ -105,7 +102,7 @@ EdgeSegment:
         (startType=ARROW_LABEL_START_SINGLE (label+=EdgeType (',' label+=EdgeType)*)? endType=ARROW_SINGLE) |
         endType=ARROW_SINGLE
     )
-    (targetMultiplicity=MULTIPLICITY)?
+    (targetMultiplicity=STRING)?
     (target+=[Node:ID] (',' target+=[Node:ID])*)
 ;
 

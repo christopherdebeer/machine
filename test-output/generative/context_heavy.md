@@ -58,6 +58,7 @@ classDiagram-v2
     <<state>>
   }
     bootstrap --> ready
+  
 
 ```
 
@@ -135,9 +136,11 @@ classDiagram-v2
   "edges": [
     {
       "source": "bootstrap",
-      "target": "ready"
+      "target": "ready",
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 

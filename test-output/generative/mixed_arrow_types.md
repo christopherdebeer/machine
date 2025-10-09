@@ -46,13 +46,14 @@ classDiagram-v2
   }
     a --> b
 
-  b --> c
+  b ..> c
 
   c --> d
 
-  d --> e
+  d <--> e
 
   e --> a
+  
 
 ```
 
@@ -85,25 +86,31 @@ classDiagram-v2
   "edges": [
     {
       "source": "a",
-      "target": "b"
+      "target": "b",
+      "arrowType": "->"
     },
     {
       "source": "b",
-      "target": "c"
+      "target": "c",
+      "arrowType": "-->"
     },
     {
       "source": "c",
-      "target": "d"
+      "target": "d",
+      "arrowType": "=>"
     },
     {
       "source": "d",
-      "target": "e"
+      "target": "e",
+      "arrowType": "<-->"
     },
     {
       "source": "e",
-      "target": "a"
+      "target": "a",
+      "arrowType": "->"
     }
-  ]
+  ],
+  "inferredDependencies": []
 }
 ```
 
