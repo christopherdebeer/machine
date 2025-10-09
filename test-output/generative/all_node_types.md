@@ -52,6 +52,7 @@ classDiagram-v2
 
   waitingState --> regularNode
   
+  
 
 ```
 
@@ -109,6 +110,7 @@ classDiagram-v2
       "arrowType": "->"
     }
   ],
+  "notes": [],
   "inferredDependencies": []
 }
 ```

@@ -43,6 +43,7 @@ classDiagram-v2
 
   node123 --> _privateNode : emoji: 🎉
   
+  
 
 ```
 
@@ -97,6 +98,7 @@ classDiagram-v2
       "arrowType": "->"
     }
   ],
+  "notes": [],
   "inferredDependencies": []
 }
 ```
