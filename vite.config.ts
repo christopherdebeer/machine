@@ -31,7 +31,6 @@ export default defineConfig(() => {
 
         plugins: [
             viteStaticCopy({
-                structured: true,
                 targets: [
                     {
                         src: 'static/styles.css',
@@ -42,7 +41,43 @@ export default defineConfig(() => {
                         dest: 'static/styles'
                     },
                     {
-                        src: 'examples/**/*.dygram',
+                        src: 'examples/attributes',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/basic',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/complex',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/edge-cases',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/edges',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/nesting',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/stress',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/workflows',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/*.mach',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/README.md',
                         dest: 'examples'
                     }
                 ]

@@ -139,7 +139,6 @@ class JSONGenerator extends BaseGenerator {
             // Check if the label itself has text content in its CST node
             if (label.$cstNode && 'text' in label.$cstNode) {
                 const labelText = label.$cstNode.text;
-                const other = label.$type
 
                 // For simple labels, the CST text is just the label name (e.g., "feeds", "stores")
                 // For complex patterns, try to extract from full syntax
