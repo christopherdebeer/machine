@@ -4,6 +4,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from '../../cli/cli-util.js';
 import { Edge, MachineJSON } from '../machine-module.js';
+import { DependencyAnalyzer } from '../dependency-analyzer.js';
 
 // Common interfaces
 interface GeneratorOptions {
@@ -49,11 +50,21 @@ class JSONGenerator extends BaseGenerator {
     protected fileExtension = 'json';
 
     protected generateContent(): FileGenerationResult {
+        // Analyze dependencies from template variables
+        const dependencyAnalyzer = new DependencyAnalyzer(this.machine);
+        const inferredDeps = dependencyAnalyzer.inferDependencies();
+
         // Create a serializable object representation of the machine
         const machineObject : MachineJSON = {
             title: this.machine.title,
             nodes: this.serializeNodes(),
-            edges: this.serializeEdges()
+            edges: this.serializeEdges(),
+            inferredDependencies: inferredDeps.map(dep => ({
+                source: dep.source,
+                target: dep.target,
+                reason: dep.reason,
+                path: dep.path
+            }))
         };
 
         return {
@@ -65,11 +76,24 @@ class JSONGenerator extends BaseGenerator {
     private serializeNodes(): any[] {
         // Flatten and transform nodes recursively
         const flattenNode = (node: Node, parentName?: string): any[] => {
-            const baseNode = {
+            const baseNode: any = {
                 name: node.name,
                 type: parentName || node.type,
                 attributes: this.serializeAttributes(node)
             };
+
+            // Add annotations if present
+            if (node.annotations && node.annotations.length > 0) {
+                baseNode.annotations = node.annotations.map(ann => ({
+                    name: ann.name,
+                    value: ann.value?.replace(/^"|"$/g, '')  // Remove quotes from string values
+                }));
+            }
+
+            // Add title if present
+            if (node.title) {
+                baseNode.title = node.title.replace(/^"|"$/g, '');
+            }
 
             // Recursively flatten child nodes
             const childNodes = node.nodes.flatMap(child =>
@@ -121,7 +145,9 @@ class JSONGenerator extends BaseGenerator {
                         target,
                         value: edgeValue,
                         attributes: edgeValue,  // Keep for backward compatibility
-                        arrowType: segment.endType  // Preserve arrow type
+                        arrowType: segment.endType,  // Preserve arrow type
+                        sourceMultiplicity: segment.sourceMultiplicity?.replace(/"/g, ''),  // Remove quotes
+                        targetMultiplicity: segment.targetMultiplicity?.replace(/"/g, '')   // Remove quotes
                     })).filter(e => e.source && e.target)
                 );
                 currentSources = targets; // Update sources for next segment
@@ -275,6 +301,7 @@ config:
 classDiagram-v2
   ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
   ${toString(this.generateEdges(machineJson.edges))}
+  ${machineJson.inferredDependencies && machineJson.inferredDependencies.length > 0 ? toString(this.generateInferredDependencies(machineJson.inferredDependencies)) : ''}
 `.appendNewLineIfNotEmpty();
 
         return {
@@ -366,8 +393,13 @@ classDiagram-v2
                     }).join('\n')
                     : '';
 
+                // Generate annotations
+                const annotations = node.annotations?.map(ann => `<<${ann.name}>>`).join('\n' + indent + '    ') || '';
+                const typeAnnotation = node.type ? `<<${node.type}>>` : '';
+                const allAnnotations = [typeAnnotation, annotations].filter(Boolean).join('\n' + indent + '    ');
+
                 return `${indent}  ${header} {
-${indent}    ${node.type ? `<<${node.type}>>` : ''}${attributeLines ? '\n' + indent + '    ' + attributeLines : ''}
+${indent}    ${allAnnotations}${attributeLines ? '\n' + indent + '    ' + attributeLines : ''}
 ${indent}  }`;
             }, {
                 separator: '\n',
@@ -404,9 +436,13 @@ ${indent}}`);
             // Use arrow type mapping to determine relationship type
             const relationshipType = this.getRelationshipType(edge.arrowType || '->');
 
+            // Build multiplicity strings
+            const srcMult = edge.sourceMultiplicity ? ` "${edge.sourceMultiplicity}"` : '';
+            const tgtMult = edge.targetMultiplicity ? ` "${edge.targetMultiplicity}"` : '';
+
             if (keys.length === 0) {
-                // No label
-                return `  ${edge.source} ${relationshipType} ${edge.target}`;
+                // No label, but may have multiplicity
+                return `  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}`;
             }
 
             // Construct label from JSON properties, prioritizing non-text properties
@@ -423,13 +459,27 @@ ${indent}}`);
                 labelJSON = textValue;
             }
 
-            return `  ${edge.source} ${relationshipType} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
+            return `  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
         }, {
             separator: '\n',
             appendNewLineIfNotEmpty: true,
             skipNewLineAfterLastItem: true,
         });
         return toString(result);
+    }
+
+    private generateInferredDependencies(deps: any[]): string {
+        if (deps.length === 0) return '';
+
+        const lines: string[] = [];
+        lines.push('  %% Inferred Dependencies (from template variables)');
+
+        deps.forEach(dep => {
+            // Use dashed arrow for inferred dependencies
+            lines.push(`  ${dep.source} ..> ${dep.target} : ${dep.reason}`);
+        });
+
+        return lines.join('\n');
     }
 }
 
@@ -474,6 +524,7 @@ config:
 classDiagram-v2
   ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
   ${toString(this.generateEdges(machineJson.edges))}
+  ${machineJson.inferredDependencies && machineJson.inferredDependencies.length > 0 ? toString(this.generateInferredDependencies(machineJson.inferredDependencies)) : ''}
 \`\`\`
 
 \`\`\`raw
@@ -584,8 +635,13 @@ classDiagram-v2
                     }).join('\n')
                     : '';
 
+                // Generate annotations
+                const annotations = node.annotations?.map(ann => `<<${ann.name}>>`).join('\n' + indent + '    ') || '';
+                const typeAnnotation = node.type ? `<<${node.type}>>` : '';
+                const allAnnotations = [typeAnnotation, annotations].filter(Boolean).join('\n' + indent + '    ');
+
                 return `${indent}  ${header} {
-${indent}    ${node.type ? `<<${node.type}>>` : ''}${attributeLines ? '\n' + indent + '    ' + attributeLines : ''}
+${indent}    ${allAnnotations}${attributeLines ? '\n' + indent + '    ' + attributeLines : ''}
 ${indent}  }`;
             }, {
                 separator: '\n',
@@ -619,9 +675,13 @@ ${indent}}`);
             // Use arrow type mapping to determine relationship type
             const relationshipType = this.getRelationshipType(edge.arrowType || '->');
 
+            // Build multiplicity strings
+            const srcMult = edge.sourceMultiplicity ? ` "${edge.sourceMultiplicity}"` : '';
+            const tgtMult = edge.targetMultiplicity ? ` "${edge.targetMultiplicity}"` : '';
+
             if (keys.length === 0) {
-                // No label
-                return `  ${edge.source} ${relationshipType} ${edge.target}`;
+                // No label, but may have multiplicity
+                return `  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}`;
             }
 
             // Construct label from JSON properties, prioritizing non-text properties
@@ -638,13 +698,27 @@ ${indent}}`);
                 labelJSON = textValue;
             }
 
-            return `  ${edge.source} ${relationshipType} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
+            return `  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
         }, {
             separator: '\n',
             appendNewLineIfNotEmpty: true,
             skipNewLineAfterLastItem: true,
         });
         return toString(result);
+    }
+
+    private generateInferredDependencies(deps: any[]): string {
+        if (deps.length === 0) return '';
+
+        const lines: string[] = [];
+        lines.push('  %% Inferred Dependencies (from template variables)');
+
+        deps.forEach(dep => {
+            // Use dashed arrow for inferred dependencies
+            lines.push(`  ${dep.source} ..> ${dep.target} : ${dep.reason}`);
+        });
+
+        return lines.join('\n');
     }
 }
 
