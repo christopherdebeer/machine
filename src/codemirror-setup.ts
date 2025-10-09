@@ -81,16 +81,14 @@ processor -stores-> destination;`
 /**
  * Load examples dynamically from the examples directory
  * Now uses build-time generated list instead of hardcoded paths
+ * Implements drill-down navigation: categories -> examples
  */
 export async function loadDynamicExamples(): Promise<void> {
     try {
         const examplesContainer = document.querySelector('.examples');
         if (!examplesContainer) return;
 
-        // Clear existing example buttons
-        examplesContainer.innerHTML = '';
-
-        // Load and create buttons for each example from generated list
+        // Pre-load all examples content
         for (const example of examplesList) {
             try {
                 const response = await fetch(example.path);
@@ -98,42 +96,97 @@ export async function loadDynamicExamples(): Promise<void> {
                     const content = await response.text();
                     const key = example.name.toLowerCase().replace(/\s+/g, '-');
                     examples[key] = content;
-
-                    const btn = document.createElement('button');
-                    btn.className = 'example-btn';
-                    btn.setAttribute('data-example', key);
-                    btn.setAttribute('data-category', example.category);
-                    btn.textContent = example.name;
-                    btn.title = example.title; // Add tooltip with full title
-                    examplesContainer.appendChild(btn);
-
-                    // Add click handler
-                    btn.addEventListener('click', async () => {
-                        if (editorView && examples[key]) {
-                            editorView.dispatch({
-                                changes: {
-                                    from: 0,
-                                    to: editorView.state.doc.length,
-                                    insert: examples[key],
-                                },
-                            });
-
-                            // Update diagram source display immediately when example is switched
-                            const outputElement = document.getElementById('outputInfo');
-                            const diagramElement = document.getElementById('diagram');
-                            if (outputElement) {
-                                // Auto-execute the new example to update diagram source
-                                setTimeout(() => {
-                                    executeCode(examples[key], outputElement, diagramElement);
-                                }, 100);
-                            }
-                        }
-                    });
                 }
             } catch (error) {
                 console.warn(`Failed to load example: ${example.path}`, error);
             }
         }
+
+        // Group examples by category
+        const categoriesMap = new Map<string, typeof examplesList>();
+        for (const example of examplesList) {
+            if (!categoriesMap.has(example.category)) {
+                categoriesMap.set(example.category, []);
+            }
+            categoriesMap.get(example.category)!.push(example);
+        }
+
+        // Function to render category view
+        const renderCategories = () => {
+            examplesContainer.innerHTML = '';
+
+            // Sort categories by name
+            const sortedCategories = Array.from(categoriesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
+            for (const [category, categoryExamples] of sortedCategories) {
+                const btn = document.createElement('button');
+                btn.className = 'example-btn category-btn';
+                btn.setAttribute('data-category', category);
+                btn.textContent = `${category} (${categoryExamples.length})`;
+                btn.title = `View ${categoryExamples.length} examples in ${category}`;
+                examplesContainer.appendChild(btn);
+
+                // Add click handler to drill into category
+                btn.addEventListener('click', () => {
+                    renderExamples(category, categoryExamples);
+                });
+            }
+        };
+
+        // Function to render examples within a category
+        const renderExamples = (category: string, categoryExamples: typeof examplesList) => {
+            examplesContainer.innerHTML = '';
+
+            // Add back button
+            const backBtn = document.createElement('button');
+            backBtn.className = 'example-btn back-btn';
+            backBtn.textContent = '← Back to Categories';
+            backBtn.title = 'Return to category list';
+            examplesContainer.appendChild(backBtn);
+
+            backBtn.addEventListener('click', () => {
+                renderCategories();
+            });
+
+            // Add examples from this category
+            for (const example of categoryExamples) {
+                const key = example.name.toLowerCase().replace(/\s+/g, '-');
+
+                const btn = document.createElement('button');
+                btn.className = 'example-btn';
+                btn.setAttribute('data-example', key);
+                btn.setAttribute('data-category', example.category);
+                btn.textContent = example.name;
+                btn.title = example.title;
+                examplesContainer.appendChild(btn);
+
+                // Add click handler
+                btn.addEventListener('click', async () => {
+                    if (editorView && examples[key]) {
+                        editorView.dispatch({
+                            changes: {
+                                from: 0,
+                                to: editorView.state.doc.length,
+                                insert: examples[key],
+                            },
+                        });
+
+                        // Update diagram source display immediately when example is switched
+                        const outputElement = document.getElementById('outputInfo');
+                        const diagramElement = document.getElementById('diagram');
+                        if (outputElement) {
+                            // Auto-execute the new example to update diagram source
+                            setTimeout(() => {
+                                executeCode(examples[key], outputElement, diagramElement);
+                            }, 100);
+                        }
+                    }
+                });
+            }
+        };
+
+        // Start by showing categories
+        renderCategories();
     } catch (error) {
         console.error('Error loading dynamic examples:', error);
     }
