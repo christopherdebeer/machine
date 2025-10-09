@@ -50,6 +50,7 @@ classDiagram-v2
   }
     node1 --> node2 : config=primary
   
+  
 
 ```
 
@@ -139,6 +140,7 @@ classDiagram-v2
       "arrowType": "->"
     }
   ],
+  "notes": [],
   "inferredDependencies": []
 }
 ```

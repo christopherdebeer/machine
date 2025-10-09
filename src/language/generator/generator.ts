@@ -59,6 +59,7 @@ class JSONGenerator extends BaseGenerator {
             title: this.machine.title,
             nodes: this.serializeNodes(),
             edges: this.serializeEdges(),
+            notes: this.serializeNotes(),
             inferredDependencies: inferredDeps.map(dep => ({
                 source: dep.source,
                 target: dep.target,
@@ -123,12 +124,53 @@ class JSONGenerator extends BaseGenerator {
             if (Array.isArray(value) && value.length === 1) {
                 value = value[0];
             }
+
+            // Serialize type (including generic types)
+            const typeStr = attr.type ? this.serializeType(attr.type) : undefined;
+
             return {
                 name: attr.name,
-                type: attr.type,
+                type: typeStr,
                 value: value
             };
         }) || [];
+    }
+
+    /**
+     * Serialize a TypeDef to string format, handling generic types
+     * e.g., Promise<Result> → "Promise<Result>"
+     */
+    private serializeType(typeDef: any): string {
+        if (!typeDef) return '';
+
+        let result = typeDef.base || typeDef;
+
+        // If it's just a string (backwards compatibility)
+        if (typeof typeDef === 'string') {
+            return typeDef;
+        }
+
+        // Handle generic types
+        if (typeDef.generics && typeDef.generics.length > 0) {
+            const genericTypes = typeDef.generics.map((g: any) => this.serializeType(g)).join(', ');
+            result += `<${genericTypes}>`;
+        }
+
+        return result;
+    }
+
+    /**
+     * Serialize notes attached to nodes
+     */
+    private serializeNotes(): any[] {
+        if (!this.machine.notes || this.machine.notes.length === 0) {
+            return [];
+        }
+
+        return this.machine.notes.map(note => ({
+            target: note.target.ref?.name || '',
+            content: note.content?.replace(/^"|"$/g, '') || ''
+        })).filter(n => n.target); // Filter out notes with invalid targets
     }
 
     private serializeEdges(): any[] {
@@ -282,6 +324,16 @@ class MermaidGenerator extends BaseGenerator {
         return mapping[arrowType] || '-->';
     }
 
+    /**
+     * Convert generic types from angle brackets to Mermaid tildes
+     * e.g., "Promise<Result>" → "Promise~Result~"
+     */
+    private convertTypeToMermaid(typeStr: string): string {
+        if (!typeStr || typeof typeStr !== 'string') return '';
+        // Replace < and > with ~ for Mermaid generic types
+        return typeStr.replace(/<([^>]+)>/g, '~$1~');
+    }
+
     protected generateContent(): FileGenerationResult {
         // First generate JSON as intermediate format
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
@@ -301,6 +353,7 @@ config:
 classDiagram-v2
   ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
   ${toString(this.generateEdges(machineJson.edges))}
+  ${machineJson.notes && machineJson.notes.length > 0 ? toString(this.generateNotes(machineJson.notes)) : ''}
   ${machineJson.inferredDependencies && machineJson.inferredDependencies.length > 0 ? toString(this.generateInferredDependencies(machineJson.inferredDependencies)) : ''}
 `.appendNewLineIfNotEmpty();
 
@@ -389,12 +442,15 @@ classDiagram-v2
                             displayValue = displayValue.replace(/^["']|["']$/g, '');
                             displayValue = wrapText(displayValue, 60); // Apply text wrapping
                         }
-                        return `+${a.name}${a.type ? ` : ${a.type}` : ''} = ${displayValue}`;
+                        // Convert generic types to Mermaid format (< > to ~ ~)
+                        // Note: a.type is already serialized as a string in JSON
+                        const typeStr = a.type ? this.convertTypeToMermaid(String(a.type)) : '';
+                        return `+${a.name}${typeStr ? ` : ${typeStr}` : ''} = ${displayValue}`;
                     }).join('\n')
                     : '';
 
-                // Generate annotations
-                const annotations = node.annotations?.map(ann => `<<${ann.name}>>`).join('\n' + indent + '    ') || '';
+                // Generate annotations (filter out @note annotations which are handled separately)
+                const annotations = node.annotations?.filter(ann => ann.name !== 'note').map(ann => `<<${ann.name}>>`).join('\n' + indent + '    ') || '';
                 const typeAnnotation = node.type ? `<<${node.type}>>` : '';
                 const allAnnotations = [typeAnnotation, annotations].filter(Boolean).join('\n' + indent + '    ');
 
@@ -425,6 +481,23 @@ ${indent}}`);
         });
 
         return toString(result);
+    }
+
+    /**
+     * Generate notes for nodes
+     */
+    private generateNotes(notes: any[]): string {
+        if (!notes || notes.length === 0) return '';
+
+        const lines: string[] = [];
+        lines.push('  %% Notes');
+
+        notes.forEach(note => {
+            const content = note.content.replace(/\\n/g, '<br/>'); // Convert \n to Mermaid line breaks
+            lines.push(`  note for ${note.target} "${content}"`);
+        });
+
+        return lines.join('\n');
     }
 
     private generateEdges(edges: Edge[]): string {

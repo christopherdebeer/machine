@@ -17,6 +17,7 @@ classDiagram-v2
   undefined
   undefined
   
+  
 
 ```
 
@@ -26,6 +27,7 @@ classDiagram-v2
   "title": "Generated Minimal Machine",
   "nodes": [],
   "edges": [],
+  "notes": [],
   "inferredDependencies": []
 }
 ```

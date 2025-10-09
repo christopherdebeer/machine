@@ -1,0 +1,30 @@
+machine "Phase 3: Notes and Generic Types"
+
+// Generic types demonstration
+context config {
+    items<List<string>>: ["item1", "item2"];
+    result<Promise<Result>>: "pending";
+}
+
+// Task with generic return type
+task fetchData @Async {
+    response<Promise<Response>>: "pending";
+    timeout<number>: 5000;
+}
+
+task processData {
+    data<Array<Record>>: [];
+}
+
+state complete {
+    message<string>: "All done";
+}
+
+// Edges
+fetchData -> processData;
+processData -> complete;
+
+// Notes provide documentation
+note for fetchData "Fetches data from external API. Returns Promise<Response> with the fetched data."
+note for processData "Processes the fetched data and transforms it into Array<Record> format."
+note for complete "Final state indicating successful completion of the workflow."

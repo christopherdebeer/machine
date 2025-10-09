@@ -22,6 +22,19 @@ export interface Edge {
     arrowType?: string;  // Arrow type for relationship mapping
     sourceMultiplicity?: string;  // Source multiplicity (e.g., "1", "*", "0..1")
     targetMultiplicity?: string;  // Target multiplicity (e.g., "1", "*", "1..*")
+    style?: EdgeStyle;  // Custom styling for the edge
+    roleName?: string;  // Role name for bidirectional relationships
+}
+
+export interface EdgeStyle {
+    stroke?: string;  // Stroke color
+    strokeWidth?: string;  // Stroke width
+    strokeDasharray?: string;  // Dash pattern
+}
+
+export interface NoteInfo {
+    target: string;  // Node name
+    content: string;  // Note content
 }
 
 export interface InferredDependency {
@@ -35,6 +48,7 @@ export interface MachineJSON {
     title: string;
     nodes: Node[];
     edges: Edge[];
+    notes?: NoteInfo[];
     inferredDependencies?: InferredDependency[];
 }
 

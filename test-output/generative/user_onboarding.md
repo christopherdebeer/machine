@@ -80,6 +80,7 @@ classDiagram-v2
 
   registration --> abandoned : cancel
   
+  
 
 ```
 
@@ -205,6 +206,7 @@ classDiagram-v2
       "arrowType": "->"
     }
   ],
+  "notes": [],
   "inferredDependencies": []
 }
 ```

@@ -45,20 +45,30 @@ STRING returns string: STR | MLSTR;
 
 entry Machine:
     'machine' title=STRING
-    (nodes+=Node<true> | edges+=Edge<true>)*
+    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)*
 ;
 
 AttributeValue:
     ('[' (value+=(EXTID|STRING|ID|NUMBER) (',' value+=(EXTID|STRING|ID|NUMBER))*)? ']')
     | value=EXTID|STRING|ID|NUMBER;
 
-// Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated)
+// Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated, @note)
 Annotation:
     '@' name=ID ('(' value=STRING ')')?
 ;
 
+// Note attached to a node for documentation
+Note:
+    'note' 'for' target=[Node:ID] content=STRING
+;
+
+// Type definition that supports generic types (e.g., Promise<Result>, List<Step>)
+TypeDef:
+    base=ID ('<' generics+=TypeDef (',' generics+=TypeDef)* '>')?
+;
+
 Attribute:
-name=ID ('<' type=ID '>')? (':' value=AttributeValue)? ';'
+name=ID ('<' type=TypeDef '>')? (':' value=AttributeValue)? ';'
 ;
 
 Node<isRoot>:
@@ -79,7 +89,13 @@ EdgeAttribute:
     | '[' (params+=EdgeAttributeValue (',' params+=EdgeAttributeValue)*)? ']'
 ;
 
+// Edge styling annotation (e.g., @style("color: red; stroke-width: 4px"))
+EdgeAnnotation:
+    '@' name=ID ('(' value=STRING ')')?
+;
+
 EdgeType:
+    (annotations+=EdgeAnnotation)*
     value+=EdgeAttribute+;
 
 EdgeSegment:
