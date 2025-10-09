@@ -1,0 +1,133 @@
+machine "Complete Phase 2 Feature Showcase"
+
+// Configuration with annotations and dependency inference
+context systemConfig @Singleton {
+    apiBaseUrl<string>: "https://api.example.com";
+    apiKey<string>: "secret-key-123";
+    maxRetries<number>: 3;
+    timeout<number>: 5000;
+    environment<string>: "production";
+}
+
+context databaseConfig @Singleton {
+    host<string>: "db.example.com";
+    port<number>: 5432;
+    database<string>: "myapp_prod";
+    maxConnections<number>: 100;
+}
+
+// Abstract base classes with annotations
+task BaseTask @Abstract {
+    desc: "Base task for all operations";
+    version<string>: "2.0.0";
+}
+
+task BaseValidator @Abstract @Critical {
+    desc: "Base validator for data validation";
+}
+
+// Concrete implementations with inheritance
+task HTTPTask @Async {
+    prompt: "Make HTTP request to {{ systemConfig.apiBaseUrl }} with timeout {{ systemConfig.timeout }}";
+    method<string>: "GET";
+}
+
+task DatabaseTask @Async @Critical {
+    prompt: "Connect to {{ databaseConfig.database }} at {{ databaseConfig.host }}:{{ databaseConfig.port }}";
+}
+
+// Inheritance relationships
+BaseTask <|-- HTTPTask;
+BaseTask <|-- DatabaseTask;
+
+// Validators
+task JSONValidator @Singleton {
+    desc: "Validates JSON data format";
+    schema<string>: "schema.json";
+}
+
+task DataValidator @Critical {
+    desc: "Validates business rules";
+}
+
+BaseValidator <|-- JSONValidator;
+BaseValidator <|-- DataValidator;
+
+// Main workflow tasks
+task fetchData @Async {
+    prompt: "Fetch data using {{ HTTPTask.prompt }}";
+}
+
+task validateData {
+    prompt: "Validate fetched data with {{ JSONValidator.desc }}";
+}
+
+task transformData @Critical {
+    prompt: "Transform validated data for storage";
+}
+
+task storeData @Async @Critical {
+    prompt: "Store data using {{ DatabaseTask.prompt }}";
+}
+
+task notifySuccess {
+    prompt: "Send success notification (env: {{ systemConfig.environment }})";
+}
+
+// Error handling
+task errorHandler @Critical {
+    desc: "Handles errors and retries";
+    maxRetries: 3;
+}
+
+// State nodes
+state Success {
+    desc: "Operation completed successfully";
+}
+
+state Failed {
+    desc: "Operation failed after retries";
+}
+
+// Relationships with multiplicity
+
+// One fetch operation produces multiple data records
+fetchData "1" --> "*" validateData;
+
+// Each validated record goes through one transformation
+validateData "1" --> "1" transformData;
+
+// Transformed data is stored (one-to-one)
+transformData "1" --> "1" storeData;
+
+// Storage can result in success or failure
+storeData "1" --> "0..1" Success;
+storeData "1" --> "0..1" Failed;
+
+// Success triggers notification
+Success "1" --> "1" notifySuccess;
+
+// Failed triggers error handler
+Failed "1" --> "1" errorHandler;
+
+// Error handler can retry (back to fetch)
+errorHandler "1" --> "0..1" fetchData;
+
+// Validators are used by validation step
+JSONValidator "1" --> "*" validateData;
+DataValidator "1" --> "*" validateData;
+
+// Deprecated legacy task
+task legacyProcessor @Deprecated("Use transformData instead - removed in v3.0") {
+    desc: "Old data processor";
+}
+
+// Inferred dependencies (automatically detected by DyGram):
+//
+// HTTPTask ..> systemConfig : reads prompt
+// DatabaseTask ..> databaseConfig : reads prompt
+// fetchData ..> HTTPTask : reads prompt
+// storeData ..> DatabaseTask : reads prompt
+// notifySuccess ..> systemConfig : reads prompt
+//
+// This creates a clear dependency graph showing data flow and configuration usage
