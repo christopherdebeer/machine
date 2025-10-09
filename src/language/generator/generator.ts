@@ -120,7 +120,8 @@ class JSONGenerator extends BaseGenerator {
                         source,
                         target,
                         value: edgeValue,
-                        attributes: edgeValue  // Keep for backward compatibility
+                        attributes: edgeValue,  // Keep for backward compatibility
+                        arrowType: segment.endType  // Preserve arrow type
                     })).filter(e => e.source && e.target)
                 );
                 currentSources = targets; // Update sources for next segment
@@ -238,6 +239,23 @@ function wrapText(text: string, maxWidth: number = 60): string {
 class MermaidGenerator extends BaseGenerator {
     protected fileExtension = 'md';
 
+    /**
+     * Maps DyGram arrow types to Mermaid relationship types
+     * This preserves semantic meaning in the diagram
+     */
+    private getRelationshipType(arrowType: string): string {
+        const mapping: Record<string, string> = {
+            '->': '-->',      // Association (default)
+            '-->': '..>',     // Dependency (dashed)
+            '=>': '-->',      // Association (thick arrow - Mermaid doesn't have distinct thick)
+            '<-->': '<-->',   // Bidirectional
+            '<|--': '<|--',   // Inheritance
+            '*-->': '*--',    // Composition
+            'o-->': 'o--',    // Aggregation
+        };
+        return mapping[arrowType] || '-->';
+    }
+
     protected generateContent(): FileGenerationResult {
         // First generate JSON as intermediate format
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
@@ -324,13 +342,14 @@ classDiagram-v2
 
             // Generate namespace content
             const content = joinToNode(nodes, node => {
+                // Prefer node title over desc/prompt attributes for display
                 const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
-                let displayValue: any = desc?.value;
-                if (desc && typeof displayValue === 'string') {
+                let displayValue: any = node.title || desc?.value;
+                if (displayValue && typeof displayValue === 'string') {
                     displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
                     displayValue = wrapText(displayValue, 60); // Apply text wrapping
                 }
-                const header = `class ${node.name}${desc ? `["${displayValue}"]` : ''}`;
+                const header = `class ${node.name}${displayValue ? `["${displayValue}"]` : ''}`;
 
                 // Format all attributes except desc/prompt for the class body
                 const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
@@ -377,22 +396,25 @@ ${indent}}`);
     }
 
     private generateEdges(edges: Edge[]): string {
-        
+
         const result = joinToNode(edges, edge => {
             const edgeValue = edge.value || {};
             const keys = Object.keys(edgeValue);
-            
+
+            // Use arrow type mapping to determine relationship type
+            const relationshipType = this.getRelationshipType(edge.arrowType || '->');
+
             if (keys.length === 0) {
                 // No label
-                return `  ${edge.source} --> ${edge.target}`;
+                return `  ${edge.source} ${relationshipType} ${edge.target}`;
             }
-            
+
             // Construct label from JSON properties, prioritizing non-text properties
             const textValue = edgeValue.text;
             const otherProps = keys.filter(k => k !== 'text');
-            
+
             let labelJSON = '';
-            
+
             if (otherProps.length > 0) {
                 // Use properties instead of text for cleaner labels
                 labelJSON = otherProps.map(key => `${key}=${edgeValue[key]}`).join(', ');
@@ -400,8 +422,8 @@ ${indent}}`);
                 // Only use text if no other properties exist
                 labelJSON = textValue;
             }
-            
-            return `  ${edge.source} --> ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
+
+            return `  ${edge.source} ${relationshipType} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
         }, {
             separator: '\n',
             appendNewLineIfNotEmpty: true,
@@ -413,6 +435,20 @@ ${indent}}`);
 
 class MarkdownGenerator extends BaseGenerator {
     protected fileExtension = 'md';
+
+    /**
+     * Maps DyGram arrow types to Mermaid relationship types
+     * This preserves semantic meaning in the diagram
+     */
+    private getRelationshipType(arrowType: string): string {
+        const mapping: Record<string, string> = {
+            '->': '-->',      // Association (default)
+            '-->': '..>',     // Dependency (dashed)
+            '=>': '-->',      // Association (thick arrow - Mermaid doesn't have distinct thick)
+            '<-->': '<-->',   // Bidirectional
+        };
+        return mapping[arrowType] || '-->';
+    }
 
     protected generateContent(): FileGenerationResult {
         // First generate JSON as intermediate format
@@ -524,13 +560,14 @@ classDiagram-v2
 
             // Generate namespace content
             const content = joinToNode(nodes, node => {
+                // Prefer node title over desc/prompt attributes for display
                 const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
-                let displayValue: any = desc?.value;
-                if (desc && typeof displayValue === 'string') {
+                let displayValue: any = node.title || desc?.value;
+                if (displayValue && typeof displayValue === 'string') {
                     displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
                     displayValue = wrapText(displayValue, 60); // Apply text wrapping
                 }
-                const header = `class ${node.name}${desc ? `["${displayValue}"]` : ''}`;
+                const header = `class ${node.name}${displayValue ? `["${displayValue}"]` : ''}`;
 
                 // Format all attributes except desc/prompt for the class body
                 const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
@@ -574,22 +611,25 @@ ${indent}}`);
     }
 
     private generateEdges(edges: Edge[]): string {
-        
+
         const result = joinToNode(edges, edge => {
             const edgeValue = edge.value || {};
             const keys = Object.keys(edgeValue);
-            
+
+            // Use arrow type mapping to determine relationship type
+            const relationshipType = this.getRelationshipType(edge.arrowType || '->');
+
             if (keys.length === 0) {
                 // No label
-                return `  ${edge.source} --> ${edge.target}`;
+                return `  ${edge.source} ${relationshipType} ${edge.target}`;
             }
-            
+
             // Construct label from JSON properties, prioritizing non-text properties
             const textValue = edgeValue.text;
             const otherProps = keys.filter(k => k !== 'text');
-            
+
             let labelJSON = '';
-            
+
             if (otherProps.length > 0) {
                 // Use properties instead of text for cleaner labels
                 labelJSON = otherProps.map(key => `${key}=${edgeValue[key]}`).join(', ');
@@ -597,8 +637,8 @@ ${indent}}`);
                 // Only use text if no other properties exist
                 labelJSON = textValue;
             }
-            
-            return `  ${edge.source} --> ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
+
+            return `  ${edge.source} ${relationshipType} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
         }, {
             separator: '\n',
             appendNewLineIfNotEmpty: true,

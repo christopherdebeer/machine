@@ -4,6 +4,19 @@ hidden terminal WS: /\s+/;
 hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
 hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
 
+// Arrow terminals - ordered from most specific to least specific (BEFORE ID to avoid conflicts)
+terminal BIDIRECTIONAL_ARROW: '<-->';
+terminal BIDIRECTIONAL_LABELED: /<--[a-zA-Z0-9_]+-?-?>/;
+terminal INHERIT_ARROW: '<|--';
+terminal COMPOSE_ARROW: '*-->';
+terminal AGGREGATE_ARROW: 'o-->';
+terminal ARROW_DOUBLE: '-->';
+terminal ARROW_LABEL_START_DOUBLE: '--';
+terminal FAT_ARROW: '=>';
+terminal FAT_ARROW_LABEL_START: '=';
+terminal ARROW_SINGLE: '->';
+terminal ARROW_LABEL_START_SINGLE: '-';
+
 // Basic terminals
 terminal ID: /[A-Za-z_0-9][A-Za-z0-9_.]*/;              // identifiers for class and attribute names
 terminal STR: /"([^"\\]|\\.)*"/;        // double-quoted strings for titles and default values
@@ -12,18 +25,6 @@ terminal NUMBER returns number: /[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?/;
 
 
 terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
-
-// Arrow terminals - ordered from most specific to least specific
-terminal BIDIRECTIONAL_ARROW: '<-->';
-terminal BIDIRECTIONAL_LABELED: /<--[a-zA-Z0-9_]+-?-?>/;
-terminal ARROW_DOUBLE: '-->';
-terminal ARROW_LABEL_START_DOUBLE: '--';
-terminal FAT_ARROW: '=>';
-terminal FAT_ARROW_LABEL_START: '=';
-terminal ARROW_SINGLE: '->';
-terminal ARROW_LABEL_START_SINGLE: '-';
-
-// Arrow terminals - ordered from most specific to least specific
 
 terminal SHAFT_THIN: '-';
 terminal SHAFT_THICK: '=';
@@ -81,6 +82,10 @@ EdgeSegment:
         // Bidirectional arrows
         endType=BIDIRECTIONAL_ARROW |
         endType=BIDIRECTIONAL_LABELED |
+        // Inheritance, composition, aggregation
+        endType=INHERIT_ARROW |
+        endType=COMPOSE_ARROW |
+        endType=AGGREGATE_ARROW |
         // Double dash arrows
         (startType=ARROW_LABEL_START_DOUBLE (label+=EdgeType (',' label+=EdgeType)*)? endType=ARROW_DOUBLE) |
         endType=ARROW_DOUBLE |
