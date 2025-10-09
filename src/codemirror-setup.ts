@@ -117,7 +117,7 @@ export async function loadDynamicExamples(): Promise<void> {
                     examplesContainer.appendChild(btn);
 
                     // Add click handler
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', async () => {
                         if (editorView && examples[key]) {
                             editorView.dispatch({
                                 changes: {
@@ -126,6 +126,16 @@ export async function loadDynamicExamples(): Promise<void> {
                                     insert: examples[key],
                                 },
                             });
+                            
+                            // Update diagram source display immediately when example is switched
+                            const outputElement = document.getElementById('outputInfo');
+                            const diagramElement = document.getElementById('diagram');
+                            if (outputElement) {
+                                // Auto-execute the new example to update diagram source
+                                setTimeout(() => {
+                                    executeCode(examples[key], outputElement, diagramElement);
+                                }, 100);
+                            }
                         }
                     });
                 }
@@ -538,6 +548,15 @@ async function generateMermaidFromCode(code: string): Promise<string> {
     }
 }
 
+/**
+ * Escape HTML characters to prevent XSS and ensure proper display in HTML
+ */
+function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Global storage instance for persistence
 let globalStorage: any = null;
 
@@ -824,7 +843,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
                 <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">[${machineData.title}] Diagram source:</div>
                 <div style="color: #d4d4d4; font-size: 11px;">
-                    <pre><code>${staticMermaidCode}</code></pre>
+                    <pre><code>${escapeHtml(staticMermaidCode)}</code></pre>
                 </div>
             </div>
         `;

@@ -139,6 +139,7 @@ class JSONGenerator extends BaseGenerator {
             // Check if the label itself has text content in its CST node
             if (label.$cstNode && 'text' in label.$cstNode) {
                 const labelText = label.$cstNode.text;
+                const other = label.$type
 
                 // For simple labels, the CST text is just the label name (e.g., "feeds", "stores")
                 // For complex patterns, try to extract from full syntax
@@ -379,14 +380,28 @@ ${indent}}`);
     private generateEdges(edges: Edge[]): string {
         
         const result = joinToNode(edges, edge => {
-            let labelJSON = ``;
-            Object.keys(edge.value || {}).forEach((key, idx) => {
-                if (key === 'text') {
-                    labelJSON += `${edge.value[key]}`;
-                } else {
-                    labelJSON += `${idx > 0 ? ', ' : ''}${key}=${edge.value[key]}`;
-                }
-            });
+            const edgeValue = edge.value || {};
+            const keys = Object.keys(edgeValue);
+            
+            if (keys.length === 0) {
+                // No label
+                return `  ${edge.source} --> ${edge.target}`;
+            }
+            
+            // Construct label from JSON properties, prioritizing non-text properties
+            const textValue = edgeValue.text;
+            const otherProps = keys.filter(k => k !== 'text');
+            
+            let labelJSON = '';
+            
+            if (otherProps.length > 0) {
+                // Use properties instead of text for cleaner labels
+                labelJSON = otherProps.map(key => `${key}=${edgeValue[key]}`).join(', ');
+            } else if (textValue) {
+                // Only use text if no other properties exist
+                labelJSON = textValue;
+            }
+            
             return `  ${edge.source} --> ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
         }, {
             separator: '\n',
@@ -562,14 +577,28 @@ ${indent}}`);
     private generateEdges(edges: Edge[]): string {
         
         const result = joinToNode(edges, edge => {
-            let labelJSON = ``;
-            Object.keys(edge.value || {}).forEach((key, idx) => {
-                if (key === 'text') {
-                    labelJSON += `${edge.value[key]}`;
-                } else {
-                    labelJSON += `${idx > 0 ? ', ' : ''}${key}=${edge.value[key]}`;
-                }
-            });
+            const edgeValue = edge.value || {};
+            const keys = Object.keys(edgeValue);
+            
+            if (keys.length === 0) {
+                // No label
+                return `  ${edge.source} --> ${edge.target}`;
+            }
+            
+            // Construct label from JSON properties, prioritizing non-text properties
+            const textValue = edgeValue.text;
+            const otherProps = keys.filter(k => k !== 'text');
+            
+            let labelJSON = '';
+            
+            if (otherProps.length > 0) {
+                // Use properties instead of text for cleaner labels
+                labelJSON = otherProps.map(key => `${key}=${edgeValue[key]}`).join(', ');
+            } else if (textValue) {
+                // Only use text if no other properties exist
+                labelJSON = textValue;
+            }
+            
             return `  ${edge.source} --> ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
         }, {
             separator: '\n',
