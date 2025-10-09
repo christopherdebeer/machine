@@ -17,6 +17,7 @@ import { EvolutionaryExecutor } from './language/task-evolution.js';
 import { VisualizingMachineExecutor } from './language/runtime-visualizer.js';
 import { createStorage } from './language/storage.js';
 import { createLangiumExtensions } from './codemirror-langium.js';
+import examplesList from './generated/examples-list.json';
 
 // Initialize mermaid with custom settings
 mermaid.initialize({
@@ -79,30 +80,18 @@ processor -stores-> destination;`
 
 /**
  * Load examples dynamically from the examples directory
+ * Now uses build-time generated list instead of hardcoded paths
  */
 export async function loadDynamicExamples(): Promise<void> {
     try {
-        // List of example files to load from the examples directory
-        const exampleFiles = [
-            { path: 'examples/basic/minimal.dygram', name: 'Minimal' },
-            { path: 'examples/basic/typed-nodes.dygram', name: 'Typed Nodes' },
-            { path: 'examples/workflows/user-onboarding.dygram', name: 'User Onboarding' },
-            { path: 'examples/workflows/order-processing.dygram', name: 'Order Processing' },
-            { path: 'examples/workflows/ci-cd-pipeline.dygram', name: 'CI/CD Pipeline' },
-            { path: 'examples/attributes/basic-attributes.dygram', name: 'Attributes' },
-            { path: 'examples/edges/labeled-edges.dygram', name: 'Labeled Edges' },
-            { path: 'examples/nesting/nested-2-levels.dygram', name: 'Nested' },
-            { path: 'examples/complex/complex-machine.dygram', name: 'Complex' }
-        ];
-
         const examplesContainer = document.querySelector('.examples');
         if (!examplesContainer) return;
 
         // Clear existing example buttons
         examplesContainer.innerHTML = '';
 
-        // Load and create buttons for each example
-        for (const example of exampleFiles) {
+        // Load and create buttons for each example from generated list
+        for (const example of examplesList) {
             try {
                 const response = await fetch(example.path);
                 if (response.ok) {
@@ -113,7 +102,9 @@ export async function loadDynamicExamples(): Promise<void> {
                     const btn = document.createElement('button');
                     btn.className = 'example-btn';
                     btn.setAttribute('data-example', key);
+                    btn.setAttribute('data-category', example.category);
                     btn.textContent = example.name;
+                    btn.title = example.title; // Add tooltip with full title
                     examplesContainer.appendChild(btn);
 
                     // Add click handler
@@ -126,7 +117,7 @@ export async function loadDynamicExamples(): Promise<void> {
                                     insert: examples[key],
                                 },
                             });
-                            
+
                             // Update diagram source display immediately when example is switched
                             const outputElement = document.getElementById('outputInfo');
                             const diagramElement = document.getElementById('diagram');
