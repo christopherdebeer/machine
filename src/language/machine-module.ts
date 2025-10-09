@@ -15,7 +15,12 @@ export type MachineAddedServices = {
     }
 }
 
-export interface Edge { source: string; value: Record<string, any>; target: string; }
+export interface Edge {
+    source: string;
+    value: Record<string, any>;
+    target: string;
+    arrowType?: string;  // Arrow type for relationship mapping
+}
 export interface MachineJSON {
     title: string;
     nodes: Node[];
