@@ -829,12 +829,30 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             outputHTML += `
                 <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
                     <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Execution History:</div>
-                    ${executionResult.history.map((step: any, idx: number) => `
+                    ${executionResult.history.map((step: any, idx: number) => {
+                        // Properly stringify output to avoid [object Object]
+                        let outputStr = '';
+                        if (step.output) {
+                            if (typeof step.output === 'object' && step.output !== null) {
+                                try {
+                                    outputStr = JSON.stringify(step.output);
+                                } catch (error) {
+                                    outputStr = String(step.output);
+                                }
+                            } else {
+                                outputStr = String(step.output);
+                            }
+                            const truncated = outputStr.substring(0, 50);
+                            const suffix = outputStr.length > 50 ? '...' : '';
+                            outputStr = `<br>&nbsp;&nbsp;&nbsp;&nbsp;Output: ${truncated}${suffix}`;
+                        }
+                        return `
                         <div style="color: #d4d4d4; font-size: 11px;">
                             ${idx + 1}. ${step.from} → ${step.to} (${step.transition})
-                            ${step.output ? `<br>&nbsp;&nbsp;&nbsp;&nbsp;Output: ${String(step.output).substring(0, 50)}${String(step.output).length > 50 ? '...' : ''}` : ''}
+                            ${outputStr}
                         </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
             `;
         }

@@ -78,9 +78,23 @@ export function compilePrompt(template: string, context: TaskPromptContext): str
     // Handle attributes section more carefully
     if (context.attributes && Object.keys(context.attributes).length > 0) {
         const attributesSection = Object.entries(context.attributes)
-            .map(([key, value]) => `- ${key}: ${String(value)}`)
+            .map(([key, value]) => {
+                // Properly stringify objects and arrays to avoid [object Object]
+                let stringValue: string;
+                if (typeof value === 'object' && value !== null) {
+                    try {
+                        stringValue = JSON.stringify(value);
+                    } catch (error) {
+                        // Fallback for circular references or other stringify errors
+                        stringValue = String(value);
+                    }
+                } else {
+                    stringValue = String(value);
+                }
+                return `- ${key}: ${stringValue}`;
+            })
             .join('\n');
-        
+
         // Replace the handlebars-style each block
         result = result.replace(/\{\{#each attributes\}\}[\s\S]*?\{\{\/each\}\}/g, attributesSection);
     } else {
