@@ -829,12 +829,28 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             outputHTML += `
                 <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
                     <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Execution History:</div>
-                    ${executionResult.history.map((step: any, idx: number) => `
+                    ${executionResult.history.map((step: any, idx: number) => {
+                        let outputDisplay = '';
+                        if (step.output) {
+                            let serializedOutput: string;
+                            if (typeof step.output === 'object' && step.output !== null) {
+                                try {
+                                    serializedOutput = JSON.stringify(step.output);
+                                } catch (error) {
+                                    serializedOutput = String(step.output);
+                                }
+                            } else {
+                                serializedOutput = String(step.output);
+                            }
+                            outputDisplay = `<br>&nbsp;&nbsp;&nbsp;&nbsp;Output: ${serializedOutput.substring(0, 50)}${serializedOutput.length > 50 ? '...' : ''}`;
+                        }
+                        return `
                         <div style="color: #d4d4d4; font-size: 11px;">
                             ${idx + 1}. ${step.from} → ${step.to} (${step.transition})
-                            ${step.output ? `<br>&nbsp;&nbsp;&nbsp;&nbsp;Output: ${String(step.output).substring(0, 50)}${String(step.output).length > 50 ? '...' : ''}` : ''}
+                            ${outputDisplay}
                         </div>
-                    `).join('')}
+                    `;
+                    }).join('')}
                 </div>
             `;
         }
