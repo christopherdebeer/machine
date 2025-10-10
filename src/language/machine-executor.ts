@@ -130,6 +130,42 @@ export class MachineExecutor {
     }
 
     /**
+     * Recursively extract value from Langium AST nodes
+     */
+    private extractValueFromAST(value: any): any {
+        // If it's not an object, return as-is
+        if (!value || typeof value !== 'object') {
+            return value;
+        }
+
+        // If it's a Langium AST node object
+        if ('$type' in value) {
+            const astNode = value as any;
+
+            // Try to get text from CST node first (most accurate)
+            if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
+                let text = astNode.$cstNode.text;
+                // Remove quotes if present
+                if (typeof text === 'string') {
+                    text = text.replace(/^["']|["']$/g, '');
+                }
+                return text;
+            }
+
+            // Try to get nested value property and recurse
+            if ('value' in astNode) {
+                return this.extractValueFromAST(astNode.value);
+            }
+
+            // If no value found, try stringifying but this might give [object Object]
+            return String(value);
+        }
+
+        // Not an AST node, return as-is
+        return value;
+    }
+
+    /**
      * Get the current node's attributes as a key-value object
      */
     private getCurrentNodeAttributes(): Record<string, any> {
@@ -140,29 +176,13 @@ export class MachineExecutor {
 
         return node.attributes.reduce((acc, attr) => {
             // Handle the case where attr.value might be an object (from JSON parsing or AST)
-            let value = attr.value;
-            
-            // If it's a Langium AST node object, extract the actual value
-            if (value && typeof value === 'object' && '$type' in value) {
-                // This is a Langium AST node - extract the text content
-                const astNode = value as any;
-                if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
-                    value = astNode.$cstNode.text;
-                    // Remove quotes if present
-                    if (typeof value === 'string') {
-                        value = value.replace(/^["']|["']$/g, '');
-                    }
-                } else if ('value' in astNode) {
-                    // Try to get nested value property
-                    value = astNode.value;
-                }
-            }
-            
+            let value = this.extractValueFromAST(attr.value);
+
             // If the value is a string that looks like JSON, try to parse it
             if (typeof value === 'string') {
                 try {
                     // Check if it looks like JSON (starts with { or [)
-                    if ((value.startsWith('{') && value.endsWith('}')) || 
+                    if ((value.startsWith('{') && value.endsWith('}')) ||
                         (value.startsWith('[') && value.endsWith(']'))) {
                         value = JSON.parse(value);
                     }
@@ -170,7 +190,7 @@ export class MachineExecutor {
                     // If parsing fails, keep the original string value
                 }
             }
-            
+
             acc[attr.name] = value;
             return acc;
         }, {} as Record<string, any>);

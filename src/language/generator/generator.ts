@@ -107,23 +107,51 @@ class JSONGenerator extends BaseGenerator {
         return this.machine.nodes.flatMap(node => flattenNode(node));
     }
 
+    /**
+     * Recursively extract primitive value from AST nodes
+     */
+    private extractPrimitiveValue(value: any): any {
+        // Handle null/undefined
+        if (value === null || value === undefined) {
+            return value;
+        }
+
+        // If it's already a primitive, return it
+        if (typeof value !== 'object') {
+            return value;
+        }
+
+        // If it's an AST node with $cstNode, extract text
+        if (value.$cstNode && value.$cstNode.text !== undefined) {
+            let text = value.$cstNode.text;
+            // Remove quotes if present
+            if (typeof text === 'string') {
+                text = text.replace(/^["']|["']$/g, '');
+            }
+            return text;
+        }
+
+        // If it has a 'value' property, recurse
+        if ('value' in value) {
+            return this.extractPrimitiveValue(value.value);
+        }
+
+        // If it's an array, process each element
+        if (Array.isArray(value)) {
+            if (value.length === 1) {
+                return this.extractPrimitiveValue(value[0]);
+            }
+            return value.map(v => this.extractPrimitiveValue(v));
+        }
+
+        // Last resort: convert to string (might give [object Object])
+        return String(value);
+    }
+
     private serializeAttributes(node: Node): any[] {
         return node.attributes?.map(attr => {
-            // Extract the actual value from the AttributeValue
-            let value: any = attr.value?.value;
-
-            // If value property doesn't exist but we have a CST node, extract text from CST
-            if (value === undefined && attr.value?.$cstNode) {
-                const text = attr.value.$cstNode.text;
-                // Try to parse the text value
-                value = text;
-            }
-
-            // If value is an array, use the first element (or keep as array if needed)
-            // If it's a single value, use it directly
-            if (Array.isArray(value) && value.length === 1) {
-                value = value[0];
-            }
+            // Extract the actual value from the AttributeValue using recursive extraction
+            let value: any = this.extractPrimitiveValue(attr.value);
 
             // Serialize type (including generic types)
             const typeStr = attr.type ? this.serializeType(attr.type) : undefined;
