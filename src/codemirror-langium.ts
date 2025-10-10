@@ -87,6 +87,107 @@ function convertSeverity(severity: number | undefined): 'error' | 'warning' | 'i
 }
 
 /**
+ * Create a tooltip element for showing diagnostic messages
+ */
+function createDiagnosticTooltip(messages: string[]): HTMLElement {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'cm-diagnostic-tooltip';
+    tooltip.style.cssText = `
+        position: fixed;
+        background: #2d2d30;
+        border: 1px solid #3e3e42;
+        border-radius: 4px;
+        padding: 8px 12px;
+        max-width: 400px;
+        z-index: 1000;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        pointer-events: none;
+    `;
+
+    messages.forEach(msg => {
+        const line = document.createElement('div');
+        line.style.cssText = 'margin: 4px 0; font-size: 12px; line-height: 1.4;';
+        line.textContent = msg;
+        tooltip.appendChild(line);
+    });
+
+    return tooltip;
+}
+
+/**
+ * Position tooltip near the target element
+ */
+function positionTooltip(tooltip: HTMLElement, targetElement: HTMLElement) {
+    const rect = targetElement.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    // Position to the right of the marker, or left if not enough space
+    let left = rect.right + 8;
+    if (left + tooltipRect.width > window.innerWidth) {
+        left = rect.left - tooltipRect.width - 8;
+    }
+
+    // Center vertically with the marker
+    let top = rect.top + (rect.height / 2) - (tooltipRect.height / 2);
+
+    // Keep within viewport
+    if (top < 8) top = 8;
+    if (top + tooltipRect.height > window.innerHeight - 8) {
+        top = window.innerHeight - tooltipRect.height - 8;
+    }
+
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+}
+
+// Track active tooltip to remove it when needed
+let activeTooltip: HTMLElement | null = null;
+
+/**
+ * Show diagnostic tooltip for a line
+ */
+function showDiagnosticTooltip(view: EditorView, lineBlock: any, targetElement: HTMLElement) {
+    // Remove any existing tooltip
+    if (activeTooltip) {
+        activeTooltip.remove();
+        activeTooltip = null;
+    }
+
+    // lineBlock has properties: from, to, text, number
+    // Get the line info from the document
+    const lineInfo = view.state.doc.lineAt(lineBlock.from);
+    const state = view.state.field(diagnosticsState, false);
+    if (!state) return;
+
+    const lineDiagnostics = state.diagnostics.filter(d => {
+        const diagLine = view.state.doc.lineAt(d.from);
+        return diagLine.number === lineInfo.number;
+    });
+
+    if (lineDiagnostics.length > 0) {
+        const messages = lineDiagnostics
+            .map(d => `${d.severity.toUpperCase()}: ${d.message}`);
+
+        const tooltip = createDiagnosticTooltip(messages);
+        document.body.appendChild(tooltip);
+        activeTooltip = tooltip;
+
+        // Position after adding to DOM so we can measure it
+        requestAnimationFrame(() => {
+            positionTooltip(tooltip, targetElement);
+        });
+
+        // Auto-hide after 5 seconds for mobile
+        setTimeout(() => {
+            if (activeTooltip === tooltip) {
+                tooltip.remove();
+                activeTooltip = null;
+            }
+        }, 5000);
+    }
+}
+
+/**
  * Diagnostic gutter extension that shows markers for errors, warnings, info, and hints
  */
 const diagnosticGutter = gutter({
@@ -130,27 +231,34 @@ const diagnosticGutter = gutter({
     initialSpacer: () => new DiagnosticMarker('error'),
     domEventHandlers: {
         mouseenter(view, line, event) {
-            // Get diagnostics for this line
-            const lineInfo = view.state.doc.lineAt(line.from);
-            const state = view.state.field(diagnosticsState, false);
-            if (!state) return false;
+            const marker = event.target as HTMLElement;
+            // Only show tooltip on hover if not on mobile
+            if (!('ontouchstart' in window)) {
+                showDiagnosticTooltip(view, line, marker);
+            }
+            return false;
+        },
+        mouseleave() {
+            // Remove tooltip on mouse leave for desktop
+            if (activeTooltip && !('ontouchstart' in window)) {
+                activeTooltip.remove();
+                activeTooltip = null;
+            }
+            return false;
+        },
+        click(view, line, event) {
+            // Handle click/tap for both desktop and mobile
+            const marker = event.target as HTMLElement;
 
-            const lineDiagnostics = state.diagnostics.filter(d => {
-                const diagLine = view.state.doc.lineAt(d.from);
-                return diagLine.number === lineInfo.number;
-            });
-
-            if (lineDiagnostics.length > 0) {
-                // Show tooltip with diagnostic messages
-                const messages = lineDiagnostics
-                    .map(d => `${d.severity.toUpperCase()}: ${d.message}`)
-                    .join('\n');
-
-                const marker = event.target as HTMLElement;
-                marker.title = messages;
+            // Toggle tooltip on click
+            if (activeTooltip) {
+                activeTooltip.remove();
+                activeTooltip = null;
+            } else {
+                showDiagnosticTooltip(view, line, marker);
             }
 
-            return false;
+            return true; // Prevent default to avoid text selection
         }
     }
 });
@@ -259,7 +367,10 @@ export const semanticHighlightTheme = EditorView.baseTheme({
         alignItems: 'center',
         justifyContent: 'center',
         height: '1em',
-        width: '1em'
+        width: '1em',
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTapHighlightColor: 'transparent'
     },
     '.cm-diagnostic-icon': {
         fontSize: '0.9em',
@@ -275,6 +386,13 @@ export const semanticHighlightTheme = EditorView.baseTheme({
         color: '#75beff'
     },
     '.cm-diagnostic-hint': {
+        color: '#d4d4d4'
+    },
+    // Diagnostic tooltip styling
+    '.cm-diagnostic-tooltip': {
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontSize: '12px',
+        lineHeight: '1.4',
         color: '#d4d4d4'
     }
 });
