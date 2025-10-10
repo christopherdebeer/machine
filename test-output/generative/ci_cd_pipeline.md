@@ -156,11 +156,11 @@ namespace States {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Checkout source code\""
+          "value": "Checkout source code"
         },
         {
           "name": "stage",
-          "value": "\"init\""
+          "value": "init"
         }
       ]
     },
@@ -170,11 +170,11 @@ namespace States {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Compile and build\""
+          "value": "Compile and build"
         },
         {
           "name": "stage",
-          "value": "\"build\""
+          "value": "build"
         }
       ]
     },
@@ -184,11 +184,11 @@ namespace States {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Run test suite\""
+          "value": "Run test suite"
         },
         {
           "name": "stage",
-          "value": "\"test\""
+          "value": "test"
         }
       ]
     },
@@ -198,11 +198,11 @@ namespace States {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Security vulnerability scan\""
+          "value": "Security vulnerability scan"
         },
         {
           "name": "stage",
-          "value": "\"security\""
+          "value": "security"
         }
       ]
     },
@@ -212,11 +212,11 @@ namespace States {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Deploy to staging\""
+          "value": "Deploy to staging"
         },
         {
           "name": "stage",
-          "value": "\"deploy\""
+          "value": "deploy"
         }
       ]
     },
@@ -226,11 +226,11 @@ namespace States {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Run integration tests\""
+          "value": "Run integration tests"
         },
         {
           "name": "stage",
-          "value": "\"test\""
+          "value": "test"
         }
       ]
     },
@@ -240,11 +240,11 @@ namespace States {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Deploy to production\""
+          "value": "Deploy to production"
         },
         {
           "name": "stage",
-          "value": "\"deploy\""
+          "value": "deploy"
         }
       ]
     },
@@ -254,7 +254,7 @@ namespace States {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Pipeline failed\""
+          "value": "Pipeline failed"
         }
       ]
     },
@@ -264,7 +264,7 @@ namespace States {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Pipeline completed successfully\""
+          "value": "Pipeline completed successfully"
         }
       ]
     }

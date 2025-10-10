@@ -95,11 +95,11 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"User fills registration form\""
+          "value": "User fills registration form"
         },
         {
           "name": "status",
-          "value": "\"active\""
+          "value": "active"
         }
       ]
     },
@@ -109,7 +109,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Email verification pending\""
+          "value": "Email verification pending"
         },
         {
           "name": "timeout",
@@ -124,7 +124,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"User customizes profile\""
+          "value": "User customizes profile"
         }
       ]
     },
@@ -134,7 +134,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Onboarding complete\""
+          "value": "Onboarding complete"
         }
       ]
     },
@@ -144,7 +144,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"User abandoned the process\""
+          "value": "User abandoned the process"
         }
       ]
     }

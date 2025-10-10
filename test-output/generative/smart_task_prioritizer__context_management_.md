@@ -132,7 +132,7 @@ namespace contexts {
         },
         {
           "name": "prompt",
-          "value": "\"You are helping prioritize a list of tasks. Here are the tasks: 1) Fix critical security bug, 2) Write documentation, 3) Implement new feature, 4) Code review. Analyze these tasks and use set_context_value to store a prioritized list in the 'analysis' context node with key 'prioritizedTasks' as a JSON string containing an array of objects with fields: task, priority (1-4), reasoning.\""
+          "value": "You are helping prioritize a list of tasks. Here are the tasks: 1) Fix critical security bug, 2) Write documentation, 3) Implement new feature, 4) Code review. Analyze these tasks and use set_context_value to store a prioritized list in the 'analysis' context node with key 'prioritizedTasks' as a JSON string containing an array of objects with fields: task, priority (1-4), reasoning."
         }
       ]
     },
@@ -143,12 +143,12 @@ namespace contexts {
         {
           "name": "prioritizedTasks",
           "type": "string",
-          "value": "\"[]\""
+          "value": "[]"
         },
         {
           "name": "analysisDate",
           "type": "string",
-          "value": "\"\""
+          "value": ""
         }
       ]
     },
@@ -162,7 +162,7 @@ namespace contexts {
         },
         {
           "name": "prompt",
-          "value": "\"Read the prioritized tasks from 'analysis' context using get_context_value. Create a detailed action plan for the top 2 priority tasks. Use set_context_value to store the action plan in 'action_plan' context with key 'plan' as a string with clear steps for each task.\""
+          "value": "Read the prioritized tasks from 'analysis' context using get_context_value. Create a detailed action plan for the top 2 priority tasks. Use set_context_value to store the action plan in 'action_plan' context with key 'plan' as a string with clear steps for each task."
         }
       ]
     },
@@ -173,12 +173,12 @@ namespace contexts {
         {
           "name": "plan",
           "type": "string",
-          "value": "\"\""
+          "value": ""
         },
         {
           "name": "estimatedTime",
           "type": "string",
-          "value": "\"\""
+          "value": ""
         }
       ]
     },
@@ -192,7 +192,7 @@ namespace contexts {
         },
         {
           "name": "prompt",
-          "value": "\"Read the action plan from 'action_plan' context. Summarize the workflow completion and use the transition tool to move to 'complete' state.\""
+          "value": "Read the action plan from 'action_plan' context. Summarize the workflow completion and use the transition tool to move to 'complete' state."
         }
       ]
     },
@@ -202,7 +202,7 @@ namespace contexts {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Task prioritization workflow completed\""
+          "value": "Task prioritization workflow completed"
         }
       ]
     }

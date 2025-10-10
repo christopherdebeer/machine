@@ -496,7 +496,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Node 0\""
+          "value": "Node 0"
         }
       ]
     },
@@ -527,7 +527,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Node 5\""
+          "value": "Node 5"
         }
       ]
     },
@@ -558,7 +558,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Node 10\""
+          "value": "Node 10"
         }
       ]
     },
@@ -589,7 +589,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Node 15\""
+          "value": "Node 15"
         }
       ]
     },
@@ -620,7 +620,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Node 20\""
+          "value": "Node 20"
         }
       ]
     },
@@ -651,7 +651,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Node 25\""
+          "value": "Node 25"
         }
       ]
     },
@@ -682,7 +682,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Node 30\""
+          "value": "Node 30"
         }
       ]
     },
@@ -713,7 +713,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Node 35\""
+          "value": "Node 35"
         }
       ]
     },
@@ -744,7 +744,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Node 40\""
+          "value": "Node 40"
         }
       ]
     },
@@ -775,7 +775,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Node 45\""
+          "value": "Node 45"
         }
       ]
     },

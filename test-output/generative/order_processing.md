@@ -126,7 +126,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Order received\""
+          "value": "Order received"
         },
         {
           "name": "priority",
@@ -141,7 +141,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Awaiting payment\""
+          "value": "Awaiting payment"
         }
       ]
     },
@@ -151,7 +151,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Payment successful\""
+          "value": "Payment successful"
         }
       ]
     },
@@ -161,7 +161,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Order being prepared\""
+          "value": "Order being prepared"
         }
       ]
     },
@@ -171,7 +171,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Order shipped to customer\""
+          "value": "Order shipped to customer"
         }
       ]
     },
@@ -181,7 +181,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Order delivered\""
+          "value": "Order delivered"
         }
       ]
     },
@@ -191,7 +191,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Order cancelled\""
+          "value": "Order cancelled"
         }
       ]
     },
@@ -201,7 +201,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Order refunded\""
+          "value": "Order refunded"
         }
       ]
     }

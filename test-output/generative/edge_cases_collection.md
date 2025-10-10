@@ -83,7 +83,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "a",
-          "value": "\"x\""
+          "value": "x"
         }
       ]
     },

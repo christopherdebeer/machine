@@ -198,7 +198,7 @@ namespace contexts {
         },
         {
           "name": "prompt",
-          "value": "\"You are generating a simple JavaScript utility function. Create requirements for a function that validates email addresses. Use set_context_value to store the requirements in the 'requirements' context node with key 'spec' as a string describing: function name, parameters, return value, and test cases.\""
+          "value": "You are generating a simple JavaScript utility function. Create requirements for a function that validates email addresses. Use set_context_value to store the requirements in the 'requirements' context node with key 'spec' as a string describing: function name, parameters, return value, and test cases."
         }
       ]
     },
@@ -209,7 +209,7 @@ namespace contexts {
         {
           "name": "spec",
           "type": "string",
-          "value": "\"\""
+          "value": ""
         }
       ]
     },
@@ -223,7 +223,7 @@ namespace contexts {
         },
         {
           "name": "prompt",
-          "value": "\"Read the requirements from the 'requirements' context using get_context_value. Generate JavaScript code for the email validation function. Use set_context_value to store the generated code in the 'code' context node with key 'implementation' as a string containing the complete function implementation.\""
+          "value": "Read the requirements from the 'requirements' context using get_context_value. Generate JavaScript code for the email validation function. Use set_context_value to store the generated code in the 'code' context node with key 'implementation' as a string containing the complete function implementation."
         }
       ]
     },
@@ -234,12 +234,12 @@ namespace contexts {
         {
           "name": "implementation",
           "type": "string",
-          "value": "\"\""
+          "value": ""
         },
         {
           "name": "language",
           "type": "string",
-          "value": "\"javascript\""
+          "value": "javascript"
         }
       ]
     },
@@ -253,7 +253,7 @@ namespace contexts {
         },
         {
           "name": "prompt",
-          "value": "\"Read the requirements from 'requirements' context and the implementation from 'code' context using get_context_value. Generate comprehensive test cases using a simple testing approach (no framework needed). Use set_context_value to store the test code in the 'tests' context node with key 'testCode' as a string.\""
+          "value": "Read the requirements from 'requirements' context and the implementation from 'code' context using get_context_value. Generate comprehensive test cases using a simple testing approach (no framework needed). Use set_context_value to store the test code in the 'tests' context node with key 'testCode' as a string."
         }
       ]
     },
@@ -264,12 +264,12 @@ namespace contexts {
         {
           "name": "testCode",
           "type": "string",
-          "value": "\"\""
+          "value": ""
         },
         {
           "name": "framework",
           "type": "string",
-          "value": "\"vanilla\""
+          "value": "vanilla"
         }
       ]
     },
@@ -283,7 +283,7 @@ namespace contexts {
         },
         {
           "name": "prompt",
-          "value": "\"Read the requirements, code implementation, and tests from their respective context nodes using get_context_value. Generate markdown documentation including: function signature, description, parameters, return value, examples, and how to run tests. Use set_context_value to store the documentation in the 'documentation' context node with key 'markdown' as a string.\""
+          "value": "Read the requirements, code implementation, and tests from their respective context nodes using get_context_value. Generate markdown documentation including: function signature, description, parameters, return value, examples, and how to run tests. Use set_context_value to store the documentation in the 'documentation' context node with key 'markdown' as a string."
         }
       ]
     },
@@ -294,12 +294,12 @@ namespace contexts {
         {
           "name": "markdown",
           "type": "string",
-          "value": "\"\""
+          "value": ""
         },
         {
           "name": "format",
           "type": "string",
-          "value": "\"markdown\""
+          "value": "markdown"
         }
       ]
     },
@@ -313,7 +313,7 @@ namespace contexts {
         },
         {
           "name": "prompt",
-          "value": "\"Review the generated code, tests, and documentation from their context nodes using get_context_value. Check for completeness and quality. If everything looks good, use set_context_value to store a validation summary in 'validation_result' context with key 'status' as 'passed' and 'summary' with any notes. Then use the transition tool to move to 'complete'.\""
+          "value": "Review the generated code, tests, and documentation from their context nodes using get_context_value. Check for completeness and quality. If everything looks good, use set_context_value to store a validation summary in 'validation_result' context with key 'status' as 'passed' and 'summary' with any notes. Then use the transition tool to move to 'complete'."
         }
       ]
     },
@@ -324,12 +324,12 @@ namespace contexts {
         {
           "name": "status",
           "type": "string",
-          "value": "\"pending\""
+          "value": "pending"
         },
         {
           "name": "summary",
           "type": "string",
-          "value": "\"\""
+          "value": ""
         }
       ]
     },
@@ -339,7 +339,7 @@ namespace contexts {
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Code generation workflow completed successfully\""
+          "value": "Code generation workflow completed successfully"
         }
       ]
     }
