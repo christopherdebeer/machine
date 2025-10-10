@@ -3,6 +3,8 @@ import { defineConfig } from 'vite';
 import * as path from 'path';
 import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import react from '@vitejs/plugin-react';
+import mdx from '@mdx-js/rollup';
 
 export default defineConfig(() => {
     const config = {
@@ -24,12 +26,15 @@ export default defineConfig(() => {
                     libraries: path.resolve(__dirname, 'libraries.html'),
                     blog: path.resolve(__dirname, 'blog.html'),
                     events: path.resolve(__dirname, 'events.html'),
+                    'language-overview': path.resolve(__dirname, 'language-overview.html'),
                 },
             },
             outDir: 'dist'
         },
 
         plugins: [
+            { enforce: 'pre', ...mdx() },
+            react(),
             viteStaticCopy({
                 targets: [
                     {
