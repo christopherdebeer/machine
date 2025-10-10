@@ -71,6 +71,11 @@ export default defineConfig(() => {
                     {
                         src: 'examples/phase3',
                         dest: 'examples'
+
+                    },
+                    {
+                        src: 'examples/phase4',
+                        dest: 'examples'
                     },
                     {
                         src: 'examples/stress',
