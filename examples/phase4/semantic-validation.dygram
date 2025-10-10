@@ -1,0 +1,91 @@
+machine "Phase 4: Semantic Validation Examples"
+
+// ========== Valid Node Type Usage ==========
+
+// Init nodes: Entry points with outgoing edges
+init start {
+    desc: "Proper init node with transitions";
+}
+
+// Task nodes: Active operations
+task processData @Async {
+    desc: "Asynchronous data processing";
+    timeout<number>: 5000;
+}
+
+task transformData {
+    desc: "Transform data synchronously";
+}
+
+// State nodes: Passive conditions/outcomes
+state DataReady {
+    desc: "Data is ready for next step";
+}
+
+state Complete {
+    desc: "Process completed successfully";
+}
+
+// Context nodes: Configuration (no execution edges)
+context appConfig @Singleton {
+    apiUrl<string>: "https://api.example.com";
+    debug<boolean>: false;
+}
+
+// ========== Valid Annotation Usage ==========
+
+// @Abstract on base tasks
+task BaseProcessor @Abstract {
+    desc: "Base processor class";
+    version<string>: "1.0";
+}
+
+// @Singleton on services and contexts
+task DatabaseService @Singleton {
+    desc: "Database connection service";
+}
+
+context serviceConfig @Singleton {
+    connectionString<string>: "localhost:5432";
+}
+
+// @Async on tasks that perform async operations
+task fetchFromAPI @Async {
+    desc: "Fetches data from external API";
+    endpoint<string>: "{{ appConfig.apiUrl }}";
+}
+
+// @Critical on important nodes
+task validatePayment @Critical {
+    desc: "Critical payment validation step";
+}
+
+// @Deprecated with migration message
+task oldProcessor @Deprecated("Use transformData instead") {
+    desc: "Legacy processor - do not use";
+}
+
+// ========== Valid Inheritance Relationships ==========
+
+// Inheritance between same node types
+task SpecificProcessor {
+    desc: "Concrete implementation";
+}
+
+BaseProcessor <|-- SpecificProcessor;  // ✅ Valid: Both are tasks
+
+// ========== Valid Execution Flow ==========
+
+// Init node with outgoing edges
+start -> processData;
+
+// Task execution flow
+processData -> DataReady;
+DataReady -> transformData;
+transformData -> Complete;
+
+// Template variable usage (creates inferred dependencies)
+task useConfig {
+    apiCall<string>: "Call {{ appConfig.apiUrl }}";
+    debugMode<boolean>: false;
+}

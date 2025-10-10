@@ -1,6 +1,8 @@
 import { ValidationRegistry, type ValidationAcceptor, type ValidationChecks } from 'langium';
-import type { MachineAstType, Machine, Node, EdgeSegment } from './generated/ast.js';
+import type { MachineAstType, Machine, Node, EdgeSegment, Attribute } from './generated/ast.js';
 import type { MachineServices } from './machine-module.js';
+import { TypeChecker } from './type-checker.js';
+import { GraphValidator } from './graph-validator.js';
 
 /**
  * Registry for validation checks.
@@ -14,9 +16,23 @@ export class MachineValidationRegistry extends ValidationRegistry {
                 validator.checkMachineStartsWithCapital.bind(validator),
                 validator.checkDuplicateStates.bind(validator),
                 validator.checkInvalidStateReferences.bind(validator),
+                // Phase 4: Graph validation
+                validator.checkGraphStructure.bind(validator),
+                // Phase 4: Semantic validation
+                validator.checkNodeTypeSemantics.bind(validator),
+                validator.checkRelationshipSemantics.bind(validator),
             ],
             EdgeSegment: [
                 validator.checkMultiplicityFormat.bind(validator),
+            ],
+            Node: [
+                // Phase 4: Semantic validation
+                validator.checkNodeAnnotationCompatibility.bind(validator),
+            ],
+            Attribute: [
+                // Phase 4: Type checking
+                validator.checkAttributeTypeCompatibility.bind(validator),
+                validator.checkGenericTypeValidity.bind(validator),
             ],
         };
         this.register(checks, validator);
@@ -127,5 +143,277 @@ export class MachineValidator {
 
         validateMultiplicity(segment.sourceMultiplicity, 'source');
         validateMultiplicity(segment.targetMultiplicity, 'target');
+    }
+
+    // ========== Phase 4: Type Checking ==========
+
+    /**
+     * Phase 4.13: Check attribute type compatibility
+     */
+    checkAttributeTypeCompatibility(attr: Attribute, accept: ValidationAcceptor): void {
+        if (!attr.type) return;
+
+        // Get the machine from the attribute's container
+        const machine = this.getMachineFromAttribute(attr);
+        if (!machine) return;
+
+        const typeChecker = new TypeChecker(machine);
+        const result = typeChecker.validateAttributeType(attr);
+
+        if (!result.valid && result.message) {
+            // Determine the appropriate property to highlight
+            const property = attr.value ? 'value' : 'type';
+            accept('error', result.message, { node: attr, property });
+        }
+    }
+
+    /**
+     * Phase 4.13: Validate generic type syntax
+     */
+    checkGenericTypeValidity(attr: Attribute, accept: ValidationAcceptor): void {
+        if (!attr.type) return;
+
+        // Get the machine from the attribute's container
+        const machine = this.getMachineFromAttribute(attr);
+        if (!machine) return;
+
+        const typeChecker = new TypeChecker(machine);
+
+        // Convert TypeDef to string for validation
+        const typeStr = this.typeDefToString(attr.type);
+        const result = typeChecker.validateGenericType(typeStr);
+
+        if (!result.valid && result.message) {
+            accept('error', result.message, { node: attr, property: 'type' });
+        }
+    }
+
+    /**
+     * Helper to convert TypeDef to string
+     */
+    private typeDefToString(typeDef: any): string {
+        if (typeof typeDef === 'string') {
+            return typeDef;
+        }
+
+        if (!typeDef || !typeDef.base) {
+            return 'any';
+        }
+
+        let result = typeDef.base;
+
+        if (typeDef.generics && typeDef.generics.length > 0) {
+            const genericStrs = typeDef.generics.map((g: any) => this.typeDefToString(g));
+            result += '<' + genericStrs.join(', ') + '>';
+        }
+
+        return result;
+    }
+
+    /**
+     * Helper to get Machine from Attribute
+     */
+    private getMachineFromAttribute(attr: Attribute): Machine | null {
+        let current: any = attr.$container;
+
+        while (current) {
+            if (current.$type === 'Machine') {
+                return current as Machine;
+            }
+            current = current.$container;
+        }
+
+        return null;
+    }
+
+    // ========== Phase 4: Graph Validation ==========
+
+    /**
+     * Phase 4.14: Validate graph structure
+     */
+    checkGraphStructure(machine: Machine, accept: ValidationAcceptor): void {
+        const graphValidator = new GraphValidator(machine);
+        const result = graphValidator.validate();
+
+        // Report unreachable nodes
+        if (result.unreachableNodes && result.unreachableNodes.length > 0) {
+            accept('warning',
+                `Unreachable nodes detected: ${result.unreachableNodes.join(', ')}. These nodes cannot be reached from entry points.`,
+                { node: machine, property: 'nodes' }
+            );
+        }
+
+        // Report orphaned nodes
+        if (result.orphanedNodes && result.orphanedNodes.length > 0) {
+            accept('warning',
+                `Orphaned nodes detected: ${result.orphanedNodes.join(', ')}. These nodes have no incoming or outgoing edges.`,
+                { node: machine, property: 'nodes' }
+            );
+        }
+
+        // Report cycles
+        if (result.cycles && result.cycles.length > 0) {
+            result.cycles.forEach((cycle, index) => {
+                accept('warning',
+                    `Cycle ${index + 1} detected: ${cycle.join(' → ')}. This may lead to infinite loops.`,
+                    { node: machine, property: 'edges' }
+                );
+            });
+        }
+
+        // Report missing entry points
+        if (result.missingEntryPoints) {
+            accept('warning',
+                'No entry points found. Consider adding an init node or a node with no incoming edges.',
+                { node: machine, property: 'nodes' }
+            );
+        }
+    }
+
+    // ========== Phase 4: Semantic Validation ==========
+
+    /**
+     * Phase 4.15: Validate node type semantics
+     */
+    checkNodeTypeSemantics(machine: Machine, accept: ValidationAcceptor): void {
+        const processNode = (node: Node) => {
+            // Rule 1: init nodes should have outgoing edges
+            if (node.type === 'init') {
+                const hasOutgoingEdges = machine.edges.some(edge =>
+                    edge.source.some(s => s.$refText === node.name || s.ref?.name === node.name)
+                );
+
+                if (!hasOutgoingEdges) {
+                    accept('warning',
+                        `Init node '${node.name}' has no outgoing edges. Init nodes should transition to other nodes.`,
+                        { node, property: 'type' }
+                    );
+                }
+            }
+
+            // Rule 2: context nodes shouldn't have incoming edges (they're configuration)
+            if (node.type === 'context') {
+                const hasIncomingEdges = machine.edges.some(edge =>
+                    edge.segments.some(segment =>
+                        segment.target.some(t => t.$refText === node.name || t.ref?.name === node.name)
+                    )
+                );
+
+                if (hasIncomingEdges) {
+                    accept('warning',
+                        `Context node '${node.name}' has incoming edges. Context nodes typically represent configuration and should not be targets of edges.`,
+                        { node, property: 'type' }
+                    );
+                }
+            }
+
+            // Recursively check child nodes
+            node.nodes.forEach(child => processNode(child));
+        };
+
+        machine.nodes.forEach(node => processNode(node));
+    }
+
+    /**
+     * Phase 4.15: Validate relationship semantics
+     */
+    checkRelationshipSemantics(machine: Machine, accept: ValidationAcceptor): void {
+        // Build node type map
+        const nodeTypes = new Map<string, string>();
+        const collectNodeTypes = (node: Node) => {
+            nodeTypes.set(node.name, node.type || 'task');
+            node.nodes.forEach(child => collectNodeTypes(child));
+        };
+        machine.nodes.forEach(node => collectNodeTypes(node));
+
+        // Validate edges based on arrow types
+        machine.edges.forEach(edge => {
+            edge.segments.forEach(segment => {
+                // Get arrow type from segment
+                const arrowType = this.getArrowTypeFromSegment(segment);
+
+                if (arrowType === '<|--') {
+                    // Inheritance relationship
+                    // Both source and target should be the same type or compatible types
+                    edge.source.forEach(source => {
+                        segment.target.forEach(target => {
+                            const sourceName = source.$refText || source.ref?.name;
+                            const targetName = target.$refText || target.ref?.name;
+
+                            if (!sourceName || !targetName) return;
+
+                            const sourceType = nodeTypes.get(sourceName);
+                            const targetType = nodeTypes.get(targetName);
+
+                            // Inheritance should typically be between same types
+                            if (sourceType && targetType && sourceType !== targetType) {
+                                accept('warning',
+                                    `Inheritance relationship from '${sourceName}' (${sourceType}) to '${targetName}' (${targetType}). Inheritance typically occurs between nodes of the same type.`,
+                                    { node: segment, property: 'target' }
+                                );
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    }
+
+    /**
+     * Phase 4.15: Check annotation compatibility with node types
+     */
+    checkNodeAnnotationCompatibility(node: Node, accept: ValidationAcceptor): void {
+        if (!node.annotations || node.annotations.length === 0) return;
+
+        node.annotations.forEach(annotation => {
+            const annotationName = annotation.name;
+
+            // @Async annotation should only be on task nodes
+            if (annotationName === 'Async' && node.type !== 'task') {
+                accept('warning',
+                    `@Async annotation is typically used only on task nodes, but '${node.name}' is of type '${node.type}'.`,
+                    { node: annotation, property: 'name' }
+                );
+            }
+
+            // @Singleton annotation makes sense for context or service nodes
+            if (annotationName === 'Singleton' && node.type === 'state') {
+                accept('warning',
+                    `@Singleton annotation on state node '${node.name}' may not be meaningful. Consider using it on task or context nodes.`,
+                    { node: annotation, property: 'name' }
+                );
+            }
+
+            // @Abstract annotation with init nodes doesn't make sense
+            if (annotationName === 'Abstract' && node.type === 'init') {
+                accept('error',
+                    `@Abstract annotation cannot be used on init node '${node.name}'. Init nodes are concrete entry points.`,
+                    { node: annotation, property: 'name' }
+                );
+            }
+        });
+    }
+
+    /**
+     * Helper to get arrow type from edge segment
+     */
+    private getArrowTypeFromSegment(segment: EdgeSegment): string {
+        // Try to get arrow type from the segment's CST node
+        const cstNode = segment.$cstNode;
+        if (cstNode) {
+            const text = cstNode.text;
+
+            // Check for different arrow types
+            if (text.includes('<|--')) return '<|--';
+            if (text.includes('*-->')) return '*-->';
+            if (text.includes('o-->')) return 'o-->';
+            if (text.includes('<-->')) return '<-->';
+            if (text.includes('-->')) return '-->';
+            if (text.includes('..>')) return '..>';
+            if (text.includes('=>')) return '=>';
+            if (text.includes('->')) return '->';
+        }
+
+        return '->';  // Default to association
     }
 }

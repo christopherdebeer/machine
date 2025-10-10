@@ -1,0 +1,60 @@
+machine "Phase 4: Graph Validation Examples"
+
+// ========== Valid Graph Structure ==========
+
+// Clear entry point
+init start {
+    desc: "Entry point for execution";
+}
+
+// Connected execution flow
+task fetchData {
+    desc: "Fetch data from API";
+}
+
+task processData {
+    desc: "Process the fetched data";
+}
+
+task saveData {
+    desc: "Save processed data";
+}
+
+// Clear exit points
+state Success {
+    desc: "Successful completion";
+}
+
+state Error {
+    desc: "Error occurred";
+}
+
+// Valid flow: start -> fetch -> process -> save -> success/error
+start -> fetchData;
+fetchData -> processData;
+processData -> saveData;
+saveData -> Success;
+saveData -> Error;
+
+// ========== Demonstrating Cycle Detection ==========
+
+task retryLoop {
+    desc: "Task with retry mechanism";
+}
+
+task checkStatus {
+    desc: "Check if retry is needed";
+}
+
+// This creates a cycle (intentional for retry logic)
+retryLoop -> checkStatus;
+checkStatus -> retryLoop;  // Cycle: retryLoop -> checkStatus -> retryLoop
+// Note: Cycles are detected but may be intentional for retry logic
+
+// ========== Configuration Context ==========
+
+context config {
+    // Context nodes are excluded from reachability checks
+    maxRetries<number>: 3;
+    timeout<number>: 5000;
+}
