@@ -171,15 +171,15 @@ export async function loadDynamicExamples(): Promise<void> {
                             },
                         });
 
-                        // Update diagram source display immediately when example is switched
-                        const outputElement = document.getElementById('outputInfo');
-                        const diagramElement = document.getElementById('diagram');
-                        if (outputElement) {
-                            // // Auto-execute the new example to update diagram source
-                            // setTimeout(() => {
-                            //     executeCode(examples[key], outputElement, diagramElement);
-                            // }, 100);
-                        }
+                        // // Update diagram source display immediately when example is switched
+                        // const outputElement = document.getElementById('outputInfo');
+                        // const diagramElement = document.getElementById('diagram');
+                        // if (outputElement) {
+                        //     // // Auto-execute the new example to update diagram source
+                        //     // setTimeout(() => {
+                        //     //     executeCode(examples[key], outputElement, diagramElement);
+                        //     // }, 100);
+                        // }
                     }
                 });
             }
@@ -472,11 +472,8 @@ export function setupCodeMirrorPlayground(): void {
  * This function safely extracts data from the Langium AST without circular references
  */
 function convertToMachineData(machine: Machine): any {
-    const nodes: any[] = [];
-    const edges: any[] = [];
-
     const json = generateJSON(machine)
-    console.log("JSON", json.content)
+    console.log("convertToMachineData JSON", json.content)
     return JSON.parse(json.content);
 }
 

@@ -13,7 +13,7 @@ interface GeneratorOptions {
 }
 
 export interface FileGenerationResult {
-    filePath: string;
+    filePath?: string;
     content: string;
 }
 
@@ -844,7 +844,7 @@ class HTMLGenerator extends BaseGenerator {
     protected fileExtension = 'html';
 
     protected generateContent(): FileGenerationResult {
-        const webExecutorPath = path.join(path.dirname(this.filePath), '..', 'out', 'extension', 'web', 'machine-executor-web.js');
+        const webExecutorPath = path.join(path.dirname(this.filePath || ''), '..', 'out', 'extension', 'web', 'machine-executor-web.js');
         const mermaidGen = new MermaidGenerator(this.machine, this.filePath, this.options);
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
         const jsonContent = jsonGen.generate();
