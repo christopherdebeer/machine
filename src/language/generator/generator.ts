@@ -27,7 +27,10 @@ abstract class BaseGenerator {
 
     public generate(): FileGenerationResult {
         const result = this.generateContent();
-        if (this.options.destination) this.writeToFile(result);
+        // Only write to file if destination is explicitly provided as a string
+        if (typeof this.options.destination === 'string') {
+            this.writeToFile(result);
+        }
         return result;
     }
 
@@ -35,6 +38,12 @@ abstract class BaseGenerator {
 
     protected writeToFile(result: FileGenerationResult): string {
         const data = extractDestinationAndName(this.filePath, this.options.destination);
+        
+        // Ensure we have valid string values for path.join
+        if (typeof data.destination !== 'string' || typeof data.name !== 'string') {
+            throw new Error(`Invalid file path data: destination=${data.destination}, name=${data.name}`);
+        }
+        
         const generatedFilePath = `${path.join(data.destination, data.name)}.${this.fileExtension}`;
 
         if (!fs.existsSync(data.destination)) {
@@ -355,11 +364,13 @@ class MermaidGenerator extends BaseGenerator {
     /**
      * Convert generic types from angle brackets to Mermaid tildes
      * e.g., "Promise<Result>" → "Promise~Result~"
+     * Handles nested generics: "Promise<Array<Record>>" → "Promise~Array~Record~~"
      */
     private convertTypeToMermaid(typeStr: string): string {
         if (!typeStr || typeof typeStr !== 'string') return '';
-        // Replace < and > with ~ for Mermaid generic types
-        return typeStr.replace(/<([^>]+)>/g, '~$1~');
+        // Replace all < and > with ~ for Mermaid generic types
+        // This handles nested generics correctly
+        return typeStr.replace(/</g, '~').replace(/>/g, '~');
     }
 
     protected generateContent(): FileGenerationResult {

@@ -11,10 +11,10 @@ const parse = parseHelper<Machine>(services);
 async function generateMermaidFromModel(model: Machine, filePath: string, options: any) {
     const json = await generateJSON(model, filePath, options);
     const mermaid = await generateMermaid(model, filePath, options);
-    return { json, mermaid };
+    return { json: json.content, mermaid: mermaid.content };
 }
 
-describe.skip('Phase 3: Note Generation', () => {
+describe('Phase 3: Note Generation', () => {
     it('should include notes in JSON output', async () => {
         const input = `
             machine "Test"
@@ -77,7 +77,7 @@ describe.skip('Phase 3: Note Generation', () => {
     });
 });
 
-describe.skip('Phase 3: Generic Type Generation', () => {
+describe('Phase 3: Generic Type Generation', () => {
     it('should serialize generic types as strings', async () => {
         const input = `
             machine "Test"
@@ -163,7 +163,7 @@ describe.skip('Phase 3: Generic Type Generation', () => {
     });
 });
 
-describe.skip('Phase 3: Combined Feature Generation', () => {
+describe('Phase 3: Combined Feature Generation', () => {
     it('should generate notes and generic types together', async () => {
         const input = `
             machine "Test"
@@ -278,7 +278,7 @@ describe.skip('Phase 3: Combined Feature Generation', () => {
     });
 });
 
-describe.skip('Phase 3: Mermaid Output Quality', () => {
+describe('Phase 3: Mermaid Output Quality', () => {
     it('should produce valid Mermaid syntax with notes', async () => {
         const input = `
             machine "Test"

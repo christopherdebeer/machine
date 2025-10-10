@@ -44,21 +44,23 @@ describe('Linking tests', () => {
         expect(edge.segments[0].target[0].ref?.name).toBe('State2');
     });
 
-    test.skip('linking of non-existent nodes shows errors', async () => {
+    test('linking of non-existent nodes shows errors', async () => {
         document = await parse(`
             machine "Test Machine"
 
             State1;
             State1 --> NonExistentState;
-        `);
+        `, { validation: true });
 
         const errors = checkDocumentValid(document);
         if (errors) {
             expect(errors).toBeUndefined();
             return;
         }
-        console.log(document)
+        
         // We expect validation errors for the non-existent state
+        expect(document.diagnostics).toBeDefined();
+        expect(document.diagnostics?.length).toBeGreaterThan(0);
         expect(document.diagnostics?.some(d =>
             d.message.includes('Reference to undefined state: NonExistentState')
         )).toBe(true);

@@ -411,30 +411,6 @@ function handleRecovery(action: RecoveryAction, errors: ValidationError[]) {
 }
 ```
 
-## Codex Feedback Fix
-
-The primary issue addressed by this system was the early return in attribute validation:
-
-**Before:**
-```typescript
-checkAttributeTypeCompatibility(attr: Attribute, accept: ValidationAcceptor): void {
-    if (!attr.type || !attr.value) return;  // ❌ Bypasses validation
-    // ...
-}
-```
-
-**After:**
-```typescript
-checkAttributeTypeCompatibility(attr: Attribute, accept: ValidationAcceptor): void {
-    if (!attr.type) return;  // ✅ Only skip if no type annotation
-
-    // TypeChecker now handles missing values correctly
-    const result = typeChecker.validateAttributeType(attr);
-    // ...
-}
-```
-
-This ensures that attributes like `count<number>;` (with type but no value) are properly validated and flagged as errors unless the type is optional (`count<number?>;`).
 
 ## API Reference
 
