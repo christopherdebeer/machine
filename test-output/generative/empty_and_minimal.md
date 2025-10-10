@@ -18,7 +18,7 @@ classDiagram-v2
     class a {
     
   }
-  undefined
+  
   
   
 

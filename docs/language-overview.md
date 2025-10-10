@@ -163,8 +163,46 @@ start -"ユーザーイベント"-> process;
 ```
 [Example: examples/complex/unicode-machine.dygram](../examples/complex/unicode-machine.dygram)
 
+## Advanced Features
+
+DyGram includes powerful features for expressing complex relationships and validating your state machines:
+
+- **Relationship Types** - Use semantic arrows (`->`, `-->`, `<|--`, `*-->`, `o-->`, `<-->`, `=>`) to express different relationships
+- **Multiplicity** - Specify cardinality (`"1"`, `"*"`, `"0..1"`, `"1..*"`) for quantitative relationships
+- **Annotations** - Add metadata with `@Abstract`, `@Singleton`, `@Async`, `@Deprecated`, `@Critical`
+- **Dependency Inference** - Automatically detect dependencies from `{{ template.variables }}`
+- **Generic Types** - Use parameterized types like `Promise<Result>`, `Array<Record>`, `Map<K,V>`
+- **Documentation Notes** - Attach explanatory notes with `note for node "content"`
+- **Type Checking** - Validate attribute types and infer types from values
+- **Graph Validation** - Detect unreachable nodes, cycles, orphans, and structural issues
+- **Semantic Validation** - Enforce node type rules and annotation compatibility
+
+**Example:**
+```dygram
+machine "Advanced Example"
+
+context Config @Singleton {
+    apiKey<string>: "secret";
+}
+
+task BaseHandler @Abstract;
+task APIHandler @Async {
+    response<Promise<Response>>: null;
+}
+
+BaseHandler <|-- APIHandler;
+APIHandler --> Config;  // Dependency
+
+note for APIHandler "Handles API requests asynchronously.
+Uses {{ Config.apiKey }} for authentication."
+```
+
+See [Advanced Features](advanced-features.md) for comprehensive documentation.
+
 ## Next Steps
 
 - Read the [Syntax Guide](syntax-guide.md) for complete syntax details
+- Explore [Advanced Features](advanced-features.md) for relationship types, validation, and more
 - Browse the [Examples Index](examples-index.md) for more patterns
-- Learn about [Testing Approach](testing-approach.md) for validation methodology
+- Learn about [Runtime & Evolution](runtime-and-evolution.md) for execution details
+- Check [Testing Approach](testing-approach.md) for validation methodology

@@ -28,7 +28,7 @@ classDiagram-v2
   class node3 {
     
   }
-  undefined
+  
   
   
 

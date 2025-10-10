@@ -57,7 +57,7 @@ classDiagram-v2
     +env : string = production
 +maxRetries : number = 3
 +debug : boolean = false
-+tags = generated,test
++tags = ["generated", "test"]
   }
 
   class startup["System Start"] {
@@ -134,7 +134,7 @@ namespace states {
         {
           "name": "env",
           "type": "string",
-          "value": "\"production\""
+          "value": "production"
         },
         {
           "name": "maxRetries",
@@ -148,10 +148,7 @@ namespace states {
         },
         {
           "name": "tags",
-          "value": [
-            "generated",
-            "test"
-          ]
+          "value": "[\"generated\", \"test\"]"
         }
       ]
     },
@@ -161,7 +158,7 @@ namespace states {
       "attributes": [
         {
           "name": "priority",
-          "value": "\"high\""
+          "value": "high"
         },
         {
           "name": "timeout",

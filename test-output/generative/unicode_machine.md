@@ -53,7 +53,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Starting point 开始\""
+          "value": "Starting point 开始"
         }
       ],
       "title": "開始"
@@ -63,7 +63,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "desc",
-          "value": "\"Processing 处理\""
+          "value": "Processing 处理"
         }
       ],
       "title": "処理"

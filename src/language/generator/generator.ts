@@ -529,6 +529,8 @@ ${indent}}`);
     }
 
     private generateEdges(edges: Edge[]): string {
+        // Return empty string if no edges
+        if (!edges || edges.length === 0) return '';
 
         const result = joinToNode(edges, edge => {
             const edgeValue = edge.value || {};
@@ -768,6 +770,8 @@ ${indent}}`);
     }
 
     private generateEdges(edges: Edge[]): string {
+        // Return empty string if no edges
+        if (!edges || edges.length === 0) return '';
 
         const result = joinToNode(edges, edge => {
             const edgeValue = edge.value || {};

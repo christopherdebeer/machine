@@ -84,7 +84,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "setting",
-          "value": "\"value\""
+          "value": "value"
         }
       ]
     },

@@ -36,14 +36,14 @@ classDiagram-v2
     +name : string = Primary Node
 +count : number = 42
 +enabled : boolean = true
-+items = alpha,beta,gamma
++items = ["alpha", "beta", "gamma"]
 +ratio : number = 3.14159
 +status = active
   }
 
   class node2 {
     
-    +config = opt1,opt2,opt3
+    +config = ["opt1", "opt2", "opt3"]
 +maxValue : number = 99999
 +minValue : number = 0
 +description : string = This is a very long description that contains multiple words<br/>and should be preserved exactly as written in the<br/>transformation pipeline
@@ -65,7 +65,7 @@ classDiagram-v2
         {
           "name": "name",
           "type": "string",
-          "value": "\"Primary Node\""
+          "value": "Primary Node"
         },
         {
           "name": "count",
@@ -79,11 +79,7 @@ classDiagram-v2
         },
         {
           "name": "items",
-          "value": [
-            "alpha",
-            "beta",
-            "gamma"
-          ]
+          "value": "[\"alpha\", \"beta\", \"gamma\"]"
         },
         {
           "name": "ratio",
@@ -92,7 +88,7 @@ classDiagram-v2
         },
         {
           "name": "status",
-          "value": "\"active\""
+          "value": "active"
         }
       ]
     },
@@ -101,11 +97,7 @@ classDiagram-v2
       "attributes": [
         {
           "name": "config",
-          "value": [
-            "opt1",
-            "opt2",
-            "opt3"
-          ]
+          "value": "[\"opt1\", \"opt2\", \"opt3\"]"
         },
         {
           "name": "maxValue",
@@ -120,7 +112,7 @@ classDiagram-v2
         {
           "name": "description",
           "type": "string",
-          "value": "\"This is a very long description that contains multiple words and should be preserved exactly as written in the transformation pipeline\""
+          "value": "This is a very long description that contains multiple words and should be preserved exactly as written in the transformation pipeline"
         }
       ]
     }

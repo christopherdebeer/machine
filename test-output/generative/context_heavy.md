@@ -39,7 +39,7 @@ classDiagram-v2
 +version : string = 2.0.1
 +debug : boolean = false
 +maxConnections : number = 1000
-+features = auth,logging,metrics
++features = ["auth", "logging", "metrics"]
   }
 
   class userPrefs {
@@ -75,12 +75,12 @@ classDiagram-v2
         {
           "name": "environment",
           "type": "string",
-          "value": "\"production\""
+          "value": "production"
         },
         {
           "name": "version",
           "type": "string",
-          "value": "\"2.0.1\""
+          "value": "2.0.1"
         },
         {
           "name": "debug",
@@ -94,11 +94,7 @@ classDiagram-v2
         },
         {
           "name": "features",
-          "value": [
-            "auth",
-            "logging",
-            "metrics"
-          ]
+          "value": "[\"auth\", \"logging\", \"metrics\"]"
         }
       ]
     },
@@ -109,12 +105,12 @@ classDiagram-v2
         {
           "name": "theme",
           "type": "string",
-          "value": "\"dark\""
+          "value": "dark"
         },
         {
           "name": "language",
           "type": "string",
-          "value": "\"en-US\""
+          "value": "en-US"
         },
         {
           "name": "notifications",

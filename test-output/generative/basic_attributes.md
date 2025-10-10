@@ -27,10 +27,10 @@ classDiagram-v2
     +stringAttr : string = test value
 +numberAttr : number = 42.5
 +boolAttr : boolean = true
-+arrayAttr = a,b,c
++arrayAttr = ["a", "b", "c"]
 +untypedAttr = untyped
   }
-  undefined
+  
   
   
 
@@ -47,7 +47,7 @@ classDiagram-v2
         {
           "name": "stringAttr",
           "type": "string",
-          "value": "\"test value\""
+          "value": "test value"
         },
         {
           "name": "numberAttr",
@@ -61,19 +61,15 @@ classDiagram-v2
         },
         {
           "name": "arrayAttr",
-          "value": [
-            "a",
-            "b",
-            "c"
-          ]
+          "value": "[\"a\", \"b\", \"c\"]"
         },
         {
           "name": "untypedAttr",
-          "value": "\"untyped\""
+          "value": "untyped"
         },
         {
           "name": "prompt",
-          "value": "\"an llm prompt\""
+          "value": "an llm prompt"
         }
       ]
     }
