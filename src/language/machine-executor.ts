@@ -16,6 +16,7 @@ import { compilePrompt, TaskPromptContext, TASK_PROMPT_TEMPLATES } from './promp
 
 export interface MachineExecutionContext {
     currentNode: string;
+    currentTaskNode?: string; // Track the current task node for context permission checks
     visitedNodes: Set<string>;
     attributes: Map<string, any>;
     history: Array<{
@@ -333,19 +334,98 @@ export class MachineExecutor {
     }
 
     /**
-     * Generate context management tools for working with context nodes
+     * Get context nodes accessible from a given task node based on explicit edges
      */
-    private generateContextTools(): ToolDefinition[] {
-        return [
-            {
+    private getAccessibleContextNodes(taskNodeName: string): Map<string, { canRead: boolean; canWrite: boolean }> {
+        const accessMap = new Map<string, { canRead: boolean; canWrite: boolean }>();
+
+        // Find all edges from the task node to context nodes
+        const outboundEdges = this.machineData.edges.filter(edge => edge.source === taskNodeName);
+
+        for (const edge of outboundEdges) {
+            const targetNode = this.machineData.nodes.find(n => n.name === edge.target);
+
+            // Check if target is a context node
+            if (targetNode && this.isContextNode(targetNode)) {
+                const edgeType = edge.type?.toLowerCase() || edge.label?.toLowerCase() || '';
+
+                // Determine permissions based on edge type/label
+                // Default: edges grant read access
+                // Write access: edge types containing 'write', 'store', 'create', 'update', 'set'
+                const canWrite = /write|store|create|update|set|calculate/.test(edgeType);
+                const canRead = true; // All edges grant read access by default
+
+                accessMap.set(edge.target, { canRead, canWrite });
+
+                console.log(`🔐 Context access: ${taskNodeName} -> ${edge.target} (read: ${canRead}, write: ${canWrite}, edge: ${edgeType})`);
+            }
+        }
+
+        // Also check inbound edges from context to task (for reading context)
+        const inboundEdges = this.machineData.edges.filter(edge => edge.target === taskNodeName);
+
+        for (const edge of inboundEdges) {
+            const sourceNode = this.machineData.nodes.find(n => n.name === edge.source);
+
+            // Check if source is a context node
+            if (sourceNode && this.isContextNode(sourceNode)) {
+                // Inbound edges from context grant read-only access
+                if (!accessMap.has(edge.source)) {
+                    accessMap.set(edge.source, { canRead: true, canWrite: false });
+                    console.log(`🔐 Context access: ${edge.source} -> ${taskNodeName} (read: true, write: false)`);
+                }
+            }
+        }
+
+        return accessMap;
+    }
+
+    /**
+     * Check if a node is a context node
+     */
+    private isContextNode(node: { name: string; type?: string }): boolean {
+        return node.type?.toLowerCase() === 'context' ||
+               node.name.toLowerCase().includes('context') ||
+               node.name.toLowerCase().includes('output') ||
+               node.name.toLowerCase().includes('input') ||
+               node.name.toLowerCase().includes('data') ||
+               node.name.toLowerCase().includes('result');
+    }
+
+    /**
+     * Generate context management tools for working with context nodes
+     * Now filtered based on explicit edges from the task node
+     */
+    private generateContextTools(taskNodeName: string): ToolDefinition[] {
+        const accessibleContexts = this.getAccessibleContextNodes(taskNodeName);
+        const tools: ToolDefinition[] = [];
+
+        // If no accessible contexts, return empty array
+        if (accessibleContexts.size === 0) {
+            console.log(`⚠️  No context nodes accessible from task '${taskNodeName}' (no explicit edges)`);
+            return [];
+        }
+
+        // Build list of accessible context node names
+        const readableContexts = Array.from(accessibleContexts.entries())
+            .filter(([_, perms]) => perms.canRead)
+            .map(([name, _]) => name);
+        const writableContexts = Array.from(accessibleContexts.entries())
+            .filter(([_, perms]) => perms.canWrite)
+            .map(([name, _]) => name);
+
+        // Add write tool if there are writable contexts
+        if (writableContexts.length > 0) {
+            tools.push({
                 name: 'set_context_value',
-                description: 'Set a value in a context node attribute with type validation',
+                description: `Set a value in a context node attribute with type validation. Accessible contexts: ${writableContexts.join(', ')}`,
                 input_schema: {
                     type: 'object',
                     properties: {
                         nodeName: {
                             type: 'string',
-                            description: 'Name of the context node to update'
+                            description: `Name of the context node to update. Must be one of: ${writableContexts.join(', ')}`,
+                            enum: writableContexts
                         },
                         attributeName: {
                             type: 'string',
@@ -358,16 +438,21 @@ export class MachineExecutor {
                     },
                     required: ['nodeName', 'attributeName', 'value']
                 }
-            },
-            {
+            });
+        }
+
+        // Add read tool if there are readable contexts
+        if (readableContexts.length > 0) {
+            tools.push({
                 name: 'get_context_value',
-                description: 'Get a value from a context node attribute',
+                description: `Get a value from a context node attribute. Accessible contexts: ${readableContexts.join(', ')}`,
                 input_schema: {
                     type: 'object',
                     properties: {
                         nodeName: {
                             type: 'string',
-                            description: 'Name of the context node to read from'
+                            description: `Name of the context node to read from. Must be one of: ${readableContexts.join(', ')}`,
+                            enum: readableContexts
                         },
                         attributeName: {
                             type: 'string',
@@ -376,16 +461,22 @@ export class MachineExecutor {
                     },
                     required: ['nodeName', 'attributeName']
                 }
-            },
-            {
+            });
+        }
+
+        // Add list tool (shows only accessible contexts)
+        if (accessibleContexts.size > 0) {
+            tools.push({
                 name: 'list_context_nodes',
-                description: 'List all context nodes and their current values',
+                description: `List context nodes accessible from this task. Accessible contexts: ${Array.from(accessibleContexts.keys()).join(', ')}`,
                 input_schema: {
                     type: 'object',
                     properties: {}
                 }
-            }
-        ];
+            });
+        }
+
+        return tools;
     }
 
     /**
@@ -583,6 +674,26 @@ export class MachineExecutor {
      * Set a value in a context node attribute with type validation
      */
     public setContextValue(nodeName: string, attributeName: string, value: any): any {
+        // Check permissions if we're executing from a task node
+        if (this.context.currentTaskNode) {
+            const accessMap = this.getAccessibleContextNodes(this.context.currentTaskNode);
+            const permissions = accessMap.get(nodeName);
+
+            if (!permissions) {
+                throw new Error(
+                    `Permission denied: Task '${this.context.currentTaskNode}' has no connection to context '${nodeName}'. ` +
+                    `Add an edge: ${this.context.currentTaskNode} -writes-> ${nodeName};`
+                );
+            }
+
+            if (!permissions.canWrite) {
+                throw new Error(
+                    `Permission denied: Task '${this.context.currentTaskNode}' can only read from context '${nodeName}'. ` +
+                    `To enable write access, use an edge like: ${this.context.currentTaskNode} -stores-> ${nodeName};`
+                );
+            }
+        }
+
         const node = this.machineData.nodes.find(n => n.name === nodeName);
         if (!node) {
             throw new Error(`Node ${nodeName} not found`);
@@ -626,6 +737,25 @@ export class MachineExecutor {
      * Get a value from a context node attribute
      */
     public getContextValue(nodeName: string, attributeName: string): any {
+        // Check permissions if we're executing from a task node
+        if (this.context.currentTaskNode) {
+            const accessMap = this.getAccessibleContextNodes(this.context.currentTaskNode);
+            const permissions = accessMap.get(nodeName);
+
+            if (!permissions) {
+                throw new Error(
+                    `Permission denied: Task '${this.context.currentTaskNode}' has no connection to context '${nodeName}'. ` +
+                    `Add an edge: ${this.context.currentTaskNode} -reads-> ${nodeName}; or ${nodeName} -> ${this.context.currentTaskNode};`
+                );
+            }
+
+            if (!permissions.canRead) {
+                throw new Error(
+                    `Permission denied: Task '${this.context.currentTaskNode}' cannot read from context '${nodeName}'.`
+                );
+            }
+        }
+
         const node = this.machineData.nodes.find(n => n.name === nodeName);
         if (!node) {
             throw new Error(`Node ${nodeName} not found`);
@@ -651,14 +781,22 @@ export class MachineExecutor {
 
     /**
      * List all context nodes and their current values
+     * Now filtered to only show accessible context nodes from the current task
      */
     public listContextNodes(): any {
-        const contextNodes = this.machineData.nodes.filter(n => 
-            n.type?.toLowerCase() === 'context' || 
+        let contextNodes = this.machineData.nodes.filter(n =>
+            n.type?.toLowerCase() === 'context' ||
             n.name.toLowerCase().includes('context') ||
             n.name.toLowerCase().includes('output') ||
             n.name.toLowerCase().includes('input')
         );
+
+        // Filter to only accessible contexts if we're executing from a task node
+        if (this.context.currentTaskNode) {
+            const accessMap = this.getAccessibleContextNodes(this.context.currentTaskNode);
+            const accessibleNames = Array.from(accessMap.keys());
+            contextNodes = contextNodes.filter(n => accessibleNames.includes(n.name));
+        }
 
         const nodeData = contextNodes.map(node => ({
             name: node.name,
@@ -789,14 +927,18 @@ export class MachineExecutor {
      */
     private async executeTaskNode(): Promise<{ output: string; nextNode?: string }> {
         console.log('🤖 executeTaskNode called for:', this.context.currentNode);
-        
+
         const node = this.machineData.nodes.find(n => n.name === this.context.currentNode);
         if (!node) {
             throw new Error(`Node ${this.context.currentNode} not found`);
         }
 
+        const nodeName = this.context.currentNode;
         const attributes = this.getCurrentNodeAttributes();
         const isMeta = attributes.meta === 'true' || attributes.meta === 'True';
+
+        // Set current task node for permission checks in tool handlers
+        this.context.currentTaskNode = nodeName;
 
         console.log('📋 Task node attributes:', attributes);
         console.log('🔧 LLM Client type:', this.llmClient.constructor.name);
@@ -815,8 +957,8 @@ export class MachineExecutor {
             tools.push(...this.generateMetaTools());
         }
 
-        // Always add context tools for working with context nodes
-        tools.push(...this.generateContextTools());
+        // Add context tools filtered by explicit edges from this task
+        tools.push(...this.generateContextTools(nodeName));
 
         console.log('🛠️ Generated tools:', tools.map(t => t.name));
 

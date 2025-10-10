@@ -3,6 +3,7 @@ import type { MachineAstType, Machine, Node, EdgeSegment, Attribute } from './ge
 import type { MachineServices } from './machine-module.js';
 import { TypeChecker } from './type-checker.js';
 import { GraphValidator } from './graph-validator.js';
+import { DependencyAnalyzer } from './dependency-analyzer.js';
 
 /**
  * Registry for validation checks.
@@ -21,6 +22,8 @@ export class MachineValidationRegistry extends ValidationRegistry {
                 // Phase 4: Semantic validation
                 validator.checkNodeTypeSemantics.bind(validator),
                 validator.checkRelationshipSemantics.bind(validator),
+                // Context access validation
+                validator.checkContextAccess.bind(validator),
             ],
             EdgeSegment: [
                 validator.checkMultiplicityFormat.bind(validator),
@@ -392,6 +395,90 @@ export class MachineValidator {
                 );
             }
         });
+    }
+
+    /**
+     * Check for missing explicit context access edges
+     * Warns when a task node references a context node in templates but has no explicit edge
+     */
+    checkContextAccess(machine: Machine, accept: ValidationAcceptor): void {
+        const analyzer = new DependencyAnalyzer(machine);
+        const inferredDeps = analyzer.inferDependencies();
+
+        // Helper to check if a node is a context node
+        const isContextNode = (nodeName: string): boolean => {
+            const node = this.findNodeByName(machine, nodeName);
+            if (!node) return false;
+            return node.type?.toLowerCase() === 'context' ||
+                   nodeName.toLowerCase().includes('context') ||
+                   nodeName.toLowerCase().includes('output') ||
+                   nodeName.toLowerCase().includes('input') ||
+                   nodeName.toLowerCase().includes('data') ||
+                   nodeName.toLowerCase().includes('result');
+        };
+
+        // Helper to check if a node is a task node
+        const isTaskNode = (nodeName: string): boolean => {
+            const node = this.findNodeByName(machine, nodeName);
+            if (!node) return false;
+            return node.type?.toLowerCase() === 'task' ||
+                   node.attributes?.some(attr => attr.name === 'prompt');
+        };
+
+        // Check each inferred dependency
+        for (const dep of inferredDeps) {
+            // Only check task -> context dependencies
+            if (!isTaskNode(dep.source) || !isContextNode(dep.target)) {
+                continue;
+            }
+
+            // Check if there's an explicit edge from task to context or vice versa
+            const hasExplicitEdge = machine.edges.some(edge => {
+                return edge.segments.some(segment => {
+                    // Get source names (edge.source is an array of references)
+                    const sourceNames = edge.source.map(s => s.$refText || s.ref?.name);
+                    const targetNames = segment.target.map(t => t.$refText || t.ref?.name);
+
+                    // Check outbound: task -> context
+                    if (sourceNames.includes(dep.source) && targetNames.includes(dep.target)) {
+                        return true;
+                    }
+
+                    // Check inbound: context -> task
+                    if (sourceNames.includes(dep.target) && targetNames.includes(dep.source)) {
+                        return true;
+                    }
+
+                    return false;
+                });
+            });
+
+            if (!hasExplicitEdge) {
+                const sourceNode = this.findNodeByName(machine, dep.source);
+                if (sourceNode) {
+                    accept('warning',
+                        `Task '${dep.source}' references context '${dep.target}' (${dep.reason}) but has no explicit edge. ` +
+                        `Add: ${dep.source} -reads-> ${dep.target}; or ${dep.source} -stores-> ${dep.target};`,
+                        { node: sourceNode, property: 'name' }
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper to find a node by name
+     */
+    private findNodeByName(machine: Machine, name: string): Node | undefined {
+        const findInNodes = (nodes: Node[]): Node | undefined => {
+            for (const node of nodes) {
+                if (node.name === name) return node;
+                const found = findInNodes(node.nodes);
+                if (found) return found;
+            }
+            return undefined;
+        };
+        return findInNodes(machine.nodes);
     }
 
     /**
