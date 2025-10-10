@@ -15,7 +15,7 @@
             }
         },
         {
-            "label": "Dygram: Generate and Preview Mermaid",
+            "label": "DyGram: Generate and Preview Mermaid",
             "type": "shell",
             "command": "${command:extension.generateAndPreview}",
             "group": {

@@ -4,10 +4,12 @@
 ```machine
 machine "E-Commerce Order Processing"
 
+init start;
+
 // Order states
 State new_order {
     desc: "Order received";
-    priority<Integer>: 1;
+    priority<number>: 1;
 };
 
 State payment_pending {
@@ -38,6 +40,8 @@ State refunded {
     desc: "Order refunded";
 };
 
+start -> new_order;
+
 // Happy path
 new_order -create-> payment_pending;
 payment_pending -pay-> payment_confirmed;
@@ -61,10 +65,14 @@ config:
         hideEmptyMembersBox: true
 ---
 classDiagram-v2
-  namespace States {
+    class start {
+    <<init>>
+  }
+
+namespace States {
   class new_order["Order received"] {
     <<State>>
-    +priority : Integer = 1
+    +priority : number = 1
   }
 
   class payment_pending["Awaiting payment"] {
@@ -95,7 +103,9 @@ classDiagram-v2
     <<State>>
   }
 }
-    new_order --> payment_pending : create
+    start --> new_order
+
+  new_order --> payment_pending : create
 
   payment_pending --> payment_confirmed : pay
 
@@ -121,6 +131,11 @@ classDiagram-v2
   "title": "E-Commerce Order Processing",
   "nodes": [
     {
+      "name": "start",
+      "type": "init",
+      "attributes": []
+    },
+    {
       "name": "new_order",
       "type": "State",
       "attributes": [
@@ -130,7 +145,7 @@ classDiagram-v2
         },
         {
           "name": "priority",
-          "type": "Integer",
+          "type": "number",
           "value": "1"
         }
       ]
@@ -207,6 +222,11 @@ classDiagram-v2
     }
   ],
   "edges": [
+    {
+      "source": "start",
+      "target": "new_order",
+      "arrowType": "->"
+    },
     {
       "source": "new_order",
       "target": "payment_pending",

@@ -1,8 +1,8 @@
 {
     "name": "machine-lang",
     "description": "Dynamic state machine prototyping language",
-    "version": "0.3.0",
-    "displayName": "Machine",
+    "version": "0.3.4",
+    "displayName": "DyGram",
     "icon": "icon.jpg",
     "publisher": "c15r",
     "type": "module",

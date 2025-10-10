@@ -59,7 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.TaskScope.Workspace,
             'generate mermaid output',
             'shell',
-            new vscode.ShellExecution(`dygram generate --format html ${activeEditor.document.fileName}`)
+            new vscode.ShellExecution(`dygram generate --format html ${activeEditor.document.fileName} -d ${path.dirname(activeEditor.document.fileName)}`)
         ));
 
         // Wait for task completion
@@ -88,7 +88,10 @@ export function activate(context: vscode.ExtensionContext) {
         );
 
         // Load and display the generated file
-        const outputPath = path.join(path.dirname(activeEditor.document.fileName), 'out', path.basename(activeEditor.document.fileName, path.extname(activeEditor.document.fileName)) + '.html');
+        const outputPath = path.join(
+            path.dirname(activeEditor.document.fileName),
+            path.basename(activeEditor.document.fileName, path.extname(activeEditor.document.fileName)) + '.html'
+        );
         const content = await vscode.workspace.fs.readFile(vscode.Uri.file(outputPath));
         
         // Inject the web executor script into the HTML content
