@@ -1,0 +1,241 @@
+machine "Data Pipeline ETL Workflow"
+
+// This example demonstrates a complete Extract-Transform-Load (ETL) data pipeline
+// with error handling, monitoring, and data quality checks
+
+// Configuration
+context pipelineConfig @Singleton {
+    batchSize<number>: 1000;
+    maxRetries<number>: 3;
+    timeout<number>: 300000;
+    parallelism<number>: 4;
+}
+
+context dataSourceConfig {
+    source {
+        type<string>: "database";
+        connectionString<string>: "postgresql://localhost:5432/source_db";
+        query<string>: "SELECT * FROM transactions WHERE created_at > {{lastRunTime}}";
+    }
+    destination {
+        type<string>: "data_warehouse";
+        connectionString<string>: "postgresql://localhost:5432/warehouse_db";
+        table<string>: "fact_transactions";
+    }
+}
+
+// Pipeline States
+init start "Pipeline Start";
+state ready "Ready to Process";
+state processing "Processing Data";
+state complete "Pipeline Complete";
+state failed "Pipeline Failed";
+
+// Extract Phase
+task validateConnections "Validate Connections" @Critical {
+    prompt: "Validate source and destination connections";
+}
+
+task extractData "Extract Data" @Async {
+    prompt: "Extract data from source: {{dataSourceConfig.source.query}}";
+    recordsExtracted<number>: 0;
+}
+
+task checkExtractQuality "Check Extract Quality" {
+    prompt: "Validate extracted data meets quality thresholds";
+    qualityScore<number>: 0;
+}
+
+// Transform Phase
+task cleanData "Clean Data" {
+    prompt: "Remove duplicates, handle nulls, standardize formats";
+}
+
+task validateSchema "Validate Schema" {
+    prompt: "Ensure data matches target schema";
+}
+
+task enrichData "Enrich Data" {
+    prompt: "Add derived columns and lookup values";
+}
+
+task aggregateData "Aggregate Data" {
+    prompt: "Calculate summary metrics and aggregations";
+}
+
+task transformData "Transform Data" @Async {
+    prompt: "Apply business logic transformations";
+    recordsTransformed<number>: 0;
+}
+
+// Load Phase
+task prepareLoad "Prepare Load" {
+    prompt: "Prepare data for loading into warehouse";
+}
+
+task loadData "Load Data" @Async @Critical {
+    prompt: "Load transformed data to {{dataSourceConfig.destination.table}}";
+    recordsLoaded<number>: 0;
+}
+
+task verifyLoad "Verify Load" {
+    prompt: "Verify data loaded correctly";
+}
+
+task updateMetadata "Update Metadata" {
+    prompt: "Update pipeline metadata and lineage";
+}
+
+// Error Handling
+task handleExtractError "Handle Extract Error" {
+    prompt: "Log extract error and determine retry strategy";
+}
+
+task handleTransformError "Handle Transform Error" {
+    prompt: "Log transform error and salvage partial results";
+}
+
+task handleLoadError "Handle Load Error" {
+    prompt: "Rollback partial loads and log error";
+}
+
+// Monitoring and Alerting
+task recordMetrics "Record Metrics" {
+    prompt: "Record pipeline execution metrics";
+}
+
+task sendAlerts "Send Alerts" {
+    prompt: "Send alerts for pipeline failures or quality issues";
+}
+
+// Data Quality Checks
+task checkCompleteness "Check Completeness" {
+    prompt: "Verify no data loss during pipeline";
+    completeness<number>: 0;
+}
+
+task checkAccuracy "Check Accuracy" {
+    prompt: "Verify data accuracy and consistency";
+    accuracy<number>: 0;
+}
+
+task checkConsistency "Check Consistency" {
+    prompt: "Verify referential integrity and business rules";
+}
+
+// Cleanup
+task cleanupTempData "Cleanup Temporary Data" {
+    prompt: "Remove temporary files and staging data";
+}
+
+task archiveData "Archive Source Data" {
+    prompt: "Archive processed source data";
+}
+
+// Main Pipeline Flow
+start -> validateConnections;
+validateConnections -"success"-> ready;
+validateConnections -"failure"-> failed;
+
+ready -> extractData;
+extractData -> checkExtractQuality;
+checkExtractQuality -"quality > 95%"-> processing;
+checkExtractQuality -"quality <= 95%"-> handleExtractError;
+
+processing -> cleanData;
+cleanData -> validateSchema;
+validateSchema -"valid"-> enrichData;
+validateSchema -"invalid"-> handleTransformError;
+
+enrichData -> aggregateData;
+aggregateData -> transformData;
+transformData -"success"-> prepareLoad;
+transformData -"failure"-> handleTransformError;
+
+prepareLoad -> loadData;
+loadData -"success"-> verifyLoad;
+loadData -"failure"-> handleLoadError;
+
+verifyLoad -> checkCompleteness;
+checkCompleteness -> checkAccuracy;
+checkAccuracy -> checkConsistency;
+checkConsistency -"all checks passed"-> updateMetadata;
+checkConsistency -"checks failed"-> handleLoadError;
+
+updateMetadata -> recordMetrics;
+recordMetrics -> cleanupTempData;
+cleanupTempData -> archiveData;
+archiveData -> complete;
+
+// Error Handling Flows
+handleExtractError -"retry < maxRetries"-> extractData;
+handleExtractError -"retry >= maxRetries"-> sendAlerts;
+
+handleTransformError -"retry < maxRetries"-> transformData;
+handleTransformError -"retry >= maxRetries"-> sendAlerts;
+
+handleLoadError -> sendAlerts;
+
+sendAlerts -> failed;
+
+// Dependencies
+validateConnections --> pipelineConfig;
+validateConnections --> dataSourceConfig;
+extractData --> pipelineConfig;
+extractData --> dataSourceConfig;
+transformData --> pipelineConfig;
+loadData --> pipelineConfig;
+loadData --> dataSourceConfig;
+
+// Parallel Processing (aggregation)
+task batchProcessor1 "Batch Processor 1" @Async;
+task batchProcessor2 "Batch Processor 2" @Async;
+task batchProcessor3 "Batch Processor 3" @Async;
+task batchProcessor4 "Batch Processor 4" @Async;
+task mergeResults "Merge Results";
+
+transformData *--> batchProcessor1;
+transformData *--> batchProcessor2;
+transformData *--> batchProcessor3;
+transformData *--> batchProcessor4;
+
+batchProcessor1 -> mergeResults;
+batchProcessor2 -> mergeResults;
+batchProcessor3 -> mergeResults;
+batchProcessor4 -> mergeResults;
+mergeResults -> prepareLoad;
+
+note for extractData "Extract Phase:
+- Pull data from source system
+- Handle incremental vs full loads
+- Validate data quality at source
+- Track extraction metrics"
+
+note for transformData "Transform Phase:
+- Clean and standardize data
+- Apply business rules
+- Enrich with reference data
+- Calculate derived values
+- Parallel processing for performance"
+
+note for loadData "Load Phase:
+- Prepare staging tables
+- Bulk insert for performance
+- Handle conflicts (upsert/merge)
+- Verify data integrity
+- Update metadata/lineage"
+
+note for checkExtractQuality "Data Quality Checks:
+- Completeness: No missing records
+- Accuracy: Values within expected ranges
+- Consistency: Referential integrity maintained
+- Timeliness: Data is current
+- Uniqueness: No duplicates"
+
+note for recordMetrics "Pipeline Metrics:
+- Execution time
+- Records processed
+- Data quality scores
+- Error rates
+- Resource utilization
+- Success/failure status"

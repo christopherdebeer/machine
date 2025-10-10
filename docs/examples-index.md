@@ -45,14 +45,56 @@ Hierarchical structures with parent-child relationships.
 | [complex-nesting.dygram](../examples/nesting/complex-nesting.dygram) | Mixed nesting patterns | 4+ levels, multiple branches |
 | [deep-nested-5-levels.dygram](../examples/nesting/deep-nested-5-levels.dygram) | Deep hierarchy validation | 5 levels of nesting |
 
-## Context Management Examples
+## Edge Examples (Extended)
 
-Advanced context value management and schema validation.
+Additional edge examples for relationship types.
 
 | Example | Description | Features |
 |---------|-------------|----------|
-| [context-management.mach](../examples/context-management.mach) | Context value storage and retrieval | set_context_value, get_context_value, typed attributes |
-| [template-variables.mach](../examples/template-variables.mach) | Template variable resolution | {{nodeName.attributeName}} syntax, dynamic prompts |
+| [relationship-types.dygram](../examples/edges/relationship-types.dygram) | **NEW**: Comprehensive relationship types guide | All arrow types with semantic meanings, inheritance, composition, aggregation, complete examples |
+
+## Context Management Examples
+
+Context nodes and context value management.
+
+| Example | Description | Features |
+|---------|-------------|----------|
+| [context-management.mach](../examples/context/context-management.mach) | Context value storage and retrieval | set_context_value, get_context_value, typed attributes |
+| [template-variables.mach](../examples/context/template-variables.mach) | Template variable resolution | {{nodeName.attributeName}} syntax, dynamic prompts |
+| [nested-access.dygram](../examples/context/nested-access.dygram) | **NEW**: Nested attribute access patterns | Multi-level contexts, dot notation, deep nesting, type-safe nested access |
+
+## Advanced Features Examples
+
+Advanced language features (formerly Phase 2).
+
+| Example | Description | Features |
+|---------|-------------|----------|
+| [annotations.dygram](../examples/advanced/annotations.dygram) | Annotation system | @Abstract, @Singleton, @Deprecated, @Async, @Critical |
+| [multiplicity.dygram](../examples/advanced/multiplicity.dygram) | Multiplicity and cardinality | One-to-many, one-to-one, many-to-many, optional relationships |
+| [dependency-inference.dygram](../examples/advanced/dependency-inference.dygram) | Automatic dependency inference | Template variables, automatic edges, multiple dependencies |
+| [complete-example.dygram](../examples/advanced/complete-example.dygram) | Complete Phase 2 features | All advanced features combined |
+| [error-handling.dygram](../examples/advanced/error-handling.dygram) | **NEW**: Error handling patterns | Retry, circuit breaker, fallback, saga, timeout, DLQ, validation |
+| [optional-types.dygram](../examples/advanced/optional-types.dygram) | **NEW**: Optional types and null handling | Optional syntax (?), null values, type safety |
+
+## Documentation Features Examples
+
+Documentation features (formerly Phase 3).
+
+| Example | Description | Features |
+|---------|-------------|----------|
+| [notes-and-generics.dygram](../examples/documentation/notes-and-generics.dygram) | Notes and generic types | note for syntax, Promise<T>, Array<T>, Map<K,V> |
+| [complete-phase3.dygram](../examples/documentation/complete-phase3.dygram) | Complete Phase 3 features | Notes, generics, documentation patterns |
+
+## Validation Features Examples
+
+Validation features (formerly Phase 4).
+
+| Example | Description | Features |
+|---------|-------------|----------|
+| [type-checking.dygram](../examples/validation/type-checking.dygram) | Type checking and validation | Primitive types, collections, generics, optionals, inference |
+| [graph-validation.dygram](../examples/validation/graph-validation.dygram) | Graph structure validation | Unreachable nodes, cycles, orphans, entry/exit points |
+| [semantic-validation.dygram](../examples/validation/semantic-validation.dygram) | Semantic validation | Node type rules, annotation compatibility, best practices |
+| [complete-validated.dygram](../examples/validation/complete-validated.dygram) | Complete validated example | All validation features, e-commerce system |
 
 ## Complex Examples
 
@@ -63,6 +105,19 @@ Real-world patterns and advanced features.
 | [complex-machine.dygram](../examples/complex/complex-machine.dygram) | Full-featured machine | Context, workflows, conditions, multiple node types |
 | [unicode-machine.dygram](../examples/complex/unicode-machine.dygram) | Unicode support demonstration | Chinese, Japanese characters, emoji |
 | [context-heavy.dygram](../examples/complex/context-heavy.dygram) | Multiple context definitions | Rich context attributes |
+
+## Workflow Examples
+
+Real-world workflow examples.
+
+| Example | Description | Features |
+|---------|-------------|----------|
+| [user-onboarding.dygram](../examples/workflows/user-onboarding.dygram) | User onboarding flow | Registration, verification, profile setup |
+| [order-processing.dygram](../examples/workflows/order-processing.dygram) | E-commerce order lifecycle | Order states, payment, fulfillment, refunds |
+| [ci-cd-pipeline.dygram](../examples/workflows/ci-cd-pipeline.dygram) | CI/CD pipeline | Build, test, deploy, security scanning, rollback |
+| [smart-task-prioritizer.dygram](../examples/workflows/smart-task-prioritizer.dygram) | AI task prioritization | LLM analysis, priority assignment, context management |
+| [code-generation-demo.dygram](../examples/workflows/code-generation-demo.dygram) | Code generation workflow | Requirements, code gen, tests, docs, validation |
+| [data-pipeline.dygram](../examples/workflows/data-pipeline.dygram) | **NEW**: ETL data pipeline | Extract, transform, load, error handling, quality checks, monitoring |
 
 ## Stress Test Examples
 

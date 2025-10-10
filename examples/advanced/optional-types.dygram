@@ -1,0 +1,170 @@
+machine "Optional Types and Null Handling"
+
+// This example demonstrates optional types and null value handling in DyGram
+
+// Pattern 1: Optional Attributes with ?
+task userProfile "User Profile" {
+    // Required fields
+    userId<string>: "user123";
+    email<string>: "user@example.com";
+
+    // Optional fields (may be null)
+    phoneNumber<string?>: null;
+    avatar<string?>: null;
+    bio<string?>: null;
+
+    // Optional with default value
+    preferredLanguage<string?>: "en";
+}
+
+// Pattern 2: Optional References
+context optionalConfig "Optional Configuration" {
+    // Some configs may not be set
+    debugMode<boolean?>: null;
+    customTheme<string?>: null;
+    apiEndpoint<string>: "https://api.example.com";  // Required
+}
+
+task appInit "Application Initialization" {
+    prompt: "Initialize app with config: {{optionalConfig.apiEndpoint}}";
+}
+
+appInit --> optionalConfig;
+
+// Pattern 3: Null Coalescing in Logic
+task dataProcessor "Data Processor" {
+    prompt: "Process with timeout: {{config.timeout}} or use default";
+}
+
+context config {
+    timeout<number?>: null;  // Optional, may use default
+    maxRetries<number>: 3;   // Required
+}
+
+dataProcessor --> config;
+
+// Pattern 4: Optional Relationships
+task Order "Order";
+task Discount "Discount" {
+    code<string>: "SAVE10";
+    percentage<number>: 10;
+}
+
+// Order may or may not have a discount
+Order "1" -> "0..1" Discount;  // Zero or one discount
+
+// Pattern 5: Optional vs Required in Complex Types
+task apiResponse "API Response" {
+    // Required response fields
+    statusCode<number>: 200;
+    timestamp<number>: 1633024800;
+
+    // Optional data (may be null on error)
+    data<object?>: null;
+
+    // Optional error information (present only on failure)
+    errorCode<string?>: null;
+    errorMessage<string?>: null;
+    stackTrace<string?>: null;
+}
+
+// Pattern 6: Optional Generic Types
+task asyncOperation "Async Operation" {
+    // May return a result or null
+    result<Promise<string>?>: null;
+    error<Promise<Error>?>: null;
+}
+
+// Pattern 7: Handling Optional Values in Workflow
+init start "Start";
+task fetchUserData "Fetch User Data" {
+    userData<object?>: null;
+}
+state dataPresent "Data Present";
+state dataAbsent "Data Absent";
+task useDefaultData "Use Default Data" {
+    defaultData<object>: "{}";
+}
+task processData "Process Data";
+state complete "Complete";
+
+start -> fetchUserData;
+fetchUserData -"data != null"-> dataPresent;
+fetchUserData -"data == null"-> dataAbsent;
+dataPresent -> processData;
+dataAbsent -> useDefaultData;
+useDefaultData -> processData;
+processData -> complete;
+
+// Pattern 8: Optional Collections
+task searchResults "Search Results" {
+    // Optional array (may be null if search fails)
+    items<Array<string>?>: null;
+
+    // Optional count (null if not applicable)
+    totalCount<number?>: null;
+
+    // Required metadata
+    searchTerm<string>: "example";
+    executionTime<number>: 0;
+}
+
+// Pattern 9: Optional with Type Inference
+task inferredOptionals "Inferred Optionals" {
+    // Type checker infers these are optional based on null value
+    maybeString: null;
+    maybeNumber: null;
+    maybeBoolean: null;
+}
+
+// Pattern 10: Combining Required and Optional in Validation
+task formValidation "Form Validation" {
+    // Required fields for validation
+    username<string>: "";
+    email<string>: "";
+
+    // Optional fields
+    middleName<string?>: null;
+    suffix<string?>: null;
+
+    // Validation state
+    isValid<boolean>: false;
+    errors<Array<string>>: [];
+}
+
+// Pattern 11: Optional in Annotations
+task cacheable "Cacheable Task" {
+    // Cache may or may not exist
+    cacheKey<string?>: null;
+    cachedValue<object?>: null;
+    cacheExpiry<number?>: null;
+}
+
+// Pattern 12: Optional Context References
+context userPreferences {
+    theme<string?>: null;
+    fontSize<number?>: null;
+    notifications<boolean?>: null;
+}
+
+task applyPreferences "Apply Preferences" {
+    prompt: "Apply theme {{userPreferences.theme}} if set, otherwise use default";
+}
+
+applyPreferences --> userPreferences;
+
+note for userProfile "Optional types use ? suffix.
+They can be null or have a value.
+Type checker validates both cases."
+
+note for fetchUserData "When working with optional data:
+1. Always check for null before using
+2. Provide fallback/default values
+3. Handle both present and absent cases
+4. Document when null is expected"
+
+note for formValidation "Required vs Optional guidelines:
+- Required: Must always have a valid value
+- Optional: May be null, needs null checks
+- Use optionals for: partial data, user input, API responses
+- Avoid optionals for: core business logic, critical paths"
