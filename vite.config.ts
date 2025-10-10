@@ -100,10 +100,6 @@ export default defineConfig(() => {
                         dest: 'examples'
                     },
                     {
-                        src: 'examples/*.mach',
-                        dest: 'examples'
-                    },
-                    {
                         src: 'examples/README.md',
                         dest: 'examples'
                     }
