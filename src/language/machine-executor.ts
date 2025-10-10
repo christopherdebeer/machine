@@ -17,6 +17,8 @@ import { compilePrompt, TaskPromptContext, TASK_PROMPT_TEMPLATES } from './promp
 export interface MachineExecutionContext {
     currentNode: string;
     currentTaskNode?: string; // Track the current task node for context permission checks
+    activeState?: string; // Track the currently active state node
+    errorCount: number; // Track errors for meta-evolution
     visitedNodes: Set<string>;
     attributes: Map<string, any>;
     history: Array<{
@@ -72,6 +74,7 @@ export class MachineExecutor {
         this.machineData = machineData;
         this.context = {
             currentNode: this.machineData.nodes.length > 0 ? this.findStartNode() : '',
+            errorCount: 0,
             visitedNodes: new Set(),
             attributes: new Map(),
             history: []
@@ -128,6 +131,94 @@ export class MachineExecutor {
                 target: edge.target,
                 type: edge.type
             }));
+    }
+
+    /**
+     * Check if a node is a state node
+     */
+    private isStateNode(node: { name: string; type?: string }): boolean {
+        return node.type?.toLowerCase() === 'state';
+    }
+
+    /**
+     * Extract condition from edge label (when, unless, if)
+     */
+    private extractEdgeCondition(edge: { label?: string; type?: string }): string | undefined {
+        const edgeLabel = edge.label?.toLowerCase() || edge.type?.toLowerCase() || '';
+
+        // Look for when: pattern
+        const whenMatch = edgeLabel.match(/when:\s*['"]?([^'"]+)['"]?/);
+        if (whenMatch) {
+            return whenMatch[1].trim();
+        }
+
+        // Look for unless: pattern (negate it)
+        const unlessMatch = edgeLabel.match(/unless:\s*['"]?([^'"]+)['"]?/);
+        if (unlessMatch) {
+            return `!(${unlessMatch[1].trim()})`;
+        }
+
+        // Look for if: pattern
+        const ifMatch = edgeLabel.match(/if:\s*['"]?([^'"]+)['"]?/);
+        if (ifMatch) {
+            return ifMatch[1].trim();
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Evaluate a condition string against current context
+     */
+    private evaluateCondition(condition: string | undefined): boolean {
+        if (!condition) {
+            return true; // No condition means always true
+        }
+
+        try {
+            // Replace template variables {{ ... }} with actual values
+            let resolvedCondition = condition.replace(/\{\{\s*(\w+)\.?(\w+)?\s*\}\}/g, (match: string, nodeName: string, attrName?: string) => {
+                const node = this.machineData.nodes.find(n => n.name === nodeName);
+                if (!node) return 'undefined';
+
+                if (attrName) {
+                    const attr = node.attributes?.find(a => a.name === attrName);
+                    if (!attr) return 'undefined';
+                    return this.parseValue(attr.value, attr.type);
+                }
+
+                return 'undefined';
+            });
+
+            // Replace special variables like errorCount, activeState
+            resolvedCondition = resolvedCondition
+                .replace(/\berrorCount\b/g, String(this.context.errorCount))
+                .replace(/\berrors\b/g, String(this.context.errorCount))
+                .replace(/\bactiveState\b/g, `"${this.context.activeState || ''}"`);
+
+            // Evaluate the condition
+            // eslint-disable-next-line no-eval
+            const result = eval(resolvedCondition);
+            return Boolean(result);
+        } catch (error) {
+            console.error('Error evaluating condition:', condition, error);
+            return false; // If condition evaluation fails, treat as false
+        }
+    }
+
+    /**
+     * Extract field list from edge label (e.g., "write: field1,field2")
+     */
+    private extractFieldList(edge: { label?: string; type?: string }): string[] | undefined {
+        const edgeLabel = edge.label || edge.type || '';
+
+        // Look for patterns like "write: field1,field2" or "read: field1,field2"
+        const fieldMatch = edgeLabel.match(/(?:write|read|store|update|set):\s*([a-zA-Z0-9_,\s]+)/i);
+        if (fieldMatch) {
+            return fieldMatch[1].split(',').map(f => f.trim()).filter(f => f.length > 0);
+        }
+
+        return undefined;
     }
 
     /**
@@ -336,8 +427,8 @@ export class MachineExecutor {
     /**
      * Get context nodes accessible from a given task node based on explicit edges
      */
-    private getAccessibleContextNodes(taskNodeName: string): Map<string, { canRead: boolean; canWrite: boolean }> {
-        const accessMap = new Map<string, { canRead: boolean; canWrite: boolean }>();
+    private getAccessibleContextNodes(taskNodeName: string): Map<string, { canRead: boolean; canWrite: boolean; fields?: string[] }> {
+        const accessMap = new Map<string, { canRead: boolean; canWrite: boolean; fields?: string[] }>();
 
         // Find all edges from the task node to context nodes
         const outboundEdges = this.machineData.edges.filter(edge => edge.source === taskNodeName);
@@ -355,9 +446,12 @@ export class MachineExecutor {
                 const canWrite = /write|store|create|update|set|calculate/.test(edgeType);
                 const canRead = true; // All edges grant read access by default
 
-                accessMap.set(edge.target, { canRead, canWrite });
+                // Extract field-level permissions if specified
+                const fields = this.extractFieldList(edge);
 
-                console.log(`🔐 Context access: ${taskNodeName} -> ${edge.target} (read: ${canRead}, write: ${canWrite}, edge: ${edgeType})`);
+                accessMap.set(edge.target, { canRead, canWrite, fields });
+
+                console.log(`🔐 Context access: ${taskNodeName} -> ${edge.target} (read: ${canRead}, write: ${canWrite}, fields: ${fields?.join(',') || 'all'}, edge: ${edgeType})`);
             }
         }
 
@@ -371,8 +465,9 @@ export class MachineExecutor {
             if (sourceNode && this.isContextNode(sourceNode)) {
                 // Inbound edges from context grant read-only access
                 if (!accessMap.has(edge.source)) {
-                    accessMap.set(edge.source, { canRead: true, canWrite: false });
-                    console.log(`🔐 Context access: ${edge.source} -> ${taskNodeName} (read: true, write: false)`);
+                    const fields = this.extractFieldList(edge);
+                    accessMap.set(edge.source, { canRead: true, canWrite: false, fields });
+                    console.log(`🔐 Context access: ${edge.source} -> ${taskNodeName} (read: true, write: false, fields: ${fields?.join(',') || 'all'})`);
                 }
             }
         }
@@ -692,6 +787,14 @@ export class MachineExecutor {
                     `To enable write access, use an edge like: ${this.context.currentTaskNode} -stores-> ${nodeName};`
                 );
             }
+
+            // Check field-level permissions if specified
+            if (permissions.fields && !permissions.fields.includes(attributeName)) {
+                throw new Error(
+                    `Permission denied: Task '${this.context.currentTaskNode}' can only write to fields [${permissions.fields.join(', ')}] in context '${nodeName}'. ` +
+                    `Field '${attributeName}' is not accessible.`
+                );
+            }
         }
 
         const node = this.machineData.nodes.find(n => n.name === nodeName);
@@ -752,6 +855,14 @@ export class MachineExecutor {
             if (!permissions.canRead) {
                 throw new Error(
                     `Permission denied: Task '${this.context.currentTaskNode}' cannot read from context '${nodeName}'.`
+                );
+            }
+
+            // Check field-level permissions if specified
+            if (permissions.fields && !permissions.fields.includes(attributeName)) {
+                throw new Error(
+                    `Permission denied: Task '${this.context.currentTaskNode}' can only read fields [${permissions.fields.join(', ')}] from context '${nodeName}'. ` +
+                    `Field '${attributeName}' is not accessible.`
                 );
             }
         }
@@ -1043,6 +1154,15 @@ export class MachineExecutor {
             )
         };
 
+        // Add runtime context (activeState, errorCount) to attributes if meta task
+        if (isMeta) {
+            promptContext.attributes = {
+                ...promptContext.attributes,
+                _activeState: this.context.activeState || 'none',
+                _errorCount: this.context.errorCount
+            };
+        }
+
         // Determine which template to use based on task type
         const templateKey = (attributes.taskType || 'default') as keyof typeof TASK_PROMPT_TEMPLATES;
         const template = TASK_PROMPT_TEMPLATES[templateKey] || TASK_PROMPT_TEMPLATES.default;
@@ -1151,8 +1271,8 @@ export class MachineExecutor {
      * @returns true if a transition was made, false if no valid transitions available
      */
     public async step(): Promise<boolean> {
-        const transitions = this.getAvailableTransitions();
-        if (transitions.length === 0) {
+        const allTransitions = this.getAvailableTransitions();
+        if (allTransitions.length === 0) {
             return false;
         }
 
@@ -1162,32 +1282,71 @@ export class MachineExecutor {
             throw new Error(`Node ${this.context.currentNode} not found`);
         }
 
+        // If current node is a state node, make it the active state
+        if (this.isStateNode(currentNode)) {
+            this.context.activeState = currentNode.name;
+            console.log(`🏛️ Active state: ${this.context.activeState}`);
+        }
+
         // Execute node-specific logic
         let output: string | undefined;
         let nextNode: string | undefined;
 
         // Check if this is a task node (case-insensitive) or has a prompt attribute
-        const isTaskNode = currentNode.type?.toLowerCase() === 'task' || 
+        const isTaskNode = currentNode.type?.toLowerCase() === 'task' ||
                           currentNode.attributes?.some(attr => attr.name === 'prompt');
-        debugger;
+
         console.log('🔍 Node execution check:', {
             nodeName: currentNode.name,
             nodeType: currentNode.type,
             isTaskNode,
+            isState: this.isStateNode(currentNode),
+            activeState: this.context.activeState,
+            errorCount: this.context.errorCount,
             attributes: currentNode.attributes
         });
 
         if (isTaskNode) {
             console.log('🤖 Executing task node with LLM...');
-            const result = await this.executeTaskNode();
-            output = result.output;
-            nextNode = result.nextNode;
-            console.log('✅ Task execution result:', { output: output?.substring(0, 100), nextNode });
+            try {
+                const result = await this.executeTaskNode();
+                output = result.output;
+                nextNode = result.nextNode;
+                console.log('✅ Task execution result:', { output: output?.substring(0, 100), nextNode });
+            } catch (error) {
+                // Track errors for meta-evolution
+                this.context.errorCount++;
+                console.error(`❌ Task execution error (total errors: ${this.context.errorCount}):`, error);
+                throw error;
+            }
         }
 
-        // If no next node chosen by LLM, take the first available transition
+        // Filter transitions by edge predicates
+        const validTransitions = allTransitions.filter(transition => {
+            const edge = this.machineData.edges.find(e =>
+                e.source === this.context.currentNode && e.target === transition.target
+            );
+
+            if (!edge) return true; // No edge found, allow transition
+
+            const condition = this.extractEdgeCondition(edge);
+            const isValid = this.evaluateCondition(condition);
+
+            if (condition) {
+                console.log(`🔀 Evaluating edge condition for ${edge.source} -> ${edge.target}: "${condition}" = ${isValid}`);
+            }
+
+            return isValid;
+        });
+
+        if (validTransitions.length === 0) {
+            console.log('⚠️ No valid transitions after filtering by edge predicates');
+            return false;
+        }
+
+        // If no next node chosen by LLM, take the first valid transition
         if (!nextNode) {
-            nextNode = transitions[0].target;
+            nextNode = validTransitions[0].target;
         }
 
         this.context.visitedNodes.add(this.context.currentNode);
@@ -1196,7 +1355,7 @@ export class MachineExecutor {
         this.context.history.push({
             from: this.context.currentNode,
             to: nextNode,
-            transition: nextNode ? (transitions.find(t => t.target === nextNode)?.type || 'LLM-chosen') : 'default',
+            transition: nextNode ? (allTransitions.find(t => t.target === nextNode)?.type || 'LLM-chosen') : 'default',
             timestamp: new Date().toISOString(),
             output
         });
