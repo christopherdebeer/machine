@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import Events from './Events.mdx';
+import Events from '../../docs/Events.mdx';
 
 const root = document.getElementById('root');
 if (root) {

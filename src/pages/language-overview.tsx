@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import LanguageOverview from './LanguageOverview.mdx';
+import LanguageOverview from '../../docs/LanguageOverview.mdx';
 
 const container = document.getElementById('root');
 if (container) {

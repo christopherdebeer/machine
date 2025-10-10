@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import ExamplesIndex from './ExamplesIndex.mdx';
+import ExamplesIndex from '../../docs/ExamplesIndex.mdx';
 
 const container = document.getElementById('root');
 if (container) {

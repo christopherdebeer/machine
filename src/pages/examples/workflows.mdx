@@ -1,0 +1,118 @@
+import { Layout } from '../components/Layout';
+import { ExampleLoader } from '../components/ExampleLoader';
+
+<Layout>
+
+# View the generated files
+
+## Examples
+
+
+### `user-onboarding.dygram`
+
+<ExampleLoader path="examples/workflows/user-onboarding.dygram" height="300px" />
+User registration and onboarding workflow with:
+- Multiple states (registration, verification, profile setup)
+- Timeout handling
+- Cancellation flows
+- Happy path and edge cases
+
+**Test it:**
+```bash
+npx dygram generate examples/workflows/user-onboarding.dygram -f json,html -d output/
+```
+
+### `order-processing.dygram`
+
+<ExampleLoader path="examples/workflows/order-processing.dygram" height="300px" />
+E-commerce order processing system with:
+- Order lifecycle states
+- Payment flow
+- Fulfillment process
+- Refund and cancellation handling
+
+**Test it:**
+```bash
+npx dygram generate examples/workflows/order-processing.dygram -f mermaid -d output/
+```
+
+### `ci-cd-pipeline.dygram`
+
+<ExampleLoader path="examples/workflows/ci-cd-pipeline.dygram" height="300px" />
+Continuous Integration/Deployment pipeline with:
+- Build, test, and deploy stages
+- Security scanning
+- Multiple environments (staging, production)
+- Failure handling and rollback paths
+
+**Test it:**
+```bash
+npx dygram generate examples/workflows/ci-cd-pipeline.dygram -f html -d output/
+```
+
+### `smart-task-prioritizer.dygram`
+
+<ExampleLoader path="examples/workflows/smart-task-prioritizer.dygram" height="300px" />
+AI-powered task prioritization workflow with:
+- Task analysis using LLM
+- Priority assignment with reasoning
+- Action plan generation
+- Context management for data flow
+
+**Test it:**
+```bash
+export ANTHROPIC_API_KEY=your_api_key_here
+npx dygram execute examples/workflows/smart-task-prioritizer.dygram
+```
+
+### `code-generation-demo.dygram`
+
+<ExampleLoader path="examples/workflows/code-generation-demo.dygram" height="300px" />
+Complete code generation workflow demonstrating:
+- Requirements definition via LLM
+- JavaScript code generation
+- Test generation
+- Documentation generation
+- Validation and quality checks
+
+**Test it:**
+```bash
+export ANTHROPIC_API_KEY=your_api_key_here
+npx dygram execute examples/workflows/code-generation-demo.dygram
+```
+
+
+## Usage Patterns
+
+
+These examples demonstrate:
+- **State management**: Using `State` nodes for workflow stages
+- **Task execution**: Using `Task` nodes for actions
+- **Edge labels**: Named transitions between states
+- **Attributes**: Metadata like descriptions, timeouts, and priorities
+- **Alternative flows**: Handling errors, timeouts, and edge cases
+
+
+## Validation
+
+
+Validate any workflow example:
+```bash
+npx dygram parseAndValidate examples/workflows/user-onboarding.dygram
+```
+
+
+## Generation Formats
+
+
+Generate in multiple formats:
+```bash
+npx dygram generate examples/workflows/user-onboarding.dygram
+
+npx dygram generate examples/workflows/user-onboarding.dygram -f json,mermaid,html -d output/
+
+ls output/
+```
+
+
+</Layout>

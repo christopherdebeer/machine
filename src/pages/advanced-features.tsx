@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import AdvancedFeatures from './AdvancedFeatures.mdx';
+import AdvancedFeatures from '../../docs/AdvancedFeatures.mdx';
 
 const container = document.getElementById('root');
 if (container) {

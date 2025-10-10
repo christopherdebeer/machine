@@ -1,3 +1,8 @@
+import { Layout } from '../src/components/Layout';
+import { CodeEditor } from '../src/components/CodeEditor';
+
+<Layout>
+
 # Advanced Features
 
 This guide covers advanced diagram expressivity features introduced across multiple development phases. These features enhance the semantic richness and visual clarity of DyGram state machines.
@@ -27,12 +32,15 @@ DyGram supports multiple relationship types to express different semantic meanin
 **Meaning:** Basic connection or transition between nodes.
 **Use Case:** Standard workflow transitions, simple relationships.
 
-```dygram
-machine "Association Example"
+<CodeEditor
+    initialCode={`machine "Association Example"
 client;
 server;
-client -> server;
-```
+client -> server;`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 **Mermaid Output:** `-->`
 
@@ -42,12 +50,15 @@ client -> server;
 **Meaning:** Source depends on target but doesn't own it.
 **Use Case:** Configuration dependencies, optional references.
 
-```dygram
-machine "Dependency Example"
+<CodeEditor
+    initialCode={`machine "Dependency Example"
 task process;
 context config;
-process --> config;  // process depends on config
-```
+process --> config;  // process depends on config`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 **Mermaid Output:** `..>` (dashed arrow)
 
@@ -55,12 +66,15 @@ process --> config;  // process depends on config
 **Meaning:** "is-a" relationship where child inherits from parent.
 **Use Case:** Type hierarchies, specialized behaviors.
 
-```dygram
-machine "Inheritance Example"
+<CodeEditor
+    initialCode={`machine "Inheritance Example"
 task BaseProcessor;
 task DataProcessor;
-BaseProcessor <|-- DataProcessor;  // DataProcessor is a BaseProcessor
-```
+BaseProcessor <|-- DataProcessor;  // DataProcessor is a BaseProcessor`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 **Mermaid Output:** `<|--`
 
@@ -68,14 +82,17 @@ BaseProcessor <|-- DataProcessor;  // DataProcessor is a BaseProcessor
 **Meaning:** Strong ownership where components cannot exist independently.
 **Use Case:** Lifecycle-bound components, required parts.
 
-```dygram
-machine "Composition Example"
+<CodeEditor
+    initialCode={`machine "Composition Example"
 task Workflow;
 task Step1;
 task Step2;
 Workflow *--> Step1;  // Workflow owns Step1
-Workflow *--> Step2;
-```
+Workflow *--> Step2;`}
+    language="dygram"
+    readOnly
+    height="150px"
+/>
 
 **Mermaid Output:** `*--`
 
@@ -83,40 +100,49 @@ Workflow *--> Step2;
 **Meaning:** Weak ownership where parts can exist independently.
 **Use Case:** Shared resources, reusable components.
 
-```dygram
-machine "Aggregation Example"
+<CodeEditor
+    initialCode={`machine "Aggregation Example"
 task Team;
 task Member;
-Team o--> Member;  // Team has members, but members can exist independently
-```
+Team o--> Member;  // Team has members, but members can exist independently`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 **Mermaid Output:** `o--`
 
-#### 6. Bidirectional (`<-->`)
+#### 6. Bidirectional (`← -->`)
 **Meaning:** Two-way relationship or mutual dependency.
 **Use Case:** Peer relationships, circular references.
 
-```dygram
-machine "Bidirectional Example"
+<CodeEditor
+    initialCode={`machine "Bidirectional Example"
 task Parent;
 task Child;
-Parent <--> Child;  // Parent knows Child, Child knows Parent
-```
+Parent <--> Child;  // Parent knows Child, Child knows Parent`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
-**Mermaid Output:** `<-->`
+**Mermaid Output:** `← -->`
 
 #### 7. Fat Arrow (`=>`)
 **Meaning:** Strong transition or emphasis.
 **Use Case:** Primary flow, critical paths.
 
-```dygram
-machine "Fat Arrow Example"
+<CodeEditor
+    initialCode={`machine "Fat Arrow Example"
 start;
 critical;
 end;
 start => critical;  // Critical path
-critical -> end;
-```
+critical -> end;`}
+    language="dygram"
+    readOnly
+    height="130px"
+/>
 
 **Mermaid Output:** `-->` (with emphasis in context)
 
@@ -129,7 +155,7 @@ critical -> end;
 | `<\|--` Inheritance | None | Inherited | Type specialization |
 | `*-->` Composition | Strong | Bound | Required components |
 | `o-->` Aggregation | Weak | Independent | Optional components |
-| `<-->` Bidirectional | Mutual | Interdependent | Peer relationships |
+| `← -->` Bidirectional | Mutual | Interdependent | Peer relationships |
 | `=>` Fat Arrow | None | Independent | Critical paths |
 
 ### Execution Semantics
@@ -169,36 +195,48 @@ source "sourceMultiplicity" -> "targetMultiplicity" target
 ### Examples
 
 #### One-to-Many
-```dygram
-machine "One-to-Many"
+<CodeEditor
+    initialCode={`machine "One-to-Many"
 task User;
 task Order;
-User "1" -> "*" Order;  // One user has many orders
-```
+User "1" -> "*" Order;  // One user has many orders`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 #### One-to-One
-```dygram
-machine "One-to-One"
+<CodeEditor
+    initialCode={`machine "One-to-One"
 task Order;
 task Payment;
-Order "1" -> "1" Payment;  // One order has exactly one payment
-```
+Order "1" -> "1" Payment;  // One order has exactly one payment`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 #### Many-to-Many
-```dygram
-machine "Many-to-Many"
+<CodeEditor
+    initialCode={`machine "Many-to-Many"
 task Student;
 task Course;
-Student "*" -> "*" Course;  // Students take multiple courses
-```
+Student "*" -> "*" Course;  // Students take multiple courses`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 #### Optional Relationship
-```dygram
-machine "Optional"
+<CodeEditor
+    initialCode={`machine "Optional"
 task User;
 task Profile;
-User "1" -> "0..1" Profile;  // User may have a profile
-```
+User "1" -> "0..1" Profile;  // User may have a profile`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 ### Validation
 
@@ -236,8 +274,8 @@ task myTask @Async @Deprecated("Use newTask instead") {
 ### Examples
 
 #### Abstract Task
-```dygram
-machine "Abstract Base"
+<CodeEditor
+    initialCode={`machine "Abstract Base"
 task BaseHandler @Abstract {
     prompt: "Base handler that must be overridden";
 }
@@ -246,28 +284,37 @@ task ConcreteHandler {
     prompt: "Concrete implementation";
 }
 
-BaseHandler <|-- ConcreteHandler;
-```
+BaseHandler <|-- ConcreteHandler;`}
+    language="dygram"
+    readOnly
+    height="180px"
+/>
 
 #### Singleton Context
-```dygram
-machine "Singleton Pattern"
+<CodeEditor
+    initialCode={`machine "Singleton Pattern"
 context AppConfig @Singleton {
     apiKey<string>: "secret";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 #### Deprecated Node
-```dygram
-machine "Migration"
+<CodeEditor
+    initialCode={`machine "Migration"
 task oldProcess @Deprecated("Use newProcess instead") {
     prompt: "Legacy processing";
 }
 
 task newProcess {
     prompt: "Updated processing";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="150px"
+/>
 
 ### Rendering
 
@@ -305,16 +352,19 @@ When you reference a context attribute using `{{ nodeName.attributeName }}`, the
 
 ### Syntax
 
-```dygram
-context config {
+<CodeEditor
+    initialCode={`context config {
     apiKey<string>: "secret123";
     endpoint<string>: "https://api.example.com";
 }
 
 task apiCall {
     prompt: "Call {{ config.endpoint }} with key {{ config.apiKey }}";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="160px"
+/>
 
 **Generated:** `apiCall ..> config : reads apiKey, endpoint`
 
@@ -326,22 +376,9 @@ task apiCall {
 
 ### Complex References
 
-#### Nested Access
-```dygram
-context settings {
-    api {
-        timeout<number>: 5000;
-    }
-}
-
-task request {
-    prompt: "Timeout after {{ settings.api.timeout }}ms";
-}
-```
-
 #### Multiple Dependencies
-```dygram
-context userConfig {
+<CodeEditor
+    initialCode={`context userConfig {
     name<string>: "Alice";
 }
 
@@ -351,8 +388,11 @@ context systemConfig {
 
 task greet {
     prompt: "Hello {{ userConfig.name }}, running in {{ systemConfig.mode }}";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="180px"
+/>
 
 **Generated:**
 ```
@@ -388,26 +428,35 @@ node {
 ### Supported Generic Patterns
 
 #### Promise Types
-```dygram
-task fetchData {
+<CodeEditor
+    initialCode={`task fetchData {
     response<Promise<Response>>: "pending";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="80px"
+/>
 
 #### Collection Types
-```dygram
-task processRecords {
+<CodeEditor
+    initialCode={`task processRecords {
     data<Array<Record>>: [];
     lookup<Map<string, User>>: [];
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 #### Nested Generics
-```dygram
-task asyncBatch {
+<CodeEditor
+    initialCode={`task asyncBatch {
     results<Promise<Array<Result>>>: [];
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="80px"
+/>
 
 ### Mermaid Rendering
 
@@ -427,8 +476,8 @@ Map<K,V> → Map~K,V~
 ### Examples
 
 #### API Response Handling
-```dygram
-machine "API Client"
+<CodeEditor
+    initialCode={`machine "API Client"
 
 task fetchUsers {
     response<Promise<Array<User>>>: [];
@@ -438,23 +487,11 @@ task cacheResults {
     cache<Map<string, User>>: [];
 }
 
-fetchUsers -> cacheResults;
-```
-
-#### Event Processing
-```dygram
-machine "Event System"
-
-task listenEvents {
-    stream<Observable<Event>>: null;
-}
-
-task handleEvent {
-    handler<Function<Event, Promise<void>>>: null;
-}
-
-listenEvents -> handleEvent;
-```
+fetchUsers -> cacheResults;`}
+    language="dygram"
+    readOnly
+    height="170px"
+/>
 
 [Example: examples/documentation/notes-and-generics.dygram](../examples/documentation/notes-and-generics.dygram)
 
@@ -473,42 +510,19 @@ note for targetNode "Note content goes here"
 ### Examples
 
 #### Single Note
-```dygram
-machine "Documented System"
+<CodeEditor
+    initialCode={`machine "Documented System"
 
 task authenticate {
     prompt: "Verify user credentials";
 }
 
 note for authenticate "This task validates credentials against the identity provider.
-Uses JWT tokens for session management."
-```
-
-#### Multiple Notes
-```dygram
-machine "Complex System"
-
-task critical {
-    prompt: "Critical operation";
-}
-
-note for critical "IMPORTANT: This is a critical path operation"
-note for critical "Must maintain ACID properties"
-```
-
-### Multiline Notes
-
-Use `\n` for line breaks:
-```dygram
-note for processData "Step 1: Validate input\nStep 2: Transform data\nStep 3: Store results"
-```
-
-**Rendered:**
-```
-Step 1: Validate input
-Step 2: Transform data
-Step 3: Store results
-```
+Uses JWT tokens for session management."`}
+    language="dygram"
+    readOnly
+    height="150px"
+/>
 
 ### Use Cases
 
@@ -516,16 +530,6 @@ Step 3: Store results
 - **Warnings:** Highlight critical constraints or gotchas
 - **Context:** Provide background information for maintainers
 - **Checklists:** Outline steps or requirements
-
-### Rendering
-
-Notes appear in Mermaid as attached annotations:
-```mermaid
-class critical {
-  <<task>>
-}
-note for critical "IMPORTANT: This is a critical path operation"
-```
 
 [Example: examples/documentation/notes-and-generics.dygram](../examples/documentation/notes-and-generics.dygram)
 
@@ -560,20 +564,7 @@ Attribute values updated during execution:
 +timestamp: 0 → 1633024800
 ```
 
-#### 4. Execution Notes
-
-Detailed execution history attached as notes:
-```
-note for taskNode "
-Execution History:
-- Started: 2025-10-10T08:00:00Z
-- Completed: 2025-10-10T08:00:05Z
-- Duration: 5s
-- Status: SUCCESS
-"
-```
-
-#### 5. Color Coding
+#### 4. Color Coding
 
 **Node Type Colors (Subtle):**
 - Tasks: Light blue (#E3F2FD)
@@ -586,48 +577,6 @@ Execution History:
 - Visited: Bright green background
 - Error: Bright red background
 
-### Example
-
-**Static Machine:**
-```dygram
-machine "Processing Pipeline"
-
-task fetch {
-    status: "pending";
-}
-
-task transform {
-    status: "pending";
-}
-
-fetch -> transform;
-```
-
-**Runtime Visualization:**
-```mermaid
-classDiagram-v2
-  class fetch["▶️ fetch"] {
-    <<task>>
-    +status: pending → running
-    +startTime: 1633024800
-    +visitCount: 1
-  }
-  style fetch fill:#FFEB3B,stroke:#F57F17,stroke-width:3px
-
-  class transform["⏸️ transform"] {
-    <<task>>
-    +status: pending
-  }
-  style transform fill:#E3F2FD,stroke:#1976D2
-
-  fetch --> transform
-
-  note for fetch "
-  Execution started: 2025-10-10T08:00:00Z
-  Current step: Fetching data from API
-  "
-```
-
 ### Benefits
 
 1. **Non-Intrusive:** Original diagram structure preserved
@@ -635,7 +584,7 @@ classDiagram-v2
 3. **Live Updates:** Real-time feedback during execution
 4. **Debugging:** Easy to identify bottlenecks and errors
 
-[See: Runtime & Evolution Guide](runtime-and-evolution.md)
+[See: Runtime & Evolution Guide](runtime-and-evolution.html)
 
 ---
 
@@ -648,74 +597,45 @@ DyGram includes a comprehensive type checking system that validates attribute ty
 The type checker validates:
 
 #### 1. Primitive Types
-```dygram
-task example {
+<CodeEditor
+    initialCode={`task example {
     name<string>: "Alice";     // ✅ Valid
     count<number>: 42;          // ✅ Valid
     enabled<boolean>: true;     // ✅ Valid
 
-    invalid<number>: "text";    // ❌ Type mismatch
-}
-```
+    // invalid<number>: "text";    // ❌ Type mismatch
+}`}
+    language="dygram"
+    readOnly
+    height="140px"
+/>
 
-#### 2. Collection Types
-```dygram
-task lists {
-    items<array>: ["a", "b"];   // ✅ Valid
-    empty<array>: [];            // ✅ Valid
-
-    wrong<array>: 42;            // ❌ Type mismatch
-}
-```
-
-#### 3. Generic Types
-```dygram
-task async {
+#### 2. Generic Types
+<CodeEditor
+    initialCode={`task async {
     result<Promise<string>>: "pending";  // ✅ Valid
     data<Array<number>>: [1, 2, 3];      // ✅ Valid
-}
-```
-
-#### 4. Optional Types
-```dygram
-task optional {
-    maybeValue<string?>: null;    // ✅ Valid (optional)
-    maybeValue<string?>: "text";  // ✅ Valid (has value)
-
-    required<string>: null;       // ❌ Cannot be null
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 ### Type Inference
 
 When type annotations are omitted, the type checker infers types from values:
 
-```dygram
-task inferred {
+<CodeEditor
+    initialCode={`task inferred {
     autoString: "hello";      // Inferred: string
     autoNumber: 42;           // Inferred: number
     autoBool: true;           // Inferred: boolean
     autoArray: [1, 2, 3];     // Inferred: array
-}
-```
-
-### Template Variable Type Checking
-
-The type checker validates template variable references:
-
-```dygram
-context config {
-    timeout<number>: 5000;
-}
-
-task process {
-    // ✅ Valid: timeout is a number
-    prompt: "Timeout: {{ config.timeout }}ms";
-
-    // ❌ Error: missing attribute
-    prompt: "{{ config.nonexistent }}";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 ### Validation Messages
 
@@ -740,23 +660,26 @@ Graph validation ensures structural integrity of the state machine.
 
 Detects nodes that cannot be reached from init nodes:
 
-```dygram
-machine "Unreachable Example"
+<CodeEditor
+    initialCode={`machine "Unreachable Example"
 
 init start;
 task reachable;
 task orphan;  // ⚠️ Warning: Unreachable node
 
 start -> reachable;
-// orphan is never reached
-```
+// orphan is never reached`}
+    language="dygram"
+    readOnly
+    height="140px"
+/>
 
 #### 2. Cycle Detection
 
 Identifies cycles in the graph:
 
-```dygram
-machine "Cycle Example"
+<CodeEditor
+    initialCode={`machine "Cycle Example"
 
 task a;
 task b;
@@ -764,37 +687,30 @@ task c;
 
 a -> b;
 b -> c;
-c -> a;  // ⚠️ Cycle detected: a → b → c → a
-```
+c -> a;  // ⚠️ Cycle detected: a → b → c → a`}
+    language="dygram"
+    readOnly
+    height="150px"
+/>
 
 **Note:** Cycles are not always errors (e.g., loops, retries), but should be intentional.
 
-#### 3. Entry/Exit Point Validation
-
-Ensures proper graph structure:
-
-```dygram
-machine "No Entry Point"
-// ❌ Error: No init node defined
-
-task a;
-task b;
-a -> b;
-```
-
-#### 4. Orphaned Nodes
+#### 3. Orphaned Nodes
 
 Finds nodes with no incoming or outgoing edges:
 
-```dygram
-machine "Orphan Example"
+<CodeEditor
+    initialCode={`machine "Orphan Example"
 
 init start;
 task connected;
 task isolated;  // ⚠️ Warning: Orphaned node (no edges)
 
-start -> connected;
-```
+start -> connected;`}
+    language="dygram"
+    readOnly
+    height="130px"
+/>
 
 ### Graph Statistics
 
@@ -825,115 +741,73 @@ Semantic validation enforces DyGram's design patterns and best practices.
 #### Init Nodes
 **Rule:** Must have outgoing edges (entry points)
 
-```dygram
-machine "Init Validation"
+<CodeEditor
+    initialCode={`machine "Init Validation"
 
-init start;  // ❌ Error: Init node has no outgoing edges
-```
-
-**Valid:**
-```dygram
 init start;
 task next;
-start -> next;  // ✅ Valid
-```
+start -> next;  // ✅ Valid`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 #### Context Nodes
 **Rule:** Shouldn't have incoming edges (not part of execution flow)
 
-```dygram
-machine "Context Validation"
-
-context config {
-    value: 42;
-}
-
-task setup;
-setup -> config;  // ⚠️ Warning: Context node has incoming edge
-```
-
-**Valid:**
-```dygram
-context config {
+<CodeEditor
+    initialCode={`context config {
     value: 42;
 }
 
 task setup {
     prompt: "Use {{ config.value }}";  // ✅ Valid (dependency inference)
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 ### Relationship Semantics
 
 #### Inheritance Validation
 **Rule:** Inheritance should be between compatible types
 
-```dygram
-machine "Inheritance Validation"
-
-task BaseTask;
-context Config;
-
-BaseTask <|-- Config;  // ⚠️ Warning: Inheriting incompatible types
-```
-
-**Valid:**
-```dygram
-task BaseTask;
+<CodeEditor
+    initialCode={`task BaseTask;
 task SpecializedTask;
 
-BaseTask <|-- SpecializedTask;  // ✅ Valid
-```
+BaseTask <|-- SpecializedTask;  // ✅ Valid`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 ### Annotation Compatibility
 
 #### @Async Validation
 **Rule:** Only on task nodes
 
-```dygram
-machine "Async Validation"
-
-state waiting @Async;  // ❌ Error: @Async only valid on tasks
-```
-
-**Valid:**
-```dygram
-task asyncOperation @Async {
+<CodeEditor
+    initialCode={`task asyncOperation @Async {
     prompt: "Long-running operation";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="80px"
+/>
 
 #### @Singleton Validation
 **Rule:** Only on tasks or contexts
 
-```dygram
-machine "Singleton Validation"
-
-init startup @Singleton;  // ❌ Error: @Singleton not valid on init
-```
-
-**Valid:**
-```dygram
-context AppConfig @Singleton {
+<CodeEditor
+    initialCode={`context AppConfig @Singleton {
     apiKey: "secret";
-}
-```
-
-#### @Abstract Validation
-**Rule:** Not on init nodes (must be instantiable)
-
-```dygram
-machine "Abstract Validation"
-
-init start @Abstract;  // ❌ Error: Init nodes cannot be abstract
-```
-
-**Valid:**
-```dygram
-task BaseHandler @Abstract {
-    prompt: "Override this";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="80px"
+/>
 
 ### Best Practices
 
@@ -951,8 +825,8 @@ task BaseHandler @Abstract {
 
 Here's a comprehensive example using all advanced features:
 
-```dygram
-machine "Advanced E-Commerce System"
+<CodeEditor
+    initialCode={`machine "Advanced E-Commerce System"
 
 // Configuration with singleton pattern
 context AppConfig @Singleton {
@@ -979,16 +853,6 @@ task OrderHandler @Async {
 BaseHandler <|-- AuthHandler;
 BaseHandler <|-- OrderHandler;
 
-// User flow with multiplicity
-task User;
-task Order;
-User "1" -> "*" Order;  // One user has many orders
-
-// Composition: Order owns LineItems
-task Order;
-task LineItem;
-Order "1" *--> "1..*" LineItem;  // Order must have at least one item
-
 // Processing pipeline
 init start "User Session Start";
 state authenticated "Authenticated State";
@@ -999,16 +863,14 @@ AuthHandler --> AppConfig;  // Depends on config
 AuthHandler -"success"-> authenticated;
 AuthHandler -"failure"-> error;
 authenticated -> OrderHandler;
-OrderHandler -"success"-> Order;
 
 note for AuthHandler "Authenticates user credentials.
 Uses JWT tokens with {{ AppConfig.timeout }}ms timeout.
-Retries up to {{ AppConfig.maxRetries }} times on failure."
-
-note for OrderHandler "Asynchronous order processing.
-Creates order and line items atomically.
-Validates inventory before committing."
-```
+Retries up to {{ AppConfig.maxRetries }} times on failure."`}
+    language="dygram"
+    readOnly
+    height="600px"
+/>
 
 **This example demonstrates:**
 - ✅ Relationship types (dependency, inheritance, composition, association)
@@ -1043,8 +905,10 @@ These features work together to create expressive, validated, and well-documente
 
 ## Next Steps
 
-- Review [Language Overview](language-overview.md) for basics
-- See [Syntax Guide](syntax-guide.md) for complete grammar
-- Browse [Examples Index](examples-index.md) for patterns
-- Read [Runtime & Evolution](runtime-and-evolution.md) for execution details
+- Review [Language Overview](language-overview.html) for basics
+- See [Syntax Guide](syntax-guide.html) for complete grammar
+- Browse [Examples Index](examples-index.html) for patterns
+- Read [Runtime & Evolution](runtime-and-evolution.html) for execution details
 - Check [Validation Error Handling](VALIDATION_ERROR_HANDLING.md) for error reference
+
+</Layout>

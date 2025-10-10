@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import TestingApproach from './TestingApproach.mdx';
+import TestingApproach from '../../docs/TestingApproach.mdx';
 
 const container = document.getElementById('root');
 if (container) {

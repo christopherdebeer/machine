@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import GrammarReference from './GrammarReference.mdx';
+import GrammarReference from '../../docs/GrammarReference.mdx';
 
 const container = document.getElementById('root');
 if (container) {

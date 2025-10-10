@@ -1,3 +1,8 @@
+import { Layout } from '../src/components/Layout';
+import { CodeEditor } from '../src/components/CodeEditor';
+
+<Layout>
+
 # DyGram Testing Approach
 
 Comprehensive guide to the generative testing methodology used to validate DyGram.
@@ -66,7 +71,7 @@ Tests are organized by language feature:
 
 ### Edges
 - Basic edges
-- Arrow type variants (→, -->, =>, <-->)
+- Arrow type variants (→, -->, =>, bidirectional)
 - Edge labels (simple, quoted, with attributes)
 - Chained edges
 
@@ -106,13 +111,16 @@ Tests are organized by language feature:
 
 Tests are implemented in `test/integration/generative.test.ts`:
 
-```typescript
-test('Basic: Minimal Machine', async () => {
+<CodeEditor
+    initialCode={`test('Basic: Minimal Machine', async () => {
     const source = fs.readFileSync('examples/basic/minimal.dygram', 'utf-8');
     const result = await runGenerativeTest('Minimal Machine', source);
     expect(result.passed).toBe(true);
-});
-```
+});`}
+    language="typescript"
+    readOnly
+    height="140px"
+/>
 
 Each test:
 1. Loads source from example file
@@ -147,13 +155,17 @@ Each test creates `{test-name}.md` with:
 **Issue:** JSON generator only handled 2 levels of nesting, losing grandchildren (3+ levels)
 
 **Example:**
-```dygram
-level1 {
+
+<CodeEditor
+    initialCode={`level1 {
     level2 {
         level3;  // This was being lost!
     }
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 **Fix:** Made `serializeNodes()` recursive to handle arbitrary nesting depth
 
@@ -189,24 +201,36 @@ Test output includes:
 To add a new test:
 
 1. Create example file in appropriate category:
-   ```bash
-   echo 'machine "New Feature"\nnewNode;' > examples/basic/new-feature.dygram
-   ```
+
+<CodeEditor
+    initialCode={`echo 'machine "New Feature"\\nnewNode;' > examples/basic/new-feature.dygram`}
+    language="bash"
+    readOnly
+    height="60px"
+/>
 
 2. Add test case in `test/integration/generative.test.ts`:
-   ```typescript
-   test('Basic: New Feature', async () => {
-       const source = fs.readFileSync('examples/basic/new-feature.dygram', 'utf-8');
-       const result = await runGenerativeTest('New Feature', source);
-       expect(result.passed).toBe(true);
-   });
-   ```
+
+<CodeEditor
+    initialCode={`test('Basic: New Feature', async () => {
+    const source = fs.readFileSync('examples/basic/new-feature.dygram', 'utf-8');
+    const result = await runGenerativeTest('New Feature', source);
+    expect(result.passed).toBe(true);
+});`}
+    language="typescript"
+    readOnly
+    height="140px"
+/>
 
 3. Run tests and review artifacts:
-   ```bash
-   npm test
-   cat test-output/generative/new_feature.md
-   ```
+
+<CodeEditor
+    initialCode={`npm test
+cat test-output/generative/new_feature.md`}
+    language="bash"
+    readOnly
+    height="80px"
+/>
 
 ## Best Practices
 
@@ -218,6 +242,8 @@ To add a new test:
 
 ## See Also
 
-- [Syntax Guide](syntax-guide.md) - Language syntax reference
-- [Examples Index](examples-index.md) - All test examples
-- [GENERATIVE_TESTING.md](../GENERATIVE_TESTING.md) - Original testing documentation
+- [Syntax Guide](syntax-guide.html) - Language syntax reference
+- [Examples Index](examples-index.html) - All test examples
+- [Language Overview](language-overview.html) - Conceptual introduction
+
+</Layout>

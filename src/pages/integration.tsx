@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import Integration from './Integration.mdx';
+import Integration from '../../docs/Integration.mdx';
 
 const root = document.getElementById('root');
 if (root) {

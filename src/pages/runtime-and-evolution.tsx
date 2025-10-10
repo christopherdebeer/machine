@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import RuntimeAndEvolution from './RuntimeAndEvolution.mdx';
+import RuntimeAndEvolution from '../../docs/RuntimeAndEvolution.mdx';
 
 const container = document.getElementById('root');
 if (container) {
