@@ -151,7 +151,7 @@ export class MachineValidator {
      * Phase 4.13: Check attribute type compatibility
      */
     checkAttributeTypeCompatibility(attr: Attribute, accept: ValidationAcceptor): void {
-        if (!attr.type || !attr.value) return;
+        if (!attr.type) return;
 
         // Get the machine from the attribute's container
         const machine = this.getMachineFromAttribute(attr);
@@ -161,7 +161,9 @@ export class MachineValidator {
         const result = typeChecker.validateAttributeType(attr);
 
         if (!result.valid && result.message) {
-            accept('error', result.message, { node: attr, property: 'value' });
+            // Determine the appropriate property to highlight
+            const property = attr.value ? 'value' : 'type';
+            accept('error', result.message, { node: attr, property });
         }
     }
 

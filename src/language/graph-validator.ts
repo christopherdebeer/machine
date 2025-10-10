@@ -4,6 +4,13 @@
  */
 
 import type { Machine, Node } from './generated/ast.js';
+import {
+    ValidationContext,
+    ValidationSeverity,
+    ValidationCategory,
+    createValidationError,
+    GraphErrorCodes
+} from './validation-errors.js';
 
 export interface GraphValidationResult {
     valid: boolean;
@@ -368,5 +375,82 @@ export class GraphValidator {
             maxDepth: longestPath.length,
             cycleCount: cycles.length
         };
+    }
+
+    /**
+     * Validate graph with ValidationContext for runtime error handling
+     */
+    public validateWithContext(context: ValidationContext): void {
+        const result = this.validate();
+
+        // Report unreachable nodes
+        if (result.unreachableNodes && result.unreachableNodes.length > 0) {
+            result.unreachableNodes.forEach(nodeName => {
+                context.addError(createValidationError(
+                    `Node '${nodeName}' is unreachable from entry points`,
+                    {
+                        severity: ValidationSeverity.WARNING,
+                        category: ValidationCategory.GRAPH,
+                        code: GraphErrorCodes.UNREACHABLE_NODE,
+                        location: { node: nodeName },
+                        suggestion: 'Add an edge from an entry point or init node to this node, or remove it if unused'
+                    }
+                ));
+            });
+        }
+
+        // Report orphaned nodes
+        if (result.orphanedNodes && result.orphanedNodes.length > 0) {
+            result.orphanedNodes.forEach(nodeName => {
+                context.addError(createValidationError(
+                    `Node '${nodeName}' is orphaned (no incoming or outgoing edges)`,
+                    {
+                        severity: ValidationSeverity.WARNING,
+                        category: ValidationCategory.GRAPH,
+                        code: GraphErrorCodes.ORPHANED_NODE,
+                        location: { node: nodeName },
+                        suggestion: 'Connect this node to the graph or remove it if unused'
+                    }
+                ));
+            });
+        }
+
+        // Report cycles
+        if (result.cycles && result.cycles.length > 0) {
+            result.cycles.forEach((cycle, index) => {
+                const cyclePath = cycle.join(' → ');
+                // Flag all nodes in the cycle
+                cycle.forEach(nodeName => {
+                    context.addError(createValidationError(
+                        `Cycle detected: ${cyclePath}`,
+                        {
+                            severity: ValidationSeverity.WARNING,
+                            category: ValidationCategory.GRAPH,
+                            code: GraphErrorCodes.CYCLE_DETECTED,
+                            location: { node: nodeName },
+                            context: {
+                                cycleIndex: index,
+                                cyclePath: cycle,
+                                cycleLength: cycle.length
+                            },
+                            suggestion: 'Ensure cycle has proper exit condition or break the cycle if unintended'
+                        }
+                    ));
+                });
+            });
+        }
+
+        // Report missing entry points
+        if (result.missingEntryPoints) {
+            context.addError(createValidationError(
+                'No entry points found in machine',
+                {
+                    severity: ValidationSeverity.WARNING,
+                    category: ValidationCategory.GRAPH,
+                    code: GraphErrorCodes.MISSING_ENTRY,
+                    suggestion: 'Add an init node or designate an entry node'
+                }
+            ));
+        }
     }
 }

@@ -4,6 +4,13 @@
  */
 
 import type { Machine, Node, Attribute, AttributeValue } from './generated/ast.js';
+import {
+    ValidationContext,
+    ValidationSeverity,
+    ValidationCategory,
+    createValidationError,
+    TypeErrorCodes
+} from './validation-errors.js';
 
 export interface TypeInfo {
     baseType: string;
@@ -396,6 +403,58 @@ export class TypeChecker {
         this.machine.nodes.forEach(node => validateNode(node));
 
         return results;
+    }
+
+    /**
+     * Validate all attributes with ValidationContext for runtime error handling
+     */
+    public validateAllAttributesWithContext(context: ValidationContext): void {
+        const validateNode = (node: Node) => {
+            node.attributes?.forEach(attr => {
+                const result = this.validateAttributeType(attr);
+                if (!result.valid) {
+                    context.addError(createValidationError(
+                        result.message || 'Type validation failed',
+                        {
+                            severity: ValidationSeverity.ERROR,
+                            category: ValidationCategory.TYPE,
+                            code: TypeErrorCodes.TYPE_MISMATCH,
+                            location: {
+                                node: node.name,
+                                property: attr.name
+                            },
+                            expected: result.expectedType,
+                            actual: result.actualType,
+                            suggestion: this.generateTypeSuggestion(result)
+                        }
+                    ));
+                }
+            });
+
+            // Recursively validate child nodes
+            node.nodes.forEach(child => validateNode(child));
+        };
+
+        this.machine.nodes.forEach(node => validateNode(node));
+    }
+
+    /**
+     * Generate a helpful suggestion for type errors
+     */
+    private generateTypeSuggestion(result: TypeCheckResult): string | undefined {
+        if (!result.expectedType || !result.actualType) {
+            return undefined;
+        }
+
+        if (result.actualType === 'undefined') {
+            const typeInfo = this.parseType(result.expectedType);
+            if (typeInfo.isOptional) {
+                return `Make the type optional with '${result.expectedType}' or provide a value`;
+            }
+            return `Provide a value of type '${result.expectedType}' or make the type optional with '${result.expectedType}?'`;
+        }
+
+        return `Change the value to match type '${result.expectedType}' or update the type annotation to '${result.actualType}'`;
     }
 
     /**
