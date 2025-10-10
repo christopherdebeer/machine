@@ -21,7 +21,7 @@ describe('Validating', () => {
         document = await parse(`
             machine "Test Machine"
 
-            State1;
+            init State1;
             State2;
 
             State1 --> State2;

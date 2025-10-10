@@ -145,7 +145,8 @@ export class TypeChecker {
 
         // Handle AST node values
         if (typeof value === 'object' && value !== null) {
-            if ('value' in value) {
+            // Check if value property exists and is populated
+            if ('value' in value && (value as any).value !== undefined) {
                 const val = (value as any).value;
 
                 if (typeof val === 'string') {
@@ -162,6 +163,36 @@ export class TypeChecker {
                     const elementType = this.inferType(val[0] as any);
                     return `Array<${elementType}>`;
                 }
+            }
+
+            // If value property is not set, try to extract from CST
+            if ('$cstNode' in value && (value as any).$cstNode) {
+                const cstText = (value as any).$cstNode.text.trim();
+
+                // Check if it's a string (quoted)
+                if (cstText.startsWith('"') || cstText.startsWith("'")) {
+                    return 'string';
+                }
+
+                // Check if it's a number
+                if (/^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(cstText)) {
+                    return 'number';
+                }
+
+                // Check if it's a boolean
+                if (cstText === 'true' || cstText === 'false') {
+                    return 'boolean';
+                }
+
+                // Check if it's an array
+                if (cstText.startsWith('[') && cstText.endsWith(']')) {
+                    // For arrays, we'd need more sophisticated parsing
+                    // For now, return Array<any>
+                    return 'Array<any>';
+                }
+
+                // Otherwise, assume it's a reference or identifier
+                return 'any';
             }
         }
 

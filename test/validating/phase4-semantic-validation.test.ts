@@ -26,7 +26,7 @@ describe('Phase 4: Init Node Semantics', () => {
         const warnings = document.diagnostics?.filter(d => d.severity === 2) || [];
 
         const initWarnings = warnings.filter(w =>
-            w.message.includes('init') && w.message.includes('outgoing')
+            w.message.toLowerCase().includes('init') && w.message.toLowerCase().includes('outgoing')
         );
         expect(initWarnings.length).toBeGreaterThan(0);
     });

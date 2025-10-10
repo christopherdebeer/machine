@@ -130,16 +130,18 @@ export class GraphValidator {
      * Find unreachable nodes (nodes that cannot be reached from entry points)
      */
     public findUnreachableNodes(): string[] {
-        const entryPoints = this.findEntryPoints();
-        if (entryPoints.length === 0) {
-            // If no entry points, all nodes are potentially unreachable
-            // But this is a separate validation issue
-            return [];
-        }
+        // For reachability, we only consider init nodes as entry points
+        // (not all nodes without incoming edges, as those might be orphaned)
+        const initNodes: string[] = [];
+        this.nodeMap.forEach((node, nodeName) => {
+            if (node.type === 'init') {
+                initNodes.push(nodeName);
+            }
+        });
 
-        // BFS from all entry points
+        // BFS from all init nodes
         const visited = new Set<string>();
-        const queue: string[] = [...entryPoints];
+        const queue: string[] = [...initNodes];
 
         while (queue.length > 0) {
             const current = queue.shift()!;
