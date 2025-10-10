@@ -47,6 +47,9 @@ export class RuntimeVisualizer {
         const originalContext = executor.getContext();
         this.context = {
             currentNode: originalContext.currentNode,
+            currentTaskNode: originalContext.currentTaskNode,
+            activeState: originalContext.activeState,
+            errorCount: originalContext.errorCount || 0,
             visitedNodes: new Set(Array.from(originalContext.visitedNodes)),
             attributes: new Map(Array.from(originalContext.attributes.entries())),
             history: originalContext.history.map(step => ({
