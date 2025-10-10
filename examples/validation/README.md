@@ -1,0 +1,268 @@
+# Validation Features Examples
+
+This directory contains examples demonstrating DyGram's comprehensive validation system, including type checking, graph validation, and semantic validation.
+
+## Examples
+
+### `type-checking.dygram`
+Type checking and type validation:
+- Primitive type validation (string, number, boolean)
+- Collection type validation (arrays)
+- Generic type validation (Promise<T>, Array<T>)
+- Optional type validation (string?)
+- Type inference from values
+- Template variable type checking
+- Type mismatch detection
+
+### `graph-validation.dygram`
+Graph structure validation:
+- Unreachable node detection
+- Cycle detection in workflows
+- Entry/exit point validation
+- Orphaned node detection
+- Graph statistics (node counts, edge counts)
+- Connected components analysis
+- Max nesting depth validation
+
+### `semantic-validation.dygram`
+Semantic validation of DyGram patterns:
+- Init node validation (must have outgoing edges)
+- Context node validation (shouldn't have incoming edges)
+- Relationship semantics (inheritance between compatible types)
+- Annotation compatibility (@Async on tasks only)
+- @Singleton validation (tasks and contexts only)
+- @Abstract validation (not on init nodes)
+- Best practice enforcement
+
+### `complete-validated.dygram`
+Complete example with all validation features:
+- Type-checked attributes
+- Valid graph structure
+- Semantic correctness
+- Proper annotations
+- Well-formed relationships
+- Documentation notes
+- Real-world e-commerce example
+
+## Validation Types
+
+### 1. Type Checking
+
+Validates attribute types and catches type errors:
+
+#### Primitive Types
+```dygram
+task example {
+    name<string>: "Alice";     // ✅ Valid
+    count<number>: 42;          // ✅ Valid
+    enabled<boolean>: true;     // ✅ Valid
+
+    invalid<number>: "text";    // ❌ Type mismatch
+}
+```
+
+#### Collection Types
+```dygram
+task lists {
+    items<array>: ["a", "b"];   // ✅ Valid
+    empty<array>: [];            // ✅ Valid
+
+    wrong<array>: 42;            // ❌ Type mismatch
+}
+```
+
+#### Optional Types
+```dygram
+task optional {
+    maybeValue<string?>: null;    // ✅ Valid (optional)
+    maybeValue<string?>: "text";  // ✅ Valid (has value)
+
+    required<string>: null;       // ❌ Cannot be null
+}
+```
+
+#### Type Inference
+```dygram
+task inferred {
+    autoString: "hello";      // Inferred: string
+    autoNumber: 42;           // Inferred: number
+    autoBool: true;           // Inferred: boolean
+}
+```
+
+### 2. Graph Validation
+
+Ensures structural integrity:
+
+#### Unreachable Nodes
+```dygram
+init start;
+task reachable;
+task orphan;  // ⚠️ Warning: Unreachable
+
+start -> reachable;
+// orphan is never reached
+```
+
+#### Cycle Detection
+```dygram
+task a;
+task b;
+task c;
+
+a -> b;
+b -> c;
+c -> a;  // ⚠️ Cycle detected
+```
+
+#### Entry Point Validation
+```dygram
+machine "No Entry"
+// ❌ Error: No init node
+
+task a;
+task b;
+a -> b;
+```
+
+#### Orphaned Nodes
+```dygram
+init start;
+task connected;
+task isolated;  // ⚠️ Warning: Orphaned (no edges)
+
+start -> connected;
+```
+
+### 3. Semantic Validation
+
+Enforces design patterns and best practices:
+
+#### Init Node Rules
+```dygram
+init start;  // ❌ Error: No outgoing edges
+```
+
+**Valid:**
+```dygram
+init start;
+task next;
+start -> next;  // ✅ Valid
+```
+
+#### Context Node Rules
+```dygram
+context config {
+    value: 42;
+}
+
+task setup;
+setup -> config;  // ⚠️ Warning: Context has incoming edge
+```
+
+**Valid:**
+```dygram
+context config {
+    value: 42;
+}
+
+task setup {
+    prompt: "Use {{config.value}}";  // ✅ Valid (dependency)
+}
+```
+
+#### Annotation Validation
+```dygram
+state waiting @Async;  // ❌ Error: @Async only on tasks
+
+init startup @Singleton;  // ❌ Error: @Singleton not on init
+
+init start @Abstract;  // ❌ Error: Init cannot be abstract
+```
+
+**Valid:**
+```dygram
+task asyncOp @Async {
+    prompt: "Long operation";
+}
+
+context config @Singleton {
+    apiKey: "secret";
+}
+
+task baseHandler @Abstract {
+    prompt: "Override this";
+}
+```
+
+## Validation Levels
+
+| Level | Meaning | Action |
+|-------|---------|--------|
+| **Error** | Structural problem or type mismatch | Must fix |
+| **Warning** | Potential issue or design smell | Should review |
+| **Info** | Interesting fact or statistic | FYI |
+
+## Validation Messages
+
+### Type Errors
+- `Type mismatch: expected number, got string`
+- `Context reference "config.missing" is undefined`
+- `Cannot assign null to non-optional type`
+
+### Graph Errors
+- `Unreachable node: orphan (no path from init)`
+- `Cycle detected: a → b → c → a`
+- `No init node defined`
+- `Orphaned node: isolated (no edges)`
+
+### Semantic Errors
+- `Init node must have outgoing edges`
+- `Context node should not have incoming edges`
+- `@Async annotation only valid on task nodes`
+- `@Singleton annotation not valid on init nodes`
+- `Init nodes cannot be abstract`
+
+## Graph Statistics
+
+The validator provides useful metrics:
+
+- **Node Counts** by type (task, state, init, context)
+- **Edge Counts** by relationship type
+- **Max Nesting Depth**
+- **Connected Components** count
+- **Cyclic Complexity**
+
+## Best Practices
+
+1. **Always Define Init Node**: Every machine should have an entry point
+2. **Avoid Unreachable Nodes**: Ensure all nodes are reachable from init
+3. **Use Context Correctly**: Contexts for configuration, not execution flow
+4. **Type Your Attributes**: Always specify types for better validation
+5. **Document Intentional Cycles**: Use notes to explain loops and retries
+6. **Follow Annotation Rules**: Apply annotations only where valid
+7. **Review Warnings**: Address warnings to improve code quality
+
+## Usage
+
+### Validate a File
+```bash
+npx dygram parseAndValidate examples/validation/type-checking.dygram
+```
+
+### Generate with Validation
+```bash
+npx dygram generate examples/validation/complete-validated.dygram -f json,html
+```
+
+### Run Tests
+```bash
+npm test -- --grep validation
+```
+
+## See Also
+
+- [Advanced Features](../../docs/advanced-features.md) - Validation documentation
+- [Validation Error Handling](../../docs/VALIDATION_ERROR_HANDLING.md) - Error reference
+- [Testing Approach](../../docs/testing-approach.md) - Validation methodology
+- [Syntax Guide](../../docs/syntax-guide.md) - Language syntax
