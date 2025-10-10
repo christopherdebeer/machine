@@ -16,7 +16,7 @@ Task processData {
   prompt: "The number is {{data.number}}. Calculate its square and store the result in results context";
 };
 
-context results {
+context results2 {
   original<number>: 0;
   squared<number>: 0;
   message<string>: "";
@@ -27,5 +27,5 @@ state end;
 start --> generateData;
 generateData -stores-> data;
 data --> processData;
-processData -calculates-> results;
-results --> end;
+processData -calculates-> results2;
+results2 --> end;

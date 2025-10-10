@@ -12,3 +12,4 @@ examples/*
 generated
 .DS_Store
 dist/
+test-output/
