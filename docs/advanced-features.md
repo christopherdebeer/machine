@@ -207,7 +207,7 @@ The validator checks:
 - ✅ Lower bound ≤ upper bound in ranges
 - ⚠️ Warns if multiplicity seems unusual (e.g., `"5..*"`)
 
-[Example: examples/phase2/multiplicity.dygram](../examples/phase2/multiplicity.dygram)
+[Example: examples/advanced/multiplicity.dygram](../examples/advanced/multiplicity.dygram)
 
 ---
 
@@ -287,7 +287,7 @@ The validator enforces:
 - ✅ `@Abstract` not on init nodes
 - ⚠️ Warns on deprecated node usage
 
-[Example: examples/phase2/annotations.dygram](../examples/phase2/annotations.dygram)
+[Example: examples/advanced/annotations.dygram](../examples/advanced/annotations.dygram)
 
 ---
 
@@ -368,7 +368,7 @@ The validator checks:
 - ✅ Type compatibility
 - ⚠️ Warns on circular dependencies
 
-[Example: examples/phase2/dependency-inference.dygram](../examples/phase2/dependency-inference.dygram)
+[Example: examples/advanced/dependency-inference.dygram](../examples/advanced/dependency-inference.dygram)
 
 ---
 
@@ -456,7 +456,7 @@ task handleEvent {
 listenEvents -> handleEvent;
 ```
 
-[Example: examples/phase3/notes-and-generics.dygram](../examples/phase3/notes-and-generics.dygram)
+[Example: examples/documentation/notes-and-generics.dygram](../examples/documentation/notes-and-generics.dygram)
 
 ---
 
@@ -527,7 +527,7 @@ class critical {
 note for critical "IMPORTANT: This is a critical path operation"
 ```
 
-[Example: examples/phase3/notes-and-generics.dygram](../examples/phase3/notes-and-generics.dygram)
+[Example: examples/documentation/notes-and-generics.dygram](../examples/documentation/notes-and-generics.dygram)
 
 ---
 
@@ -726,7 +726,7 @@ task process {
 | **Warning** | Type inference ambiguity | `Could not infer type for attribute` |
 | **Info** | Type widening | `Type widened from integer to number` |
 
-[Example: examples/phase4/type-checking.dygram](../examples/phase4/type-checking.dygram)
+[Example: examples/validation/type-checking.dygram](../examples/validation/type-checking.dygram)
 
 ---
 
@@ -812,7 +812,7 @@ The validator provides:
 | **Warning** | Potential issue | Should review |
 | **Info** | Interesting fact | FYI |
 
-[Example: examples/phase4/graph-validation.dygram](../examples/phase4/graph-validation.dygram)
+[Example: examples/validation/graph-validation.dygram](../examples/validation/graph-validation.dygram)
 
 ---
 
@@ -943,7 +943,7 @@ task BaseHandler @Abstract {
 4. **Annotations** - Follow semantic rules
 5. **Cycles** - Document intentional loops
 
-[Example: examples/phase4/semantic-validation.dygram](../examples/phase4/semantic-validation.dygram)
+[Example: examples/validation/semantic-validation.dygram](../examples/validation/semantic-validation.dygram)
 
 ---
 
@@ -1020,7 +1020,7 @@ Validates inventory before committing."
 - ✅ Type validation
 - ✅ Semantic validation
 
-[Example: examples/phase4/complete-validated.dygram](../examples/phase4/complete-validated.dygram)
+[Example: examples/validation/complete-validated.dygram](../examples/validation/complete-validated.dygram)
 
 ---
 
