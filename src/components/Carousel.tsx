@@ -43,11 +43,14 @@ export const Carousel: React.FC<CarouselProps> = ({ slides }) => {
                         className={`carousel-slide ${index === currentIndex ? 'active' : ''}`}
                         style={{ display: index === currentIndex ? 'block' : 'none' }}
                     >
-                        <CodeEditor
-                            initialCode={slide.code}
-                            language="machine"
-                            id={slide.id}
-                        />
+                        {/* Only render CodeEditor for active slide to ensure proper Monaco layout */}
+                        {index === currentIndex && (
+                            <CodeEditor
+                                initialCode={slide.code}
+                                language="machine"
+                                id={slide.id}
+                            />
+                        )}
                     </div>
                 ))}
             </div>
