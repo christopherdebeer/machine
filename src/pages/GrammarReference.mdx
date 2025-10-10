@@ -107,7 +107,9 @@ Supported type annotations:
 
 Connect entities with labeled relationships:
 
-```
+<CodeEditor
+    id="grammar-003"
+    initialCode={`
 // Simple connection
 a -> b;
 
@@ -116,6 +118,7 @@ a -drives-> b;
 
 // Relationship with metadata
 a -addresses, confidence: 0.9-> b;
-```
+`}
+/>
 
 </PageLayout>
