@@ -133,16 +133,21 @@ export class RuntimeVisualizer {
             if (node.attributes && node.attributes.length > 0) {
                 node.attributes.forEach(attr => {
                     if (attr.name === 'prompt' || attr.name === 'desc') return; // Skip display attributes
-                    
+
                     let displayValue = this.formatAttributeValue(attr.value);
-                    
+
                     // Show runtime value if different and available
-                    if (options.showRuntimeValues && attr.runtimeValue !== undefined && 
+                    if (options.showRuntimeValues && attr.runtimeValue !== undefined &&
                         attr.runtimeValue !== attr.value) {
                         displayValue = `${displayValue} → ${this.formatAttributeValue(attr.runtimeValue)}`;
                     }
-                    
-                    const typeAnnotation = attr.type ? ` : ${attr.type}` : '';
+
+                    // Format type annotation properly (handle objects)
+                    let typeAnnotation = '';
+                    if (attr.type) {
+                        const typeStr = typeof attr.type === 'object' ? JSON.stringify(attr.type) : String(attr.type);
+                        typeAnnotation = ` : ${typeStr}`;
+                    }
                     lines.push(`    +${attr.name}${typeAnnotation} = ${displayValue}`);
                 });
             }

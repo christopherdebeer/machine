@@ -125,6 +125,17 @@ class JSONGenerator extends BaseGenerator {
                 value = value[0];
             }
 
+            // Recursively extract primitive values from AST objects
+            while (value && typeof value === 'object' && !Array.isArray(value) && '$cstNode' in value) {
+                if (value.$cstNode && 'text' in value.$cstNode) {
+                    value = value.$cstNode.text;
+                } else if ('value' in value) {
+                    value = value.value;
+                } else {
+                    break;
+                }
+            }
+
             // Serialize type (including generic types)
             const typeStr = attr.type ? this.serializeType(attr.type) : undefined;
 
@@ -425,9 +436,20 @@ classDiagram-v2
                 // Prefer node title over desc/prompt attributes for display
                 const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
                 let displayValue: any = node.title || desc?.value;
-                if (displayValue && typeof displayValue === 'string') {
-                    displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
-                    displayValue = wrapText(displayValue, 60); // Apply text wrapping
+                if (displayValue) {
+                    if (typeof displayValue === 'string') {
+                        displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
+                        displayValue = wrapText(displayValue, 60); // Apply text wrapping
+                    } else if (typeof displayValue === 'object' && displayValue !== null) {
+                        // Stringify objects for title display
+                        try {
+                            displayValue = JSON.stringify(displayValue);
+                        } catch (e) {
+                            displayValue = String(displayValue);
+                        }
+                    } else {
+                        displayValue = String(displayValue);
+                    }
                 }
                 const header = `class ${node.name}${displayValue ? `["${displayValue}"]` : ''}`;
 
@@ -437,10 +459,21 @@ classDiagram-v2
                     ? attributes.map(a => {
                         // Extract the actual value from the attribute
                         let displayValue = a.value?.value ?? a.value;
-                        // Remove quotes from string values for display
+                        // Format value based on type
                         if (typeof displayValue === 'string') {
+                            // Remove quotes from string values for display
                             displayValue = displayValue.replace(/^["']|["']$/g, '');
                             displayValue = wrapText(displayValue, 60); // Apply text wrapping
+                        } else if (typeof displayValue === 'object' && displayValue !== null) {
+                            // Stringify objects and arrays
+                            try {
+                                displayValue = JSON.stringify(displayValue);
+                            } catch (e) {
+                                displayValue = String(displayValue);
+                            }
+                        } else {
+                            // For numbers, booleans, etc., convert to string
+                            displayValue = String(displayValue);
                         }
                         // Convert generic types to Mermaid format (< > to ~ ~)
                         // Note: a.type is already serialized as a string in JSON
@@ -687,9 +720,20 @@ classDiagram-v2
                 // Prefer node title over desc/prompt attributes for display
                 const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
                 let displayValue: any = node.title || desc?.value;
-                if (displayValue && typeof displayValue === 'string') {
-                    displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
-                    displayValue = wrapText(displayValue, 60); // Apply text wrapping
+                if (displayValue) {
+                    if (typeof displayValue === 'string') {
+                        displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
+                        displayValue = wrapText(displayValue, 60); // Apply text wrapping
+                    } else if (typeof displayValue === 'object' && displayValue !== null) {
+                        // Stringify objects for title display
+                        try {
+                            displayValue = JSON.stringify(displayValue);
+                        } catch (e) {
+                            displayValue = String(displayValue);
+                        }
+                    } else {
+                        displayValue = String(displayValue);
+                    }
                 }
                 const header = `class ${node.name}${displayValue ? `["${displayValue}"]` : ''}`;
 
