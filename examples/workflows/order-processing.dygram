@@ -1,9 +1,11 @@
 machine "E-Commerce Order Processing"
 
+init start;
+
 // Order states
 State new_order {
     desc: "Order received";
-    priority<Integer>: 1;
+    priority<number>: 1;
 };
 
 State payment_pending {
@@ -33,6 +35,8 @@ State cancelled {
 State refunded {
     desc: "Order refunded";
 };
+
+start -> new_order;
 
 // Happy path
 new_order -create-> payment_pending;

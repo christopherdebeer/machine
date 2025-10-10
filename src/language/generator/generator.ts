@@ -844,7 +844,34 @@ class HTMLGenerator extends BaseGenerator {
     protected fileExtension = 'html';
 
     protected generateContent(): FileGenerationResult {
-        const webExecutorPath = path.join(path.dirname(this.filePath || ''), '..', 'out', 'extension', 'web', 'machine-executor-web.js');
+        // Find the project root by looking for package.json
+        // Resolve to absolute path first
+        const absoluteFilePath = this.filePath ? path.resolve(this.filePath) : process.cwd();
+        let currentDir = path.dirname(absoluteFilePath);
+        let projectRoot = currentDir;
+        
+        // Walk up the directory tree to find package.json
+        while (projectRoot !== path.dirname(projectRoot)) {
+            if (fs.existsSync(path.join(projectRoot, 'package.json'))) {
+                break;
+            }
+            projectRoot = path.dirname(projectRoot);
+        }
+        
+        // Try multiple possible locations for the web executor
+        const possiblePaths = [
+            path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web.js'),
+            path.join(projectRoot, 'out', 'language', 'machine-executor-web.js'),
+            path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web.js'),
+            path.join(projectRoot, 'dist', 'language', 'machine-executor-web.js')
+        ];
+        
+        let webExecutorPath = possiblePaths.find(p => fs.existsSync(p));
+        
+        if (!webExecutorPath) {
+            throw new Error(`Could not find machine-executor-web.js. Tried:\n${possiblePaths.join('\n')}`);
+        }
+        
         const mermaidGen = new MermaidGenerator(this.machine, this.filePath, this.options);
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
         const jsonContent = jsonGen.generate();

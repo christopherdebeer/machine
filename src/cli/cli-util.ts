@@ -49,9 +49,9 @@ export function extractDestinationAndName(filePath?: string, destination?: strin
             name: 'example'
         };
     }
-    filePath = path.basename(filePath, path.extname(filePath)).replace(/[.-]/g, '');
+    const name = path.basename(filePath, path.extname(filePath));
     return {
         destination: destination ?? path.join(path.dirname(filePath), 'generated'),
-        name: path.basename(filePath)
+        name: name
     };
 }
