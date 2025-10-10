@@ -23,7 +23,7 @@ export interface FileGenerationResult {
 abstract class BaseGenerator {
     protected abstract fileExtension: string;
 
-    constructor(protected machine: Machine, protected filePath: string, protected options: GeneratorOptions = {}) {}
+    constructor(protected machine: Machine, protected filePath?: string, protected options: GeneratorOptions = {}) {}
 
     public generate(): FileGenerationResult {
         const result = this.generateContent();
@@ -1077,7 +1077,7 @@ class HTMLGenerator extends BaseGenerator {
 
 // Generator Factory
 class GeneratorFactory {
-    static createGenerator(format: string, machine: Machine, filePath: string, options: GeneratorOptions = {}): BaseGenerator {
+    static createGenerator(format: string, machine: Machine, filePath?: string, options: GeneratorOptions = {}): BaseGenerator {
         switch (format.toLowerCase()) {
             case 'json':
                 return new JSONGenerator(machine, filePath, options);
@@ -1094,7 +1094,7 @@ class GeneratorFactory {
 }
 
 // Public API
-export function generateJSON(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
+export function generateJSON(machine: Machine, filePath?: string, destination?: string): FileGenerationResult {
     return GeneratorFactory.createGenerator('json', machine, filePath, { destination }).generate();
 }
 

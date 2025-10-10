@@ -11,7 +11,7 @@ import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import { createMachineServices } from './language/machine-module.js';
 import { Machine } from './language/generated/ast.js';
-import { generateMermaid } from './language/generator/generator.js';
+import { generateJSON, generateMermaid } from './language/generator/generator.js';
 import { MachineExecutor } from './language/machine-executor.js';
 import { EvolutionaryExecutor } from './language/task-evolution.js';
 import { VisualizingMachineExecutor } from './language/runtime-visualizer.js';
@@ -175,10 +175,10 @@ export async function loadDynamicExamples(): Promise<void> {
                         const outputElement = document.getElementById('outputInfo');
                         const diagramElement = document.getElementById('diagram');
                         if (outputElement) {
-                            // Auto-execute the new example to update diagram source
-                            setTimeout(() => {
-                                executeCode(examples[key], outputElement, diagramElement);
-                            }, 100);
+                            // // Auto-execute the new example to update diagram source
+                            // setTimeout(() => {
+                            //     executeCode(examples[key], outputElement, diagramElement);
+                            // }, 100);
                         }
                     }
                 });
@@ -475,87 +475,9 @@ function convertToMachineData(machine: Machine): any {
     const nodes: any[] = [];
     const edges: any[] = [];
 
-    // Process nodes - safely extract only the data we need
-    machine.nodes?.forEach(node => {
-        const nodeData: any = {
-            name: String(node.name || ''),
-            type: String(node.type || 'state')
-        };
-
-        // Convert attributes safely
-        if (node.attributes && node.attributes.length > 0) {
-            nodeData.attributes = [];
-            node.attributes.forEach(attr => {
-                const attrData: any = {
-                    name: String(attr.name || ''),
-                    type: String(attr.type || 'string')
-                };
-                
-                // Safely extract attribute value
-                if (attr.value) {
-                    if (typeof attr.value === 'string') {
-                        attrData.value = attr.value;
-                    } else if (attr.value.value !== undefined) {
-                        attrData.value = String(attr.value.value);
-                    } else {
-                        attrData.value = String(attr.value);
-                    }
-                } else {
-                    attrData.value = '';
-                }
-                
-                nodeData.attributes.push(attrData);
-            });
-        }
-
-        nodes.push(nodeData);
-    });
-
-    // Process edges - safely extract edge data without AST references
-    machine.edges?.forEach(edge => {
-        // Each edge can have multiple segments
-        edge.segments?.forEach(segment => {
-            // Each segment connects source nodes to target nodes
-            edge.source?.forEach(sourceRef => {
-                segment.target?.forEach(targetRef => {
-                    const edgeData: any = {
-                        source: String(sourceRef.ref?.name || ''),
-                        target: String(targetRef.ref?.name || '')
-                    };
-
-                    // Extract label information from segment safely
-                    if (segment.label && segment.label.length > 0) {
-                        const labelParts: string[] = [];
-                        segment.label.forEach(edgeType => {
-                            edgeType.value?.forEach(attr => {
-                                if (attr.text) {
-                                    labelParts.push(String(attr.text));
-                                } else if (attr.name) {
-                                    labelParts.push(String(attr.name));
-                                }
-                            });
-                        });
-                        if (labelParts.length > 0) {
-                            edgeData.label = labelParts.join(' ');
-                        }
-                    }
-
-                    // Set edge type based on arrow type
-                    if (segment.endType) {
-                        edgeData.type = String(segment.endType);
-                    }
-
-                    edges.push(edgeData);
-                });
-            });
-        });
-    });
-
-    return {
-        title: String(machine.title || 'Untitled Machine'),
-        nodes,
-        edges
-    };
+    const json = generateJSON(machine)
+    console.log("JSON", json.content)
+    return JSON.parse(json.content);
 }
 
 /**
@@ -717,6 +639,20 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         let executionResult = null;
         let executionSteps = 0;
         let maxSteps = 10; // Prevent infinite loops in demo
+
+        // Generate both static and runtime diagrams
+        const staticMermaidCode = await generateMermaidFromCode(code);
+
+        // Render the appropriate diagram (runtime if available, otherwise static)
+        if (diagramElement) {
+            diagramElement.innerHTML = '<div class="loading">Rendering diagram...</div>';
+            try {
+                await renderDiagram(staticMermaidCode, diagramElement);
+            } catch (err) {
+                console.warn(`Failed to render diagram/`)
+                console.error(err);
+            } 
+        }
         
         if (hasTaskNodes && hasApiKey) {
             console.log('🚀 Starting execution with LLM support...');
@@ -765,8 +701,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         const mutations = executor.getMutations();
         const evolutions = mutations.filter((m: any) => m.type === 'task_evolution');
 
-        // Generate both static and runtime diagrams
-        const staticMermaidCode = await generateMermaidFromCode(code);
+        
         let runtimeMermaidCode = staticMermaidCode;
         
         console.log('🎨 Diagram generation:', {
@@ -781,7 +716,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             console.log('🔄 Using main executor for runtime diagram');
             try {
                 runtimeMermaidCode = executor.toMermaidRuntime();
-                console.log('🎯 Generated runtime mermaid code:', runtimeMermaidCode.substring(0, 200) + '...');
+                console.log('🎯 Generated runtime mermaid code:', runtimeMermaidCode);
             } catch (runtimeError) {
                 console.error('❌ Error generating runtime diagram:', runtimeError);
                 // Fall back to static diagram

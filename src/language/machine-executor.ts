@@ -823,28 +823,28 @@ export class MachineExecutor {
         // Resolve template variables in the prompt
         let resolvedPrompt = attributes.prompt || '';
         
-        // Ensure resolvedPrompt is a string
-        if (typeof resolvedPrompt !== 'string') {
-            if (resolvedPrompt && typeof resolvedPrompt === 'object') {
-                // Handle object/array cases - could be a complex attribute value
-                // Check if it has a 'value' property (common in AST nodes)
-                const objPrompt = resolvedPrompt as any;
-                if ('value' in objPrompt && typeof objPrompt.value === 'string') {
-                    resolvedPrompt = objPrompt.value;
-                } else {
-                    // Try to safely stringify, handling circular references
-                    try {
-                        resolvedPrompt = JSON.stringify(resolvedPrompt);
-                    } catch (error) {
-                        // Fallback for circular references or other stringify errors
-                        resolvedPrompt = String(resolvedPrompt);
-                    }
-                }
-            } else {
-                // Convert other types to string
-                resolvedPrompt = String(resolvedPrompt);
-            }
-        }
+        // // Ensure resolvedPrompt is a string
+        // if (typeof resolvedPrompt !== 'string') {
+        //     if (resolvedPrompt && typeof resolvedPrompt === 'object') {
+        //         // Handle object/array cases - could be a complex attribute value
+        //         // Check if it has a 'value' property (common in AST nodes)
+        //         const objPrompt = resolvedPrompt as any;
+        //         if ('value' in objPrompt && typeof objPrompt.value === 'string') {
+        //             resolvedPrompt = objPrompt.value;
+        //         } else {
+        //             // Try to safely stringify, handling circular references
+        //             try {
+        //                 resolvedPrompt = JSON.stringify(resolvedPrompt);
+        //             } catch (error) {
+        //                 // Fallback for circular references or other stringify errors
+        //                 resolvedPrompt = String(resolvedPrompt);
+        //             }
+        //         }
+        //     } else {
+        //         // Convert other types to string
+        //         resolvedPrompt = String(resolvedPrompt);
+        //     }
+        // }
         
         // Simple template variable resolution for {{ variable.property }} syntax
         resolvedPrompt = resolvedPrompt.replace(/\{\{\s*(\w+)\.(\w+)\s*\}\}/g, (match: string, nodeName: string, attrName: string) => {
@@ -1027,7 +1027,7 @@ export class MachineExecutor {
         // Check if this is a task node (case-insensitive) or has a prompt attribute
         const isTaskNode = currentNode.type?.toLowerCase() === 'task' || 
                           currentNode.attributes?.some(attr => attr.name === 'prompt');
-
+        debugger;
         console.log('🔍 Node execution check:', {
             nodeName: currentNode.name,
             nodeType: currentNode.type,
