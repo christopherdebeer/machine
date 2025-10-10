@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import Blog from './Blog.mdx';
+import Blog from '../../docs/Blog.mdx';
 
 const root = document.getElementById('root');
 if (root) {

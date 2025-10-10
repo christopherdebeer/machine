@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import EvolutionPage from './Evolution.mdx';
+import EvolutionPage from '../../docs/Evolution.mdx';
 
 const root = document.getElementById('root');
 if (root) {

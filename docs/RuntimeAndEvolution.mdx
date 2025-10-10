@@ -1,3 +1,8 @@
+import { Layout } from '../src/components/Layout';
+import { CodeEditor } from '../src/components/CodeEditor';
+
+<Layout>
+
 # Runtime & Evolution System
 
 DyGram's runtime system executes machines with support for LLM-powered tasks, automatic code generation, and intelligent evolution from exploratory prompts to optimized code.
@@ -8,8 +13,8 @@ The `MachineExecutor` is the core runtime that executes DyGram machines, managin
 
 ### Basic Execution
 
-```typescript
-import { createMachineServices } from 'dygram';
+<CodeEditor
+    initialCode={`import { createMachineServices } from 'dygram';
 import { MachineExecutor } from 'dygram/language/machine-executor';
 
 // Parse machine definition
@@ -25,8 +30,11 @@ await executor.step();
 // Or run until completion
 while (!executor.isComplete()) {
     await executor.step();
-}
-```
+}`}
+    language="typescript"
+    readOnly
+    height="320px"
+/>
 
 ### Execution Context
 
@@ -42,11 +50,14 @@ The executor provides rich runtime visualization capabilities that show the curr
 
 #### Runtime Diagram Generation
 
-```typescript
-// Generate runtime visualization
+<CodeEditor
+    initialCode={`// Generate runtime visualization
 const runtimeDiagram = executor.toMermaidRuntime();
-console.log(runtimeDiagram);
-```
+console.log(runtimeDiagram);`}
+    language="typescript"
+    readOnly
+    height="100px"
+/>
 
 **Runtime diagrams include:**
 - **Status indicators**: ▶️ (current), ✅ (visited), ⏸️ (pending)
@@ -59,8 +70,8 @@ console.log(runtimeDiagram);
 
 Runtime diagrams use the same `classDiagram-v2` format as static diagrams for consistency, but with enhanced runtime overlays:
 
-```mermaid
----
+<CodeEditor
+    initialCode={`---
 title: "Task Management [RUNTIME]"
 config:
   class:
@@ -102,8 +113,11 @@ classDiagram-v2
 
   %% Execution Path:
   %% 1. task → process (requires) at 15:30:45
-  %%    Output: Task analyzed successfully
-```
+  %%    Output: Task analyzed successfully`}
+    language="mermaid"
+    readOnly
+    height="500px"
+/>
 
 #### Mobile Playground Integration
 
@@ -116,8 +130,8 @@ The mobile playground provides an interactive runtime visualization experience:
 
 #### Advanced Visualization Features
 
-```typescript
-import { VisualizingMachineExecutor } from 'dygram/language/runtime-visualizer';
+<CodeEditor
+    initialCode={`import { VisualizingMachineExecutor } from 'dygram/language/runtime-visualizer';
 
 // Enhanced executor with visualization features
 const visualExecutor = new VisualizingMachineExecutor(machineData, config);
@@ -126,8 +140,11 @@ const visualExecutor = new VisualizingMachineExecutor(machineData, config);
 await visualExecutor.step();
 
 // Generate enhanced runtime diagram
-const diagram = visualExecutor.generateRuntimeVisualization();
-```
+const diagram = visualExecutor.generateRuntimeVisualization();`}
+    language="typescript"
+    readOnly
+    height="220px"
+/>
 
 **Enhanced features:**
 - **Safe context handling**: Prevents circular reference errors
@@ -145,12 +162,15 @@ Tasks in DyGram can automatically evolve from LLM-based exploration to efficient
 
 Pure LLM execution - every invocation uses the language model.
 
-```machine
-Task classify {
+<CodeEditor
+    initialCode={`Task classify {
     prompt: "Classify the text: {{ input }}";
     evolution_stage: "llm_only";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 **Characteristics:**
 - Highest flexibility and adaptability
@@ -162,13 +182,16 @@ Task classify {
 
 Generated code with LLM fallback - tries code first, falls back to LLM on low confidence.
 
-```machine
-Task classify {
+<CodeEditor
+    initialCode={`Task classify {
     prompt: "Classify the text: {{ input }}";
     evolution_stage: "hybrid";
     code_path: "generated/classify_v123.ts";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
 
 **Characteristics:**
 - Code handles common cases (confidence ≥ 0.8)
@@ -180,13 +203,16 @@ Task classify {
 
 Code-first with selective LLM assistance - only uses LLM when code confidence is below threshold.
 
-```machine
-Task classify {
+<CodeEditor
+    initialCode={`Task classify {
     evolution_stage: "code_first";
     code_path: "generated/classify_v456.ts";
     llm_threshold: "0.7";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 **Characteristics:**
 - Code handles most cases (confidence ≥ 0.7)
@@ -198,12 +224,15 @@ Task classify {
 
 Pure code execution - no LLM fallback, fully optimized.
 
-```machine
-Task classify {
+<CodeEditor
+    initialCode={`Task classify {
     evolution_stage: "code_only";
     code_path: "generated/classify_v789.ts";
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 **Characteristics:**
 - Fastest execution
@@ -215,8 +244,8 @@ Task classify {
 
 The `EvolutionaryExecutor` automatically triggers evolution when tasks meet performance thresholds:
 
-```typescript
-import { EvolutionaryExecutor } from 'dygram/language/task-evolution';
+<CodeEditor
+    initialCode={`import { EvolutionaryExecutor } from 'dygram/language/task-evolution';
 import { createStorage } from 'dygram/language/storage';
 
 const storage = createStorage(); // Auto-selects best available
@@ -230,8 +259,11 @@ for (let i = 0; i < 500; i++) {
 // Check which tasks evolved
 const mutations = executor.getMutations();
 const evolutions = mutations.filter(m => m.type === 'task_evolution');
-console.log(`${evolutions.length} tasks evolved`);
-```
+console.log(\`\${evolutions.length} tasks evolved\`);`}
+    language="typescript"
+    readOnly
+    height="280px"
+/>
 
 **Evolution Triggers:**
 - Execution count ≥ 100
@@ -242,16 +274,19 @@ console.log(`${evolutions.length} tasks evolved`);
 
 Trigger evolution on-demand:
 
-```typescript
-const executor = new EvolutionaryExecutor(machineData, {}, storage);
+<CodeEditor
+    initialCode={`const executor = new EvolutionaryExecutor(machineData, {}, storage);
 
 // Force evolution to next stage
 await executor.triggerEvolution('my_task');
 
 // Check current metrics
 const metrics = executor.getTaskMetrics();
-console.log(metrics.get('my_task'));
-```
+console.log(metrics.get('my_task'));`}
+    language="typescript"
+    readOnly
+    height="180px"
+/>
 
 ## Code Generation
 
@@ -259,8 +294,8 @@ Generated code is TypeScript with proper type definitions and confidence scoring
 
 ### Generated Code Structure
 
-```typescript
-interface TaskExecutionContext {
+<CodeEditor
+    initialCode={`interface TaskExecutionContext {
     attributes: Record<string, any>;
     history: Array<any>;
     machineState: any;
@@ -298,8 +333,11 @@ export async function execute(
             used_llm: false
         }
     };
-}
-```
+}`}
+    language="typescript"
+    readOnly
+    height="550px"
+/>
 
 ### Code Generation Process
 
@@ -315,8 +353,8 @@ Browser-compatible storage with unified API across environments.
 
 ### Storage Backends
 
-```typescript
-import { createStorage } from 'dygram/language/storage';
+<CodeEditor
+    initialCode={`import { createStorage } from 'dygram/language/storage';
 
 // Auto-select best available (IndexedDB > localStorage > memory)
 const storage = createStorage();
@@ -324,8 +362,11 @@ const storage = createStorage();
 // Or explicitly choose:
 const indexedDB = createStorage('indexeddb');
 const localStorage = createStorage('localstorage');
-const memory = createStorage('memory');
-```
+const memory = createStorage('memory');`}
+    language="typescript"
+    readOnly
+    height="200px"
+/>
 
 **Backend Capabilities:**
 
@@ -339,8 +380,8 @@ const memory = createStorage('memory');
 
 Track machine evolution over time with full version control:
 
-```typescript
-import { MachinePersistence } from 'dygram/language/machine-persistence';
+<CodeEditor
+    initialCode={`import { MachinePersistence } from 'dygram/language/machine-persistence';
 
 const persistence = new MachinePersistence(storage);
 
@@ -363,15 +404,18 @@ const machineData = await persistence.loadVersion('my-machine', versionId);
 const versions = await persistence.listVersions('my-machine');
 
 // Rollback to previous version
-await persistence.rollbackToVersion('my-machine', previousVersionId);
-```
+await persistence.rollbackToVersion('my-machine', previousVersionId);`}
+    language="typescript"
+    readOnly
+    height="380px"
+/>
 
 ### Pattern Library
 
 Reuse learned behaviors across machines:
 
-```typescript
-import { PatternLibrary } from 'dygram/language/machine-persistence';
+<CodeEditor
+    initialCode={`import { PatternLibrary } from 'dygram/language/machine-persistence';
 
 const library = new PatternLibrary(storage);
 
@@ -401,15 +445,18 @@ await library.importPattern(executor, 'text_classifier', 'my_task');
 const patterns = await library.listPatterns();
 
 // Get specific pattern
-const pattern = await library.getPattern('text_classifier');
-```
+const pattern = await library.getPattern('text_classifier');`}
+    language="typescript"
+    readOnly
+    height="480px"
+/>
 
 ## Performance Metrics
 
 Track task performance over time:
 
-```typescript
-const metrics = executor.getTaskMetrics().get('my_task');
+<CodeEditor
+    initialCode={`const metrics = executor.getTaskMetrics().get('my_task');
 
 console.log({
     stage: metrics.stage,                    // Current evolution stage
@@ -417,8 +464,11 @@ console.log({
     success_rate: metrics.success_rate,      // Success rate (0-1)
     avg_latency: metrics.performance_metrics.avg_execution_time_ms,
     cost_per_execution: metrics.performance_metrics.cost_per_execution
-});
-```
+});`}
+    language="typescript"
+    readOnly
+    height="200px"
+/>
 
 ### Metrics Collected
 
@@ -434,30 +484,36 @@ console.log({
 
 Customize when tasks should evolve (modify in `EvolutionaryExecutor`):
 
-```typescript
-private static readonly EXECUTION_THRESHOLD = 100;        // Min executions
+<CodeEditor
+    initialCode={`private static readonly EXECUTION_THRESHOLD = 100;        // Min executions
 private static readonly SUCCESS_RATE_THRESHOLD = 0.90;    // Min success rate
 private static readonly HYBRID_CONFIDENCE_THRESHOLD = 0.8; // Stage 2 threshold
-private static readonly CODE_FIRST_CONFIDENCE_THRESHOLD = 0.7; // Stage 3 threshold
-```
+private static readonly CODE_FIRST_CONFIDENCE_THRESHOLD = 0.7; // Stage 3 threshold`}
+    language="typescript"
+    readOnly
+    height="120px"
+/>
 
 ### Storage Configuration
 
-```typescript
-// IndexedDB with custom database name and version
+<CodeEditor
+    initialCode={`// IndexedDB with custom database name and version
 const storage = new IndexedDBStorage('my-db-name', 1);
 
 // LocalStorage with custom key prefix
 const storage = new LocalStorageBackend('myapp:');
 
 // Memory storage (useful for testing)
-const storage = new MemoryStorage();
-```
+const storage = new MemoryStorage();`}
+    language="typescript"
+    readOnly
+    height="180px"
+/>
 
 ## Complete Example
 
-```typescript
-import { EvolutionaryExecutor } from 'dygram/language/task-evolution';
+<CodeEditor
+    initialCode={`import { EvolutionaryExecutor } from 'dygram/language/task-evolution';
 import { createStorage } from 'dygram/language/storage';
 import { MachinePersistence, PatternLibrary } from 'dygram/language/machine-persistence';
 
@@ -481,7 +537,7 @@ for (let i = 0; i < 500; i++) {
 // Check evolutions
 const mutations = executor.getMutations();
 const evolutions = mutations.filter(m => m.type === 'task_evolution');
-console.log(`${evolutions.length} tasks evolved`);
+console.log(\`\${evolutions.length} tasks evolved\`);
 
 // Save evolved patterns to library
 for (const evolution of evolutions) {
@@ -490,7 +546,7 @@ for (const evolution of evolutions) {
 
     await library.savePattern({
         name: evolution.data.task,
-        description: `Evolved from ${evolution.data.from_stage} to ${evolution.data.to_stage}`,
+        description: \`Evolved from \${evolution.data.from_stage} to \${evolution.data.to_stage}\`,
         version: Date.now().toString(),
         code,
         performance_metrics: metrics.performance_metrics,
@@ -504,8 +560,11 @@ for (const evolution of evolutions) {
 
 // Reuse pattern in another machine
 const otherExecutor = new EvolutionaryExecutor(otherMachineData, {}, storage);
-await library.importPattern(otherExecutor, 'my_task', 'imported_task');
-```
+await library.importPattern(otherExecutor, 'my_task', 'imported_task');`}
+    language="typescript"
+    readOnly
+    height="700px"
+/>
 
 ## Architecture
 
@@ -544,12 +603,15 @@ await library.importPattern(otherExecutor, 'my_task', 'imported_task');
 
 Begin with pure LLM execution to explore the problem space:
 
-```machine
-Task analyze {
+<CodeEditor
+    initialCode={`Task analyze {
     prompt: "Analyze: {{ input }}";
     // evolution_stage defaults to "llm_only"
-}
-```
+}`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 ### 2. Let Evolution Happen Naturally
 
@@ -559,33 +621,42 @@ Trust the automatic evolution thresholds for most cases. Manual evolution is for
 
 Create version snapshots during development:
 
-```typescript
-// After significant changes
-await persistence.saveVersion(executor, 'my-machine', metrics);
-```
+<CodeEditor
+    initialCode={`// After significant changes
+await persistence.saveVersion(executor, 'my-machine', metrics);`}
+    language="typescript"
+    readOnly
+    height="80px"
+/>
 
 ### 4. Build a Pattern Library
 
 Reuse successful patterns across projects:
 
-```typescript
-// Extract and save good patterns
+<CodeEditor
+    initialCode={`// Extract and save good patterns
 await library.savePattern({ ... });
 
 // Import into new machines
-await library.importPattern(newExecutor, patternName, taskName);
-```
+await library.importPattern(newExecutor, patternName, taskName);`}
+    language="typescript"
+    readOnly
+    height="120px"
+/>
 
 ### 5. Monitor Metrics
 
 Track performance to understand evolution impact:
 
-```typescript
-const metrics = executor.getTaskMetrics();
+<CodeEditor
+    initialCode={`const metrics = executor.getTaskMetrics();
 for (const [task, data] of metrics) {
-    console.log(`${task}: ${data.stage} (${data.success_rate})`);
-}
-```
+    console.log(\`\${task}: \${data.stage} (\${data.success_rate})\`);
+}`}
+    language="typescript"
+    readOnly
+    height="100px"
+/>
 
 ## Future Enhancements
 
@@ -601,7 +672,9 @@ Potential improvements for future development:
 
 ## Related Documentation
 
-- [Language Overview](./language-overview.md) - DyGram syntax and concepts
-- [Syntax Guide](./syntax-guide.md) - Complete language reference
-- [Testing Approach](./testing-approach.md) - Testing methodology
-- [Examples Index](./examples-index.md) - Example machines
+- [Language Overview](language-overview.html) - DyGram syntax and concepts
+- [Syntax Guide](syntax-guide.html) - Complete language reference
+- [Testing Approach](testing-approach.html) - Testing methodology
+- [Examples Index](examples-index.html) - Example machines
+
+</Layout>

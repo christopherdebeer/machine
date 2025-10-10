@@ -1,3 +1,8 @@
+import { Layout } from '../src/components/Layout';
+import { CodeEditor } from '../src/components/CodeEditor';
+
+<Layout>
+
 # Context and Schema Management Guide
 
 ## Overview
@@ -10,18 +15,21 @@ The machine language now supports enhanced context value management and schema v
 
 Context nodes can declare typed attributes that serve as data containers:
 
-```machine
-context output {
+<CodeEditor
+    initialCode={`context output {
   value<string>: "";
   metadata<object>: "{}";
   count<number>: 0;
   isComplete<boolean>: false;
-};
-```
+};`}
+    language="dygram"
+    readOnly
+    height="140px"
+/>
 
 **Supported Types:**
 - `string` - Text values
-- `number` - Numeric values  
+- `number` - Numeric values
 - `boolean` - True/false values
 - `object` - JSON objects (stored as strings)
 - `array` - JSON arrays (stored as strings)
@@ -32,31 +40,46 @@ Tasks now have access to context management tools:
 
 #### `set_context_value`
 Sets a value in a context node attribute with type validation:
-```
-set_context_value(nodeName: "output", attributeName: "value", value: "Hello World")
-```
+
+<CodeEditor
+    initialCode={`set_context_value(nodeName: "output", attributeName: "value", value: "Hello World")`}
+    language="typescript"
+    readOnly
+    height="60px"
+/>
 
 #### `get_context_value`
 Retrieves a value from a context node attribute:
-```
-get_context_value(nodeName: "output", attributeName: "value")
-```
+
+<CodeEditor
+    initialCode={`get_context_value(nodeName: "output", attributeName: "value")`}
+    language="typescript"
+    readOnly
+    height="60px"
+/>
 
 #### `list_context_nodes`
 Lists all context nodes and their current values:
-```
-list_context_nodes()
-```
+
+<CodeEditor
+    initialCode={`list_context_nodes()`}
+    language="typescript"
+    readOnly
+    height="60px"
+/>
 
 ### 3. Template Variable Resolution
 
 Tasks can reference context values using template syntax:
 
-```machine
-Task processData {
+<CodeEditor
+    initialCode={`Task processData {
   prompt: "The stored value is {{output.value}}. Process this data and create a summary.";
-};
-```
+};`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 **Template Syntax:**
 - `{{nodeName.attributeName}}` - References a context node's attribute value
@@ -74,8 +97,9 @@ The execution system now:
 ## Example Workflows
 
 ### Basic Context Storage
-```machine
-machine "Data Processing"
+
+<CodeEditor
+    initialCode={`machine "Data Processing"
 
 Task generate {
   meta: true;
@@ -91,12 +115,16 @@ Task process {
 };
 
 generate -stores-> data;
-data --> process;
-```
+data --> process;`}
+    language="dygram"
+    readOnly
+    height="320px"
+/>
 
 ### Multi-Context Pipeline
-```machine
-machine "Analysis Pipeline"
+
+<CodeEditor
+    initialCode={`machine "Analysis Pipeline"
 
 Task analyze {
   prompt: "Analyze input data and store results in multiple contexts";
@@ -119,8 +147,11 @@ Task report {
 analyze -populates-> metrics;
 analyze -creates-> summary;
 metrics --> report;
-summary --> report;
-```
+summary --> report;`}
+    language="dygram"
+    readOnly
+    height="420px"
+/>
 
 ## Implementation Details
 
@@ -150,16 +181,21 @@ summary --> report;
 ## Migration from Previous Version
 
 **Before:**
-```machine
-Task process {
+
+<CodeEditor
+    initialCode={`Task process {
   prompt: "write a haiku";
 };
-// Output only stored in execution history
-```
+// Output only stored in execution history`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
 
 **After:**
-```machine
-Task process {
+
+<CodeEditor
+    initialCode={`Task process {
   meta: true;
   prompt: "write a haiku and store it using set_context_value";
 };
@@ -167,7 +203,12 @@ Task process {
 context output {
   haiku<string>: "";
 };
-// Output properly stored in context node for reuse
-```
+// Output properly stored in context node for reuse`}
+    language="dygram"
+    readOnly
+    height="160px"
+/>
 
 This enhanced system enables more sophisticated workflows where tasks can build upon each other's outputs in a structured, type-safe manner.
+
+</Layout>

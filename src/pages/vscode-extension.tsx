@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import VscodeExtension from './VscodeExtension.mdx';
+import VscodeExtension from '../../docs/VscodeExtension.mdx';
 
 const root = document.getElementById('root');
 if (root) {

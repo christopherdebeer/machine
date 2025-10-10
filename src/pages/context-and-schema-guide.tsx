@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import ContextAndSchemaGuide from './ContextAndSchemaGuide.mdx';
+import ContextAndSchemaGuide from '../../docs/ContextAndSchemaGuide.mdx';
 
 const container = document.getElementById('root');
 if (container) {
