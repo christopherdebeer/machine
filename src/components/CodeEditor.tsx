@@ -1,58 +1,55 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface CodeEditorProps {
     initialCode: string;
     language?: string;
     readOnly?: boolean;
     height?: string;
+    id?: string;
 }
 
 /**
- * Interactive code editor component for documentation
- * This is a placeholder that can be enhanced with Monaco or CodeMirror
- * integration in the future.
+ * Interactive code editor component that integrates with Monaco and executeExtended
+ * This creates a div that will be processed by setupExtended.ts just like the original HTML
  */
 export const CodeEditor: React.FC<CodeEditorProps> = ({
     initialCode,
-    language = 'dygram',
+    language = 'machine',
     readOnly = false,
-    height = '300px'
+    height,
+    id
 }) => {
-    const [code, setCode] = React.useState(initialCode);
+    const codeRef = useRef<HTMLDivElement>(null);
+    const outputRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // Setup Monaco and execute the code after component mounts
+        const setupEditor = async () => {
+            if (codeRef.current && outputRef.current) {
+                // Import the setup functions
+                const { configureMonacoWorkers } = await import('../setupCommon');
+                const { executeExtended } = await import('../setupExtended');
+
+                await configureMonacoWorkers();
+                executeExtended(codeRef.current, false, outputRef.current);
+            }
+        };
+
+        setupEditor();
+    }, [initialCode]);
 
     return (
-        <div className="code-editor-wrapper" style={{ marginBottom: '1.5rem' }}>
-            <div className="code-editor-header">
-                <span className="language-badge">{language}</span>
-                {!readOnly && (
-                    <button
-                        onClick={() => {
-                            // Placeholder for "Run" functionality
-                            console.log('Code:', code);
-                            alert('Code execution would happen here. Integration with DyGram runtime coming soon!');
-                        }}
-                        className="run-button"
-                    >
-                        Run
-                    </button>
-                )}
+        <div className="code-block" style={{ marginTop: '1rem' }}>
+            <div
+                ref={codeRef}
+                className="code machine-lang"
+                id={id}
+                data-language={language}
+                style={{ height: height }}
+            >
+                {initialCode}
             </div>
-            <textarea
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                readOnly={readOnly}
-                style={{
-                    width: '100%',
-                    height,
-                    fontFamily: 'monospace',
-                    fontSize: '14px',
-                    padding: '1rem',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    backgroundColor: readOnly ? '#f5f5f5' : '#fff',
-                    resize: 'vertical'
-                }}
-            />
+            <div ref={outputRef} className="output"></div>
         </div>
     );
 };
