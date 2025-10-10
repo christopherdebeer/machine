@@ -3,10 +3,9 @@
  * This module provides LSP features (diagnostics, semantic highlighting) for CodeMirror
  */
 
-import { EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
-import { StateField, StateEffect, Range } from '@codemirror/state';
+import { EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpdate, gutter, GutterMarker } from '@codemirror/view';
+import { StateField, StateEffect, Range, RangeSet } from '@codemirror/state';
 import { linter, Diagnostic as CMDiagnostic } from '@codemirror/lint';
-import { Diagnostic } from 'vscode-languageserver';
 import { createMachineServices } from './language/machine-module.js';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
@@ -17,14 +16,51 @@ const services = createMachineServices(EmptyFileSystem);
 const parse = parseHelper<Machine>(services.Machine);
 
 /**
+ * Gutter marker for diagnostic annotations
+ */
+class DiagnosticMarker extends GutterMarker {
+    constructor(readonly severity: 'error' | 'warning' | 'info' | 'hint') {
+        super();
+    }
+
+    override toDOM() {
+        const marker = document.createElement('div');
+        marker.className = `cm-diagnostic-gutter-marker cm-diagnostic-${this.severity}`;
+        marker.title = this.severity.charAt(0).toUpperCase() + this.severity.slice(1);
+
+        // Add visual indicator
+        const icon = document.createElement('span');
+        icon.className = 'cm-diagnostic-icon';
+
+        switch (this.severity) {
+            case 'error':
+                icon.textContent = '✖';
+                break;
+            case 'warning':
+                icon.textContent = '⚠';
+                break;
+            case 'info':
+                icon.textContent = 'ℹ';
+                break;
+            case 'hint':
+                icon.textContent = '💡';
+                break;
+        }
+
+        marker.appendChild(icon);
+        return marker;
+    }
+}
+
+/**
  * State effect for updating diagnostics
  */
-const setDiagnosticsEffect = StateEffect.define<Diagnostic[]>();
+const setDiagnosticsEffect = StateEffect.define<CMDiagnostic[]>();
 
 /**
  * State field to store current diagnostics
  */
-const diagnosticsState = StateField.define<Diagnostic[]>({
+const diagnosticsState = StateField.define<CMDiagnostic[]>({
     create: () => [],
     update(diagnostics, tr) {
         for (const effect of tr.effects) {
@@ -39,15 +75,80 @@ const diagnosticsState = StateField.define<Diagnostic[]>({
 /**
  * Convert LSP severity to CodeMirror severity
  */
-function convertSeverity(severity: number | undefined): 'error' | 'warning' | 'info' {
+function convertSeverity(severity: number | undefined): 'error' | 'warning' | 'info' | 'hint' {
     switch (severity) {
         case 1: return 'error';
         case 2: return 'warning';
         case 3: return 'info';
-        case 4: return 'info';
+        case 4: return 'hint';
         default: return 'error';
     }
 }
+
+/**
+ * Diagnostic gutter extension that shows markers for errors, warnings, info, and hints
+ */
+const diagnosticGutter = gutter({
+    class: 'cm-diagnostic-gutter',
+    markers: view => {
+        const diagnostics = view.state.field(diagnosticsState, false);
+        if (!diagnostics || diagnostics.length === 0) {
+            return RangeSet.empty;
+        }
+
+        const markers: Range<GutterMarker>[] = [];
+        const lineMap = new Map<number, 'error' | 'warning' | 'info' | 'hint'>();
+
+        // Group diagnostics by line and prioritize severity
+        for (const diagnostic of diagnostics) {
+            const line = view.state.doc.lineAt(diagnostic.from);
+            const lineNum = line.number;
+            const currentSeverity = lineMap.get(lineNum);
+
+            // Priority: error > warning > info > hint
+            if (!currentSeverity ||
+                (diagnostic.severity === 'error') ||
+                (diagnostic.severity === 'warning' && currentSeverity !== 'error') ||
+                (diagnostic.severity === 'info' && currentSeverity === 'hint')) {
+                lineMap.set(lineNum, diagnostic.severity);
+            }
+        }
+
+        // Create markers for each line
+        for (const [lineNum, severity] of lineMap.entries()) {
+            const line = view.state.doc.line(lineNum);
+            markers.push(new DiagnosticMarker(severity).range(line.from));
+        }
+
+        return RangeSet.of(markers, true);
+    },
+    initialSpacer: () => new DiagnosticMarker('error'),
+    domEventHandlers: {
+        mouseenter(view, line, event) {
+            // Get diagnostics for this line
+            const lineInfo = view.state.doc.lineAt(line.from);
+            const diagnostics = view.state.field(diagnosticsState, false);
+            if (!diagnostics) return false;
+
+            const lineDiagnostics = diagnostics.filter(d => {
+                const diagLine = view.state.doc.lineAt(d.from);
+                return diagLine.number === lineInfo.number;
+            });
+
+            if (lineDiagnostics.length > 0) {
+                // Show tooltip with diagnostic messages
+                const messages = lineDiagnostics
+                    .map(d => `${d.severity.toUpperCase()}: ${d.message}`)
+                    .join('\n');
+
+                const marker = event.target as HTMLElement;
+                marker.title = messages;
+            }
+
+            return false;
+        }
+    }
+});
 
 /**
  * Create a linter that uses Langium's parser and validator
@@ -109,6 +210,11 @@ export function createLangumLinter() {
             console.error('Error during linting:', error);
         }
 
+        // Update the diagnostics state for the gutter
+        view.dispatch({
+            effects: setDiagnosticsEffect.of(diagnostics)
+        });
+
         return diagnostics;
     }, {
         delay: 300 // Debounce validation
@@ -117,7 +223,7 @@ export function createLangumLinter() {
 
 
 /**
- * Custom theme with semantic token highlighting
+ * Custom theme with semantic token highlighting and diagnostic gutter styling
  */
 export const semanticHighlightTheme = EditorView.baseTheme({
     '.cm-semantic-class': { color: '#4ec9b0' },
@@ -129,6 +235,36 @@ export const semanticHighlightTheme = EditorView.baseTheme({
     '.cm-semantic-comment': { color: '#6a9955' },
     '.cm-semantic-number': { color: '#b5cea8' },
     '.cm-semantic-operator': { color: '#d4d4d4' },
+
+    // Diagnostic gutter styling
+    '.cm-diagnostic-gutter': {
+        width: '1.2em',
+        paddingLeft: '2px'
+    },
+    '.cm-diagnostic-gutter-marker': {
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '1em',
+        width: '1em'
+    },
+    '.cm-diagnostic-icon': {
+        fontSize: '0.9em',
+        fontWeight: 'bold'
+    },
+    '.cm-diagnostic-error': {
+        color: '#f48771'
+    },
+    '.cm-diagnostic-warning': {
+        color: '#cca700'
+    },
+    '.cm-diagnostic-info': {
+        color: '#75beff'
+    },
+    '.cm-diagnostic-hint': {
+        color: '#d4d4d4'
+    }
 });
 
 /**
@@ -226,6 +362,7 @@ export const semanticHighlighting = ViewPlugin.fromClass(class {
 export function createLangiumExtensions() {
     return [
         diagnosticsState,
+        diagnosticGutter,
         createLangumLinter(),
         semanticHighlighting,
         semanticHighlightTheme
