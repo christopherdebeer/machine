@@ -858,8 +858,13 @@ class HTMLGenerator extends BaseGenerator {
             projectRoot = path.dirname(projectRoot);
         }
         
-        // Try multiple possible locations for the web executor
+        // Try multiple possible locations for the enhanced web executor
         const possiblePaths = [
+            path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web-enhanced.js'),
+            path.join(projectRoot, 'out', 'language', 'machine-executor-web-enhanced.js'),
+            path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web-enhanced.js'),
+            path.join(projectRoot, 'dist', 'language', 'machine-executor-web-enhanced.js'),
+            // Fallback to basic version
             path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web.js'),
             path.join(projectRoot, 'out', 'language', 'machine-executor-web.js'),
             path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web.js'),
@@ -869,7 +874,7 @@ class HTMLGenerator extends BaseGenerator {
         let webExecutorPath = possiblePaths.find(p => fs.existsSync(p));
         
         if (!webExecutorPath) {
-            throw new Error(`Could not find machine-executor-web.js. Tried:\n${possiblePaths.join('\n')}`);
+            throw new Error(`Could not find machine-executor-web-enhanced.js or machine-executor-web.js. Tried:\n${possiblePaths.join('\n')}`);
         }
         
         const mermaidGen = new MermaidGenerator(this.machine, this.filePath, this.options);
@@ -920,25 +925,73 @@ class HTMLGenerator extends BaseGenerator {
             URL.revokeObjectURL(url);
         }
 
-        // Function to execute the machine
-        window.executeMachineProgram = function() {
+        // Enhanced execution function with full system
+        window.executeMachineProgram = async function() {
             const machineData = ${machineJson};
-            const executor = new MachineExecutor(machineData);
-            const result = executor.execute();
-
-            // Display execution results
             const resultDiv = document.getElementById('executionResult');
-            resultDiv.innerHTML = '<h3>Execution Path:</h3>';
-            const pathList = document.createElement('ul');
-            result.history?.forEach(step => {
-                const li = document.createElement('li');
-                li.textContent = \`\${step.from} --(\${step.transition})--> \${step.to}\`;
-                pathList.appendChild(li);
-            });
-            resultDiv.appendChild(pathList);
-
-            // Show the results section
+            const diagramContainer = document.getElementById('diagram');
+            
+            resultDiv.innerHTML = '<div style="color: #858585;">Executing machine...</div>';
             document.getElementById('results').style.display = 'block';
+
+            try {
+                // Check if enhanced executor is available
+                if (typeof window.executeWithVisualization === 'function') {
+                    // Use enhanced execution with visualization
+                    const result = await window.executeWithVisualization(machineData);
+                    
+                    // Update diagram with runtime visualization
+                    if (result.mobileVisualization) {
+                        const uniqueId = "mermaid-runtime-" + Date.now();
+                        const render = await mermaid.render(uniqueId, result.mobileVisualization);
+                        diagramContainer.innerHTML = render.svg;
+                        render.bindFunctions?.(diagramContainer);
+                    }
+                    
+                    // Display execution results
+                    let html = '<h3>Execution Results</h3>';
+                    html += \`<div style="color: #4ec9b0; margin-bottom: 12px;">✓ Executed \${result.steps} steps</div>\`;
+                    
+                    if (result.context && result.context.history) {
+                        html += '<h4>Execution Path:</h4><ul>';
+                        result.context.history.forEach(step => {
+                            html += \`<li>\${step.from} --(\${step.transition})--> \${step.to}\`;
+                            if (step.output) {
+                                const output = typeof step.output === 'object' ? 
+                                    JSON.stringify(step.output).substring(0, 100) : 
+                                    String(step.output).substring(0, 100);
+                                html += \`<br><small style="color: #858585;">Output: \${output}...</small>\`;
+                            }
+                            html += '</li>';
+                        });
+                        html += '</ul>';
+                    }
+                    
+                    if (result.summary) {
+                        html += '<h4>Summary:</h4>';
+                        html += \`<div style="font-size: 12px; color: #d4d4d4;">\`;
+                        html += \`Current: \${result.summary.currentNode}<br>\`;
+                        html += \`Visited: \${result.summary.visitedCount} nodes<br>\`;
+                        html += \`Pending: \${result.summary.pendingCount} nodes\`;
+                        html += '</div>';
+                    }
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    // Fallback to basic execution
+                    const executor = new window.MachineExecutor(machineData);
+                    const result = await executor.execute();
+                    
+                    let html = '<h3>Execution Path:</h3><ul>';
+                    result.history?.forEach(step => {
+                        html += \`<li>\${step.from} --(\${step.transition})--> \${step.to}</li>\`;
+                    });
+                    html += '</ul>';
+                    resultDiv.innerHTML = html;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = \`<div style="color: #f48771;">Error: \${error.message}</div>\`;
+            }
         }
 
         // Function to download the diagram as PNG
@@ -1011,6 +1064,58 @@ class HTMLGenerator extends BaseGenerator {
             display: flex;
             gap: 10px;
             z-index: 1000;
+            flex-wrap: wrap;
+        }
+
+        .settings-panel {
+            background: #252526;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        body.dark-theme .settings-panel {
+            background: #2d2d2d;
+        }
+
+        .settings-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-group label {
+            font-size: 12px;
+            color: #cccccc;
+            white-space: nowrap;
+        }
+
+        .settings-input {
+            background: #3e3e42;
+            color: #d4d4d4;
+            border: 1px solid #505053;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        body.dark-theme .settings-input {
+            background: #1e1e1e;
+            border-color: #3e3e42;
+        }
+
+        .settings-input:focus {
+            outline: none;
+            border-color: #0e639c;
+        }
+
+        select.settings-input {
+            cursor: pointer;
         }
 
         button {
@@ -1084,6 +1189,26 @@ class HTMLGenerator extends BaseGenerator {
         <button onclick="downloadPNG()">Download PNG</button>
         <button onclick=\"executeMachineProgram()\">Execute Machine</button>
     </div>
+    
+    <div class="settings-panel">
+        <div class="settings-group">
+            <label for="model-select">Model:</label>
+            <select id="model-select" class="settings-input" onchange="window.saveSettings?.(this.value, document.getElementById('api-key-input').value)">
+                <option value="claude-3-5-sonnet-20241022">claude-3-5-sonnet-20241022</option>
+                <option value="claude-3-5-haiku-20241022">claude-3-5-haiku-20241022</option>
+                <option value="claude-3-opus-20240229">claude-3-opus-20240229</option>
+            </select>
+        </div>
+        <div class="settings-group">
+            <label for="api-key-input">API Key:</label>
+            <input type="password" id="api-key-input" class="settings-input" placeholder="Anthropic API key (optional)" 
+                   oninput="window.saveSettings?.(document.getElementById('model-select').value, this.value)">
+        </div>
+        <small style="color: #858585; font-size: 11px;">
+            💡 Add API key to enable Task node execution with LLM
+        </small>
+    </div>
+    
     <div class="title">${this.machine.title}</div>
     <div id="diagram">
         <code class="mermaid">${mermaidDefinition}</code>

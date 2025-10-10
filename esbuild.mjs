@@ -47,9 +47,26 @@ const ctx = await esbuild.context({
     plugins
 });
 
-// Build web-compatible executor
+// Build web-compatible executor (basic version for backward compatibility)
 const webExecCtx = await esbuild.context({
     entryPoints: ['src/language/machine-executor-web.ts'],
+    outdir: 'out/extension/web',
+    bundle: true,
+    target: "ES2017",
+    format: 'esm',
+    loader: { '.ts': 'ts' },
+    platform: 'browser',
+    sourcemap: !minify,
+    minify,
+    plugins,
+    define: {
+        'process.env.NODE_ENV': '"production"'
+    }
+});
+
+// Build enhanced web-compatible executor with full execution system
+const webExecEnhancedCtx = await esbuild.context({
+    entryPoints: ['src/language/machine-executor-web-enhanced.ts'],
     outdir: 'out/extension/web',
     bundle: true,
     target: "ES2017",
@@ -84,11 +101,14 @@ if (watch) {
     await ctx.watch();
     await webCtx.watch();
     await webExecCtx.watch();
+    await webExecEnhancedCtx.watch();
 } else {
     await ctx.rebuild();
     await webCtx.rebuild();
     await webExecCtx.rebuild();
+    await webExecEnhancedCtx.rebuild();
     ctx.dispose();
     webCtx.dispose();
     webExecCtx.dispose();
+    webExecEnhancedCtx.dispose();
 }
