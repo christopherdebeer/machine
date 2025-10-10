@@ -19,7 +19,7 @@ const parse = parseHelper<Machine>(services.Machine);
  * Gutter marker for diagnostic annotations
  */
 class DiagnosticMarker extends GutterMarker {
-    constructor(readonly severity: 'error' | 'warning' | 'info' | 'hint') {
+    constructor(readonly severity: 'error' | 'warning' | 'info') {
         super();
     }
 
@@ -42,9 +42,6 @@ class DiagnosticMarker extends GutterMarker {
             case 'info':
                 icon.textContent = 'ℹ';
                 break;
-            case 'hint':
-                icon.textContent = '💡';
-                break;
         }
 
         marker.appendChild(icon);
@@ -53,34 +50,38 @@ class DiagnosticMarker extends GutterMarker {
 }
 
 /**
- * State effect for updating diagnostics
+ * State effect for updating diagnostics with version tracking to prevent stale updates
  */
-const setDiagnosticsEffect = StateEffect.define<CMDiagnostic[]>();
+const setDiagnosticsEffect = StateEffect.define<{ diagnostics: CMDiagnostic[], version: number }>();
 
 /**
- * State field to store current diagnostics
+ * State field to store current diagnostics with version tracking
  */
-const diagnosticsState = StateField.define<CMDiagnostic[]>({
-    create: () => [],
-    update(diagnostics, tr) {
+const diagnosticsState = StateField.define<{ diagnostics: CMDiagnostic[], version: number }>({
+    create: () => ({ diagnostics: [], version: 0 }),
+    update(state, tr) {
         for (const effect of tr.effects) {
             if (effect.is(setDiagnosticsEffect)) {
-                return effect.value;
+                // Only update if the new version is newer than the current version
+                if (effect.value.version >= state.version) {
+                    return effect.value;
+                }
             }
         }
-        return diagnostics;
+        return state;
     }
 });
 
 /**
  * Convert LSP severity to CodeMirror severity
+ * Note: CodeMirror only supports 'error' | 'warning' | 'info', so we map 'hint' to 'info'
  */
-function convertSeverity(severity: number | undefined): 'error' | 'warning' | 'info' | 'hint' {
+function convertSeverity(severity: number | undefined): 'error' | 'warning' | 'info' {
     switch (severity) {
         case 1: return 'error';
         case 2: return 'warning';
         case 3: return 'info';
-        case 4: return 'hint';
+        case 4: return 'info'; // Map hint to info since CodeMirror doesn't support hint
         default: return 'error';
     }
 }
@@ -91,13 +92,14 @@ function convertSeverity(severity: number | undefined): 'error' | 'warning' | 'i
 const diagnosticGutter = gutter({
     class: 'cm-diagnostic-gutter',
     markers: view => {
-        const diagnostics = view.state.field(diagnosticsState, false);
-        if (!diagnostics || diagnostics.length === 0) {
+        const state = view.state.field(diagnosticsState, false);
+        if (!state || state.diagnostics.length === 0) {
             return RangeSet.empty;
         }
+        const diagnostics = state.diagnostics;
 
         const markers: Range<GutterMarker>[] = [];
-        const lineMap = new Map<number, 'error' | 'warning' | 'info' | 'hint'>();
+        const lineMap = new Map<number, 'error' | 'warning' | 'info'>();
 
         // Group diagnostics by line and prioritize severity
         for (const diagnostic of diagnostics) {
@@ -105,12 +107,15 @@ const diagnosticGutter = gutter({
             const lineNum = line.number;
             const currentSeverity = lineMap.get(lineNum);
 
-            // Priority: error > warning > info > hint
+            // Map severity, treating 'hint' as 'info' for consistency
+            const severity: 'error' | 'warning' | 'info' =
+                diagnostic.severity === 'hint' ? 'info' : diagnostic.severity;
+
+            // Priority: error > warning > info
             if (!currentSeverity ||
-                (diagnostic.severity === 'error') ||
-                (diagnostic.severity === 'warning' && currentSeverity !== 'error') ||
-                (diagnostic.severity === 'info' && currentSeverity === 'hint')) {
-                lineMap.set(lineNum, diagnostic.severity);
+                (severity === 'error') ||
+                (severity === 'warning' && currentSeverity !== 'error')) {
+                lineMap.set(lineNum, severity);
             }
         }
 
@@ -127,10 +132,10 @@ const diagnosticGutter = gutter({
         mouseenter(view, line, event) {
             // Get diagnostics for this line
             const lineInfo = view.state.doc.lineAt(line.from);
-            const diagnostics = view.state.field(diagnosticsState, false);
-            if (!diagnostics) return false;
+            const state = view.state.field(diagnosticsState, false);
+            if (!state) return false;
 
-            const lineDiagnostics = diagnostics.filter(d => {
+            const lineDiagnostics = state.diagnostics.filter(d => {
                 const diagLine = view.state.doc.lineAt(d.from);
                 return diagLine.number === lineInfo.number;
             });
@@ -150,12 +155,16 @@ const diagnosticGutter = gutter({
     }
 });
 
+// Track linter version to prevent stale updates
+let linterVersion = 0;
+
 /**
  * Create a linter that uses Langium's parser and validator
  */
 export function createLangumLinter() {
     return linter(async (view) => {
         const code = view.state.doc.toString();
+        const currentVersion = ++linterVersion; // Increment version for this lint run
         const diagnostics: CMDiagnostic[] = [];
 
         try {
@@ -210,9 +219,12 @@ export function createLangumLinter() {
             console.error('Error during linting:', error);
         }
 
-        // Update the diagnostics state for the gutter
+        // Update the diagnostics state for the gutter with version tracking
         view.dispatch({
-            effects: setDiagnosticsEffect.of(diagnostics)
+            effects: setDiagnosticsEffect.of({
+                diagnostics,
+                version: currentVersion
+            })
         });
 
         return diagnostics;
