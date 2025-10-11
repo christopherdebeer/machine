@@ -422,6 +422,10 @@ export class AgentSDKBridge {
         const metaTool = metaTools.find(t => t.name === toolName);
         if (metaTool) {
             switch (toolName) {
+                case 'get_machine_definition':
+                    return await this.metaToolManager.getMachineDefinition(input);
+                case 'update_definition':
+                    return await this.metaToolManager.updateDefinition(input);
                 case 'construct_tool':
                     return await this.metaToolManager.constructTool(input);
                 case 'list_available_tools':

@@ -38,6 +38,7 @@ export interface ToolImprovementProposal {
 export class MetaToolManager {
     private dynamicTools = new Map<string, DynamicTool>();
     private proposals: ToolImprovementProposal[] = [];
+    private onMachineUpdate?: (dsl: string, machineData: MachineData) => void;
 
     constructor(
         // @ts-expect-error - Reserved for future use
@@ -46,10 +47,49 @@ export class MetaToolManager {
     ) {}
 
     /**
+     * Set callback for when machine definition is updated
+     */
+    setMachineUpdateCallback(callback: (dsl: string, machineData: MachineData) => void): void {
+        this.onMachineUpdate = callback;
+    }
+
+    /**
      * Register meta-tools for agent use
      */
     getMetaTools(): ToolDefinition[] {
         return [
+            {
+                name: 'get_machine_definition',
+                description: 'Get the current machine definition in both JSON and DSL format. Use this to understand the machine structure before making modifications.',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        format: {
+                            type: 'string',
+                            enum: ['json', 'dsl', 'both'],
+                            description: 'Format to return: json (structured), dsl (DyGram source), or both'
+                        }
+                    }
+                }
+            },
+            {
+                name: 'update_definition',
+                description: 'Update the machine definition with a new structure. Accepts JSON format and automatically converts to DSL. Use get_machine_definition first to see current structure.',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        machine: {
+                            type: 'object',
+                            description: 'Complete machine definition in JSON format with title, nodes, and edges'
+                        },
+                        reason: {
+                            type: 'string',
+                            description: 'Brief explanation of why the machine is being modified'
+                        }
+                    },
+                    required: ['machine', 'reason']
+                }
+            },
             {
                 name: 'construct_tool',
                 description: 'Construct a new tool dynamically when one doesn\'t exist in code. Use this when you need a capability that isn\'t available.',
@@ -359,5 +399,114 @@ export class MetaToolManager {
         for (const tool of tools) {
             this.dynamicTools.set(tool.definition.name, tool);
         }
+    }
+
+    /**
+     * Handle get_machine_definition invocation
+     */
+    async getMachineDefinition(input: { format?: 'json' | 'dsl' | 'both' } = {}): Promise<any> {
+        const { format = 'both' } = input;
+
+        const result: any = {};
+
+        // Convert MachineData to MachineJSON format
+        const machineJson = {
+            title: this._machineData.title,
+            nodes: this._machineData.nodes.map(node => ({
+                name: node.name,
+                type: node.type,
+                attributes: node.attributes?.map(attr => ({
+                    name: attr.name,
+                    type: attr.type,
+                    value: attr.value
+                })),
+                annotations: (node as any).annotations
+            })),
+            edges: this._machineData.edges.map(edge => ({
+                source: edge.source,
+                target: edge.target,
+                type: edge.type,
+                label: edge.label
+            }))
+        };
+
+        if (format === 'json' || format === 'both') {
+            result.json = machineJson;
+        }
+
+        if (format === 'dsl' || format === 'both') {
+            // Import generateDSL function dynamically
+            const { generateDSL } = await import('./generator/generator.js');
+            result.dsl = generateDSL(machineJson as any);
+        }
+
+        return result;
+    }
+
+    /**
+     * Handle update_definition invocation
+     */
+    async updateDefinition(input: { machine: any; reason: string }): Promise<any> {
+        const { machine, reason } = input;
+
+        // Validate the machine structure
+        if (!machine.title || !Array.isArray(machine.nodes) || !Array.isArray(machine.edges)) {
+            return {
+                success: false,
+                message: 'Invalid machine structure. Must have title (string), nodes (array), and edges (array).'
+            };
+        }
+
+        // Update the machine data
+        this._machineData.title = machine.title;
+        this._machineData.nodes = machine.nodes.map((node: any) => ({
+            name: node.name,
+            type: node.type,
+            attributes: node.attributes?.map((attr: any) => ({
+                name: attr.name,
+                type: attr.type,
+                value: attr.value
+            }))
+        }));
+        this._machineData.edges = machine.edges.map((edge: any) => ({
+            source: edge.source,
+            target: edge.target,
+            type: edge.type,
+            label: edge.label
+        }));
+
+        // Generate DSL version
+        const { generateDSL } = await import('./generator/generator.js');
+        const dsl = generateDSL(machine);
+
+        // Record mutation
+        this.onMutation({
+            type: 'modify_node',
+            data: {
+                mutationType: 'machine_updated',
+                reason,
+                machine: {
+                    title: machine.title,
+                    nodeCount: machine.nodes.length,
+                    edgeCount: machine.edges.length
+                }
+            }
+        });
+
+        // Notify callback if set (for playground editor update)
+        if (this.onMachineUpdate) {
+            this.onMachineUpdate(dsl, this._machineData);
+        }
+
+        return {
+            success: true,
+            message: 'Machine definition updated successfully',
+            dsl,
+            summary: {
+                title: machine.title,
+                nodes: machine.nodes.length,
+                edges: machine.edges.length
+            }
+        };
     }
 }
