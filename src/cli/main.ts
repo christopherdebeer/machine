@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { MachineLanguageMetaData } from '../language/generated/module.js';
 import { createMachineServices } from '../language/machine-module.js';
 import { extractAstNode, extractDocument, extractDestinationAndName } from './cli-util.js';
-import { MachineExecutor, type MachineData } from '../language/machine-executor.js';
+import { RailsExecutor, type MachineData } from '../language/rails-executor.js';
 import { generateJSON, generateMermaid, generateHTML, FileGenerationResult } from '../language/generator/generator.js';
 import { NodeFileSystem } from 'langium/node';
 import * as path from 'node:path';
@@ -164,14 +164,20 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     const jsonContent = generateJSON(machine, fileName, opts.destination);
     const machineData = JSON.parse(jsonContent.content) as MachineData;
 
-    console.log(chalk.blue('\n⚙️  Executing machine program...'));
+    console.log(chalk.blue('\n⚙️  Executing machine program with Rails-Based Architecture...'));
 
     // Configure LLM client to use Anthropic with API key from environment
     const config = {
         llm: {
             provider: 'anthropic' as const,
             apiKey: process.env.ANTHROPIC_API_KEY,
-            model: 'claude-3-5-sonnet-20241022'
+            modelId: 'claude-3-5-sonnet-20241022'
+        },
+        agentSDK: {
+            model: 'sonnet' as const,
+            maxTurns: 50,
+            persistHistory: true,
+            historyPath: opts.destination ? path.join(opts.destination, 'execution-history.json') : './execution-history.json'
         }
     };
 
@@ -179,11 +185,11 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     if (!process.env.ANTHROPIC_API_KEY) {
         console.log(chalk.yellow('\n⚠️  Warning: ANTHROPIC_API_KEY environment variable not set.'));
         console.log(chalk.gray('   Set it with: export ANTHROPIC_API_KEY=your_api_key_here'));
-        console.log(chalk.gray('   Note: Execution will fail for Task nodes that require LLM processing.\n'));
+        console.log(chalk.gray('   Note: Execution will use placeholder agent responses (Phase 4 SDK integration pending).\n'));
     }
 
-    // Execute the machine with Anthropic client configuration
-    const executor = await MachineExecutor.create(machineData, config);
+    // Execute the machine with Rails-Based Architecture
+    const executor = await RailsExecutor.create(machineData, config);
     const executionResult = await executor.execute();
 
     // Write execution results

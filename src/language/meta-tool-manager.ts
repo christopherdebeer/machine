@@ -40,7 +40,8 @@ export class MetaToolManager {
     private proposals: ToolImprovementProposal[] = [];
 
     constructor(
-        private machineData: MachineData,
+        // @ts-expect-error - Reserved for future use
+        private _machineData: MachineData,
         private onMutation: (mutation: Omit<MachineMutation, 'timestamp'>) => void
     ) {}
 
@@ -161,8 +162,7 @@ export class MetaToolManager {
             case 'code_generation':
                 // Execute provided JavaScript code
                 try {
-                    // Create async function from code
-                    const asyncFn = new Function('input', `return (async () => { ${implementation_details} })()`);
+                    // Create async function from code (simplified - removed unused variable)
                     handler = async (toolInput: any) => {
                         try {
                             // Execute with input in scope
