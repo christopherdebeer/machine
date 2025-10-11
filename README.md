@@ -243,11 +243,24 @@ Install the DyGram extension for:
 
 See [LICENSE.md](LICENSE.md)
 
+## Documentation
+
+Comprehensive documentation is available in the [docs/](docs/) directory:
+
+- **[Quick Start](docs/QuickStart.mdx)** - Get started quickly
+- **[Language Overview](docs/LanguageOverview.mdx)** - Introduction to DyGram
+- **[Syntax Guide](docs/SyntaxGuide.mdx)** - Complete syntax reference
+- **[Advanced Features](docs/AdvancedFeatures.mdx)** - Advanced language features
+- **[Examples Index](docs/ExamplesIndex.mdx)** - Comprehensive example catalog
+- **[API Reference](docs/Api.mdx)** - API documentation
+
+See the [documentation index](docs/README.md) for the complete list.
+
 ## Links
 
 - **Live Demo**: http://www.christopherdebeer.com/machine/
 - **Documentation**: [docs/](docs/)
-- **Langium Guide**: [langium-quickstart.md](langium-quickstart.md)
+- **GitHub Repository**: https://github.com/christopherdebeer/machine
 
 ---
 
