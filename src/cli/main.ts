@@ -5,10 +5,12 @@ import { MachineLanguageMetaData } from '../language/generated/module.js';
 import { createMachineServices } from '../language/machine-module.js';
 import { extractAstNode, extractDocument, extractDestinationAndName } from './cli-util.js';
 import { RailsExecutor, type MachineData } from '../language/rails-executor.js';
-import { generateJSON, generateMermaid, generateHTML, FileGenerationResult } from '../language/generator/generator.js';
+import { generateJSON, generateMermaid, generateHTML, generateDSL, FileGenerationResult } from '../language/generator/generator.js';
 import { NodeFileSystem } from 'langium/node';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
+import { logger } from './logger.js';
+import { glob } from 'glob';
 
 // Use __dirname compatible approach
 import { fileURLToPath } from 'node:url';
@@ -16,15 +18,25 @@ import { dirname } from 'node:path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-type GenerateFormat = 'json' | 'mermaid' | 'html';
+type GenerateFormat = 'json' | 'mermaid' | 'html' | 'dsl';
 
 interface GenerateOptions {
     destination?: string;
     format?: string;
     debug?: boolean;
+    verbose?: boolean;
+    quiet?: boolean;
 }
 
-const VALID_FORMATS: GenerateFormat[] = ['json', 'mermaid', 'html'];
+interface BatchOptions {
+    destination?: string;
+    format?: string;
+    continueOnError?: boolean;
+    verbose?: boolean;
+    quiet?: boolean;
+}
+
+const VALID_FORMATS: GenerateFormat[] = ['json', 'mermaid', 'html', 'dsl'];
 
 function isValidFormat(format: string): format is GenerateFormat {
     return VALID_FORMATS.includes(format as GenerateFormat);
@@ -40,7 +52,7 @@ function parseFormats(formatStr?: string): GenerateFormat[] {
         .filter((f): f is GenerateFormat => {
             const valid = isValidFormat(f);
             if (!valid) {
-                console.log(chalk.yellow(`Warning: Ignoring invalid format '${f}'. Valid formats are: ${VALID_FORMATS.join(', ')}`));
+                logger.warn(`Warning: Ignoring invalid format '${f}'. Valid formats are: ${VALID_FORMATS.join(', ')}`);
             }
             return valid;
         });
@@ -48,17 +60,40 @@ function parseFormats(formatStr?: string): GenerateFormat[] {
     return formats.length > 0 ? formats : ['json'];
 }
 
+function setupLogger(opts: { verbose?: boolean; quiet?: boolean }): void {
+    if (opts.quiet) {
+        logger.setLevel('quiet');
+    } else if (opts.verbose) {
+        logger.setLevel('verbose');
+    } else {
+        logger.setLevel('normal');
+    }
+}
+
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
+    setupLogger(opts);
+
     const services = createMachineServices(NodeFileSystem).Machine;
+
+    logger.debug(`Processing file: ${fileName}`);
+
+    const formats = parseFormats(opts.format);
+
+    // Check if we need to handle DSL format specially (requires JSON input)
+    if (formats.includes('dsl')) {
+        await generateDSLAction(fileName, opts, formats);
+        return;
+    }
+
+    // Standard DSL input processing
     const model = await extractAstNode<Machine>(fileName, services);
     if (opts.debug) await generateSerialized(fileName, opts);
 
-    const formats = parseFormats(opts.format);
     const results: string[] = [];
 
     for (const format of formats) {
         try {
-            let res: FileGenerationResult;
+            let res: FileGenerationResult | undefined;
             switch (format) {
                 case 'json':
                     res = generateJSON(model, fileName, opts.destination);
@@ -69,44 +104,102 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
                 case 'html':
                     res = generateHTML(model, fileName, opts.destination);
                     break;
+                default:
+                    logger.warn(`Format '${format}' is not supported for DSL input`);
+                    continue;
             }
-            if (opts.destination) results.push(chalk.green(`Generated ${format.toUpperCase()}: ${res.filePath}`));
-            else {
-                console.log(res.content);
+            if (res) {
+                if (opts.destination) {
+                    results.push(`Generated ${format.toUpperCase()}: ${res.filePath}`);
+                    logger.debug(`Wrote ${format} to ${res.filePath}`);
+                } else {
+                    logger.output(res.content);
+                }
             }
         } catch (error) {
-            results.push(chalk.red(`Failed to generate ${format.toUpperCase()}: ${error instanceof Error ? error.message : String(error)}`));
+            const errorMsg = `Failed to generate ${format.toUpperCase()}: ${error instanceof Error ? error.message : String(error)}`;
+            results.push(errorMsg);
+            logger.error(errorMsg);
         }
     }
 
     if (opts.destination) {
         // Print all results together
-        console.log(chalk.bold('\n✓ Generation Complete'));
-        results.forEach(result => console.log('  ' + result));
+        logger.heading('\n✓ Generation Complete');
+        results.forEach(result => logger.success('  ' + result));
 
         // If HTML was generated, show the tip
         if (formats.includes('html')) {
-            console.log(chalk.blue('\n💡 Tip: Open the HTML file in a browser to view the interactive diagram'));
+            logger.tip('\n💡 Tip: Open the HTML file in a browser to view the interactive diagram');
         }
     }
-    
 };
 
-export const generateSerialized = async (file: string, opts: SerialiseOptions): Promise<void> => {
+async function generateDSLAction(fileName: string, opts: GenerateOptions, formats: GenerateFormat[]): Promise<void> {
+    // DSL format requires JSON input
+    if (!fileName.endsWith('.json')) {
+        logger.error('DSL format generation requires a JSON input file');
+        process.exit(1);
+    }
+
+    logger.debug(`Reading JSON from: ${fileName}`);
+
+    // Read JSON file
+    const jsonContent = await fs.readFile(fileName, 'utf-8');
+    const machineJson = JSON.parse(jsonContent);
+
+    const results: string[] = [];
+
+    for (const format of formats) {
+        try {
+            if (format === 'dsl') {
+                // Generate DSL from JSON
+                const dslContent = generateDSL(machineJson);
+
+                if (opts.destination) {
+                    // Write to file
+                    const data = extractDestinationAndName(fileName, opts.destination);
+                    const outputPath = path.join(data.destination, `${data.name}.dygram`);
+                    await fs.mkdir(data.destination, { recursive: true });
+                    await fs.writeFile(outputPath, dslContent);
+                    results.push(`Generated DSL: ${outputPath}`);
+                    logger.debug(`Wrote DSL to ${outputPath}`);
+                } else {
+                    logger.output(dslContent);
+                }
+            } else {
+                logger.warn(`Format '${format}' is not supported when generating from JSON. Only 'dsl' format is supported.`);
+            }
+        } catch (error) {
+            const errorMsg = `Failed to generate ${format.toUpperCase()}: ${error instanceof Error ? error.message : String(error)}`;
+            results.push(errorMsg);
+            logger.error(errorMsg);
+        }
+    }
+
+    if (opts.destination && results.length > 0) {
+        logger.heading('\n✓ Generation Complete');
+        results.forEach(result => logger.success('  ' + result));
+    }
+}
+
+export const generateSerialized = async (file: string, opts: SerialiseOptions & { verbose?: boolean; quiet?: boolean }): Promise<void> => {
+    setupLogger(opts);
+
     const services = createMachineServices(NodeFileSystem).Machine;
     const model = await extractAstNode<Machine>(file, services);
     const json = services.serializer.JsonSerializer.serialize(model, {
         space: 2,
-        sourceText: opts.sourceText, 
-        textRegions: opts.textRegions 
+        sourceText: opts.sourceText,
+        textRegions: opts.textRegions
     });
     if (opts.destination) {
-        console.log(opts.destination)
+        logger.debug(`Writing to: ${opts.destination}`);
         const generatedFilePath = `${path.join(opts.destination || path.dirname(file), path.basename(file, path.extname(file)))}-raw.json`;
         await fs.writeFile(generatedFilePath, json);
-        console.log(chalk.green(`Output generated successfully: ${generatedFilePath}`));
+        logger.success(`Output generated successfully: ${generatedFilePath}`);
     } else {
-        console.log(json);
+        logger.output(json);
     }
 }
 
@@ -123,7 +216,9 @@ export type SerialiseOptions = {
  *
  * @param fileName Program to validate
  */
-export const parseAndValidate = async (fileName: string): Promise<void> => {
+export const parseAndValidate = async (fileName: string, opts?: { verbose?: boolean; quiet?: boolean }): Promise<void> => {
+    setupLogger(opts || {});
+
     // retrieve the services for our language
     const services = createMachineServices(NodeFileSystem).Machine;
     // extract a document for our program
@@ -134,16 +229,16 @@ export const parseAndValidate = async (fileName: string): Promise<void> => {
     if (parseResult.lexerErrors.length === 0 &&
         parseResult.parserErrors.length === 0
     ) {
-        console.log(chalk.green(`✓ Parsed and validated ${fileName} successfully!`));
+        logger.success(`✓ Parsed and validated ${fileName} successfully!`);
     } else {
-        console.log(chalk.red(`✗ Failed to parse and validate ${fileName}!`));
+        logger.error(`✗ Failed to parse and validate ${fileName}!`);
         if (parseResult.lexerErrors.length > 0) {
-            console.log(chalk.red('\nLexer errors:'));
-            parseResult.lexerErrors.forEach(err => console.log(`  ${err.message}`));
+            logger.error('\nLexer errors:');
+            parseResult.lexerErrors.forEach(err => logger.error(`  ${err.message}`));
         }
         if (parseResult.parserErrors.length > 0) {
-            console.log(chalk.red('\nParser errors:'));
-            parseResult.parserErrors.forEach(err => console.log(`  ${err.message}`));
+            logger.error('\nParser errors:');
+            parseResult.parserErrors.forEach(err => logger.error(`  ${err.message}`));
         }
     }
 };
@@ -153,7 +248,9 @@ export const parseAndValidate = async (fileName: string): Promise<void> => {
  * @param fileName Program to execute
  * @param opts Execution options
  */
-export const executeAction = async (fileName: string, opts: { destination?: string }): Promise<void> => {
+export const executeAction = async (fileName: string, opts: { destination?: string; verbose?: boolean; quiet?: boolean }): Promise<void> => {
+    setupLogger(opts);
+
     // retrieve the services for our language
     const services = createMachineServices(NodeFileSystem).Machine;
 
@@ -164,7 +261,7 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     const jsonContent = generateJSON(machine, fileName, opts.destination);
     const machineData = JSON.parse(jsonContent.content) as MachineData;
 
-    console.log(chalk.blue('\n⚙️  Executing machine program with Rails-Based Architecture...'));
+    logger.info(chalk.blue('\n⚙️  Executing machine program with Rails-Based Architecture...'));
 
     // Configure LLM client to use Anthropic with API key from environment
     const config = {
@@ -183,10 +280,12 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
 
     // Check if API key is available
     if (!process.env.ANTHROPIC_API_KEY) {
-        console.log(chalk.yellow('\n⚠️  Warning: ANTHROPIC_API_KEY environment variable not set.'));
-        console.log(chalk.gray('   Set it with: export ANTHROPIC_API_KEY=your_api_key_here'));
-        console.log(chalk.gray('   Note: Execution will use placeholder agent responses (Phase 4 SDK integration pending).\n'));
+        logger.warn('\n⚠️  Warning: ANTHROPIC_API_KEY environment variable not set.');
+        logger.info(chalk.gray('   Set it with: export ANTHROPIC_API_KEY=your_api_key_here'));
+        logger.info(chalk.gray('   Note: Execution will use placeholder agent responses (Phase 4 SDK integration pending).\n'));
     }
+
+    logger.debug('Starting execution...');
 
     // Execute the machine with Rails-Based Architecture
     const executor = await RailsExecutor.create(machineData, config);
@@ -206,14 +305,86 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
         null,
         2
     ));
-    console.log(chalk.green(`\n✓ Execution results written to: ${resultPath}`));
-    console.log(chalk.blue('\n📋 Execution path:'));
+    logger.success(`\n✓ Execution results written to: ${resultPath}`);
+    logger.info(chalk.blue('\n📋 Execution path:'));
     executionResult.history.forEach(step => {
-        console.log(chalk.cyan(`  ${step.from}`) + chalk.gray(` --(${step.transition})--> `) + chalk.cyan(`${step.to}`));
+        logger.info(chalk.cyan(`  ${step.from}`) + chalk.gray(` --(${step.transition})--> `) + chalk.cyan(`${step.to}`));
         if (step.output) {
-            console.log(chalk.gray(`    Output: ${step.output}`));
+            logger.info(chalk.gray(`    Output: ${step.output}`));
         }
     });
+};
+
+/**
+ * Batch process multiple files
+ * @param pattern Glob pattern for files to process
+ * @param opts Batch options
+ */
+export const batchAction = async (pattern: string, opts: BatchOptions): Promise<void> => {
+    setupLogger(opts);
+
+    logger.info(`Searching for files matching pattern: ${pattern}`);
+
+    // Find files matching the pattern
+    const files = await glob(pattern, { nodir: true });
+
+    if (files.length === 0) {
+        logger.warn(`No files found matching pattern: ${pattern}`);
+        return;
+    }
+
+    logger.info(`Found ${files.length} file(s) to process\n`);
+
+    const results: { file: string; success: boolean; error?: string }[] = [];
+    let successCount = 0;
+    let errorCount = 0;
+
+    // Process each file
+    for (const file of files) {
+        try {
+            logger.info(`Processing: ${file}`);
+
+            // Call generateAction for each file
+            await generateAction(file, {
+                destination: opts.destination,
+                format: opts.format,
+                verbose: opts.verbose,
+                quiet: opts.quiet
+            });
+
+            results.push({ file, success: true });
+            successCount++;
+        } catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            results.push({ file, success: false, error: errorMsg });
+            errorCount++;
+
+            logger.error(`Failed to process ${file}: ${errorMsg}`);
+
+            if (!opts.continueOnError) {
+                logger.error('Stopping batch processing due to error. Use --continue-on-error to continue processing remaining files.');
+                break;
+            }
+        }
+    }
+
+    // Print summary
+    logger.heading('\n✓ Batch Processing Complete');
+    logger.success(`  Processed: ${successCount} file(s)`);
+    if (errorCount > 0) {
+        logger.error(`  Failed: ${errorCount} file(s)`);
+    }
+
+    if (opts.verbose) {
+        logger.info('\nDetailed Results:');
+        results.forEach(result => {
+            if (result.success) {
+                logger.success(`  ✓ ${result.file}`);
+            } else {
+                logger.error(`  ✗ ${result.file}: ${result.error}`);
+            }
+        });
+    }
 };
 
 // Initialize CLI
@@ -229,14 +400,30 @@ function initializeCLI(): Promise<void> {
                 program
                     .command('generate')
                     .aliases(['g'])
-                    .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
+                    .argument('<file>', `source file (DSL: ${fileExtensions}, or JSON for backward compilation)`)
                     .option('-d, --destination <dir>', 'destination directory for generated files')
                     .option('--debug', 'debug output raw ast', false)
                     .option('-f, --format <formats>',
+                        'comma-separated list of output formats (json,mermaid,html,dsl). Use "dsl" with JSON input for backward compilation. Default: json',
+                        'json')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('generates output in specified formats\n\nExamples:\n  dygram generate file.dygram --format json,html\n  dygram generate file.json --format dsl  # backward compilation')
+                    .action(generateAction);
+
+                program
+                    .command('batch')
+                    .aliases(['b'])
+                    .argument('<pattern>', 'glob pattern for files to process (e.g., "examples/**/*.dygram")')
+                    .option('-d, --destination <dir>', 'destination directory for generated files')
+                    .option('-f, --format <formats>',
                         'comma-separated list of output formats (json,mermaid,html). Default: json',
                         'json')
-                    .description('generates output in specified formats (json, mermaid, html)')
-                    .action(generateAction);
+                    .option('--continue-on-error', 'continue processing remaining files if an error occurs', false)
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('batch process multiple files matching a glob pattern\n\nExamples:\n  dygram batch "examples/**/*.dygram" --format json\n  dygram batch "src/**/*.dygram" --format json,html --destination ./output')
+                    .action(batchAction);
 
                 program
                     .command('debug')
@@ -245,12 +432,16 @@ function initializeCLI(): Promise<void> {
                     .option('-t, --text-regions', 'show positions of each syntax node', false)
                     .option('-s, --source-text', 'show the source text of each syntax node', false)
                     .option('-d, --destination <dir>', 'destination directory of generating')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
                     .description('outputs serialised ast')
                     .action(generateSerialized);
 
                 program.command('parseAndValidate')
                     .aliases(['pv'])
                     .argument('<file>', 'Source file to parse & validate (ending in ${fileExtensions})')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
                     .description('Indicates where a program parses & validates successfully, but produces no output code')
                     .action(parseAndValidate);
 
@@ -259,6 +450,8 @@ function initializeCLI(): Promise<void> {
                     .aliases(['exec', 'e'])
                     .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
                     .option('-d, --destination <dir>', 'destination directory for execution results')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
                     .description('executes a machine program')
                     .action(executeAction);
 
