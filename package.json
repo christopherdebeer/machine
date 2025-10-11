@@ -34,7 +34,10 @@
         "test": "vitest run",
         "test:runtime": "vitest run test/integration/runtime-visualization.test.ts",
         "test:env": "vitest run test/scripts/test-with-env.ts",
-        "test:all": "npm run test && npm run test:runtime"
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui",
+        "test:e2e:headed": "playwright test --headed",
+        "test:all": "npm run test && npm run test:runtime && npm run test:e2e"
     },
     "dependencies": {
         "@anthropic-ai/sdk": "^0.32.1",
@@ -63,6 +66,7 @@
     "devDependencies": {
         "@codingame/esbuild-import-meta-url-plugin": "~1.0.2",
         "@mdx-js/rollup": "^3.1.1",
+        "@playwright/test": "^1.56.0",
         "@types/node": "^18.0.0",
         "@types/react": "^19.2.2",
         "@types/react-dom": "^19.2.1",
@@ -76,6 +80,7 @@
         "eslint": "~8.57.0",
         "http-server": "~14.1.1",
         "langium-cli": "~3.4.0",
+        "playwright": "^1.56.0",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
         "typescript": "~5.1.6",

@@ -13,3 +13,8 @@ generated
 .DS_Store
 dist/
 test-output/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/

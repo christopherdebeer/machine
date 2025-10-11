@@ -503,6 +503,8 @@ ${indent}  }`;
             });
 
             // Generate subtype hierarchy
+            // Note: Mermaid doesn't support nested namespaces, so we only create namespaces at level 0
+            // At deeper levels, we just output the classes without wrapping them in namespaces
             const subtypeContent = subtypes.length > 0 ?
                 this.generateTypeHierarchy(hierarchy, subtypes, level + 1) : '';
 
@@ -510,9 +512,16 @@ ${indent}  }`;
                 return toString(expandToNode`${toString(content)}${subtypeContent ? "\n" + toString(subtypeContent) : ''}`)
             }
 
-            return toString(expandToNode`${indent}namespace ${type}s {
+            // Only create namespace at the top level (level 0)
+            // At deeper levels, just output classes with their subtype content
+            if (level === 0) {
+                return toString(expandToNode`${indent}namespace ${type}s {
 ${toString(content)}${subtypeContent ? '\n' + toString(subtypeContent) : ''}
 ${indent}}`);
+            } else {
+                // At nested levels, don't create a namespace - just output the classes
+                return toString(expandToNode`${toString(content)}${subtypeContent ? "\n" + toString(subtypeContent) : ''}`);
+            }
         }, {
             separator: '\n',
             appendNewLineIfNotEmpty: true,
@@ -571,6 +580,18 @@ ${indent}}`);
             } else if (textValue) {
                 // Only use text if no other properties exist
                 labelJSON = textValue;
+            }
+
+            // Handle special characters in labels that could confuse Mermaid parser
+            // Mermaid classDiagram doesn't properly support colons in labels even when quoted
+            // Replace problematic characters with safe Unicode alternatives
+            if (labelJSON) {
+                // Replace colons with similar Unicode character (ratio symbol ∶ U+2236)
+                labelJSON = labelJSON.replace(/:/g, '∶');
+                // Replace semicolons with similar Unicode character (fullwidth semicolon ； U+FF1B)
+                labelJSON = labelJSON.replace(/;/g, '；');
+                // Replace double quotes with single quotes
+                labelJSON = labelJSON.replace(/"/g, "'");
             }
 
             return `  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
@@ -764,13 +785,21 @@ ${indent}  }`;
             });
 
             // Generate subtype hierarchy
+            // Note: Mermaid doesn't support nested namespaces, so we only create namespaces at level 0
+            // At deeper levels, we just output the classes without wrapping them in namespaces
             const subtypeContent = subtypes.length > 0 ?
                 this.generateTypeHierarchy(hierarchy, subtypes, level + 1) : '';
 
-
-            return toString(expandToNode`${indent}namespace ${type} {
+            // Only create namespace at the top level (level 0)
+            // At deeper levels, just output classes with their subtype content
+            if (level === 0) {
+                return toString(expandToNode`${indent}namespace ${type} {
 ${toString(content)}${subtypeContent ? '\n' + toString(subtypeContent) : ''}
 ${indent}}`);
+            } else {
+                // At nested levels, don't create a namespace - just output the classes
+                return toString(expandToNode`${toString(content)}${subtypeContent ? "\n" + toString(subtypeContent) : ''}`);
+            }
         }, {
             separator: '\n',
             appendNewLineIfNotEmpty: true,
@@ -812,6 +841,18 @@ ${indent}}`);
             } else if (textValue) {
                 // Only use text if no other properties exist
                 labelJSON = textValue;
+            }
+
+            // Handle special characters in labels that could confuse Mermaid parser
+            // Mermaid classDiagram doesn't properly support colons in labels even when quoted
+            // Replace problematic characters with safe Unicode alternatives
+            if (labelJSON) {
+                // Replace colons with similar Unicode character (ratio symbol ∶ U+2236)
+                labelJSON = labelJSON.replace(/:/g, '∶');
+                // Replace semicolons with similar Unicode character (fullwidth semicolon ； U+FF1B)
+                labelJSON = labelJSON.replace(/;/g, '；');
+                // Replace double quotes with single quotes
+                labelJSON = labelJSON.replace(/"/g, "'");
             }
 
             return `  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
