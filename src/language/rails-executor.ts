@@ -18,6 +18,7 @@ import {
 } from './llm-client.js';
 import { BedrockClient } from './bedrock-client.js';
 import { compilePrompt, TaskPromptContext, TASK_PROMPT_TEMPLATES } from './prompts/task-prompts.js';
+import { AgentContextBuilder } from './agent-context-builder.js';
 
 // Re-export existing interfaces for compatibility
 export interface MachineExecutionContext {
@@ -493,6 +494,14 @@ export class RailsExecutor {
         }
 
         console.log(`🚂 Transitioned: ${fromNode} -> ${targetNode} (${transitionLabel})`);
+    }
+
+    /**
+     * Build system prompt for a node using AgentContextBuilder
+     */
+    buildSystemPrompt(nodeName: string): string {
+        const builder = new AgentContextBuilder(this.machineData, this.context);
+        return builder.buildSystemPrompt(nodeName);
     }
 
     /**
