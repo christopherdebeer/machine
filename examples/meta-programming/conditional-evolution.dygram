@@ -1,0 +1,40 @@
+machine "Conditional Evolution System"
+
+// Demonstrates context-driven meta-programming evolution
+
+context config {
+    mode<string>: "production";
+    maxRetries<number>: 3;
+    enableLogging<boolean>: true;
+}
+
+context performance {
+    avgResponseTime<number>: 0;
+    peakMemory<number>: 0;
+}
+
+State start;
+
+Task adapter {
+    meta: true;
+    prompt: "Read the config and performance contexts. Use get_machine_definition to see the current structure. Based on conditions, modify the machine:
+    - If mode='production' and maxRetries > 1: add retry logic with exponential backoff
+    - If avgResponseTime > 1000ms: add caching layer
+    - If enableLogging=true: add logging nodes at key points
+    Use update_definition to apply changes.";
+}
+
+State processing {
+    desc: "Main processing logic";
+}
+
+State complete {
+    desc: "System operation complete";
+}
+
+// Edges
+start -> adapter;
+adapter -reads-> config;
+adapter -reads-> performance;
+adapter -> processing;
+processing -> complete;

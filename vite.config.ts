@@ -33,6 +33,7 @@ export default defineConfig(() => {
                     'context-and-schema-guide': path.resolve(__dirname, 'context-and-schema-guide.html'),
                     'testing-approach': path.resolve(__dirname, 'testing-approach.html'),
                     'examples-index': path.resolve(__dirname, 'examples-index.html'),
+                    'meta-programming': path.resolve(__dirname, 'meta-programming.html'),
                 },
             },
             outDir: 'dist'
@@ -97,6 +98,10 @@ export default defineConfig(() => {
                     },
                     {
                         src: 'examples/workflows',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/meta-programming',
                         dest: 'examples'
                     },
                     {

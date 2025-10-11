@@ -70,7 +70,7 @@ async function scanExamples(dir, baseDir = dir) {
  * Sort examples by category and name
  */
 function sortExamples(examples) {
-    const categoryOrder = ['basic', 'workflows', 'attributes', 'edges', 'nesting', 'complex', 'advanced', 'documentation', 'validation', 'context', 'edge-cases', 'stress', 'root'];
+    const categoryOrder = ['basic', 'workflows', 'meta-programming', 'attributes', 'edges', 'nesting', 'complex', 'advanced', 'documentation', 'validation', 'context', 'edge-cases', 'stress', 'root'];
 
     return examples.sort((a, b) => {
         // First sort by category

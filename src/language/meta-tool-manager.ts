@@ -466,13 +466,17 @@ export class MetaToolManager {
                 name: attr.name,
                 type: attr.type,
                 value: attr.value
-            }))
+            })),
+            // Preserve annotations if present in the incoming payload
+            ...(node.annotations && { annotations: node.annotations })
         }));
         this._machineData.edges = machine.edges.map((edge: any) => ({
             source: edge.source,
             target: edge.target,
             type: edge.type,
-            label: edge.label
+            label: edge.label,
+            // Preserve annotations if present in the incoming payload
+            ...(edge.annotations && { annotations: edge.annotations })
         }));
 
         // Generate DSL version
