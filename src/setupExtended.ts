@@ -1,6 +1,6 @@
 import { MonacoEditorLanguageClientWrapper, UserConfig, EditorAppConfigExtended } from 'monaco-editor-wrapper';
 import { configureWorker, defineUserServices } from './setupCommon.js';
-import { MachineExecutor } from './language/machine-executor.js';
+import { RailsExecutor } from './language/rails-executor.js';
 import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './language/diagram-controls.js';
 import { IDimension } from 'vscode/services';
 import { KeyCode, KeyMod } from 'monaco-editor';
@@ -258,19 +258,32 @@ s1 -catch-> init;
         // set a timeout to run the current code
         timeout = setTimeout(async () => {
             running = true;
-            console.info('generating & running current code...');
+            console.info('generating & running current code with Rails-Based Architecture...');
             let result = JSON.parse(resp.content);
             let data = result.$data;
             let mermaid = result.$mermaid;
             try {
-                const executor = new MachineExecutor({
-                    title: 'asdas',
-                    nodes: [{
-                        name: 'foo'
-                    }],
-                    edges: []
-                })
-                // await executor.step();
+                // Get API key and model from localStorage
+                const settings = loadSettings();
+
+                // Create RailsExecutor with configuration
+                const executor = await RailsExecutor.create(data, {
+                    llm: {
+                        provider: 'anthropic' as const,
+                        apiKey: settings.apiKey || undefined,
+                        modelId: 'claude-3-5-sonnet-20241022'
+                    },
+                    agentSDK: {
+                        model: 'sonnet' as const,
+                        maxTurns: 20,
+                        persistHistory: false // Don't persist in playground
+                    }
+                });
+
+                // Don't actually execute, just instantiate for now
+                // Full execution in playground would require more UI work
+                console.log('RailsExecutor created:', executor);
+
                 running = false;
                 console.log(resp, data, mermaid, executor)
                 window.render(mermaid, outputEl, `${Math.floor(Math.random()  * 1000000000)}`)

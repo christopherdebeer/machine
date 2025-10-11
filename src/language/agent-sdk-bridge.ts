@@ -11,7 +11,6 @@
 import type { ToolDefinition } from './llm-client.js';
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
 import type { MetaToolManager } from './meta-tool-manager.js';
-import type { AgentContextBuilder } from './agent-context-builder.js';
 
 /**
  * Agent message for conversation history
@@ -83,10 +82,12 @@ export class AgentSDKBridge {
     private conversationHistory: AgentMessage[] = [];
     private executionHistory: ExecutionHistoryEntry[] = [];
     private config: Required<AgentSDKBridgeConfig>;
+    private toolExecutor?: (toolName: string, input: any) => Promise<any>;
 
     constructor(
         private machineData: MachineData,
-        private executionContext: MachineExecutionContext,
+        // @ts-expect-error - Reserved for future use
+        private _executionContext: MachineExecutionContext,
         private metaToolManager: MetaToolManager,
         config: AgentSDKBridgeConfig = {}
     ) {
@@ -105,7 +106,8 @@ export class AgentSDKBridge {
     async invokeAgent(
         nodeName: string,
         systemPrompt: string,
-        tools: ToolDefinition[]
+        tools: ToolDefinition[],
+        toolExecutor?: (toolName: string, input: any) => Promise<any>
     ): Promise<AgentExecutionResult> {
         console.log(`🤖 Invoking agent for node: ${nodeName}`);
         console.log(`📋 System prompt length: ${systemPrompt.length} chars`);
@@ -128,6 +130,9 @@ export class AgentSDKBridge {
             content: userPrompt,
             timestamp: new Date().toISOString()
         });
+
+        // Store tool executor for use in executeTool
+        this.toolExecutor = toolExecutor;
 
         // TODO: Phase 4 - Actual SDK integration
         // For now, this is a placeholder that demonstrates the structure
@@ -190,7 +195,12 @@ export class AgentSDKBridge {
     async executeTool(toolName: string, input: any): Promise<any> {
         console.log(`🔧 Executing tool: ${toolName}`);
 
-        // Check if it's a dynamic tool
+        // If we have a tool executor from RailsExecutor, use it
+        if (this.toolExecutor) {
+            return await this.toolExecutor(toolName, input);
+        }
+
+        // Fallback: Check if it's a dynamic tool
         const dynamicTool = this.metaToolManager.getDynamicTool(toolName);
         if (dynamicTool) {
             return await this.metaToolManager.executeDynamicTool(toolName, input);
@@ -212,7 +222,6 @@ export class AgentSDKBridge {
             }
         }
 
-        // TODO: Handle transition tools, context tools, etc.
         throw new Error(`Tool ${toolName} not found`);
     }
 

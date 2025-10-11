@@ -12,12 +12,9 @@ import {
     LLMClient,
     LLMClientConfig,
     createLLMClient,
-    ToolDefinition,
-    ConversationMessage,
-    ContentBlock
+    ToolDefinition
 } from './llm-client.js';
 import { BedrockClient } from './bedrock-client.js';
-import { compilePrompt, TaskPromptContext, TASK_PROMPT_TEMPLATES } from './prompts/task-prompts.js';
 import { AgentContextBuilder } from './agent-context-builder.js';
 import { MetaToolManager } from './meta-tool-manager.js';
 import { AgentSDKBridge, type AgentSDKBridgeConfig } from './agent-sdk-bridge.js';
@@ -611,6 +608,117 @@ export class RailsExecutor {
     }
 
     /**
+     * Execute a tool (transition, context, or meta)
+     */
+    async executeTool(toolName: string, input: any): Promise<any> {
+        console.log(`🔧 Executing tool: ${toolName} with input:`, input);
+
+        // Handle transition tools
+        if (toolName.startsWith('transition_to_')) {
+            const targetNode = toolName.replace('transition_to_', '');
+            const reason = input.reason || 'agent decision';
+
+            // Validate transition is valid
+            const transitions = this.getNonAutomatedTransitions(this.context.currentNode);
+            const validTransition = transitions.find(t => t.target === targetNode);
+
+            if (!validTransition) {
+                throw new Error(`Invalid transition: ${this.context.currentNode} -> ${targetNode}`);
+            }
+
+            return {
+                success: true,
+                action: 'transition',
+                target: targetNode,
+                reason
+            };
+        }
+
+        // Handle context read tools
+        if (toolName.startsWith('read_')) {
+            const contextName = toolName.replace('read_', '');
+            const contextNode = this.machineData.nodes.find(n => n.name === contextName);
+
+            if (!contextNode) {
+                throw new Error(`Context node ${contextName} not found`);
+            }
+
+            const attributes = this.getNodeAttributes(contextName);
+
+            // Filter by requested fields if specified
+            if (input.fields && Array.isArray(input.fields)) {
+                const filtered: Record<string, any> = {};
+                input.fields.forEach((field: string) => {
+                    if (field in attributes) {
+                        filtered[field] = attributes[field];
+                    }
+                });
+                return {
+                    success: true,
+                    context: contextName,
+                    data: filtered
+                };
+            }
+
+            return {
+                success: true,
+                context: contextName,
+                data: attributes
+            };
+        }
+
+        // Handle context write tools
+        if (toolName.startsWith('write_')) {
+            const contextName = toolName.replace('write_', '');
+            const contextNode = this.machineData.nodes.find(n => n.name === contextName);
+
+            if (!contextNode) {
+                throw new Error(`Context node ${contextName} not found`);
+            }
+
+            if (!input.data || typeof input.data !== 'object') {
+                throw new Error('write tool requires data object');
+            }
+
+            // Update context node attributes
+            if (!contextNode.attributes) {
+                contextNode.attributes = [];
+            }
+
+            Object.entries(input.data).forEach(([key, value]) => {
+                const existingAttr = contextNode.attributes!.find(a => a.name === key);
+                if (existingAttr) {
+                    existingAttr.value = String(value);
+                } else {
+                    contextNode.attributes!.push({
+                        name: key,
+                        type: typeof value === 'number' ? 'number' : 'string',
+                        value: String(value)
+                    });
+                }
+            });
+
+            // Record mutation
+            this.recordMutation({
+                type: 'modify_node',
+                data: {
+                    nodeName: contextName,
+                    updates: input.data
+                }
+            });
+
+            return {
+                success: true,
+                context: contextName,
+                written: Object.keys(input.data)
+            };
+        }
+
+        // Delegate to meta-tool manager or agent SDK bridge
+        return await this.agentSDKBridge.executeTool(toolName, input);
+    }
+
+    /**
      * Execute one step of the machine
      * Returns true if step was executed, false if machine is complete
      */
@@ -645,7 +753,8 @@ export class RailsExecutor {
             const systemPrompt = this.buildSystemPrompt(nodeName);
             const tools = this.buildPhaseTools(nodeName);
 
-            const result = await this.agentSDKBridge.invokeAgent(nodeName, systemPrompt, tools);
+            const result = await this.agentSDKBridge.invokeAgent(nodeName, systemPrompt, tools,
+                (toolName: string, input: any) => this.executeTool(toolName, input));
 
             console.log(`✓ Agent completed: ${result.output}`);
 
@@ -674,8 +783,21 @@ export class RailsExecutor {
 
     /**
      * Execute the complete machine
+     * Returns execution result compatible with old MachineExecutor interface
      */
-    async execute(): Promise<void> {
+    async execute(): Promise<{
+        currentNode: string;
+        errorCount: number;
+        visitedNodes: Set<string>;
+        attributes: Map<string, any>;
+        history: Array<{
+            from: string;
+            to: string;
+            transition: string;
+            timestamp: string;
+            output?: string;
+        }>;
+    }> {
         console.log(`\n🚀 Starting execution: ${this.machineData.title}`);
 
         let maxSteps = 100; // Safety limit
@@ -694,6 +816,15 @@ export class RailsExecutor {
         }
 
         console.log(`\n✓ Execution complete: ${stepCount} steps`);
+
+        // Return execution result
+        return {
+            currentNode: this.context.currentNode,
+            errorCount: this.context.errorCount,
+            visitedNodes: this.context.visitedNodes,
+            attributes: this.context.attributes,
+            history: this.context.history
+        };
     }
 
     /**
