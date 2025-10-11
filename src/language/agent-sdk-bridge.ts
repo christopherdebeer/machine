@@ -8,9 +8,10 @@
  * - Execution history persistence
  */
 
-import type { ToolDefinition } from './llm-client.js';
+import type { ToolDefinition, ConversationMessage, ModelResponse, ToolUseBlock } from './llm-client.js';
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
 import type { MetaToolManager } from './meta-tool-manager.js';
+import { AnthropicClient } from './anthropic-client.js';
 
 /**
  * Agent message for conversation history
@@ -59,6 +60,8 @@ export interface ExecutionHistoryEntry {
  */
 export interface AgentSDKBridgeConfig {
     model?: 'sonnet' | 'opus' | 'haiku';
+    modelId?: string; // Specific model ID override
+    apiKey?: string; // Anthropic API key
     maxTurns?: number;
     autoCompaction?: boolean;
     persistHistory?: boolean;
@@ -83,6 +86,7 @@ export class AgentSDKBridge {
     private executionHistory: ExecutionHistoryEntry[] = [];
     private config: Required<AgentSDKBridgeConfig>;
     private toolExecutor?: (toolName: string, input: any) => Promise<any>;
+    private anthropicClient?: AnthropicClient;
 
     constructor(
         private machineData: MachineData,
@@ -93,11 +97,37 @@ export class AgentSDKBridge {
     ) {
         this.config = {
             model: config.model || 'sonnet',
+            modelId: config.modelId || '',
+            apiKey: config.apiKey || '',
             maxTurns: config.maxTurns || 50,
             autoCompaction: config.autoCompaction !== false,
             persistHistory: config.persistHistory !== false,
             historyPath: config.historyPath || './execution-history.json'
         };
+
+        // Initialize Anthropic client if API key is provided
+        if (this.config.apiKey) {
+            try {
+                this.anthropicClient = new AnthropicClient({
+                    apiKey: this.config.apiKey,
+                    modelId: this.config.modelId || this.getModelIdFromName(this.config.model)
+                });
+            } catch (error) {
+                console.warn('Failed to initialize Anthropic client:', error);
+            }
+        }
+    }
+
+    /**
+     * Map model name to Anthropic model ID
+     */
+    private getModelIdFromName(model: 'sonnet' | 'opus' | 'haiku'): string {
+        const modelMap = {
+            'sonnet': 'claude-3-5-sonnet-20241022',
+            'opus': 'claude-3-opus-20240229',
+            'haiku': 'claude-3-haiku-20240307'
+        };
+        return modelMap[model];
     }
 
     /**
@@ -113,48 +143,166 @@ export class AgentSDKBridge {
         console.log(`📋 System prompt length: ${systemPrompt.length} chars`);
         console.log(`🔧 Available tools: ${tools.map(t => t.name).join(', ')}`);
 
-        // Record system message
-        this.conversationHistory.push({
-            role: 'system',
-            content: systemPrompt,
-            timestamp: new Date().toISOString()
-        });
+        // Store tool executor for use in executeTool
+        this.toolExecutor = toolExecutor;
 
         // Build user prompt from node attributes
         const node = this.machineData.nodes.find(n => n.name === nodeName);
         const userPrompt = this.extractUserPrompt(node);
 
-        // Add user message
-        this.conversationHistory.push({
+        // If no Anthropic client, return placeholder
+        if (!this.anthropicClient) {
+            console.warn('⚠️ No Anthropic client available. Set ANTHROPIC_API_KEY or provide apiKey in config.');
+            return this.placeholderResponse(nodeName, systemPrompt, userPrompt, tools);
+        }
+
+        // Prepare conversation messages
+        const messages: ConversationMessage[] = [];
+
+        // Add previous conversation history (excluding system messages)
+        const previousMessages = this.conversationHistory
+            .filter(m => m.role !== 'system')
+            .map(m => ({
+                role: m.role as 'user' | 'assistant',
+                content: m.content
+            }));
+        messages.push(...previousMessages);
+
+        // Add current user message
+        messages.push({
             role: 'user',
-            content: userPrompt,
-            timestamp: new Date().toISOString()
+            content: userPrompt
         });
 
-        // Store tool executor for use in executeTool
-        this.toolExecutor = toolExecutor;
+        // Multi-turn conversation loop
+        const toolsUsed: string[] = [];
+        let messagesExchanged = 0;
+        let finalOutput = '';
+        let nextNode: string | undefined;
+        let turnCount = 0;
 
-        // TODO: Phase 4 - Actual SDK integration
-        // For now, this is a placeholder that demonstrates the structure
-        // Real implementation would:
-        // 1. Call SDK query() function
-        // 2. Handle tool use events
-        // 3. Stream responses
-        // 4. Manage auto-compaction
+        while (turnCount < this.config.maxTurns) {
+            turnCount++;
+
+            try {
+                // Invoke model with tools
+                const response: ModelResponse = await this.anthropicClient.invokeWithTools(messages, tools);
+                messagesExchanged++;
+
+                // Extract text content
+                const textContent = this.anthropicClient.extractText(response);
+                if (textContent) {
+                    finalOutput += (finalOutput ? '\n' : '') + textContent;
+                }
+
+                // Record assistant message
+                this.conversationHistory.push({
+                    role: 'assistant',
+                    content: textContent || '[tool use only]',
+                    timestamp: new Date().toISOString(),
+                    toolUses: []
+                });
+
+                // Extract tool uses
+                const toolUses: ToolUseBlock[] = this.anthropicClient.extractToolUses(response);
+
+                if (toolUses.length === 0) {
+                    // No tool uses - conversation complete
+                    if (response.stop_reason === 'end_turn') {
+                        break;
+                    }
+                }
+
+                // Process tool uses
+                for (const toolUse of toolUses) {
+                    toolsUsed.push(toolUse.name);
+                    console.log(`🔧 Agent using tool: ${toolUse.name}`);
+
+                    try {
+                        const toolResult = await this.executeTool(toolUse.name, toolUse.input);
+
+                        // Check if this was a transition tool
+                        if (toolResult.action === 'transition') {
+                            nextNode = toolResult.target;
+                            console.log(`✅ Agent chose transition to: ${nextNode}`);
+                        }
+
+                        // Add tool result to conversation
+                        messages.push({
+                            role: 'assistant',
+                            content: response.content
+                        });
+
+                        messages.push({
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'tool_result',
+                                    tool_use_id: toolUse.id,
+                                    content: JSON.stringify(toolResult)
+                                }
+                            ]
+                        });
+
+                        messagesExchanged++;
+
+                        // If transition was made, we're done
+                        if (nextNode) {
+                            break;
+                        }
+                    } catch (error) {
+                        console.error(`❌ Tool execution error: ${toolUse.name}`, error);
+
+                        // Report error to agent
+                        messages.push({
+                            role: 'assistant',
+                            content: response.content
+                        });
+
+                        messages.push({
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'tool_result',
+                                    tool_use_id: toolUse.id,
+                                    content: JSON.stringify({
+                                        error: error instanceof Error ? error.message : String(error)
+                                    }),
+                                    is_error: true
+                                }
+                            ]
+                        });
+
+                        messagesExchanged++;
+                    }
+                }
+
+                // If transition was made, we're done
+                if (nextNode) {
+                    break;
+                }
+
+                // Auto-compaction check
+                if (this.config.autoCompaction && this.shouldCompact()) {
+                    await this.compact();
+                }
+            } catch (error) {
+                console.error('❌ Agent invocation error:', error);
+                throw error;
+            }
+        }
+
+        if (turnCount >= this.config.maxTurns) {
+            console.warn(`⚠️ Agent reached max turns (${this.config.maxTurns})`);
+        }
 
         const result: AgentExecutionResult = {
-            output: `[Phase 4 Placeholder] Agent invoked for ${nodeName}. SDK integration pending.`,
-            toolsUsed: [],
-            messagesExchanged: 2 // system + user
+            output: finalOutput || `Agent completed ${messagesExchanged} exchanges`,
+            nextNode,
+            toolsUsed,
+            messagesExchanged,
+            tokensUsed: this.getTokenUsageEstimate()
         };
-
-        // Record assistant response
-        this.conversationHistory.push({
-            role: 'assistant',
-            content: result.output,
-            timestamp: new Date().toISOString(),
-            toolUses: []
-        });
 
         // Add to execution history for batch evaluation
         if (this.config.persistHistory) {
@@ -171,6 +319,69 @@ export class AgentSDKBridge {
         }
 
         return result;
+    }
+
+    /**
+     * Placeholder response when no API key is available
+     */
+    private placeholderResponse(
+        nodeName: string,
+        systemPrompt: string,
+        userPrompt: string,
+        tools: ToolDefinition[]
+    ): AgentExecutionResult {
+        // Record system message
+        this.conversationHistory.push({
+            role: 'system',
+            content: systemPrompt,
+            timestamp: new Date().toISOString()
+        });
+
+        // Add user message
+        this.conversationHistory.push({
+            role: 'user',
+            content: userPrompt,
+            timestamp: new Date().toISOString()
+        });
+
+        const result: AgentExecutionResult = {
+            output: `[Placeholder] Agent invoked for ${nodeName}. Set ANTHROPIC_API_KEY to enable actual agent execution.`,
+            toolsUsed: [],
+            messagesExchanged: 2 // system + user
+        };
+
+        // Record assistant response
+        this.conversationHistory.push({
+            role: 'assistant',
+            content: result.output,
+            timestamp: new Date().toISOString(),
+            toolUses: []
+        });
+
+        // Add to execution history for batch evaluation (same as real execution)
+        if (this.config.persistHistory) {
+            const node = this.machineData.nodes.find(n => n.name === nodeName);
+            this.executionHistory.push({
+                timestamp: new Date().toISOString(),
+                nodeName,
+                nodeType: node?.type || 'unknown',
+                systemPrompt,
+                userPrompt,
+                tools: tools.map(t => t.name),
+                result,
+                conversationHistory: [...this.conversationHistory]
+            });
+        }
+
+        return result;
+    }
+
+    /**
+     * Check if compaction should be triggered
+     */
+    private shouldCompact(): boolean {
+        // Compact if conversation history exceeds 50 messages
+        return this.conversationHistory.length > 50;
     }
 
     /**
@@ -247,9 +458,19 @@ export class AgentSDKBridge {
             return;
         }
 
-        // TODO: Implement file writing
-        // For now, just log
-        console.log(`📝 Would persist ${this.executionHistory.length} execution entries to ${this.config.historyPath}`);
+        try {
+            // Dynamically import fs only in Node.js environment
+            if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+                const fs = await import('node:fs/promises');
+                const historyData = JSON.stringify(this.executionHistory, null, 2);
+                await fs.writeFile(this.config.historyPath, historyData, 'utf-8');
+                console.log(`📝 Persisted ${this.executionHistory.length} execution entries to ${this.config.historyPath}`);
+            } else {
+                console.log(`📝 Would persist ${this.executionHistory.length} execution entries (browser environment)`);
+            }
+        } catch (error) {
+            console.error('❌ Failed to persist execution history:', error);
+        }
     }
 
     /**

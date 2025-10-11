@@ -24,7 +24,14 @@ export interface TextBlock {
     text: string;
 }
 
-export type ContentBlock = ToolUseBlock | TextBlock;
+export interface ToolResultBlock {
+    type: 'tool_result';
+    tool_use_id: string;
+    content: string;
+    is_error?: boolean;
+}
+
+export type ContentBlock = ToolUseBlock | TextBlock | ToolResultBlock;
 
 export interface ModelResponse {
     content: ContentBlock[];
