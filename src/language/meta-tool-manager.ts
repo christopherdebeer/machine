@@ -41,7 +41,6 @@ export class MetaToolManager {
     private onMachineUpdate?: (dsl: string, machineData: MachineData) => void;
 
     constructor(
-        // @ts-expect-error - Reserved for future use
         private _machineData: MachineData,
         private onMutation: (mutation: Omit<MachineMutation, 'timestamp'>) => void
     ) {}
