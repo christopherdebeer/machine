@@ -11,11 +11,13 @@ DyGram (formerly "Machine", aka "ideo-gram") is a lean, executable DSL for rapid
 ### Key Features
 
 - **🚀 Immediately Executable**: Start with broad, unstructured concepts that run from day one
-- **📱 Mobile-First**: New CodeMirror 6-based playground optimized for touch devices
+- **🛤️ Rails-Based Execution**: Single agent rides machine rails with automated + intelligent transitions
+- **🔧 Meta-Programming**: Agents can construct tools dynamically and improve them iteratively
+- **📱 Mobile-First**: CodeMirror 6-based playground optimized for touch devices
 - **🔄 Iterative Evolution**: Refine through execution, feedback, and continuous iteration
 - **🎯 Lean Core DSL**: Minimal, intuitive language capturing domain concepts
 - **🧩 Structured Emergence**: Watch systems naturally evolve from sketches to implementations
-- **🔧 Language Server Support**: Full LSP integration with Langium
+- **⚡ Language Server Support**: Full LSP integration with Langium
 
 ## Quick Start
 
@@ -70,6 +72,34 @@ Traditional Monaco editor with full Langium LSP:
 - ✅ Real-time validation
 - ✅ Rich language features
 - ⚠️ Less optimal on mobile devices
+
+## Rails-Based Architecture ⚡
+
+DyGram features a unique execution model where your machine definition acts as "rails" that guide a Claude agent:
+
+- **🛤️ Automated Transitions**: Deterministic paths execute instantly without LLM calls
+- **🤖 Agent Decisions**: Complex branching requires intelligent agent reasoning
+- **🔧 Meta-Programming**: Agents can construct tools and modify the machine dynamically
+- **📊 Phase-Specific Context**: Agents receive only relevant data at each node
+
+**Example:**
+```machine
+machine "Smart Pipeline"
+
+State idle;
+Task analyze {
+    meta: true;
+    prompt: "Analyze data. Construct tools if needed.";
+};
+
+// Automatic transition (no agent)
+idle -@auto-> analyze;
+
+// Agent-controlled (complex decision)
+analyze -> success, retry, abort;
+```
+
+Learn more: [Rails-Based Architecture Documentation](docs/RailsBasedArchitecture.mdx) | [Examples](examples/rails/)
 
 ## Language Syntax
 

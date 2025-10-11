@@ -1,0 +1,108 @@
+machine "Tool Review and Improvement Demo"
+
+// This example demonstrates how an agent can review existing
+// tools and propose improvements.
+
+// Context nodes
+context input {
+    numbers<string>: "[10, 20, 30, 40, 50]";
+};
+
+context output {
+    average<number>: 0;
+    median<number>: 0;
+    stddev<number>: 0;
+};
+
+context toolRegistry {
+    tools<string>: "[]";
+    improvements<string>: "[]";
+};
+
+// State machine
+State idle;
+State reviewing;
+State complete;
+
+// Tasks
+Task calculate {
+    meta: true;
+    prompt: "Calculate statistics. If no tool exists, construct one.";
+};
+
+Task review {
+    meta: true;
+    prompt: "Review the tools used in calculate. Are they efficient? Can they be improved?";
+};
+
+Task apply {
+    meta: true;
+    prompt: "Apply the proposed improvements to tools";
+};
+
+// Flow
+idle -> calculate;
+
+calculate -reads-> input;
+calculate -writes-> output;
+calculate -writes-> toolRegistry;
+calculate -> reviewing;
+
+reviewing -> review;
+
+review -reads-> toolRegistry;
+review -reads-> output;
+review -writes-> toolRegistry;  // Can record improvements
+review -> apply, complete;      // Agent decides if improvements needed
+
+apply -reads-> toolRegistry;
+apply -writes-> toolRegistry;
+apply -> calculate;             // Try again with improved tools
+
+complete -> idle;
+
+// Expected execution flow:
+//
+// 1. idle → calculate: Automatic
+//
+// 2. calculate (first time):
+//    - No statistics tool exists
+//    - Agent uses construct_tool to create calculate_stats tool:
+//      implementation_strategy: 'code_generation'
+//      implementation_details: 'async (input) => {
+//        const sum = input.numbers.reduce((a, b) => a + b, 0);
+//        return sum / input.numbers.length;
+//      }'
+//    - Tool is basic, only calculates average
+//    - Calculates average, writes to output
+//    - Transitions to reviewing
+//
+// 3. reviewing → review: Automatic
+//
+// 4. review:
+//    - Agent uses list_available_tools(include_source: true)
+//    - Sees calculate_stats tool implementation
+//    - Realizes it only calculates average, not median or stddev
+//    - Uses propose_tool_improvement:
+//      tool_name: 'calculate_stats'
+//      rationale: 'Current tool only calculates average. Should calculate median and stddev too.'
+//      proposed_changes: 'Add median and standard deviation calculations...'
+//    - Decides to transition to apply
+//
+// 5. apply:
+//    - Reads improvement proposals from toolRegistry
+//    - Updates calculate_stats tool with enhanced implementation
+//    - Transitions back to calculate
+//
+// 6. calculate (second time):
+//    - Uses improved calculate_stats tool
+//    - Now calculates average, median, and stddev
+//    - Writes all results to output
+//    - Transitions to reviewing
+//
+// 7. review (second time):
+//    - Tool is now comprehensive
+//    - No further improvements needed
+//    - Transitions to complete
+//
+// 8. complete → idle: Automatic
