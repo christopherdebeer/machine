@@ -83,9 +83,26 @@ Real-world workflow examples:
 - `code-generation-demo.dygram` - Complete code generation workflow
 - `data-pipeline.dygram` - **NEW**: ETL data pipeline with error handling and monitoring
 
+### `/rails` 🆕
+Rails-Based Architecture examples:
+- `auto-transitions.mach` - Automated vs agent-controlled transitions
+- `dynamic-tool-construction.mach` - Agent-constructed tools
+- `self-improving-pipeline.mach` - Complete meta-programming workflow
+- `phase-specific-context.mach` - Permission-based context access
+- `tool-review-improvement.mach` - Tool evolution and improvement
+
 ## What's New
 
-### Recent Additions (2025-10-10)
+### Recent Additions (2025-10-11)
+
+1. **🆕 Rails-Based Architecture Examples**: New `/rails` directory with 5 comprehensive examples
+   - Automated vs agent-controlled transitions
+   - Dynamic tool construction
+   - Self-improving pipelines with meta-programming
+   - Phase-specific context with permissions
+   - Tool review and improvement workflows
+
+### Previous Additions (2025-10-10)
 
 1. **Reorganized for Clarity**: Renamed phase directories to feature-based names
    - `phase2/` → `advanced/` (clearer intent)
@@ -148,9 +165,10 @@ npx dygram execute examples/workflows/smart-task-prioritizer.dygram
 8. Review `/workflows` - Real-world examples
 
 **For Advanced Users:**
-9. Examine `/complex` - Complex patterns
-10. Challenge yourself with `/stress` - Performance considerations
-11. Explore edge cases in `/edge-cases`
+9. Examine `/rails` - 🆕 Rails-Based Architecture and meta-programming
+10. Explore `/complex` - Complex patterns
+11. Challenge yourself with `/stress` - Performance considerations
+12. Explore edge cases in `/edge-cases`
 
 ## See Also
 
