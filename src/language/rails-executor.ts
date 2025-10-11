@@ -19,6 +19,7 @@ import {
 import { BedrockClient } from './bedrock-client.js';
 import { compilePrompt, TaskPromptContext, TASK_PROMPT_TEMPLATES } from './prompts/task-prompts.js';
 import { AgentContextBuilder } from './agent-context-builder.js';
+import { MetaToolManager } from './meta-tool-manager.js';
 
 // Re-export existing interfaces for compatibility
 export interface MachineExecutionContext {
@@ -109,6 +110,7 @@ export class RailsExecutor {
     protected machineData: MachineData;
     protected llmClient: LLMClient;
     protected mutations: MachineMutation[] = [];
+    protected metaToolManager: MetaToolManager;
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
         this.machineData = machineData;
@@ -119,6 +121,12 @@ export class RailsExecutor {
             attributes: new Map(),
             history: []
         };
+
+        // Initialize MetaToolManager
+        this.metaToolManager = new MetaToolManager(
+            this.machineData,
+            (mutation) => this.recordMutation(mutation)
+        );
 
         // Support legacy bedrock config for backwards compatibility
         if (config.bedrock && !config.llm) {
@@ -502,6 +510,13 @@ export class RailsExecutor {
     buildSystemPrompt(nodeName: string): string {
         const builder = new AgentContextBuilder(this.machineData, this.context);
         return builder.buildSystemPrompt(nodeName);
+    }
+
+    /**
+     * Get MetaToolManager
+     */
+    getMetaToolManager(): MetaToolManager {
+        return this.metaToolManager;
     }
 
     /**
