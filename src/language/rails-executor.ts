@@ -20,6 +20,7 @@ import { BedrockClient } from './bedrock-client.js';
 import { compilePrompt, TaskPromptContext, TASK_PROMPT_TEMPLATES } from './prompts/task-prompts.js';
 import { AgentContextBuilder } from './agent-context-builder.js';
 import { MetaToolManager } from './meta-tool-manager.js';
+import { AgentSDKBridge, type AgentSDKBridgeConfig } from './agent-sdk-bridge.js';
 
 // Re-export existing interfaces for compatibility
 export interface MachineExecutionContext {
@@ -70,6 +71,8 @@ export interface MachineExecutorConfig {
         region?: string;
         modelId?: string;
     };
+    // Agent SDK configuration (Phase 4)
+    agentSDK?: AgentSDKBridgeConfig;
 }
 
 /**
@@ -111,6 +114,7 @@ export class RailsExecutor {
     protected llmClient: LLMClient;
     protected mutations: MachineMutation[] = [];
     protected metaToolManager: MetaToolManager;
+    protected agentSDKBridge: AgentSDKBridge;
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
         this.machineData = machineData;
@@ -126,6 +130,14 @@ export class RailsExecutor {
         this.metaToolManager = new MetaToolManager(
             this.machineData,
             (mutation) => this.recordMutation(mutation)
+        );
+
+        // Initialize AgentSDKBridge (Phase 4)
+        this.agentSDKBridge = new AgentSDKBridge(
+            this.machineData,
+            this.context,
+            this.metaToolManager,
+            config.agentSDK
         );
 
         // Support legacy bedrock config for backwards compatibility
@@ -520,6 +532,85 @@ export class RailsExecutor {
     }
 
     /**
+     * Build phase-specific tools for a node
+     */
+    protected buildPhaseTools(nodeName: string): ToolDefinition[] {
+        const tools: ToolDefinition[] = [];
+
+        // Add transition tools (non-automated)
+        const transitions = this.getNonAutomatedTransitions(nodeName);
+        for (const transition of transitions) {
+            tools.push({
+                name: `transition_to_${transition.target}`,
+                description: `Transition to ${transition.target}${transition.description ? ': ' + transition.description : ''}`,
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        reason: {
+                            type: 'string',
+                            description: 'Brief explanation of why this transition was chosen'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Add context tools (read/write based on permissions)
+        const builder = new AgentContextBuilder(this.machineData, this.context);
+        const contexts = builder.getAccessibleContextNodes(nodeName);
+
+        for (const [contextName, perms] of contexts.entries()) {
+            if (perms.canRead) {
+                tools.push({
+                    name: `read_${contextName}`,
+                    description: `Read data from ${contextName} context`,
+                    input_schema: {
+                        type: 'object',
+                        properties: {
+                            fields: {
+                                type: 'array',
+                                items: { type: 'string' },
+                                description: 'Specific fields to read (optional)'
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (perms.canWrite) {
+                tools.push({
+                    name: `write_${contextName}`,
+                    description: `Write data to ${contextName} context`,
+                    input_schema: {
+                        type: 'object',
+                        properties: {
+                            data: {
+                                type: 'object',
+                                description: 'Data to write'
+                            }
+                        },
+                        required: ['data']
+                    }
+                });
+            }
+        }
+
+        // Add meta-tools if node has meta capabilities
+        const node = this.machineData.nodes.find(n => n.name === nodeName);
+        if (node) {
+            const attributes = this.getNodeAttributes(nodeName);
+            if (attributes.meta === 'true' || attributes.meta === 'True') {
+                tools.push(...this.metaToolManager.getMetaTools());
+            }
+        }
+
+        // Add dynamic tools
+        tools.push(...this.metaToolManager.getDynamicToolDefinitions());
+
+        return tools;
+    }
+
+    /**
      * Execute one step of the machine
      * Returns true if step was executed, false if machine is complete
      */
@@ -549,9 +640,24 @@ export class RailsExecutor {
         // Phase 2: If no auto-transition, check if agent decision required
         if (this.requiresAgentDecision(nodeName)) {
             console.log(`🤖 Agent decision required for ${nodeName}`);
-            // TODO: Invoke agent (Phase 4)
-            // For now, just throw error to indicate this needs implementation
-            throw new Error(`Agent invocation not yet implemented (Phase 4). Node: ${nodeName}`);
+
+            // Phase 4: Invoke agent with SDK
+            const systemPrompt = this.buildSystemPrompt(nodeName);
+            const tools = this.buildPhaseTools(nodeName);
+
+            const result = await this.agentSDKBridge.invokeAgent(nodeName, systemPrompt, tools);
+
+            console.log(`✓ Agent completed: ${result.output}`);
+
+            // If agent determined next node, transition
+            if (result.nextNode) {
+                this.transition(result.nextNode, 'agent_decision');
+                return true;
+            }
+
+            // Otherwise, machine is stuck - no decision made
+            console.warn('⚠️ Agent completed but did not choose a transition');
+            return false;
         }
 
         // No outbound edges - terminal node
