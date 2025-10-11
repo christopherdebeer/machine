@@ -289,6 +289,22 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
 
     // Execute the machine with Rails-Based Architecture
     const executor = await RailsExecutor.create(machineData, config);
+
+    // Set up callback to save updated machine definition when agent modifies it
+    let machineWasUpdated = false;
+    executor.setMachineUpdateCallback(async (dsl: string) => {
+        machineWasUpdated = true;
+        const data = extractDestinationAndName(fileName, opts.destination);
+
+        // Save updated DSL to a new file with suffix
+        const updatedFileName = `${data.name}-updated.machine`;
+        const updatedPath = path.join(data.destination, updatedFileName);
+
+        await fs.writeFile(updatedPath, dsl, 'utf-8');
+        console.log(chalk.magenta(`\n🔄 Machine definition updated by agent!`));
+        console.log(chalk.gray(`   Updated DSL saved to: ${updatedPath}`));
+    });
+
     const executionResult = await executor.execute();
 
     // Write execution results
@@ -313,6 +329,25 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
             logger.info(chalk.gray(`    Output: ${step.output}`));
         }
     });
+
+    // Show mutations if machine was updated
+    if (machineWasUpdated) {
+        const mutations = executor.getMutations();
+        const machineUpdateMutations = mutations.filter(m =>
+            m.data?.mutationType === 'machine_updated'
+        );
+
+        if (machineUpdateMutations.length > 0) {
+            console.log(chalk.magenta('\n🔧 Machine Mutations:'));
+            machineUpdateMutations.forEach(mutation => {
+                console.log(chalk.yellow(`  ${mutation.timestamp}`));
+                console.log(chalk.gray(`    Reason: ${mutation.data.reason}`));
+                if (mutation.data.machine) {
+                    console.log(chalk.gray(`    Nodes: ${mutation.data.machine.nodeCount}, Edges: ${mutation.data.machine.edgeCount}`));
+                }
+            });
+        }
+    }
 };
 
 /**

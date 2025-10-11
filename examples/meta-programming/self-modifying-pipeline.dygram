@@ -1,0 +1,23 @@
+machine "Self-Modifying Pipeline"
+
+// Demonstrates basic meta-programming where an agent modifies the machine structure
+
+State start;
+
+Task optimizer {
+    meta: true;
+    prompt: "Analyze the current pipeline using get_machine_definition. If the pipeline is simple (fewer than 5 nodes), add a validation step before processing and an audit step after processing. Use update_definition to add these nodes.";
+}
+
+State processing {
+    desc: "Main data processing";
+}
+
+State complete {
+    desc: "Processing complete";
+}
+
+// Initial workflow
+start -> optimizer;
+optimizer -> processing;
+processing -> complete;

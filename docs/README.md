@@ -19,6 +19,7 @@ DyGram is a domain-specific language for defining state machines, workflows, and
 ### Runtime & Development
 - **[Rails-Based Architecture](RailsBasedArchitecture.mdx)** - 🆕 Execution model with automated transitions and intelligent agent decisions
 - **[Runtime & Evolution](RuntimeAndEvolution.mdx)** - Execution engine, automatic code generation, and task evolution
+- **[Meta-Programming](MetaProgramming.mdx)** - Dynamic machine modification and self-evolving machines
 - **[Evolution](Evolution.mdx)** - System evolution and development patterns
 - **[Testing Approach](TestingApproach.mdx)** - Testing methodology and validation
 - **[Generative Testing](GenerativeTesting.mdx)** - Generative testing strategy and implementation

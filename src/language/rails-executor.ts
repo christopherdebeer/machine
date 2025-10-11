@@ -529,6 +529,13 @@ export class RailsExecutor {
     }
 
     /**
+     * Set callback for when machine definition is updated (for playground editor updates)
+     */
+    setMachineUpdateCallback(callback: (dsl: string, machineData: MachineData) => void): void {
+        this.metaToolManager.setMachineUpdateCallback(callback);
+    }
+
+    /**
      * Build phase-specific tools for a node
      */
     protected buildPhaseTools(nodeName: string): ToolDefinition[] {

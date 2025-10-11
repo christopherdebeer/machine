@@ -294,6 +294,15 @@ s1 -catch-> init;
                     }
                 });
 
+                // Set up machine update callback to update editor when agent modifies machine
+                currentExecutor.setMachineUpdateCallback((dsl: string) => {
+                    if (editor) {
+                        console.log('Machine definition updated by agent, updating editor');
+                        addLogEntry('Machine definition updated by agent', 'info');
+                        editor.setValue(dsl);
+                    }
+                });
+
                 console.log('RailsExecutor created:', currentExecutor);
 
                 running = false;
