@@ -11,6 +11,11 @@ const STORAGE_KEYS = {
     API_KEY: 'dygram_api_key'
 };
 
+// Execution state
+let currentExecutor: RailsExecutor | null = null;
+let isExecuting = false;
+let executionStepMode = false;
+
 // define global functions for TypeScript
 declare global {
     interface Window {
@@ -18,6 +23,10 @@ declare global {
         downloadSVG: typeof downloadSVG;
         downloadPNG: typeof downloadPNG;
         toggleTheme: typeof toggleTheme;
+        executeMachine: () => Promise<void>;
+        stepMachine: () => Promise<void>;
+        stopMachine: () => void;
+        resetMachine: () => void;
     }
 }
 
@@ -26,6 +35,10 @@ window.render = render;
 window.downloadSVG = downloadSVG;
 window.downloadPNG = downloadPNG;
 window.toggleTheme = toggleTheme;
+window.executeMachine = executeMachine;
+window.stepMachine = stepMachine;
+window.stopMachine = stopMachine;
+window.resetMachine = resetMachine;
 
 export const setupConfigExtended = (src: string, options: any): UserConfig => {
     const extensionFilesOrContents = new Map();
@@ -267,7 +280,7 @@ s1 -catch-> init;
                 const settings = loadSettings();
 
                 // Create RailsExecutor with configuration
-                const executor = await RailsExecutor.create(data, {
+                currentExecutor = await RailsExecutor.create(data, {
                     llm: {
                         provider: 'anthropic' as const,
                         apiKey: settings.apiKey || undefined,
@@ -276,16 +289,15 @@ s1 -catch-> init;
                     agentSDK: {
                         model: 'sonnet' as const,
                         maxTurns: 20,
-                        persistHistory: false // Don't persist in playground
+                        persistHistory: false, // Don't persist in playground
+                        apiKey: settings.apiKey || undefined
                     }
                 });
 
-                // Don't actually execute, just instantiate for now
-                // Full execution in playground would require more UI work
-                console.log('RailsExecutor created:', executor);
+                console.log('RailsExecutor created:', currentExecutor);
 
                 running = false;
-                console.log(resp, data, mermaid, executor)
+                console.log(resp, data, mermaid, currentExecutor)
                 window.render(mermaid, outputEl, `${Math.floor(Math.random()  * 1000000000)}`)
             } catch (e) {
                 // failed at some point, log & disable running so we can try again
@@ -295,3 +307,173 @@ s1 -catch-> init;
         }, 200);
     });
 };
+
+/**
+ * Execution control functions
+ */
+
+function addLogEntry(message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') {
+    const logContent = document.getElementById('log-content');
+    if (!logContent) return;
+
+    const entry = document.createElement('div');
+    entry.className = `log-entry ${type}`;
+
+    const timestamp = new Date().toLocaleTimeString();
+    entry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span><span class="log-message">${message}</span>`;
+
+    logContent.appendChild(entry);
+    logContent.scrollTop = logContent.scrollHeight;
+}
+
+function updateStatus(status: string, currentNode: string, stepCount: number) {
+    const statusText = document.getElementById('status-text');
+    const currentNodeEl = document.getElementById('current-node');
+    const stepCountEl = document.getElementById('step-count');
+
+    if (statusText) statusText.textContent = status;
+    if (currentNodeEl) currentNodeEl.textContent = currentNode;
+    if (stepCountEl) stepCountEl.textContent = String(stepCount);
+}
+
+function setButtonStates(executing: boolean, stepping: boolean) {
+    const btnExecute = document.getElementById('btn-execute') as HTMLButtonElement;
+    const btnStep = document.getElementById('btn-step') as HTMLButtonElement;
+    const btnStop = document.getElementById('btn-stop') as HTMLButtonElement;
+
+    if (btnExecute) btnExecute.disabled = executing || stepping;
+    if (btnStep) btnStep.disabled = executing || !stepping;
+    if (btnStop) btnStop.disabled = !executing && !stepping;
+}
+
+async function executeMachine() {
+    if (isExecuting) {
+        addLogEntry('Execution already in progress', 'warning');
+        return;
+    }
+
+    try {
+        isExecuting = true;
+        executionStepMode = false;
+        setButtonStates(true, false);
+
+        addLogEntry('Starting machine execution...', 'info');
+        updateStatus('Running', '-', 0);
+
+        // Get settings
+        const settings = loadSettings();
+
+        if (!settings.apiKey) {
+            addLogEntry('No API key configured. Execution will use placeholder mode.', 'warning');
+        }
+
+        // Get machine data from current editor
+        // This requires accessing the executor created in executeExtended
+        if (!currentExecutor) {
+            addLogEntry('No executor available. Please wait for editor to initialize.', 'error');
+            isExecuting = false;
+            setButtonStates(false, false);
+            updateStatus('Error', '-', 0);
+            return;
+        }
+
+        let stepCount = 0;
+        let continued = true;
+
+        while (continued && isExecuting) {
+            continued = await currentExecutor.step();
+            stepCount++;
+
+            const context = currentExecutor.getContext();
+            updateStatus('Running', context.currentNode, stepCount);
+            addLogEntry(`Step ${stepCount}: At node ${context.currentNode}`, 'info');
+
+            // Small delay to allow UI updates
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            if (!continued) {
+                addLogEntry('Machine execution complete', 'success');
+                updateStatus('Complete', context.currentNode, stepCount);
+                break;
+            }
+        }
+
+        isExecuting = false;
+        setButtonStates(false, false);
+    } catch (error) {
+        addLogEntry(`Execution error: ${error instanceof Error ? error.message : String(error)}`, 'error');
+        updateStatus('Error', '-', 0);
+        isExecuting = false;
+        setButtonStates(false, false);
+    }
+}
+
+async function stepMachine() {
+    if (!executionStepMode) {
+        // Enter step mode
+        executionStepMode = true;
+        setButtonStates(false, true);
+        addLogEntry('Entered step-by-step mode', 'info');
+        updateStatus('Step Mode', '-', 0);
+        return;
+    }
+
+    if (!currentExecutor) {
+        addLogEntry('No executor available', 'error');
+        return;
+    }
+
+    try {
+        const context = currentExecutor.getContext();
+        const stepCount = context.history.length;
+
+        addLogEntry(`Executing step ${stepCount + 1}...`, 'info');
+
+        const continued = await currentExecutor.step();
+        const newContext = currentExecutor.getContext();
+
+        updateStatus('Step Mode', newContext.currentNode, newContext.history.length);
+        addLogEntry(`Step ${newContext.history.length}: At node ${newContext.currentNode}`, 'info');
+
+        if (!continued) {
+            addLogEntry('Machine execution complete', 'success');
+            updateStatus('Complete', newContext.currentNode, newContext.history.length);
+            executionStepMode = false;
+            setButtonStates(false, false);
+        }
+    } catch (error) {
+        addLogEntry(`Step error: ${error instanceof Error ? error.message : String(error)}`, 'error');
+        executionStepMode = false;
+        setButtonStates(false, false);
+    }
+}
+
+function stopMachine() {
+    if (isExecuting) {
+        isExecuting = false;
+        addLogEntry('Execution stopped by user', 'warning');
+        updateStatus('Stopped', currentExecutor?.getContext().currentNode || '-', currentExecutor?.getContext().history.length || 0);
+    }
+
+    if (executionStepMode) {
+        executionStepMode = false;
+        addLogEntry('Exited step-by-step mode', 'info');
+        updateStatus('Stopped', currentExecutor?.getContext().currentNode || '-', currentExecutor?.getContext().history.length || 0);
+    }
+
+    setButtonStates(false, false);
+}
+
+function resetMachine() {
+    stopMachine();
+
+    // Clear log
+    const logContent = document.getElementById('log-content');
+    if (logContent) {
+        logContent.innerHTML = '';
+    }
+
+    currentExecutor = null;
+    updateStatus('Not Running', '-', 0);
+    addLogEntry('Machine reset', 'info');
+}

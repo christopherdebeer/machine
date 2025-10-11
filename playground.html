@@ -36,6 +36,39 @@
             <div id="diagram"></div>
             <!-- Monaco Root -->
             <div id="monaco-editor-root"></div>
+
+            <!-- Execution Controls -->
+            <div id="execution-controls" class="execution-panel">
+                <div class="execution-header">
+                    <h3>Execution</h3>
+                    <div class="execution-buttons">
+                        <button id="btn-execute" onclick="window.executeMachine()">▶️ Execute</button>
+                        <button id="btn-step" onclick="window.stepMachine()" disabled>⏭️ Step</button>
+                        <button id="btn-stop" onclick="window.stopMachine()" disabled>⏹️ Stop</button>
+                        <button id="btn-reset" onclick="window.resetMachine()">🔄 Reset</button>
+                    </div>
+                </div>
+
+                <div id="execution-status" class="execution-status">
+                    <div class="status-item">
+                        <span class="status-label">Status:</span>
+                        <span id="status-text" class="status-value">Not Running</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Current Node:</span>
+                        <span id="current-node" class="status-value">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Steps:</span>
+                        <span id="step-count" class="status-value">0</span>
+                    </div>
+                </div>
+
+                <div id="execution-log" class="execution-log">
+                    <div class="log-header">Execution Log</div>
+                    <div id="log-content" class="log-content"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Monaco Configuration -->
