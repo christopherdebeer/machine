@@ -130,12 +130,34 @@ class JSONGenerator extends BaseGenerator {
             return value;
         }
 
+        // If it has a 'value' property that's an array, process it first
+        // (This handles AttributeValue with array syntax: [item1, item2])
+        if ('value' in value && Array.isArray(value.value)) {
+            if (value.value.length === 1) {
+                return this.extractPrimitiveValue(value.value[0]);
+            }
+            return value.value.map((v: any) => this.extractPrimitiveValue(v));
+        }
+
         // If it's an AST node with $cstNode, extract text
         if (value.$cstNode && value.$cstNode.text !== undefined) {
             let text = value.$cstNode.text;
             // Remove quotes if present
             if (typeof text === 'string') {
+                const hasQuotes = /^["']/.test(text);
                 text = text.replace(/^["']|["']$/g, '');
+
+                // If the original didn't have quotes, try to parse as number or boolean
+                if (!hasQuotes) {
+                    // Try to parse as number
+                    const numValue = Number(text);
+                    if (!isNaN(numValue) && text.trim() !== '') {
+                        return numValue;
+                    }
+                    // Try to parse as boolean
+                    if (text === 'true') return true;
+                    if (text === 'false') return false;
+                }
             }
             return text;
         }
@@ -1312,4 +1334,249 @@ export function generateMarkdown(machine: Machine, filePath: string, destination
 
 export function generateHTML(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
     return GeneratorFactory.createGenerator('html', machine, filePath, { destination }).generate();
+}
+
+// Backward compiler: JSON -> DyGram DSL
+export function generateDSL(machineJson: MachineJSON): string {
+    const lines: string[] = [];
+
+    // Add machine title
+    lines.push(`machine ${quoteString(machineJson.title)}`);
+    lines.push('');
+
+    // Track which nodes have been added to avoid duplicates
+    const addedNodes = new Set<string>();
+
+    // Group nodes by type for better organization
+    const nodesByType = new Map<string, any[]>();
+    machineJson.nodes.forEach(node => {
+        const type = node.type || 'undefined';
+        if (!nodesByType.has(type)) {
+            nodesByType.set(type, []);
+        }
+        nodesByType.get(type)!.push(node);
+    });
+
+    // Generate nodes organized by type
+    nodesByType.forEach((nodes, type) => {
+        nodes.forEach(node => {
+            if (!addedNodes.has(node.name)) {
+                lines.push(generateNodeDSL(node));
+                addedNodes.add(node.name);
+            }
+        });
+        if (nodes.length > 0) {
+            lines.push(''); // Add blank line between type groups
+        }
+    });
+
+    // Generate edges
+    if (machineJson.edges && machineJson.edges.length > 0) {
+        machineJson.edges.forEach(edge => {
+            lines.push(generateEdgeDSL(edge));
+        });
+        lines.push('');
+    }
+
+    // Generate notes
+    if (machineJson.notes && machineJson.notes.length > 0) {
+        machineJson.notes.forEach(note => {
+            lines.push(`note for ${note.target} ${quoteString(note.content)}`);
+        });
+    }
+
+    return lines.join('\n').trim() + '\n';
+}
+
+function generateNodeDSL(node: any): string {
+    const parts: string[] = [];
+
+    // Add type if present and not 'undefined'
+    if (node.type && node.type !== 'undefined') {
+        parts.push(node.type);
+    }
+
+    // Add node name
+    parts.push(node.name);
+
+    // Add title if present
+    if (node.title) {
+        parts.push(quoteString(node.title));
+    }
+
+    // Add annotations if present
+    let annotationsStr = '';
+    if (node.annotations && node.annotations.length > 0) {
+        annotationsStr = node.annotations.map((ann: any) => {
+            if (ann.value) {
+                return ` @${ann.name}(${quoteString(ann.value)})`;
+            }
+            return ` @${ann.name}`;
+        }).join('');
+    }
+
+    // Check if node has attributes
+    const hasAttributes = node.attributes && node.attributes.length > 0;
+
+    if (hasAttributes) {
+        // Node with attributes - use block syntax
+        let result = parts.join(' ') + annotationsStr + ' {\n';
+        node.attributes.forEach((attr: any) => {
+            result += '    ' + generateAttributeDSL(attr) + '\n';
+        });
+        result += '}';
+        return result;
+    } else {
+        // Simple node - use inline syntax
+        return parts.join(' ') + annotationsStr + ';';
+    }
+}
+
+function generateAttributeDSL(attr: any): string {
+    let result = attr.name;
+
+    // Add type if present
+    if (attr.type) {
+        result += `<${attr.type}>`;
+    }
+
+    // Add value if present
+    if (attr.value !== undefined && attr.value !== null) {
+        result += ': ';
+        if (Array.isArray(attr.value)) {
+            // Array value - each element needs proper formatting
+            const arrayValues = attr.value.map((v: any) => {
+                // For array elements, always quote strings
+                if (typeof v === 'string') {
+                    return quoteString(v);
+                } else {
+                    return formatValue(v);
+                }
+            });
+            result += '[' + arrayValues.join(', ') + ']';
+        } else {
+            result += formatValue(attr.value);
+        }
+    }
+
+    result += ';';
+    return result;
+}
+
+function generateEdgeDSL(edge: Edge): string {
+    const parts: string[] = [];
+
+    // Source
+    parts.push(edge.source);
+
+    // Add source multiplicity if present
+    if (edge.sourceMultiplicity) {
+        parts.push(quoteString(edge.sourceMultiplicity));
+    }
+
+    // Determine arrow type and label
+    const arrowType = edge.arrowType || '->';
+    const edgeValue = edge.value || {};
+
+    // Extract label if present
+    let label = '';
+    if (Object.keys(edgeValue).length > 0) {
+        // Check for 'text' property first
+        if (edgeValue.text) {
+            label = edgeValue.text;
+        } else {
+            // Build label from properties
+            const props = Object.keys(edgeValue)
+                .map(key => `${key}: ${formatValue(edgeValue[key])}`)
+                .join('; ');
+            if (props) {
+                label = props;
+            }
+        }
+    }
+
+    // Build arrow with label
+    if (label) {
+        // Labeled arrow
+        if (arrowType === '->') {
+            parts.push(`-${label}->`);
+        } else if (arrowType === '-->') {
+            parts.push(`--${label}-->`);
+        } else if (arrowType === '=>') {
+            parts.push(`=${label}=>`);
+        } else {
+            // For other arrow types, just use the arrow as-is
+            parts.push(arrowType);
+        }
+    } else {
+        // Simple arrow without label
+        parts.push(arrowType);
+    }
+
+    // Add target multiplicity if present
+    if (edge.targetMultiplicity) {
+        parts.push(quoteString(edge.targetMultiplicity));
+    }
+
+    // Target
+    parts.push(edge.target);
+
+    return parts.join(' ') + ';';
+}
+
+function formatValue(value: any): string {
+    if (typeof value === 'string') {
+        // Check if it looks like a reference (starts with #)
+        if (value.startsWith('#')) {
+            return value;
+        }
+
+        // Check if it's a boolean string
+        if (value === 'true' || value === 'false') {
+            return value;
+        }
+
+        // Try to parse as number to preserve numeric types
+        // But be careful with version strings like "1.0.0"
+        const numValue = Number(value);
+        if (!isNaN(numValue) && value.trim() !== '') {
+            // Only treat as number if string representation exactly matches
+            // This avoids "1.0.0" -> 1 or "042" -> 42
+            const numStr = String(numValue);
+            if (numStr === value || numStr === value.trim()) {
+                // Extra check: if it has leading zeros or multiple dots, quote it
+                if (!/^0\d|\..*\./.test(value)) {
+                    return numStr;
+                }
+            }
+        }
+
+        // Check if it needs quoting (contains spaces, special characters, or looks like a path/URL)
+        if (/[\s;,{}()\[\]]/.test(value) || value.length === 0 || value.includes('/') || value.includes(':') && !value.startsWith('#')) {
+            return quoteString(value);
+        }
+
+        // Quote if it contains dots (likely a version number, domain, etc.)
+        if (value.includes('.')) {
+            return quoteString(value);
+        }
+
+        // Simple identifier-like strings don't need quotes
+        return value;
+    } else if (typeof value === 'number') {
+        return String(value);
+    } else if (typeof value === 'boolean') {
+        return String(value);
+    } else if (value === null || value === undefined) {
+        return '""';
+    } else {
+        // Fallback for complex types
+        return quoteString(JSON.stringify(value));
+    }
+}
+
+function quoteString(str: string): string {
+    // Escape internal quotes and return quoted string
+    const escaped = str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    return `"${escaped}"`;
 }
