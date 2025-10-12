@@ -20,6 +20,7 @@ import {
     MachineMutation,
     MachineExecutorConfig
 } from './base-executor.js';
+import { NodeTypeChecker } from './node-type-checker.js';
 
 // Re-export interfaces for backward compatibility
 export type { MachineExecutionContext, MachineData, MachineMutation, MachineExecutorConfig };
@@ -273,14 +274,10 @@ export class MachineExecutor extends BaseExecutor {
 
     /**
      * Check if a node is a context node
+     * @deprecated Use NodeTypeChecker.isContext() instead
      */
     private isContextNode(node: { name: string; type?: string }): boolean {
-        return node.type?.toLowerCase() === 'context' ||
-               node.name.toLowerCase().includes('context') ||
-               node.name.toLowerCase().includes('output') ||
-               node.name.toLowerCase().includes('input') ||
-               node.name.toLowerCase().includes('data') ||
-               node.name.toLowerCase().includes('result');
+        return NodeTypeChecker.isContext(node);
     }
 
     /**
@@ -750,7 +747,7 @@ export class MachineExecutor extends BaseExecutor {
 
         const nodeName = this.context.currentNode;
         const attributes = this.getCurrentNodeAttributes();
-        const isMeta = this.isMetaEnabled(nodeName);
+        const isMeta = attributes.meta === 'true' || attributes.meta === 'True';
 
         // Set current task node for permission checks in tool handlers
         this.context.currentTaskNode = nodeName;
@@ -804,10 +801,9 @@ export class MachineExecutor extends BaseExecutor {
         // }
         
         // Simple template variable resolution for {{ variable.property }} syntax
-        const isStrict = this.isStrictMode();
         resolvedPrompt = resolvedPrompt.replace(/\{\{\s*(\w+)\.(\w+)\s*\}\}/g, (match: string, nodeName: string, attrName: string) => {
             console.log('🔍 Resolving template variable:', { match, nodeName, attrName });
-
+            
             // Find the referenced node in the machine
             const referencedNode = this.machineData.nodes.find(n => n.name === nodeName);
             if (referencedNode && referencedNode.attributes) {
@@ -815,7 +811,7 @@ export class MachineExecutor extends BaseExecutor {
                 if (referencedAttr) {
                     // Extract the actual value, handling AST objects
                     let value = referencedAttr.value;
-
+                    
                     // If it's a Langium AST node object, extract the actual value
                     if (value && typeof value === 'object' && '$type' in value) {
                         const astNode = value as any;
@@ -829,38 +825,20 @@ export class MachineExecutor extends BaseExecutor {
                             value = astNode.value;
                         }
                     }
-
+                    
                     // Ensure the value is a string
                     if (typeof value !== 'string') {
                         value = String(value);
                     }
-
+                    
                     // Remove quotes if present and return the value
                     value = value.replace(/^"(.*)"$/, '$1');
                     console.log('✅ Resolved template variable:', { match, value });
                     return value;
                 }
             }
-
-            // Template variable could not be resolved
             console.log('⚠️ Could not resolve template variable:', match);
-
-            if (isStrict) {
-                // In strict mode, throw an error with helpful information
-                const availableNodes = this.machineData.nodes.map(n => n.name).join(', ');
-                const availableAttrs = referencedNode?.attributes
-                    ? referencedNode.attributes.map(a => a.name).join(', ')
-                    : 'N/A';
-
-                const errorMsg = referencedNode
-                    ? `Template variable '${match}' could not be resolved: attribute '${attrName}' not found on node '${nodeName}'. Available attributes: ${availableAttrs}`
-                    : `Template variable '${match}' could not be resolved: node '${nodeName}' not found. Available nodes: ${availableNodes}`;
-
-                throw new Error(errorMsg);
-            }
-
-            // In lenient mode, return original match string
-            return match;
+            return match; // Return original if not found
         });
 
         console.log('📝 Original prompt:', attributes.prompt);
@@ -1033,8 +1011,7 @@ export class MachineExecutor extends BaseExecutor {
         let nextNode: string | undefined;
 
         // Check if this is a task node (case-insensitive) or has a prompt attribute
-        const isTaskNode = currentNode.type?.toLowerCase() === 'task' ||
-                          currentNode.attributes?.some(attr => attr.name === 'prompt');
+        const isTaskNode = NodeTypeChecker.isTask(currentNode);
 
         console.log('🔍 Node execution check:', {
             nodeName: currentNode.name,

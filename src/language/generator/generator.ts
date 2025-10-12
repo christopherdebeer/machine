@@ -66,12 +66,6 @@ class JSONGenerator extends BaseGenerator {
         // Create a serializable object representation of the machine
         const machineObject : MachineJSON = {
             title: this.machine.title,
-            annotations: this.machine.annotations && this.machine.annotations.length > 0
-                ? this.machine.annotations.map(ann => ({
-                    name: ann.name,
-                    value: ann.value?.replace(/^"|"$/g, '')  // Remove quotes from string values
-                }))
-                : undefined,
             nodes: this.serializeNodes(),
             edges: this.serializeEdges(),
             notes: this.serializeNotes(),
@@ -1348,18 +1342,6 @@ export function generateDSL(machineJson: MachineJSON): string {
 
     // Add machine title
     lines.push(`machine ${quoteString(machineJson.title)}`);
-
-    // Add machine-level annotations if present
-    if (machineJson.annotations && machineJson.annotations.length > 0) {
-        machineJson.annotations.forEach(ann => {
-            if (ann.value) {
-                lines.push(`@${ann.name}(${quoteString(ann.value)})`);
-            } else {
-                lines.push(`@${ann.name}`);
-            }
-        });
-    }
-
     lines.push('');
 
     // Track which nodes have been added to avoid duplicates

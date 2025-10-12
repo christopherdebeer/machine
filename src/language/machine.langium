@@ -45,7 +45,6 @@ STRING returns string: STR | MLSTR;
 
 entry Machine:
     'machine' title=STRING
-    (annotations+=Annotation)*
     (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)*
 ;
 
@@ -53,7 +52,7 @@ AttributeValue:
     ('[' (value+=(EXTID|STRING|ID|NUMBER) (',' value+=(EXTID|STRING|ID|NUMBER))*)? ']')
     | value=EXTID|STRING|ID|NUMBER;
 
-// Annotation for machines and nodes (e.g., @strictMode, @Abstract, @Singleton, @Deprecated)
+// Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated, @note)
 Annotation:
     '@' name=ID ('(' value=STRING ')')?
 ;

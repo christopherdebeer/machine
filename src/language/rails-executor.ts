@@ -388,9 +388,13 @@ export class RailsExecutor extends BaseExecutor {
             }
         }
 
-        // Add meta-tools if node has meta capabilities (check global and node-level)
-        if (this.isMetaEnabled(nodeName)) {
-            tools.push(...this.metaToolManager.getMetaTools());
+        // Add meta-tools if node has meta capabilities
+        const node = this.machineData.nodes.find(n => n.name === nodeName);
+        if (node) {
+            const attributes = this.getNodeAttributes(nodeName);
+            if (attributes.meta === 'true' || attributes.meta === 'True') {
+                tools.push(...this.metaToolManager.getMetaTools());
+            }
         }
 
         // Add dynamic tools

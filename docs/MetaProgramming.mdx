@@ -15,11 +15,7 @@ When a Task node has the `meta: true` attribute, the agent executing that task g
 
 ## Enabling Meta-Programming
 
-There are two ways to enable meta-programming:
-
-### Option 1: Node-Level (Traditional)
-
-Add the `meta: true` attribute to individual Task nodes:
+To enable meta-programming for a task node, add the `meta` attribute:
 
 ```machine
 machine "Self-Modifying Pipeline"
@@ -35,35 +31,6 @@ State complete;
 optimizer -> processing;
 processing -> complete;
 ```
-
-### Option 2: Machine-Level (Global)
-
-Use the `@meta` annotation at the machine level to enable meta-programming for all Task nodes by default:
-
-```machine
-machine "Self-Modifying Pipeline"
-@meta
-
-Task optimizer {
-    // Automatically has meta capabilities
-    prompt: "Analyze the pipeline and add error handling if needed";
-}
-
-Task executor {
-    // Explicitly opt-out for security
-    meta: false;
-    prompt: "Execute business logic without meta access";
-}
-
-State processing;
-State complete;
-
-optimizer -> executor;
-executor -> processing;
-processing -> complete;
-```
-
-The machine-level `@meta` annotation is useful when most or all Task nodes need meta capabilities. Individual nodes can override by setting `meta: false` to opt-out, which is useful for security-sensitive operations that shouldn't have the ability to modify the machine structure.
 
 ## Meta-Tools
 

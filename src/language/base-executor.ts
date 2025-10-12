@@ -8,6 +8,7 @@ import {
     LLMClientConfig
 } from './llm-client.js';
 import { BedrockClient } from './bedrock-client.js';
+import { NodeTypeChecker } from './node-type-checker.js';
 
 // Shared interfaces
 export interface MachineExecutionContext {
@@ -32,10 +33,6 @@ export interface MachineExecutionContext {
 
 export interface MachineData {
     title: string;
-    annotations?: Array<{
-        name: string;
-        value?: string;
-    }>;
     nodes: Array<{
         name: string;
         type?: string;
@@ -123,47 +120,6 @@ export abstract class BaseExecutor {
     }
 
     /**
-     * Check if strict mode is enabled via machine-level annotation
-     */
-    protected isStrictMode(): boolean {
-        return this.machineData.annotations?.some(ann =>
-            ann.name === 'strictMode' || ann.name === 'strict'
-        ) ?? false;
-    }
-
-    /**
-     * Check if meta mode is enabled globally via machine-level annotation
-     * Can be overridden at the node level with meta: false
-     */
-    protected isMetaEnabled(nodeName: string): boolean {
-        // Check for global @meta annotation
-        const globalMeta = this.machineData.annotations?.some(ann =>
-            ann.name === 'meta'
-        ) ?? false;
-
-        // Get node attributes to check for override
-        const node = this.machineData.nodes.find(n => n.name === nodeName);
-        if (node?.attributes) {
-            const metaAttr = node.attributes.find(a => a.name === 'meta');
-            if (metaAttr) {
-                // Node-level override exists - check its value
-                const metaValue = this.extractValueFromAST(metaAttr.value);
-                // Explicit false overrides global meta
-                if (metaValue === 'false' || metaValue === false) {
-                    return false;
-                }
-                // Explicit true enables meta regardless of global
-                if (metaValue === 'true' || metaValue === true || metaValue === 'True') {
-                    return true;
-                }
-            }
-        }
-
-        // If no node-level override, use global setting
-        return globalMeta;
-    }
-
-    /**
      * Find the start node of the machine
      * By convention, looks for a node named "start" or the first node if none found
      */
@@ -180,9 +136,10 @@ export abstract class BaseExecutor {
 
     /**
      * Check if a node is a state node
+     * @deprecated Use NodeTypeChecker.isState() instead
      */
     protected isStateNode(node: { name: string; type?: string }): boolean {
-        return node.type?.toLowerCase() === 'state';
+        return NodeTypeChecker.isState(node);
     }
 
     /**
