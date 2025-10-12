@@ -140,7 +140,7 @@ export class AgentSDKBridge {
     }
 
     /**
-     * Invoke agent for a node
+     * Invoke agent for a node with optional timeout
      */
     async invokeAgent(
         nodeName: string,
@@ -173,6 +173,65 @@ export class AgentSDKBridge {
         // Build user prompt from node attributes
         const node = this.machineData.nodes.find(n => n.name === nodeName);
         const userPrompt = this.extractUserPrompt(node);
+
+        // Check for node-specific timeout attribute
+        const nodeTimeout = this.getNodeTimeout(node);
+        if (nodeTimeout) {
+            console.log(`⏱️ Node timeout: ${nodeTimeout}ms`);
+            return this.invokeAgentWithTimeout(nodeName, systemPrompt, userPrompt, tools, nodeTimeout);
+        }
+
+        return this.invokeAgentInternal(nodeName, systemPrompt, userPrompt, tools);
+    }
+
+    /**
+     * Get timeout value from node attributes (in milliseconds)
+     */
+    private getNodeTimeout(node: any): number | undefined {
+        if (!node?.attributes) return undefined;
+
+        const timeoutAttr = node.attributes.find((a: any) => a.name === 'timeout');
+        if (!timeoutAttr) return undefined;
+
+        const timeoutValue = parseInt(timeoutAttr.value);
+        if (isNaN(timeoutValue)) return undefined;
+
+        // Assume timeout is in seconds, convert to milliseconds
+        return timeoutValue * 1000;
+    }
+
+    /**
+     * Invoke agent with timeout
+     */
+    private async invokeAgentWithTimeout(
+        nodeName: string,
+        systemPrompt: string,
+        userPrompt: string,
+        tools: ToolDefinition[],
+        timeoutMs: number
+    ): Promise<AgentExecutionResult> {
+        return Promise.race([
+            this.invokeAgentInternal(nodeName, systemPrompt, userPrompt, tools),
+            new Promise<AgentExecutionResult>((_, reject) =>
+                setTimeout(() => reject(new Error(
+                    `Node '${nodeName}' execution timeout (${timeoutMs}ms). ` +
+                    `The task took too long to complete.`
+                )), timeoutMs)
+            )
+        ]);
+    }
+
+    /**
+     * Internal agent invocation implementation
+     */
+    private async invokeAgentInternal(
+        nodeName: string,
+        systemPrompt: string,
+        userPrompt: string,
+        tools: ToolDefinition[]
+    ): Promise<AgentExecutionResult> {
+        // Get node for metadata
+        const node = this.machineData.nodes.find(n => n.name === nodeName);
 
         // If no Claude client, return placeholder
         if (!this.claudeClient) {
