@@ -9,8 +9,8 @@
  */
 
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
-import { extractValueFromAST } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
+import { ContextPermissionsResolver } from './utils/context-permissions.js';
 
 /**
  * Context access permissions for a node
@@ -260,23 +260,15 @@ export class AgentContextBuilder {
      * Get accessible context nodes with permissions
      */
     getAccessibleContextNodes(taskNodeName: string): Map<string, ContextPermissions> {
-        const accessibleContexts = new Map<string, ContextPermissions>();
-
-        // Find all edges from this task node to context nodes
-        const edgesFromTask = this.machineData.edges.filter(e => e.source === taskNodeName);
-
-        for (const edge of edgesFromTask) {
-            const targetNode = this.machineData.nodes.find(n => n.name === edge.target);
-            if (!targetNode) continue;
-
-            // Check if target is a context node
-            if (this.isContextNode(targetNode)) {
-                const permissions = this.extractPermissionsFromEdge(edge);
-                accessibleContexts.set(edge.target, permissions);
+        return ContextPermissionsResolver.getAccessibleContextNodes(
+            taskNodeName,
+            this.machineData,
+            {
+                includeInboundEdges: false,
+                includeStore: true,
+                enableLogging: false
             }
-        }
-
-        return accessibleContexts;
+        );
     }
 
     /**
@@ -284,13 +276,6 @@ export class AgentContextBuilder {
      */
     private isContextNode(node: Node): boolean {
         return NodeTypeChecker.isContext(node);
-    }
-
-    /**
-     * Extract permissions from edge label/type
-     */
-    private extractPermissionsFromEdge(edge: Edge): ContextPermissions {
-        return NodeTypeChecker.extractPermissionsFromEdge(edge);
     }
 
     /**
