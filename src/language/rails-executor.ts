@@ -22,6 +22,7 @@ import {
     MachineMutation,
     MachineExecutorConfig as BaseMachineExecutorConfig
 } from './base-executor.js';
+import { EdgeConditionParser } from './utils/edge-conditions.js';
 
 // Re-export interfaces for compatibility
 export type { MachineExecutionContext, MachineData, MachineMutation };
@@ -166,16 +167,10 @@ export class RailsExecutor extends BaseExecutor {
 
     /**
      * Check if condition is simple (deterministic, no external data)
+     * @deprecated Use EdgeConditionParser.isSimpleCondition() directly for new code
      */
     protected isSimpleCondition(condition: string | undefined): boolean {
-        if (!condition) return true;
-
-        // Conditions that only reference context attributes and runtime state are simple
-        // Complex conditions require tool calls or external data
-        return !condition.includes('tool') &&
-               !condition.includes('external') &&
-               !condition.includes('api') &&
-               !condition.includes('call');
+        return EdgeConditionParser.isSimpleCondition(condition);
     }
 
 
@@ -562,12 +557,21 @@ export class RailsExecutor extends BaseExecutor {
         if (this.requiresAgentDecision(nodeName)) {
             console.log(`🤖 Agent decision required for ${nodeName}`);
 
+            // Extract task-level model ID if present
+            const attributes = this.getNodeAttributes(nodeName);
+            const taskModelId = attributes.modelId ? String(attributes.modelId).replace(/^["']|["']$/g, '') : undefined;
+
             // Phase 4: Invoke agent with SDK
             const systemPrompt = this.buildSystemPrompt(nodeName);
             const tools = this.buildPhaseTools(nodeName);
 
-            const result = await this.agentSDKBridge.invokeAgent(nodeName, systemPrompt, tools,
-                (toolName: string, input: any) => this.executeTool(toolName, input));
+            const result = await this.agentSDKBridge.invokeAgent(
+                nodeName,
+                systemPrompt,
+                tools,
+                (toolName: string, input: any) => this.executeTool(toolName, input),
+                taskModelId
+            );
 
             console.log(`✓ Agent completed: ${result.output}`);
 

@@ -1,0 +1,45 @@
+machine "Multi-Model Task System"
+
+// Example demonstrating task-specific model ID configuration
+// Different tasks can use different Claude models based on complexity
+
+state start;
+
+// Simple task using default (haiku - fast and cheap)
+Task quick_analysis {
+    meta: true;
+    prompt: "Provide a quick one-sentence summary of what this system does.";
+};
+
+// Complex task requiring more capable model
+Task deep_analysis {
+    meta: true;
+    modelId: "claude-3-5-sonnet-20241022";
+    prompt: "Perform an in-depth analysis of the implications of using different AI models for different tasks. Consider cost, latency, and quality trade-offs.";
+};
+
+// Critical task requiring most capable model
+Task strategic_decision {
+    meta: true;
+    modelId: "claude-3-opus-20240229";
+    prompt: "Make a strategic recommendation on model selection strategy for a production system. Consider all factors including cost, performance, and reliability.";
+};
+
+context analysis {
+    quickSummary<string>: "";
+    deepAnalysis<string>: "";
+    recommendation<string>: "";
+};
+
+state complete {
+    desc: "Multi-model execution complete";
+};
+
+// Workflow
+start -> quick_analysis;
+quick_analysis -writes-> analysis;
+analysis -> deep_analysis;
+deep_analysis -writes-> analysis;
+analysis -> strategic_decision;
+strategic_decision -writes-> analysis;
+analysis -> complete;

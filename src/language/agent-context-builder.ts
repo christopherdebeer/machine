@@ -10,8 +10,9 @@
 
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
 import { NodeTypeChecker } from './node-type-checker.js';
-import { EdgeConditionParser } from './utils/edge-conditions.js';
+import { EdgeConditionParser } from './utils/edge-conditions.js'; claude/issue-102-20251012-1026
 import { ContextPermissionsResolver } from './utils/context-permissions.js';
+
 
 /**
  * Context access permissions for a node
