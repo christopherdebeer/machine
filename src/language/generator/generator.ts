@@ -329,6 +329,14 @@ class JSONGenerator extends BaseGenerator {
             });
         });
 
+        // If we have named attributes (other than 'text'), remove the CST-derived 'text' field
+        // The 'text' field from CST includes the entire label content including all attributes
+        // which would cause round-trip issues when regenerating DSL
+        const hasNamedAttributes = Object.keys(value).some(key => key !== 'text');
+        if (hasNamedAttributes && value['text']) {
+            delete value['text'];
+        }
+
         return Object.keys(value).length > 0 ? value : undefined;
     }
 }
@@ -1480,10 +1488,12 @@ function generateEdgeDSL(edge: Edge): string {
 
     // Extract label if present
     let label = '';
+    let isPlainText = false;
     if (Object.keys(edgeValue).length > 0) {
         // Check for 'text' property first
         if (edgeValue.text) {
             label = edgeValue.text;
+            isPlainText = true;
         } else {
             // Build label from properties
             const props = Object.keys(edgeValue)
@@ -1498,7 +1508,8 @@ function generateEdgeDSL(edge: Edge): string {
     // Build arrow with label
     if (label) {
         // Format label (quote if necessary)
-        const formattedLabel = formatValue(label);
+        // Only format plain text labels, not attribute maps (which are already formatted)
+        const formattedLabel = isPlainText ? formatValue(label) : label;
         // Labeled arrow
         if (arrowType === '->') {
             parts.push(`-${formattedLabel}->`);

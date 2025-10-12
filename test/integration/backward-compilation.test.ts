@@ -236,6 +236,54 @@ describe('Backward Compilation: JSON -> DSL', () => {
         expect(processEdge.value?.text).toBe('process complete');
     });
 
+    test('Edge attributes with multiple key:value pairs: round-trip', async () => {
+        const original = `
+            machine "Edge Attributes"
+            start;
+            middle;
+            end;
+            error;
+            start -timeout: 5000; color: "red"-> middle;
+            middle -weight: 2; style: "dashed"; priority: 10-> end;
+            middle -retry: true; maxAttempts: 3-> error;
+        `;
+
+        const doc1 = await parse(original);
+        expect(doc1.parseResult.parserErrors).toHaveLength(0);
+        const machine1 = doc1.parseResult.value as Machine;
+        const jsonResult = generateJSON(machine1, 'test.mach', undefined);
+        const machineJson = JSON.parse(jsonResult.content);
+
+        const regeneratedDSL = generateDSL(machineJson);
+
+        const doc2 = await parse(regeneratedDSL);
+        expect(doc2.parseResult.parserErrors).toHaveLength(0);
+        const machine2 = doc2.parseResult.value as Machine;
+        const jsonResult2 = generateJSON(machine2, 'test.mach', undefined);
+        const machineJson2 = JSON.parse(jsonResult2.content);
+
+        expect(machineJson2.edges.length).toBe(3);
+
+        // Verify first edge preserves both attributes
+        const edge1 = machineJson2.edges.find((e: any) => e.source === 'start' && e.target === 'middle');
+        expect(edge1).toBeDefined();
+        expect(edge1.value?.timeout).toBe('5000');
+        expect(edge1.value?.color).toBe('red');
+
+        // Verify second edge preserves all three attributes
+        const edge2 = machineJson2.edges.find((e: any) => e.source === 'middle' && e.target === 'end');
+        expect(edge2).toBeDefined();
+        expect(edge2.value?.weight).toBe('2');
+        expect(edge2.value?.style).toBe('dashed');
+        expect(edge2.value?.priority).toBe('10');
+
+        // Verify third edge preserves both attributes
+        const edge3 = machineJson2.edges.find((e: any) => e.source === 'middle' && e.target === 'error');
+        expect(edge3).toBeDefined();
+        expect(edge3.value?.retry).toBe('true');
+        expect(edge3.value?.maxAttempts).toBe('3');
+    });
+
     test('Multiple arrow types: round-trip', async () => {
         const original = `
             machine "Arrow Types"
