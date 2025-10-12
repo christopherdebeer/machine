@@ -97,40 +97,47 @@ export class ClaudeClient {
 
     /**
      * Invoke Claude model with a simple prompt
+     * @param prompt The prompt to send to the model
+     * @param modelIdOverride Optional model ID to use instead of the default
      */
-    async invokeModel(prompt: string): Promise<string> {
+    async invokeModel(prompt: string, modelIdOverride?: string): Promise<string> {
         if (this.transport === 'api') {
-            return this.invokeViaAPI(prompt);
+            return this.invokeViaAPI(prompt, modelIdOverride);
         } else {
-            return this.invokeViaBedrock(prompt);
+            return this.invokeViaBedrock(prompt, modelIdOverride);
         }
     }
 
     /**
      * Invoke Claude model with tools support
+     * @param messages Conversation messages
+     * @param tools Tool definitions
+     * @param modelIdOverride Optional model ID to use instead of the default
      */
     async invokeWithTools(
         messages: ConversationMessage[],
-        tools: ToolDefinition[]
+        tools: ToolDefinition[],
+        modelIdOverride?: string
     ): Promise<ModelResponse> {
         if (this.transport === 'api') {
-            return this.invokeWithToolsViaAPI(messages, tools);
+            return this.invokeWithToolsViaAPI(messages, tools, modelIdOverride);
         } else {
-            return this.invokeWithToolsViaBedrock(messages, tools);
+            return this.invokeWithToolsViaBedrock(messages, tools, modelIdOverride);
         }
     }
 
     /**
      * Direct API transport implementation
      */
-    private async invokeViaAPI(prompt: string): Promise<string> {
+    private async invokeViaAPI(prompt: string, modelIdOverride?: string): Promise<string> {
         if (!this.anthropicClient) {
             throw new Error('Anthropic client not initialized');
         }
 
         try {
+            const modelId = modelIdOverride || this.modelId;
             const message = await this.anthropicClient.messages.create({
-                model: this.modelId,
+                model: modelId,
                 max_tokens: 2048,
                 messages: [{
                     role: 'user',
@@ -154,13 +161,14 @@ export class ClaudeClient {
     /**
      * Bedrock transport implementation
      */
-    private async invokeViaBedrock(prompt: string): Promise<string> {
+    private async invokeViaBedrock(prompt: string, modelIdOverride?: string): Promise<string> {
         if (!this.bedrockClient) {
             throw new Error('Bedrock client not initialized');
         }
 
+        const modelId = modelIdOverride || this.modelId;
         const input = {
-            modelId: this.modelId,
+            modelId: modelId,
             contentType: 'application/json',
             accept: 'application/json',
             body: JSON.stringify({
@@ -190,20 +198,22 @@ export class ClaudeClient {
      */
     private async invokeWithToolsViaAPI(
         messages: ConversationMessage[],
-        tools: ToolDefinition[]
+        tools: ToolDefinition[],
+        modelIdOverride?: string
     ): Promise<ModelResponse> {
         if (!this.anthropicClient) {
             throw new Error('Anthropic client not initialized');
         }
 
         try {
+            const modelId = modelIdOverride || this.modelId;
             const anthropicMessages: Anthropic.MessageParam[] = messages.map(msg => ({
                 role: msg.role,
                 content: typeof msg.content === 'string' ? msg.content : msg.content as any
             }));
 
             const params: Anthropic.MessageCreateParams = {
-                model: this.modelId,
+                model: modelId,
                 max_tokens: 4096,
                 messages: anthropicMessages
             };
@@ -247,14 +257,16 @@ export class ClaudeClient {
      */
     private async invokeWithToolsViaBedrock(
         messages: ConversationMessage[],
-        tools: ToolDefinition[]
+        tools: ToolDefinition[],
+        modelIdOverride?: string
     ): Promise<ModelResponse> {
         if (!this.bedrockClient) {
             throw new Error('Bedrock client not initialized');
         }
 
+        const modelId = modelIdOverride || this.modelId;
         const input = {
-            modelId: this.modelId,
+            modelId: modelId,
             contentType: 'application/json',
             accept: 'application/json',
             body: JSON.stringify({

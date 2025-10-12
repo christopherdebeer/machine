@@ -263,15 +263,28 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
 
     logger.info(chalk.blue('\n⚙️  Executing machine program with Rails-Based Architecture...'));
 
-    // Extract model ID from machine config if present
+    // Extract model ID from machine-level or config node
     let machineModelId: string | undefined;
-    const configNode = machineData.nodes.find(n =>
-        n.name === 'config' || n.name === 'llmConfig' || n.name === 'modelConfig'
-    );
-    if (configNode?.attributes) {
-        const modelAttr = configNode.attributes.find(a => a.name === 'modelId' || a.name === 'model');
+
+    // Check for machine-level modelId attribute (first priority for machine config)
+    const machineNode = machineData.nodes.find(n => n.type === 'machine' || n.name === machineData.title);
+    if (machineNode?.attributes) {
+        const modelAttr = machineNode.attributes.find(a => a.name === 'modelId' || a.name === 'model');
         if (modelAttr?.value) {
             machineModelId = String(modelAttr.value).replace(/^["']|["']$/g, '');
+        }
+    }
+
+    // Fall back to config nodes if machine-level not found
+    if (!machineModelId) {
+        const configNode = machineData.nodes.find(n =>
+            n.name === 'config' || n.name === 'llmConfig' || n.name === 'modelConfig'
+        );
+        if (configNode?.attributes) {
+            const modelAttr = configNode.attributes.find(a => a.name === 'modelId' || a.name === 'model');
+            if (modelAttr?.value) {
+                machineModelId = String(modelAttr.value).replace(/^["']|["']$/g, '');
+            }
         }
     }
 
@@ -291,6 +304,8 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
         },
         agentSDK: {
             model: 'sonnet' as const,
+            modelId: modelId, // Pass computed modelId to Agent SDK
+            apiKey: process.env.ANTHROPIC_API_KEY,
             maxTurns: 50,
             persistHistory: true,
             historyPath: opts.destination ? path.join(opts.destination, 'execution-history.json') : './execution-history.json'

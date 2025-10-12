@@ -140,17 +140,23 @@ export class AgentSDKBridge {
     }
 
     /**
-     * Invoke agent for a node with optional timeout
+     * Invoke agent for a node with optional timeout and model override
+     * @param nodeName The name of the node being executed
+     * @param systemPrompt System prompt for the agent
+     * @param tools Available tools for the agent
+     * @param toolExecutor Function to execute tools
+     * @param modelIdOverride Optional model ID to use instead of the configured default
      */
     async invokeAgent(
         nodeName: string,
         systemPrompt: string,
         tools: ToolDefinition[],
-        toolExecutor?: (toolName: string, input: any) => Promise<any>
+        toolExecutor?: (toolName: string, input: any) => Promise<any>,
+        modelIdOverride?: string
     ): Promise<AgentExecutionResult> {
         // Use mutex to ensure only one invocation runs at a time
         return await this.invocationMutex.runExclusive(async () => {
-            return await this.invokeAgentImpl(nodeName, systemPrompt, tools, toolExecutor);
+            return await this.invokeAgentImpl(nodeName, systemPrompt, tools, toolExecutor, modelIdOverride);
         });
     }
 
@@ -161,7 +167,8 @@ export class AgentSDKBridge {
         nodeName: string,
         systemPrompt: string,
         tools: ToolDefinition[],
-        toolExecutor?: (toolName: string, input: any) => Promise<any>
+        toolExecutor?: (toolName: string, input: any) => Promise<any>,
+        modelIdOverride?: string
     ): Promise<AgentExecutionResult> {
         console.log(`🤖 Invoking agent for node: ${nodeName}`);
         console.log(`📋 System prompt length: ${systemPrompt.length} chars`);
@@ -174,14 +181,19 @@ export class AgentSDKBridge {
         const node = this.machineData.nodes.find(n => n.name === nodeName);
         const userPrompt = this.extractUserPrompt(node);
 
+        // Log model ID if override is provided
+        if (modelIdOverride) {
+            console.log(`🎯 Using task-specific model: ${modelIdOverride}`);
+        }
+
         // Check for node-specific timeout attribute
         const nodeTimeout = this.getNodeTimeout(node);
         if (nodeTimeout) {
             console.log(`⏱️ Node timeout: ${nodeTimeout}ms`);
-            return this.invokeAgentWithTimeout(nodeName, systemPrompt, userPrompt, tools, nodeTimeout);
+            return this.invokeAgentWithTimeout(nodeName, systemPrompt, userPrompt, tools, nodeTimeout, modelIdOverride);
         }
 
-        return this.invokeAgentInternal(nodeName, systemPrompt, userPrompt, tools);
+        return this.invokeAgentInternal(nodeName, systemPrompt, userPrompt, tools, modelIdOverride);
     }
 
     /**
@@ -208,10 +220,11 @@ export class AgentSDKBridge {
         systemPrompt: string,
         userPrompt: string,
         tools: ToolDefinition[],
-        timeoutMs: number
+        timeoutMs: number,
+        modelIdOverride?: string
     ): Promise<AgentExecutionResult> {
         return Promise.race([
-            this.invokeAgentInternal(nodeName, systemPrompt, userPrompt, tools),
+            this.invokeAgentInternal(nodeName, systemPrompt, userPrompt, tools, modelIdOverride),
             new Promise<AgentExecutionResult>((_, reject) =>
                 setTimeout(() => reject(new Error(
                     `Node '${nodeName}' execution timeout (${timeoutMs}ms). ` +
@@ -228,10 +241,12 @@ export class AgentSDKBridge {
         nodeName: string,
         systemPrompt: string,
         userPrompt: string,
-        tools: ToolDefinition[]
+        tools: ToolDefinition[],
+        modelIdOverride?: string
     ): Promise<AgentExecutionResult> {
         // Get node for metadata
         const node = this.machineData.nodes.find(n => n.name === nodeName);
+
 
         // If no Claude client, return placeholder
         if (!this.claudeClient) {
@@ -268,8 +283,8 @@ export class AgentSDKBridge {
             turnCount++;
 
             try {
-                // Invoke model with tools
-                const response: ModelResponse = await this.claudeClient.invokeWithTools(messages, tools);
+                // Invoke model with tools (with optional model ID override)
+                const response: ModelResponse = await this.claudeClient.invokeWithTools(messages, tools, modelIdOverride);
                 messagesExchanged++;
 
                 // Extract text content
