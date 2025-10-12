@@ -9,65 +9,25 @@
  */
 
 import {
-    LLMClient,
-    LLMClientConfig,
     createLLMClient,
     ToolDefinition
 } from './llm-client.js';
-import { BedrockClient } from './bedrock-client.js';
 import { AgentContextBuilder } from './agent-context-builder.js';
 import { MetaToolManager } from './meta-tool-manager.js';
 import { AgentSDKBridge, type AgentSDKBridgeConfig } from './agent-sdk-bridge.js';
+import {
+    BaseExecutor,
+    MachineExecutionContext,
+    MachineData,
+    MachineMutation,
+    MachineExecutorConfig as BaseMachineExecutorConfig
+} from './base-executor.js';
 
-// Re-export existing interfaces for compatibility
-export interface MachineExecutionContext {
-    currentNode: string;
-    currentTaskNode?: string;
-    activeState?: string;
-    errorCount: number;
-    visitedNodes: Set<string>;
-    attributes: Map<string, any>;
-    history: Array<{
-        from: string;
-        to: string;
-        transition: string;
-        timestamp: string;
-        output?: string;
-    }>;
-}
+// Re-export interfaces for compatibility
+export type { MachineExecutionContext, MachineData, MachineMutation };
 
-export interface MachineData {
-    title: string;
-    nodes: Array<{
-        name: string;
-        type?: string;
-        attributes?: Array<{
-            name: string;
-            type: string;
-            value: string;
-        }>;
-    }>;
-    edges: Array<{
-        source: string;
-        target: string;
-        type?: string;
-        label?: string;
-    }>;
-}
-
-export interface MachineMutation {
-    type: 'add_node' | 'add_edge' | 'modify_node' | 'remove_node';
-    timestamp: string;
-    data: any;
-}
-
-export interface MachineExecutorConfig {
-    llm?: LLMClientConfig;
-    // Deprecated: use llm config instead
-    bedrock?: {
-        region?: string;
-        modelId?: string;
-    };
+// Extend base config with RailsExecutor-specific options
+export interface MachineExecutorConfig extends BaseMachineExecutorConfig {
     // Agent SDK configuration (Phase 4)
     agentSDK?: AgentSDKBridgeConfig;
 }
@@ -105,23 +65,12 @@ interface TransitionEvaluation {
 /**
  * RailsExecutor - Implements the rails pattern with automated and agent-controlled transitions
  */
-export class RailsExecutor {
-    protected context: MachineExecutionContext;
-    protected machineData: MachineData;
-    protected llmClient: LLMClient;
-    protected mutations: MachineMutation[] = [];
+export class RailsExecutor extends BaseExecutor {
     protected metaToolManager: MetaToolManager;
     protected agentSDKBridge: AgentSDKBridge;
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
-        this.machineData = machineData;
-        this.context = {
-            currentNode: this.machineData.nodes.length > 0 ? this.findStartNode() : '',
-            errorCount: 0,
-            visitedNodes: new Set(),
-            attributes: new Map(),
-            history: []
-        };
+        super(machineData, config);
 
         // Initialize MetaToolManager
         this.metaToolManager = new MetaToolManager(
@@ -136,16 +85,6 @@ export class RailsExecutor {
             this.metaToolManager,
             config.agentSDK
         );
-
-        // Support legacy bedrock config for backwards compatibility
-        if (config.bedrock && !config.llm) {
-            this.llmClient = new BedrockClient(config.bedrock);
-        } else if (config.llm) {
-            // Temporary client, will be replaced in create()
-            this.llmClient = new BedrockClient();
-        } else {
-            this.llmClient = new BedrockClient();
-        }
     }
 
     /**
@@ -161,19 +100,6 @@ export class RailsExecutor {
         return executor;
     }
 
-    /**
-     * Find the start node of the machine
-     */
-    protected findStartNode(): string {
-        const startNode = this.machineData.nodes.find(node => node.name.toLowerCase() === 'start');
-        if (startNode) {
-            return startNode.name;
-        }
-        if (this.machineData.nodes.length === 0) {
-            throw new Error('Machine has no nodes');
-        }
-        return this.machineData.nodes[0].name;
-    }
 
     /**
      * Check if edge has @auto annotation
@@ -211,12 +137,6 @@ export class RailsExecutor {
         }));
     }
 
-    /**
-     * Check if a node is a state node
-     */
-    protected isStateNode(node: { name: string; type?: string }): boolean {
-        return node.type?.toLowerCase() === 'state';
-    }
 
     /**
      * Check if a node requires agent decision
@@ -243,32 +163,6 @@ export class RailsExecutor {
         return nonAutoEdges.length > 1;
     }
 
-    /**
-     * Extract condition from edge label
-     */
-    protected extractEdgeCondition(edge: { label?: string; type?: string }): string | undefined {
-        const edgeLabel = edge.label || edge.type || '';
-
-        // Look for when: pattern (case-insensitive)
-        const whenMatch = edgeLabel.match(/when:\s*['"]?([^'"]+)['"]?/i);
-        if (whenMatch) {
-            return whenMatch[1].trim();
-        }
-
-        // Look for unless: pattern (negate it, case-insensitive)
-        const unlessMatch = edgeLabel.match(/unless:\s*['"]?([^'"]+)['"]?/i);
-        if (unlessMatch) {
-            return `!(${unlessMatch[1].trim()})`;
-        }
-
-        // Look for if: pattern (case-insensitive)
-        const ifMatch = edgeLabel.match(/if:\s*['"]?([^'"]+)['"]?/i);
-        if (ifMatch) {
-            return ifMatch[1].trim();
-        }
-
-        return undefined;
-    }
 
     /**
      * Check if condition is simple (deterministic, no external data)
@@ -284,54 +178,6 @@ export class RailsExecutor {
                !condition.includes('call');
     }
 
-    /**
-     * Evaluate a condition string against current context
-     */
-    protected evaluateCondition(condition: string | undefined): boolean {
-        if (!condition) {
-            return true;
-        }
-
-        try {
-            // Replace template variables
-            let resolvedCondition = condition.replace(/\{\{\s*(\w+)\.?(\w+)?\s*\}\}/g, (match: string, nodeName: string, attrName?: string) => {
-                const node = this.machineData.nodes.find(n => n.name === nodeName);
-                if (!node) return 'undefined';
-
-                if (attrName) {
-                    const attr = node.attributes?.find(a => a.name === attrName);
-                    if (!attr) return 'undefined';
-                    return this.parseValue(attr.value, attr.type);
-                }
-
-                return 'undefined';
-            });
-
-            // Replace special variables (case-insensitive)
-            resolvedCondition = resolvedCondition
-                .replace(/\berrorCount\b/gi, String(this.context.errorCount))
-                .replace(/\berrors\b/gi, String(this.context.errorCount))
-                .replace(/\bactiveState\b/gi, `"${this.context.activeState || ''}"`);
-
-            // Evaluate
-            // eslint-disable-next-line no-eval
-            const result = eval(resolvedCondition);
-            return Boolean(result);
-        } catch (error) {
-            console.error('Error evaluating condition:', condition, error);
-            return false;
-        }
-    }
-
-    /**
-     * Parse a value based on its type
-     */
-    protected parseValue(value: string, type: string): string {
-        if (type === 'string') {
-            return `"${value}"`;
-        }
-        return value;
-    }
 
     /**
      * Get outbound edges from a node
@@ -430,63 +276,6 @@ export class RailsExecutor {
             }));
     }
 
-    /**
-     * Get node attributes as key-value object
-     */
-    protected getNodeAttributes(nodeName: string): Record<string, any> {
-        const node = this.machineData.nodes.find(n => n.name === nodeName);
-        if (!node?.attributes) {
-            return {};
-        }
-
-        return node.attributes.reduce((acc, attr) => {
-            let value = this.extractValueFromAST(attr.value);
-
-            // Try to parse JSON strings
-            if (typeof value === 'string') {
-                try {
-                    if ((value.startsWith('{') && value.endsWith('}')) ||
-                        (value.startsWith('[') && value.endsWith(']'))) {
-                        value = JSON.parse(value);
-                    }
-                } catch (error) {
-                    // Keep original string value
-                }
-            }
-
-            acc[attr.name] = value;
-            return acc;
-        }, {} as Record<string, any>);
-    }
-
-    /**
-     * Extract value from AST node
-     */
-    protected extractValueFromAST(value: any): any {
-        if (!value || typeof value !== 'object') {
-            return value;
-        }
-
-        if ('$type' in value) {
-            const astNode = value as any;
-
-            if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
-                let text = astNode.$cstNode.text;
-                if (typeof text === 'string') {
-                    text = text.replace(/^["']|["']$/g, '');
-                }
-                return text;
-            }
-
-            if ('value' in astNode) {
-                return this.extractValueFromAST(astNode.value);
-            }
-
-            return String(value);
-        }
-
-        return value;
-    }
 
     /**
      * Transition to a new node
@@ -835,71 +624,9 @@ export class RailsExecutor {
     }
 
     /**
-     * Get execution context (for inspection/debugging)
-     */
-    getContext(): MachineExecutionContext {
-        return { ...this.context };
-    }
-
-    /**
-     * Get mutations
-     */
-    getMutations(): MachineMutation[] {
-        return [...this.mutations];
-    }
-
-    /**
      * Get machine data
      */
     getMachineData(): MachineData {
         return this.machineData;
-    }
-
-    /**
-     * Record a mutation
-     */
-    protected recordMutation(mutation: Omit<MachineMutation, 'timestamp'>): void {
-        this.mutations.push({
-            ...mutation,
-            timestamp: new Date().toISOString()
-        });
-    }
-
-    /**
-     * Generate machine definition (DSL format)
-     */
-    toMachineDefinition(): string {
-        const lines: string[] = [];
-
-        lines.push(`machine "${this.machineData.title}"\n`);
-
-        // Nodes
-        this.machineData.nodes.forEach(node => {
-            const type = node.type ? `${node.type} ` : '';
-            const attrs = node.attributes || [];
-
-            if (attrs.length === 0) {
-                lines.push(`${type}${node.name};`);
-            } else {
-                lines.push(`${type}${node.name} {`);
-                attrs.forEach(attr => {
-                    const value = typeof attr.value === 'string' && !attr.value.match(/^[0-9]+$/)
-                        ? `"${attr.value}"`
-                        : attr.value;
-                    lines.push(`    ${attr.name}: ${value};`);
-                });
-                lines.push(`};`);
-            }
-        });
-
-        lines.push('');
-
-        // Edges
-        this.machineData.edges.forEach(edge => {
-            const label = edge.type ? `-${edge.type}-` : '-';
-            lines.push(`${edge.source} ${label}> ${edge.target};`);
-        });
-
-        return lines.join('\n');
     }
 }

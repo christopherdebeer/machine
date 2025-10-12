@@ -28,9 +28,11 @@ describe('MetaToolManager - Phase 3: Dynamic Tool Construction', () => {
     it('should provide meta-tool definitions', () => {
         const metaTools = manager.getMetaTools();
 
-        expect(metaTools).toHaveLength(3);
+        expect(metaTools).toHaveLength(5);
 
         const toolNames = metaTools.map(t => t.name);
+        expect(toolNames).toContain('get_machine_definition');
+        expect(toolNames).toContain('update_definition');
         expect(toolNames).toContain('construct_tool');
         expect(toolNames).toContain('list_available_tools');
         expect(toolNames).toContain('propose_tool_improvement');
@@ -150,8 +152,10 @@ describe('MetaToolManager - Phase 3: Dynamic Tool Construction', () => {
     it('should list meta tools', async () => {
         const result = await manager.listAvailableTools({ filter_type: 'meta' });
 
-        expect(result.metaTools).toHaveLength(3);
+        expect(result.metaTools).toHaveLength(5);
         expect(result.metaTools.map((t: any) => t.name)).toContain('construct_tool');
+        expect(result.metaTools.map((t: any) => t.name)).toContain('get_machine_definition');
+        expect(result.metaTools.map((t: any) => t.name)).toContain('update_definition');
     });
 
     it('should include source code when requested', async () => {
