@@ -9,6 +9,7 @@
  */
 
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
+import { extractValueFromAST } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
 
 /**

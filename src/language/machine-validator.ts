@@ -4,7 +4,6 @@ import type { MachineServices } from './machine-module.js';
 import { TypeChecker } from './type-checker.js';
 import { GraphValidator } from './graph-validator.js';
 import { DependencyAnalyzer } from './dependency-analyzer.js';
-import { NodeTypeChecker } from './node-type-checker.js';
 
 /**
  * Registry for validation checks.
@@ -282,7 +281,7 @@ export class MachineValidator {
     checkNodeTypeSemantics(machine: Machine, accept: ValidationAcceptor): void {
         const processNode = (node: Node) => {
             // Rule 1: init nodes should have outgoing edges
-            if (NodeTypeChecker.isInit(node)) {
+            if (node.type === 'init') {
                 const hasOutgoingEdges = machine.edges.some(edge =>
                     edge.source.some(s => s.$refText === node.name || s.ref?.name === node.name)
                 );
@@ -296,7 +295,7 @@ export class MachineValidator {
             }
 
             // Rule 2: context nodes shouldn't have incoming edges (they're configuration)
-            if (NodeTypeChecker.isContext(node)) {
+            if (node.type === 'context') {
                 const hasIncomingEdges = machine.edges.some(edge =>
                     edge.segments.some(segment =>
                         segment.target.some(t => t.$refText === node.name || t.ref?.name === node.name)
@@ -410,14 +409,20 @@ export class MachineValidator {
         const isContextNode = (nodeName: string): boolean => {
             const node = this.findNodeByName(machine, nodeName);
             if (!node) return false;
-            return NodeTypeChecker.isContext(node);
+            return node.type?.toLowerCase() === 'context' ||
+                   nodeName.toLowerCase().includes('context') ||
+                   nodeName.toLowerCase().includes('output') ||
+                   nodeName.toLowerCase().includes('input') ||
+                   nodeName.toLowerCase().includes('data') ||
+                   nodeName.toLowerCase().includes('result');
         };
 
         // Helper to check if a node is a task node
         const isTaskNode = (nodeName: string): boolean => {
             const node = this.findNodeByName(machine, nodeName);
             if (!node) return false;
-            return NodeTypeChecker.isTask(node);
+            return node.type?.toLowerCase() === 'task' ||
+                   node.attributes?.some(attr => attr.name === 'prompt');
         };
 
         // Check each inferred dependency
