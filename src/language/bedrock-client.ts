@@ -1,122 +1,61 @@
 /**
- * AWS Bedrock client integration for machine execution
+ * Backward compatibility wrapper for BedrockClient
+ * @deprecated Use ClaudeClient with transport: 'bedrock' instead
  */
 
-import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
-import {
-    LLMClient,
+import { ClaudeClient, type ClaudeClientConfig } from './claude-client.js';
+import { extractText, extractToolUses } from './llm-utils.js';
+import type {
     ToolDefinition,
     ModelResponse,
     ConversationMessage,
-    TextBlock,
     ToolUseBlock
-} from './llm-client.js';
+} from './claude-client.js';
+
+// Re-export types for backward compatibility
+export type {
+    ToolDefinition,
+    ModelResponse,
+    ConversationMessage,
+    ToolUseBlock
+};
 
 export interface BedrockClientConfig {
     region?: string;
     modelId?: string;
 }
 
-export class BedrockClient implements LLMClient {
-    private client: BedrockRuntimeClient;
-    private modelId: string;
+/**
+ * @deprecated Use ClaudeClient instead
+ */
+export class BedrockClient {
+    private client: ClaudeClient;
 
     constructor(config: BedrockClientConfig = {}) {
-        this.client = new BedrockRuntimeClient({
-            region: config.region || 'us-west-2'
-        });
-        this.modelId = config.modelId || 'anthropic.claude-3-sonnet-20240229-v1:0';
-    }
-
-    /**
-     * Invoke Claude model with the given prompt
-     * @param prompt The prompt to send to Claude
-     * @returns The model's response
-     */
-    async invokeModel(prompt: string): Promise<string> {
-        const input = {
-            modelId: this.modelId,
-            contentType: 'application/json',
-            accept: 'application/json',
-            body: JSON.stringify({
-                anthropic_version: '2023-01-01',
-                max_tokens: 2048,
-                messages: [{
-                    role: 'user',
-                    content: prompt
-                }]
-            })
+        const claudeConfig: ClaudeClientConfig = {
+            transport: 'bedrock',
+            region: config.region,
+            modelId: config.modelId
         };
-
-        try {
-            const command = new InvokeModelCommand(input);
-            const response = await this.client.send(command);
-
-            // Parse the response body
-            const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-            return responseBody.content[0].text;
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            console.error('Error invoking Bedrock model:', errorMessage);
-            throw new Error(`Failed to invoke Bedrock model: ${errorMessage}`);
-        }
+        this.client = new ClaudeClient(claudeConfig);
     }
 
-    /**
-     * Invoke Claude model with tools support
-     * @param messages Conversation messages
-     * @param tools Available tools
-     * @returns The model's response with potential tool use
-     */
+    async invokeModel(prompt: string): Promise<string> {
+        return this.client.invokeModel(prompt);
+    }
+
     async invokeWithTools(
         messages: ConversationMessage[],
         tools: ToolDefinition[]
     ): Promise<ModelResponse> {
-        const input = {
-            modelId: this.modelId,
-            contentType: 'application/json',
-            accept: 'application/json',
-            body: JSON.stringify({
-                anthropic_version: '2023-01-01',
-                max_tokens: 4096,
-                messages: messages,
-                tools: tools.length > 0 ? tools : undefined
-            })
-        };
-
-        try {
-            const command = new InvokeModelCommand(input);
-            const response = await this.client.send(command);
-
-            // Parse the response body
-            const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-            return {
-                content: responseBody.content,
-                stop_reason: responseBody.stop_reason
-            };
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            console.error('Error invoking Bedrock model with tools:', errorMessage);
-            throw new Error(`Failed to invoke Bedrock model with tools: ${errorMessage}`);
-        }
+        return this.client.invokeWithTools(messages, tools);
     }
 
-    /**
-     * Extract text from a model response
-     */
     extractText(response: ModelResponse): string {
-        const textBlocks = response.content.filter(
-            (block): block is TextBlock => block.type === 'text'
-        );
-        return textBlocks.map(block => block.text).join('\n');
+        return extractText(response);
     }
 
-    /**
-     * Extract tool uses from a model response
-     */
     extractToolUses(response: ModelResponse): ToolUseBlock[] {
-        return response.content.filter(
-            (block): block is ToolUseBlock => block.type === 'tool_use'
-        );
+        return extractToolUses(response);
     }
 }
