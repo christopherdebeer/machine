@@ -61,7 +61,7 @@
         "langium": "~3.4.0",
         "mermaid": "^11.0.0",
         "monaco-editor": "npm:@codingame/monaco-vscode-editor-api@~3.2.3",
-        "monaco-editor-wrapper": "~4.0.2",
+        "monaco-editor-wrapper": "^6.12.0",
         "monaco-languageclient": "~8.1.1",
         "vscode-languageclient": "~9.0.1",
         "vscode-languageserver": "~9.0.1"
@@ -79,7 +79,7 @@
         "@vitejs/plugin-react": "^5.0.4",
         "@vscode/vsce": "^3.2.1",
         "concurrently": "~8.2.1",
-        "esbuild": "~0.20.2",
+        "esbuild": "^0.25.10",
         "eslint": "~8.57.0",
         "http-server": "~14.1.1",
         "langium-cli": "~3.4.0",
@@ -87,9 +87,9 @@
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
         "typescript": "~5.1.6",
-        "vite": "~5.2.7",
+        "vite": "^5.4.20",
         "vite-plugin-static-copy": "^2.3.0",
-        "vitest": "~1.4.0",
+        "vitest": "^1.6.1",
         "vscode": "npm:@codingame/monaco-vscode-api@~3.2.3"
     },
     "volta": {

@@ -165,7 +165,7 @@ export class TypeChecker {
                 } else if (Array.isArray(val)) {
                     // Infer array element type
                     if (val.length === 0) {
-                        return 'Array<any>';
+                        throw new Error('Unable to infer type for empty array');
                     }
                     const elementType = this.inferType(val[0] as any);
                     return `Array<${elementType}>`;
@@ -193,6 +193,11 @@ export class TypeChecker {
 
                 // Check if it's an array
                 if (cstText.startsWith('[') && cstText.endsWith(']')) {
+                    // Check if it's an empty array
+                    const trimmed = cstText.substring(1, cstText.length - 1).trim();
+                    if (trimmed === '') {
+                        throw new Error('Unable to infer type for empty array');
+                    }
                     // For arrays, we'd need more sophisticated parsing
                     // For now, return Array<any>
                     return 'Array<any>';
@@ -212,7 +217,7 @@ export class TypeChecker {
             return 'boolean';
         } else if (Array.isArray(value)) {
             if (value.length === 0) {
-                return 'Array<any>';
+                throw new Error('Unable to infer type for empty array');
             }
             const elementType = this.inferType(value[0]);
             return `Array<${elementType}>`;
