@@ -24,9 +24,9 @@ import { Carousel } from '../src/components/Carousel';
 
     <div className="feature">
         <h3 className="feature-title">03. CLI USAGE</h3>
-        <p>Execute .mach files directly:</p>
+        <p>Execute .dygram files directly:</p>
         <div className="code-block" style={{ marginTop: '1rem' }}>
-            <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px' }}>npx dygram your-file.mach</pre>
+            <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px' }}>npx dygram your-file.dygram</pre>
         </div>
     </div>
 </div>
@@ -34,7 +34,7 @@ import { Carousel } from '../src/components/Carousel';
 <div style={{ marginTop: '4rem' }}>
     <h2 className="section-title" style={{ fontSize: '2rem' }}>Your First Machine</h2>
     <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>
-        Create a file called <code>hello.mach</code> with the following content:
+        Create a file called <code>hello.dygram</code> with the following content:
     </p>
 
     <Carousel slides={[
@@ -101,7 +101,7 @@ processContent --> end;`
         Run it:
     </p>
     <div className="code-block">
-        <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px' }}>node bin/cli.js execute hello.mach</pre>
+        <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px' }}>node bin/cli.js execute hello.dygram</pre>
     </div>
 </div>
 
