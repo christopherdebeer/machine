@@ -223,6 +223,14 @@ export class MachineExecutor extends BaseExecutor {
     }
 
     /**
+     * Check if a node is a context node
+     * @deprecated Use NodeTypeChecker.isContext() instead
+     */
+    private isContextNode(node: { name: string; type?: string }): boolean {
+        return NodeTypeChecker.isContext(node);
+    }
+
+    /**
      * Generate context management tools for working with context nodes
      * Now filtered based on explicit edges from the task node
      */
