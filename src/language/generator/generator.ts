@@ -1497,13 +1497,15 @@ function generateEdgeDSL(edge: Edge): string {
 
     // Build arrow with label
     if (label) {
+        // Format label (quote if necessary)
+        const formattedLabel = formatValue(label);
         // Labeled arrow
         if (arrowType === '->') {
-            parts.push(`-${label}->`);
+            parts.push(`-${formattedLabel}->`);
         } else if (arrowType === '-->') {
-            parts.push(`--${label}-->`);
+            parts.push(`--${formattedLabel}-->`);
         } else if (arrowType === '=>') {
-            parts.push(`=${label}=>`);
+            parts.push(`=${formattedLabel}=>`);
         } else {
             // For other arrow types, just use the arrow as-is
             parts.push(arrowType);
