@@ -6,6 +6,7 @@
  */
 
 import type { Node as ASTNode } from './generated/ast.js';
+import { extractValueFromAST } from './utils/ast-helpers.js';
 
 /**
  * Minimal node interface that works with both Langium AST nodes and simple objects
@@ -164,22 +165,8 @@ export class NodeTypeChecker {
         // Cast to any[] to handle union type safely
         const attrs = node.attributes as any[];
         return attrs.reduce((acc: Record<string, any>, attr: any) => {
-            // Extract value, handling potential AST wrapper objects
-            let value = attr.value;
-
-            // Handle Langium AST node objects
-            if (value && typeof value === 'object' && '$type' in value) {
-                const astNode = value as any;
-                if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
-                    value = astNode.$cstNode.text;
-                    // Remove quotes if present
-                    if (typeof value === 'string') {
-                        value = value.replace(/^["']|["']$/g, '');
-                    }
-                } else if ('value' in astNode) {
-                    value = astNode.value;
-                }
-            }
+            // Extract value using canonical utility
+            let value = extractValueFromAST(attr.value);
 
             // Try to parse JSON strings
             if (typeof value === 'string') {

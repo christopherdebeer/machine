@@ -12,6 +12,7 @@ import type { MachineData, MachineExecutionContext } from './rails-executor.js';
 import { NodeTypeChecker } from './node-type-checker.js';
 import { EdgeConditionParser } from './utils/edge-conditions.js';
 import { ContextPermissionsResolver } from './utils/context-permissions.js';
+import { extractValueFromAST } from './utils/ast-helpers.js';
 
 
 /**
@@ -274,13 +275,6 @@ export class AgentContextBuilder {
     }
 
     /**
-     * Check if node is a context node
-     */
-    private isContextNode(node: Node): boolean {
-        return NodeTypeChecker.isContext(node);
-    }
-
-    /**
      * Get available transitions (non-automated)
      */
     private getAvailableTransitions(nodeName: string): TransitionInfo[] {
@@ -293,7 +287,7 @@ export class AgentContextBuilder {
             if (!targetNode) continue;
 
             // Skip edges to context nodes (those are not transitions)
-            if (this.isContextNode(targetNode)) continue;
+            if (NodeTypeChecker.isContext(targetNode)) continue;
 
             // Skip @auto annotations (handled automatically)
             if (edge.label?.includes('@auto') || edge.type?.includes('@auto')) continue;
@@ -302,7 +296,7 @@ export class AgentContextBuilder {
             const condition = this.extractConditionFromLabel(edge);
 
             // Skip simple deterministic conditions (auto-handled)
-            if (condition && this.isSimpleCondition(condition)) continue;
+            if (condition && EdgeConditionParser.isSimpleCondition(condition)) continue;
 
             transitions.push({
                 target: edge.target,
@@ -322,13 +316,6 @@ export class AgentContextBuilder {
     }
 
     /**
-     * Check if condition is simple/deterministic
-     */
-    private isSimpleCondition(condition: string): boolean {
-        return EdgeConditionParser.isSimpleCondition(condition);
-    }
-
-    /**
      * Check if node has meta-programming capabilities
      */
     private hasMetaCapabilities(node: Node): boolean {
@@ -342,7 +329,7 @@ export class AgentContextBuilder {
         if (!node.attributes) return {};
 
         return node.attributes.reduce((acc, attr) => {
-            let value = this.extractValueFromAST(attr.value);
+            let value = extractValueFromAST(attr.value);
 
             // Try to parse JSON strings
             if (typeof value === 'string') {
@@ -359,34 +346,5 @@ export class AgentContextBuilder {
             acc[attr.name] = value;
             return acc;
         }, {} as Record<string, any>);
-    }
-
-    /**
-     * Extract value from AST node
-     */
-    private extractValueFromAST(value: any): any {
-        if (!value || typeof value !== 'object') {
-            return value;
-        }
-
-        if ('$type' in value) {
-            const astNode = value as any;
-
-            if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
-                let text = astNode.$cstNode.text;
-                if (typeof text === 'string') {
-                    text = text.replace(/^["']|["']$/g, '');
-                }
-                return text;
-            }
-
-            if ('value' in astNode) {
-                return this.extractValueFromAST(astNode.value);
-            }
-
-            return String(value);
-        }
-
-        return value;
     }
 }
