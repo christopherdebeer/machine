@@ -191,13 +191,6 @@ export abstract class BaseExecutor {
         }
     }
 
-    /**
-     * Recursively extract value from Langium AST nodes
-     * @deprecated Use extractValueFromAST from utils/ast-helpers.js instead
-     */
-    protected extractValueFromAST(value: any): any {
-        return extractValueFromAST(value);
-    }
 
     /**
      * Get node attributes as a key-value object
@@ -210,7 +203,7 @@ export abstract class BaseExecutor {
 
         return node.attributes.reduce((acc, attr) => {
             // Handle the case where attr.value might be an object (from JSON parsing or AST)
-            let value = this.extractValueFromAST(attr.value);
+            let value = extractValueFromAST(attr.value);
 
             // If the value is a string that looks like JSON, try to parse it
             if (typeof value === 'string') {
@@ -312,7 +305,7 @@ export abstract class BaseExecutor {
      */
     protected trackStateTransition(nodeName: string): void {
         const node = this.machineData.nodes.find(n => n.name === nodeName);
-        if (node && this.isStateNode(node)) {
+        if (node && NodeTypeChecker.isState(node)) {
             this.context.stateTransitions.push({
                 state: nodeName,
                 timestamp: new Date().toISOString()

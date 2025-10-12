@@ -23,6 +23,7 @@ import {
     MachineExecutorConfig as BaseMachineExecutorConfig
 } from './base-executor.js';
 import { EdgeConditionParser } from './utils/edge-conditions.js';
+import { NodeTypeChecker } from './node-type-checker.js';
 
 // Re-export interfaces for compatibility
 export type { MachineExecutionContext, MachineData, MachineMutation };
@@ -153,7 +154,7 @@ export class RailsExecutor extends BaseExecutor {
         }
 
         // State nodes typically don't require agent decisions
-        if (this.isStateNode(node)) {
+        if (NodeTypeChecker.isState(node)) {
             return false;
         }
 
@@ -193,7 +194,7 @@ export class RailsExecutor extends BaseExecutor {
         const outboundEdges = this.getOutboundEdges(nodeName);
 
         // If only one edge and it's a state node, auto-transition
-        if (outboundEdges.length === 1 && this.isStateNode(node)) {
+        if (outboundEdges.length === 1 && NodeTypeChecker.isState(node)) {
             const edge = outboundEdges[0];
             const condition = this.extractEdgeCondition(edge);
 
@@ -229,7 +230,7 @@ export class RailsExecutor extends BaseExecutor {
         for (const edge of outboundEdges) {
             const condition = this.extractEdgeCondition(edge);
 
-            if (condition && this.isSimpleCondition(condition)) {
+            if (condition && EdgeConditionParser.isSimpleCondition(condition)) {
                 if (this.evaluateCondition(condition)) {
                     return {
                         edge,
@@ -258,7 +259,7 @@ export class RailsExecutor extends BaseExecutor {
 
                 // Skip edges with simple deterministic conditions that would auto-execute
                 const condition = this.extractEdgeCondition(edge);
-                if (condition && this.isSimpleCondition(condition) && this.evaluateCondition(condition)) {
+                if (condition && EdgeConditionParser.isSimpleCondition(condition) && this.evaluateCondition(condition)) {
                     return false;
                 }
 
@@ -290,7 +291,7 @@ export class RailsExecutor extends BaseExecutor {
 
         // Update active state if transitioning to a state node
         const targetNodeObj = this.machineData.nodes.find(n => n.name === targetNode);
-        if (targetNodeObj && this.isStateNode(targetNodeObj)) {
+        if (targetNodeObj && NodeTypeChecker.isState(targetNodeObj)) {
             this.context.activeState = targetNode;
         }
 

@@ -10,6 +10,7 @@
 
 import type { ToolDefinition } from './llm-client.js';
 import type { MachineMutation, MachineData } from './rails-executor.js';
+import { extractValueFromAST } from './utils/ast-helpers.js';
 
 /**
  * Dynamic tool with handler
@@ -649,7 +650,7 @@ export class MetaToolManager {
             .map(node => {
                 const attrs: Record<string, any> = {};
                 node.attributes?.forEach(attr => {
-                    let value = attr.value;
+                    let value = extractValueFromAST(attr.value);
                     // Try to parse JSON strings
                     if (typeof value === 'string') {
                         try {

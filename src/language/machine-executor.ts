@@ -223,13 +223,6 @@ export class MachineExecutor extends BaseExecutor {
         );
     }
 
-    /**
-     * Check if a node is a context node
-     * @deprecated Use NodeTypeChecker.isContext() instead
-     */
-    private isContextNode(node: { name: string; type?: string }): boolean {
-        return NodeTypeChecker.isContext(node);
-    }
 
     /**
      * Generate context management tools for working with context nodes
@@ -905,7 +898,7 @@ export class MachineExecutor extends BaseExecutor {
         this.checkTimeout();
 
         // If current node is a state node, make it the active state
-        if (this.isStateNode(currentNode)) {
+        if (NodeTypeChecker.isState(currentNode)) {
             this.context.activeState = currentNode.name;
             console.log(`🏛️ Active state: ${this.context.activeState}`);
         }
@@ -921,7 +914,7 @@ export class MachineExecutor extends BaseExecutor {
             nodeName: currentNode.name,
             nodeType: currentNode.type,
             isTaskNode,
-            isState: this.isStateNode(currentNode),
+            isState: NodeTypeChecker.isState(currentNode),
             activeState: this.context.activeState,
             errorCount: this.context.errorCount,
             attributes: currentNode.attributes
