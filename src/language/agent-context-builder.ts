@@ -9,6 +9,7 @@
  */
 
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
+import { extractValueFromAST } from './utils/ast-helpers.js';
 
 /**
  * Context access permissions for a node
@@ -393,7 +394,7 @@ export class AgentContextBuilder {
         if (!node.attributes) return {};
 
         return node.attributes.reduce((acc, attr) => {
-            let value = this.extractValueFromAST(attr.value);
+            let value = extractValueFromAST(attr.value);
 
             // Try to parse JSON strings
             if (typeof value === 'string') {
@@ -410,34 +411,5 @@ export class AgentContextBuilder {
             acc[attr.name] = value;
             return acc;
         }, {} as Record<string, any>);
-    }
-
-    /**
-     * Extract value from AST node
-     */
-    private extractValueFromAST(value: any): any {
-        if (!value || typeof value !== 'object') {
-            return value;
-        }
-
-        if ('$type' in value) {
-            const astNode = value as any;
-
-            if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
-                let text = astNode.$cstNode.text;
-                if (typeof text === 'string') {
-                    text = text.replace(/^["']|["']$/g, '');
-                }
-                return text;
-            }
-
-            if ('value' in astNode) {
-                return this.extractValueFromAST(astNode.value);
-            }
-
-            return String(value);
-        }
-
-        return value;
     }
 }

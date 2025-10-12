@@ -20,6 +20,7 @@ import {
     MachineMutation,
     MachineExecutorConfig
 } from './base-executor.js';
+import { extractValueFromAST } from './utils/ast-helpers.js';
 
 // Re-export interfaces for backward compatibility
 export type { MachineExecutionContext, MachineData, MachineMutation, MachineExecutorConfig };
@@ -704,38 +705,6 @@ export class MachineExecutor extends BaseExecutor {
         };
     }
 
-    /**
-     * Validate if a value matches the expected type
-     */
-    private validateValueType(value: any, expectedType: string): boolean {
-        switch (expectedType.toLowerCase()) {
-            case 'string':
-                return typeof value === 'string';
-            case 'number':
-                return typeof value === 'number';
-            case 'boolean':
-                return typeof value === 'boolean';
-            case 'array':
-                return Array.isArray(value);
-            case 'object':
-                return typeof value === 'object' && value !== null && !Array.isArray(value);
-            default:
-                // For custom types or unknown types, allow any value
-                return true;
-        }
-    }
-
-    /**
-     * Serialize a value for storage in the machine data
-     */
-    private serializeValue(value: any): string {
-        if (typeof value === 'string') {
-            return value;
-        }
-        return JSON.stringify(value);
-    }
-
-
 
     /**
      * Execute a task node using LLM with tool support
@@ -812,28 +781,14 @@ export class MachineExecutor extends BaseExecutor {
             if (referencedNode && referencedNode.attributes) {
                 const referencedAttr = referencedNode.attributes.find(a => a.name === attrName);
                 if (referencedAttr) {
-                    // Extract the actual value, handling AST objects
-                    let value = referencedAttr.value;
-                    
-                    // If it's a Langium AST node object, extract the actual value
-                    if (value && typeof value === 'object' && '$type' in value) {
-                        const astNode = value as any;
-                        if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
-                            value = astNode.$cstNode.text;
-                            // Remove quotes if present
-                            if (typeof value === 'string') {
-                                value = value.replace(/^["']|["']$/g, '');
-                            }
-                        } else if ('value' in astNode) {
-                            value = astNode.value;
-                        }
-                    }
-                    
+                    // Extract the actual value using shared utility
+                    let value = extractValueFromAST(referencedAttr.value);
+
                     // Ensure the value is a string
                     if (typeof value !== 'string') {
                         value = String(value);
                     }
-                    
+
                     // Remove quotes if present and return the value
                     value = value.replace(/^"(.*)"$/, '$1');
                     console.log('✅ Resolved template variable:', { match, value });

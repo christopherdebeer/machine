@@ -8,6 +8,7 @@ import {
     LLMClientConfig
 } from './llm-client.js';
 import { BedrockClient } from './bedrock-client.js';
+import { extractValueFromAST, parseAttributeValue, serializeValue, validateValueType } from './utils/ast-helpers.js';
 
 // Shared interfaces
 export interface MachineExecutionContext {
@@ -182,38 +183,10 @@ export abstract class BaseExecutor {
 
     /**
      * Recursively extract value from Langium AST nodes
+     * @deprecated Use extractValueFromAST from utils/ast-helpers.js instead
      */
     protected extractValueFromAST(value: any): any {
-        // If it's not an object, return as-is
-        if (!value || typeof value !== 'object') {
-            return value;
-        }
-
-        // If it's a Langium AST node object
-        if ('$type' in value) {
-            const astNode = value as any;
-
-            // Try to get text from CST node first (most accurate)
-            if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
-                let text = astNode.$cstNode.text;
-                // Remove quotes if present
-                if (typeof text === 'string') {
-                    text = text.replace(/^["']|["']$/g, '');
-                }
-                return text;
-            }
-
-            // Try to get nested value property and recurse
-            if ('value' in astNode) {
-                return this.extractValueFromAST(astNode.value);
-            }
-
-            // If no value found, try stringifying but this might give [object Object]
-            return String(value);
-        }
-
-        // Not an AST node, return as-is
-        return value;
+        return extractValueFromAST(value);
     }
 
     /**
@@ -249,13 +222,12 @@ export abstract class BaseExecutor {
 
     /**
      * Parse a stored value back to its original type
+     * @deprecated Use parseAttributeValue from utils/ast-helpers.js instead
      */
     protected parseValue(rawValue: string, type?: string): any {
-        // Remove quotes if present
-        let cleanValue = rawValue.replace(/^["']|["']$/g, '');
-
         if (!type) {
             // Try to auto-detect and parse
+            const cleanValue = rawValue.replace(/^["']|["']$/g, '');
             try {
                 return JSON.parse(rawValue);
             } catch {
@@ -263,24 +235,23 @@ export abstract class BaseExecutor {
             }
         }
 
-        switch (type.toLowerCase()) {
-            case 'string':
-                return cleanValue;
-            case 'number':
-                const num = Number(cleanValue);
-                return isNaN(num) ? cleanValue : num;
-            case 'boolean':
-                return cleanValue.toLowerCase() === 'true';
-            case 'array':
-            case 'object':
-                try {
-                    return JSON.parse(rawValue);
-                } catch {
-                    return cleanValue;
-                }
-            default:
-                return cleanValue;
-        }
+        return parseAttributeValue(rawValue, type);
+    }
+
+    /**
+     * Validate if a value matches the expected type
+     * @deprecated Use validateValueType from utils/ast-helpers.js instead
+     */
+    protected validateValueType(value: any, expectedType: string): boolean {
+        return validateValueType(value, expectedType);
+    }
+
+    /**
+     * Serialize a value for storage in machine data
+     * @deprecated Use serializeValue from utils/ast-helpers.js instead
+     */
+    protected serializeValue(value: any): string {
+        return serializeValue(value);
     }
 
     /**
