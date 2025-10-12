@@ -114,13 +114,12 @@ describe('Phase 4: Type Inference', () => {
         expect(inferredType).toBe('Array<string>');
     });
 
-    it('should handle empty arrays', () => {
+    it('should reject empty arrays without explicit type annotation', () => {
         const machine = { nodes: [], edges: [] } as any;
         const typeChecker = new TypeChecker(machine);
 
         const value = { value: [] };
-        const inferredType = typeChecker.inferType(value as any);
-        expect(inferredType).toBe('Array<any>');
+        expect(() => typeChecker.inferType(value as any)).toThrow('Unable to infer type for empty array');
     });
 });
 

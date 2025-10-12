@@ -107,7 +107,7 @@ describe('AgentSDKBridge - Phase 4: Agent SDK Integration', () => {
         await bridge.invokeAgent('task1', 'System prompt', []);
         expect(bridge.getConversationHistory().length).toBeGreaterThan(0);
 
-        bridge.clearConversationHistory();
+        await bridge.clearConversationHistory();
         expect(bridge.getConversationHistory().length).toBe(0);
     });
 

@@ -83,13 +83,15 @@ export class ClaudeClient {
                 dangerouslyAllowBrowser: true,
                 apiKey: config.apiKey || process.env.ANTHROPIC_API_KEY
             });
-            this.modelId = config.modelId || 'claude-sonnet-4-20250514';
+            // Model ID priority: config > env var > default (haiku)
+            this.modelId = config.modelId || process.env.ANTHROPIC_MODEL_ID || 'claude-3-5-haiku-20241022';
         } else {
             // Bedrock transport
             this.bedrockClient = new BedrockRuntimeClient({
                 region: config.region || 'us-west-2'
             });
-            this.modelId = config.modelId || 'anthropic.claude-3-sonnet-20240229-v1:0';
+            // Model ID priority: config > env var > default (haiku on Bedrock)
+            this.modelId = config.modelId || process.env.ANTHROPIC_MODEL_ID || 'anthropic.claude-3-5-haiku-20241022-v1:0';
         }
     }
 

@@ -43,12 +43,30 @@ npm test
 ### CLI Usage
 
 ```bash
-# Parse and execute a .mach file
-npx dygram your-file.mach
+# Generate machine outputs
+npx dygram generate your-file.dygram --format json,html
 
-# Or use the machine alias
-npx machine your-file.mach
+# Execute a machine
+npx dygram execute your-file.dygram
+
+# Execute with specific model
+npx dygram execute your-file.dygram --model claude-3-5-sonnet-20241022
+
+# Execute with verbose logging
+npx dygram execute your-file.dygram --verbose
+
+# Batch process multiple files
+npx dygram batch "examples/**/*.dygram" --format json
 ```
+
+**Model Selection:**
+Models can be specified via (in priority order):
+1. CLI parameter: `--model claude-3-5-haiku-20241022`
+2. Machine config: Define a `config` node with `modelId` attribute
+3. Environment variable: `export ANTHROPIC_MODEL_ID=claude-3-5-haiku-20241022`
+4. Default: `claude-3-5-haiku-20241022`
+
+See [LLM Client Usage](docs/LlmClientUsage.mdx) for more details.
 
 ## Playground Options
 
