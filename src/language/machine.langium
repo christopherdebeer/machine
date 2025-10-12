@@ -50,7 +50,7 @@ entry Machine:
 
 AttributeValue:
     ('[' (value+=(EXTID|STRING|ID|NUMBER) (',' value+=(EXTID|STRING|ID|NUMBER))*)? ']')
-    | value=EXTID|STRING|ID|NUMBER;
+    | value=(EXTID|STRING|ID|NUMBER);
 
 // Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated, @note)
 Annotation:
