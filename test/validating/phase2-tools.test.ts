@@ -5,15 +5,15 @@ import {
     ModelResponse,
     ConversationMessage
 } from '../../src/language/llm-client.js';
-import { BedrockClient } from '../../src/language/bedrock-client.js';
+import { ClaudeClient } from '../../src/language/claude-client.js';
 
-// Mock the BedrockClient
-vi.mock('../../src/language/bedrock-client', () => {
+// Mock the ClaudeClient
+vi.mock('../../src/language/claude-client', () => {
     const mockInvokeModel = vi.fn();
     const mockInvokeWithTools = vi.fn();
 
     return {
-        BedrockClient: vi.fn().mockImplementation(() => ({
+        ClaudeClient: vi.fn().mockImplementation(() => ({
             invokeModel: mockInvokeModel,
             invokeWithTools: mockInvokeWithTools,
             extractText: (response: ModelResponse) => {
@@ -34,7 +34,7 @@ vi.mock('../../src/language/bedrock-client', () => {
 describe('Phase 2: Tool-Based Execution', () => {
     let executor: MachineExecutor;
     let mockMachineData: MachineData;
-    let mockBedrockClient: any;
+    let mockClaudeClient: any;
 
     beforeEach(async () => {
         vi.clearAllMocks();
@@ -73,13 +73,13 @@ describe('Phase 2: Tool-Based Execution', () => {
 
         executor = new MachineExecutor(mockMachineData);
         // Access the mock through the module mock
-        mockBedrockClient = (BedrockClient as any).mock.results[0].value;
+        mockClaudeClient = (ClaudeClient as any).mock.results[0].value;
     });
 
     describe('Transition Tools', () => {
         it('should generate transition tools from outbound edges', async () => {
             // Mock LLM to choose pathA
-            mockBedrockClient.invokeWithTools.mockResolvedValueOnce({
+            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
                 content: [
                     { type: 'text', text: 'I will choose path A' },
                     {
@@ -95,7 +95,7 @@ describe('Phase 2: Tool-Based Execution', () => {
             await executor.step();
 
             // Verify the tool was provided to the LLM
-            const callArgs = mockBedrockClient.invokeWithTools.mock.calls[0];
+            const callArgs = mockClaudeClient.invokeWithTools.mock.calls[0];
             const tools: ToolDefinition[] = callArgs[1];
 
             // Should have transition tool plus context tools (set_context_value, get_context_value, list_context_nodes)
@@ -112,7 +112,7 @@ describe('Phase 2: Tool-Based Execution', () => {
 
         it('should let LLM choose pathB via transition tool', async () => {
             // Mock LLM to choose pathB
-            mockBedrockClient.invokeWithTools.mockResolvedValueOnce({
+            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
                 content: [
                     { type: 'text', text: 'I will choose path B' },
                     {
@@ -134,7 +134,7 @@ describe('Phase 2: Tool-Based Execution', () => {
 
         it('should fallback to first transition if no tool use', async () => {
             // Mock LLM without tool use
-            mockBedrockClient.invokeWithTools.mockResolvedValueOnce({
+            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
                 content: [
                     { type: 'text', text: 'Processing input' }
                 ],
@@ -175,11 +175,11 @@ describe('Phase 2: Tool-Based Execution', () => {
             };
 
             executor = new MachineExecutor(metaMachineData);
-            mockBedrockClient = (BedrockClient as any).mock.results[0].value;
+            mockClaudeClient = (BedrockClient as any).mock.results[0].value;
         });
 
         it('should provide meta tools to tasks with meta=true', async () => {
-            mockBedrockClient.invokeWithTools.mockResolvedValueOnce({
+            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
                 content: [
                     { type: 'text', text: 'Analyzing machine structure' }
                 ],
@@ -188,7 +188,7 @@ describe('Phase 2: Tool-Based Execution', () => {
 
             await executor.step();
 
-            const callArgs = mockBedrockClient.invokeWithTools.mock.calls[0];
+            const callArgs = mockClaudeClient.invokeWithTools.mock.calls[0];
             const tools: ToolDefinition[] = callArgs[1];
 
             // Should have transition tool + 6 meta tools
@@ -205,7 +205,7 @@ describe('Phase 2: Tool-Based Execution', () => {
 
         it('should allow adding nodes via meta tools', async () => {
             // Mock LLM adding a new node
-            mockBedrockClient.invokeWithTools
+            mockClaudeClient.invokeWithTools
                 .mockResolvedValueOnce({
                     content: [
                         { type: 'text', text: 'I will add a new node' },
@@ -244,7 +244,7 @@ describe('Phase 2: Tool-Based Execution', () => {
 
         it('should allow adding edges via meta tools', async () => {
             // First add a node, then add an edge to it
-            mockBedrockClient.invokeWithTools
+            mockClaudeClient.invokeWithTools
                 .mockResolvedValueOnce({
                     content: [
                         {
@@ -287,7 +287,7 @@ describe('Phase 2: Tool-Based Execution', () => {
         });
 
         it('should allow modifying nodes via meta tools', async () => {
-            mockBedrockClient.invokeWithTools
+            mockClaudeClient.invokeWithTools
                 .mockResolvedValueOnce({
                     content: [
                         {
@@ -322,7 +322,7 @@ describe('Phase 2: Tool-Based Execution', () => {
         });
 
         it('should track mutations', async () => {
-            mockBedrockClient.invokeWithTools
+            mockClaudeClient.invokeWithTools
                 .mockResolvedValueOnce({
                     content: [
                         {
@@ -357,7 +357,7 @@ describe('Phase 2: Tool-Based Execution', () => {
 
     describe('Runtime Visualization', () => {
         it('should generate runtime Mermaid class diagram with runtime state', async () => {
-            mockBedrockClient.invokeWithTools.mockResolvedValueOnce({
+            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
                 content: [
                     {
                         type: 'tool_use',
@@ -383,7 +383,7 @@ describe('Phase 2: Tool-Based Execution', () => {
         });
 
         it('should generate runtime Mermaid class diagram', async () => {
-            mockBedrockClient.invokeWithTools.mockResolvedValueOnce({
+            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
                 content: [
                     {
                         type: 'tool_use',
@@ -408,7 +408,7 @@ describe('Phase 2: Tool-Based Execution', () => {
 
         it('should show traversal counts in runtime diagram', async () => {
             // Execute multiple steps
-            mockBedrockClient.invokeWithTools
+            mockClaudeClient.invokeWithTools
                 .mockResolvedValueOnce({
                     content: [
                         {

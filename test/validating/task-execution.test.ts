@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MachineExecutor, MachineData } from '../../src/language/machine-executor';
-import { BedrockClient } from '../../src/language/bedrock-client';
+import { ClaudeClient } from '../../src/language/claude-client';
 
-// Mock the BedrockClient
-vi.mock('../../src/language/bedrock-client', () => {
+// Mock the ClaudeClient
+vi.mock('../../src/language/claude-client', () => {
     return {
-        BedrockClient: vi.fn().mockImplementation(() => ({
+        ClaudeClient: vi.fn().mockImplementation(() => ({
             invokeModel: vi.fn().mockImplementation(async (prompt: string) => {
                 // Simple mock that returns a response based on the prompt content
                 if (prompt.includes('analysis')) {

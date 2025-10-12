@@ -7,7 +7,7 @@ import {
     LLMClient,
     LLMClientConfig
 } from './llm-client.js';
-import { BedrockClient } from './bedrock-client.js';
+import { ClaudeClient } from './claude-client.js';
 import { extractValueFromAST, parseAttributeValue, serializeValue, validateValueType } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
 import { EdgeConditionParser } from './utils/edge-conditions.js';
@@ -112,12 +112,21 @@ export abstract class BaseExecutor {
 
         // Support legacy bedrock config for backwards compatibility
         if (config.bedrock && !config.llm) {
-            this.llmClient = new BedrockClient(config.bedrock);
+            this.llmClient = new ClaudeClient({
+                transport: 'bedrock',
+                region: config.bedrock.region,
+                modelId: config.bedrock.modelId
+            });
         } else if (config.llm) {
             // Temporary client, will be replaced in create()
-            this.llmClient = new BedrockClient();
+            this.llmClient = new ClaudeClient({
+                transport: config.llm.provider === 'bedrock' ? 'bedrock' : 'api',
+                apiKey: config.llm.provider === 'anthropic' ? config.llm.apiKey : undefined,
+                region: config.llm.provider === 'bedrock' ? config.llm.region : undefined,
+                modelId: config.llm.modelId
+            });
         } else {
-            this.llmClient = new BedrockClient();
+            this.llmClient = new ClaudeClient({ transport: 'bedrock' });
         }
     }
 

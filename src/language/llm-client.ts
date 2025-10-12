@@ -47,14 +47,14 @@ export interface LLMClientConfig {
  */
 export async function createLLMClient(config: LLMClientConfig): Promise<LLMClient> {
     if (config.provider === 'anthropic') {
-        const { AnthropicClient } = await import('./anthropic-client.js');
-        return new AnthropicClient({
+        return new ClaudeClient({
+            transport: 'api',
             apiKey: config.apiKey,
             modelId: config.modelId
         });
     } else if (config.provider === 'bedrock') {
-        const { BedrockClient } = await import('./bedrock-client.js');
-        return new BedrockClient({
+        return new ClaudeClient({
+            transport: 'bedrock',
             region: config.region,
             modelId: config.modelId
         });
