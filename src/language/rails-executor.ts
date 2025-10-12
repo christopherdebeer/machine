@@ -545,12 +545,21 @@ export class RailsExecutor extends BaseExecutor {
         if (this.requiresAgentDecision(nodeName)) {
             console.log(`🤖 Agent decision required for ${nodeName}`);
 
+            // Extract task-level model ID if present
+            const attributes = this.getNodeAttributes(nodeName);
+            const taskModelId = attributes.modelId ? String(attributes.modelId).replace(/^["']|["']$/g, '') : undefined;
+
             // Phase 4: Invoke agent with SDK
             const systemPrompt = this.buildSystemPrompt(nodeName);
             const tools = this.buildPhaseTools(nodeName);
 
-            const result = await this.agentSDKBridge.invokeAgent(nodeName, systemPrompt, tools,
-                (toolName: string, input: any) => this.executeTool(toolName, input));
+            const result = await this.agentSDKBridge.invokeAgent(
+                nodeName,
+                systemPrompt,
+                tools,
+                (toolName: string, input: any) => this.executeTool(toolName, input),
+                taskModelId
+            );
 
             console.log(`✓ Agent completed: ${result.output}`);
 

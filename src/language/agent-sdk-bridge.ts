@@ -141,16 +141,22 @@ export class AgentSDKBridge {
 
     /**
      * Invoke agent for a node
+     * @param nodeName The name of the node being executed
+     * @param systemPrompt System prompt for the agent
+     * @param tools Available tools for the agent
+     * @param toolExecutor Function to execute tools
+     * @param modelIdOverride Optional model ID to use instead of the configured default
      */
     async invokeAgent(
         nodeName: string,
         systemPrompt: string,
         tools: ToolDefinition[],
-        toolExecutor?: (toolName: string, input: any) => Promise<any>
+        toolExecutor?: (toolName: string, input: any) => Promise<any>,
+        modelIdOverride?: string
     ): Promise<AgentExecutionResult> {
         // Use mutex to ensure only one invocation runs at a time
         return await this.invocationMutex.runExclusive(async () => {
-            return await this.invokeAgentImpl(nodeName, systemPrompt, tools, toolExecutor);
+            return await this.invokeAgentImpl(nodeName, systemPrompt, tools, toolExecutor, modelIdOverride);
         });
     }
 
@@ -161,7 +167,8 @@ export class AgentSDKBridge {
         nodeName: string,
         systemPrompt: string,
         tools: ToolDefinition[],
-        toolExecutor?: (toolName: string, input: any) => Promise<any>
+        toolExecutor?: (toolName: string, input: any) => Promise<any>,
+        modelIdOverride?: string
     ): Promise<AgentExecutionResult> {
         console.log(`🤖 Invoking agent for node: ${nodeName}`);
         console.log(`📋 System prompt length: ${systemPrompt.length} chars`);
@@ -173,6 +180,11 @@ export class AgentSDKBridge {
         // Build user prompt from node attributes
         const node = this.machineData.nodes.find(n => n.name === nodeName);
         const userPrompt = this.extractUserPrompt(node);
+
+        // Log model ID if override is provided
+        if (modelIdOverride) {
+            console.log(`🎯 Using task-specific model: ${modelIdOverride}`);
+        }
 
         // If no Claude client, return placeholder
         if (!this.claudeClient) {
@@ -209,8 +221,8 @@ export class AgentSDKBridge {
             turnCount++;
 
             try {
-                // Invoke model with tools
-                const response: ModelResponse = await this.claudeClient.invokeWithTools(messages, tools);
+                // Invoke model with tools (with optional model ID override)
+                const response: ModelResponse = await this.claudeClient.invokeWithTools(messages, tools, modelIdOverride);
                 messagesExchanged++;
 
                 // Extract text content

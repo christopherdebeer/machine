@@ -61,12 +61,29 @@ npx dygram batch "examples/**/*.dygram" --format json
 
 **Model Selection:**
 Models can be specified via (in priority order):
-1. CLI parameter: `--model claude-3-5-haiku-20241022`
-2. Machine config: Define a `config` node with `modelId` attribute
-3. Environment variable: `export ANTHROPIC_MODEL_ID=claude-3-5-haiku-20241022`
-4. Default: `claude-3-5-haiku-20241022`
+1. **Task-level** (highest): Individual tasks can specify `modelId` attribute
+2. **CLI parameter**: `--model claude-3-5-sonnet-20241022`
+3. **Machine-level**: Define a `config` node with `modelId` attribute
+4. **Environment variable**: `export ANTHROPIC_MODEL_ID=claude-3-5-haiku-20241022`
+5. **Default** (lowest): `claude-3-5-haiku-20241022`
 
-See [LLM Client Usage](docs/LlmClientUsage.mdx) for more details.
+**Example:**
+```dygram
+config {
+    modelId: "claude-3-5-haiku-20241022";  // Machine default
+};
+
+Task simple {
+    prompt: "Quick task...";  // Uses machine default (haiku)
+};
+
+Task complex {
+    modelId: "claude-3-5-sonnet-20241022";  // Task override
+    prompt: "Complex reasoning...";
+};
+```
+
+See [Model Configuration Examples](examples/model-configuration/) and [LLM Client Usage](docs/LlmClientUsage.mdx) for more details.
 
 ## Playground Options
 
