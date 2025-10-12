@@ -1,14 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { MetaTags } from './MetaTags';
+import { Navigation } from './Navigation';
 
 interface PageLayoutProps {
     children: React.ReactNode;
     title: string;
     backLink?: boolean;
+    description?: string;
 }
 
-export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, backLink = true }) => {
+export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, backLink = true, description }) => {
+    useEffect(() => {
+        // Add favicon if not present
+        let favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
+        if (!favicon) {
+            favicon = document.createElement('link');
+            favicon.setAttribute('rel', 'icon');
+            favicon.setAttribute('type', 'image/jpeg');
+            favicon.href = '/machine/icon.jpg';
+            document.head.appendChild(favicon);
+        }
+    }, []);
+
     return (
         <div>
+            <a href="#main-content" className="skip-link">
+                Skip to main content
+            </a>
+            <MetaTags
+                title={`${title} | DyGram`}
+                description={description}
+                url={`https://christopherdebeer.github.io/machine/${title.toLowerCase().replace(/\s+/g, '-')}.html`}
+            />
+            <Navigation />
             <header style={{ height: 'auto', padding: '4rem 0' }}>
                 <div className="container">
                     {backLink && (
@@ -22,11 +46,13 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, backLin
                 </div>
             </header>
 
-            <section>
-                <div className="container">
-                    {children}
-                </div>
-            </section>
+            <main id="main-content">
+                <section>
+                    <div className="container">
+                        {children}
+                    </div>
+                </section>
+            </main>
 
             <footer>
                 <div className="container">
@@ -53,8 +79,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, backLin
                         <div className="footer-links">
                             <h3>COMMUNITY</h3>
                             <ul>
-                                <li><a href="#">Discord</a></li>
-                                <li><a href="#">Twitter</a></li>
+                                <li><a href="https://github.com/christopherdebeer/machine/discussions">GitHub Discussions</a></li>
                                 <li><a href="blog.html">Blog</a></li>
                                 <li><a href="events.html">Events</a></li>
                             </ul>

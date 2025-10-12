@@ -11,6 +11,8 @@ export default defineConfig(() => {
         base: '/machine/',
         build: {
             target: 'esnext',
+            minify: 'esbuild',
+            cssMinify: true,
             rollupOptions: {
                 input: {
                     index: path.resolve(__dirname, 'index.html'),
@@ -34,6 +36,12 @@ export default defineConfig(() => {
                     'testing-approach': path.resolve(__dirname, 'testing-approach.html'),
                     'examples-index': path.resolve(__dirname, 'examples-index.html'),
                     'meta-programming': path.resolve(__dirname, 'meta-programming.html'),
+                    'documentation': path.resolve(__dirname, 'documentation.html'),
+                    'faq': path.resolve(__dirname, 'faq.html'),
+                    'troubleshooting': path.resolve(__dirname, 'troubleshooting.html'),
+                    'support': path.resolve(__dirname, 'support.html'),
+                    'installation': path.resolve(__dirname, 'installation.html'),
+                    'cli-reference': path.resolve(__dirname, 'cli-reference.html'),
                 },
             },
             outDir: 'dist'
