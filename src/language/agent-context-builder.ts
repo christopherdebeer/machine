@@ -9,6 +9,7 @@
  */
 
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
+import { NodeTypeChecker } from './node-type-checker.js';
 
 /**
  * Context access permissions for a node
@@ -281,39 +282,14 @@ export class AgentContextBuilder {
      * Check if node is a context node
      */
     private isContextNode(node: Node): boolean {
-        const type = node.type?.toLowerCase() || '';
-        return type === 'context' || type === 'concept' || type === 'input' || type === 'result';
+        return NodeTypeChecker.isContext(node);
     }
 
     /**
      * Extract permissions from edge label/type
      */
     private extractPermissionsFromEdge(edge: Edge): ContextPermissions {
-        const label = (edge.label || edge.type || '').toLowerCase();
-
-        const permissions: ContextPermissions = {
-            canRead: false,
-            canWrite: false,
-            canStore: false
-        };
-
-        // Check for permission keywords
-        if (label.includes('read')) permissions.canRead = true;
-        if (label.includes('write') || label.includes('update') || label.includes('set')) permissions.canWrite = true;
-        if (label.includes('store')) permissions.canStore = true;
-
-        // If no specific permissions, default to read-only
-        if (!permissions.canRead && !permissions.canWrite && !permissions.canStore) {
-            permissions.canRead = true;
-        }
-
-        // Extract field list if specified
-        const fieldMatch = label.match(/(?:write|read|store|update|set):\s*([a-zA-Z0-9_,\s]+)/i);
-        if (fieldMatch) {
-            permissions.fields = fieldMatch[1].split(',').map(f => f.trim()).filter(f => f.length > 0);
-        }
-
-        return permissions;
+        return NodeTypeChecker.extractPermissionsFromEdge(edge);
     }
 
     /**
@@ -382,8 +358,7 @@ export class AgentContextBuilder {
      * Check if node has meta-programming capabilities
      */
     private hasMetaCapabilities(node: Node): boolean {
-        const attributes = this.getNodeAttributes(node);
-        return attributes.meta === 'true' || attributes.meta === 'True';
+        return NodeTypeChecker.hasMeta(node);
     }
 
     /**
