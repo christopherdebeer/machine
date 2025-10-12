@@ -248,7 +248,7 @@ export const parseAndValidate = async (fileName: string, opts?: { verbose?: bool
  * @param fileName Program to execute
  * @param opts Execution options
  */
-export const executeAction = async (fileName: string, opts: { destination?: string; verbose?: boolean; quiet?: boolean }): Promise<void> => {
+export const executeAction = async (fileName: string, opts: { destination?: string; model?: string; verbose?: boolean; quiet?: boolean }): Promise<void> => {
     setupLogger(opts);
 
     // retrieve the services for our language
@@ -263,12 +263,31 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
 
     logger.info(chalk.blue('\n⚙️  Executing machine program with Rails-Based Architecture...'));
 
+    // Extract model ID from machine config if present
+    let machineModelId: string | undefined;
+    const configNode = machineData.nodes.find(n =>
+        n.name === 'config' || n.name === 'llmConfig' || n.name === 'modelConfig'
+    );
+    if (configNode?.attributes) {
+        const modelAttr = configNode.attributes.find(a => a.name === 'modelId' || a.name === 'model');
+        if (modelAttr?.value) {
+            machineModelId = String(modelAttr.value).replace(/^["']|["']$/g, '');
+        }
+    }
+
+    // Model ID priority: CLI param > Machine config > Environment var > Default
+    const modelId = opts.model || machineModelId || process.env.ANTHROPIC_MODEL_ID || 'claude-3-5-haiku-20241022';
+
+    if (opts.verbose) {
+        logger.debug(`Model ID: ${modelId} (source: ${opts.model ? 'CLI' : machineModelId ? 'machine config' : process.env.ANTHROPIC_MODEL_ID ? 'env' : 'default'})`);
+    }
+
     // Configure LLM client to use Anthropic with API key from environment
     const config = {
         llm: {
             provider: 'anthropic' as const,
             apiKey: process.env.ANTHROPIC_API_KEY,
-            modelId: 'claude-3-5-sonnet-20241022'
+            modelId: modelId
         },
         agentSDK: {
             model: 'sonnet' as const,
@@ -485,6 +504,7 @@ function initializeCLI(): Promise<void> {
                     .aliases(['exec', 'e'])
                     .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
                     .option('-d, --destination <dir>', 'destination directory for execution results')
+                    .option('-m, --model <model>', 'model ID to use (e.g., claude-3-5-haiku-20241022, claude-3-5-sonnet-20241022)')
                     .option('-v, --verbose', 'verbose output')
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .description('executes a machine program')

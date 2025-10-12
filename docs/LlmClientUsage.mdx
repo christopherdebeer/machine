@@ -98,14 +98,15 @@ console.log('Execution complete:', result);
 {
     provider: 'anthropic',
     apiKey?: string,        // Optional if ANTHROPIC_API_KEY env var is set
-    modelId?: string        // Optional, defaults to 'claude-3-5-sonnet-20241022'
+    modelId?: string        // Optional, defaults to 'claude-3-5-haiku-20241022'
 }
 ```
 
 **Available Models:**
-- `claude-3-5-sonnet-20241022` (Latest, recommended)
+- `claude-3-5-haiku-20241022` (Default, fastest and most cost-effective)
+- `claude-3-5-sonnet-20241022` (Latest, balanced performance)
 - `claude-3-5-sonnet-20240620`
-- `claude-3-opus-20240229`
+- `claude-3-opus-20240229` (Most capable)
 - `claude-3-sonnet-20240229`
 - `claude-3-haiku-20240307`
 
@@ -115,12 +116,13 @@ console.log('Execution complete:', result);
 {
     provider: 'bedrock',
     region?: string,        // Optional, defaults to 'us-west-2'
-    modelId?: string        // Optional, defaults to 'anthropic.claude-3-sonnet-20240229-v1:0'
+    modelId?: string        // Optional, defaults to 'anthropic.claude-3-5-haiku-20241022-v1:0'
 }
 ```
 
 **Available Models:**
-- `anthropic.claude-3-5-sonnet-20241022-v2:0`
+- `anthropic.claude-3-5-haiku-20241022-v1:0` (Default, fastest and most cost-effective)
+- `anthropic.claude-3-5-sonnet-20241022-v2:0` (Latest, balanced performance)
 - `anthropic.claude-3-5-sonnet-20240620-v1:0`
 - `anthropic.claude-3-sonnet-20240229-v1:0`
 - `anthropic.claude-3-haiku-20240307-v1:0`
@@ -157,12 +159,18 @@ For security, use environment variables in production:
 ```bash
 # For Anthropic
 export ANTHROPIC_API_KEY="your-api-key"
+export ANTHROPIC_MODEL_ID="claude-3-5-haiku-20241022"  # Optional, override default model
 
 # For Bedrock (AWS credentials)
 export AWS_ACCESS_KEY_ID="your-access-key"
 export AWS_SECRET_ACCESS_KEY="your-secret-key"
 export AWS_REGION="us-west-2"
 ```
+
+**Model Selection Priority:**
+1. **Explicit config** - `modelId` parameter in config object
+2. **Environment variable** - `ANTHROPIC_MODEL_ID`
+3. **Default** - `claude-3-5-haiku-20241022` (or haiku equivalent for Bedrock)
 
 ## Error Handling
 
