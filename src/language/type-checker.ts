@@ -157,6 +157,14 @@ export class TypeChecker {
                 const val = (value as any).value;
 
                 if (typeof val === 'string') {
+                    // Check if the string is actually a number (Langium NUMBER terminal returns string)
+                    if (/^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(val)) {
+                        return 'number';
+                    }
+                    // Check if it's a boolean string
+                    if (val === 'true' || val === 'false') {
+                        return 'boolean';
+                    }
                     return 'string';
                 } else if (typeof val === 'number') {
                     return 'number';

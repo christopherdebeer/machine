@@ -25,21 +25,25 @@ terminal NUMBER returns number: /[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?/;
 
 terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
 
-terminal SHAFT_THIN: '-';
-terminal SHAFT_THICK: '=';
-terminal SHAFT_DOT: '.';
-
-terminal LEFT_ARROW: '<';
-terminal RIGHT_ARROW: '>';
-terminal LOLIPOP: '()';
-
-terminal SHAFT:
-    (SHAFT_THIN | SHAFT_THICK | SHAFT_DOT)+
-;
-
-ArrowHead:
-    left?=(LEFT_ARROW | LOLIPOP) SHAFT+ right?=(RIGHT_ARROW | LOLIPOP)
-;
+// NOTE: The following terminals are currently unused but may be needed for future
+// custom arrow styling features. Commented out to eliminate Langium warnings.
+// Uncomment if implementing custom arrow head compositions.
+//
+// terminal SHAFT_THIN: '-';
+// terminal SHAFT_THICK: '=';
+// terminal SHAFT_DOT: '.';
+//
+// terminal LEFT_ARROW: '<';
+// terminal RIGHT_ARROW: '>';
+// terminal LOLIPOP: '()';
+//
+// terminal SHAFT:
+//     (SHAFT_THIN | SHAFT_THICK | SHAFT_DOT)+
+// ;
+//
+// ArrowHead:
+//     left?=(LEFT_ARROW | LOLIPOP) SHAFT+ right?=(RIGHT_ARROW | LOLIPOP)
+// ;
 
 STRING returns string: STR | MLSTR;
 
@@ -48,6 +52,9 @@ entry Machine:
     (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)*
 ;
 
+// Note: Using '=' for single values and '+=' for arrays is intentional.
+// This allows type inference to distinguish between single values and arrays.
+// The Langium warning can be safely ignored here.
 AttributeValue:
     ('[' (value+=(EXTID|STRING|ID|NUMBER) (',' value+=(EXTID|STRING|ID|NUMBER))*)? ']')
     | value=(EXTID|STRING|ID|NUMBER);
@@ -83,10 +90,13 @@ Node<isRoot>:
 
 EdgeAttributeValue returns string: EXTID|STRING|ID|NUMBER;
 
+// Note: Order matters here to resolve ambiguity.
+// Array syntax must come first, then name:value pairs, then standalone values.
 EdgeAttribute:
-    (name=ID (':' value=EdgeAttributeValue)? ';'?)
+    '[' (params+=EdgeAttributeValue (',' params+=EdgeAttributeValue)*)? ']'
+    | (name=ID ':' value=EdgeAttributeValue ';'?)
+    | (name=ID ';')
     | (text=EdgeAttributeValue)
-    | '[' (params+=EdgeAttributeValue (',' params+=EdgeAttributeValue)*)? ']'
 ;
 
 // Edge styling annotation (e.g., @style("color: red; stroke-width: 4px"))
