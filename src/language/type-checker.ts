@@ -3,7 +3,7 @@
  * Validates type annotations, infers types, and checks compatibility
  */
 
-import type { Machine, Node, Attribute, AttributeValue } from './generated/ast.js';
+import type { Machine, Node, Attribute, AttributeValue, TypeDef } from './generated/ast.js';
 import {
     ValidationContext,
     ValidationSeverity,
@@ -52,19 +52,23 @@ export class TypeChecker {
     /**
      * Convert TypeDef AST node to string representation
      */
-    private typeDefToString(typeDef: any): string {
+    private typeDefToString(typeDef: TypeDef | string | undefined): string {
         if (typeof typeDef === 'string') {
             return typeDef;
         }
 
-        if (!typeDef || !typeDef.base) {
-            return 'any';
+        if (!typeDef) {
+            throw new Error('TypeDef is undefined. Type annotation is required.');
+        }
+
+        if (!typeDef.base) {
+            throw new Error('TypeDef missing base type. Invalid type annotation.');
         }
 
         let result = typeDef.base;
 
         if (typeDef.generics && typeDef.generics.length > 0) {
-            const genericStrs = typeDef.generics.map((g: any) => this.typeDefToString(g));
+            const genericStrs = typeDef.generics.map((g) => this.typeDefToString(g));
             result += '<' + genericStrs.join(', ') + '>';
         }
 
@@ -150,75 +154,107 @@ export class TypeChecker {
             return 'undefined';
         }
 
-        // Handle AST node values
+        // Handle AST node values with proper type guards
         if (typeof value === 'object' && value !== null) {
             // Check if value property exists and is populated
-            if ('value' in value && (value as any).value !== undefined) {
-                const val = (value as any).value;
-
-                if (typeof val === 'string') {
-                    return 'string';
-                } else if (typeof val === 'number') {
-                    return 'number';
-                } else if (typeof val === 'boolean') {
-                    return 'boolean';
-                } else if (Array.isArray(val)) {
-                    // Infer array element type
-                    if (val.length === 0) {
-                        return 'Array<any>';
-                    }
-                    const elementType = this.inferType(val[0] as any);
-                    return `Array<${elementType}>`;
-                }
+            if ('value' in value) {
+                return this.inferTypeFromValue(value.value);
             }
 
             // If value property is not set, try to extract from CST
-            if ('$cstNode' in value && (value as any).$cstNode) {
-                const cstText = (value as any).$cstNode.text.trim();
-
-                // Check if it's a string (quoted)
-                if (cstText.startsWith('"') || cstText.startsWith("'")) {
-                    return 'string';
+            if ('$cstNode' in value) {
+                const cstNode = value.$cstNode as { text?: string } | undefined;
+                if (cstNode?.text) {
+                    return this.inferTypeFromCSTText(cstNode.text.trim());
                 }
-
-                // Check if it's a number
-                if (/^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(cstText)) {
-                    return 'number';
-                }
-
-                // Check if it's a boolean
-                if (cstText === 'true' || cstText === 'false') {
-                    return 'boolean';
-                }
-
-                // Check if it's an array
-                if (cstText.startsWith('[') && cstText.endsWith(']')) {
-                    // For arrays, we'd need more sophisticated parsing
-                    // For now, return Array<any>
-                    return 'Array<any>';
-                }
-
-                // Otherwise, assume it's a reference or identifier
-                return 'any';
             }
+
+            // Unknown AST node structure - fail fast
+            throw new Error(`Unable to infer type: AttributeValue has unexpected structure. AST node type: ${value.$type || 'unknown'}`);
         }
 
-        // Direct primitive values
-        if (typeof value === 'string') {
+        // Direct primitive values (should not normally happen with Langium AST)
+        return this.inferTypeFromValue(value);
+    }
+
+    /**
+     * Infer type from a raw value (string, number, boolean, array, or AttributeValue internal value)
+     */
+    private inferTypeFromValue(val: string | number | boolean | Array<string | number> | undefined): string {
+        if (val === undefined) {
+            return 'undefined';
+        }
+
+        if (typeof val === 'string') {
             return 'string';
-        } else if (typeof value === 'number') {
-            return 'number';
-        } else if (typeof value === 'boolean') {
-            return 'boolean';
-        } else if (Array.isArray(value)) {
-            if (value.length === 0) {
-                return 'Array<any>';
-            }
-            const elementType = this.inferType(value[0]);
-            return `Array<${elementType}>`;
         }
 
-        return 'any';
+        if (typeof val === 'number') {
+            return 'number';
+        }
+
+        if (typeof val === 'boolean') {
+            return 'boolean';
+        }
+
+        if (Array.isArray(val)) {
+            return this.inferArrayType(val);
+        }
+
+        // Should never reach here with proper typing
+        throw new Error(`Unable to infer type: unexpected value type ${typeof val}`);
+    }
+
+    /**
+     * Infer array element type with homogeneous type checking
+     */
+    private inferArrayType(val: Array<string | number>): string {
+        if (val.length === 0) {
+            // Empty arrays need explicit type annotation
+            throw new Error('Unable to infer type for empty array. Please provide explicit type annotation.');
+        }
+
+        // Infer from first element
+        const firstElementType = this.inferTypeFromValue(val[0]);
+
+        // Validate homogeneous array (all elements same type)
+        for (let i = 1; i < val.length; i++) {
+            const elementType = this.inferTypeFromValue(val[i]);
+            if (elementType !== firstElementType) {
+                throw new Error(`Heterogeneous array detected: expected all elements to be ${firstElementType}, but found ${elementType} at index ${i}`);
+            }
+        }
+
+        return `Array<${firstElementType}>`;
+    }
+
+    /**
+     * Infer type from CST node text content
+     */
+    private inferTypeFromCSTText(cstText: string): string {
+        // Check if it's a string (quoted)
+        if (cstText.startsWith('"') || cstText.startsWith("'")) {
+            return 'string';
+        }
+
+        // Check if it's a number
+        if (/^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(cstText)) {
+            return 'number';
+        }
+
+        // Check if it's a boolean
+        if (cstText === 'true' || cstText === 'false') {
+            return 'boolean';
+        }
+
+        // Check if it's an array
+        if (cstText.startsWith('[') && cstText.endsWith(']')) {
+            // For arrays from CST, we cannot reliably infer the element type
+            throw new Error('Unable to infer array element type from CST text. Please provide explicit type annotation.');
+        }
+
+        // Identifiers or references need explicit type annotation
+        throw new Error(`Unable to infer type from identifier or reference: '${cstText}'. Please provide explicit type annotation.`);
     }
 
     /**
