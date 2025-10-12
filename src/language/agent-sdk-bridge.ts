@@ -13,6 +13,7 @@ import type { MachineData, MachineExecutionContext } from './rails-executor.js';
 import type { MetaToolManager } from './meta-tool-manager.js';
 import { ClaudeClient } from './claude-client.js';
 import { extractText, extractToolUses } from './llm-utils.js';
+import { Mutex } from 'async-mutex';
 
 /**
  * Agent message for conversation history
@@ -89,6 +90,12 @@ export class AgentSDKBridge {
     private toolExecutor?: (toolName: string, input: any) => Promise<any>;
     private claudeClient?: ClaudeClient;
 
+    // Mutexes for protecting shared state
+    private invocationMutex = new Mutex();
+    private historyMutex = new Mutex();
+    private executionHistoryMutex = new Mutex();
+    private compactionMutex = new Mutex();
+
     constructor(
         private machineData: MachineData,
         // @ts-expect-error - Reserved for future use
@@ -141,6 +148,21 @@ export class AgentSDKBridge {
         tools: ToolDefinition[],
         toolExecutor?: (toolName: string, input: any) => Promise<any>
     ): Promise<AgentExecutionResult> {
+        // Use mutex to ensure only one invocation runs at a time
+        return await this.invocationMutex.runExclusive(async () => {
+            return await this.invokeAgentImpl(nodeName, systemPrompt, tools, toolExecutor);
+        });
+    }
+
+    /**
+     * Internal implementation of invokeAgent (protected by mutex)
+     */
+    private async invokeAgentImpl(
+        nodeName: string,
+        systemPrompt: string,
+        tools: ToolDefinition[],
+        toolExecutor?: (toolName: string, input: any) => Promise<any>
+    ): Promise<AgentExecutionResult> {
         console.log(`🤖 Invoking agent for node: ${nodeName}`);
         console.log(`📋 System prompt length: ${systemPrompt.length} chars`);
         console.log(`🔧 Available tools: ${tools.map(t => t.name).join(', ')}`);
@@ -155,7 +177,7 @@ export class AgentSDKBridge {
         // If no Claude client, return placeholder
         if (!this.claudeClient) {
             console.warn('⚠️ No Claude client available. Set ANTHROPIC_API_KEY or provide apiKey in config.');
-            return this.placeholderResponse(nodeName, systemPrompt, userPrompt, tools);
+            return await this.placeholderResponse(nodeName, systemPrompt, userPrompt, tools);
         }
 
         // Prepare conversation messages
@@ -197,12 +219,14 @@ export class AgentSDKBridge {
                     finalOutput += (finalOutput ? '\n' : '') + textContent;
                 }
 
-                // Record assistant message
-                this.conversationHistory.push({
-                    role: 'assistant',
-                    content: textContent || '[tool use only]',
-                    timestamp: new Date().toISOString(),
-                    toolUses: []
+                // Record assistant message (protected by mutex)
+                await this.historyMutex.runExclusive(async () => {
+                    this.conversationHistory.push({
+                        role: 'assistant',
+                        content: textContent || '[tool use only]',
+                        timestamp: new Date().toISOString(),
+                        toolUses: []
+                    });
                 });
 
                 // Extract tool uses
@@ -284,9 +308,13 @@ export class AgentSDKBridge {
                     break;
                 }
 
-                // Auto-compaction check
-                if (this.config.autoCompaction && this.shouldCompact()) {
-                    await this.compact();
+                // Auto-compaction check (atomic operation)
+                if (this.config.autoCompaction) {
+                    await this.compactionMutex.runExclusive(async () => {
+                        if (this.shouldCompact()) {
+                            await this.compactImpl();
+                        }
+                    });
                 }
             } catch (error) {
                 console.error('❌ Agent invocation error:', error);
@@ -306,17 +334,19 @@ export class AgentSDKBridge {
             tokensUsed: this.getTokenUsageEstimate()
         };
 
-        // Add to execution history for batch evaluation
+        // Add to execution history for batch evaluation (protected by mutex)
         if (this.config.persistHistory) {
-            this.executionHistory.push({
-                timestamp: new Date().toISOString(),
-                nodeName,
-                nodeType: node?.type || 'unknown',
-                systemPrompt,
-                userPrompt,
-                tools: tools.map(t => t.name),
-                result,
-                conversationHistory: [...this.conversationHistory]
+            await this.executionHistoryMutex.runExclusive(async () => {
+                this.executionHistory.push({
+                    timestamp: new Date().toISOString(),
+                    nodeName,
+                    nodeType: node?.type || 'unknown',
+                    systemPrompt,
+                    userPrompt,
+                    tools: tools.map(t => t.name),
+                    result,
+                    conversationHistory: [...this.conversationHistory]
+                });
             });
         }
 
@@ -326,24 +356,28 @@ export class AgentSDKBridge {
     /**
      * Placeholder response when no API key is available
      */
-    private placeholderResponse(
+    private async placeholderResponse(
         nodeName: string,
         systemPrompt: string,
         userPrompt: string,
         tools: ToolDefinition[]
-    ): AgentExecutionResult {
-        // Record system message
-        this.conversationHistory.push({
-            role: 'system',
-            content: systemPrompt,
-            timestamp: new Date().toISOString()
+    ): Promise<AgentExecutionResult> {
+        // Record system message (protected by mutex)
+        await this.historyMutex.runExclusive(async () => {
+            this.conversationHistory.push({
+                role: 'system',
+                content: systemPrompt,
+                timestamp: new Date().toISOString()
+            });
         });
 
-        // Add user message
-        this.conversationHistory.push({
-            role: 'user',
-            content: userPrompt,
-            timestamp: new Date().toISOString()
+        // Add user message (protected by mutex)
+        await this.historyMutex.runExclusive(async () => {
+            this.conversationHistory.push({
+                role: 'user',
+                content: userPrompt,
+                timestamp: new Date().toISOString()
+            });
         });
 
         const result: AgentExecutionResult = {
@@ -352,26 +386,30 @@ export class AgentSDKBridge {
             messagesExchanged: 2 // system + user
         };
 
-        // Record assistant response
-        this.conversationHistory.push({
-            role: 'assistant',
-            content: result.output,
-            timestamp: new Date().toISOString(),
-            toolUses: []
+        // Record assistant response (protected by mutex)
+        await this.historyMutex.runExclusive(async () => {
+            this.conversationHistory.push({
+                role: 'assistant',
+                content: result.output,
+                timestamp: new Date().toISOString(),
+                toolUses: []
+            });
         });
 
         // Add to execution history for batch evaluation (same as real execution)
         if (this.config.persistHistory) {
             const node = this.machineData.nodes.find(n => n.name === nodeName);
-            this.executionHistory.push({
-                timestamp: new Date().toISOString(),
-                nodeName,
-                nodeType: node?.type || 'unknown',
-                systemPrompt,
-                userPrompt,
-                tools: tools.map(t => t.name),
-                result,
-                conversationHistory: [...this.conversationHistory]
+            await this.executionHistoryMutex.runExclusive(async () => {
+                this.executionHistory.push({
+                    timestamp: new Date().toISOString(),
+                    nodeName,
+                    nodeType: node?.type || 'unknown',
+                    systemPrompt,
+                    userPrompt,
+                    tools: tools.map(t => t.name),
+                    result,
+                    conversationHistory: [...this.conversationHistory]
+                });
             });
         }
 
@@ -482,14 +520,25 @@ export class AgentSDKBridge {
     /**
      * Clear conversation history (for testing or manual compaction)
      */
-    clearConversationHistory(): void {
-        this.conversationHistory = [];
+    async clearConversationHistory(): Promise<void> {
+        await this.historyMutex.runExclusive(async () => {
+            this.conversationHistory = [];
+        });
     }
 
     /**
      * Manual compaction - reduce conversation history size
      */
     async compact(): Promise<void> {
+        await this.compactionMutex.runExclusive(async () => {
+            await this.compactImpl();
+        });
+    }
+
+    /**
+     * Internal compaction implementation (protected by mutex)
+     */
+    private async compactImpl(): Promise<void> {
         if (this.conversationHistory.length === 0) {
             return;
         }
