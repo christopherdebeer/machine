@@ -58,7 +58,9 @@ export class RuntimeVisualizer {
                 transition: step.transition,
                 timestamp: step.timestamp,
                 output: typeof step.output === 'string' ? step.output : String(step.output || '')
-            }))
+            })),
+            nodeInvocationCounts: new Map(Array.from(originalContext.nodeInvocationCounts?.entries() || [])),
+            stateTransitions: originalContext.stateTransitions ? [...originalContext.stateTransitions] : []
         };
         this.machineData = executor.getMachineDefinition();
     }

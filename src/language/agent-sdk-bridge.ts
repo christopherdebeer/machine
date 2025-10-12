@@ -140,7 +140,7 @@ export class AgentSDKBridge {
     }
 
     /**
-     * Invoke agent for a node
+     * Invoke agent for a node with optional timeout and model override
      * @param nodeName The name of the node being executed
      * @param systemPrompt System prompt for the agent
      * @param tools Available tools for the agent
@@ -185,6 +185,68 @@ export class AgentSDKBridge {
         if (modelIdOverride) {
             console.log(`🎯 Using task-specific model: ${modelIdOverride}`);
         }
+
+        // Check for node-specific timeout attribute
+        const nodeTimeout = this.getNodeTimeout(node);
+        if (nodeTimeout) {
+            console.log(`⏱️ Node timeout: ${nodeTimeout}ms`);
+            return this.invokeAgentWithTimeout(nodeName, systemPrompt, userPrompt, tools, nodeTimeout, modelIdOverride);
+        }
+
+        return this.invokeAgentInternal(nodeName, systemPrompt, userPrompt, tools, modelIdOverride);
+    }
+
+    /**
+     * Get timeout value from node attributes (in milliseconds)
+     */
+    private getNodeTimeout(node: any): number | undefined {
+        if (!node?.attributes) return undefined;
+
+        const timeoutAttr = node.attributes.find((a: any) => a.name === 'timeout');
+        if (!timeoutAttr) return undefined;
+
+        const timeoutValue = parseInt(timeoutAttr.value);
+        if (isNaN(timeoutValue)) return undefined;
+
+        // Assume timeout is in seconds, convert to milliseconds
+        return timeoutValue * 1000;
+    }
+
+    /**
+     * Invoke agent with timeout
+     */
+    private async invokeAgentWithTimeout(
+        nodeName: string,
+        systemPrompt: string,
+        userPrompt: string,
+        tools: ToolDefinition[],
+        timeoutMs: number,
+        modelIdOverride?: string
+    ): Promise<AgentExecutionResult> {
+        return Promise.race([
+            this.invokeAgentInternal(nodeName, systemPrompt, userPrompt, tools, modelIdOverride),
+            new Promise<AgentExecutionResult>((_, reject) =>
+                setTimeout(() => reject(new Error(
+                    `Node '${nodeName}' execution timeout (${timeoutMs}ms). ` +
+                    `The task took too long to complete.`
+                )), timeoutMs)
+            )
+        ]);
+    }
+
+    /**
+     * Internal agent invocation implementation
+     */
+    private async invokeAgentInternal(
+        nodeName: string,
+        systemPrompt: string,
+        userPrompt: string,
+        tools: ToolDefinition[],
+        modelIdOverride?: string
+    ): Promise<AgentExecutionResult> {
+        // Get node for metadata
+        const node = this.machineData.nodes.find(n => n.name === nodeName);
+
 
         // If no Claude client, return placeholder
         if (!this.claudeClient) {

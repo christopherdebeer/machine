@@ -533,6 +533,23 @@ export class RailsExecutor extends BaseExecutor {
 
         console.log(`\n🎯 Step: ${nodeName} (${node.type || 'unknown'})`);
 
+        // Track node invocation and check limits
+        this.trackNodeInvocation(nodeName);
+
+        // Track state transitions for cycle detection
+        this.trackStateTransition(nodeName);
+
+        // Check for cycles
+        if (this.detectCycle()) {
+            throw new Error(
+                `Infinite loop detected: Machine is cycling through the same states repeatedly. ` +
+                `Recent transitions: ${this.context.stateTransitions.slice(-10).map(t => t.state).join(' -> ')}`
+            );
+        }
+
+        // Check timeout
+        this.checkTimeout();
+
         // Phase 1: Check for automated transitions
         const autoTransition = this.evaluateAutomatedTransitions(nodeName);
         if (autoTransition) {
@@ -604,11 +621,14 @@ export class RailsExecutor extends BaseExecutor {
         }>;
     }> {
         console.log(`\n🚀 Starting execution: ${this.machineData.title}`);
+        console.log(`⚙️ Limits: maxSteps=${this.limits.maxSteps}, maxNodeInvocations=${this.limits.maxNodeInvocations}, timeout=${this.limits.timeout}ms`);
 
-        let maxSteps = 100; // Safety limit
+        // Set execution start time for timeout tracking
+        this.executionStartTime = Date.now();
+
         let stepCount = 0;
 
-        while (stepCount < maxSteps) {
+        while (stepCount < this.limits.maxSteps) {
             const continued = await this.step();
             if (!continued) {
                 break;
@@ -616,11 +636,16 @@ export class RailsExecutor extends BaseExecutor {
             stepCount++;
         }
 
-        if (stepCount >= maxSteps) {
-            throw new Error(`Execution exceeded maximum steps (${maxSteps})`);
+        if (stepCount >= this.limits.maxSteps) {
+            throw new Error(
+                `Execution exceeded maximum steps (${this.limits.maxSteps}). ` +
+                `This may indicate an infinite loop or a very complex machine. ` +
+                `Consider increasing the maxSteps limit in the configuration.`
+            );
         }
 
-        console.log(`\n✓ Execution complete: ${stepCount} steps`);
+        const elapsed = Date.now() - this.executionStartTime;
+        console.log(`\n✓ Execution complete: ${stepCount} steps in ${elapsed}ms`);
 
         // Return execution result
         return {

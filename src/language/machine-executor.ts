@@ -20,6 +20,7 @@ import {
     MachineMutation,
     MachineExecutorConfig
 } from './base-executor.js';
+import { extractValueFromAST } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
 
 // Re-export interfaces for backward compatibility
@@ -702,39 +703,6 @@ export class MachineExecutor extends BaseExecutor {
     }
 
     /**
-     * Validate if a value matches the expected type
-     */
-    private validateValueType(value: any, expectedType: string): boolean {
-        switch (expectedType.toLowerCase()) {
-            case 'string':
-                return typeof value === 'string';
-            case 'number':
-                return typeof value === 'number';
-            case 'boolean':
-                return typeof value === 'boolean';
-            case 'array':
-                return Array.isArray(value);
-            case 'object':
-                return typeof value === 'object' && value !== null && !Array.isArray(value);
-            default:
-                // For custom types or unknown types, allow any value
-                return true;
-        }
-    }
-
-    /**
-     * Serialize a value for storage in the machine data
-     */
-    private serializeValue(value: any): string {
-        if (typeof value === 'string') {
-            return value;
-        }
-        return JSON.stringify(value);
-    }
-
-
-
-    /**
      * Execute a task node using LLM with tool support
      */
     private async executeTaskNode(): Promise<{ output: string; nextNode?: string }> {
@@ -809,28 +777,14 @@ export class MachineExecutor extends BaseExecutor {
             if (referencedNode && referencedNode.attributes) {
                 const referencedAttr = referencedNode.attributes.find(a => a.name === attrName);
                 if (referencedAttr) {
-                    // Extract the actual value, handling AST objects
-                    let value = referencedAttr.value;
-                    
-                    // If it's a Langium AST node object, extract the actual value
-                    if (value && typeof value === 'object' && '$type' in value) {
-                        const astNode = value as any;
-                        if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
-                            value = astNode.$cstNode.text;
-                            // Remove quotes if present
-                            if (typeof value === 'string') {
-                                value = value.replace(/^["']|["']$/g, '');
-                            }
-                        } else if ('value' in astNode) {
-                            value = astNode.value;
-                        }
-                    }
-                    
+                    // Extract the actual value using shared utility
+                    let value = extractValueFromAST(referencedAttr.value);
+
                     // Ensure the value is a string
                     if (typeof value !== 'string') {
                         value = String(value);
                     }
-                    
+
                     // Remove quotes if present and return the value
                     value = value.replace(/^"(.*)"$/, '$1');
                     console.log('✅ Resolved template variable:', { match, value });
@@ -983,6 +937,23 @@ export class MachineExecutor extends BaseExecutor {
             throw new Error(`Node ${this.context.currentNode} not found`);
         }
 
+        // Track node invocation and check limits
+        this.trackNodeInvocation(this.context.currentNode);
+
+        // Track state transitions for cycle detection
+        this.trackStateTransition(this.context.currentNode);
+
+        // Check for cycles
+        if (this.detectCycle()) {
+            throw new Error(
+                `Infinite loop detected: Machine is cycling through the same states repeatedly. ` +
+                `Recent transitions: ${this.context.stateTransitions.slice(-10).map(t => t.state).join(' -> ')}`
+            );
+        }
+
+        // Check timeout
+        this.checkTimeout();
+
         // If current node is a state node, make it the active state
         if (this.isStateNode(currentNode)) {
             this.context.activeState = currentNode.name;
@@ -1070,9 +1041,33 @@ export class MachineExecutor extends BaseExecutor {
      * @returns The execution context with the final state
      */
     public async execute(): Promise<MachineExecutionContext> {
-        while (await this.step()) {
-            // Continue stepping until no more transitions
+        console.log(`\n🚀 Starting execution: ${this.machineData.title} (deprecated executor)`);
+        console.log(`⚙️ Limits: maxSteps=${this.limits.maxSteps}, maxNodeInvocations=${this.limits.maxNodeInvocations}, timeout=${this.limits.timeout}ms`);
+
+        // Set execution start time for timeout tracking
+        this.executionStartTime = Date.now();
+
+        let stepCount = 0;
+
+        while (stepCount < this.limits.maxSteps) {
+            const continued = await this.step();
+            if (!continued) {
+                break;
+            }
+            stepCount++;
         }
+
+        if (stepCount >= this.limits.maxSteps) {
+            throw new Error(
+                `Execution exceeded maximum steps (${this.limits.maxSteps}). ` +
+                `This may indicate an infinite loop or a very complex machine. ` +
+                `Consider increasing the maxSteps limit in the configuration.`
+            );
+        }
+
+        const elapsed = Date.now() - this.executionStartTime;
+        console.log(`\n✓ Execution complete: ${stepCount} steps in ${elapsed}ms`);
+
         return this.context;
     }
 
