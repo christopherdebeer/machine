@@ -105,6 +105,14 @@ export default defineConfig(() => {
                         dest: 'examples'
                     },
                     {
+                        src: 'examples/rails',
+                        dest: 'examples'
+                    },
+                    {
+                        src: 'examples/model-configuration',
+                        dest: 'examples'
+                    },
+                    {
                         src: 'examples/README.md',
                         dest: 'examples'
                     }
