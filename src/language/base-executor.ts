@@ -237,7 +237,9 @@ export abstract class BaseExecutor {
             }
         }
 
-        return parseAttributeValue(rawValue, type);
+        // Strip quotes before parsing typed values
+        const cleanValue = rawValue.replace(/^["']|["']$/g, '');
+        return parseAttributeValue(cleanValue, type);
     }
 
     /**
