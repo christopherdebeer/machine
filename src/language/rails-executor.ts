@@ -22,6 +22,7 @@ import {
     MachineMutation,
     MachineExecutorConfig as BaseMachineExecutorConfig
 } from './base-executor.js';
+import { EdgeConditionParser } from './utils/edge-conditions.js';
 
 // Re-export interfaces for compatibility
 export type { MachineExecutionContext, MachineData, MachineMutation };
@@ -166,16 +167,10 @@ export class RailsExecutor extends BaseExecutor {
 
     /**
      * Check if condition is simple (deterministic, no external data)
+     * @deprecated Use EdgeConditionParser.isSimpleCondition() directly for new code
      */
     protected isSimpleCondition(condition: string | undefined): boolean {
-        if (!condition) return true;
-
-        // Conditions that only reference context attributes and runtime state are simple
-        // Complex conditions require tool calls or external data
-        return !condition.includes('tool') &&
-               !condition.includes('external') &&
-               !condition.includes('api') &&
-               !condition.includes('call');
+        return EdgeConditionParser.isSimpleCondition(condition);
     }
 
 

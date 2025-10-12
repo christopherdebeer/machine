@@ -1,0 +1,71 @@
+/**
+ * Edge Condition Parser - Shared utility for extracting and evaluating edge conditions
+ *
+ * Handles edge condition patterns like:
+ * - when: <condition>
+ * - unless: <condition>
+ * - if: <condition>
+ */
+
+/**
+ * Edge interface (minimal)
+ */
+export interface Edge {
+    label?: string;
+    type?: string;
+}
+
+/**
+ * Edge Condition Parser
+ */
+export class EdgeConditionParser {
+    /**
+     * Extract condition from edge label (when, unless, if)
+     *
+     * @param edge - Edge with optional label or type
+     * @returns Extracted condition string, or undefined if no condition found
+     */
+    static extract(edge: Edge): string | undefined {
+        const edgeLabel = edge.label || edge.type || '';
+
+        // Look for when: pattern (case-insensitive match, but preserve condition case)
+        const whenMatch = edgeLabel.match(/when:\s*['"]?([^'"]+)['"]?/i);
+        if (whenMatch) {
+            return whenMatch[1].trim();
+        }
+
+        // Look for unless: pattern (negate it, case-insensitive match, but preserve condition case)
+        const unlessMatch = edgeLabel.match(/unless:\s*['"]?([^'"]+)['"]?/i);
+        if (unlessMatch) {
+            return `!(${unlessMatch[1].trim()})`;
+        }
+
+        // Look for if: pattern (case-insensitive match, but preserve condition case)
+        const ifMatch = edgeLabel.match(/if:\s*['"]?([^'"]+)['"]?/i);
+        if (ifMatch) {
+            return ifMatch[1].trim();
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Check if condition is simple/deterministic (does not require external calls)
+     *
+     * Simple conditions only reference context attributes and runtime state.
+     * Complex conditions require tool calls, API calls, or external data.
+     *
+     * @param condition - Condition string to check
+     * @returns true if condition is simple/deterministic, false otherwise
+     */
+    static isSimpleCondition(condition: string | undefined): boolean {
+        if (!condition) return true;
+
+        // Conditions that only reference context attributes and runtime state are simple
+        // Complex conditions require tool calls or external data
+        return !condition.includes('tool') &&
+               !condition.includes('external') &&
+               !condition.includes('api') &&
+               !condition.includes('call');
+    }
+}

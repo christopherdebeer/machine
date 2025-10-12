@@ -10,6 +10,7 @@ import {
 import { BedrockClient } from './bedrock-client.js';
 import { extractValueFromAST, parseAttributeValue, serializeValue, validateValueType } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
+import { EdgeConditionParser } from './utils/edge-conditions.js';
 
 // Shared interfaces
 export interface MachineExecutionContext {
@@ -145,29 +146,10 @@ export abstract class BaseExecutor {
 
     /**
      * Extract condition from edge label (when, unless, if)
+     * @deprecated Use EdgeConditionParser.extract() directly for new code
      */
     protected extractEdgeCondition(edge: { label?: string; type?: string }): string | undefined {
-        const edgeLabel = edge.label || edge.type || '';
-
-        // Look for when: pattern (case-insensitive match, but preserve condition case)
-        const whenMatch = edgeLabel.match(/when:\s*['"]?([^'"]+)['"]?/i);
-        if (whenMatch) {
-            return whenMatch[1].trim();
-        }
-
-        // Look for unless: pattern (negate it, case-insensitive match, but preserve condition case)
-        const unlessMatch = edgeLabel.match(/unless:\s*['"]?([^'"]+)['"]?/i);
-        if (unlessMatch) {
-            return `!(${unlessMatch[1].trim()})`;
-        }
-
-        // Look for if: pattern (case-insensitive match, but preserve condition case)
-        const ifMatch = edgeLabel.match(/if:\s*['"]?([^'"]+)['"]?/i);
-        if (ifMatch) {
-            return ifMatch[1].trim();
-        }
-
-        return undefined;
+        return EdgeConditionParser.extract(edge);
     }
 
     /**
