@@ -9,6 +9,7 @@ import {
 } from './llm-client.js';
 import { BedrockClient } from './bedrock-client.js';
 import { extractValueFromAST, parseAttributeValue, serializeValue, validateValueType } from './utils/ast-helpers.js';
+import { NodeTypeChecker } from './node-type-checker.js';
 
 // Shared interfaces
 export interface MachineExecutionContext {
@@ -110,9 +111,10 @@ export abstract class BaseExecutor {
 
     /**
      * Check if a node is a state node
+     * @deprecated Use NodeTypeChecker.isState() instead
      */
     protected isStateNode(node: { name: string; type?: string }): boolean {
-        return node.type?.toLowerCase() === 'state';
+        return NodeTypeChecker.isState(node);
     }
 
     /**

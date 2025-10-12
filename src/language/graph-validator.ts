@@ -11,6 +11,7 @@ import {
     createValidationError,
     GraphErrorCodes
 } from './validation-errors.js';
+import { NodeTypeChecker } from './node-type-checker.js';
 
 export interface GraphValidationResult {
     valid: boolean;
@@ -106,7 +107,7 @@ export class GraphValidator {
             // Entry point if:
             // 1. It's an init node, OR
             // 2. It has no incoming edges
-            if (node.type === 'init' || incomingEdges.length === 0) {
+            if (NodeTypeChecker.isInit(node) || incomingEdges.length === 0) {
                 entryPoints.push(nodeName);
             }
         });
@@ -125,7 +126,7 @@ export class GraphValidator {
 
             // Exit point if it has no outgoing edges
             // (but exclude context nodes which shouldn't have outgoing edges)
-            if (outgoingEdges.length === 0 && node.type !== 'context') {
+            if (outgoingEdges.length === 0 && !NodeTypeChecker.isContext(node)) {
                 exitPoints.push(nodeName);
             }
         });
@@ -141,7 +142,7 @@ export class GraphValidator {
         // (not all nodes without incoming edges, as those might be orphaned)
         const initNodes: string[] = [];
         this.nodeMap.forEach((node, nodeName) => {
-            if (node.type === 'init') {
+            if (NodeTypeChecker.isInit(node)) {
                 initNodes.push(nodeName);
             }
         });
@@ -168,7 +169,7 @@ export class GraphValidator {
         const unreachable: string[] = [];
         this.nodeMap.forEach((node, nodeName) => {
             // Exclude context nodes from reachability check
-            if (!visited.has(nodeName) && node.type !== 'context') {
+            if (!visited.has(nodeName) && !NodeTypeChecker.isContext(node)) {
                 unreachable.push(nodeName);
             }
         });
@@ -191,7 +192,7 @@ export class GraphValidator {
             // 2. Not an init node (init nodes can have no incoming edges)
             // 3. Not a context node (context nodes typically don't have edges)
             if (incoming.length === 0 && outgoing.length === 0 &&
-                node.type !== 'init' && node.type !== 'context') {
+                !NodeTypeChecker.isInit(node) && !NodeTypeChecker.isContext(node)) {
                 orphaned.push(nodeName);
             }
         });

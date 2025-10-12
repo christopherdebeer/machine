@@ -21,6 +21,7 @@ import {
     MachineExecutorConfig
 } from './base-executor.js';
 import { extractValueFromAST } from './utils/ast-helpers.js';
+import { NodeTypeChecker } from './node-type-checker.js';
 
 // Re-export interfaces for backward compatibility
 export type { MachineExecutionContext, MachineData, MachineMutation, MachineExecutorConfig };
@@ -274,14 +275,10 @@ export class MachineExecutor extends BaseExecutor {
 
     /**
      * Check if a node is a context node
+     * @deprecated Use NodeTypeChecker.isContext() instead
      */
     private isContextNode(node: { name: string; type?: string }): boolean {
-        return node.type?.toLowerCase() === 'context' ||
-               node.name.toLowerCase().includes('context') ||
-               node.name.toLowerCase().includes('output') ||
-               node.name.toLowerCase().includes('input') ||
-               node.name.toLowerCase().includes('data') ||
-               node.name.toLowerCase().includes('result');
+        return NodeTypeChecker.isContext(node);
     }
 
     /**
@@ -705,7 +702,6 @@ export class MachineExecutor extends BaseExecutor {
         };
     }
 
-
     /**
      * Execute a task node using LLM with tool support
      */
@@ -952,8 +948,7 @@ export class MachineExecutor extends BaseExecutor {
         let nextNode: string | undefined;
 
         // Check if this is a task node (case-insensitive) or has a prompt attribute
-        const isTaskNode = currentNode.type?.toLowerCase() === 'task' ||
-                          currentNode.attributes?.some(attr => attr.name === 'prompt');
+        const isTaskNode = NodeTypeChecker.isTask(currentNode);
 
         console.log('🔍 Node execution check:', {
             nodeName: currentNode.name,

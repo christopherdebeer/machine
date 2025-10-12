@@ -10,6 +10,7 @@
 
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
 import { extractValueFromAST } from './utils/ast-helpers.js';
+import { NodeTypeChecker } from './node-type-checker.js';
 
 /**
  * Context access permissions for a node
@@ -282,14 +283,19 @@ export class AgentContextBuilder {
      * Check if node is a context node
      */
     private isContextNode(node: Node): boolean {
+<<<<<<< HEAD
         const type = node.type?.toLowerCase() || '';
         return type === 'context' || type === 'concept' || type === 'input' || type === 'result';
+=======
+        return NodeTypeChecker.isContext(node);
+>>>>>>> origin/main
     }
 
     /**
      * Extract permissions from edge label/type
      */
     private extractPermissionsFromEdge(edge: Edge): ContextPermissions {
+<<<<<<< HEAD
         const label = (edge.label || edge.type || '').toLowerCase();
 
         const permissions: ContextPermissions = {
@@ -315,6 +321,9 @@ export class AgentContextBuilder {
         }
 
         return permissions;
+=======
+        return NodeTypeChecker.extractPermissionsFromEdge(edge);
+>>>>>>> origin/main
     }
 
     /**
@@ -383,8 +392,12 @@ export class AgentContextBuilder {
      * Check if node has meta-programming capabilities
      */
     private hasMetaCapabilities(node: Node): boolean {
+<<<<<<< HEAD
         const attributes = this.getNodeAttributes(node);
         return attributes.meta === 'true' || attributes.meta === 'True';
+=======
+        return NodeTypeChecker.hasMeta(node);
+>>>>>>> origin/main
     }
 
     /**
@@ -394,7 +407,11 @@ export class AgentContextBuilder {
         if (!node.attributes) return {};
 
         return node.attributes.reduce((acc, attr) => {
+<<<<<<< HEAD
             let value = extractValueFromAST(attr.value);
+=======
+            let value = this.extractValueFromAST(attr.value);
+>>>>>>> origin/main
 
             // Try to parse JSON strings
             if (typeof value === 'string') {
@@ -412,4 +429,36 @@ export class AgentContextBuilder {
             return acc;
         }, {} as Record<string, any>);
     }
+<<<<<<< HEAD
+=======
+
+    /**
+     * Extract value from AST node
+     */
+    private extractValueFromAST(value: any): any {
+        if (!value || typeof value !== 'object') {
+            return value;
+        }
+
+        if ('$type' in value) {
+            const astNode = value as any;
+
+            if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
+                let text = astNode.$cstNode.text;
+                if (typeof text === 'string') {
+                    text = text.replace(/^["']|["']$/g, '');
+                }
+                return text;
+            }
+
+            if ('value' in astNode) {
+                return this.extractValueFromAST(astNode.value);
+            }
+
+            return String(value);
+        }
+
+        return value;
+    }
+>>>>>>> origin/main
 }
