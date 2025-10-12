@@ -9,8 +9,8 @@
  */
 
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
-import { extractValueFromAST } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
+import { EdgeConditionParser } from './utils/edge-conditions.js';
 
 /**
  * Context access permissions for a node
@@ -331,28 +331,14 @@ export class AgentContextBuilder {
      * Extract condition from edge label
      */
     private extractConditionFromLabel(edge: Edge): string | undefined {
-        const label = edge.label || edge.type || '';
-
-        const whenMatch = label.match(/when:\s*['"]?([^'"]+)['"]?/i);
-        if (whenMatch) return whenMatch[1].trim();
-
-        const unlessMatch = label.match(/unless:\s*['"]?([^'"]+)['"]?/i);
-        if (unlessMatch) return `!(${unlessMatch[1].trim()})`;
-
-        const ifMatch = label.match(/if:\s*['"]?([^'"]+)['"]?/i);
-        if (ifMatch) return ifMatch[1].trim();
-
-        return undefined;
+        return EdgeConditionParser.extract(edge);
     }
 
     /**
      * Check if condition is simple/deterministic
      */
     private isSimpleCondition(condition: string): boolean {
-        return !condition.includes('tool') &&
-               !condition.includes('external') &&
-               !condition.includes('api') &&
-               !condition.includes('call');
+        return EdgeConditionParser.isSimpleCondition(condition);
     }
 
     /**
