@@ -531,6 +531,10 @@ export class AgentSDKBridge {
                     return await this.metaToolManager.listAvailableTools(input);
                 case 'propose_tool_improvement':
                     return await this.metaToolManager.proposeToolImprovement(input);
+                case 'get_tool_nodes':
+                    return await this.metaToolManager.getToolNodesHandler(input);
+                case 'build_tool_from_node':
+                    return await this.metaToolManager.buildToolFromNodeHandler(input);
                 default:
                     throw new Error(`Meta-tool ${toolName} not implemented`);
             }

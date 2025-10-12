@@ -4,6 +4,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { MetaToolManager } from '../../src/language/meta-tool-manager.js';
+import { NodeTypeChecker } from '../../src/language/node-type-checker.js';
 import type { MachineData, MachineMutation } from '../../src/language/rails-executor.js';
 
 describe('MetaToolManager - Phase 3: Dynamic Tool Construction', () => {
@@ -28,7 +29,7 @@ describe('MetaToolManager - Phase 3: Dynamic Tool Construction', () => {
     it('should provide meta-tool definitions', () => {
         const metaTools = manager.getMetaTools();
 
-        expect(metaTools).toHaveLength(5);
+        expect(metaTools).toHaveLength(7);
 
         const toolNames = metaTools.map(t => t.name);
         expect(toolNames).toContain('get_machine_definition');
@@ -36,6 +37,8 @@ describe('MetaToolManager - Phase 3: Dynamic Tool Construction', () => {
         expect(toolNames).toContain('construct_tool');
         expect(toolNames).toContain('list_available_tools');
         expect(toolNames).toContain('propose_tool_improvement');
+        expect(toolNames).toContain('get_tool_nodes');
+        expect(toolNames).toContain('build_tool_from_node');
     });
 
     it('should construct an agent-backed tool', async () => {
@@ -152,10 +155,12 @@ describe('MetaToolManager - Phase 3: Dynamic Tool Construction', () => {
     it('should list meta tools', async () => {
         const result = await manager.listAvailableTools({ filter_type: 'meta' });
 
-        expect(result.metaTools).toHaveLength(5);
+        expect(result.metaTools).toHaveLength(7);
         expect(result.metaTools.map((t: any) => t.name)).toContain('construct_tool');
         expect(result.metaTools.map((t: any) => t.name)).toContain('get_machine_definition');
         expect(result.metaTools.map((t: any) => t.name)).toContain('update_definition');
+        expect(result.metaTools.map((t: any) => t.name)).toContain('get_tool_nodes');
+        expect(result.metaTools.map((t: any) => t.name)).toContain('build_tool_from_node');
     });
 
     it('should include source code when requested', async () => {
@@ -262,5 +267,193 @@ describe('MetaToolManager - Phase 3: Dynamic Tool Construction', () => {
 
         const definitions = manager.getDynamicToolDefinitions();
         expect(definitions).toHaveLength(0);
+    });
+
+    // Tool Node Tests
+    describe('Tool Nodes', () => {
+        it('should identify tool nodes with NodeTypeChecker', () => {
+            const toolNode = { name: 'my_tool', type: 'Tool' };
+            const taskNode = { name: 'my_task', type: 'Task' };
+            const stateNode = { name: 'my_state', type: 'State' };
+
+            expect(NodeTypeChecker.isTool(toolNode)).toBe(true);
+            expect(NodeTypeChecker.isTool(taskNode)).toBe(false);
+            expect(NodeTypeChecker.isTool(stateNode)).toBe(false);
+        });
+
+        it('should get all tool nodes from machine data', () => {
+            const machineWithTools: MachineData = {
+                title: 'Machine with Tools',
+                nodes: [
+                    {
+                        name: 'sentiment_analyzer',
+                        type: 'Tool',
+                        attributes: [
+                            { name: 'description', type: 'string', value: 'Analyze sentiment' }
+                        ]
+                    },
+                    {
+                        name: 'processor',
+                        type: 'Task',
+                        attributes: []
+                    },
+                    {
+                        name: 'formatter',
+                        type: 'Tool',
+                        attributes: [
+                            { name: 'description', type: 'string', value: 'Format text' },
+                            { name: 'input_schema', type: 'string', value: '{"type": "object"}' }
+                        ]
+                    }
+                ],
+                edges: []
+            };
+
+            const toolManager = new MetaToolManager(machineWithTools, () => {});
+            const toolNodes = toolManager.getToolNodes();
+
+            expect(toolNodes).toHaveLength(2);
+            expect(toolNodes[0].name).toBe('sentiment_analyzer');
+            expect(toolNodes[1].name).toBe('formatter');
+        });
+
+        it('should identify loosely defined tool nodes', () => {
+            const machineWithTools: MachineData = {
+                title: 'Machine with Tools',
+                nodes: [
+                    {
+                        name: 'loose_tool',
+                        type: 'Tool',
+                        attributes: [
+                            { name: 'description', type: 'string', value: 'A tool' }
+                        ]
+                    },
+                    {
+                        name: 'complete_tool',
+                        type: 'Tool',
+                        attributes: [
+                            { name: 'description', type: 'string', value: 'Complete tool' },
+                            { name: 'input_schema', type: 'string', value: '{"type": "object"}' },
+                            { name: 'output_schema', type: 'string', value: '{"type": "object"}' },
+                            { name: 'code', type: 'string', value: 'return {};' }
+                        ]
+                    }
+                ],
+                edges: []
+            };
+
+            const toolManager = new MetaToolManager(machineWithTools, () => {});
+            const toolNodes = toolManager.getToolNodes();
+
+            expect(toolManager.isToolNodeLooselyDefined(toolNodes[0])).toBe(true);
+            expect(toolManager.isToolNodeLooselyDefined(toolNodes[1])).toBe(false);
+        });
+
+        it('should build tool from node', async () => {
+            const machineWithTools: MachineData = {
+                title: 'Machine with Tools',
+                nodes: [
+                    {
+                        name: 'my_tool',
+                        type: 'Tool',
+                        attributes: [
+                            { name: 'description', type: 'string', value: 'My test tool' }
+                        ]
+                    }
+                ],
+                edges: []
+            };
+
+            const toolManager = new MetaToolManager(machineWithTools, () => {});
+            const toolNodes = toolManager.getToolNodes();
+
+            const result = await toolManager.buildToolFromNode(toolNodes[0], 'agent_backed');
+
+            expect(result.success).toBe(true);
+            expect(result.tool.name).toBe('my_tool');
+            expect(result.tool.strategy).toBe('agent_backed');
+
+            // Verify it's registered
+            const dynamicTool = toolManager.getDynamicTool('my_tool');
+            expect(dynamicTool).toBeDefined();
+        });
+
+        it('should handle get_tool_nodes meta-tool', async () => {
+            const machineWithTools: MachineData = {
+                title: 'Machine with Tools',
+                nodes: [
+                    {
+                        name: 'tool1',
+                        type: 'Tool',
+                        attributes: [
+                            { name: 'description', type: 'string', value: 'Tool 1' }
+                        ]
+                    },
+                    {
+                        name: 'tool2',
+                        type: 'Tool',
+                        attributes: [
+                            { name: 'description', type: 'string', value: 'Tool 2' }
+                        ]
+                    }
+                ],
+                edges: []
+            };
+
+            const toolManager = new MetaToolManager(machineWithTools, () => {});
+            const result = await toolManager.getToolNodesHandler({ include_registered: true });
+
+            expect(result.totalCount).toBe(2);
+            expect(result.tools).toHaveLength(2);
+            expect(result.tools[0].isLooselyDefined).toBe(true);
+            expect(result.tools[0].isRegistered).toBe(false);
+        });
+
+        it('should handle build_tool_from_node meta-tool', async () => {
+            const machineWithTools: MachineData = {
+                title: 'Machine with Tools',
+                nodes: [
+                    {
+                        name: 'calculator',
+                        type: 'Tool',
+                        attributes: [
+                            { name: 'description', type: 'string', value: 'Calculate things' }
+                        ]
+                    }
+                ],
+                edges: []
+            };
+
+            const toolManager = new MetaToolManager(machineWithTools, () => {});
+            const result = await toolManager.buildToolFromNodeHandler({
+                tool_name: 'calculator',
+                strategy: 'code_generation',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        a: { type: 'number' },
+                        b: { type: 'number' }
+                    }
+                },
+                implementation_details: 'return input.a + input.b;'
+            });
+
+            expect(result.success).toBe(true);
+
+            // Test execution
+            const execResult = await toolManager.executeDynamicTool('calculator', { a: 5, b: 3 });
+            expect(execResult).toBe(8);
+        });
+
+        it('should handle build_tool_from_node with missing tool', async () => {
+            const toolManager = new MetaToolManager({ title: 'Empty', nodes: [], edges: [] }, () => {});
+            const result = await toolManager.buildToolFromNodeHandler({
+                tool_name: 'nonexistent',
+                strategy: 'agent_backed'
+            });
+
+            expect(result.success).toBe(false);
+            expect(result.message).toContain('not found');
+        });
     });
 });
