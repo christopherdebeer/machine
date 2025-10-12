@@ -8,10 +8,11 @@
  * - Execution history persistence
  */
 
-import type { ToolDefinition, ConversationMessage, ModelResponse, ToolUseBlock } from './llm-client.js';
+import type { ToolDefinition, ConversationMessage, ModelResponse, ToolUseBlock } from './claude-client.js';
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
 import type { MetaToolManager } from './meta-tool-manager.js';
-import { AnthropicClient } from './anthropic-client.js';
+import { ClaudeClient } from './claude-client.js';
+import { extractText, extractToolUses } from './llm-utils.js';
 
 /**
  * Agent message for conversation history
@@ -86,7 +87,7 @@ export class AgentSDKBridge {
     private executionHistory: ExecutionHistoryEntry[] = [];
     private config: Required<AgentSDKBridgeConfig>;
     private toolExecutor?: (toolName: string, input: any) => Promise<any>;
-    private anthropicClient?: AnthropicClient;
+    private claudeClient?: ClaudeClient;
 
     constructor(
         private machineData: MachineData,
@@ -105,15 +106,16 @@ export class AgentSDKBridge {
             historyPath: config.historyPath || './execution-history.json'
         };
 
-        // Initialize Anthropic client if API key is provided
+        // Initialize Claude client if API key is provided
         if (this.config.apiKey) {
             try {
-                this.anthropicClient = new AnthropicClient({
+                this.claudeClient = new ClaudeClient({
+                    transport: 'api',
                     apiKey: this.config.apiKey,
                     modelId: this.config.modelId || this.getModelIdFromName(this.config.model)
                 });
             } catch (error) {
-                console.warn('Failed to initialize Anthropic client:', error);
+                console.warn('Failed to initialize Claude client:', error);
             }
         }
     }
@@ -150,9 +152,9 @@ export class AgentSDKBridge {
         const node = this.machineData.nodes.find(n => n.name === nodeName);
         const userPrompt = this.extractUserPrompt(node);
 
-        // If no Anthropic client, return placeholder
-        if (!this.anthropicClient) {
-            console.warn('⚠️ No Anthropic client available. Set ANTHROPIC_API_KEY or provide apiKey in config.');
+        // If no Claude client, return placeholder
+        if (!this.claudeClient) {
+            console.warn('⚠️ No Claude client available. Set ANTHROPIC_API_KEY or provide apiKey in config.');
             return this.placeholderResponse(nodeName, systemPrompt, userPrompt, tools);
         }
 
@@ -186,11 +188,11 @@ export class AgentSDKBridge {
 
             try {
                 // Invoke model with tools
-                const response: ModelResponse = await this.anthropicClient.invokeWithTools(messages, tools);
+                const response: ModelResponse = await this.claudeClient.invokeWithTools(messages, tools);
                 messagesExchanged++;
 
                 // Extract text content
-                const textContent = this.anthropicClient.extractText(response);
+                const textContent = extractText(response);
                 if (textContent) {
                     finalOutput += (finalOutput ? '\n' : '') + textContent;
                 }
@@ -204,7 +206,7 @@ export class AgentSDKBridge {
                 });
 
                 // Extract tool uses
-                const toolUses: ToolUseBlock[] = this.anthropicClient.extractToolUses(response);
+                const toolUses: ToolUseBlock[] = extractToolUses(response);
 
                 if (toolUses.length === 0) {
                     // No tool uses - conversation complete

@@ -1,94 +1,49 @@
 /**
- * Unified LLM client interface for multiple providers
+ * LLM client types and utilities
+ *
+ * This file now re-exports from the unified ClaudeClient and provides
+ * a simplified factory function for backward compatibility.
  */
 
-export interface ToolDefinition {
-    name: string;
-    description: string;
-    input_schema: {
-        type: string;
-        properties: Record<string, any>;
-        required?: string[];
-    };
-}
+// Re-export all types from claude-client
+export type {
+    ToolDefinition,
+    ToolUseBlock,
+    TextBlock,
+    ToolResultBlock,
+    ContentBlock,
+    ModelResponse,
+    ConversationMessage,
+    ClaudeClientConfig
+} from './claude-client.js';
 
-export interface ToolUseBlock {
-    type: 'tool_use';
-    id: string;
-    name: string;
-    input: any;
-}
+export { ClaudeClient } from './claude-client.js';
+export { extractText, extractToolUses } from './llm-utils.js';
 
-export interface TextBlock {
-    type: 'text';
-    text: string;
-}
-
-export interface ToolResultBlock {
-    type: 'tool_result';
-    tool_use_id: string;
-    content: string;
-    is_error?: boolean;
-}
-
-export type ContentBlock = ToolUseBlock | TextBlock | ToolResultBlock;
-
-export interface ModelResponse {
-    content: ContentBlock[];
-    stop_reason: string;
-}
-
-export interface ConversationMessage {
-    role: 'user' | 'assistant';
-    content: string | ContentBlock[];
-}
-
-/**
- * Unified interface for LLM clients (Anthropic, Bedrock, etc.)
- */
+// Legacy interface for backward compatibility
 export interface LLMClient {
-    /**
-     * Invoke the model with a simple prompt
-     */
     invokeModel(prompt: string): Promise<string>;
-
-    /**
-     * Invoke the model with tools support
-     */
     invokeWithTools(
-        messages: ConversationMessage[],
-        tools: ToolDefinition[]
-    ): Promise<ModelResponse>;
-
-    /**
-     * Extract text from a model response
-     */
-    extractText(response: ModelResponse): string;
-
-    /**
-     * Extract tool uses from a model response
-     */
-    extractToolUses(response: ModelResponse): ToolUseBlock[];
+        messages: any[],
+        tools: any[]
+    ): Promise<any>;
+    extractText(response: any): string;
+    extractToolUses(response: any): any[];
 }
 
 /**
- * Configuration for LLM clients
+ * Legacy configuration interface
  */
 export interface LLMClientConfig {
     provider: 'anthropic' | 'bedrock';
-
-    // Anthropic-specific config
     apiKey?: string;
-
-    // Bedrock-specific config
     region?: string;
-
-    // Common config
     modelId?: string;
 }
 
 /**
- * Factory function to create LLM clients based on configuration
+ * Factory function for backward compatibility
+ * @deprecated Use ClaudeClient directly instead
  */
 export async function createLLMClient(config: LLMClientConfig): Promise<LLMClient> {
     if (config.provider === 'anthropic') {
