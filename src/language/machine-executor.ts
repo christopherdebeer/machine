@@ -22,6 +22,7 @@ import {
 } from './base-executor.js';
 import { extractValueFromAST } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
+import { ContextPermissionsResolver } from './utils/context-permissions.js';
 
 // Re-export interfaces for backward compatibility
 export type { MachineExecutionContext, MachineData, MachineMutation, MachineExecutorConfig };
@@ -60,22 +61,6 @@ export class MachineExecutor extends BaseExecutor {
                 target: edge.target,
                 type: edge.type
             }));
-    }
-
-
-    /**
-     * Extract field list from edge label (e.g., "write: field1,field2")
-     */
-    private extractFieldList(edge: { label?: string; type?: string }): string[] | undefined {
-        const edgeLabel = edge.label || edge.type || '';
-
-        // Look for patterns like "write: field1,field2" or "read: field1,field2"
-        const fieldMatch = edgeLabel.match(/(?:write|read|store|update|set):\s*([a-zA-Z0-9_,\s]+)/i);
-        if (fieldMatch) {
-            return fieldMatch[1].split(',').map(f => f.trim()).filter(f => f.length > 0);
-        }
-
-        return undefined;
     }
 
 
@@ -226,51 +211,16 @@ export class MachineExecutor extends BaseExecutor {
      * Get context nodes accessible from a given task node based on explicit edges
      */
     private getAccessibleContextNodes(taskNodeName: string): Map<string, { canRead: boolean; canWrite: boolean; fields?: string[] }> {
-        const accessMap = new Map<string, { canRead: boolean; canWrite: boolean; fields?: string[] }>();
-
-        // Find all edges from the task node to context nodes
-        const outboundEdges = this.machineData.edges.filter(edge => edge.source === taskNodeName);
-
-        for (const edge of outboundEdges) {
-            const targetNode = this.machineData.nodes.find(n => n.name === edge.target);
-
-            // Check if target is a context node
-            if (targetNode && this.isContextNode(targetNode)) {
-                const edgeType = edge.type?.toLowerCase() || edge.label?.toLowerCase() || '';
-
-                // Determine permissions based on edge type/label
-                // Default: edges grant read access
-                // Write access: edge types containing 'write', 'store', 'create', 'update', 'set'
-                const canWrite = /write|store|create|update|set|calculate/.test(edgeType);
-                const canRead = true; // All edges grant read access by default
-
-                // Extract field-level permissions if specified
-                const fields = this.extractFieldList(edge);
-
-                accessMap.set(edge.target, { canRead, canWrite, fields });
-
-                console.log(`🔐 Context access: ${taskNodeName} -> ${edge.target} (read: ${canRead}, write: ${canWrite}, fields: ${fields?.join(',') || 'all'}, edge: ${edgeType})`);
+        return ContextPermissionsResolver.getAccessibleContextNodes(
+            taskNodeName,
+            this.machineData,
+            {
+                includeInboundEdges: true,
+                includeStore: false,
+                enableLogging: true,
+                permissionsMode: 'legacy'  // Preserve machine-executor's original behavior
             }
-        }
-
-        // Also check inbound edges from context to task (for reading context)
-        const inboundEdges = this.machineData.edges.filter(edge => edge.target === taskNodeName);
-
-        for (const edge of inboundEdges) {
-            const sourceNode = this.machineData.nodes.find(n => n.name === edge.source);
-
-            // Check if source is a context node
-            if (sourceNode && this.isContextNode(sourceNode)) {
-                // Inbound edges from context grant read-only access
-                if (!accessMap.has(edge.source)) {
-                    const fields = this.extractFieldList(edge);
-                    accessMap.set(edge.source, { canRead: true, canWrite: false, fields });
-                    console.log(`🔐 Context access: ${edge.source} -> ${taskNodeName} (read: true, write: false, fields: ${fields?.join(',') || 'all'})`);
-                }
-            }
-        }
-
-        return accessMap;
+        );
     }
 
     /**
