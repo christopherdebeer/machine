@@ -983,6 +983,23 @@ export class MachineExecutor extends BaseExecutor {
             throw new Error(`Node ${this.context.currentNode} not found`);
         }
 
+        // Track node invocation and check limits
+        this.trackNodeInvocation(this.context.currentNode);
+
+        // Track state transitions for cycle detection
+        this.trackStateTransition(this.context.currentNode);
+
+        // Check for cycles
+        if (this.detectCycle()) {
+            throw new Error(
+                `Infinite loop detected: Machine is cycling through the same states repeatedly. ` +
+                `Recent transitions: ${this.context.stateTransitions.slice(-10).map(t => t.state).join(' -> ')}`
+            );
+        }
+
+        // Check timeout
+        this.checkTimeout();
+
         // If current node is a state node, make it the active state
         if (this.isStateNode(currentNode)) {
             this.context.activeState = currentNode.name;
@@ -1070,9 +1087,33 @@ export class MachineExecutor extends BaseExecutor {
      * @returns The execution context with the final state
      */
     public async execute(): Promise<MachineExecutionContext> {
-        while (await this.step()) {
-            // Continue stepping until no more transitions
+        console.log(`\n🚀 Starting execution: ${this.machineData.title} (deprecated executor)`);
+        console.log(`⚙️ Limits: maxSteps=${this.limits.maxSteps}, maxNodeInvocations=${this.limits.maxNodeInvocations}, timeout=${this.limits.timeout}ms`);
+
+        // Set execution start time for timeout tracking
+        this.executionStartTime = Date.now();
+
+        let stepCount = 0;
+
+        while (stepCount < this.limits.maxSteps) {
+            const continued = await this.step();
+            if (!continued) {
+                break;
+            }
+            stepCount++;
         }
+
+        if (stepCount >= this.limits.maxSteps) {
+            throw new Error(
+                `Execution exceeded maximum steps (${this.limits.maxSteps}). ` +
+                `This may indicate an infinite loop or a very complex machine. ` +
+                `Consider increasing the maxSteps limit in the configuration.`
+            );
+        }
+
+        const elapsed = Date.now() - this.executionStartTime;
+        console.log(`\n✓ Execution complete: ${stepCount} steps in ${elapsed}ms`);
+
         return this.context;
     }
 

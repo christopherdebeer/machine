@@ -25,6 +25,10 @@ export interface MachineExecutionContext {
         timestamp: string;
         output?: string;
     }>;
+    // Invocation tracking for cycle detection and max step limits per node
+    nodeInvocationCounts: Map<string, number>;
+    // State transition tracking for detecting cycles
+    stateTransitions: Array<{ state: string; timestamp: string }>;
 }
 
 export interface MachineData {
@@ -46,6 +50,13 @@ export interface MachineData {
     }>;
 }
 
+export interface ExecutionLimits {
+    maxSteps?: number;              // Maximum total steps (default: 1000)
+    maxNodeInvocations?: number;    // Maximum invocations per node (default: 100)
+    timeout?: number;               // Maximum execution time in milliseconds (default: 5 minutes)
+    cycleDetectionWindow?: number;  // Number of recent transitions to check for cycles (default: 20)
+}
+
 export interface MachineMutation {
     type: 'add_node' | 'add_edge' | 'modify_node' | 'remove_node';
     timestamp: string;
@@ -61,6 +72,8 @@ export interface MachineExecutorConfig {
     };
     // Agent SDK configuration (for RailsExecutor)
     agentSDK?: any;
+    // Execution limits for safety and cycle detection
+    limits?: ExecutionLimits;
 }
 
 /**
@@ -71,15 +84,28 @@ export abstract class BaseExecutor {
     protected machineData: MachineData;
     protected llmClient: LLMClient;
     protected mutations: MachineMutation[] = [];
+    protected limits: Required<ExecutionLimits>;
+    protected executionStartTime?: number;
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
         this.machineData = machineData;
+
+        // Initialize execution limits with defaults
+        this.limits = {
+            maxSteps: config.limits?.maxSteps ?? 1000,
+            maxNodeInvocations: config.limits?.maxNodeInvocations ?? 100,
+            timeout: config.limits?.timeout ?? 5 * 60 * 1000, // 5 minutes
+            cycleDetectionWindow: config.limits?.cycleDetectionWindow ?? 20
+        };
+
         this.context = {
             currentNode: this.machineData.nodes.length > 0 ? this.findStartNode() : '',
             errorCount: 0,
             visitedNodes: new Set(),
             attributes: new Map(),
-            history: []
+            history: [],
+            nodeInvocationCounts: new Map(),
+            stateTransitions: []
         };
 
         // Support legacy bedrock config for backwards compatibility
@@ -293,6 +319,95 @@ export abstract class BaseExecutor {
             ? mutation
             : { ...mutation, timestamp: new Date().toISOString() };
         this.mutations.push(fullMutation);
+    }
+
+    /**
+     * Track node invocation and check if limit exceeded
+     */
+    protected trackNodeInvocation(nodeName: string): void {
+        const currentCount = this.context.nodeInvocationCounts.get(nodeName) || 0;
+        this.context.nodeInvocationCounts.set(nodeName, currentCount + 1);
+
+        // Check node-specific max invocation attribute
+        const node = this.machineData.nodes.find(n => n.name === nodeName);
+        if (node?.attributes) {
+            const maxStepsAttr = node.attributes.find(a => a.name === 'maxSteps' || a.name === 'maxInvocations');
+            if (maxStepsAttr) {
+                const nodeMaxSteps = parseInt(maxStepsAttr.value);
+                if (!isNaN(nodeMaxSteps) && currentCount + 1 > nodeMaxSteps) {
+                    throw new Error(
+                        `Node '${nodeName}' exceeded maximum invocation limit (${nodeMaxSteps}). ` +
+                        `This may indicate an infinite loop. Current invocations: ${currentCount + 1}`
+                    );
+                }
+            }
+        }
+
+        // Check global node invocation limit
+        if (currentCount + 1 > this.limits.maxNodeInvocations) {
+            throw new Error(
+                `Node '${nodeName}' exceeded maximum invocation limit (${this.limits.maxNodeInvocations}). ` +
+                `This may indicate an infinite loop. Current invocations: ${currentCount + 1}`
+            );
+        }
+    }
+
+    /**
+     * Track state transition for cycle detection
+     */
+    protected trackStateTransition(nodeName: string): void {
+        const node = this.machineData.nodes.find(n => n.name === nodeName);
+        if (node && this.isStateNode(node)) {
+            this.context.stateTransitions.push({
+                state: nodeName,
+                timestamp: new Date().toISOString()
+            });
+        }
+    }
+
+    /**
+     * Detect if we're in a cycle by checking recent state transitions
+     */
+    protected detectCycle(): boolean {
+        const recentTransitions = this.context.stateTransitions.slice(-this.limits.cycleDetectionWindow);
+
+        if (recentTransitions.length < 3) {
+            return false; // Need at least 3 transitions to detect a cycle
+        }
+
+        // Check for repeating patterns in state transitions
+        const stateSequence = recentTransitions.map(t => t.state).join('->');
+
+        // Look for repeated subsequences
+        for (let patternLength = 2; patternLength <= Math.floor(recentTransitions.length / 2); patternLength++) {
+            const pattern = recentTransitions.slice(-patternLength).map(t => t.state).join('->');
+            const prevPattern = recentTransitions.slice(-patternLength * 2, -patternLength).map(t => t.state).join('->');
+
+            if (pattern === prevPattern && pattern.length > 0) {
+                console.warn(
+                    `⚠️ Cycle detected: Pattern '${pattern}' repeated. ` +
+                    `Recent transitions: ${stateSequence}`
+                );
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if execution timeout has been exceeded
+     */
+    protected checkTimeout(): void {
+        if (!this.executionStartTime) return;
+
+        const elapsed = Date.now() - this.executionStartTime;
+        if (elapsed > this.limits.timeout) {
+            throw new Error(
+                `Execution timeout exceeded (${this.limits.timeout}ms). ` +
+                `Elapsed time: ${elapsed}ms. This may indicate an infinite loop or very long execution.`
+            );
+        }
     }
 
     /**
