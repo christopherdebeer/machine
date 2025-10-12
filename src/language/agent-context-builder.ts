@@ -380,10 +380,32 @@ export class AgentContextBuilder {
 
     /**
      * Check if node has meta-programming capabilities
+     * Checks global @meta annotation first, then node-level override
      */
     private hasMetaCapabilities(node: Node): boolean {
+        // Check for global @meta annotation
+        const globalMeta = this.machineData.annotations?.some(ann =>
+            ann.name === 'meta'
+        ) ?? false;
+
+        // Get node attributes to check for override
         const attributes = this.getNodeAttributes(node);
-        return attributes.meta === 'true' || attributes.meta === 'True';
+        const metaAttr = attributes.meta;
+
+        if (metaAttr !== undefined) {
+            // Node-level override exists - check its value
+            // Explicit false overrides global meta
+            if (metaAttr === 'false' || metaAttr === false) {
+                return false;
+            }
+            // Explicit true enables meta regardless of global
+            if (metaAttr === 'true' || metaAttr === true || metaAttr === 'True') {
+                return true;
+            }
+        }
+
+        // If no node-level override, use global setting
+        return globalMeta;
     }
 
     /**

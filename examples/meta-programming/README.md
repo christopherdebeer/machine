@@ -77,16 +77,53 @@ npx dygram exec examples/meta-programming/rails-meta-example.dygram
 cat rails-meta-example-result.json
 ```
 
+### `global-meta-example.dygram`
+Machine-level `@meta` annotation with node-level override capabilities.
+
+**Features:**
+- Global `@meta` annotation enables meta-programming for all Task nodes
+- Individual nodes can opt-out with `meta: false`
+- Demonstrates security patterns (limiting meta access)
+- Shows annotation inheritance and override behavior
+
+**Test it:**
+```bash
+export ANTHROPIC_API_KEY=your_api_key_here
+npx dygram exec examples/meta-programming/global-meta-example.dygram
+```
+
 ## Key Concepts
 
 ### Enabling Meta-Programming
-Add `meta: true` to Task nodes:
+
+**Option 1: Node-Level (Traditional)**
+Add `meta: true` to individual Task nodes:
 ```machine
 Task analyzer {
     meta: true;
     prompt: "Analyze and modify the machine...";
 }
 ```
+
+**Option 2: Machine-Level (New)**
+Use `@meta` annotation to enable meta-programming for all Task nodes:
+```machine
+machine "My Machine"
+@meta
+
+Task analyzer {
+    // Automatically has meta capabilities
+    prompt: "Analyze and modify the machine...";
+}
+
+Task executor {
+    // Opt-out for security
+    meta: false;
+    prompt: "Execute without meta access";
+}
+```
+
+The machine-level `@meta` annotation enables meta-programming by default for all Task nodes, while individual nodes can override with `meta: false` to opt-out.
 
 ### Meta-Tools Available
 

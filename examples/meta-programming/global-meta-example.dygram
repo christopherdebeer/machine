@@ -1,0 +1,40 @@
+machine "Global Meta Example"
+@meta
+@strictMode
+
+// Demonstrates machine-level @meta annotation with node-level override
+// All Task nodes have meta capabilities by default due to @meta annotation
+// Individual nodes can opt-out with meta: false
+
+State start;
+
+Task analyzer "Analyze System" {
+    // Inherits meta: true from machine-level @meta annotation
+    prompt: "Analyze the current machine structure using get_machine_definition. Check if there are error handling nodes. Describe what you find.";
+}
+
+Task modifier "Add Error Handling" {
+    // Inherits meta: true from machine-level @meta annotation
+    prompt: "Using update_definition, add an error handler node if one doesn't exist. Include edges from processing nodes to the error handler.";
+}
+
+Task executor "Execute Main Logic" {
+    // Explicitly opt-out of meta capabilities for security
+    meta: false;
+    prompt: "Execute the main business logic: Process data from {{ input.value }}. You should not have access to meta tools.";
+}
+
+State complete;
+
+Context input {
+    value<string>: "sample data";
+}
+
+// Workflow
+start -> analyzer;
+analyzer -> modifier;
+modifier -> executor;
+executor -> complete;
+
+// Context access
+executor -reads-> input;

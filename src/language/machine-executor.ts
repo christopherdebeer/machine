@@ -750,7 +750,7 @@ export class MachineExecutor extends BaseExecutor {
 
         const nodeName = this.context.currentNode;
         const attributes = this.getCurrentNodeAttributes();
-        const isMeta = attributes.meta === 'true' || attributes.meta === 'True';
+        const isMeta = this.isMetaEnabled(nodeName);
 
         // Set current task node for permission checks in tool handlers
         this.context.currentTaskNode = nodeName;
