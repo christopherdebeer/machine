@@ -304,6 +304,8 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
         },
         agentSDK: {
             model: 'sonnet' as const,
+            modelId: modelId, // Pass computed modelId to Agent SDK
+            apiKey: process.env.ANTHROPIC_API_KEY,
             maxTurns: 50,
             persistHistory: true,
             historyPath: opts.destination ? path.join(opts.destination, 'execution-history.json') : './execution-history.json'
