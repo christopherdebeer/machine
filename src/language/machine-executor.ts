@@ -804,9 +804,10 @@ export class MachineExecutor extends BaseExecutor {
         // }
         
         // Simple template variable resolution for {{ variable.property }} syntax
+        const isStrict = this.isStrictMode();
         resolvedPrompt = resolvedPrompt.replace(/\{\{\s*(\w+)\.(\w+)\s*\}\}/g, (match: string, nodeName: string, attrName: string) => {
             console.log('🔍 Resolving template variable:', { match, nodeName, attrName });
-            
+
             // Find the referenced node in the machine
             const referencedNode = this.machineData.nodes.find(n => n.name === nodeName);
             if (referencedNode && referencedNode.attributes) {
@@ -814,7 +815,7 @@ export class MachineExecutor extends BaseExecutor {
                 if (referencedAttr) {
                     // Extract the actual value, handling AST objects
                     let value = referencedAttr.value;
-                    
+
                     // If it's a Langium AST node object, extract the actual value
                     if (value && typeof value === 'object' && '$type' in value) {
                         const astNode = value as any;
@@ -828,20 +829,38 @@ export class MachineExecutor extends BaseExecutor {
                             value = astNode.value;
                         }
                     }
-                    
+
                     // Ensure the value is a string
                     if (typeof value !== 'string') {
                         value = String(value);
                     }
-                    
+
                     // Remove quotes if present and return the value
                     value = value.replace(/^"(.*)"$/, '$1');
                     console.log('✅ Resolved template variable:', { match, value });
                     return value;
                 }
             }
+
+            // Template variable could not be resolved
             console.log('⚠️ Could not resolve template variable:', match);
-            return match; // Return original if not found
+
+            if (isStrict) {
+                // In strict mode, throw an error with helpful information
+                const availableNodes = this.machineData.nodes.map(n => n.name).join(', ');
+                const availableAttrs = referencedNode?.attributes
+                    ? referencedNode.attributes.map(a => a.name).join(', ')
+                    : 'N/A';
+
+                const errorMsg = referencedNode
+                    ? `Template variable '${match}' could not be resolved: attribute '${attrName}' not found on node '${nodeName}'. Available attributes: ${availableAttrs}`
+                    : `Template variable '${match}' could not be resolved: node '${nodeName}' not found. Available nodes: ${availableNodes}`;
+
+                throw new Error(errorMsg);
+            }
+
+            // In lenient mode, return original match string
+            return match;
         });
 
         console.log('📝 Original prompt:', attributes.prompt);

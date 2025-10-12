@@ -28,6 +28,10 @@ export interface MachineExecutionContext {
 
 export interface MachineData {
     title: string;
+    annotations?: Array<{
+        name: string;
+        value?: string;
+    }>;
     nodes: Array<{
         name: string;
         type?: string;
@@ -90,6 +94,15 @@ export abstract class BaseExecutor {
         } else {
             this.llmClient = new BedrockClient();
         }
+    }
+
+    /**
+     * Check if strict mode is enabled via machine-level annotation
+     */
+    protected isStrictMode(): boolean {
+        return this.machineData.annotations?.some(ann =>
+            ann.name === 'strictMode' || ann.name === 'strict'
+        ) ?? false;
     }
 
     /**
