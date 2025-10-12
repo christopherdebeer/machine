@@ -41,6 +41,16 @@ export interface AccessibleContextOptions {
      * Default: false
      */
     enableLogging?: boolean;
+
+    /**
+     * Permission semantics mode:
+     * - 'legacy': Machine-executor behavior - all edges grant read by default,
+     *   write keywords: write, store, create, update, set, calculate
+     * - 'strict': Agent-context-builder behavior - permissions must be explicit,
+     *   uses NodeTypeChecker.extractPermissionsFromEdge
+     * Default: 'strict'
+     */
+    permissionsMode?: 'legacy' | 'strict';
 }
 
 /**
@@ -63,7 +73,8 @@ export class ContextPermissionsResolver {
         const {
             includeInboundEdges = false,
             includeStore = true,
-            enableLogging = false
+            enableLogging = false,
+            permissionsMode = 'strict'
         } = options;
 
         const accessMap = new Map<string, ContextPermissions>();
@@ -76,20 +87,49 @@ export class ContextPermissionsResolver {
 
             // Check if target is a context node
             if (targetNode && NodeTypeChecker.isContext(targetNode)) {
+                let canRead: boolean;
+                let canWrite: boolean;
+                let canStore: boolean;
+
+                if (permissionsMode === 'legacy') {
+                    // Legacy machine-executor semantics:
+                    // - Write access: edge types containing 'write', 'store', 'create', 'update', 'set', 'calculate'
+                    // - Read access: All edges grant read access by default
+                    const edgeType = (edge.type?.toLowerCase() || edge.label?.toLowerCase() || '');
+                    canWrite = /write|store|create|update|set|calculate/.test(edgeType);
+                    canRead = true; // All outbound edges grant read access by default
+
+                    // Extract canStore separately
+                    const permissions = NodeTypeChecker.extractPermissionsFromEdge(edge);
+                    canStore = permissions.canStore;
+                } else {
+                    // Strict mode: Use NodeTypeChecker.extractPermissionsFromEdge
+                    const permissions = NodeTypeChecker.extractPermissionsFromEdge(edge);
+                    canRead = permissions.canRead;
+                    canWrite = permissions.canWrite;
+                    canStore = permissions.canStore;
+                }
+
+                // Extract field-level permissions if specified
                 const permissions = NodeTypeChecker.extractPermissionsFromEdge(edge);
+                const fields = permissions.fields;
 
                 // Filter out canStore if not needed
-                const finalPermissions: ContextPermissions = includeStore
-                    ? permissions
-                    : { canRead: permissions.canRead, canWrite: permissions.canWrite, canStore: false, fields: permissions.fields };
+                const finalPermissions: ContextPermissions = {
+                    canRead,
+                    canWrite,
+                    canStore: includeStore ? canStore : false,
+                    fields
+                };
 
                 accessMap.set(edge.target, finalPermissions);
 
                 if (enableLogging) {
+                    const edgeType = (edge.type?.toLowerCase() || edge.label?.toLowerCase() || '');
                     console.log(
                         `🔐 Context access: ${taskNodeName} -> ${edge.target} ` +
                         `(read: ${finalPermissions.canRead}, write: ${finalPermissions.canWrite}, ` +
-                        `fields: ${finalPermissions.fields?.join(',') || 'all'}, edge: ${edge.type || edge.label || ''})`
+                        `fields: ${finalPermissions.fields?.join(',') || 'all'}, edge: ${edgeType})`
                     );
                 }
             }

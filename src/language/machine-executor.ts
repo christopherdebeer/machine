@@ -217,7 +217,8 @@ export class MachineExecutor extends BaseExecutor {
             {
                 includeInboundEdges: true,
                 includeStore: false,
-                enableLogging: true
+                enableLogging: true,
+                permissionsMode: 'legacy'  // Preserve machine-executor's original behavior
             }
         );
     }
