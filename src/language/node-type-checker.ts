@@ -86,6 +86,15 @@ export class NodeTypeChecker {
     }
 
     /**
+     * Check if a node is a tool node
+     * Tool nodes represent callable tools with input/output schemas
+     * Tools can be loosely defined (minimal attributes) or fully defined
+     */
+    static isTool(node: NodeLike | ASTNode): boolean {
+        return node.type?.toLowerCase() === 'tool';
+    }
+
+    /**
      * Check if a node requires agent decision
      * A node requires agent decision if:
      * 1. It's a task node with a prompt, OR

@@ -159,6 +159,50 @@ export class MetaToolManager {
                     },
                     required: ['tool_name', 'rationale', 'proposed_changes']
                 }
+            },
+            {
+                name: 'get_tool_nodes',
+                description: 'Get all Tool nodes defined in the machine. Useful for finding loosely-defined tools that need to be built out.',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        include_registered: {
+                            type: 'boolean',
+                            description: 'Include information about whether each tool is already registered dynamically'
+                        }
+                    }
+                }
+            },
+            {
+                name: 'build_tool_from_node',
+                description: 'Build and register a dynamic tool from a Tool node definition. Use this when you have a loosely-defined Tool node that needs to be completed and registered.',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        tool_name: {
+                            type: 'string',
+                            description: 'Name of the Tool node to build from'
+                        },
+                        strategy: {
+                            type: 'string',
+                            enum: ['agent_backed', 'code_generation', 'composition'],
+                            description: 'Implementation strategy for the tool'
+                        },
+                        input_schema: {
+                            type: 'object',
+                            description: 'Complete JSON Schema for tool inputs (if not in node)'
+                        },
+                        output_schema: {
+                            type: 'object',
+                            description: 'Complete JSON Schema for tool outputs (if not in node)'
+                        },
+                        implementation_details: {
+                            type: 'string',
+                            description: 'Implementation code/prompt/composition details'
+                        }
+                    },
+                    required: ['tool_name', 'strategy']
+                }
             }
         ];
     }
@@ -511,5 +555,186 @@ export class MetaToolManager {
                 edges: machine.edges.length
             }
         };
+    }
+
+    /**
+     * Handle get_tool_nodes invocation
+     */
+    async getToolNodesHandler(input: {
+        include_registered?: boolean;
+    } = {}): Promise<any> {
+        const { include_registered = false } = input;
+
+        const toolNodes = this.getToolNodes();
+
+        if (include_registered) {
+            return {
+                tools: toolNodes.map(tool => ({
+                    name: tool.name,
+                    attributes: tool.attributes,
+                    isLooselyDefined: this.isToolNodeLooselyDefined(tool),
+                    isRegistered: this.dynamicTools.has(tool.name)
+                })),
+                totalCount: toolNodes.length
+            };
+        }
+
+        return {
+            tools: toolNodes.map(tool => ({
+                name: tool.name,
+                attributes: tool.attributes,
+                isLooselyDefined: this.isToolNodeLooselyDefined(tool)
+            })),
+            totalCount: toolNodes.length
+        };
+    }
+
+    /**
+     * Handle build_tool_from_node invocation
+     */
+    async buildToolFromNodeHandler(input: {
+        tool_name: string;
+        strategy: 'agent_backed' | 'code_generation' | 'composition';
+        input_schema?: any;
+        output_schema?: any;
+        implementation_details?: string;
+    }): Promise<any> {
+        const { tool_name, strategy, input_schema, output_schema, implementation_details } = input;
+
+        // Find the tool node
+        const toolNodes = this.getToolNodes();
+        const toolNode = toolNodes.find(t => t.name === tool_name);
+
+        if (!toolNode) {
+            return {
+                success: false,
+                message: `Tool node '${tool_name}' not found in machine definition`
+            };
+        }
+
+        // Merge provided schemas with existing attributes
+        const mergedAttributes = {
+            ...toolNode.attributes,
+            ...(input_schema && { input_schema }),
+            ...(output_schema && { output_schema })
+        };
+
+        // Build implementation details if provided
+        if (implementation_details) {
+            if (strategy === 'code_generation') {
+                mergedAttributes.code = implementation_details;
+            } else if (strategy === 'agent_backed') {
+                mergedAttributes.prompt = implementation_details;
+            } else if (strategy === 'composition') {
+                mergedAttributes.composition = implementation_details;
+            }
+        }
+
+        // Build the tool
+        return await this.buildToolFromNode(
+            { name: tool_name, attributes: mergedAttributes },
+            strategy
+        );
+    }
+
+    /**
+     * Get all Tool nodes from the machine definition
+     */
+    getToolNodes(): Array<{
+        name: string;
+        attributes: Record<string, any>;
+    }> {
+        return this._machineData.nodes
+            .filter(node => node.type?.toLowerCase() === 'tool')
+            .map(node => {
+                const attrs: Record<string, any> = {};
+                node.attributes?.forEach(attr => {
+                    let value = attr.value;
+                    // Try to parse JSON strings
+                    if (typeof value === 'string') {
+                        try {
+                            if ((value.startsWith('{') && value.endsWith('}')) ||
+                                (value.startsWith('[') && value.endsWith(']'))) {
+                                value = JSON.parse(value);
+                            }
+                        } catch {
+                            // Keep original string value
+                        }
+                    }
+                    attrs[attr.name] = value;
+                });
+                return {
+                    name: node.name,
+                    attributes: attrs
+                };
+            });
+    }
+
+    /**
+     * Check if a Tool node is loosely defined (missing schemas or implementation)
+     */
+    isToolNodeLooselyDefined(toolNode: { name: string; attributes: Record<string, any> }): boolean {
+        const { attributes } = toolNode;
+
+        // A tool is loosely defined if it's missing one or more of:
+        // - input_schema
+        // - output_schema
+        // - code/implementation
+
+        const hasInputSchema = attributes.input_schema !== undefined;
+        const hasOutputSchema = attributes.output_schema !== undefined;
+        const hasCode = attributes.code !== undefined || attributes.implementation !== undefined;
+
+        return !hasInputSchema || !hasOutputSchema || !hasCode;
+    }
+
+    /**
+     * Build a complete tool definition from a Tool node
+     * Registers the tool with the MetaToolManager if not already registered
+     */
+    async buildToolFromNode(toolNode: {
+        name: string;
+        attributes: Record<string, any>;
+    }, strategy: 'agent_backed' | 'code_generation' | 'composition' = 'agent_backed'): Promise<any> {
+        const { name, attributes } = toolNode;
+
+        // If tool is already dynamically registered, skip
+        if (this.dynamicTools.has(name)) {
+            return {
+                success: false,
+                message: `Tool '${name}' is already registered dynamically`
+            };
+        }
+
+        // Extract or generate schemas
+        const inputSchema = attributes.input_schema || {
+            type: 'object',
+            properties: {}
+        };
+
+        const description = attributes.description || `Tool: ${name}`;
+
+        // Determine implementation details based on strategy
+        let implementationDetails = '';
+
+        if (strategy === 'code_generation' && attributes.code) {
+            implementationDetails = attributes.code;
+        } else if (strategy === 'agent_backed') {
+            // Use the description as the prompt for agent-backed tools
+            implementationDetails = attributes.prompt || description;
+        } else if (strategy === 'composition' && attributes.composition) {
+            implementationDetails = typeof attributes.composition === 'string'
+                ? attributes.composition
+                : JSON.stringify(attributes.composition);
+        }
+
+        // Use the construct_tool method to register it
+        return await this.constructTool({
+            name,
+            description,
+            input_schema: inputSchema,
+            implementation_strategy: strategy,
+            implementation_details: implementationDetails
+        });
     }
 }

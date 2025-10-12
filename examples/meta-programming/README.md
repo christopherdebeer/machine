@@ -7,8 +7,29 @@ Examples demonstrating DyGram's meta-programming capabilities that allow agents 
 When a Task node has `meta: true`, the agent executing that task gains access to special meta-tools:
 - `get_machine_definition` - Inspect current machine structure
 - `update_definition` - Modify the machine dynamically
+- `get_tool_nodes` - Discover Tool nodes in the machine
+- `build_tool_from_node` - Build and register tools from Tool nodes
+- `construct_tool` - Create tools dynamically from scratch
+- `list_available_tools` - List all available tools
+- `propose_tool_improvement` - Suggest improvements to existing tools
 
 ## Examples
+
+### `tool-creation.dygram`
+Demonstrates dynamic tool construction using Tool nodes.
+
+**Features:**
+- Loosely defined Tool nodes (minimal attributes)
+- Agent discovers Tool nodes using `get_tool_nodes`
+- Agent builds out tools using `build_tool_from_node`
+- Multiple implementation strategies (agent_backed, code_generation)
+- Tools become available for use after construction
+
+**Test it:**
+```bash
+export ANTHROPIC_API_KEY=your_api_key_here
+npx dygram exec examples/meta-programming/tool-creation.dygram
+```
 
 ### `self-healing.dygram`
 Self-healing pipeline that monitors error metrics and adds error handling nodes when needed.
@@ -177,6 +198,62 @@ All machine updates are validated:
 - Invalid updates are rejected with error messages
 
 Annotations on nodes and edges are preserved during updates.
+
+## Tool Nodes
+
+Tool nodes are a special node type that represent callable tools with input/output schemas. They can be loosely defined and then built out by agents with `meta: true`.
+
+### Defining Tool Nodes
+
+```machine
+// Loosely defined - just name and description
+Tool my_tool {
+    description: "Does something useful";
+}
+
+// More complete - with schemas
+Tool calculator {
+    description: "Performs calculations";
+    input_schema: '{"type": "object", "properties": {"expression": {"type": "string"}}}';
+    output_schema: '{"type": "object", "properties": {"result": {"type": "number"}}}';
+}
+
+// Fully defined - with implementation
+Tool formatter {
+    description: "Format text";
+    input_schema: '{"type": "object", "properties": {"text": {"type": "string"}}}';
+    code: 'return { formatted: input.text.toUpperCase() };';
+}
+```
+
+### Building Tools from Nodes
+
+When a task has `meta: true`, it can discover and build Tool nodes:
+
+```machine
+Task builder {
+    meta: true;
+    prompt: "Find Tool nodes using get_tool_nodes, then build them using build_tool_from_node";
+}
+
+builder -uses-> my_tool;
+```
+
+The agent can:
+1. Use `get_tool_nodes` to find all Tool nodes
+2. Check which are loosely defined (`isLooselyDefined: true`)
+3. Use `build_tool_from_node` to complete and register them
+4. Choose implementation strategy:
+   - `agent_backed`: Agent executes the tool
+   - `code_generation`: JavaScript code execution
+   - `composition`: Combine existing tools
+
+### Tool Linking
+
+Connect tasks to tools using edges:
+- `-uses->`: Task uses the tool
+- `-builds->`: Task builds/constructs the tool
+- `-improves->`: Task improves the tool
 
 ## See Also
 
