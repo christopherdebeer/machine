@@ -8,7 +8,7 @@ import mdx from '@mdx-js/rollup';
 
 export default defineConfig(() => {
     const config = {
-        base: '/machine/',
+        base: process.env.VITE_BASE_URL || '/machine/',
         build: {
             target: 'esnext',
             minify: 'esbuild',
