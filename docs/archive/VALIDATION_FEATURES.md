@@ -1,6 +1,6 @@
-# Phase 4: Validation & Intelligence Features
+# Validation: Validation & Intelligence Features
 
-This document describes the Phase 4 enhancements to DyGram's validation system, including type checking, graph validation, and semantic rules that ensure correctness and provide intelligent feedback.
+This document describes the Validation enhancements to DyGram's validation system, including type checking, graph validation, and semantic rules that ensure correctness and provide intelligent feedback.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ This document describes the Phase 4 enhancements to DyGram's validation system, 
 
 ## Type Checking System
 
-Phase 4.13 introduces a comprehensive type checking system that validates type annotations, infers types from values, and ensures type compatibility across the machine.
+Validation.13 introduces a comprehensive type checking system that validates type annotations, infers types from values, and ensures type compatibility across the machine.
 
 ### Features
 
@@ -122,7 +122,7 @@ Error: Invalid type syntax: Promise<Array<Record>
 
 ## Graph Validation
 
-Phase 4.14 provides comprehensive graph structure validation, detecting common issues like unreachable nodes, cycles, and missing entry/exit points.
+Validation.14 provides comprehensive graph structure validation, detecting common issues like unreachable nodes, cycles, and missing entry/exit points.
 
 ### Features
 
@@ -245,7 +245,7 @@ Graph validation returns a comprehensive result:
 
 ## Semantic Validation
 
-Phase 4.15 enforces semantic rules based on node types, relationships, and annotations to ensure the machine behaves as intended.
+Validation.15 enforces semantic rules based on node types, relationships, and annotations to ensure the machine behaves as intended.
 
 ### Node Type Semantics
 
@@ -372,16 +372,16 @@ task processor @Abstract;  // ✅ Valid
 
 ## Integration
 
-Phase 4 validations are automatically integrated into the DyGram validation pipeline. When you save a `.dygram` file or run validation, all checks are performed:
+Validation validations are automatically integrated into the DyGram validation pipeline. When you save a `.dygram` file or run validation, all checks are performed:
 
 ### Validation Flow
 
 1. **Parse** → AST generation
 2. **Basic Validation** → Duplicate names, undefined references
-3. **Phase 2 Validation** → Multiplicity format
-4. **Phase 4 Type Checking** → Type compatibility, generic types
-5. **Phase 4 Graph Validation** → Reachability, cycles, entry/exit points
-6. **Phase 4 Semantic Validation** → Node type rules, relationships, annotations
+3. **expressivity Validation** → Multiplicity format
+4. **Validation Type Checking** → Type compatibility, generic types
+5. **Validation Graph Validation** → Reachability, cycles, entry/exit points
+6. **Validation Semantic Validation** → Node type rules, relationships, annotations
 
 ### Programmatic Usage
 
@@ -438,7 +438,7 @@ const stats = graphValidator.getStatistics();
 ### Example 1: Valid Machine with All Features
 
 ```dygram
-machine "Phase 4 Complete Example"
+machine "Validation Complete Example"
 
 // Configuration context (no incoming edges)
 context apiConfig @Singleton {
@@ -575,13 +575,13 @@ cycleA -> config;
 
 ---
 
-## Migration from Phase 3
+## Migration from advanced syntax
 
-Phase 4 is **fully backward compatible** with Phase 3. Existing machines will continue to work, but you'll now receive helpful warnings and errors for potential issues.
+Validation is **fully backward compatible** with advanced syntax. Existing machines will continue to work, but you'll now receive helpful warnings and errors for potential issues.
 
 ### No Breaking Changes
 
-All existing valid machines remain valid in Phase 4.
+All existing valid machines remain valid in Validation.
 
 ### New Warnings
 
@@ -638,7 +638,7 @@ Informational messages:
 
 ## Performance
 
-Phase 4 validations are designed to be efficient:
+Validation validations are designed to be efficient:
 
 - **Type checking**: O(n) where n is the number of attributes
 - **Graph validation**: O(V + E) where V = nodes, E = edges
@@ -793,7 +793,7 @@ interface GraphValidationResult {
 
 ## Conclusion
 
-Phase 4 brings intelligent validation to DyGram, ensuring that your state machines are:
+Validation brings intelligent validation to DyGram, ensuring that your state machines are:
 
 - **Type-safe**: Catch type errors before execution
 - **Structurally sound**: Valid graph structure with reachable nodes
@@ -802,8 +802,8 @@ Phase 4 brings intelligent validation to DyGram, ensuring that your state machin
 All while maintaining **100% backward compatibility** with earlier phases.
 
 For more information, see:
-- [Phase 1: Relationship Types](./RELATIONSHIP_TYPES.md)
-- [Phase 2: Multiplicity & Annotations](./PHASE2_FEATURES.md)
-- [Phase 3: Notes & Generics](./PHASE3_FEATURES.md)
+- [relationship types: Relationship Types](./RELATIONSHIP_TYPES.md)
+- [expressivity: Multiplicity & Annotations](./PHASE2_FEATURES.md)
+- [advanced syntax: Notes & Generics](./PHASE3_FEATURES.md)
 - [Examples directory](../examples/)
 - [Test suite](../test/)

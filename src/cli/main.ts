@@ -316,7 +316,7 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     if (!process.env.ANTHROPIC_API_KEY) {
         logger.warn('\n⚠️  Warning: ANTHROPIC_API_KEY environment variable not set.');
         logger.info(chalk.gray('   Set it with: export ANTHROPIC_API_KEY=your_api_key_here'));
-        logger.info(chalk.gray('   Note: Execution will use placeholder agent responses (Phase 4 SDK integration pending).\n'));
+        logger.info(chalk.gray('   Note: Execution will use placeholder agent responses (Agent SDK integration pending).\n'));
     }
 
     logger.debug('Starting execution...');

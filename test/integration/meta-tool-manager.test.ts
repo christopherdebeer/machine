@@ -1,5 +1,5 @@
 /**
- * Tests for Meta-Tool Manager Phase 3: Dynamic Tool Construction
+ * Tests for Meta-Tool Manager Dynamic Tool Construction
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -7,7 +7,7 @@ import { MetaToolManager } from '../../src/language/meta-tool-manager.js';
 import { NodeTypeChecker } from '../../src/language/node-type-checker.js';
 import type { MachineData, MachineMutation } from '../../src/language/rails-executor.js';
 
-describe('MetaToolManager - Phase 3: Dynamic Tool Construction', () => {
+describe('MetaToolManager - Dynamic Tool Construction', () => {
     let machineData: MachineData;
     let mutations: Array<Omit<MachineMutation, 'timestamp'>>;
     let manager: MetaToolManager;

@@ -17,9 +17,9 @@ export class MachineValidationRegistry extends ValidationRegistry {
                 validator.checkMachineStartsWithCapital.bind(validator),
                 validator.checkDuplicateStates.bind(validator),
                 validator.checkInvalidStateReferences.bind(validator),
-                // Phase 4: Graph validation
+                // Validation: Graph validation
                 validator.checkGraphStructure.bind(validator),
-                // Phase 4: Semantic validation
+                // Validation: Semantic validation
                 validator.checkNodeTypeSemantics.bind(validator),
                 validator.checkRelationshipSemantics.bind(validator),
                 // Context access validation
@@ -29,11 +29,11 @@ export class MachineValidationRegistry extends ValidationRegistry {
                 validator.checkMultiplicityFormat.bind(validator),
             ],
             Node: [
-                // Phase 4: Semantic validation
+                // Validation: Semantic validation
                 validator.checkNodeAnnotationCompatibility.bind(validator),
             ],
             Attribute: [
-                // Phase 4: Type checking
+                // Validation: Type checking
                 validator.checkAttributeTypeCompatibility.bind(validator),
                 validator.checkGenericTypeValidity.bind(validator),
             ],
@@ -148,10 +148,10 @@ export class MachineValidator {
         validateMultiplicity(segment.targetMultiplicity, 'target');
     }
 
-    // ========== Phase 4: Type Checking ==========
+    // ========== Validation: Type Checking ==========
 
     /**
-     * Phase 4.13: Check attribute type compatibility
+     * Type Checking: Check attribute type compatibility
      */
     checkAttributeTypeCompatibility(attr: Attribute, accept: ValidationAcceptor): void {
         if (!attr.type) return;
@@ -171,7 +171,7 @@ export class MachineValidator {
     }
 
     /**
-     * Phase 4.13: Validate generic type syntax
+     * Type Checking: Validate generic type syntax
      */
     checkGenericTypeValidity(attr: Attribute, accept: ValidationAcceptor): void {
         if (!attr.type) return;
@@ -229,10 +229,10 @@ export class MachineValidator {
         return null;
     }
 
-    // ========== Phase 4: Graph Validation ==========
+    // ========== Validation: Graph Validation ==========
 
     /**
-     * Phase 4.14: Validate graph structure
+     * Graph Validation: Validate graph structure
      */
     checkGraphStructure(machine: Machine, accept: ValidationAcceptor): void {
         const graphValidator = new GraphValidator(machine);
@@ -273,10 +273,10 @@ export class MachineValidator {
         }
     }
 
-    // ========== Phase 4: Semantic Validation ==========
+    // ========== Validation: Semantic Validation ==========
 
     /**
-     * Phase 4.15: Validate node type semantics
+     * Semantic Validation: Validate node type semantics
      */
     checkNodeTypeSemantics(machine: Machine, accept: ValidationAcceptor): void {
         const processNode = (node: Node) => {
@@ -318,7 +318,7 @@ export class MachineValidator {
     }
 
     /**
-     * Phase 4.15: Validate relationship semantics
+     * Semantic Validation: Validate relationship semantics
      */
     checkRelationshipSemantics(machine: Machine, accept: ValidationAcceptor): void {
         // Build node type map
@@ -363,7 +363,7 @@ export class MachineValidator {
     }
 
     /**
-     * Phase 4.15: Check annotation compatibility with node types
+     * Semantic Validation: Check annotation compatibility with node types
      */
     checkNodeAnnotationCompatibility(node: Node, accept: ValidationAcceptor): void {
         if (!node.annotations || node.annotations.length === 0) return;

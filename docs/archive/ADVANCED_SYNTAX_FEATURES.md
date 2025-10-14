@@ -1,6 +1,6 @@
-# Phase 3 Diagram Expressivity Features
+# Advanced Syntax Diagram Expressivity Features
 
-This document describes the Phase 3 enhancements to DyGram's diagram expressivity, including note support, generic types, link styling, and bidirectional role names.
+This document describes the Advanced Syntax enhancements to DyGram's diagram expressivity, including note support, generic types, link styling, and bidirectional role names.
 
 ## Table of Contents
 
@@ -323,10 +323,10 @@ classDiagram-v2
 
 ## Complete Example
 
-Here's a comprehensive example using all Phase 3 features:
+Here's a comprehensive example using all Advanced Syntax features:
 
 ```dygram
-machine "Phase 3 Complete Demo"
+machine "Advanced Syntax Complete Demo"
 
 // Configuration with generic types
 context apiConfig @Singleton {
@@ -392,14 +392,14 @@ This generates a rich, well-documented diagram with:
 - ✅ Semantic edge styling (success=green, error=red, timeout=orange)
 - ✅ Bidirectional relationships with role names
 - ✅ Type hierarchies with inheritance
-- ✅ Multiplicity constraints from Phase 2
-- ✅ Annotations from Phase 2
+- ✅ Multiplicity constraints from expressivity
+- ✅ Annotations from expressivity
 
 ---
 
-## Migration from Phase 2 to Phase 3
+## Migration from expressivity to Advanced Syntax
 
-Phase 3 is **fully backward compatible** with Phase 2. Existing diagrams continue to work without modification.
+Advanced Syntax is **fully backward compatible** with expressivity. Existing diagrams continue to work without modification.
 
 ### Enhancements You Can Add
 
@@ -410,7 +410,7 @@ Phase 3 is **fully backward compatible** with Phase 2. Existing diagrams continu
 
 ### Example Migration
 
-**Phase 2**:
+**expressivity**:
 ```dygram
 machine "User API"
 
@@ -425,7 +425,7 @@ task processUser {
 fetchUser -> processUser;
 ```
 
-**Phase 3 Enhanced**:
+**Advanced Syntax Enhanced**:
 ```dygram
 machine "User API"
 
@@ -477,7 +477,7 @@ note for processUser "Processes the fetched user data. Validates schema and upda
 
 ## Validation
 
-Phase 3 adds validation for:
+Advanced Syntax adds validation for:
 
 - **Note Targets**: Ensures note targets reference valid nodes
 - **Generic Type Syntax**: Validates type syntax (matching < and >)
@@ -542,7 +542,7 @@ convertTypeToMermaid("Map<K, V>")        // → "Map~K, V~"
 
 ## Execution Semantics
 
-Phase 3 features also influence execution behavior:
+Advanced Syntax features also influence execution behavior:
 
 ### Generic Types
 - **Type Validation**: Runtime validation of generic types
@@ -563,17 +563,17 @@ Phase 3 features also influence execution behavior:
 
 ## Conclusion
 
-Phase 3 significantly enhances DyGram's expressivity by adding:
+Advanced Syntax significantly enhances DyGram's expressivity by adding:
 
 - ✅ **Notes** for comprehensive documentation
 - ✅ **Generic Types** for type safety and clarity
 - ✅ **Link Styling** for visual expressiveness
 - ✅ **Bidirectional Role Names** for relationship clarity
 
-All while maintaining **100% backward compatibility** with Phase 1 and Phase 2 diagrams.
+All while maintaining **100% backward compatibility** with relationship types and expressivity diagrams.
 
 For more information, see:
-- [RELATIONSHIP_TYPES.md](./RELATIONSHIP_TYPES.md) - Phase 1 features
-- [PHASE2_FEATURES.md](./PHASE2_FEATURES.md) - Phase 2 features
+- [RELATIONSHIP_TYPES.md](./RELATIONSHIP_TYPES.md) - relationship types features
+- [PHASE2_FEATURES.md](./PHASE2_FEATURES.md) - expressivity features
 - [Examples directory](../examples/phase3/) - Working examples
 - [Tests](../test/) - Comprehensive test suite

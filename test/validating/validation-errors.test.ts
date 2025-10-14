@@ -16,7 +16,7 @@ import {
 } from '../../src/language/validation-errors.js';
 
 /**
- * Tests for Phase 4: Runtime Validation Error Handling
+ * Tests for Validation: Runtime Validation Error Handling
  */
 
 let services: ReturnType<typeof createMachineServices>;
@@ -28,7 +28,7 @@ beforeAll(async () => {
     parse = (input: string) => doParse(input, { validation: true });
 });
 
-describe('Phase 4: Validation Error Types', () => {
+describe('Validation Error Types', () => {
     it('should create validation error with all properties', () => {
         const error = createValidationError('Test error', {
             severity: ValidationSeverity.ERROR,
@@ -60,7 +60,7 @@ describe('Phase 4: Validation Error Types', () => {
     });
 });
 
-describe('Phase 4: ValidationContext', () => {
+describe('ValidationContext', () => {
     it('should accumulate errors', () => {
         const context = new ValidationContext();
 
@@ -183,7 +183,7 @@ describe('Phase 4: ValidationContext', () => {
     });
 });
 
-describe('Phase 4: TypeChecker with ValidationContext', () => {
+describe('TypeChecker with ValidationContext', () => {
     it('should catch missing values for required types', async () => {
         const text = `machine "Test"
             task myTask {
@@ -253,7 +253,7 @@ describe('Phase 4: TypeChecker with ValidationContext', () => {
     });
 });
 
-describe('Phase 4: GraphValidator with ValidationContext', () => {
+describe('GraphValidator with ValidationContext', () => {
     it('should flag unreachable nodes', async () => {
         const text = `machine "Test"
             init Start
@@ -305,7 +305,7 @@ describe('Phase 4: GraphValidator with ValidationContext', () => {
     });
 });
 
-describe('Phase 4: Codex Feedback Fix', () => {
+describe('Codex Feedback Fix', () => {
     it('should validate typed attributes even without values', async () => {
         const text = `machine "Test"
             task myTask {

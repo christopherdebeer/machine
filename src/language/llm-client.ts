@@ -17,7 +17,8 @@ export type {
     ClaudeClientConfig
 } from './claude-client.js';
 
-export { ClaudeClient } from './claude-client.js';
+import { ClaudeClient } from './claude-client.js';
+export { ClaudeClient };
 export { extractText, extractToolUses } from './llm-utils.js';
 
 // Legacy interface for backward compatibility
@@ -45,16 +46,16 @@ export interface LLMClientConfig {
  * Factory function for backward compatibility
  * @deprecated Use ClaudeClient directly instead
  */
-export async function createLLMClient(config: LLMClientConfig): Promise<LLMClient> {
+export async function createLLMClient(config: LLMClientConfig): Promise<ClaudeClient> {
     if (config.provider === 'anthropic') {
-        const { AnthropicClient } = await import('./anthropic-client.js');
-        return new AnthropicClient({
+        return new ClaudeClient({
+            transport: 'api',
             apiKey: config.apiKey,
             modelId: config.modelId
         });
     } else if (config.provider === 'bedrock') {
-        const { BedrockClient } = await import('./bedrock-client.js');
-        return new BedrockClient({
+        return new ClaudeClient({
+            transport: 'bedrock',
             region: config.region,
             modelId: config.modelId
         });

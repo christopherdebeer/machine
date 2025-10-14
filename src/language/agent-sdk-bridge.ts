@@ -1,8 +1,8 @@
 /**
- * Agent SDK Bridge - Phase 4: Claude Agent SDK Integration
+ * Agent SDK Bridge - Claude Agent SDK Integration
  *
  * Bridges RailsExecutor with Claude Agent SDK for:
- * - Agent invocation with phase-specific context
+ * - Agent invocation with context-specific prompts
  * - Tool execution handling
  * - Message history retention with auto-compaction
  * - Execution history persistence
@@ -73,7 +73,7 @@ export interface AgentSDKBridgeConfig {
 /**
  * Agent SDK Bridge
  *
- * NOTE: This is a Phase 4 foundational implementation.
+ * NOTE: This is a foundational implementation.
  * The actual Claude Agent SDK integration requires:
  * 1. Proper SDK initialization with API keys
  * 2. Tool registration in SDK format
@@ -89,6 +89,7 @@ export class AgentSDKBridge {
     private config: Required<AgentSDKBridgeConfig>;
     private toolExecutor?: (toolName: string, input: any) => Promise<any>;
     private claudeClient?: ClaudeClient;
+    private toolRegistry?: any; // ToolRegistry type - using any to avoid circular dependency
 
     // Mutexes for protecting shared state
     private invocationMutex = new Mutex();
@@ -101,8 +102,10 @@ export class AgentSDKBridge {
         // @ts-expect-error - Reserved for future use
         private _executionContext: MachineExecutionContext,
         private metaToolManager: MetaToolManager,
+        toolRegistry: any,
         config: AgentSDKBridgeConfig = {}
     ) {
+        this.toolRegistry = toolRegistry;
         this.config = {
             model: config.model || 'sonnet',
             modelId: config.modelId || '',
@@ -525,6 +528,11 @@ export class AgentSDKBridge {
             return await this.toolExecutor(toolName, input);
         }
 
+        // Use ToolRegistry if available
+        if (this.toolRegistry && this.toolRegistry.hasTool(toolName)) {
+            return await this.toolRegistry.executeTool(toolName, input);
+        }
+
         // Fallback: Check if it's a dynamic tool
         const dynamicTool = this.metaToolManager.getDynamicTool(toolName);
         if (dynamicTool) {
@@ -535,27 +543,34 @@ export class AgentSDKBridge {
         const metaTools = this.metaToolManager.getMetaTools();
         const metaTool = metaTools.find(t => t.name === toolName);
         if (metaTool) {
-            switch (toolName) {
-                case 'get_machine_definition':
-                    return await this.metaToolManager.getMachineDefinition(input);
-                case 'update_definition':
-                    return await this.metaToolManager.updateDefinition(input);
-                case 'construct_tool':
-                    return await this.metaToolManager.constructTool(input);
-                case 'list_available_tools':
-                    return await this.metaToolManager.listAvailableTools(input);
-                case 'propose_tool_improvement':
-                    return await this.metaToolManager.proposeToolImprovement(input);
-                case 'get_tool_nodes':
-                    return await this.metaToolManager.getToolNodesHandler(input);
-                case 'build_tool_from_node':
-                    return await this.metaToolManager.buildToolFromNodeHandler(input);
-                default:
-                    throw new Error(`Meta-tool ${toolName} not implemented`);
-            }
+            return await this.executeMetaTool(toolName, input);
         }
 
         throw new Error(`Tool ${toolName} not found`);
+    }
+
+    /**
+     * Execute a meta-tool
+     */
+    private async executeMetaTool(toolName: string, input: any): Promise<any> {
+        switch (toolName) {
+            case 'get_machine_definition':
+                return await this.metaToolManager.getMachineDefinition(input);
+            case 'update_definition':
+                return await this.metaToolManager.updateDefinition(input);
+            case 'construct_tool':
+                return await this.metaToolManager.constructTool(input);
+            case 'list_available_tools':
+                return await this.metaToolManager.listAvailableTools(input);
+            case 'propose_tool_improvement':
+                return await this.metaToolManager.proposeToolImprovement(input);
+            case 'get_tool_nodes':
+                return await this.metaToolManager.getToolNodesHandler(input);
+            case 'build_tool_from_node':
+                return await this.metaToolManager.buildToolFromNodeHandler(input);
+            default:
+                throw new Error(`Meta-tool ${toolName} not implemented`);
+        }
     }
 
     /**

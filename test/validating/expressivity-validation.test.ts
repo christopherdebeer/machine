@@ -6,7 +6,7 @@ import { Machine } from '../../src/language/generated/ast.js';
 import { DependencyAnalyzer } from '../../src/language/dependency-analyzer.js';
 
 /**
- * Tests for Phase 2 validation: multiplicity validation and dependency analysis
+ * Tests for Expressivity validation: multiplicity validation and dependency analysis
  */
 
 let services: ReturnType<typeof createMachineServices>;
@@ -18,7 +18,7 @@ beforeAll(async () => {
     parse = (input: string) => doParse(input, { validation: true });
 });
 
-describe('Phase 2: Multiplicity Validation', () => {
+describe('Multiplicity Validation', () => {
     it('should accept valid single multiplicity', async () => {
         const text = `machine "Test"
             state A;
@@ -83,7 +83,7 @@ describe('Phase 2: Multiplicity Validation', () => {
     });
 });
 
-describe('Phase 2: Dependency Inference', () => {
+describe('Dependency Inference', () => {
     it('should infer dependency from simple template reference', async () => {
         const text = `machine "Test"
             context config {
@@ -227,7 +227,7 @@ describe('Phase 2: Dependency Inference', () => {
     });
 });
 
-describe('Phase 2: Dependency Analysis Methods', () => {
+describe('Dependency Analysis Methods', () => {
     it('should get dependencies for a specific node', async () => {
         const text = `machine "Test"
             context config {

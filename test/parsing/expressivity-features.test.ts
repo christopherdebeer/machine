@@ -5,7 +5,7 @@ import { createMachineServices } from '../../src/language/machine-module.js';
 import { Machine } from '../../src/language/generated/ast.js';
 
 /**
- * Tests for Phase 2 features: multiplicity, annotations, and dependency inference
+ * Tests for Expressivity features: multiplicity, annotations, and dependency inference
  */
 
 let services: ReturnType<typeof createMachineServices>;
@@ -16,7 +16,7 @@ beforeAll(async () => {
     parse = parseHelper<Machine>(services.Machine);
 });
 
-describe('Phase 2.5: Multiplicity Parsing', () => {
+describe('Multiplicity Parsing', () => {
     it('should parse edge with source multiplicity', async () => {
         const text = `machine "Test"
             state A;
@@ -120,7 +120,7 @@ describe('Phase 2.5: Multiplicity Parsing', () => {
     });
 });
 
-describe('Phase 2.7: Annotation Parsing', () => {
+describe('Annotation Parsing', () => {
     it('should parse node with single annotation', async () => {
         const text = `machine "Test"
             state Node @Abstract;`;
@@ -197,8 +197,8 @@ describe('Phase 2.7: Annotation Parsing', () => {
     });
 });
 
-describe('Phase 2: Combined Features', () => {
-    it('should parse complete example with all Phase 2 features', async () => {
+describe('Combined Features', () => {
+    it('should parse complete example with all expressivity features', async () => {
         const text = `machine "Complete Test"
             context config @Singleton {
                 url<string>: "https://api.example.com";

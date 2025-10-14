@@ -1,5 +1,5 @@
 /**
- * Phase 4: Code Generation & Evolution Tests
+ * Validation: Code Generation & Evolution Tests
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -9,7 +9,7 @@ import { MemoryStorage } from '../../src/language/storage.js';
 import { MachinePersistence, PatternLibrary } from '../../src/language/machine-persistence.js';
 import { generateTaskCode, generateCodeGenerationPrompt } from '../../src/language/code-generation.js';
 
-describe('Phase 4: Task Evolution', () => {
+describe('Task Evolution', () => {
     let machineData: MachineData;
     let storage: MemoryStorage;
 

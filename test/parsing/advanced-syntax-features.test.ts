@@ -7,7 +7,7 @@ import type { Machine } from '../../src/language/generated/ast.js';
 const services = createMachineServices(EmptyFileSystem).Machine;
 const parse = parseHelper<Machine>(services);
 
-describe('Phase 3: Note Support', () => {
+describe('Note Support', () => {
     it('should parse basic note syntax', async () => {
         const input = `
             machine "Test"
@@ -49,7 +49,7 @@ describe('Phase 3: Note Support', () => {
     });
 });
 
-describe('Phase 3: Generic Type Support', () => {
+describe('Generic Type Support', () => {
     it('should parse simple generic types', async () => {
         const input = `
             machine "Test"
@@ -123,7 +123,7 @@ describe('Phase 3: Generic Type Support', () => {
     });
 });
 
-describe('Phase 3: Combined Features', () => {
+describe('Combined Features', () => {
     it('should parse notes with generic types', async () => {
         const input = `
             machine "Test"
@@ -138,9 +138,9 @@ describe('Phase 3: Combined Features', () => {
         expect(result.parseResult.value.nodes[0].attributes?.[0].type).toBeDefined();
     });
 
-    it('should parse complex Phase 3 example', async () => {
+    it('should parse complex Advanced Syntax example', async () => {
         const input = `
-            machine "Complex Phase 3"
+            machine "Complex Advanced Syntax"
 
             context config @Singleton {
                 data<Map<string, any>>: [];
@@ -167,7 +167,7 @@ describe('Phase 3: Combined Features', () => {
     });
 });
 
-describe('Phase 3: Edge Cases', () => {
+describe('Edge Cases', () => {
     it('should handle note with no target', async () => {
         const input = `
             machine "Test"
