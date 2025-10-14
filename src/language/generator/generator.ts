@@ -523,13 +523,26 @@ classDiagram-v2
                     }).join('\n')
                     : '';
 
+                // Check if this is a state module (state node with children)
+                const isStateModule = node.type?.toLowerCase() === 'state' && this.hasChildren(node.name);
+
+                // Add parent annotation for hierarchical context (node is from JSON, has parent field)
+                const parentAnnotation = (node as any).parent ? `+parent : ${(node as any).parent}` : '';
+
                 // Generate annotations (filter out @note annotations which are handled separately)
                 const annotations = node.annotations?.filter(ann => ann.name !== 'note').map(ann => `<<${ann.name}>>`).join('\n' + indent + '    ') || '';
                 const typeAnnotation = node.type ? `<<${node.type}>>` : '';
-                const allAnnotations = [typeAnnotation, annotations].filter(Boolean).join('\n' + indent + '    ');
+
+                // Add module annotation for state modules
+                const moduleAnnotation = isStateModule ? '<<module>>' : '';
+
+                const allAnnotations = [typeAnnotation, moduleAnnotation, annotations].filter(Boolean).join('\n' + indent + '    ');
+
+                // Combine parent annotation with attributes
+                const allLines = [parentAnnotation, attributeLines].filter(Boolean).join('\n' + indent + '    ');
 
                 return `${indent}  ${header} {
-${indent}    ${allAnnotations}${attributeLines ? '\n' + indent + '    ' + attributeLines : ''}
+${indent}    ${allAnnotations}${allLines ? '\n' + indent + '    ' + allLines : ''}
 ${indent}  }`;
             }, {
                 separator: '\n',
@@ -567,6 +580,19 @@ ${indent}}`);
     }
 
     /**
+     * Check if a node has children (for state module detection)
+     */
+    private hasChildren(nodeName: string): boolean {
+        // First generate JSON to get flattened node data
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+
+        // Check if any node has this node as parent
+        return machineJson.nodes.some((n: any) => n.parent === nodeName);
+    }
+
+    /**
      * Generate notes for nodes
      */
     private generateNotes(notes: any[]): string {
@@ -587,7 +613,10 @@ ${indent}}`);
         // Return empty string if no edges
         if (!edges || edges.length === 0) return '';
 
-        const result = joinToNode(edges, edge => {
+        const lines: string[] = [];
+
+        // Generate explicit edges
+        edges.forEach(edge => {
             const edgeValue = edge.value || {};
             const keys = Object.keys(edgeValue);
 
@@ -600,7 +629,8 @@ ${indent}}`);
 
             if (keys.length === 0) {
                 // No label, but may have multiplicity
-                return `  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}`;
+                lines.push(`  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}`);
+                return;
             }
 
             // Construct label from JSON properties, prioritizing non-text properties
@@ -629,13 +659,70 @@ ${indent}}`);
                 labelJSON = labelJSON.replace(/"/g, "'");
             }
 
-            return `  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`
-        }, {
-            separator: '\n',
-            appendNewLineIfNotEmpty: true,
-            skipNewLineAfterLastItem: true,
+            lines.push(`  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`);
         });
-        return toString(result);
+
+        // Add inherited context access edges (Phase 1 feature visualization)
+        const inheritedEdges = this.generateInheritedContextEdges();
+        if (inheritedEdges.length > 0) {
+            lines.push('');
+            lines.push('  %% Inherited Context Access (Phase 1)');
+            lines.push(...inheritedEdges);
+        }
+
+        return lines.join('\n');
+    }
+
+    /**
+     * Generate visualization of inherited context access (Phase 1 feature)
+     * Shows implicit read-only context access from parent nodes
+     */
+    private generateInheritedContextEdges(): string[] {
+        // Get machine data from JSON
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+
+        const inheritedEdges: string[] = [];
+        const explicitEdges = new Set(machineJson.edges.map(e => `${e.source}->${e.target}`));
+
+        // For each node, check what context it can access via parent
+        machineJson.nodes.forEach((node: any) => {
+            if (!node.parent) return;
+
+            // Walk up parent chain to find context access
+            let currentParent: string | undefined = node.parent;
+            const visitedParents = new Set<string>();
+
+            while (currentParent && !visitedParents.has(currentParent)) {
+                visitedParents.add(currentParent);
+
+                // Find edges from parent to context nodes (reads, writes, stores)
+                machineJson.edges.forEach(edge => {
+                    if (edge.source === currentParent) {
+                        const target = machineJson.nodes.find((n: any) => n.name === edge.target);
+                        if (target && (target as any).type?.toLowerCase() === 'context') {
+                            // Check if this is an explicit reads/writes edge
+                            const edgeLabel = edge.value?.text || '';
+                            if (edgeLabel.includes('reads') || edgeLabel.includes('writes') || edgeLabel.includes('stores')) {
+                                // Check if child doesn't already have explicit edge to this context
+                                const edgeKey = `${node.name}->${(target as any).name}`;
+                                if (!explicitEdges.has(edgeKey)) {
+                                    // Add inherited read access edge (dashed)
+                                    inheritedEdges.push(`  ${node.name} ..> ${(target as any).name} : inherited-read`);
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Move up to next parent
+                const parentNode = machineJson.nodes.find((n: any) => n.name === currentParent);
+                currentParent = parentNode ? (parentNode as any).parent : undefined;
+            }
+        });
+
+        return inheritedEdges;
     }
 
     private generateInferredDependencies(deps: any[]): string {
