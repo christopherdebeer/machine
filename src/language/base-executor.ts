@@ -10,6 +10,7 @@ import { ClaudeClient } from './claude-client.js';
 import { extractValueFromAST, parseAttributeValue, serializeValue, validateValueType } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
 import { EdgeConditionParser } from './utils/edge-conditions.js';
+import { CelEvaluator } from './cel-evaluator.js';
 
 // Shared interfaces
 export interface MachineExecutionContext {
@@ -88,9 +89,13 @@ export abstract class BaseExecutor {
     protected mutations: MachineMutation[] = [];
     protected limits: Required<ExecutionLimits>;
     protected executionStartTime?: number;
+    protected celEvaluator: CelEvaluator;
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
         this.machineData = machineData;
+
+        // Initialize CEL evaluator
+        this.celEvaluator = new CelEvaluator();
 
         // Initialize execution limits with defaults
         this.limits = {
@@ -163,6 +168,7 @@ export abstract class BaseExecutor {
 
     /**
      * Evaluate a condition string against current context
+     * Uses CEL (Common Expression Language) for safe, sandboxed evaluation
      */
     protected evaluateCondition(condition: string | undefined): boolean {
         if (!condition) {
@@ -170,30 +176,42 @@ export abstract class BaseExecutor {
         }
 
         try {
-            // Replace template variables {{ ... }} with actual values
-            let resolvedCondition = condition.replace(/\{\{\s*(\w+)\.?(\w+)?\s*\}\}/g, (match: string, nodeName: string, attrName?: string) => {
+            // Build context with template variables and special variables
+            const attributes: Record<string, any> = {};
+
+            // Extract and resolve template variables {{ nodeName.attributeName }}
+            const templateVarPattern = /\{\{\s*(\w+)\.?(\w+)?\s*\}\}/g;
+            let match;
+            while ((match = templateVarPattern.exec(condition)) !== null) {
+                const [, nodeName, attrName] = match;
                 const node = this.machineData.nodes.find(n => n.name === nodeName);
-                if (!node) return 'undefined';
 
-                if (attrName) {
+                if (node && attrName) {
                     const attr = node.attributes?.find(a => a.name === attrName);
-                    if (!attr) return 'undefined';
-                    return this.parseValue(attr.value, attr.type);
+                    if (attr) {
+                        // Create a nested structure for CEL: nodeName.attributeName
+                        if (!attributes[nodeName]) {
+                            attributes[nodeName] = {};
+                        }
+                        attributes[nodeName][attrName] = this.parseValue(attr.value, attr.type);
+                    }
                 }
+            }
 
-                return 'undefined';
+            // Replace template variables with CEL-compatible syntax
+            // {{ nodeName.attributeName }} -> nodeName.attributeName
+            let celCondition = condition.replace(/\{\{\s*(\w+)\.(\w+)\s*\}\}/g, '$1.$2');
+
+            // Convert JavaScript operators to CEL equivalents
+            // CEL uses == and != (not === and !==)
+            celCondition = celCondition.replace(/===/g, '==').replace(/!==/g, '!=');
+
+            // Use CEL evaluator for safe evaluation
+            return this.celEvaluator.evaluateCondition(celCondition, {
+                errorCount: this.context.errorCount,
+                activeState: this.context.activeState || '',
+                attributes: attributes
             });
-
-            // Replace special variables like errorCount, activeState
-            resolvedCondition = resolvedCondition
-                .replace(/\berrorCount\b/g, String(this.context.errorCount))
-                .replace(/\berrors\b/g, String(this.context.errorCount))
-                .replace(/\bactiveState\b/g, `"${this.context.activeState || ''}"`);
-
-            // Evaluate the condition
-            // eslint-disable-next-line no-eval
-            const result = eval(resolvedCondition);
-            return Boolean(result);
         } catch (error) {
             console.error('Error evaluating condition:', condition, error);
             return false; // If condition evaluation fails, treat as false
