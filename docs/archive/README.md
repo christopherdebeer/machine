@@ -4,10 +4,10 @@ This folder contains standalone phase documentation that has been consolidated i
 
 ## Contents
 
-- **RELATIONSHIP_TYPES.md** - Phase 1 relationship types documentation
-- **PHASE2_FEATURES.md** - Phase 2 multiplicity, annotations, and dependency inference
-- **PHASE3_FEATURES.md** - Phase 3 generic types and notes
-- **PHASE4_FEATURES.md** - Phase 4 validation and type checking
+- **RELATIONSHIP_TYPES.md** - relationship types relationship types documentation
+- **EXPRESSIVITY_FEATURES.md** - Expressivity multiplicity, annotations, and dependency inference
+- **ADVANCED_SYNTAX_FEATURES.md** - Advanced Syntax generic types and notes
+- **VALIDATION_FEATURES.md** - Validation validation and type checking
 
 ## Why Archived?
 

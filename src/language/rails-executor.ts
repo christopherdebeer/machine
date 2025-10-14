@@ -1,10 +1,10 @@
 /**
- * Rails Executor - Phase 1: Core Rails Pattern
+ * Rails Executor - Core Rails Pattern
  *
  * Implements the "rails pattern" where:
  * - Some transitions are automated based on deterministic conditions
  * - Some transitions are agent-controlled (exposed as tools)
- * - Single agent rides the rails with phase-specific context
+ * - Single agent rides the rails with context-specific prompts
  * - Agent receives only relevant context and tools at each node
  */
 
@@ -15,6 +15,7 @@ import {
 import { AgentContextBuilder } from './agent-context-builder.js';
 import { MetaToolManager } from './meta-tool-manager.js';
 import { AgentSDKBridge, type AgentSDKBridgeConfig } from './agent-sdk-bridge.js';
+import { ToolRegistry } from './tool-registry.js';
 import {
     BaseExecutor,
     MachineExecutionContext,
@@ -30,7 +31,7 @@ export type { MachineExecutionContext, MachineData, MachineMutation };
 
 // Extend base config with RailsExecutor-specific options
 export interface MachineExecutorConfig extends BaseMachineExecutorConfig {
-    // Agent SDK configuration (Phase 4)
+    // Agent SDK configuration (Agent SDK)
     agentSDK?: AgentSDKBridgeConfig;
 }
 
@@ -70,22 +71,51 @@ interface TransitionEvaluation {
 export class RailsExecutor extends BaseExecutor {
     protected metaToolManager: MetaToolManager;
     protected agentSDKBridge: AgentSDKBridge;
+    protected toolRegistry: ToolRegistry;
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
         super(machineData, config);
 
+        // Initialize ToolRegistry
+        this.toolRegistry = new ToolRegistry();
+
         // Initialize MetaToolManager
         this.metaToolManager = new MetaToolManager(
             this.machineData,
-            (mutation) => this.recordMutation(mutation)
+            (mutation) => this.recordMutation(mutation),
+            this.toolRegistry
         );
 
-        // Initialize AgentSDKBridge (Phase 4)
+        // Initialize AgentSDKBridge (Agent SDK)
         this.agentSDKBridge = new AgentSDKBridge(
             this.machineData,
             this.context,
             this.metaToolManager,
+            this.toolRegistry,
             config.agentSDK
+        );
+
+        // Register dynamic tool patterns with ToolRegistry
+        this.registerDynamicTools();
+    }
+
+    /**
+     * Register dynamic tool patterns with the ToolRegistry
+     */
+    private registerDynamicTools(): void {
+        // Register transition tool pattern
+        this.toolRegistry.registerDynamic('transition_to_',
+            async (name, input) => this.handleTransitionTool(name, input)
+        );
+
+        // Register read tool pattern
+        this.toolRegistry.registerDynamic('read_',
+            async (name, input) => this.handleReadTool(name, input)
+        );
+
+        // Register write tool pattern
+        this.toolRegistry.registerDynamic('write_',
+            async (name, input) => this.handleWriteTool(name, input)
         );
     }
 
@@ -405,109 +435,120 @@ export class RailsExecutor extends BaseExecutor {
     async executeTool(toolName: string, input: any): Promise<any> {
         console.log(`🔧 Executing tool: ${toolName} with input:`, input);
 
-        // Handle transition tools
-        if (toolName.startsWith('transition_to_')) {
-            const targetNode = toolName.replace('transition_to_', '');
-            const reason = input.reason || 'agent decision';
-
-            // Validate transition is valid
-            const transitions = this.getNonAutomatedTransitions(this.context.currentNode);
-            const validTransition = transitions.find(t => t.target === targetNode);
-
-            if (!validTransition) {
-                throw new Error(`Invalid transition: ${this.context.currentNode} -> ${targetNode}`);
-            }
-
-            return {
-                success: true,
-                action: 'transition',
-                target: targetNode,
-                reason
-            };
+        // Use ToolRegistry for execution
+        if (this.toolRegistry.hasTool(toolName)) {
+            return await this.toolRegistry.executeTool(toolName, input);
         }
 
-        // Handle context read tools
-        if (toolName.startsWith('read_')) {
-            const contextName = toolName.replace('read_', '');
-            const contextNode = this.machineData.nodes.find(n => n.name === contextName);
-
-            if (!contextNode) {
-                throw new Error(`Context node ${contextName} not found`);
-            }
-
-            const attributes = this.getNodeAttributes(contextName);
-
-            // Filter by requested fields if specified
-            if (input.fields && Array.isArray(input.fields)) {
-                const filtered: Record<string, any> = {};
-                input.fields.forEach((field: string) => {
-                    if (field in attributes) {
-                        filtered[field] = attributes[field];
-                    }
-                });
-                return {
-                    success: true,
-                    context: contextName,
-                    data: filtered
-                };
-            }
-
-            return {
-                success: true,
-                context: contextName,
-                data: attributes
-            };
-        }
-
-        // Handle context write tools
-        if (toolName.startsWith('write_')) {
-            const contextName = toolName.replace('write_', '');
-            const contextNode = this.machineData.nodes.find(n => n.name === contextName);
-
-            if (!contextNode) {
-                throw new Error(`Context node ${contextName} not found`);
-            }
-
-            if (!input.data || typeof input.data !== 'object') {
-                throw new Error('write tool requires data object');
-            }
-
-            // Update context node attributes
-            if (!contextNode.attributes) {
-                contextNode.attributes = [];
-            }
-
-            Object.entries(input.data).forEach(([key, value]) => {
-                const existingAttr = contextNode.attributes!.find(a => a.name === key);
-                if (existingAttr) {
-                    existingAttr.value = String(value);
-                } else {
-                    contextNode.attributes!.push({
-                        name: key,
-                        type: typeof value === 'number' ? 'number' : 'string',
-                        value: String(value)
-                    });
-                }
-            });
-
-            // Record mutation
-            this.recordMutation({
-                type: 'modify_node',
-                data: {
-                    nodeName: contextName,
-                    updates: input.data
-                }
-            });
-
-            return {
-                success: true,
-                context: contextName,
-                written: Object.keys(input.data)
-            };
-        }
-
-        // Delegate to meta-tool manager or agent SDK bridge
+        // Fallback to agent SDK bridge for meta-tools
         return await this.agentSDKBridge.executeTool(toolName, input);
+    }
+
+    /**
+     * Handle transition tool execution
+     */
+    private async handleTransitionTool(name: string, input: any): Promise<any> {
+        const targetNode = name.replace('transition_to_', '');
+        const reason = input.reason || 'agent decision';
+
+        // Validate transition is valid
+        const transitions = this.getNonAutomatedTransitions(this.context.currentNode);
+        const validTransition = transitions.find(t => t.target === targetNode);
+
+        if (!validTransition) {
+            throw new Error(`Invalid transition: ${this.context.currentNode} -> ${targetNode}`);
+        }
+
+        return {
+            success: true,
+            action: 'transition',
+            target: targetNode,
+            reason
+        };
+    }
+
+    /**
+     * Handle read tool execution
+     */
+    private async handleReadTool(name: string, input: any): Promise<any> {
+        const contextName = name.replace('read_', '');
+        const contextNode = this.machineData.nodes.find(n => n.name === contextName);
+
+        if (!contextNode) {
+            throw new Error(`Context node ${contextName} not found`);
+        }
+
+        const attributes = this.getNodeAttributes(contextName);
+
+        // Filter by requested fields if specified
+        if (input.fields && Array.isArray(input.fields)) {
+            const filtered: Record<string, any> = {};
+            input.fields.forEach((field: string) => {
+                if (field in attributes) {
+                    filtered[field] = attributes[field];
+                }
+            });
+            return {
+                success: true,
+                context: contextName,
+                data: filtered
+            };
+        }
+
+        return {
+            success: true,
+            context: contextName,
+            data: attributes
+        };
+    }
+
+    /**
+     * Handle write tool execution
+     */
+    private async handleWriteTool(name: string, input: any): Promise<any> {
+        const contextName = name.replace('write_', '');
+        const contextNode = this.machineData.nodes.find(n => n.name === contextName);
+
+        if (!contextNode) {
+            throw new Error(`Context node ${contextName} not found`);
+        }
+
+        if (!input.data || typeof input.data !== 'object') {
+            throw new Error('write tool requires data object');
+        }
+
+        // Update context node attributes
+        if (!contextNode.attributes) {
+            contextNode.attributes = [];
+        }
+
+        Object.entries(input.data).forEach(([key, value]) => {
+            const existingAttr = contextNode.attributes!.find(a => a.name === key);
+            if (existingAttr) {
+                existingAttr.value = String(value);
+            } else {
+                contextNode.attributes!.push({
+                    name: key,
+                    type: typeof value === 'number' ? 'number' : 'string',
+                    value: String(value)
+                });
+            }
+        });
+
+        // Record mutation
+        this.recordMutation({
+            type: 'modify_node',
+            data: {
+                nodeName: contextName,
+                updates: input.data
+            }
+        });
+
+        return {
+            success: true,
+            context: contextName,
+            written: Object.keys(input.data)
+        };
     }
 
     /**
@@ -546,7 +587,7 @@ export class RailsExecutor extends BaseExecutor {
         // Check timeout
         this.checkTimeout();
 
-        // Phase 1: Check for automated transitions
+        // Step 1: Check for automated transitions
         const autoTransition = this.evaluateAutomatedTransitions(nodeName);
         if (autoTransition) {
             console.log(`✓ Automated transition: ${autoTransition.reason}`);
@@ -554,7 +595,7 @@ export class RailsExecutor extends BaseExecutor {
             return true;
         }
 
-        // Phase 2: If no auto-transition, check if agent decision required
+        // Step 2: If no auto-transition, check if agent decision required
         if (this.requiresAgentDecision(nodeName)) {
             console.log(`🤖 Agent decision required for ${nodeName}`);
 
@@ -562,7 +603,7 @@ export class RailsExecutor extends BaseExecutor {
             const attributes = this.getNodeAttributes(nodeName);
             const taskModelId = attributes.modelId ? String(attributes.modelId).replace(/^["']|["']$/g, '') : undefined;
 
-            // Phase 4: Invoke agent with SDK
+            // Invoke agent with Agent SDK
             const systemPrompt = this.buildSystemPrompt(nodeName);
             const tools = this.buildPhaseTools(nodeName);
 

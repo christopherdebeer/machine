@@ -1,5 +1,5 @@
 /**
- * Meta-Tool Manager - Phase 3: Dynamic Tool Construction
+ * Meta-Tool Manager - Dynamic Tool Construction
  *
  * Enables:
  * - Dynamic tool construction (agent-backed, code-generation, composition)
@@ -40,11 +40,15 @@ export class MetaToolManager {
     private dynamicTools = new Map<string, DynamicTool>();
     private proposals: ToolImprovementProposal[] = [];
     private onMachineUpdate?: (dsl: string, machineData: MachineData) => void;
+    private toolRegistry?: any; // ToolRegistry type - using any to avoid circular dependency
 
     constructor(
         private _machineData: MachineData,
-        private onMutation: (mutation: Omit<MachineMutation, 'timestamp'>) => void
-    ) {}
+        private onMutation: (mutation: Omit<MachineMutation, 'timestamp'>) => void,
+        toolRegistry?: any
+    ) {
+        this.toolRegistry = toolRegistry;
+    }
 
     /**
      * Set callback for when machine definition is updated
@@ -234,7 +238,7 @@ export class MetaToolManager {
             case 'agent_backed':
                 // Tool execution delegated to agent
                 handler = async (toolInput: any) => {
-                    // This will be replaced by actual agent invocation in Phase 4
+                    // This will be replaced by actual agent invocation
                     return {
                         result: 'Tool execution placeholder - will be replaced with agent invocation',
                         prompt: implementation_details,
@@ -295,6 +299,11 @@ export class MetaToolManager {
         };
 
         this.dynamicTools.set(name, dynamicTool);
+
+        // Register with ToolRegistry if available
+        if (this.toolRegistry) {
+            this.toolRegistry.registerStatic(dynamicTool.definition, handler);
+        }
 
         // Record mutation
         this.onMutation({

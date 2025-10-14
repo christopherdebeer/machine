@@ -14,7 +14,7 @@ async function generateMermaidFromModel(model: Machine, filePath: string, option
     return { json: json.content, mermaid: mermaid.content };
 }
 
-describe('Phase 3: Note Generation', () => {
+describe('Note Generation', () => {
     it('should include notes in JSON output', async () => {
         const input = `
             machine "Test"
@@ -77,7 +77,7 @@ describe('Phase 3: Note Generation', () => {
     });
 });
 
-describe('Phase 3: Generic Type Generation', () => {
+describe('Generic Type Generation', () => {
     it('should serialize generic types as strings', async () => {
         const input = `
             machine "Test"
@@ -163,7 +163,7 @@ describe('Phase 3: Generic Type Generation', () => {
     });
 });
 
-describe('Phase 3: Combined Feature Generation', () => {
+describe('Combined Feature Generation', () => {
     it('should generate notes and generic types together', async () => {
         const input = `
             machine "Test"
@@ -186,7 +186,7 @@ describe('Phase 3: Combined Feature Generation', () => {
         expect(machineJson.nodes[0].attributes[0].type).toBe('Promise<Response>');
     });
 
-    it('should integrate with Phase 2 features', async () => {
+    it('should integrate with expressivity features', async () => {
         const input = `
             machine "Test"
 
@@ -208,20 +208,20 @@ describe('Phase 3: Combined Feature Generation', () => {
 
         const machineJson = JSON.parse(output.json);
 
-        // Phase 2: Annotations
+        // Annotations
         expect(machineJson.nodes[0].annotations).toBeDefined();
 
-        // Phase 2: Relationship types
+        // Relationship types
         expect(output.mermaid).toContain('<|--');
 
-        // Phase 3: Generic types
+        // Generic types
         expect(output.mermaid).toContain('Promise~Response~');
 
-        // Phase 3: Notes
+        // Notes
         expect(machineJson.notes).toHaveLength(2);
     });
 
-    it('should work with all phases together', async () => {
+    it('should work with all features together', async () => {
         const input = `
             machine "Complete Test"
 
@@ -255,30 +255,30 @@ describe('Phase 3: Combined Feature Generation', () => {
 
         const machineJson = JSON.parse(output.json);
 
-        // Phase 1: Relationship types
+        // Relationship types
         expect(output.mermaid).toContain('<|--');
         expect(machineJson.edges.some((e: any) => e.arrowType === '<|--')).toBe(true);
 
-        // Phase 2: Annotations
+        // Annotations
         expect(machineJson.nodes.some((n: any) =>
             n.annotations?.some((a: any) => a.name === 'Singleton')
         )).toBe(true);
 
-        // Phase 2: Multiplicity
+        // Multiplicity
         expect(machineJson.edges.some((e: any) =>
             e.sourceMultiplicity === '1' && e.targetMultiplicity === '1'
         )).toBe(true);
 
-        // Phase 3: Generic types
+        // Generic types
         expect(output.mermaid).toContain('Promise~Response~');
         expect(output.mermaid).toContain('Array~Record~');
 
-        // Phase 3: Notes
+        // Notes
         expect(machineJson.notes).toHaveLength(3);
     });
 });
 
-describe('Phase 3: Mermaid Output Quality', () => {
+describe('Mermaid Output Quality', () => {
     it('should produce valid Mermaid syntax with notes', async () => {
         const input = `
             machine "Test"

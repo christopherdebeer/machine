@@ -31,7 +31,7 @@ vi.mock('../../src/language/claude-client', () => {
     };
 });
 
-describe('Phase 2: Tool-Based Execution', () => {
+describe('Tool-Based Execution', () => {
     let executor: MachineExecutor;
     let mockMachineData: MachineData;
     let mockClaudeClient: any;

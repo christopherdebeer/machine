@@ -1,12 +1,12 @@
 /**
- * Tests for Agent Context Builder Phase 2: Dynamic Context System Prompts
+ * Tests for Agent Context Builder Dynamic Context System Prompts
  */
 
 import { describe, it, expect } from 'vitest';
 import { AgentContextBuilder } from '../../src/language/agent-context-builder.js';
 import type { MachineData, MachineExecutionContext } from '../../src/language/rails-executor.js';
 
-describe('AgentContextBuilder - Phase 2: Dynamic Context System Prompts', () => {
+describe('AgentContextBuilder - Dynamic Context System Prompts', () => {
     it('should build basic system prompt with role and position', () => {
         const machineData: MachineData = {
             title: 'Test Machine',

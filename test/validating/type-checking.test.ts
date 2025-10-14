@@ -6,7 +6,7 @@ import { Machine } from '../../src/language/generated/ast.js';
 import { TypeChecker } from '../../src/language/type-checker.js';
 
 /**
- * Tests for Phase 4.13: Type Checking System
+ * Tests for Validation.13: Type Checking System
  */
 
 let services: ReturnType<typeof createMachineServices>;
@@ -18,7 +18,7 @@ beforeAll(async () => {
     parse = (input: string) => doParse(input, { validation: true });
 });
 
-describe('Phase 4: Type Parsing', () => {
+describe('Type Parsing', () => {
     it('should parse simple types', () => {
         const text = `machine "Test"
             task myTask {
@@ -77,7 +77,7 @@ describe('Phase 4: Type Parsing', () => {
     });
 });
 
-describe('Phase 4: Type Inference', () => {
+describe('Type Inference', () => {
     it('should infer string type', () => {
         const machine = { nodes: [], edges: [] } as any;
         const typeChecker = new TypeChecker(machine);
@@ -123,7 +123,7 @@ describe('Phase 4: Type Inference', () => {
     });
 });
 
-describe('Phase 4: Type Compatibility', () => {
+describe('Type Compatibility', () => {
     it('should accept matching types', () => {
         const machine = { nodes: [], edges: [] } as any;
         const typeChecker = new TypeChecker(machine);
@@ -175,7 +175,7 @@ describe('Phase 4: Type Compatibility', () => {
     });
 });
 
-describe('Phase 4: Generic Type Validation', () => {
+describe('Generic Type Validation', () => {
     it('should accept valid generic syntax', () => {
         const machine = { nodes: [], edges: [] } as any;
         const typeChecker = new TypeChecker(machine);
@@ -202,7 +202,7 @@ describe('Phase 4: Generic Type Validation', () => {
     });
 });
 
-describe('Phase 4: Type Checking Integration', () => {
+describe('Type Checking Integration', () => {
     it('should validate correct types', async () => {
         const text = `machine "Test"
             task myTask {
@@ -248,7 +248,7 @@ describe('Phase 4: Type Checking Integration', () => {
     });
 });
 
-describe('Phase 4: Template Reference Validation', () => {
+describe('Template Reference Validation', () => {
     it('should validate valid template references', async () => {
         const text = `machine "Test"
             context config {

@@ -1,7 +1,7 @@
 /**
- * Agent Context Builder - Phase 2: Dynamic Context System Prompts
+ * Agent Context Builder - Dynamic Context System Prompts
  *
- * Generates phase-specific system prompts for agents based on:
+ * Generates context-specific system prompts for agents based on:
  * - Current node position and type
  * - Accessible context nodes (with permissions)
  * - Available transitions (non-automated)

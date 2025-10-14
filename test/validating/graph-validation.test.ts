@@ -6,7 +6,7 @@ import { Machine } from '../../src/language/generated/ast.js';
 import { GraphValidator } from '../../src/language/graph-validator.js';
 
 /**
- * Tests for Phase 4.14: Graph Validation
+ * Tests for Validation.14: Graph Validation
  */
 
 let services: ReturnType<typeof createMachineServices>;
@@ -18,7 +18,7 @@ beforeAll(async () => {
     parse = (input: string) => doParse(input, { validation: true });
 });
 
-describe('Phase 4: Entry Point Detection', () => {
+describe('Entry Point Detection', () => {
     it('should find init nodes as entry points', async () => {
         const text = `machine "Test"
             init start;
@@ -67,7 +67,7 @@ describe('Phase 4: Entry Point Detection', () => {
     });
 });
 
-describe('Phase 4: Exit Point Detection', () => {
+describe('Exit Point Detection', () => {
     it('should find nodes with no outgoing edges as exit points', async () => {
         const text = `machine "Test"
             init start;
@@ -102,7 +102,7 @@ describe('Phase 4: Exit Point Detection', () => {
     });
 });
 
-describe('Phase 4: Unreachable Node Detection', () => {
+describe('Unreachable Node Detection', () => {
     it('should detect unreachable nodes', async () => {
         const text = `machine "Test"
             init start;
@@ -157,7 +157,7 @@ describe('Phase 4: Unreachable Node Detection', () => {
     });
 });
 
-describe('Phase 4: Orphaned Node Detection', () => {
+describe('Orphaned Node Detection', () => {
     it('should detect orphaned nodes', async () => {
         const text = `machine "Test"
             init start;
@@ -205,7 +205,7 @@ describe('Phase 4: Orphaned Node Detection', () => {
     });
 });
 
-describe('Phase 4: Cycle Detection', () => {
+describe('Cycle Detection', () => {
     it('should detect simple cycles', async () => {
         const text = `machine "Test"
             task taskA;
@@ -256,7 +256,7 @@ describe('Phase 4: Cycle Detection', () => {
     });
 });
 
-describe('Phase 4: Path Finding', () => {
+describe('Path Finding', () => {
     it('should find path between connected nodes', async () => {
         const text = `machine "Test"
             init start;
@@ -289,7 +289,7 @@ describe('Phase 4: Path Finding', () => {
     });
 });
 
-describe('Phase 4: Graph Validation Integration', () => {
+describe('Graph Validation Integration', () => {
     it('should validate valid graph', async () => {
         const text = `machine "Test"
             init start;
@@ -340,7 +340,7 @@ describe('Phase 4: Graph Validation Integration', () => {
     });
 });
 
-describe('Phase 4: Graph Statistics', () => {
+describe('Graph Statistics', () => {
     it('should compute graph statistics', async () => {
         const text = `machine "Test"
             init start;

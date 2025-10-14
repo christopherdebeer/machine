@@ -1,11 +1,11 @@
 /**
- * Tests for Rails Executor Phase 1: Automated Transitions
+ * Tests for Rails Executor: Automated Transitions
  */
 
 import { describe, it, expect } from 'vitest';
 import { RailsExecutor, MachineData } from '../../src/language/rails-executor.js';
 
-describe('RailsExecutor - Phase 1: Automated Transitions', () => {
+describe('RailsExecutor - Automated Transitions', () => {
     it('should automatically transition through state nodes', async () => {
         const machineData: MachineData = {
             title: 'Simple State Machine',

@@ -5,7 +5,7 @@ import { createMachineServices } from '../../src/language/machine-module.js';
 import { Machine } from '../../src/language/generated/ast.js';
 
 /**
- * Tests for Phase 4.15: Semantic Validation
+ * Tests for Validation.15: Semantic Validation
  */
 
 let services: ReturnType<typeof createMachineServices>;
@@ -17,7 +17,7 @@ beforeAll(async () => {
     parse = (input: string) => doParse(input, { validation: true });
 });
 
-describe('Phase 4: Init Node Semantics', () => {
+describe('Init Node Semantics', () => {
     it('should warn when init node has no outgoing edges', async () => {
         const text = `machine "Test"
             init start;`;
@@ -47,7 +47,7 @@ describe('Phase 4: Init Node Semantics', () => {
     });
 });
 
-describe('Phase 4: Context Node Semantics', () => {
+describe('Context Node Semantics', () => {
     it('should warn when context node has incoming edges', async () => {
         const text = `machine "Test"
             context config {
@@ -82,7 +82,7 @@ describe('Phase 4: Context Node Semantics', () => {
     });
 });
 
-describe('Phase 4: Annotation Semantics - @Async', () => {
+describe('Annotation Semantics - @Async', () => {
     it('should allow @Async on task nodes', async () => {
         const text = `machine "Test"
             task myTask @Async;`;
@@ -109,7 +109,7 @@ describe('Phase 4: Annotation Semantics - @Async', () => {
     });
 });
 
-describe('Phase 4: Annotation Semantics - @Singleton', () => {
+describe('Annotation Semantics - @Singleton', () => {
     it('should allow @Singleton on task nodes', async () => {
         const text = `machine "Test"
             task myTask @Singleton;`;
@@ -150,7 +150,7 @@ describe('Phase 4: Annotation Semantics - @Singleton', () => {
     });
 });
 
-describe('Phase 4: Annotation Semantics - @Abstract', () => {
+describe('Annotation Semantics - @Abstract', () => {
     it('should allow @Abstract on task nodes', async () => {
         const text = `machine "Test"
             task BaseTask @Abstract;`;
@@ -177,7 +177,7 @@ describe('Phase 4: Annotation Semantics - @Abstract', () => {
     });
 });
 
-describe('Phase 4: Relationship Semantics - Inheritance', () => {
+describe('Relationship Semantics - Inheritance', () => {
     it('should allow inheritance between same node types', async () => {
         const text = `machine "Test"
             task BaseTask;
@@ -208,7 +208,7 @@ describe('Phase 4: Relationship Semantics - Inheritance', () => {
     });
 });
 
-describe('Phase 4: Complete Semantic Validation', () => {
+describe('Complete Semantic Validation', () => {
     it('should pass validation for semantically correct machine', async () => {
         const text = `machine "Test"
             context config @Singleton {
@@ -265,7 +265,7 @@ describe('Phase 4: Complete Semantic Validation', () => {
     });
 });
 
-describe('Phase 4: Annotation Combinations', () => {
+describe('Annotation Combinations', () => {
     it('should allow multiple compatible annotations', async () => {
         const text = `machine "Test"
             task myTask @Async @Critical;`;

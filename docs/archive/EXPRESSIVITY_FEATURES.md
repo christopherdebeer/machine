@@ -1,6 +1,6 @@
-# Phase 2 Diagram Expressivity Features
+# Expressivity Diagram Expressivity Features
 
-This document describes the Phase 2 enhancements to DyGram's diagram expressivity, including multiplicity, annotations, dependency inference, and enhanced runtime visualization.
+This document describes the Expressivity enhancements to DyGram's diagram expressivity, including multiplicity, annotations, dependency inference, and enhanced runtime visualization.
 
 ## Table of Contents
 
@@ -329,10 +329,10 @@ classDiagram-v2
 
 ## Complete Example
 
-Here's a comprehensive example using all Phase 2 features:
+Here's a comprehensive example using all Expressivity features:
 
 ```dygram
-machine "Complete Phase 2 Example"
+machine "Complete Expressivity Example"
 
 // Configuration with dependency inference
 context apiConfig @Singleton {
@@ -393,15 +393,15 @@ This example demonstrates:
 - ✅ **Dependency Inference**: Automatic detection of template variable usage
 - ✅ **Inheritance**: Using `<|--` arrows
 - ✅ **Type Hierarchy**: Abstract base with concrete implementations
-- ✅ **Rich Semantics**: Combines all Phase 2 features
+- ✅ **Rich Semantics**: Combines all Expressivity features
 
 ---
 
 ## Migration Guide
 
-### From Phase 1 to Phase 2
+### From relationship types to Expressivity
 
-Phase 2 is **fully backward compatible** with Phase 1. Existing diagrams continue to work without modification.
+Expressivity is **fully backward compatible** with relationship types. Existing diagrams continue to work without modification.
 
 #### Optional Enhancements
 
@@ -414,7 +414,7 @@ You can enhance existing diagrams by:
 
 ### Example Migration
 
-**Phase 1 (still works)**:
+**relationship types (still works)**:
 ```dygram
 machine "User Management"
 task User;
@@ -422,7 +422,7 @@ task Order;
 User -> Order;
 ```
 
-**Phase 2 (enhanced)**:
+**Expressivity (enhanced)**:
 ```dygram
 machine "User Management"
 
@@ -475,7 +475,7 @@ User "1" --> "*" Order;  // One user, many orders
 
 ## Validation
 
-Phase 2 adds validation for:
+Expressivity adds validation for:
 
 - **Multiplicity Format**: Ensures valid multiplicity syntax
 - **Multiplicity Ranges**: Warns on invalid ranges
@@ -539,16 +539,16 @@ const diagram = visualizer.generateRuntimeVisualization({
 
 ## Conclusion
 
-Phase 2 significantly enhances DyGram's expressivity, allowing you to:
+Expressivity significantly enhances DyGram's expressivity, allowing you to:
 
 - Express quantitative relationships with **multiplicity**
 - Document node properties with **annotations**
 - Make implicit dependencies explicit through **inference**
 - Visualize runtime state with **colors and notes**
 
-All while maintaining **100% backward compatibility** with Phase 1 diagrams.
+All while maintaining **100% backward compatibility** with relationship types diagrams.
 
 For more information, see:
-- [RELATIONSHIP_TYPES.md](./RELATIONSHIP_TYPES.md) - Phase 1 relationship types
+- [RELATIONSHIP_TYPES.md](./RELATIONSHIP_TYPES.md) - relationship types relationship types
 - [Examples directory](../examples/) - Working examples
 - [Tests](../test/) - Comprehensive test suite

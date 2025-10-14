@@ -1,5 +1,5 @@
 /**
- * Tests for Agent SDK Bridge Phase 4: Agent SDK Integration
+ * Tests for Agent SDK Bridge Agent SDK Integration
  */
 
 import { describe, it, expect } from 'vitest';
@@ -7,7 +7,7 @@ import { AgentSDKBridge } from '../../src/language/agent-sdk-bridge.js';
 import { MetaToolManager } from '../../src/language/meta-tool-manager.js';
 import type { MachineData, MachineExecutionContext } from '../../src/language/rails-executor.js';
 
-describe('AgentSDKBridge - Phase 4: Agent SDK Integration', () => {
+describe('AgentSDKBridge - Agent SDK Integration', () => {
     it('should initialize with default config', () => {
         const machineData: MachineData = {
             title: 'Test Machine',
