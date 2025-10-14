@@ -75,7 +75,7 @@ describe('AgentSDKBridge - Agent SDK Integration', () => {
         };
 
         const metaToolManager = new MetaToolManager(machineData, () => {});
-        const bridge = new AgentSDKBridge(machineData, context, metaToolManager, { persistHistory: true });
+        const bridge = new AgentSDKBridge(machineData, context, metaToolManager, undefined, { persistHistory: true });
 
         await bridge.invokeAgent('task1', 'System prompt', []);
 

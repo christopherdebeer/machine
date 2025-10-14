@@ -145,4 +145,30 @@ export class ToolRegistry {
     getDynamicHandlerCount(): number {
         return this.dynamicHandlers.size;
     }
+
+    /**
+     * Get all registered patterns (for debugging)
+     * @returns Array of registered patterns
+     */
+    getRegisteredPatterns(): Array<string | RegExp> {
+        return Array.from(this.dynamicHandlers.keys());
+    }
+
+    /**
+     * Get diagnostic information about the registry
+     * @returns Diagnostic information including counts and lists
+     */
+    getDiagnostics(): {
+        staticToolCount: number;
+        dynamicHandlerCount: number;
+        patterns: Array<string | RegExp>;
+        staticTools: string[];
+    } {
+        return {
+            staticToolCount: this.staticTools.size,
+            dynamicHandlerCount: this.dynamicHandlers.size,
+            patterns: this.getRegisteredPatterns(),
+            staticTools: Array.from(this.staticTools.keys())
+        };
+    }
 }
