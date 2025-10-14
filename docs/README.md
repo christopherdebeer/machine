@@ -12,6 +12,7 @@ DyGram is a domain-specific language for defining state machines, workflows, and
 
 ### Language Features
 - **[Advanced Features](AdvancedFeatures.mdx)** - Relationship types, multiplicity, annotations, generics, and validation
+- **[Edge Conditions](EdgeConditions.mdx)** - Conditional transitions using CEL expressions
 - **[Context & Schema Guide](ContextAndSchemaGuide.mdx)** - Enhanced context value management and schema validation
 - **[Grammar Reference](GrammarReference.mdx)** - Complete grammar specification
 - **[Events](Events.mdx)** - Event system and handling
