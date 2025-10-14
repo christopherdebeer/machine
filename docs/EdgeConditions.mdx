@@ -1,4 +1,6 @@
-# Edge Conditions
+import { PageLayout } from '../src/components/PageLayout';
+
+<PageLayout title="Edge Conditions" description="Conditional edge transitions using the Common Expression Language (CEL) for safe, sandboxed expression evaluation">
 
 DyGram supports conditional edge transitions using the Common Expression Language (CEL) for safe, sandboxed expression evaluation.
 
@@ -268,3 +270,5 @@ task -if: '(invalidSyntax >)';-> next;  // Won't transition due to error
 - [Syntax Guide](./SyntaxGuide.mdx)
 - [Error Handling Examples](../examples/advanced/error-handling.dygram)
 - [CEL Language Specification](https://github.com/google/cel-spec)
+
+</PageLayout>

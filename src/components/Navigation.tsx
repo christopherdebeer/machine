@@ -92,6 +92,7 @@ export const Navigation: React.FC = () => {
 
                 <div style={linksContainerStyle} className="nav-links">
                     <a href="quick-start.html" style={linkStyle} className="nav-link">Quick Start</a>
+                    <a href="documentation.html" style={linkStyle} className="nav-link">Documentation</a>
                     <a href="examples-index.html" style={linkStyle} className="nav-link">Examples</a>
                     <a href="api.html" style={linkStyle} className="nav-link">API</a>
                     <a href="playground-mobile.html" style={linkStyle} className="nav-link">Playground</a>
@@ -110,6 +111,7 @@ export const Navigation: React.FC = () => {
 
             <div style={mobileLinksStyle} className="mobile-nav-links">
                 <a href="quick-start.html" style={linkStyle}>Quick Start</a>
+                <a href="documentation.html" style={linkStyle}>Documentation</a>
                 <a href="examples-index.html" style={linkStyle}>Examples</a>
                 <a href="api.html" style={linkStyle}>API</a>
                 <a href="playground-mobile.html" style={linkStyle}>Playground</a>
