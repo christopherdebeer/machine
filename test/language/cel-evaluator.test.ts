@@ -294,4 +294,174 @@ describe('CelEvaluator', () => {
             expect(evaluator.evaluateCondition('count >= threshold', context)).toBe(false);
         });
     });
+
+    describe('template resolution', () => {
+        it('should resolve simple template variables', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 0,
+                activeState: 'idle',
+                attributes: {
+                    config: {
+                        timeout: 5000,
+                        apiUrl: 'https://api.example.com'
+                    }
+                }
+            };
+
+            expect(evaluator.resolveTemplate('Timeout: {{ config.timeout }}ms', context))
+                .toBe('Timeout: 5000ms');
+            expect(evaluator.resolveTemplate('URL: {{ config.apiUrl }}', context))
+                .toBe('URL: https://api.example.com');
+        });
+
+        it('should resolve nested template variables', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 0,
+                activeState: 'idle',
+                attributes: {
+                    system: {
+                        database: {
+                            host: 'localhost',
+                            port: 5432
+                        }
+                    }
+                }
+            };
+
+            expect(evaluator.resolveTemplate('Connect to {{ system.database.host }}:{{ system.database.port }}', context))
+                .toBe('Connect to localhost:5432');
+        });
+
+        it('should resolve multiple template variables', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 3,
+                activeState: 'processing',
+                attributes: {
+                    user: {
+                        name: 'Alice',
+                        priority: 5
+                    }
+                }
+            };
+
+            expect(evaluator.resolveTemplate(
+                'User {{ user.name }} (priority: {{ user.priority }}) with {{ errorCount }} errors',
+                context
+            )).toBe('User Alice (priority: 5) with 3 errors');
+        });
+
+        it('should handle template variables with expressions', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 0,
+                activeState: 'idle',
+                attributes: {
+                    counts: {
+                        total: 100,
+                        processed: 75
+                    }
+                }
+            };
+
+            // CEL expressions in templates
+            expect(evaluator.resolveTemplate('Progress: {{ counts.processed }} / {{ counts.total }}', context))
+                .toBe('Progress: 75 / 100');
+        });
+
+        it('should handle built-in variables in templates', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 5,
+                activeState: 'processing',
+                attributes: {}
+            };
+
+            expect(evaluator.resolveTemplate('Errors: {{ errorCount }}, State: {{ activeState }}', context))
+                .toBe('Errors: 5, State: processing');
+            expect(evaluator.resolveTemplate('Alias: {{ errors }}', context))
+                .toBe('Alias: 5');
+        });
+
+        it('should handle null and undefined gracefully', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 0,
+                activeState: 'idle',
+                attributes: {
+                    data: {
+                        value: null
+                    }
+                }
+            };
+
+            // Null values should resolve to empty string
+            expect(evaluator.resolveTemplate('Value: {{ data.value }}', context))
+                .toBe('Value: ');
+        });
+
+        it('should handle objects in templates', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 0,
+                activeState: 'idle',
+                attributes: {
+                    config: {
+                        settings: { debug: true, verbose: false }
+                    }
+                }
+            };
+
+            // Objects should be JSON stringified
+            // Note: CEL may return Map-like objects, so just check that it's stringified
+            const result = evaluator.resolveTemplate('Settings: {{ config.settings }}', context);
+            expect(result).toContain('Settings: ');
+            // Should be stringified (either as object or Map)
+            expect(result).toMatch(/Settings: \{.+\}/);
+        });
+
+        it('should return original template on error', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 0,
+                activeState: 'idle',
+                attributes: {}
+            };
+
+            // Invalid reference should return original template for debugging
+            const result = evaluator.resolveTemplate('Value: {{ nonexistent.property }}', context);
+            expect(result).toContain('{{ nonexistent.property }}');
+        });
+
+        it('should handle mixed content with multiple templates', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 0,
+                activeState: 'idle',
+                attributes: {
+                    userData: {
+                        name: 'Bob',
+                        email: 'bob@example.com'
+                    },
+                    config: {
+                        apiKey: 'secret123'
+                    }
+                }
+            };
+
+            const template = 'User {{ userData.name }} ({{ userData.email }}) using API key {{ config.apiKey }}';
+            expect(evaluator.resolveTemplate(template, context))
+                .toBe('User Bob (bob@example.com) using API key secret123');
+        });
+
+        it('should handle whitespace in template expressions', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 0,
+                activeState: 'idle',
+                attributes: {
+                    node: {
+                        value: 42
+                    }
+                }
+            };
+
+            // Various whitespace formats
+            expect(evaluator.resolveTemplate('{{node.value}}', context)).toBe('42');
+            expect(evaluator.resolveTemplate('{{ node.value }}', context)).toBe('42');
+            expect(evaluator.resolveTemplate('{{  node.value  }}', context)).toBe('42');
+        });
+    });
 });
