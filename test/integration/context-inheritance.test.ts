@@ -5,9 +5,22 @@
  * context nodes accessible by their parent nodes
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { EmptyFileSystem } from 'langium';
+import { parseHelper } from 'langium/test';
 import { ContextPermissionsResolver } from '../../src/language/utils/context-permissions.js';
 import type { MachineData } from '../../src/language/base-executor.js';
+import { createMachineServices } from '../../src/language/machine-module.js';
+import { Machine } from '../../src/language/generated/ast.js';
+import { generateJSON } from '../../src/language/generator/generator.js';
+
+let services: ReturnType<typeof createMachineServices>;
+let parse: ReturnType<typeof parseHelper<Machine>>;
+
+beforeAll(async () => {
+    services = createMachineServices(EmptyFileSystem);
+    parse = parseHelper<Machine>(services.Machine);
+});
 
 describe('Context Inheritance', () => {
     it('should inherit read-only access to parent context', () => {
@@ -230,5 +243,48 @@ describe('Context Inheritance', () => {
 
         // No inherited contexts (no parent)
         expect(contexts.size).toBe(0);
+    });
+
+    it('should populate parent field when generating JSON from DSL', async () => {
+        const dsl = `
+            machine "Parent Field Test"
+
+            group Pipeline {
+                task ChildTask;
+            }
+
+            context config;
+            Pipeline -reads-> config;
+        `;
+
+        const document = await parse(dsl);
+        const result = generateJSON(document.parseResult.value);
+        const machineData = JSON.parse(result.content);
+
+        // Find the nodes
+        const pipeline = machineData.nodes.find((n: any) => n.name === 'Pipeline');
+        const childTask = machineData.nodes.find((n: any) => n.name === 'ChildTask');
+
+        // Pipeline should have no parent (top-level)
+        expect(pipeline).toBeDefined();
+        expect(pipeline.parent).toBeUndefined();
+
+        // ChildTask should have Pipeline as parent
+        expect(childTask).toBeDefined();
+        expect(childTask.parent).toBe('Pipeline');
+        expect(childTask.type).toBe('task'); // Type should be preserved, not replaced by parent name
+
+        // Now test that inheritance actually works with this generated JSON
+        const contexts = ContextPermissionsResolver.getAccessibleContextNodes(
+            'ChildTask',
+            machineData,
+            { includeInheritedContext: true }
+        );
+
+        // ChildTask should inherit read access to config from Pipeline
+        expect(contexts.has('config')).toBe(true);
+        const configPerms = contexts.get('config');
+        expect(configPerms?.canRead).toBe(true);
+        expect(configPerms?.canWrite).toBe(false);
     });
 });
