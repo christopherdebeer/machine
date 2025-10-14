@@ -18,7 +18,7 @@ terminal ARROW_SINGLE: '->';
 terminal ARROW_LABEL_START_SINGLE: '-';
 
 // Basic terminals
-terminal ID: /[A-Za-z_0-9][A-Za-z0-9_.]*/;              // identifiers for class and attribute names
+terminal ID: /[A-Za-z_][A-Za-z0-9_]*/;              // identifiers for node and attribute names (must start with letter or underscore)
 terminal STR: /"([^"\\]|\\.)*"/;        // double-quoted strings for titles and default values
 terminal MLSTR: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;  // multiline strings
 terminal NUMBER returns number: /[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?/;
@@ -47,6 +47,11 @@ terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
 
 STRING returns string: STR | MLSTR;
 
+// Qualified name for node references (e.g., parent.child)
+QualifiedName returns string:
+    ID ('.' ID)*
+;
+
 entry Machine:
     'machine' title=STRING
     (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)*
@@ -66,7 +71,7 @@ Annotation:
 
 // Note attached to a node for documentation
 Note:
-    'note' 'for' target=[Node:ID] content=STRING
+    'note' 'for' target=[Node:QualifiedName] content=STRING
 ;
 
 // Type definition that supports generic types (e.g., Promise<Result>, List<Step>)
@@ -129,10 +134,10 @@ EdgeSegment:
         endType=ARROW_SINGLE
     )
     (targetMultiplicity=STRING)?
-    (target+=[Node:ID] (',' target+=[Node:ID])*)
+    (target+=[Node:QualifiedName] (',' target+=[Node:QualifiedName])*)
 ;
 
 
 Edge<isRoot>:
-    (<isRoot> (source+=[Node:ID] (',' source+=[Node:ID])*)?)
+    (<isRoot> (source+=[Node:QualifiedName] (',' source+=[Node:QualifiedName])*)?)
     segments+=EdgeSegment+ ';';

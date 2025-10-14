@@ -38,6 +38,7 @@ export interface MachineData {
     nodes: Array<{
         name: string;
         type?: string;
+        parent?: string; // Name of parent node for hierarchy tracking (optional)
         attributes?: Array<{
             name: string;
             type: string;
