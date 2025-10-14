@@ -13,6 +13,7 @@ DyGram (formerly "Machine", aka "ideo-gram") is a lean, executable DSL for rapid
 - **🚀 Immediately Executable**: Start with broad, unstructured concepts that run from day one
 - **🛤️ Rails-Based Execution**: Single agent rides machine rails with automated + intelligent transitions
 - **🔧 Meta-Programming**: Agents can construct tools dynamically and improve them iteratively
+- **🏗️ Semantic Nesting**: Hierarchical namespaces with qualified names and automatic context inheritance
 - **📱 Mobile-First**: CodeMirror 6-based playground optimized for touch devices
 - **🔄 Iterative Evolution**: Refine through execution, feedback, and continuous iteration
 - **🎯 Lean Core DSL**: Minimal, intuitive language capturing domain concepts
@@ -190,6 +191,59 @@ Result output {
 
 query -> analyze -> output;
 ```
+
+### Semantic Nesting & Namespaces
+
+DyGram supports semantic nesting with qualified names and automatic context inheritance:
+
+```machine
+machine "Data Pipeline"
+
+// Global configuration
+context globalConfig {
+    apiUrl: "https://api.example.com";
+    timeout: 5000;
+}
+
+// Nested pipeline structure
+task DataPipeline {
+    context pipelineState {
+        recordsProcessed: 0;
+    }
+
+    task ValidationPhase {
+        task validate {
+            prompt: "Validate data";
+            // Automatically inherits read access to globalConfig and pipelineState
+        }
+    }
+
+    task ProcessingPhase {
+        task transform {
+            prompt: "Transform data";
+            // Also inherits read access to parent contexts
+        }
+    }
+}
+
+// Reference nested nodes using qualified names
+start -> DataPipeline.ValidationPhase.validate;
+DataPipeline.ValidationPhase.validate -> DataPipeline.ProcessingPhase.transform;
+
+// Parent pipeline has explicit access to config
+DataPipeline -reads-> globalConfig;
+DataPipeline -writes-> DataPipeline.pipelineState;
+
+// Children automatically inherit read-only access (no explicit edges needed)
+```
+
+**Key Features:**
+- **Qualified Names**: Reference nested nodes using dot notation (e.g., `Parent.Child.GrandChild`)
+- **Context Inheritance**: Child nodes automatically inherit read-only access to parent contexts
+- **Reduced Boilerplate**: No need for repetitive context edges on every child node
+- **Intuitive Scoping**: Hierarchical structure reflects natural context relationships
+
+See [Nesting Examples](examples/nesting/) for more details.
 
 ## Project Structure
 

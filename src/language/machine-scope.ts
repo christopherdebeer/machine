@@ -1,19 +1,34 @@
-import { AstNode, DefaultScopeProvider, ReferenceInfo, Scope } from 'langium';
+import { AstNode, DefaultScopeProvider, ReferenceInfo, Scope, AstNodeDescription } from 'langium';
 import { Machine, Node, isNode } from './generated/ast.js';
 import { stream } from 'langium';
 
 export class MachineScopeProvider extends DefaultScopeProvider {
     /**
      * Override getScope to provide custom scoping for node references
+     * Supports both simple names (backward compatible) and qualified names (parent.child)
      */
     override getScope(context: ReferenceInfo): Scope {
-        // For node references in edges, we want to include all nodes in the machine
+        // For node references in edges and notes, we want to include all nodes in the machine
         if (context.property === 'source' || context.property === 'target') {
             const machine = this.getMachineContainer(context.container);
             if (machine) {
                 // Get all nodes in the machine, including nested ones
                 const allNodes = this.getAllNodes(machine);
-                const descriptions = allNodes.map(node => this.descriptions.createDescription(node, node.name));
+                const descriptions: AstNodeDescription[] = [];
+
+                // Create descriptions for simple names (backward compatible)
+                allNodes.forEach(node => {
+                    descriptions.push(this.descriptions.createDescription(node, node.name));
+                });
+
+                // Create descriptions for qualified names (parent.child, parent.child.grandchild, etc.)
+                allNodes.forEach(node => {
+                    const qualifiedName = this.getQualifiedName(node);
+                    if (qualifiedName && qualifiedName !== node.name) {
+                        descriptions.push(this.descriptions.createDescription(node, qualifiedName));
+                    }
+                });
+
                 return this.createScope(stream(descriptions));
             }
         }
@@ -48,5 +63,27 @@ export class MachineScopeProvider extends DefaultScopeProvider {
 
         collectNodes(machine);
         return nodes;
+    }
+
+    /**
+     * Get the qualified name for a node (e.g., parent.child.grandchild)
+     * Returns undefined if the node is at the machine level
+     */
+    private getQualifiedName(node: Node): string | undefined {
+        const parts: string[] = [node.name];
+        let current: AstNode | undefined = node.$container;
+
+        // Walk up the tree collecting parent names
+        while (current && isNode(current)) {
+            parts.unshift(current.name);
+            current = current.$container;
+        }
+
+        // If we only have the node name itself, return undefined (no qualification needed)
+        if (parts.length === 1) {
+            return undefined;
+        }
+
+        return parts.join('.');
     }
 }

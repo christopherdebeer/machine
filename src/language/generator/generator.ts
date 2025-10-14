@@ -88,9 +88,14 @@ class JSONGenerator extends BaseGenerator {
         const flattenNode = (node: Node, parentName?: string): any[] => {
             const baseNode: any = {
                 name: node.name,
-                type: parentName || node.type,
+                type: node.type,
                 attributes: this.serializeAttributes(node)
             };
+
+            // Add parent field for hierarchy tracking (used by context inheritance)
+            if (parentName) {
+                baseNode.parent = parentName;
+            }
 
             // Add annotations if present
             if (node.annotations && node.annotations.length > 0) {
