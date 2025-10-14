@@ -42,6 +42,11 @@ export default defineConfig(() => {
                     'support': path.resolve(__dirname, 'support.html'),
                     'installation': path.resolve(__dirname, 'installation.html'),
                     'cli-reference': path.resolve(__dirname, 'cli-reference.html'),
+                    'edge-conditions': path.resolve(__dirname, 'edge-conditions.html'),
+                    'generative-testing': path.resolve(__dirname, 'generative-testing.html'),
+                    'llm-client-usage': path.resolve(__dirname, 'llm-client-usage.html'),
+                    'rails-based-architecture': path.resolve(__dirname, 'rails-based-architecture.html'),
+                    'validation-error-handling': path.resolve(__dirname, 'validation-error-handling.html'),
                 },
             },
             outDir: 'dist'

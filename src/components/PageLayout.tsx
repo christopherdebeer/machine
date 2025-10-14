@@ -60,6 +60,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, backLin
                         <div className="footer-links">
                             <h3>DOCUMENTATION</h3>
                             <ul>
+                                <li><a href="documentation.html">Documentation</a></li>
                                 <li><a href="quick-start.html">Quick Start</a></li>
                                 <li><a href="grammar-reference.html">Grammar Reference</a></li>
                                 <li><a href="examples.html">Examples</a></li>
