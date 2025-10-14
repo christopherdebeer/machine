@@ -11,6 +11,7 @@
 import type { ToolDefinition, ConversationMessage, ModelResponse, ToolUseBlock } from './claude-client.js';
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
 import type { MetaToolManager } from './meta-tool-manager.js';
+import type { ToolRegistry } from './tool-registry.js';
 import { ClaudeClient } from './claude-client.js';
 import { extractText, extractToolUses } from './llm-utils.js';
 import { Mutex } from 'async-mutex';
@@ -89,7 +90,7 @@ export class AgentSDKBridge {
     private config: Required<AgentSDKBridgeConfig>;
     private toolExecutor?: (toolName: string, input: any) => Promise<any>;
     private claudeClient?: ClaudeClient;
-    private toolRegistry?: any; // ToolRegistry type - using any to avoid circular dependency
+    private toolRegistry?: ToolRegistry;
 
     // Mutexes for protecting shared state
     private invocationMutex = new Mutex();
@@ -102,7 +103,7 @@ export class AgentSDKBridge {
         // @ts-expect-error - Reserved for future use
         private _executionContext: MachineExecutionContext,
         private metaToolManager: MetaToolManager,
-        toolRegistry: any,
+        toolRegistry?: ToolRegistry,
         config: AgentSDKBridgeConfig = {}
     ) {
         this.toolRegistry = toolRegistry;
@@ -128,6 +129,36 @@ export class AgentSDKBridge {
                 console.warn('Failed to initialize Claude client:', error);
             }
         }
+
+        // Register meta-tools with ToolRegistry if available
+        if (this.toolRegistry) {
+            this.registerMetaTools();
+        }
+    }
+
+    /**
+     * Register meta-tools with the ToolRegistry
+     */
+    private registerMetaTools(): void {
+        if (!this.toolRegistry) return;
+
+        const metaTools = this.metaToolManager.getMetaTools();
+        const metaToolHandlers: Record<string, (input: any) => Promise<any>> = {
+            'get_machine_definition': (input) => this.metaToolManager.getMachineDefinition(input),
+            'update_definition': (input) => this.metaToolManager.updateDefinition(input),
+            'construct_tool': (input) => this.metaToolManager.constructTool(input),
+            'list_available_tools': (input) => this.metaToolManager.listAvailableTools(input),
+            'propose_tool_improvement': (input) => this.metaToolManager.proposeToolImprovement(input),
+            'get_tool_nodes': (input) => this.metaToolManager.getToolNodesHandler(input),
+            'build_tool_from_node': (input) => this.metaToolManager.buildToolFromNodeHandler(input),
+        };
+
+        metaTools.forEach(tool => {
+            const handler = metaToolHandlers[tool.name];
+            if (handler) {
+                this.toolRegistry!.registerStatic(tool, async (name, input) => handler(input));
+            }
+        });
     }
 
     /**
@@ -523,34 +554,42 @@ export class AgentSDKBridge {
     async executeTool(toolName: string, input: any): Promise<any> {
         console.log(`🔧 Executing tool: ${toolName}`);
 
-        // If we have a tool executor from RailsExecutor, use it
+        // Primary: Use tool executor from RailsExecutor
         if (this.toolExecutor) {
             return await this.toolExecutor(toolName, input);
         }
 
-        // Use ToolRegistry if available
+        // Fallback: Use ToolRegistry directly (includes dynamic + meta tools)
         if (this.toolRegistry && this.toolRegistry.hasTool(toolName)) {
             return await this.toolRegistry.executeTool(toolName, input);
         }
 
-        // Fallback: Check if it's a dynamic tool
+        // Additional fallback: Check if it's a meta tool (when no registry)
+        const metaToolNames = [
+            'get_machine_definition',
+            'update_definition',
+            'construct_tool',
+            'list_available_tools',
+            'propose_tool_improvement',
+            'get_tool_nodes',
+            'build_tool_from_node'
+        ];
+
+        if (metaToolNames.includes(toolName)) {
+            return await this.executeMetaTool(toolName, input);
+        }
+
+        // Final fallback: Check if it's a dynamic tool
         const dynamicTool = this.metaToolManager.getDynamicTool(toolName);
         if (dynamicTool) {
             return await this.metaToolManager.executeDynamicTool(toolName, input);
-        }
-
-        // Check if it's a meta-tool
-        const metaTools = this.metaToolManager.getMetaTools();
-        const metaTool = metaTools.find(t => t.name === toolName);
-        if (metaTool) {
-            return await this.executeMetaTool(toolName, input);
         }
 
         throw new Error(`Tool ${toolName} not found`);
     }
 
     /**
-     * Execute a meta-tool
+     * Execute meta tool directly
      */
     private async executeMetaTool(toolName: string, input: any): Promise<any> {
         switch (toolName) {
@@ -569,7 +608,7 @@ export class AgentSDKBridge {
             case 'build_tool_from_node':
                 return await this.metaToolManager.buildToolFromNodeHandler(input);
             default:
-                throw new Error(`Meta-tool ${toolName} not implemented`);
+                throw new Error(`Meta tool ${toolName} not found`);
         }
     }
 

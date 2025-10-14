@@ -231,6 +231,109 @@ The Rails-Based Architecture leverages Claude Agent SDK for:
 - Token usage estimation
 - Mutation tracking
 
+## ToolRegistry Architecture
+
+The **ToolRegistry** provides centralized tool management and execution across the system, replacing scattered dispatch logic with a unified interface.
+
+### Core Responsibilities
+
+1. **Static Tool Registration** - Register tools with fixed definitions
+2. **Dynamic Pattern Matching** - Handle pattern-based tools (e.g., `transition_to_*`, `read_*`, `write_*`)
+3. **Unified Execution** - Single entry point for all tool execution
+4. **Tool Querying** - Check tool availability and filter tool lists
+
+### Integration Points
+
+The ToolRegistry is integrated with three key components:
+
+#### 1. RailsExecutor
+Registers dynamic tool patterns during initialization:
+```typescript
+// Transition tools
+toolRegistry.registerDynamic('transition_to_',
+  (name, input) => handleTransitionTool(name, input)
+);
+
+// Context read tools
+toolRegistry.registerDynamic('read_',
+  (name, input) => handleReadTool(name, input)
+);
+
+// Context write tools
+toolRegistry.registerDynamic('write_',
+  (name, input) => handleWriteTool(name, input)
+);
+```
+
+#### 2. AgentSDKBridge
+Registers meta-tools and delegates all tool execution to the registry:
+```typescript
+// Meta-tools are registered during initialization
+registerMetaTools() {
+  metaTools.forEach(tool => {
+    toolRegistry.registerStatic(tool, handler);
+  });
+}
+
+// Simplified execution - only 2 fallback layers
+async executeTool(name, input) {
+  if (toolExecutor) return toolExecutor(name, input);
+  if (toolRegistry.hasTool(name)) {
+    return toolRegistry.executeTool(name, input);
+  }
+  throw new Error(`Tool ${name} not found`);
+}
+```
+
+#### 3. MetaToolManager
+Automatically registers dynamically constructed tools:
+```typescript
+// When a tool is constructed, register it with ToolRegistry
+const dynamicTool = { definition, handler, ... };
+dynamicTools.set(name, dynamicTool);
+
+if (toolRegistry) {
+  toolRegistry.registerStatic(definition, handler);
+}
+```
+
+### Pattern Matching
+
+The registry supports two pattern types:
+
+**String Prefixes:**
+```typescript
+toolRegistry.registerDynamic('transition_to_', handler);
+// Matches: transition_to_ready, transition_to_processing, etc.
+```
+
+**Regular Expressions:**
+```typescript
+toolRegistry.registerDynamic(/^read_[a-z]+$/, handler);
+// Matches: read_data, read_config, but not read_Data (case-sensitive)
+```
+
+### Diagnostic Tools
+
+For debugging and monitoring:
+```typescript
+const diagnostics = toolRegistry.getDiagnostics();
+// Returns: {
+//   staticToolCount: 7,
+//   dynamicHandlerCount: 10,
+//   patterns: ['transition_to_', 'read_', /^write_/, ...],
+//   staticTools: ['get_machine_definition', 'construct_tool', ...]
+// }
+```
+
+### Benefits
+
+- **Centralized Dispatch** - Single location for all tool routing logic
+- **Type Safety** - Proper TypeScript types instead of `any`
+- **Simplified Code** - ~100 lines of duplicate dispatch logic eliminated
+- **Better Debugging** - Diagnostic methods for troubleshooting tool resolution
+- **Flexible Patterns** - Support for both string prefixes and complex RegExp patterns
+
 ## Permission Model
 
 Edge labels define context access:

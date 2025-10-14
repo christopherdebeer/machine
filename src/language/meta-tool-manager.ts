@@ -10,6 +10,7 @@
 
 import type { ToolDefinition } from './llm-client.js';
 import type { MachineMutation, MachineData } from './rails-executor.js';
+import type { ToolRegistry } from './tool-registry.js';
 import { extractValueFromAST } from './utils/ast-helpers.js';
 
 /**
@@ -40,12 +41,12 @@ export class MetaToolManager {
     private dynamicTools = new Map<string, DynamicTool>();
     private proposals: ToolImprovementProposal[] = [];
     private onMachineUpdate?: (dsl: string, machineData: MachineData) => void;
-    private toolRegistry?: any; // ToolRegistry type - using any to avoid circular dependency
+    private toolRegistry?: ToolRegistry;
 
     constructor(
         private _machineData: MachineData,
         private onMutation: (mutation: Omit<MachineMutation, 'timestamp'>) => void,
-        toolRegistry?: any
+        toolRegistry?: ToolRegistry
     ) {
         this.toolRegistry = toolRegistry;
     }
