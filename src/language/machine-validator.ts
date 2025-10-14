@@ -16,6 +16,7 @@ export class MachineValidationRegistry extends ValidationRegistry {
             Machine: [
                 validator.checkMachineStartsWithCapital.bind(validator),
                 validator.checkDuplicateStates.bind(validator),
+                validator.checkReservedNodeNames.bind(validator),
                 validator.checkInvalidStateReferences.bind(validator),
                 // Validation: Graph validation
                 validator.checkGraphStructure.bind(validator),
@@ -62,6 +63,33 @@ export class MachineValidator {
             } else {
                 stateNames.set(node.name, node);
             }
+            // Process nested nodes
+            for (const childNode of node.nodes) {
+                processNode(childNode);
+            }
+        };
+
+        for (const node of machine.nodes) {
+            processNode(node);
+        }
+    }
+
+    /**
+     * Check for nodes using reserved CEL variable names
+     * Reserved names: errorCount, errors, activeState
+     */
+    checkReservedNodeNames(machine: Machine, accept: ValidationAcceptor): void {
+        const RESERVED_NAMES = ['errorCount', 'errors', 'activeState'];
+
+        const processNode = (node: Node) => {
+            if (RESERVED_NAMES.includes(node.name)) {
+                accept('warning',
+                    `Node name '${node.name}' is reserved for built-in CEL variables. ` +
+                    `Built-in variable will take precedence. Consider renaming the node.`,
+                    { node: node, property: 'name' }
+                );
+            }
+
             // Process nested nodes
             for (const childNode of node.nodes) {
                 processNode(childNode);
