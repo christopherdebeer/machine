@@ -3,6 +3,9 @@
  *
  * Provides centralized, consistent logic for determining node types throughout the codebase.
  * Eliminates duplication and ensures consistent behavior across executors, validators, and builders.
+ *
+ * Supports optional types: When a node doesn't have an explicit type, the system infers the type
+ * based on attributes, naming patterns, and graph structure.
  */
 
 import type { Node as ASTNode } from './generated/ast.js';
@@ -32,67 +35,180 @@ export interface EdgeLike {
 }
 
 /**
+ * Node types that can be inferred
+ */
+export type InferredNodeType = 'task' | 'state' | 'context' | 'init' | 'tool' | undefined;
+
+/**
  * Node Type Checker - Static utilities for node type identification
  */
 export class NodeTypeChecker {
     /**
+     * Get the effective type of a node (explicit or inferred)
+     * This is the primary method to use when checking node types
+     *
+     * @param node The node to check
+     * @param edges Optional edges for graph-based inference (init nodes)
+     * @returns The node type (explicit or inferred)
+     */
+    static getNodeType(node: NodeLike | ASTNode, edges?: EdgeLike[]): InferredNodeType {
+        // If explicit type is provided, use it
+        if (node.type) {
+            const type = node.type.toLowerCase();
+            // Normalize context aliases to 'context' for backward compatibility
+            if (type === 'concept' || type === 'input' || type === 'output' || type === 'result') {
+                return 'context';
+            }
+            return type as InferredNodeType;
+        }
+
+        // Otherwise infer the type
+        return this.inferType(node, edges);
+    }
+
+    /**
+     * Infer node type from attributes, naming, and graph structure
+     *
+     * Inference rules (in priority order):
+     * 1. Has 'prompt' attribute → task
+     * 2. Has tool-like attributes (input/output schema) → tool
+     * 3. Name matches context patterns OR has only data attributes → context
+     * 4. No incoming edges + has outgoing edges → init (requires edges parameter)
+     * 5. Default → state (control flow node)
+     *
+     * @param node The node to infer type for
+     * @param edges Optional edges for graph-based inference
+     * @returns Inferred node type
+     */
+    static inferType(node: NodeLike | ASTNode, edges?: EdgeLike[]): InferredNodeType {
+        const attrs = this.getAttributes(node);
+        const name = node.name.toLowerCase();
+
+        // 1. Has prompt → task
+        if (attrs.prompt !== undefined) {
+            return 'task';
+        }
+
+        // 2. Has tool schema attributes → tool
+        if (this.hasToolSchemaAttributes(attrs)) {
+            return 'tool';
+        }
+
+        // 3. Name-based context detection OR only has data attributes → context
+        if (this.matchesContextNamingPattern(name) || this.hasOnlyDataAttributes(attrs)) {
+            return 'context';
+        }
+
+        // 4. Graph structure: no incoming edges + has outgoing edges → init
+        if (edges && this.hasInitGraphStructure(node.name, edges)) {
+            return 'init';
+        }
+
+        // 5. Default: state (control flow node)
+        return 'state';
+    }
+
+    /**
+     * Check if attributes suggest a tool definition
+     */
+    private static hasToolSchemaAttributes(attrs: Record<string, any>): boolean {
+        // Tool nodes typically have schema-like attributes
+        const toolIndicators = ['input', 'output', 'parameters', 'schema', 'returns'];
+        return toolIndicators.some(indicator => attrs[indicator] !== undefined);
+    }
+
+    /**
+     * Check if name matches context naming patterns
+     * Note: "state" alone is not a context indicator, but "appState", "userState" etc. are
+     */
+    private static matchesContextNamingPattern(name: string): boolean {
+        // Exact match "state" alone should not be considered context
+        if (name === 'state') {
+            return false;
+        }
+
+        return name.includes('context') ||
+               name.includes('output') ||
+               name.includes('input') ||
+               name.includes('data') ||
+               name.includes('result') ||
+               name.includes('config') ||
+               (name.includes('state') && name !== 'state'); // "appState" yes, "state" no
+    }
+
+    /**
+     * Check if node has only data-like attributes (no executable attributes)
+     */
+    private static hasOnlyDataAttributes(attrs: Record<string, any>): boolean {
+        if (Object.keys(attrs).length === 0) {
+            return false; // Empty attributes doesn't mean context
+        }
+
+        // Executable indicators (if present, it's not a pure data context)
+        const executableIndicators = ['prompt', 'meta', 'condition', 'action'];
+        const hasExecutableAttrs = executableIndicators.some(indicator => attrs[indicator] !== undefined);
+
+        return !hasExecutableAttrs;
+    }
+
+    /**
+     * Check if node has init-like graph structure (no incoming edges, has outgoing)
+     */
+    private static hasInitGraphStructure(nodeName: string, edges: EdgeLike[]): boolean {
+        const hasIncoming = edges.some(edge => edge.target === nodeName);
+        const hasOutgoing = edges.some(edge => edge.source === nodeName);
+
+        return !hasIncoming && hasOutgoing;
+    }
+
+    /**
      * Check if a node is a state node
      * State nodes represent discrete states in the state machine
+     * Now supports type inference
      */
-    static isState(node: NodeLike | ASTNode): boolean {
-        return node.type?.toLowerCase() === 'state';
+    static isState(node: NodeLike | ASTNode, edges?: EdgeLike[]): boolean {
+        const type = this.getNodeType(node, edges);
+        return type === 'state';
     }
 
     /**
      * Check if a node is a task node
      * Task nodes represent executable tasks that may require LLM invocation
-     * A node is considered a task if:
-     * 1. It has type 'task', OR
-     * 2. It has a 'prompt' attribute (indicating LLM task)
+     * Now supports type inference: nodes with 'prompt' attribute are inferred as tasks
      */
-    static isTask(node: NodeLike | ASTNode): boolean {
-        const isTaskType = node.type?.toLowerCase() === 'task';
-        const hasPrompt = node.attributes?.some(attr => attr.name === 'prompt');
-        return isTaskType || Boolean(hasPrompt);
+    static isTask(node: NodeLike | ASTNode, edges?: EdgeLike[]): boolean {
+        const type = this.getNodeType(node, edges);
+        return type === 'task';
     }
 
     /**
      * Check if a node is a context node
      * Context nodes store shared state/data that tasks can read/write
-     * Uses both explicit type checking and name-based heuristics
+     * Now supports type inference: nodes with context-like names or only data attributes
      */
-    static isContext(node: NodeLike | ASTNode): boolean {
-        const type = node.type?.toLowerCase() || '';
-        const name = node.name.toLowerCase();
-
-        // Explicit type check
-        if (type === 'context' || type === 'concept' || type === 'input' || type === 'result') {
-            return true;
-        }
-
-        // Name-based heuristics for backward compatibility
-        return name.includes('context') ||
-               name.includes('output') ||
-               name.includes('input') ||
-               name.includes('data') ||
-               name.includes('result');
+    static isContext(node: NodeLike | ASTNode, edges?: EdgeLike[]): boolean {
+        const type = this.getNodeType(node, edges);
+        return type === 'context';
     }
 
     /**
      * Check if a node is an init node
      * Init nodes are entry points to the state machine
+     * Now supports type inference: nodes with no incoming edges and outgoing edges
      */
-    static isInit(node: NodeLike | ASTNode): boolean {
-        return node.type?.toLowerCase() === 'init';
+    static isInit(node: NodeLike | ASTNode, edges?: EdgeLike[]): boolean {
+        const type = this.getNodeType(node, edges);
+        return type === 'init';
     }
 
     /**
      * Check if a node is a tool node
      * Tool nodes represent callable tools with input/output schemas
-     * Tools can be loosely defined (minimal attributes) or fully defined
+     * Now supports type inference: nodes with schema-like attributes
      */
-    static isTool(node: NodeLike | ASTNode): boolean {
-        return node.type?.toLowerCase() === 'tool';
+    static isTool(node: NodeLike | ASTNode, edges?: EdgeLike[]): boolean {
+        const type = this.getNodeType(node, edges);
+        return type === 'tool';
     }
 
     /**
