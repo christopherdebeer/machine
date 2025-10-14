@@ -176,7 +176,7 @@ export abstract class BaseExecutor {
         }
 
         try {
-            // Build context with all node attributes as nested objects
+            // Build context with all node attributes
             const attributes = this.buildAttributeContext();
 
             // Replace template variables with CEL-compatible syntax
@@ -198,6 +198,7 @@ export abstract class BaseExecutor {
             return false; // If condition evaluation fails, treat as false
         }
     }
+
 
     /**
      * Build a context object with all nodes' attributes for CEL evaluation
@@ -234,7 +235,7 @@ export abstract class BaseExecutor {
      * @param template - String containing template variables
      * @returns Resolved string with template variables replaced
      */
-    protected resolveTemplateVariables(template: string): string {
+    public resolveTemplateVariables(template: string): string {
         // Build context with all node attributes
         const attributes = this.buildAttributeContext();
 
@@ -245,7 +246,6 @@ export abstract class BaseExecutor {
             attributes: attributes
         });
     }
-
 
     /**
      * Get node attributes as a key-value object

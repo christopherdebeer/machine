@@ -2,11 +2,15 @@
  * Prompt templates for task node execution
  */
 
+import { CelEvaluator, CelEvaluationContext } from '../cel-evaluator.js';
+
 export interface TaskPromptContext {
     title?: string;
     description?: string;
     prompt?: string;
     attributes?: Record<string, any>;
+    // CEL evaluation context for advanced template resolution
+    celContext?: CelEvaluationContext;
 }
 
 export const DEFAULT_TASK_PROMPT = `You are a task executor that helps process workflow tasks.
@@ -70,12 +74,49 @@ export type TaskType = keyof typeof TASK_PROMPT_TEMPLATES;
 export function compilePrompt(template: string, context: TaskPromptContext): string {
     let result = template;
 
-    // Replace simple placeholders with proper escaping
-    result = result.replace(/\{\{title\}\}/g, context.title || 'Untitled Task');
-    result = result.replace(/\{\{description\}\}/g, context.description || 'No description provided');
-    result = result.replace(/\{\{prompt\}\}/g, context.prompt || 'No specific prompt provided');
+    // If CEL context is provided, use CEL for template resolution
+    if (context.celContext) {
+        const celEvaluator = new CelEvaluator();
 
-    // Handle attributes section more carefully
+        // Create a combined context for CEL evaluation
+        const celContext: CelEvaluationContext = {
+            errorCount: context.celContext.errorCount,
+            activeState: context.celContext.activeState,
+            attributes: {
+                ...context.celContext.attributes,
+                // Add prompt context as well
+                title: context.title || 'Untitled Task',
+                description: context.description || 'No description provided',
+                prompt: context.prompt || 'No specific prompt provided',
+                ...(context.attributes || {})
+            }
+        };
+
+        // First pass: Handle handlebars-style {{#each}} blocks before CEL resolution
+        result = handleHandlebarsBlocks(result, context);
+
+        // Second pass: Use CEL to resolve all {{ }} template variables
+        result = celEvaluator.resolveTemplate(result, celContext);
+    } else {
+        // Fallback to simple string replacement for backward compatibility
+        result = result.replace(/\{\{title\}\}/g, context.title || 'Untitled Task');
+        result = result.replace(/\{\{description\}\}/g, context.description || 'No description provided');
+        result = result.replace(/\{\{prompt\}\}/g, context.prompt || 'No specific prompt provided');
+
+        // Handle attributes section
+        result = handleHandlebarsBlocks(result, context);
+    }
+
+    return result.trim();
+}
+
+/**
+ * Handle handlebars-style {{#each}} blocks
+ * This is separate from CEL template resolution as CEL doesn't support block helpers
+ */
+function handleHandlebarsBlocks(template: string, context: TaskPromptContext): string {
+    let result = template;
+
     if (context.attributes && Object.keys(context.attributes).length > 0) {
         const attributesSection = Object.entries(context.attributes)
             .map(([key, value]) => {
@@ -104,5 +145,5 @@ export function compilePrompt(template: string, context: TaskPromptContext): str
         result = result.replace(/Relevant Context:\s*\{\{#each attributes\}\}[\s\S]*?\{\{\/each\}\}/g, '');
     }
 
-    return result.trim();
+    return result;
 }

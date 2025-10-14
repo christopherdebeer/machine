@@ -68,9 +68,9 @@ Lists all context nodes and their current values:
     height="60px"
 />
 
-### 3. Template Variable Resolution
+### 3. Template Variable Resolution with CEL
 
-Tasks can reference context values using template syntax:
+Tasks can reference context values using template syntax powered by Common Expression Language (CEL):
 
 <CodeEditor
     initialCode={`Task processData {
@@ -83,10 +83,22 @@ Tasks can reference context values using template syntax:
 
 **Template Syntax:**
 - `{{nodeName.attributeName}}` - References a context node's attribute value
-- Values are resolved at runtime using CEL (Common Expression Language)
-- Supports nested object property access (e.g., `{{config.database.host}}`)
-- Can include CEL expressions (e.g., `{{count + 1}}`, `{{name + " " + surname}}`)
-- Safe, sandboxed evaluation prevents security risks
+- `{{nodeName.nested.property}}` - Supports nested object property access
+- `{{count + 1}}` - Supports CEL expressions for calculations
+- `{{firstName + " " + lastName}}` - String concatenation
+- `{{active ? "Online" : "Offline"}}` - Conditional expressions
+- Values are resolved at runtime using CEL (safe, sandboxed evaluation)
+
+**Built-in Variables:**
+- `{{errorCount}}` or `{{errors}}` - Number of errors in execution
+- `{{activeState}}` - Current state of execution
+- `{{title}}`, `{{description}}`, `{{prompt}}` - Task metadata (in prompts)
+
+**CEL Benefits:**
+- **Safe**: No arbitrary code execution, expressions run in sandboxed environment
+- **Type-safe**: Expressions are validated at evaluation time
+- **Powerful**: Supports arithmetic, string operations, conditionals, and more
+- **Consistent**: Same `{{ }}` syntax used throughout (prompts, conditions, templates)
 
 ### 4. Enhanced Execution Flow
 
@@ -155,6 +167,46 @@ summary --> report;`}
     height="420px"
 />
 
+### CEL Expressions in Prompts
+
+<CodeEditor
+    initialCode={`machine "Dynamic Reporting"
+
+context userData {
+  firstName<string>: "John";
+  lastName<string>: "Doe";
+  tasksCompleted<number>: 8;
+  totalTasks<number>: 10;
+};
+
+context config {
+  priority<string>: "high";
+  timeout<number>: 5000;
+};
+
+Task generateReport {
+  prompt: "Generate a report for {{userData.firstName + \" \" + userData.lastName}}.
+
+Progress: {{userData.tasksCompleted}} / {{userData.totalTasks}} tasks completed.
+Priority: {{config.priority}}
+Timeout: {{config.timeout / 1000}} seconds
+
+{{userData.tasksCompleted == userData.totalTasks ? \"All tasks completed!\" : \"Tasks in progress...\"}}";
+};
+
+userData --> generateReport;
+config --> generateReport;`}
+    language="dygram"
+    readOnly
+    height="560px"
+/>
+
+**CEL Expressions Demonstrated:**
+- String concatenation: `firstName + " " + lastName`
+- Arithmetic operations: `timeout / 1000`
+- Comparisons: `tasksCompleted == totalTasks`
+- Ternary operators: `condition ? "true" : "false"`
+
 ## Implementation Details
 
 ### Type Validation
@@ -167,10 +219,14 @@ summary --> report;`}
 - Complex values (objects, arrays) serialized as JSON strings
 - Values parsed back to original types when retrieved
 
-### Template Resolution
-- Happens before prompt compilation
-- Supports dot notation for attribute access
-- Graceful fallback if template variables can't be resolved
+### Template Resolution with CEL
+- Happens before prompt compilation using Common Expression Language (CEL)
+- Supports dot notation for nested attribute access
+- Evaluates full CEL expressions (arithmetic, string operations, conditionals)
+- Graceful fallback if template variables can't be resolved (preserves original template)
+- **Safe**: No arbitrary code execution, runs in sandboxed environment
+- **Type-safe**: Expression type checking at evaluation time
+- **Performance**: CEL expressions are compiled and optimized
 
 ## Benefits
 
