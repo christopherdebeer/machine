@@ -9,6 +9,7 @@ DyGram supports semantic nesting that goes beyond simple visual grouping. Nested
 1. **Qualified Names** (Phase 1): Reference nested nodes using dot notation (e.g., `Parent.Child`, `Level1.Level2.Node`)
 2. **Context Inheritance** (Phase 1): Child nodes automatically inherit read-only access to context nodes accessible by their parent nodes
 3. **State Modules** (Phase 2): State nodes with children act as workflow modules with automatic entry/exit routing
+4. **Optional Types** (Phase 3): Node types can be inferred from attributes and context, reducing ceremony
 
 ## Basic Nesting
 
@@ -163,6 +164,17 @@ Comprehensive example showing state modules and workflow composition:
 - Context inheritance with modules
 - Error handling across modules
 - Complete ETL pipeline example
+
+### `optional-types-example.dygram` ⭐⭐⭐ **Phase 3**
+Comprehensive example showing optional type inference:
+- Task inference from `prompt` attribute
+- Context inference from naming patterns and data attributes
+- Tool inference from schema attributes
+- State inference as default for control flow
+- Init inference from graph structure
+- Mixed explicit and inferred types
+- Type override with explicit declarations
+- Inference priority rules
 
 ## Key Benefits
 
@@ -407,6 +419,252 @@ Use simple names when:
 - You have a flat structure or minimal nesting
 - Node names are unique across the machine
 - You prefer concise syntax
+
+## Optional Types (Phase 3)
+
+**Optional types** allow you to omit explicit type declarations when the node's purpose is clear from its attributes, name, or graph structure. The system automatically infers the type, reducing ceremony while maintaining clarity.
+
+### Why Optional Types?
+
+Traditional approach with explicit types:
+```dygram
+task fetchData { prompt: "Fetch from API"; }
+context apiConfig { url: "https://api.com"; }
+state ready;
+```
+
+With optional types (same behavior):
+```dygram
+fetchData { prompt: "Fetch from API"; }  // Inferred as task
+apiConfig { url: "https://api.com"; }    // Inferred as context
+ready;                                    // Inferred as state
+```
+
+### Inference Rules
+
+The system infers types in **priority order**:
+
+1. **Explicit type always wins** - If you provide a type, that's what it is
+2. **Has `prompt` attribute → task** - Nodes with prompts are executable tasks
+3. **Has schema attributes → tool** - Nodes with `input`, `output`, `parameters`, `schema`, or `returns` are tools
+4. **Name patterns or data attributes → context**:
+   - Names containing: `context`, `data`, `input`, `output`, `result`, `config`, `State` (but not "state" alone)
+   - OR nodes with only data attributes (no executable attributes like `prompt`, `meta`, `condition`)
+5. **Graph structure → init** - Nodes with no incoming edges but has outgoing edges (requires graph analysis)
+6. **Default → state** - Simple control flow nodes
+
+### Task Inference
+
+Tasks are inferred from the `prompt` attribute:
+
+```dygram
+// Explicit
+task analyze { prompt: "Analyze data"; }
+
+// Inferred (same behavior)
+analyze { prompt: "Analyze data"; }
+```
+
+**When to use explicit `task`:**
+- When you want to make the type explicit for documentation
+- When a task node has no prompt yet (will be added later)
+
+### Context Inference
+
+Contexts are inferred from naming patterns or data-only attributes:
+
+```dygram
+// Inferred from name patterns
+userContext { id: "123"; }           // has "context"
+apiConfig { url: "..."; }            // has "config"
+queryResult { rows: []; }            // has "result"
+userData { name: "Alice"; }          // has "data"
+inputParams { x: 1, y: 2; }          // has "input"
+outputData { value: 42; }            // has "output"
+appState { status: "running"; }      // has "state" (but not exact "state")
+
+// Inferred from data-only attributes
+settings {
+    theme: "dark";
+    timeout: 5000;
+    // No executable attributes → context
+}
+```
+
+**When to use explicit `context`:**
+- When the name doesn't match patterns and attributes are ambiguous
+- For clarity in complex machines
+
+### Tool Inference
+
+Tools are inferred from schema-like attributes:
+
+```dygram
+// Inferred from schema attributes
+calculator {
+    input: "{ x: number, y: number }";
+    output: "{ result: number }";
+}
+
+validator {
+    schema: "{ type: 'object', properties: {...} }";
+}
+
+api {
+    parameters: "{ endpoint: string }";
+    returns: "Response";
+}
+```
+
+### State Inference (Default)
+
+Simple nodes without special attributes default to states:
+
+```dygram
+// These are all inferred as states
+ready;
+waiting;
+processing;
+idle "Idle State";
+```
+
+### Init Inference
+
+Init nodes can be inferred from graph structure (no incoming edges):
+
+```dygram
+// This node has no incoming edges, has outgoing → inferred as init
+start;
+start -> process;
+
+// However, explicit init is recommended for clarity
+init start;
+```
+
+### Mixing Explicit and Inferred Types
+
+You can freely mix explicit and inferred types:
+
+```dygram
+state Pipeline {
+    // Explicit type
+    task validate {
+        prompt: "Validate input";
+    }
+
+    // Inferred type (same behavior)
+    transform {
+        prompt: "Transform data";
+    }
+
+    // Inferred as state (default)
+    intermediate;
+
+    // Workflow
+    validate -> transform -> intermediate;
+}
+```
+
+### Explicit Type Overrides Inference
+
+Explicit types always take precedence over inference:
+
+```dygram
+// Name suggests context, but explicit type makes it a state
+state userData {
+    // This is a control flow state, not a data context
+}
+
+// Has prompt, but explicit type makes it a state
+state processor {
+    prompt: "This won't execute as a task";
+    // Type is state, not task
+}
+```
+
+### Benefits of Optional Types
+
+1. **Less Ceremony**: Don't type `task` for every node with a `prompt`
+2. **Cleaner Syntax**: Focus on what the node does, not what it's called
+3. **Natural**: Types flow from purpose (has prompt → it's a task)
+4. **Flexible**: Mix explicit and inferred freely
+5. **Backward Compatible**: All explicit types still work
+6. **Clear Overrides**: Can always force a specific type when needed
+
+### Best Practices
+
+**Use inferred types when:**
+- The type is obvious from attributes (has `prompt` → task)
+- Names follow conventions (ends in `Config` → context)
+- You want concise, clean syntax
+
+**Use explicit types when:**
+- You want to override inference (force a type)
+- The type isn't clear from attributes/name
+- You're documenting/teaching the language
+- You want maximum clarity in complex machines
+
+### Example: Complete Data Pipeline
+
+```dygram
+machine "ETL Pipeline with Optional Types"
+
+// Inferred context (name pattern)
+apiConfig {
+    url: "https://api.example.com";
+    timeout: 5000;
+}
+
+// Inferred as state module (default)
+Pipeline {
+    // All inferred as tasks (have prompts)
+    extract { prompt: "Extract data from {{ apiConfig.url }}"; }
+    transform { prompt: "Transform extracted data"; }
+    load { prompt: "Load data into warehouse"; }
+
+    extract -> transform -> load;
+}
+
+// Inferred context (name pattern)
+results {
+    recordCount: 0;
+    status: "pending";
+}
+
+// Explicit init for clarity
+init start;
+
+start -> Pipeline;
+Pipeline -reads-> apiConfig;
+Pipeline -writes-> results;
+```
+
+### Inference Priority Example
+
+When multiple rules could apply, priority determines the type:
+
+```dygram
+// Name has "data" (context pattern) BUT has prompt (task rule)
+// → Task wins (higher priority)
+processData {
+    prompt: "Process the data";
+    // Inferred as: task
+}
+
+// Name has "input" (context pattern) AND has schema (tool rule)
+// → Tool wins (higher priority than context)
+dataInput {
+    schema: "{ type: 'object' }";
+    // Inferred as: tool
+}
+
+// Name has "config" (context pattern), no other attributes
+// → Context wins
+appConfig {
+    setting: "value";
+    // Inferred as: context
+}
+```
 
 ## See Also
 
