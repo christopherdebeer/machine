@@ -238,10 +238,24 @@ DataPipeline -writes-> DataPipeline.pipelineState;
 ```
 
 **Key Features:**
-- **Qualified Names**: Reference nested nodes using dot notation (e.g., `Parent.Child.GrandChild`)
-- **Context Inheritance**: Child nodes automatically inherit read-only access to parent contexts
-- **Reduced Boilerplate**: No need for repetitive context edges on every child node
-- **Intuitive Scoping**: Hierarchical structure reflects natural context relationships
+- **Qualified Names** (Phase 1): Reference nested nodes using dot notation (e.g., `Parent.Child.GrandChild`)
+- **Context Inheritance** (Phase 1): Child nodes automatically inherit read-only access to parent contexts
+- **State Modules** (Phase 2): State nodes with children act as workflow modules with automatic entry/exit routing
+- **Reduced Boilerplate**: No need for repetitive context edges or explicit module wiring
+- **Intuitive Scoping**: Hierarchical structure reflects natural context and workflow relationships
+
+**Example - State Module:**
+```dygram
+state DataPipeline {
+    state validate -> process -> store;
+}
+
+// Transitioning to DataPipeline automatically enters at 'validate'
+start -> DataPipeline;
+
+// Terminal nodes inherit module-level exits
+DataPipeline -> complete;  // 'store' (terminal) transitions to 'complete'
+```
 
 See [Nesting Examples](examples/nesting/) for more details.
 
