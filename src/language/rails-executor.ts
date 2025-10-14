@@ -176,11 +176,52 @@ export class RailsExecutor extends BaseExecutor {
 
 
     /**
+     * Get the parent state module of a node (if any)
+     */
+    protected getParentStateModule(nodeName: string): string | null {
+        const node = this.machineData.nodes.find(n => n.name === nodeName);
+        if (!node || !node.parent) {
+            return null;
+        }
+
+        // Walk up parent chain to find a state node
+        let currentParent: string | undefined = node.parent;
+        while (currentParent) {
+            const parentNode = this.machineData.nodes.find(n => n.name === currentParent);
+            if (parentNode && NodeTypeChecker.isState(parentNode)) {
+                return currentParent;
+            }
+            currentParent = parentNode?.parent;
+        }
+
+        return null;
+    }
+
+    /**
      * Get outbound edges from a node
+     * Includes module-level exit edges for terminal nodes within state modules
      */
     protected getOutboundEdges(nodeName: string): AnnotatedEdge[] {
         const allEdges = this.getAnnotatedEdges();
-        return allEdges.filter(edge => edge.source === nodeName);
+        const directEdges = allEdges.filter(edge => edge.source === nodeName);
+
+        // If node has direct edges, return them (explicit edges take precedence)
+        if (directEdges.length > 0) {
+            return directEdges;
+        }
+
+        // Check if this node is within a state module
+        const parentModule = this.getParentStateModule(nodeName);
+        if (parentModule) {
+            // This is a terminal node within a module - check for module-level exits
+            const moduleEdges = allEdges.filter(edge => edge.source === parentModule);
+            if (moduleEdges.length > 0) {
+                console.log(`📤 Terminal node ${nodeName} in module ${parentModule}, inheriting module exits`);
+                return moduleEdges;
+            }
+        }
+
+        return directEdges; // Return empty array if no edges found
     }
 
     /**
@@ -193,8 +234,8 @@ export class RailsExecutor extends BaseExecutor {
 
         const outboundEdges = this.getOutboundEdges(nodeName);
 
-        // If only one edge and it's a state node, auto-transition
-        if (outboundEdges.length === 1 && NodeTypeChecker.isState(node)) {
+        // If only one edge and it's a state or init node, auto-transition
+        if (outboundEdges.length === 1 && (NodeTypeChecker.isState(node) || NodeTypeChecker.isInit(node))) {
             const edge = outboundEdges[0];
             const condition = this.extractEdgeCondition(edge);
 
@@ -204,7 +245,7 @@ export class RailsExecutor extends BaseExecutor {
                     target: edge.target,
                     condition,
                     isAutomatic: true,
-                    reason: 'Single edge from state node'
+                    reason: NodeTypeChecker.isInit(node) ? 'Single edge from init node' : 'Single edge from state node'
                 };
             }
         }
@@ -274,10 +315,129 @@ export class RailsExecutor extends BaseExecutor {
 
 
     /**
+     * Check if a node has children
+     */
+    protected hasChildren(nodeName: string): boolean {
+        return this.machineData.nodes.some(n => n.parent === nodeName);
+    }
+
+    /**
+     * Get children of a node
+     */
+    protected getChildren(nodeName: string): string[] {
+        return this.machineData.nodes
+            .filter(n => n.parent === nodeName)
+            .map(n => n.name);
+    }
+
+    /**
+     * Get first child node (entry point for state modules)
+     * Returns the first child node, preferring task nodes over context nodes
+     * State nodes can be entry points for nested modules
+     */
+    protected getFirstChild(nodeName: string): string | null {
+        const children = this.machineData.nodes.filter(n => n.parent === nodeName);
+
+        if (children.length === 0) {
+            return null;
+        }
+
+        // Priority 1: Task nodes (actual executable work)
+        const taskChild = children.find(n => NodeTypeChecker.isTask(n));
+        if (taskChild) {
+            return taskChild.name;
+        }
+
+        // Priority 2: State nodes (can be entry points for nested modules)
+        const stateChild = children.find(n => NodeTypeChecker.isState(n));
+        if (stateChild) {
+            return stateChild.name;
+        }
+
+        // Priority 3: Any other node type (avoid context nodes if possible)
+        const nonContextChild = children.find(n => !NodeTypeChecker.isContext(n));
+        if (nonContextChild) {
+            return nonContextChild.name;
+        }
+
+        // Last resort: return first child (even if context)
+        return children[0].name;
+    }
+
+    /**
      * Transition to a new node
+     * Handles state module entry by automatically routing to first child
+     * Recursively enters nested state modules
      */
     protected transition(targetNode: string, transitionLabel: string = 'auto'): void {
         const fromNode = this.context.currentNode;
+        let currentTarget = targetNode;
+        const moduleChain: string[] = [];
+
+        // Recursively enter nested state modules
+        while (true) {
+            const currentTargetObj = this.machineData.nodes.find(n => n.name === currentTarget);
+
+            // Check if current target is a state node with children (state module)
+            if (currentTargetObj && NodeTypeChecker.isState(currentTargetObj) && this.hasChildren(currentTarget)) {
+                moduleChain.push(currentTarget);
+
+                const firstChild = this.getFirstChild(currentTarget);
+                if (!firstChild) {
+                    break; // No children found, stop recursion
+                }
+
+                // Check if first child is also a state module
+                const firstChildObj = this.machineData.nodes.find(n => n.name === firstChild);
+                if (firstChildObj && NodeTypeChecker.isState(firstChildObj) && this.hasChildren(firstChild)) {
+                    // Continue recursion - enter nested module
+                    currentTarget = firstChild;
+                    continue;
+                }
+
+                // First child is not a state module - this is our final target
+                currentTarget = firstChild;
+                break;
+            }
+
+            // Not a state module - stop recursion
+            break;
+        }
+
+        // If we entered any modules, record the entry chain
+        if (moduleChain.length > 0) {
+            console.log(`📦 State module(s) detected: ${moduleChain.join(' -> ')}, entering at ${currentTarget}`);
+
+            // Record entry into each module in the chain
+            let previousNode = fromNode;
+            for (const moduleName of moduleChain) {
+                this.context.history.push({
+                    from: previousNode,
+                    to: moduleName,
+                    transition: `${transitionLabel} (module entry)`,
+                    timestamp: new Date().toISOString()
+                });
+
+                // Set active state to the deepest module
+                this.context.activeState = moduleName;
+                previousNode = moduleName;
+            }
+
+            // Record transition to final child
+            this.context.currentNode = currentTarget;
+            this.context.history.push({
+                from: moduleChain[moduleChain.length - 1],
+                to: currentTarget,
+                transition: 'module entry',
+                timestamp: new Date().toISOString()
+            });
+
+            console.log(`🚂 Transitioned: ${fromNode} -> ${moduleChain.join(' -> ')} -> ${currentTarget} (state module entry)`);
+            return;
+        }
+
+        // Standard transition (not a state module)
+        const finalTargetObj = this.machineData.nodes.find(n => n.name === targetNode);
 
         this.context.history.push({
             from: fromNode,
@@ -290,8 +450,7 @@ export class RailsExecutor extends BaseExecutor {
         this.context.currentNode = targetNode;
 
         // Update active state if transitioning to a state node
-        const targetNodeObj = this.machineData.nodes.find(n => n.name === targetNode);
-        if (targetNodeObj && NodeTypeChecker.isState(targetNodeObj)) {
+        if (finalTargetObj && NodeTypeChecker.isState(finalTargetObj)) {
             this.context.activeState = targetNode;
         }
 
