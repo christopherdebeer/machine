@@ -9,7 +9,7 @@ interface PageLayoutProps {
     description?: string;
 }
 
-export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, backLink = true, description }) => {
+export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, backLink = false, description }) => {
     useEffect(() => {
         // Add favicon if not present
         let favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
@@ -33,7 +33,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, backLin
                 url={`https://christopherdebeer.github.io/machine/${title.toLowerCase().replace(/\s+/g, '-')}.html`}
             />
             <Navigation />
-            <header style={{ height: 'auto', padding: '4rem 0' }}>
+            <header>
                 <div className="container">
                     {backLink && (
                         <a href="index.html" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '1.2rem' }}>
