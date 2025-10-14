@@ -564,7 +564,52 @@ export class AgentSDKBridge {
             return await this.toolRegistry.executeTool(toolName, input);
         }
 
+        // Additional fallback: Check if it's a meta tool (when no registry)
+        const metaToolNames = [
+            'get_machine_definition',
+            'update_definition',
+            'construct_tool',
+            'list_available_tools',
+            'propose_tool_improvement',
+            'get_tool_nodes',
+            'build_tool_from_node'
+        ];
+
+        if (metaToolNames.includes(toolName)) {
+            return await this.executeMetaTool(toolName, input);
+        }
+
+        // Final fallback: Check if it's a dynamic tool
+        const dynamicTool = this.metaToolManager.getDynamicTool(toolName);
+        if (dynamicTool) {
+            return await this.metaToolManager.executeDynamicTool(toolName, input);
+        }
+
         throw new Error(`Tool ${toolName} not found`);
+    }
+
+    /**
+     * Execute meta tool directly
+     */
+    private async executeMetaTool(toolName: string, input: any): Promise<any> {
+        switch (toolName) {
+            case 'get_machine_definition':
+                return await this.metaToolManager.getMachineDefinition(input);
+            case 'update_definition':
+                return await this.metaToolManager.updateDefinition(input);
+            case 'construct_tool':
+                return await this.metaToolManager.constructTool(input);
+            case 'list_available_tools':
+                return await this.metaToolManager.listAvailableTools(input);
+            case 'propose_tool_improvement':
+                return await this.metaToolManager.proposeToolImprovement(input);
+            case 'get_tool_nodes':
+                return await this.metaToolManager.getToolNodesHandler(input);
+            case 'build_tool_from_node':
+                return await this.metaToolManager.buildToolFromNodeHandler(input);
+            default:
+                throw new Error(`Meta tool ${toolName} not found`);
+        }
     }
 
     /**
