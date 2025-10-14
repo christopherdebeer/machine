@@ -10,7 +10,9 @@ import {
     createLLMClient,
     ToolDefinition,
     ConversationMessage,
-    ContentBlock
+    ContentBlock,
+    extractText,
+    extractToolUses
 } from './llm-client.js';
 import { compilePrompt, TaskPromptContext, TASK_PROMPT_TEMPLATES } from './prompts/task-prompts.js';
 import {
@@ -794,14 +796,14 @@ export class MachineExecutor extends BaseExecutor {
             console.log('📨 LLM response received:', response);
 
             // Extract text
-            const text = this.llmClient.extractText(response);
+            const text = extractText(response);
             if (text) {
                 finalText += (finalText ? '\n' : '') + text;
                 console.log('📄 Extracted text:', text.substring(0, 100) + '...');
             }
 
             // Check for tool uses
-            const toolUses = this.llmClient.extractToolUses(response);
+            const toolUses = extractToolUses(response);
             console.log('🔧 Tool uses found:', toolUses.length);
 
             if (toolUses.length === 0) {

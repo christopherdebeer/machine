@@ -17,7 +17,8 @@ export type {
     ClaudeClientConfig
 } from './claude-client.js';
 
-export { ClaudeClient } from './claude-client.js';
+import { ClaudeClient } from './claude-client.js';
+export { ClaudeClient };
 export { extractText, extractToolUses } from './llm-utils.js';
 
 // Legacy interface for backward compatibility
@@ -45,7 +46,7 @@ export interface LLMClientConfig {
  * Factory function for backward compatibility
  * @deprecated Use ClaudeClient directly instead
  */
-export async function createLLMClient(config: LLMClientConfig): Promise<LLMClient> {
+export async function createLLMClient(config: LLMClientConfig): Promise<ClaudeClient> {
     if (config.provider === 'anthropic') {
         return new ClaudeClient({
             transport: 'api',

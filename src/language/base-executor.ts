@@ -4,7 +4,6 @@
  */
 
 import {
-    LLMClient,
     LLMClientConfig
 } from './llm-client.js';
 import { ClaudeClient } from './claude-client.js';
@@ -84,7 +83,7 @@ export interface MachineExecutorConfig {
 export abstract class BaseExecutor {
     protected context: MachineExecutionContext;
     protected machineData: MachineData;
-    protected llmClient: LLMClient;
+    protected llmClient: ClaudeClient;
     protected mutations: MachineMutation[] = [];
     protected limits: Required<ExecutionLimits>;
     protected executionStartTime?: number;

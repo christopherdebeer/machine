@@ -175,7 +175,7 @@ describe('Phase 2: Tool-Based Execution', () => {
             };
 
             executor = new MachineExecutor(metaMachineData);
-            mockClaudeClient = (BedrockClient as any).mock.results[0].value;
+            mockClaudeClient = (ClaudeClient as any).mock.results[0].value;
         });
 
         it('should provide meta tools to tasks with meta=true', async () => {
