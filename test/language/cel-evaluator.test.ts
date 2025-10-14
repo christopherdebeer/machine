@@ -464,4 +464,68 @@ describe('CelEvaluator', () => {
             expect(evaluator.resolveTemplate('{{  node.value  }}', context)).toBe('42');
         });
     });
+
+    describe('variable collision handling', () => {
+        it('should prioritize built-in variables over node names', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 10,
+                activeState: 'processing',
+                attributes: {
+                    // User creates node named "errorCount" (unlikely but possible)
+                    errorCount: {
+                        value: 5
+                    }
+                }
+            };
+
+            // Built-in errorCount should be 10, not 5
+            expect(evaluator.evaluateCondition('errorCount == 10', context)).toBe(true);
+            expect(evaluator.evaluateCondition('errorCount == 5', context)).toBe(false);
+
+            // User can still access nested attribute if needed
+            expect(evaluator.evaluateCondition('errorCount.value == 5', context)).toBe(true);
+        });
+
+        it('should protect all reserved built-in variables', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 3,
+                activeState: 'idle',
+                attributes: {
+                    // Attempt to shadow all built-ins
+                    errorCount: { fake: 'value' },
+                    errors: { fake: 'value' },
+                    activeState: { fake: 'value' }
+                }
+            };
+
+            // All built-ins should maintain their original values
+            expect(evaluator.evaluateCondition('errorCount == 3', context)).toBe(true);
+            expect(evaluator.evaluateCondition('errors == 3', context)).toBe(true);
+            expect(evaluator.evaluateCondition('activeState == "idle"', context)).toBe(true);
+        });
+
+        it('should handle collision in template resolution', () => {
+            const context: CelEvaluationContext = {
+                errorCount: 7,
+                activeState: 'processing',
+                attributes: {
+                    errorCount: {
+                        message: 'shadowed'
+                    }
+                }
+            };
+
+            // Built-in should be used in templates
+            expect(evaluator.resolveTemplate('Errors: {{ errorCount }}', context))
+                .toBe('Errors: 7');
+
+            // Note: Due to built-in protection, nested access to shadowed node properties
+            // will fail because errorCount resolves to the number 7, not the node object.
+            // This is the expected behavior to prevent variable clobbering.
+            // Users should rename nodes that conflict with built-ins.
+            const result = evaluator.resolveTemplate('Message: {{ errorCount.message }}', context);
+            // The template should fail to resolve and return original or empty
+            expect(result).toContain('{{');
+        });
+    });
 });

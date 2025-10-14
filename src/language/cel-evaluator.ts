@@ -29,11 +29,12 @@ export class CelEvaluator {
         try {
             // Prepare evaluation context
             // CEL supports nested objects natively
+            // Built-ins are spread LAST to prevent user nodes from overwriting them
             const evalContext = {
-                errorCount: context.errorCount,
-                errors: context.errorCount, // Alias for backward compatibility
-                activeState: context.activeState,
-                ...context.attributes
+                ...context.attributes,          // User attributes first
+                errorCount: context.errorCount, // Built-ins override
+                errors: context.errorCount,     // Alias for backward compatibility
+                activeState: context.activeState
             };
 
             // Evaluate the expression using CEL
@@ -64,11 +65,12 @@ export class CelEvaluator {
         return template.replace(templatePattern, (match, expression) => {
             try {
                 // Prepare evaluation context
+                // Built-ins are spread LAST to prevent user nodes from overwriting them
                 const evalContext = {
-                    errorCount: context.errorCount,
-                    errors: context.errorCount,
-                    activeState: context.activeState,
-                    ...context.attributes
+                    ...context.attributes,          // User attributes first
+                    errorCount: context.errorCount, // Built-ins override
+                    errors: context.errorCount,     // Alias for backward compatibility
+                    activeState: context.activeState
                 };
 
                 // Evaluate the expression using CEL

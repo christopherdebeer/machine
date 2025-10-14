@@ -204,10 +204,19 @@ export abstract class BaseExecutor {
      * Creates nested structure: { nodeName: { attributeName: value, ... }, ... }
      */
     protected buildAttributeContext(): Record<string, any> {
+        const RESERVED_NAMES = ['errorCount', 'errors', 'activeState'];
         const attributes: Record<string, any> = {};
 
         // Build nested structure for all nodes
         for (const node of this.machineData.nodes) {
+            // Warn about reserved name collisions
+            if (RESERVED_NAMES.includes(node.name)) {
+                console.warn(
+                    `[CEL] Node '${node.name}' uses a reserved name. ` +
+                    `Built-in variable will take precedence. Consider renaming the node.`
+                );
+            }
+
             if (node.attributes && node.attributes.length > 0) {
                 attributes[node.name] = {};
                 for (const attr of node.attributes) {
