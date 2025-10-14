@@ -83,8 +83,10 @@ Tasks can reference context values using template syntax:
 
 **Template Syntax:**
 - `{{nodeName.attributeName}}` - References a context node's attribute value
-- Values are resolved at runtime before prompt execution
-- Supports nested object property access
+- Values are resolved at runtime using CEL (Common Expression Language)
+- Supports nested object property access (e.g., `{{config.database.host}}`)
+- Can include CEL expressions (e.g., `{{count + 1}}`, `{{name + " " + surname}}`)
+- Safe, sandboxed evaluation prevents security risks
 
 ### 4. Enhanced Execution Flow
 

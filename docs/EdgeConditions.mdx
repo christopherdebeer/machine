@@ -122,7 +122,7 @@ apiCall -if: '(config.debug == true)';-> debugMode;
 
 ### Template Variable Syntax
 
-You can use template variable syntax `{{ nodeName.attributeName }}` which is automatically converted to CEL syntax:
+You can use template variable syntax `{{ nodeName.attributeName }}` which is automatically converted to CEL syntax. This syntax supports full CEL expressions, not just property access:
 
 ```dygram
 machine "Template Variables"
@@ -138,7 +138,17 @@ state processing;
 // Template syntax (automatically converted to CEL)
 validation -if: '({{ userData.name }} == "start")';-> processing;
 validation -if: '({{ userData.priority }} > 3)';-> processing;
+
+// Template variables also work in prompts and attributes
+task greet {
+    prompt: "Welcome, {{ userData.name }}! Your priority level is {{ userData.priority }}.";
+}
 ```
+
+**Note:** Template variables use CEL's native object navigation, which means:
+- Nested properties work seamlessly: `{{ config.database.host }}`
+- Full CEL expressions are supported: `{{ userData.priority + 1 }}`
+- All CEL operators and functions are available within templates
 
 ## Real-World Examples
 

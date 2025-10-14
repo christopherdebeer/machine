@@ -176,27 +176,8 @@ export abstract class BaseExecutor {
         }
 
         try {
-            // Build context with template variables and special variables
-            const attributes: Record<string, any> = {};
-
-            // Extract and resolve template variables {{ nodeName.attributeName }}
-            const templateVarPattern = /\{\{\s*(\w+)\.?(\w+)?\s*\}\}/g;
-            let match;
-            while ((match = templateVarPattern.exec(condition)) !== null) {
-                const [, nodeName, attrName] = match;
-                const node = this.machineData.nodes.find(n => n.name === nodeName);
-
-                if (node && attrName) {
-                    const attr = node.attributes?.find(a => a.name === attrName);
-                    if (attr) {
-                        // Create a nested structure for CEL: nodeName.attributeName
-                        if (!attributes[nodeName]) {
-                            attributes[nodeName] = {};
-                        }
-                        attributes[nodeName][attrName] = this.parseValue(attr.value, attr.type);
-                    }
-                }
-            }
+            // Build context with all node attributes as nested objects
+            const attributes = this.buildAttributeContext();
 
             // Replace template variables with CEL-compatible syntax
             // {{ nodeName.attributeName }} -> nodeName.attributeName
@@ -216,6 +197,53 @@ export abstract class BaseExecutor {
             console.error('Error evaluating condition:', condition, error);
             return false; // If condition evaluation fails, treat as false
         }
+    }
+
+    /**
+     * Build a context object with all nodes' attributes for CEL evaluation
+     * Creates nested structure: { nodeName: { attributeName: value, ... }, ... }
+     */
+    protected buildAttributeContext(): Record<string, any> {
+        const RESERVED_NAMES = ['errorCount', 'errors', 'activeState'];
+        const attributes: Record<string, any> = {};
+
+        // Build nested structure for all nodes
+        for (const node of this.machineData.nodes) {
+            // Warn about reserved name collisions
+            if (RESERVED_NAMES.includes(node.name)) {
+                console.warn(
+                    `[CEL] Node '${node.name}' uses a reserved name. ` +
+                    `Built-in variable will take precedence. Consider renaming the node.`
+                );
+            }
+
+            if (node.attributes && node.attributes.length > 0) {
+                attributes[node.name] = {};
+                for (const attr of node.attributes) {
+                    attributes[node.name][attr.name] = this.parseValue(attr.value, attr.type);
+                }
+            }
+        }
+
+        return attributes;
+    }
+
+    /**
+     * Resolve template variables in a string using CEL
+     * Replaces {{ nodeName.attributeName }} with actual values
+     * @param template - String containing template variables
+     * @returns Resolved string with template variables replaced
+     */
+    protected resolveTemplateVariables(template: string): string {
+        // Build context with all node attributes
+        const attributes = this.buildAttributeContext();
+
+        // Use CEL evaluator to resolve template variables
+        return this.celEvaluator.resolveTemplate(template, {
+            errorCount: this.context.errorCount,
+            activeState: this.context.activeState || '',
+            attributes: attributes
+        });
     }
 
 
