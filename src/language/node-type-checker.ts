@@ -54,7 +54,12 @@ export class NodeTypeChecker {
     static getNodeType(node: NodeLike | ASTNode, edges?: EdgeLike[]): InferredNodeType {
         // If explicit type is provided, use it
         if (node.type) {
-            return node.type.toLowerCase() as InferredNodeType;
+            const type = node.type.toLowerCase();
+            // Normalize context aliases to 'context' for backward compatibility
+            if (type === 'concept' || type === 'input' || type === 'output' || type === 'result') {
+                return 'context';
+            }
+            return type as InferredNodeType;
         }
 
         // Otherwise infer the type

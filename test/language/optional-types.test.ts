@@ -300,6 +300,58 @@ describe('Optional Type Inference', () => {
             expect(NodeTypeChecker.isTool(node)).toBe(true);
         });
 
+        it('should normalize "input" type to context', () => {
+            const node: NodeLike = {
+                name: 'start',
+                type: 'input',
+                attributes: []
+            };
+            expect(NodeTypeChecker.getNodeType(node)).toBe('context');
+            expect(NodeTypeChecker.isContext(node)).toBe(true);
+        });
+
+        it('should normalize "output" type to context', () => {
+            const node: NodeLike = {
+                name: 'end',
+                type: 'output',
+                attributes: []
+            };
+            expect(NodeTypeChecker.getNodeType(node)).toBe('context');
+            expect(NodeTypeChecker.isContext(node)).toBe(true);
+        });
+
+        it('should normalize "concept" type to context', () => {
+            const node: NodeLike = {
+                name: 'idea',
+                type: 'concept',
+                attributes: []
+            };
+            expect(NodeTypeChecker.getNodeType(node)).toBe('context');
+            expect(NodeTypeChecker.isContext(node)).toBe(true);
+        });
+
+        it('should normalize "result" type to context', () => {
+            const node: NodeLike = {
+                name: 'outcome',
+                type: 'result',
+                attributes: []
+            };
+            expect(NodeTypeChecker.getNodeType(node)).toBe('context');
+            expect(NodeTypeChecker.isContext(node)).toBe(true);
+        });
+
+        it('should handle context aliases case-insensitively', () => {
+            const nodeInput: NodeLike = { name: 'test1', type: 'INPUT' };
+            const nodeOutput: NodeLike = { name: 'test2', type: 'Output' };
+            const nodeConcept: NodeLike = { name: 'test3', type: 'CONCEPT' };
+            const nodeResult: NodeLike = { name: 'test4', type: 'ReSuLt' };
+
+            expect(NodeTypeChecker.isContext(nodeInput)).toBe(true);
+            expect(NodeTypeChecker.isContext(nodeOutput)).toBe(true);
+            expect(NodeTypeChecker.isContext(nodeConcept)).toBe(true);
+            expect(NodeTypeChecker.isContext(nodeResult)).toBe(true);
+        });
+
         it('should allow explicit type to override inference', () => {
             const node: NodeLike = {
                 name: 'processor',
