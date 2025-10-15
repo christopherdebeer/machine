@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { MetaTags } from './MetaTags';
 import { Navigation } from './Navigation';
+import { Footer } from './Footer';
+import hierarchyData from '../data/doc-hierarchy';
 
 interface PageLayoutProps {
     children: React.ReactNode;
@@ -54,42 +56,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, backLin
                 </section>
             </main>
 
-            <footer>
-                <div className="container">
-                    <div className="footer-grid">
-                        <div className="footer-links">
-                            <h3>DOCUMENTATION</h3>
-                            <ul>
-                                <li><a href="quick-start.html">Quick Start</a></li>
-                                <li><a href="grammar-reference.html">Grammar Reference</a></li>
-                                <li><a href="examples.html">Examples</a></li>
-                                <li><a href="integration.html">Integration</a></li>
-                            </ul>
-                        </div>
-                        <div className="footer-links">
-                            <h3>RESOURCES</h3>
-                            <ul>
-                                <li><a href="https://github.com/christopherdebeer/machine" target="_blank">GitHub</a></li>
-                                <li><a href="vscode-extension.html">VS Code Extension</a></li>
-                                <li><a href="evolution.html">Evolution System</a></li>
-                                <li><a href="api.html">API</a></li>
-                                <li><a href="libraries.html">Libraries</a></li>
-                            </ul>
-                        </div>
-                        <div className="footer-links">
-                            <h3>COMMUNITY</h3>
-                            <ul>
-                                <li><a href="https://github.com/christopherdebeer/machine/discussions">GitHub Discussions</a></li>
-                                <li><a href="blog.html">Blog</a></li>
-                                <li><a href="events.html">Events</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="copyright">
-                        &copy; 2025 DyGram. All rights reserved.
-                    </div>
-                </div>
-            </footer>
+            <Footer hierarchy={hierarchyData} />
         </div>
     );
 };

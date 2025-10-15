@@ -1,0 +1,124 @@
+# VS Code Extension
+
+## Editor Integration
+
+Full DyGram language support in Visual Studio Code.
+
+<div className="feature-grid">
+    <div className="feature">
+        <h3 className="feature-title">SYNTAX HIGHLIGHTING</h3>
+        <p>Beautiful, semantic syntax highlighting for .mach files with support for:</p>
+        <ul style={{ marginTop: '1rem', lineHeight: 1.8 }}>
+            <li>Keywords and entity types</li>
+            <li>Relationships and connections</li>
+            <li>Type annotations</li>
+            <li>String interpolation</li>
+            <li>Comments</li>
+        </ul>
+    </div>
+
+    <div className="feature">
+        <h3 className="feature-title">INTELLISENSE</h3>
+        <p>Smart code completion powered by Langium LSP:</p>
+        <ul style={{ marginTop: '1rem', lineHeight: 1.8 }}>
+            <li>Entity type suggestions</li>
+            <li>Attribute completions</li>
+            <li>Relationship labels</li>
+            <li>Type annotations</li>
+            <li>Context-aware suggestions</li>
+        </ul>
+    </div>
+
+    <div className="feature">
+        <h3 className="feature-title">REAL-TIME VALIDATION</h3>
+        <p>Instant feedback on syntax and semantic errors:</p>
+        <ul style={{ marginTop: '1rem', lineHeight: 1.8 }}>
+            <li>Syntax error detection</li>
+            <li>Type checking</li>
+            <li>Undefined reference warnings</li>
+            <li>Quick fixes</li>
+            <li>Inline diagnostics</li>
+        </ul>
+    </div>
+
+    <div className="feature">
+        <h3 className="feature-title">DIAGRAM PREVIEW</h3>
+        <p>Visualize your DyGram models as Mermaid diagrams directly in the editor:</p>
+        <ul style={{ marginTop: '1rem', lineHeight: 1.8 }}>
+            <li>Live diagram generation</li>
+            <li>Side-by-side view</li>
+            <li>Auto-refresh on save</li>
+            <li>Export to PNG/SVG</li>
+        </ul>
+    </div>
+
+    <div className="feature">
+        <h3 className="feature-title">CODE NAVIGATION</h3>
+        <p>Navigate large DyGram files with ease:</p>
+        <ul style={{ marginTop: '1rem', lineHeight: 1.8 }}>
+            <li>Go to definition</li>
+            <li>Find all references</li>
+            <li>Symbol outline</li>
+            <li>Breadcrumb navigation</li>
+        </ul>
+    </div>
+
+    <div className="feature">
+        <h3 className="feature-title">FORMATTING</h3>
+        <p>Keep your code clean and consistent:</p>
+        <ul style={{ marginTop: '1rem', lineHeight: 1.8 }}>
+            <li>Auto-formatting on save</li>
+            <li>Configurable indentation</li>
+            <li>Code folding</li>
+            <li>Comment toggling</li>
+        </ul>
+    </div>
+</div>
+
+<div style={{ marginTop: '4rem' }}>
+    <h2 className="section-title" style={{ fontSize: '2rem' }}>Installation</h2>
+    <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>
+        The extension is built into the project. To develop with it:
+    </p>
+    <div className="code-block">
+        <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px' }}>{`# Clone the repository
+git clone https://github.com/christopherdebeer/machine.git
+
+npm install
+
+npm run build
+
+code .`}</pre>
+    </div>
+</div>
+
+<div style={{ marginTop: '4rem' }}>
+    <h2 className="section-title" style={{ fontSize: '2rem' }}>Usage</h2>
+    <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>
+        Create a new file with the <code>.mach</code> extension and start typing. The extension will automatically activate and provide language support.
+    </p>
+    <p style={{ fontSize: '1.2rem' }}>
+        Press <strong>F5</strong> to launch a development instance of VS Code with the extension loaded.
+    </p>
+</div>
+
+<div style={{ marginTop: '4rem' }}>
+    <h2 className="section-title" style={{ fontSize: '2rem' }}>Technology</h2>
+    <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>
+        Built with modern language server technology:
+    </p>
+    <div className="feature-grid">
+        <div className="feature">
+            <h3 className="feature-title">LANGIUM</h3>
+            <p>Powerful language engineering framework that provides the foundation for all language features.</p>
+        </div>
+        <div className="feature">
+            <h3 className="feature-title">LSP</h3>
+            <p>Language Server Protocol ensures consistent behavior across all editors that support LSP.</p>
+        </div>
+        <div className="feature">
+            <h3 className="feature-title">MONACO</h3>
+            <p>VS Code's editor component provides rich editing capabilities in the browser playground.</p>
+        </div>
+    </div>
+</div>

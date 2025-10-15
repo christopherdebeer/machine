@@ -1,0 +1,379 @@
+# Meta-Programming: Dynamic Machine Modification
+
+DyGram supports meta-programming capabilities that allow agents to inspect and modify the machine definition at runtime. This enables self-evolving machines that can adapt their structure based on execution results.
+
+## Overview
+
+When a Task node has the `meta: true` attribute, the agent executing that task gains access to special meta-tools:
+
+- **`get_machine_definition`**: Retrieves the current machine structure in JSON and/or DSL format
+- **`update_definition`**: Updates the machine with a new structure (JSON input, DSL output via backward compilation)
+
+## Enabling Meta-Programming
+
+To enable meta-programming for a task node, add the `meta` attribute:
+
+```machine
+machine "Self-Modifying Pipeline"
+
+Task optimizer {
+    meta: true;
+    prompt: "Analyze the pipeline and add error handling if needed";
+}
+
+State processing;
+State complete;
+
+optimizer -> processing;
+processing -> complete;
+```
+
+## Meta-Tools
+
+### get_machine_definition
+
+Retrieves the current machine definition.
+
+**Input:**
+```json
+{
+    "format": "both"  // Options: "json", "dsl", "both"
+}
+```
+
+**Output:**
+```json
+{
+    "json": {
+        "title": "Self-Modifying Pipeline",
+        "nodes": [...],
+        "edges": [...]
+    },
+    "dsl": "machine \"Self-Modifying Pipeline\"\n\nTask optimizer {\n  ..."
+}
+```
+
+### update_definition
+
+Updates the machine definition with a new structure.
+
+**Input:**
+```json
+{
+    "machine": {
+        "title": "Updated Pipeline",
+        "nodes": [
+            {
+                "name": "start",
+                "type": "State"
+            },
+            {
+                "name": "errorHandler",
+                "type": "Task",
+                "attributes": [
+                    {
+                        "name": "prompt",
+                        "type": "string",
+                        "value": "Handle errors gracefully"
+                    }
+                ]
+            },
+            ...
+        ],
+        "edges": [
+            {
+                "source": "start",
+                "target": "errorHandler"
+            },
+            ...
+        ]
+    },
+    "reason": "Added error handling nodes"
+}
+```
+
+**Output:**
+```json
+{
+    "success": true,
+    "message": "Machine definition updated successfully",
+    "dsl": "machine \"Updated Pipeline\"\n\nState start;\n\nTask errorHandler {\n  ...",
+    "summary": {
+        "title": "Updated Pipeline",
+        "nodes": 5,
+        "edges": 4
+    }
+}
+```
+
+## Workflow
+
+### 1. Agent Inspects Machine
+
+The agent first calls `get_machine_definition` to understand the current structure:
+
+```json
+{
+    "name": "get_machine_definition",
+    "input": {
+        "format": "both"
+    }
+}
+```
+
+### 2. Agent Analyzes and Plans
+
+The agent analyzes the machine structure and determines what modifications are needed.
+
+### 3. Agent Updates Machine
+
+The agent calls `update_definition` with the modified JSON structure:
+
+```json
+{
+    "name": "update_definition",
+    "input": {
+        "machine": {
+            "title": "Enhanced Pipeline",
+            "nodes": [...],  // Modified nodes
+            "edges": [...]   // Modified edges
+        },
+        "reason": "Added retry logic and error handling"
+    }
+}
+```
+
+### 4. Backward Compilation
+
+The system automatically converts the JSON back to DyGram DSL using the `generateDSL()` function.
+
+### 5. Update Notification
+
+**Playground**: The Monaco editor is automatically updated with the new DSL source.
+
+**CLI**: The updated DSL is saved to `{filename}-updated.machine` in the output directory.
+
+## Example: Self-Healing Pipeline
+
+```machine
+machine "Self-Healing Pipeline"
+
+context metrics {
+    errorCount<number>: 0;
+    successRate<number>: 1.0;
+}
+
+Task monitor {
+    meta: true;
+    prompt: "Monitor errorCount. If > 3, add retry logic and error handler.";
+}
+
+State processing;
+State complete;
+
+monitor -reads-> metrics;
+monitor -> processing;
+processing -> complete;
+```
+
+**Execution Flow:**
+
+1. Agent executes `monitor` task with `meta: true`
+2. Agent calls `get_machine_definition` to see current structure
+3. Agent reads `metrics.errorCount` (via context read tool)
+4. If `errorCount > 3`, agent calls `update_definition` to add:
+   - New `retryHandler` Task node
+   - New `errorRecovery` State node
+   - Edges: `processing -> retryHandler -> errorRecovery -> processing`
+5. Updated machine is saved/displayed with new nodes
+
+## CLI Usage
+
+### Execution with Meta-Programming
+
+```bash
+dygram exec self-healing.machine
+```
+
+**Output when machine is updated:**
+
+```
+✓ Execution results written to: ./self-healing-result.json
+
+🔄 Machine definition updated by agent!
+   Updated DSL saved to: ./self-healing-updated.machine
+
+📋 Execution path:
+  start --(auto)--> monitor
+  monitor --(agent_decision)--> processing
+  ...
+
+🔧 Machine Mutations:
+  2025-10-11T23:00:15.234Z
+    Reason: Added retry logic and error handling
+    Nodes: 7, Edges: 9
+```
+
+### Inspecting Updated Machine
+
+```bash
+cat self-healing-updated.machine
+
+dygram generate self-healing-updated.machine -f mermaid
+
+dygram exec self-healing-updated.machine
+```
+
+## Playground Usage
+
+### Enabling Meta-Programming in Playground
+
+1. Write a machine with `meta: true` tasks
+2. Configure Anthropic API key in settings
+3. Click "Execute" or use step-by-step mode
+4. When agent updates machine, editor automatically refreshes with new DSL
+
+### Visual Feedback
+
+- **Execution Log**: Shows "Machine definition updated by agent"
+- **Editor**: Automatically updates with new DSL source
+- **Diagram**: Regenerates to show new structure
+
+## Safety Considerations
+
+### Validation
+
+All machine updates are validated before being applied:
+
+- Must have `title` (string)
+- Must have `nodes` (array)
+- Must have `edges` (array)
+
+Invalid updates are rejected with an error message.
+
+### Mutation Tracking
+
+All machine modifications are tracked in the mutation log:
+
+```typescript
+{
+    type: 'modify_node',
+    timestamp: '2025-10-11T23:00:15.234Z',
+    data: {
+        mutationType: 'machine_updated',
+        reason: 'Added retry logic',
+        machine: {
+            title: 'Enhanced Pipeline',
+            nodeCount: 7,
+            edgeCount: 9
+        }
+    }
+}
+```
+
+### Backward Compatibility
+
+The `generateDSL()` backward compiler ensures that:
+
+- All node types are preserved
+- All attributes are correctly formatted
+- Edge labels and types are maintained
+- Generic types are properly serialized
+
+## Advanced Patterns
+
+### Conditional Machine Evolution
+
+```machine
+Task evolver {
+    meta: true;
+    prompt: "If successRate < 0.8, add validation step. If errorCount > 5, add circuit breaker.";
+}
+
+evolver -reads-> metrics;
+```
+
+### Multi-Stage Evolution
+
+```machine
+Task stage1 {
+    meta: true;
+    prompt: "Add data validation nodes";
+}
+
+Task stage2 {
+    meta: true;
+    prompt: "Optimize the pipeline by removing redundant nodes";
+}
+
+stage1 -> stage2;
+```
+
+### Context-Driven Modifications
+
+```machine
+context config {
+    mode<string>: "production";
+    maxRetries<number>: 3;
+}
+
+Task adapter {
+    meta: true;
+    prompt: "If mode=production and maxRetries>1, add retry logic";
+}
+
+adapter -reads-> config;
+```
+
+## API Reference
+
+### MetaToolManager
+
+```typescript
+class MetaToolManager {
+    // Get current machine definition
+    async getMachineDefinition(input: { format?: 'json' | 'dsl' | 'both' }): Promise<any>
+
+    // Update machine definition
+    async updateDefinition(input: { machine: any; reason: string }): Promise<any>
+
+    // Set callback for updates (playground integration)
+    setMachineUpdateCallback(callback: (dsl: string, machineData: MachineData) => void): void
+}
+```
+
+### RailsExecutor
+
+```typescript
+class RailsExecutor {
+    // Set callback for machine updates
+    setMachineUpdateCallback(callback: (dsl: string, machineData: MachineData) => void): void
+
+    // Get mutations log
+    getMutations(): MachineMutation[]
+
+    // Get current machine data
+    getMachineData(): MachineData
+}
+```
+
+## Best Practices
+
+1. **Always Inspect First**: Call `get_machine_definition` before modifying
+2. **Provide Clear Reasons**: Include descriptive reasons in `update_definition`
+3. **Test Incrementally**: Make small, incremental changes rather than large rewrites
+4. **Validate Changes**: Check execution results after modifications
+5. **Version Control**: Save original and updated machines for comparison
+
+## Limitations
+
+- Machine updates are synchronous (blocking)
+- Large machines (>100 nodes) may slow down backward compilation
+- Circular modifications (machine modifying itself infinitely) must be prevented via logic
+- Complex nested structures may not perfectly round-trip through JSON→DSL conversion
+
+## See Also
+
+- [Rails-Based Architecture](./RailsBasedArchitecture.md)
+- [Agent SDK Integration](./AgentSDKIntegration.md)
+- [Backward Compilation](./BackwardCompilation.md)
