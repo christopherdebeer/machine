@@ -6,6 +6,7 @@ import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import react from '@vitejs/plugin-react';
 import mdx from '@mdx-js/rollup';
+import remarkLinkRewrite from './scripts/remark-link-rewrite.js';
 
 /**
  * Dynamically scan for HTML entry files
@@ -38,7 +39,12 @@ export default defineConfig(() => {
         },
 
         plugins: [
-            { enforce: 'pre', ...mdx() },
+            {
+                enforce: 'pre',
+                ...mdx({
+                    remarkPlugins: [remarkLinkRewrite]
+                })
+            },
             react(),
             viteStaticCopy({
                 targets: [
