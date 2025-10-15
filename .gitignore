@@ -18,3 +18,30 @@ test-output/
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Generated documentation files
+# Source files are .md in docs/, hand-authored .mdx (Index, QuickStart, Api, Evolution, ReactMdxSetup, RuntimeAndEvolution, LangiumQuickstart)
+# Generated .mdx files (from .md sources)
+docs/**/*.mdx
+!docs/Index.mdx
+!docs/QuickStart.mdx
+!docs/Api.mdx
+!docs/Evolution.mdx
+!docs/ReactMdxSetup.mdx
+!docs/RuntimeAndEvolution.mdx
+!docs/LangiumQuickstart.mdx
+!docs/*/index.mdx
+
+# Generated HTML entry files (except hand-authored)
+*.html
+!index.html
+!playground.html
+!playground-mobile.html
+
+# Generated TSX page entries (except hand-authored)
+src/pages/*.tsx
+!src/pages/index.tsx
+!src/pages/playground.tsx
+
+# Generated examples
+examples/generated/
