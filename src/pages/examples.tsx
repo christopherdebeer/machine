@@ -1,12 +1,11 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import Examples from '../../docs/Examples.mdx';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import Content from '../../docs/Examples.mdx';
+import '../index.css';
 
-const root = document.getElementById('root');
-if (root) {
-    createRoot(root).render(
-        <StrictMode>
-            <Examples />
-        </StrictMode>
-    );
-}
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+root.render(
+    <React.StrictMode>
+        <Content />
+    </React.StrictMode>
+);

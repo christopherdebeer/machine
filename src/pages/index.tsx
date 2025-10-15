@@ -1,8 +1,11 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import IndexPage from '../../docs/Index.mdx';
+import ReactDOM from 'react-dom/client';
+import Content from '../../docs/Index.mdx';
+import '../index.css';
 
-const root = document.getElementById('root');
-if (root) {
-    createRoot(root).render(<IndexPage />);
-}
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+root.render(
+    <React.StrictMode>
+        <Content />
+    </React.StrictMode>
+);

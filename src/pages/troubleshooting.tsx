@@ -1,9 +1,11 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import Troubleshooting from '../../docs/Troubleshooting.mdx';
+import ReactDOM from 'react-dom/client';
+import Content from '../../docs/Troubleshooting.mdx';
+import '../index.css';
 
-const container = document.getElementById('root');
-if (container) {
-    const root = createRoot(container);
-    root.render(<Troubleshooting />);
-}
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+root.render(
+    <React.StrictMode>
+        <Content />
+    </React.StrictMode>
+);

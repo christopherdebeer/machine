@@ -1,12 +1,11 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import Integration from '../../docs/Integration.mdx';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import Content from '../../docs/Integration.mdx';
+import '../index.css';
 
-const root = document.getElementById('root');
-if (root) {
-    createRoot(root).render(
-        <StrictMode>
-            <Integration />
-        </StrictMode>
-    );
-}
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+root.render(
+    <React.StrictMode>
+        <Content />
+    </React.StrictMode>
+);
