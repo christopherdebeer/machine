@@ -1,5 +1,3 @@
-<PageLayout title="Installation" description="Detailed installation guide for DyGram and Machine DSL">
-
 ## Installation Guide
 
 Complete instructions for installing and setting up DyGram.

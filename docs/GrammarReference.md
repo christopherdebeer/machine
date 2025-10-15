@@ -6,9 +6,8 @@
 
 Every DyGram program starts with a machine declaration:
 
-<CodeEditor
-    id="grammar-001"
-    initialCode={`machine "My System"
+```dygram
+machine "My System"
 
 // Define states
 state start;
@@ -16,16 +15,15 @@ state process;
 state end;
 
 // Define connections
-start -> process -> end;`}
-/>
+start -> process -> end;
+```
 
 ### CONTEXT MANAGEMENT
 
 Use context nodes for data storage with type validation:
 
-<CodeEditor
-    id="grammar-002"
-    initialCode={`machine "Context Demo"
+```dygram
+machine "Context Demo"
 
 Task generateData {
   meta: true;
@@ -43,16 +41,15 @@ Task processData {
 };
 
 generateData -stores-> storage;
-storage --> processData;`}
-/>
+storage --> processData;
+```
 
 ### TEMPLATE VARIABLES
 
 Reference context values in task prompts:
 
-<CodeEditor
-    id="grammar-003"
-    initialCode={`machine "Template Demo"
+```dygram
+machine "Template Demo"
 
 context input {
   query<string>: "analyze sentiment";
@@ -69,8 +66,8 @@ context output {
 };
 
 input --> analyze;
-analyze -produces-> output;`}
-/>
+analyze -produces-> output;
+```
 
 ### ENTITY TYPES
 
@@ -104,9 +101,8 @@ Supported type annotations:
 
 Connect entities with labeled relationships:
 
-<CodeEditor
-    id="grammar-003"
-    initialCode={`
+```dygram
+
 // Simple connection
 a -> b;
 
@@ -115,5 +111,5 @@ a -drives-> b;
 
 // Relationship with metadata
 a -addresses, confidence: 0.9-> b;
-`}
-/>
+
+```

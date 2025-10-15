@@ -1,5 +1,3 @@
-<PageLayout title="CLI Reference" description="Complete command-line interface reference for DyGram and Machine DSL">
-
 ## CLI Reference
 
 Complete reference for the DyGram command-line interface.

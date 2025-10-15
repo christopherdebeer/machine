@@ -228,8 +228,8 @@ Task classify {
 
 The `EvolutionaryExecutor` automatically triggers evolution when tasks meet performance thresholds:
 
-<CodeEditor
-    initialCode={`import { EvolutionaryExecutor } from 'dygram/language/task-evolution';
+```typescript
+import { EvolutionaryExecutor } from 'dygram/language/task-evolution';
 import { createStorage } from 'dygram/language/storage';
 
 const storage = createStorage(); // Auto-selects best available
@@ -242,11 +242,8 @@ for (let i = 0; i < 500; i++) {
 // Check which tasks evolved
 const mutations = executor.getMutations();
 const evolutions = mutations.filter(m => m.type === 'task_evolution');
-console.log(\`\${evolutions.length} tasks evolved\`);`}
-    language="typescript"
-    readOnly
-    height="280px"
-/>
+console.log(\`\${evolutions.length} tasks evolved\`);
+```
 
 **Evolution Triggers:**
 - Execution count ≥ 100
@@ -484,8 +481,8 @@ const storage = new MemoryStorage();
 
 ## Complete Example
 
-<CodeEditor
-    initialCode={`import { EvolutionaryExecutor } from 'dygram/language/task-evolution';
+```typescript
+import { EvolutionaryExecutor } from 'dygram/language/task-evolution';
 import { createStorage } from 'dygram/language/storage';
 import { MachinePersistence, PatternLibrary } from 'dygram/language/machine-persistence';
 
@@ -530,11 +527,8 @@ for (const evolution of evolutions) {
 
 // Reuse pattern in another machine
 const otherExecutor = new EvolutionaryExecutor(otherMachineData, {}, storage);
-await library.importPattern(otherExecutor, 'my_task', 'imported_task');`}
-    language="typescript"
-    readOnly
-    height="700px"
-/>
+await library.importPattern(otherExecutor, 'my_task', 'imported_task');
+```
 
 ## Architecture
 
@@ -615,15 +609,12 @@ await library.importPattern(newExecutor, patternName, taskName);
 
 Track performance to understand evolution impact:
 
-<CodeEditor
-    initialCode={`const metrics = executor.getTaskMetrics();
+```typescript
+const metrics = executor.getTaskMetrics();
 for (const [task, data] of metrics) {
     console.log(\`\${task}: \${data.stage} (\${data.success_rate})\`);
-}`}
-    language="typescript"
-    readOnly
-    height="100px"
-/>
+}
+```
 
 ## Future Enhancements
 

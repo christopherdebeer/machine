@@ -1,7 +1,5 @@
 # Examples Index
 
-<Layout>
-
 
 Comprehensive index of all DyGram examples organized by category.
 
@@ -59,8 +57,8 @@ Advanced context value management and schema validation.
 
 ### Context Management Example
 
-<CodeEditor
-    initialCode={`machine "Data Processing"
+```dygram
+machine "Data Processing"
 
 Task generate {
   meta: true;
@@ -76,11 +74,8 @@ Task process {
 };
 
 generate -stores-> data;
-data --> process;`}
-    language="dygram"
-    readOnly
-    height="320px"
-/>
+data --> process;
+```
 
 ## Complex Examples
 
@@ -121,24 +116,21 @@ See [Testing Approach](testing-approach.html) for methodology details.
 
 ## Example: Basic Machine
 
-<CodeEditor
-    initialCode={`machine "Simple Workflow"
+```dygram
+machine "Simple Workflow"
 
 init start "Start Process";
 task process "Main Processing";
 state complete "Completed";
 
 start -> process;
-process -> complete;`}
-    language="dygram"
-    readOnly
-    height="180px"
-/>
+process -> complete;
+```
 
 ## Example: Machine with Attributes
 
-<CodeEditor
-    initialCode={`machine "Task Manager"
+```dygram
+machine "Task Manager"
 
 task review {
     priority<number>: 5;
@@ -151,16 +143,13 @@ task implement {
     estimatedHours<number>: 8;
 }
 
-review -approved-> implement;`}
-    language="dygram"
-    readOnly
-    height="240px"
-/>
+review -approved-> implement;
+```
 
 ## Example: Nested Workflow
 
-<CodeEditor
-    initialCode={`machine "Development Process"
+```dygram
+machine "Development Process"
 
 workflow development {
     design;
@@ -177,11 +166,8 @@ workflow deployment {
     stage -> production;
 }
 
-development -> deployment;`}
-    language="dygram"
-    readOnly
-    height="320px"
-/>
+development -> deployment;
+```
 
 ## See Also
 
@@ -189,4 +175,3 @@ development -> deployment;`}
 - [Language Overview](language-overview.html) - Conceptual introduction
 - [Testing Approach](testing-approach.html) - Validation details
 
-</Layout>

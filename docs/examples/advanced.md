@@ -80,15 +80,9 @@ DyGram supports semantic relationship types:
 Annotations provide metadata about nodes:
 
 
-<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
-
-
 ### Multiplicity
 
 Express quantitative relationships:
-
-
-<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
 
 
 ### Dependency Inference
@@ -96,15 +90,9 @@ Express quantitative relationships:
 Template variables automatically create dependencies:
 
 
-<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
-
-
 ### Optional Types
 
 Use `?` suffix for nullable types:
-
-
-<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
 
 
 ## Usage

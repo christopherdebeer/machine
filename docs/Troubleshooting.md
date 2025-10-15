@@ -1,5 +1,3 @@
-<PageLayout title="Troubleshooting" description="Common issues and solutions for DyGram and Machine DSL">
-
 ## Troubleshooting Guide
 
 Common issues and their solutions when working with DyGram and the Machine DSL.

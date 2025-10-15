@@ -1,4 +1,3 @@
-<Layout>
 
 # DyGram Language Overview
 
@@ -9,12 +8,9 @@ DyGram is a declarative language for defining state machines, workflows, and pro
 ### Machines
 Every DyGram file defines a machine with a title:
 
-<CodeEditor
-    initialCode={`machine "My Machine"`}
-    language="dygram"
-    readOnly
-    height="60px"
-/>
+```dygram
+machine "My Machine"
+```
 
 [Example: examples/basic/minimal.dygram](../examples/basic/minimal.dygram)
 
@@ -23,12 +19,9 @@ Nodes are the fundamental building blocks. They can be untyped or have specific 
 
 **Untyped node:**
 
-<CodeEditor
-    initialCode={`myNode;`}
-    language="dygram"
-    readOnly
-    height="60px"
-/>
+```dygram
+myNode;
+```
 
 [Example: examples/basic/simple-nodes-3.dygram](../examples/basic/simple-nodes-3.dygram)
 
@@ -38,107 +31,86 @@ Nodes are the fundamental building blocks. They can be untyped or have specific 
 - `init` - Initial/entry point
 - `context` - Configuration or shared state
 
-<CodeEditor
-    initialCode={`task processData;
+```dygram
+task processData;
 state waiting;
 init startup;
-context config;`}
-    language="dygram"
-    readOnly
-    height="120px"
-/>
+context config;
+```
 
 [Example: examples/basic/typed-nodes.dygram](../examples/basic/typed-nodes.dygram)
 
 ### Node Labels
 Nodes can have human-readable labels:
 
-<CodeEditor
-    initialCode={`init startup "System Initialization";
-task process "Process User Data";`}
-    language="dygram"
-    readOnly
-    height="80px"
-/>
+```dygram
+init startup "System Initialization";
+task process "Process User Data";
+```
 
 [Example: examples/basic/all-node-types.dygram](../examples/basic/all-node-types.dygram)
 
 ### Attributes
 Nodes can have typed or untyped attributes:
 
-<CodeEditor
-    initialCode={`myNode {
+```dygram
+myNode {
     name<string>: "Primary";
     count<number>: 42;
     enabled<boolean>: true;
     tags: ["tag1", "tag2"];
-}`}
-    language="dygram"
-    readOnly
-    height="150px"
-/>
+}
+```
 
 [Example: examples/attributes/basic-attributes.dygram](../examples/attributes/basic-attributes.dygram)
 
 ### Edges
 Edges define transitions between nodes with multiple arrow styles:
 
-<CodeEditor
-    initialCode={`start -> middle;      // Standard transition
+```dygram
+start -> middle;      // Standard transition
 middle --> end;       // Dashed transition
 error => recovery;    // Thick arrow
-a <--> b;            // Bidirectional`}
-    language="dygram"
-    readOnly
-    height="120px"
-/>
+a <--> b;            // Bidirectional
+```
 
 [Example: examples/edges/mixed-arrow-types.dygram](../examples/edges/mixed-arrow-types.dygram)
 
 ### Edge Labels
 Edges can have labels and attributes:
 
-<CodeEditor
-    initialCode={`start -init-> middle;
+```dygram
+start -init-> middle;
 middle -"user action"-> end;
-error -retry: 3; timeout: 5000;-> start;`}
-    language="dygram"
-    readOnly
-    height="100px"
-/>
+error -retry: 3; timeout: 5000;-> start;
+```
 
 [Example: examples/edges/labeled-edges.dygram](../examples/edges/labeled-edges.dygram)
 
 ### Nesting
 Nodes can contain child nodes to create hierarchies:
 
-<CodeEditor
-    initialCode={`parent {
+```dygram
+parent {
     child1;
     child2 {
         grandchild;
     }
-}`}
-    language="dygram"
-    readOnly
-    height="130px"
-/>
+}
+```
 
 [Example: examples/nesting/complex-nesting.dygram](../examples/nesting/complex-nesting.dygram)
 
 ### Context Nodes
 Context nodes define shared configuration and data storage:
 
-<CodeEditor
-    initialCode={`context appConfig {
+```dygram
+context appConfig {
     environment<string>: "production";
     maxRetries<number>: 3;
     debug<boolean>: false;
-}`}
-    language="dygram"
-    readOnly
-    height="120px"
-/>
+}
+```
 
 [Example: examples/complex/context-heavy.dygram](../examples/complex/context-heavy.dygram)
 
@@ -147,8 +119,8 @@ Tasks can dynamically read and write context values using built-in tools:
 
 **Setting context values:**
 
-<CodeEditor
-    initialCode={`Task generateData {
+```dygram
+Task generateData {
   meta: true;
   prompt: "Generate data and store it using set_context_value tool";
 };
@@ -156,22 +128,16 @@ Tasks can dynamically read and write context values using built-in tools:
 context output {
   result<string>: "";
   timestamp<number>: 0;
-};`}
-    language="dygram"
-    readOnly
-    height="180px"
-/>
+};
+```
 
 **Reading context values with template variables:**
 
-<CodeEditor
-    initialCode={`Task processData {
+```dygram
+Task processData {
   prompt: "Process the data: {{output.result}} from {{output.timestamp}}";
-};`}
-    language="dygram"
-    readOnly
-    height="100px"
-/>
+};
+```
 
 [Example: examples/context/context-management.mach](../examples/context/context-management.mach)
 [Example: examples/context/template-variables.mach](../examples/context/template-variables.mach)
@@ -185,8 +151,8 @@ context output {
 
 Here's a complete machine demonstrating multiple features:
 
-<CodeEditor
-    initialCode={`machine "User Authentication System"
+```dygram
+machine "User Authentication System"
 
 context config {
     maxRetries<number>: 3;
@@ -202,11 +168,8 @@ landing -"user login"-> authenticate;
 authenticate -"success"-> authenticated;
 authenticate -"failure"-> landing;
 authenticate -retry: config.maxRetries;-> locked;
-locked -timeout: config.timeout;-> landing;`}
-    language="dygram"
-    readOnly
-    height="350px"
-/>
+locked -timeout: config.timeout;-> landing;
+```
 
 [Example: examples/complex/complex-machine.dygram](../examples/complex/complex-machine.dygram)
 
@@ -214,17 +177,14 @@ locked -timeout: config.timeout;-> landing;`}
 
 DyGram fully supports Unicode in identifiers and labels:
 
-<CodeEditor
-    initialCode={`machine "Unicode Machine 🔄"
+```dygram
+machine "Unicode Machine 🔄"
 start "開始";
 process "処理";
 end "終了";
 
-start -"ユーザーイベント"-> process;`}
-    language="dygram"
-    readOnly
-    height="150px"
-/>
+start -"ユーザーイベント"-> process;
+```
 
 [Example: examples/complex/unicode-machine.dygram](../examples/complex/unicode-machine.dygram)
 
@@ -244,8 +204,8 @@ DyGram includes powerful features for expressing complex relationships and valid
 
 **Example:**
 
-<CodeEditor
-    initialCode={`machine "Advanced Example"
+```dygram
+machine "Advanced Example"
 
 context Config @Singleton {
     apiKey<string>: "secret";
@@ -260,11 +220,8 @@ BaseHandler <|-- APIHandler;
 APIHandler --> Config;  // Dependency
 
 note for APIHandler "Handles API requests asynchronously.
-Uses {{ Config.apiKey }} for authentication."`}
-    language="dygram"
-    readOnly
-    height="300px"
-/>
+Uses {{ Config.apiKey }} for authentication."
+```
 
 See [Advanced Features](advanced-features.html) for comprehensive documentation.
 
@@ -276,4 +233,3 @@ See [Advanced Features](advanced-features.html) for comprehensive documentation.
 - Learn about [Runtime & Evolution](runtime-and-evolution.html) for execution details
 - Check [Testing Approach](testing-approach.html) for validation methodology
 
-</Layout>

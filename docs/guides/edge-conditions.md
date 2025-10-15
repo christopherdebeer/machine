@@ -11,9 +11,6 @@ Edge conditions allow you to control when a transition should occur based on run
 Conditions can be specified on edges using labels with the `if:`, `when:`, or `unless:` keywords:
 
 
-<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
-
-
 ## CEL Expression Syntax
 
 ### Comparison Operators
@@ -28,9 +25,6 @@ CEL uses standard comparison operators:
 - `>=` - Greater than or equal to
 
 
-<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
-
-
 ### Logical Operators
 
 Combine conditions using logical operators:
@@ -40,15 +34,9 @@ Combine conditions using logical operators:
 - `!` - Logical NOT
 
 
-<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
-
-
 ### Parentheses
 
 Use parentheses to group expressions and control evaluation order:
-
-
-<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
 
 
 ## Variable Access
@@ -62,15 +50,9 @@ DyGram provides several built-in variables:
 - `activeState` - Name of the current active state
 
 
-<ExampleLoader path="examples/generated/example-5.dygram" height="400px" />
-
-
 ### Attribute Access
 
 Access node attributes using dot notation:
-
-
-<ExampleLoader path="examples/generated/example-6.dygram" height="400px" />
 
 
 ### Template Variable Syntax
@@ -78,27 +60,15 @@ Access node attributes using dot notation:
 You can use template variable syntax `{{ nodeName.attributeName }}` which is automatically converted to CEL syntax:
 
 
-<ExampleLoader path="examples/generated/example-7.dygram" height="400px" />
-
-
 ## Real-World Examples
 
 ### Retry Logic
 
 
-<ExampleLoader path="examples/generated/example-8.dygram" height="400px" />
-
-
 ### Circuit Breaker Pattern
 
 
-<ExampleLoader path="examples/generated/example-9.dygram" height="400px" />
-
-
 ### State-Based Routing
-
-
-<ExampleLoader path="examples/generated/example-10.dygram" height="400px" />
 
 
 ## Migration from JavaScript eval()
@@ -117,9 +87,6 @@ Prior to version 0.3.5, DyGram used JavaScript `eval()` for condition evaluation
 The executor automatically converts JavaScript-style operators to CEL equivalents:
 
 
-<ExampleLoader path="examples/generated/example-11.dygram" height="400px" />
-
-
 ## Best Practices
 
 1. **Keep Conditions Simple**: Complex conditions can be hard to debug. Consider breaking complex logic into multiple nodes.
@@ -135,9 +102,6 @@ The executor automatically converts JavaScript-style operators to CEL equivalent
 ## Error Handling
 
 If a condition fails to evaluate (syntax error, undefined variable, etc.), the condition returns `false` by default (fail-safe behavior). This prevents unexpected transitions when conditions are malformed.
-
-
-<ExampleLoader path="examples/generated/example-12.dygram" height="400px" />
 
 
 ## See Also

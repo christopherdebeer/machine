@@ -1,22 +1,13 @@
 # API Reference
 
 
-
-
-
 ## Programmatic API
-
 
 
                         Use DyGram as a library in your Node.js applications.
 
 
-
-
-
 ### INSTALLATION
-
-
 
 
 ```
@@ -24,16 +15,10 @@ npm install dygram
 ```
 
 
-
-
-
-
 ### PARSING
 
 
                         Parse DyGram source code into an Abstract Syntax Tree (AST):
-
-
 
 
 ```
@@ -58,16 +43,10 @@ if (result.lexerErrors.length === 0 &&
 ```
 
 
-
-
-
-
 ### CONTEXT MANAGEMENT
 
 
                         Execute machines with enhanced context value management:
-
-
 
 
 ```
@@ -104,16 +83,10 @@ const result = await executor.execute();
 ```
 
 
-
-
-
-
 ### VALIDATION
 
 
                         Validate DyGram code and get diagnostic messages:
-
-
 
 
 ```
@@ -135,16 +108,10 @@ diagnostics.forEach(diag => {
 ```
 
 
-
-
-
-
 ### DIAGRAM GENERATION
 
 
                         Generate Mermaid diagrams from DyGram code:
-
-
 
 
 ```
@@ -164,24 +131,13 @@ console.log(mermaid);
 ```
 
 
-
-
-
-
 ## CLI Commands
-
 
 
                             DyGram provides a command-line interface:
 
 
-
-
-
-
 ### EXECUTE
-
-
 
 
 ```
@@ -192,13 +148,7 @@ npx dygram file.mach
                                 Execute a DyGram file
 
 
-
-
-
-
 ### VALIDATE
-
-
 
 
 ```
@@ -209,13 +159,7 @@ npx dygram validate file.mach
                                 Check syntax and semantics
 
 
-
-
-
-
 ### EXPORT
-
-
 
 
 ```
@@ -226,24 +170,12 @@ npx dygram export --format mermaid file.mach
                                 Generate diagrams and documentation
 
 
-
-
-
-
-
-
 ## TypeScript Support
-
 
 
                             DyGram is written in TypeScript and provides full type definitions for all APIs.
 
 
-
-
                             See the [GitHub repository](https://github.com/christopherdebeer/machine) for detailed type information and source code.
-
-
-
 
 

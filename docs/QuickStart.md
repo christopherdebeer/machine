@@ -3,23 +3,15 @@
 ## Getting Started
 
 
-
-
 ### 01. INSTALLATION
 
 
         Install DyGram via npm:
 
 
-
-
 ```
 npm install
 ```
-
-
-
-
 
 
 ### 02. DEVELOPMENT
@@ -28,15 +20,9 @@ npm install
         Start the development server:
 
 
-
-
 ```
 npm run dev
 ```
-
-
-
-
 
 
 ### 03. CLI USAGE
@@ -45,24 +31,15 @@ npm run dev
         Execute .dygram files directly:
 
 
-
-
 ```
 npx dygram your-file.dygram
 ```
 
 
-
-
-
-
 ## Your First Machine
 
 
-
         Create a file called `hello.dygram` with the following content:
-
-
 
 
 ### Example 1
@@ -129,11 +106,7 @@ processContent --> end;
 ```
 
 
-
         Run it:
-
-
-
 
 
 ```
@@ -141,15 +114,10 @@ node bin/cli.js execute hello.dygram
 ```
 
 
-
-
-
 ## Playground
 
 
-
         Try DyGram instantly in your browser without installation:
-
 
 
     [MOBILE PLAYGROUND →](playground-mobile.html)

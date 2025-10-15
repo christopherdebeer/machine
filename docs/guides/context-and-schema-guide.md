@@ -1,7 +1,5 @@
 # Context and Schema Management Guide
 
-<Layout>
-
 
 ## Overview
 
@@ -13,17 +11,14 @@ The machine language now supports enhanced context value management and schema v
 
 Context nodes can declare typed attributes that serve as data containers:
 
-<CodeEditor
-    initialCode={`context output {
+```dygram
+context output {
   value<string>: "";
   metadata<object>: "{}";
   count<number>: 0;
   isComplete<boolean>: false;
-};`}
-    language="dygram"
-    readOnly
-    height="140px"
-/>
+};
+```
 
 **Supported Types:**
 - `string` - Text values
@@ -39,45 +34,33 @@ Tasks now have access to context management tools:
 #### `set_context_value`
 Sets a value in a context node attribute with type validation:
 
-<CodeEditor
-    initialCode={`set_context_value(nodeName: "output", attributeName: "value", value: "Hello World")`}
-    language="typescript"
-    readOnly
-    height="60px"
-/>
+```typescript
+set_context_value(nodeName: "output", attributeName: "value", value: "Hello World")
+```
 
 #### `get_context_value`
 Retrieves a value from a context node attribute:
 
-<CodeEditor
-    initialCode={`get_context_value(nodeName: "output", attributeName: "value")`}
-    language="typescript"
-    readOnly
-    height="60px"
-/>
+```typescript
+get_context_value(nodeName: "output", attributeName: "value")
+```
 
 #### `list_context_nodes`
 Lists all context nodes and their current values:
 
-<CodeEditor
-    initialCode={`list_context_nodes()`}
-    language="typescript"
-    readOnly
-    height="60px"
-/>
+```typescript
+list_context_nodes()
+```
 
 ### 3. Template Variable Resolution with CEL
 
 Tasks can reference context values using template syntax powered by Common Expression Language (CEL):
 
-<CodeEditor
-    initialCode={`Task processData {
+```dygram
+Task processData {
   prompt: "The stored value is {{output.value}}. Process this data and create a summary.";
-};`}
-    language="dygram"
-    readOnly
-    height="100px"
-/>
+};
+```
 
 **Template Syntax:**
 - `{{nodeName.attributeName}}` - References a context node's attribute value
@@ -110,8 +93,8 @@ The execution system now:
 
 ### Basic Context Storage
 
-<CodeEditor
-    initialCode={`machine "Data Processing"
+```dygram
+machine "Data Processing"
 
 Task generate {
   meta: true;
@@ -127,16 +110,13 @@ Task process {
 };
 
 generate -stores-> data;
-data --> process;`}
-    language="dygram"
-    readOnly
-    height="320px"
-/>
+data --> process;
+```
 
 ### Multi-Context Pipeline
 
-<CodeEditor
-    initialCode={`machine "Analysis Pipeline"
+```dygram
+machine "Analysis Pipeline"
 
 Task analyze {
   prompt: "Analyze input data and store results in multiple contexts";
@@ -159,16 +139,13 @@ Task report {
 analyze -populates-> metrics;
 analyze -creates-> summary;
 metrics --> report;
-summary --> report;`}
-    language="dygram"
-    readOnly
-    height="420px"
-/>
+summary --> report;
+```
 
 ### CEL Expressions in Prompts
 
-<CodeEditor
-    initialCode={`machine "Dynamic Reporting"
+```dygram
+machine "Dynamic Reporting"
 
 context userData {
   firstName<string>: "John";
@@ -193,11 +170,8 @@ Timeout: {{config.timeout / 1000}} seconds
 };
 
 userData --> generateReport;
-config --> generateReport;`}
-    language="dygram"
-    readOnly
-    height="560px"
-/>
+config --> generateReport;
+```
 
 **CEL Expressions Demonstrated:**
 - String concatenation: `firstName + " " + lastName`
@@ -238,20 +212,17 @@ config --> generateReport;`}
 
 **Before:**
 
-<CodeEditor
-    initialCode={`Task process {
+```dygram
+Task process {
   prompt: "write a haiku";
 };
-// Output only stored in execution history`}
-    language="dygram"
-    readOnly
-    height="100px"
-/>
+// Output only stored in execution history
+```
 
 **After:**
 
-<CodeEditor
-    initialCode={`Task process {
+```dygram
+Task process {
   meta: true;
   prompt: "write a haiku and store it using set_context_value";
 };
@@ -259,12 +230,8 @@ config --> generateReport;`}
 context output {
   haiku<string>: "";
 };
-// Output properly stored in context node for reuse`}
-    language="dygram"
-    readOnly
-    height="160px"
-/>
+// Output properly stored in context node for reuse
+```
 
 This enhanced system enables more sophisticated workflows where tasks can build upon each other's outputs in a structured, type-safe manner.
 
-</Layout>

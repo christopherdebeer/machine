@@ -127,9 +127,6 @@ class QA(dspy.Signature):
 DyGram already has typed attributes, but could enhance with:
 
 
-<Example file="examples/generated/example-1.dygram" />
-
-
 **Benefits:**
 - Type safety
 - Reusable input/output specifications
@@ -154,14 +151,8 @@ class RAG(dspy.Module):
 DyGram already supports nesting and composition:
 
 
-<Example file="examples/generated/example-2.dygram" />
-
-
 **Enhancement Opportunity:**
 Add explicit composition patterns like DSPy's built-in modules:
-
-
-<Example file="examples/generated/example-3.dygram" />
 
 
 ### 3.3 Bootstrap Optimization → Automatic Prompt Evolution
@@ -176,9 +167,6 @@ compiled_program = optimizer.compile(program, trainset=examples)
 
 **DyGram Enhancement Opportunity:**
 Add an optimization layer:
-
-
-<Example file="examples/generated/example-4.dygram" />
 
 
 **Implementation Approach:**
@@ -205,9 +193,6 @@ dspy.Suggest(is_factual(answer), "Try to be more factual")
 
 **DyGram Could Add:**
 
-<Example file="examples/generated/example-5.dygram" />
-
-
 **Benefits:**
 - Self-healing systems
 - Automatic quality checks
@@ -225,9 +210,6 @@ trainset = [
 
 **DyGram Enhancement:**
 
-<Example file="examples/generated/example-6.dygram" />
-
-
 ### 3.6 Parallel Execution → Concurrent Tasks
 
 **DSPy's Parallel Module:**
@@ -237,9 +219,6 @@ results = parallel(examples)
 ```
 
 **DyGram Could Add:**
-
-<Example file="examples/generated/example-7.dygram" />
-
 
 ### 3.7 Metrics & Evaluation → Built-in Testing
 
@@ -252,9 +231,6 @@ score = evaluate(program)
 ```
 
 **DyGram Could Add:**
-
-<Example file="examples/generated/example-8.dygram" />
-
 
 ---
 
@@ -328,9 +304,6 @@ score = evaluate(program)
 
 **Implementation:**
 
-<Example file="examples/generated/example-9.dygram" />
-
-
 **Technical Approach:**
 1. Create `OptimizationService` that runs after executions
 2. Collect successful traces (input → output pairs)
@@ -343,16 +316,10 @@ score = evaluate(program)
 
 **Implementation:**
 
-<Example file="examples/generated/example-10.dygram" />
-
-
 #### 3. **Built-in Assertions & Self-Healing**
 **Why:** Makes systems more robust and reduces manual error handling.
 
 **Implementation:**
-
-<Example file="examples/generated/example-11.dygram" />
-
 
 ### 5.2 Medium Priority (Enhance Existing Features)
 
@@ -360,21 +327,12 @@ score = evaluate(program)
 **Why:** Enable few-shot learning directly in the DSL.
 
 
-<Example file="examples/generated/example-12.dygram" />
-
-
 #### 5. **Parallel Execution Support**
 **Why:** Speed up independent operations.
 
 
-<Example file="examples/generated/example-13.dygram" />
-
-
 #### 6. **Testing Framework**
 **Why:** Built-in testing improves reliability.
-
-
-<Example file="examples/generated/example-14.dygram" />
 
 
 ### 5.3 Low Priority (Nice to Have)
@@ -383,18 +341,9 @@ score = evaluate(program)
 Create reusable patterns like DSPy's built-in modules:
 
 
-<Example file="examples/generated/example-15.dygram" />
-
-
 #### 8. **Multi-Model Support**
 
-<Example file="examples/generated/example-16.dygram" />
-
-
 #### 9. **Metrics & Monitoring**
-
-<Example file="examples/generated/example-17.dygram" />
-
 
 ---
 

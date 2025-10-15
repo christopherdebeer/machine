@@ -16,13 +16,7 @@ DyGram supports semantic nesting that goes beyond simple visual grouping. Nested
 ### Simple Hierarchy
 
 
-<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
-
-
 ### Qualified Names
-
-
-<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
 
 
 ## Context Inheritance
@@ -32,13 +26,7 @@ Child nodes automatically inherit **read-only** access to context nodes accessib
 ### Basic Inheritance
 
 
-<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
-
-
 ### Multi-Level Inheritance
-
-
-<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
 
 
 ### Inheritance Rules
@@ -49,9 +37,6 @@ Child nodes automatically inherit **read-only** access to context nodes accessib
 4. **Transitive**: Inheritance is transitive through multiple levels (grandparent → parent → child)
 
 ### Example: Explicit Override
-
-
-<ExampleLoader path="examples/generated/example-5.dygram" height="400px" />
 
 
 ## Examples in this Directory
@@ -103,21 +88,12 @@ Comprehensive example showing optional type inference:
 Nesting creates logical groupings that reflect your workflow structure:
 
 
-<ExampleLoader path="examples/generated/example-6.dygram" height="400px" />
-
-
 ### 2. Reduced Boilerplate
 Context inheritance eliminates repetitive edge declarations:
 
 
-<ExampleLoader path="examples/generated/example-7.dygram" height="400px" />
-
-
 ### 3. Better Scoping
 Qualified names prevent naming collisions and make references explicit:
-
-
-<ExampleLoader path="examples/generated/example-8.dygram" height="400px" />
 
 
 ### 4. Intuitive Context Access
@@ -132,15 +108,9 @@ Context inheritance matches natural expectations - child contexts can see parent
 A state module is simply a `state` node that contains child nodes:
 
 
-<ExampleLoader path="examples/generated/example-9.dygram" height="400px" />
-
-
 ### Module Entry
 
 When you transition to a state module, execution automatically enters at the **first child**:
-
-
-<ExampleLoader path="examples/generated/example-10.dygram" height="400px" />
 
 
 **Entry Priority:**
@@ -153,9 +123,6 @@ When you transition to a state module, execution automatically enters at the **f
 Terminal nodes (those with no outbound edges) within a module automatically inherit the module-level exit edges:
 
 
-<ExampleLoader path="examples/generated/example-11.dygram" height="400px" />
-
-
 **Explicit edges always take precedence** over inherited module exits.
 
 ### Nested Modules
@@ -163,37 +130,19 @@ Terminal nodes (those with no outbound edges) within a module automatically inhe
 Modules can contain other modules, creating hierarchical workflows:
 
 
-<ExampleLoader path="examples/generated/example-12.dygram" height="400px" />
-
-
 ### Module Composition Patterns
 
 **Sequential Composition:**
 
-<ExampleLoader path="examples/generated/example-13.dygram" height="400px" />
-
-
 **Conditional Composition:**
 
-<ExampleLoader path="examples/generated/example-14.dygram" height="400px" />
-
-
 **Module with Error Handling:**
-
-<ExampleLoader path="examples/generated/example-15.dygram" height="400px" />
-
 
 ### State Modules vs Simple States
 
 **Simple State** (no children):
 
-<ExampleLoader path="examples/generated/example-16.dygram" height="400px" />
-
-
 **State Module** (with children):
-
-<ExampleLoader path="examples/generated/example-17.dygram" height="400px" />
-
 
 Simple states work exactly as before - only state nodes with children gain module semantics.
 
@@ -208,9 +157,6 @@ Simple states work exactly as before - only state nodes with children gain modul
 ### Example: ETL Pipeline with Modules
 
 
-<ExampleLoader path="examples/generated/example-18.dygram" height="400px" />
-
-
 When this executes:
 1. `start -> Extract` enters at `Extract.fetchData`
 2. `Extract.validateSource` (terminal) transitions to `Transform.cleanData`
@@ -221,9 +167,6 @@ When this executes:
 
 ### Backward Compatibility
 Simple names still work for backward compatibility:
-
-<ExampleLoader path="examples/generated/example-19.dygram" height="400px" />
-
 
 ### Context Inheritance Control
 Context inheritance is enabled by default. It follows these principles:
@@ -251,13 +194,7 @@ Use simple names when:
 
 Traditional approach with explicit types:
 
-<ExampleLoader path="examples/generated/example-20.dygram" height="400px" />
-
-
 With optional types (same behavior):
-
-<ExampleLoader path="examples/generated/example-21.dygram" height="400px" />
-
 
 ### Inference Rules
 
@@ -277,9 +214,6 @@ The system infers types in **priority order**:
 Tasks are inferred from the `prompt` attribute:
 
 
-<ExampleLoader path="examples/generated/example-22.dygram" height="400px" />
-
-
 **When to use explicit `task`:**
 - When you want to make the type explicit for documentation
 - When a task node has no prompt yet (will be added later)
@@ -287,9 +221,6 @@ Tasks are inferred from the `prompt` attribute:
 ### Context Inference
 
 Contexts are inferred from naming patterns or data-only attributes:
-
-
-<ExampleLoader path="examples/generated/example-23.dygram" height="400px" />
 
 
 **When to use explicit `context`:**
@@ -301,15 +232,9 @@ Contexts are inferred from naming patterns or data-only attributes:
 Tools are inferred from schema-like attributes:
 
 
-<ExampleLoader path="examples/generated/example-24.dygram" height="400px" />
-
-
 ### State Inference (Default)
 
 Simple nodes without special attributes default to states:
-
-
-<ExampleLoader path="examples/generated/example-25.dygram" height="400px" />
 
 
 ### Init Inference
@@ -317,23 +242,14 @@ Simple nodes without special attributes default to states:
 Init nodes can be inferred from graph structure (no incoming edges):
 
 
-<ExampleLoader path="examples/generated/example-26.dygram" height="400px" />
-
-
 ### Mixing Explicit and Inferred Types
 
 You can freely mix explicit and inferred types:
 
 
-<ExampleLoader path="examples/generated/example-27.dygram" height="400px" />
-
-
 ### Explicit Type Overrides Inference
 
 Explicit types always take precedence over inference:
-
-
-<ExampleLoader path="examples/generated/example-28.dygram" height="400px" />
 
 
 ### Benefits of Optional Types
@@ -361,15 +277,9 @@ Explicit types always take precedence over inference:
 ### Example: Complete Data Pipeline
 
 
-<ExampleLoader path="examples/generated/example-29.dygram" height="400px" />
-
-
 ### Inference Priority Example
 
 When multiple rules could apply, priority determines the type:
-
-
-<ExampleLoader path="examples/generated/example-30.dygram" height="400px" />
 
 
 ## See Also

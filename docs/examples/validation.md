@@ -52,23 +52,11 @@ Validates attribute types and catches type errors:
 
 #### Primitive Types
 
-<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
-
-
 #### Collection Types
-
-<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
-
 
 #### Optional Types
 
-<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
-
-
 #### Type Inference
-
-<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
-
 
 ### 2. Graph Validation
 
@@ -76,23 +64,11 @@ Ensures structural integrity:
 
 #### Unreachable Nodes
 
-<ExampleLoader path="examples/generated/example-5.dygram" height="400px" />
-
-
 #### Cycle Detection
-
-<ExampleLoader path="examples/generated/example-6.dygram" height="400px" />
-
 
 #### Entry Point Validation
 
-<ExampleLoader path="examples/generated/example-7.dygram" height="400px" />
-
-
 #### Orphaned Nodes
-
-<ExampleLoader path="examples/generated/example-8.dygram" height="400px" />
-
 
 ### 3. Semantic Validation
 
@@ -100,33 +76,15 @@ Enforces design patterns and best practices:
 
 #### Init Node Rules
 
-<ExampleLoader path="examples/generated/example-9.dygram" height="400px" />
-
-
 **Valid:**
-
-<ExampleLoader path="examples/generated/example-10.dygram" height="400px" />
-
 
 #### Context Node Rules
 
-<ExampleLoader path="examples/generated/example-11.dygram" height="400px" />
-
-
 **Valid:**
-
-<ExampleLoader path="examples/generated/example-12.dygram" height="400px" />
-
 
 #### Annotation Validation
 
-<ExampleLoader path="examples/generated/example-13.dygram" height="400px" />
-
-
 **Valid:**
-
-<ExampleLoader path="examples/generated/example-14.dygram" height="400px" />
-
 
 ## Validation Levels
 

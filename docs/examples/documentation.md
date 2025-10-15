@@ -28,15 +28,9 @@ Complete example combining Phase 3 features:
 Notes attach explanatory documentation to nodes:
 
 
-<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
-
-
 #### Multiline Notes
 
 Use `\n` for line breaks:
-
-
-<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
 
 
 #### Multiple Notes
@@ -44,33 +38,18 @@ Use `\n` for line breaks:
 Attach multiple notes to a single node:
 
 
-<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
-
-
 ### Generic Types
 
 Generic types provide type parameters for attributes:
-
-
-<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
 
 
 #### Common Generic Patterns
 
 **Promise Types:**
 
-<ExampleLoader path="examples/generated/example-5.dygram" height="400px" />
-
-
 **Collection Types:**
 
-<ExampleLoader path="examples/generated/example-6.dygram" height="400px" />
-
-
 **Function Types:**
-
-<ExampleLoader path="examples/generated/example-7.dygram" height="400px" />
-
 
 ## Use Cases
 

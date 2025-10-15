@@ -19,17 +19,11 @@ The Machine DSL supports flexible model ID configuration with the following prio
 Demonstrates using different models for different tasks based on complexity:
 
 
-<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
-
-
 **Use case**: Cost optimization by using fast/cheap models for simple tasks and more capable models only when needed.
 
 ### Machine-Level Model (`machine-level-model.dygram`)
 
 Demonstrates setting a default model for all tasks in a machine:
-
-
-<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
 
 
 **Use case**: Set a sensible default for the entire machine while allowing specific tasks to override.

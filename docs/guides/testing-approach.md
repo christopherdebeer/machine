@@ -1,7 +1,5 @@
 # DyGram Testing Approach
 
-<Layout>
-
 
 Comprehensive guide to the generative testing methodology used to validate DyGram.
 
@@ -109,16 +107,13 @@ Tests are organized by language feature:
 
 Tests are implemented in `test/integration/generative.test.ts`:
 
-<CodeEditor
-    initialCode={`test('Basic: Minimal Machine', async () => {
+```typescript
+test('Basic: Minimal Machine', async () => {
     const source = fs.readFileSync('examples/basic/minimal.dygram', 'utf-8');
     const result = await runGenerativeTest('Minimal Machine', source);
     expect(result.passed).toBe(true);
-});`}
-    language="typescript"
-    readOnly
-    height="140px"
-/>
+});
+```
 
 Each test:
 1. Loads source from example file
@@ -154,16 +149,13 @@ Each test creates `{test-name}.md` with:
 
 **Example:**
 
-<CodeEditor
-    initialCode={`level1 {
+```dygram
+level1 {
     level2 {
         level3;  // This was being lost!
     }
-}`}
-    language="dygram"
-    readOnly
-    height="120px"
-/>
+}
+```
 
 **Fix:** Made `serializeNodes()` recursive to handle arbitrary nesting depth
 
@@ -200,35 +192,26 @@ To add a new test:
 
 1. Create example file in appropriate category:
 
-<CodeEditor
-    initialCode={`echo 'machine "New Feature"\\nnewNode;' > examples/basic/new-feature.dygram`}
-    language="bash"
-    readOnly
-    height="60px"
-/>
+```bash
+echo 'machine "New Feature"\\nnewNode;' > examples/basic/new-feature.dygram
+```
 
 2. Add test case in `test/integration/generative.test.ts`:
 
-<CodeEditor
-    initialCode={`test('Basic: New Feature', async () => {
+```typescript
+test('Basic: New Feature', async () => {
     const source = fs.readFileSync('examples/basic/new-feature.dygram', 'utf-8');
     const result = await runGenerativeTest('New Feature', source);
     expect(result.passed).toBe(true);
-});`}
-    language="typescript"
-    readOnly
-    height="140px"
-/>
+});
+```
 
 3. Run tests and review artifacts:
 
-<CodeEditor
-    initialCode={`npm test
-cat test-output/generative/new_feature.md`}
-    language="bash"
-    readOnly
-    height="80px"
-/>
+```bash
+npm test
+cat test-output/generative/new_feature.md
+```
 
 ## Best Practices
 
@@ -244,4 +227,3 @@ cat test-output/generative/new_feature.md`}
 - [Examples Index](examples-index.html) - All test examples
 - [Language Overview](language-overview.html) - Conceptual introduction
 
-</Layout>

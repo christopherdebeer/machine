@@ -31,23 +31,11 @@ Nested attribute access patterns:
 
 ### Pattern 1: Configuration Storage
 
-<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
-
-
 ### Pattern 2: Dynamic Value Storage
-
-<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
-
 
 ### Pattern 3: Template Variable Usage
 
-<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
-
-
 ### Pattern 4: Nested Context
-
-<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
-
 
 ## Available Context Tools
 

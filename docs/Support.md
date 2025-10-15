@@ -1,5 +1,3 @@
-<PageLayout title="Support" description="Get help and support for DyGram and Machine DSL">
-
 ## Getting Help
 
 We're here to help! Find the right channel for your needs.

@@ -1,5 +1,3 @@
-<PageLayout title="FAQ" description="Frequently asked questions about DyGram and the Machine DSL">
-
 ## Frequently Asked Questions
 
 ---

@@ -1,5 +1,3 @@
-<PageLayout title={"meta test"}>
-
 # Meta-Programming: Dynamic Machine Modification
 
 DyGram supports meta-programming capabilities that allow agents to inspect and modify the machine definition at runtime. This enables self-evolving machines that can adapt their structure based on execution results.
