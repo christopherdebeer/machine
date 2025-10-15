@@ -38,3 +38,6 @@ src/pages/*.tsx
 
 # Generated examples
 examples/generated/
+
+# Generated data files
+src/data/doc-hierarchy.json

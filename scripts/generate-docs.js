@@ -8,6 +8,45 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /**
+ * Convert markdown link to HTML link
+ * Examples:
+ *   [Text](getting-started/installation.md) → [Text](installation.html)
+ *   [Text](../guides/syntax-guide.md) → [Text](syntax-guide.html)
+ *   [Text](README.md) → [Text](documentation.html) or [Text](examples-index.html)
+ *   [Text](QuickStart.mdx) → [Text](quick-start.html)
+ */
+function transformMarkdownLink(line, currentFileDir) {
+    // Transform both .md and .mdx links
+    return line.replace(/\[([^\]]+)\]\(([^)]+\.mdx?)\)/g, (match, text, linkPath) => {
+        // Extract just the filename without path and extension
+        const ext = extname(linkPath);
+        let filename = basename(linkPath, ext);
+
+        // Handle README.md links
+        if (filename === 'README') {
+            // Determine which directory's README this is
+            const linkDir = dirname(linkPath);
+            if (linkDir === '.' || linkDir === '') {
+                // Root README → documentation.html
+                return `[${text}](documentation.html)`;
+            } else {
+                // Subdirectory README → {dirname}-index.html
+                const dirName = basename(linkDir);
+                return `[${text}](${dirName}-index.html)`;
+            }
+        }
+
+        // Convert PascalCase/camelCase to kebab-case
+        const kebabName = filename
+            .replace(/([A-Z])/g, '-$1')
+            .toLowerCase()
+            .replace(/^-/, '');
+
+        return `[${text}](${kebabName}.html)`;
+    });
+}
+
+/**
  * Parse markdown and extract codeblocks, converting to MDX
  */
 async function transformMarkdown(mdContent, filename, sourcePath, relativeDepth = 0) {
@@ -34,6 +73,9 @@ async function transformMarkdown(mdContent, filename, sourcePath, relativeDepth 
     // Calculate correct import path based on directory depth
     const importPrefix = relativeDepth > 0 ? '../'.repeat(relativeDepth + 1) : '../';
 
+    // Get directory of current file for link transformation
+    const currentFileDir = dirname(sourcePath);
+
     // Add imports for MDX if we're processing markdown
     if (hasH1) {
         mdxLines.push(`import { PageLayout } from '${importPrefix}src/components/PageLayout';`);
@@ -45,7 +87,7 @@ async function transformMarkdown(mdContent, filename, sourcePath, relativeDepth 
 
     // Second pass: process content
     for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+        let line = lines[i];
 
         // Skip original h1 (we converted it to PageLayout)
         if (line.startsWith('# ') && hasH1) {
@@ -88,6 +130,8 @@ async function transformMarkdown(mdContent, filename, sourcePath, relativeDepth 
         } else if (inCodeblock) {
             codeblockContent.push(line);
         } else {
+            // Transform markdown links to HTML links
+            line = transformMarkdownLink(line, currentFileDir);
             mdxLines.push(line);
         }
     }
