@@ -1,8 +1,4 @@
-import { PageLayout } from '../src/components/PageLayout';
-import { ExampleLoader } from '../src/components/ExampleLoader';
-
-<PageLayout title="Examples">
-
+# Examples
 
 
 ## Learn by Example
@@ -162,6 +158,3 @@ solution -documented_in-> docs;`}</pre>
     <a href="playground-mobile.html" className="btn">OPEN PLAYGROUND →</a>
 </div>
 
-
-
-</PageLayout>

@@ -1,0 +1,126 @@
+import { PageLayout } from '../src/components/PageLayout';
+import { ExampleLoader } from '../src/components/ExampleLoader';
+
+<PageLayout title="Integration">
+
+
+
+## Integrate DyGram
+
+Embed DyGram into your development workflow and toolchain.
+
+<div className="feature-grid">
+    <div className="feature">
+        <h3 className="feature-title">VS CODE EXTENSION</h3>
+        <p>Get full language support in Visual Studio Code:</p>
+        <ul style={{ marginTop: '1rem', lineHeight: 1.8 }}>
+            <li>Syntax highlighting</li>
+            <li>Code completion</li>
+            <li>Real-time validation</li>
+            <li>Mermaid diagram preview</li>
+        </ul>
+        <a href="vscode-extension.html" className="btn" style={{ marginTop: '1rem', fontSize: '1rem', padding: '0.75rem 1.5rem' }}>LEARN MORE →</a>
+    </div>
+
+    <div className="feature">
+        <h3 className="feature-title">LANGUAGE SERVER</h3>
+        <p>DyGram includes a full LSP implementation powered by Langium:</p>
+        <div className="code-block" style={{ marginTop: '1rem' }}>
+            <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px', fontSize: '0.9rem' }}>{`import { startLanguageServer } from 'dygram';
+
+startLanguageServer({
+  port: 3000
+});`}</pre>
+        </div>
+    </div>
+
+    <div className="feature">
+        <h3 className="feature-title">PROGRAMMATIC API</h3>
+        <p>Use DyGram as a library in your Node.js applications:</p>
+        <div className="code-block" style={{ marginTop: '1rem' }}>
+            <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px', fontSize: '0.9rem' }}>{`import { MachineExecutor } from 'dygram';
+
+const machineData = {
+  title: "Test Machine",
+  nodes: [
+    { name: "start", type: "state" },
+    { name: "process", type: "Task", attributes: [
+      { name: "prompt", value: "Process data" }
+    ]},
+    { name: "end", type: "state" }
+  ],
+  edges: [
+    { source: "start", target: "process" },
+    { source: "process", target: "end" }
+  ]
+};
+
+const executor = await MachineExecutor.create(machineData);
+const result = await executor.execute();`}</pre>
+        </div>
+        <a href="api.html" className="btn" style={{ marginTop: '1rem', fontSize: '1rem', padding: '0.75rem 1.5rem' }}>API REFERENCE →</a>
+    </div>
+
+    <div className="feature">
+        <h3 className="feature-title">WEB EMBEDDING</h3>
+        <p>Embed the DyGram editor in your web applications:</p>
+        <div className="code-block" style={{ marginTop: '1rem' }}>
+            <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px', fontSize: '0.9rem' }}>{`<script src="dygram-web.js"></script>
+<div id="editor"></div>
+<script>
+  DyGram.createEditor({
+    container: '#editor',
+    value: 'machine "Hello"'
+  });
+</script>`}</pre>
+        </div>
+    </div>
+
+    <div className="feature">
+        <h3 className="feature-title">CI/CD INTEGRATION</h3>
+        <p>Run DyGram in your continuous integration pipelines:</p>
+        <div className="code-block" style={{ marginTop: '1rem' }}>
+            <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px', fontSize: '0.9rem' }}>{`# GitHub Actions example
+- name: Validate DyGram files
+  run: |
+    npm install -g dygram
+    dygram validate **/*.mach`}</pre>
+        </div>
+    </div>
+
+    <div className="feature">
+        <h3 className="feature-title">EXPORT FORMATS</h3>
+        <p>Generate diagrams and documentation:</p>
+        <div className="code-block" style={{ marginTop: '1rem' }}>
+            <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px', fontSize: '0.9rem' }}>{`# Generate Mermaid diagram
+dygram export --format mermaid file.mach
+
+dygram export --format json file.mach`}</pre>
+        </div>
+    </div>
+</div>
+
+<div style={{ marginTop: '4rem' }}>
+    <h2 className="section-title" style={{ fontSize: '2rem' }}>Build Tools</h2>
+    <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>
+        DyGram integrates with modern build tools:
+    </p>
+    <div className="feature-grid">
+        <div className="feature">
+            <h3 className="feature-title">VITE</h3>
+            <p>Included Vite configuration for fast development and optimized production builds.</p>
+        </div>
+        <div className="feature">
+            <h3 className="feature-title">ESBUILD</h3>
+            <p>Lightning-fast bundling for CLI and library distributions.</p>
+        </div>
+        <div className="feature">
+            <h3 className="feature-title">LANGIUM</h3>
+            <p>Built on Langium for robust LSP support and language tooling.</p>
+        </div>
+    </div>
+</div>
+
+
+
+</PageLayout>

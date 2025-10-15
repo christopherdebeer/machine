@@ -1,11 +1,7 @@
-import { PageLayout } from '../src/components/PageLayout';
-import { ExampleLoader } from '../src/components/ExampleLoader';
-
-<PageLayout title="Examples Index">
-
 
 <Layout>
 
+# Examples Index
 
 Comprehensive index of all DyGram examples organized by category.
 
@@ -194,6 +190,3 @@ development -> deployment;`}
 - [Testing Approach](testing-approach.html) - Validation details
 
 </Layout>
-
-
-</PageLayout>

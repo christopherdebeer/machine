@@ -1,0 +1,72 @@
+# DyGram Resources
+
+Additional resources, community support, comparisons, and troubleshooting.
+
+## Help and Support
+
+### [FAQ](faq.md)
+Frequently asked questions covering:
+- Common issues and solutions
+- Best practices
+- Feature explanations
+- Usage patterns
+
+### [Troubleshooting](troubleshooting.md)
+Troubleshooting guide for:
+- Installation problems
+- Runtime errors
+- Validation issues
+- Performance problems
+- Platform-specific issues
+
+### [Support](support.md)
+Getting help and community support:
+- GitHub issues
+- Discussions
+- Community channels
+- Contributing guidelines
+
+## Learning Resources
+
+### [Blog](blog.md)
+Articles, updates, and in-depth explorations:
+- Feature announcements
+- Use case studies
+- Best practices
+- Development insights
+
+### [DSPy Comparison](dspy-comparison.md)
+Comparison between DyGram and DSPy:
+- Philosophy and approach
+- Use cases and strengths
+- Integration possibilities
+- When to use each
+
+## Additional Documentation
+
+- [Langium Quickstart](../LangiumQuickstart.mdx) - For contributors working on the language implementation
+- [React + MDX Setup](../ReactMdxSetup.mdx) - For contributors working on documentation
+
+## Community
+
+### Contributing
+
+We welcome contributions! See the main [README](../../README.md) for:
+- Code contribution guidelines
+- Documentation improvements
+- Bug reports
+- Feature requests
+- Example submissions
+
+### Stay Updated
+
+- **GitHub**: [christopherdebeer/machine](https://github.com/christopherdebeer/machine)
+- **Issues**: [Report bugs](https://github.com/christopherdebeer/machine/issues)
+- **Discussions**: [Community discussions](https://github.com/christopherdebeer/machine/discussions)
+
+## Quick Links
+
+- [Installation Guide](../getting-started/installation.md)
+- [Quick Start](../getting-started/README.md)
+- [Examples](../examples/README.md)
+- [API Reference](../reference/README.md)

@@ -1,0 +1,121 @@
+# Grammar Reference
+
+
+## Language Syntax
+
+### BASIC STRUCTURE
+
+Every DyGram program starts with a machine declaration:
+
+<CodeEditor
+    id="grammar-001"
+    initialCode={`machine "My System"
+
+// Define states
+state start;
+state process;
+state end;
+
+// Define connections
+start -> process -> end;`}
+/>
+
+### CONTEXT MANAGEMENT
+
+Use context nodes for data storage with type validation:
+
+<CodeEditor
+    id="grammar-002"
+    initialCode={`machine "Context Demo"
+
+Task generateData {
+  meta: true;
+  prompt: "Generate data and store using set_context_value";
+};
+
+context storage {
+  value<string>: "";
+  count<number>: 0;
+  metadata<object>: "{}";
+};
+
+Task processData {
+  prompt: "Process {{storage.value}} with count {{storage.count}}";
+};
+
+generateData -stores-> storage;
+storage --> processData;`}
+/>
+
+### TEMPLATE VARIABLES
+
+Reference context values in task prompts:
+
+<CodeEditor
+    id="grammar-003"
+    initialCode={`machine "Template Demo"
+
+context input {
+  query<string>: "analyze sentiment";
+  language<string>: "english";
+};
+
+Task analyze {
+  prompt: "Analyze the {{input.language}} text: {{input.query}}";
+};
+
+context output {
+  result<string>: "";
+  confidence<number>: 0.0;
+};
+
+input --> analyze;
+analyze -produces-> output;`}
+/>
+
+### ENTITY TYPES
+
+DyGram supports multiple entity types:
+
+- **Concept** - Abstract ideas and domain concepts
+- **Entity** - Concrete domain objects
+- **Task** - Generative AI tasks with prompts
+- **Input** - System inputs and parameters
+- **Result** - Output values and results
+- **Resource** - External resources and references
+- **Process** - Business processes and workflows
+- **Implementation** - Technical implementations
+- **Feature** - Product features
+- **Team** - Teams and organizational units
+
+### TYPE ANNOTATIONS
+
+Supported type annotations:
+
+- **&lt;string&gt;** - Text values
+- **&lt;Integer&gt;** - Whole numbers
+- **&lt;Float&gt;** - Decimal numbers
+- **&lt;Date&gt;** - Date values
+- **&lt;UUID&gt;** - Unique identifiers
+- **&lt;Currency&gt;** - Monetary values
+- **&lt;SemanticVersion&gt;** - Version numbers
+- **&lt;AccessLevel&gt;** - Access control levels
+
+### RELATIONSHIPS
+
+Connect entities with labeled relationships:
+
+<CodeEditor
+    id="grammar-003"
+    initialCode={`
+// Simple connection
+a -> b;
+
+// Labeled relationship
+a -drives-> b;
+
+// Relationship with metadata
+a -addresses, confidence: 0.9-> b;
+`}
+/>
+

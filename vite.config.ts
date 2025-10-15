@@ -113,6 +113,10 @@ export default defineConfig(() => {
                     {
                         src: 'examples/README.md',
                         dest: 'examples'
+                    },
+                    {
+                        src: 'examples/generated',
+                        dest: 'examples'
                     }
                 ]
             })

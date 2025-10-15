@@ -1,0 +1,255 @@
+import { PageLayout } from '../src/components/PageLayout';
+import { ExampleLoader } from '../src/components/ExampleLoader';
+
+<PageLayout title="LLM Client Usage Guide">
+
+
+This guide explains how to use the unified LLM client abstraction in the Machine language, which supports both Anthropic API and AWS Bedrock.
+
+## Overview
+
+The Machine language now supports multiple LLM providers through a unified `LLMClient` interface:
+- **Anthropic API** - Direct API access, ideal for browser-based playgrounds
+- **AWS Bedrock** - AWS-hosted Claude models with enterprise features
+
+## Quick Start
+
+### Using Anthropic API (Recommended for Playgrounds)
+
+```typescript
+
+// Create executor with Anthropic client
+const executor = await MachineExecutor.create(machineData, {
+    llm: {
+        provider: 'anthropic',
+        apiKey: 'your-api-key-here', // or set ANTHROPIC_API_KEY env var
+        modelId: 'claude-3-5-sonnet-20241022' // optional, defaults to latest
+    }
+});
+
+// Execute the machine
+await executor.execute();
+```
+
+### Using AWS Bedrock
+
+```typescript
+
+// Create executor with Bedrock client
+const executor = await MachineExecutor.create(machineData, {
+    llm: {
+        provider: 'bedrock',
+        region: 'us-west-2', // optional, defaults to us-west-2
+        modelId: 'anthropic.claude-3-sonnet-20240229-v1:0' // optional
+    }
+});
+
+// Execute the machine
+await executor.execute();
+```
+
+### Backward Compatibility
+
+Existing code using the `bedrock` config still works:
+
+```typescript
+// Legacy bedrock config (still supported)
+const executor = new MachineExecutor(machineData, {
+    bedrock: {
+        region: 'us-west-2',
+        modelId: 'anthropic.claude-3-sonnet-20240229-v1:0'
+    }
+});
+```
+
+## Browser Usage
+
+For browser-based playgrounds, use the Anthropic API:
+
+```javascript
+// In browser environment
+const machineData = {
+    title: "My Machine",
+    nodes: [/* ... */],
+    edges: [/* ... */]
+};
+
+// Get API key from user input
+const apiKey = document.getElementById('apiKey').value;
+const modelId = document.getElementById('modelSelector').value;
+
+// Create executor with user's API key
+const executor = await MachineExecutor.create(machineData, {
+    llm: {
+        provider: 'anthropic',
+        apiKey: apiKey,
+        modelId: modelId
+    }
+});
+
+// Execute
+const result = await executor.execute();
+console.log('Execution complete:', result);
+```
+
+## Configuration Options
+
+### Anthropic Provider
+
+```typescript
+{
+    provider: 'anthropic',
+    apiKey?: string,        // Optional if ANTHROPIC_API_KEY env var is set
+    modelId?: string        // Optional, defaults to 'claude-3-5-haiku-20241022'
+}
+```
+
+**Available Models:**
+- `claude-3-5-haiku-20241022` (Default, fastest and most cost-effective)
+- `claude-3-5-sonnet-20241022` (Latest, balanced performance)
+- `claude-3-5-sonnet-20240620`
+- `claude-3-opus-20240229` (Most capable)
+- `claude-3-sonnet-20240229`
+- `claude-3-haiku-20240307`
+
+### Bedrock Provider
+
+```typescript
+{
+    provider: 'bedrock',
+    region?: string,        // Optional, defaults to 'us-west-2'
+    modelId?: string        // Optional, defaults to 'anthropic.claude-3-5-haiku-20241022-v1:0'
+}
+```
+
+**Available Models:**
+- `anthropic.claude-3-5-haiku-20241022-v1:0` (Default, fastest and most cost-effective)
+- `anthropic.claude-3-5-sonnet-20241022-v2:0` (Latest, balanced performance)
+- `anthropic.claude-3-5-sonnet-20240620-v1:0`
+- `anthropic.claude-3-sonnet-20240229-v1:0`
+- `anthropic.claude-3-haiku-20240307-v1:0`
+
+## Advanced: Direct Client Usage
+
+You can also use the clients directly:
+
+```typescript
+
+// Direct Anthropic client
+const anthropicClient = new AnthropicClient({
+    apiKey: 'your-key',
+    modelId: 'claude-3-5-sonnet-20241022'
+});
+
+// Simple prompt
+const response = await anthropicClient.invokeModel('Explain state machines');
+console.log(response);
+
+// With tools
+const toolResponse = await anthropicClient.invokeWithTools(
+    [{ role: 'user', content: 'What is 2+2?' }],
+    [/* tool definitions */]
+);
+```
+
+## Environment Variables
+
+For security, use environment variables in production:
+
+```bash
+export ANTHROPIC_API_KEY="your-api-key"
+export ANTHROPIC_MODEL_ID="claude-3-5-haiku-20241022"  # Optional, override default model
+
+export AWS_ACCESS_KEY_ID="your-access-key"
+export AWS_SECRET_ACCESS_KEY="your-secret-key"
+export AWS_REGION="us-west-2"
+```
+
+**Model Selection Priority:**
+1. **Explicit config** - `modelId` parameter in config object
+2. **Environment variable** - `ANTHROPIC_MODEL_ID`
+3. **Default** - `claude-3-5-haiku-20241022` (or haiku equivalent for Bedrock)
+
+## Error Handling
+
+```typescript
+try {
+    const executor = await MachineExecutor.create(machineData, {
+        llm: {
+            provider: 'anthropic',
+            apiKey: userApiKey
+        }
+    });
+
+    await executor.execute();
+} catch (error) {
+    if (error.message.includes('API key')) {
+        console.error('Invalid API key');
+    } else if (error.message.includes('rate limit')) {
+        console.error('Rate limit exceeded');
+    } else {
+        console.error('Execution error:', error);
+    }
+}
+```
+
+## Migration Guide
+
+### From Old Bedrock-only Code
+
+**Before:**
+```typescript
+
+const executor = new MachineExecutor(machineData, {
+    bedrock: { region: 'us-west-2' }
+});
+```
+
+**After (Option 1 - Keep Bedrock):**
+```typescript
+// No changes needed - backward compatible!
+const executor = new MachineExecutor(machineData, {
+    bedrock: { region: 'us-west-2' }
+});
+```
+
+**After (Option 2 - Switch to Anthropic):**
+```typescript
+const executor = await MachineExecutor.create(machineData, {
+    llm: {
+        provider: 'anthropic',
+        apiKey: process.env.ANTHROPIC_API_KEY
+    }
+});
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────┐
+│      MachineExecutor                │
+└──────────────┬──────────────────────┘
+               │
+               │ uses
+               ▼
+┌─────────────────────────────────────┐
+│      LLMClient (interface)          │
+└──────────────┬──────────────────────┘
+               │
+       ┌───────┴────────┐
+       │                │
+       ▼                ▼
+┌─────────────┐  ┌─────────────┐
+│ Anthropic   │  │  Bedrock    │
+│   Client    │  │   Client    │
+└─────────────┘  └─────────────┘
+```
+
+## Support
+
+For issues or questions:
+- GitHub Issues: https://github.com/christopherdebeer/machine/issues
+- Documentation: Check other docs in `/docs` folder
+
+
+</PageLayout>

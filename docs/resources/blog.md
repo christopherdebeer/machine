@@ -1,0 +1,86 @@
+# Blog
+
+
+## Latest Updates
+
+News, tutorials, and insights about DyGram development.
+
+<div className="feature-grid">
+    <div className="feature">
+        <div style={{ color: 'var(--accent)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>2025-10-06</div>
+        <h3 className="feature-title">WELCOME TO DYGRAM</h3>
+        <p style={{ marginBottom: '1rem' }}>
+            Introducing DyGram: a lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems.
+        </p>
+        <p style={{ fontSize: '0.95rem' }}>
+            DyGram bridges the gap between conceptual thinking and structured implementation. Start with broad, immediately executable concepts and refine through iteration and feedback.
+        </p>
+    </div>
+
+    <div className="feature">
+        <div style={{ color: 'var(--accent)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>2025-10-06</div>
+        <h3 className="feature-title">MOBILE-FIRST PLAYGROUND</h3>
+        <p style={{ marginBottom: '1rem' }}>
+            We've launched a new CodeMirror 6-based playground optimized for mobile devices with native touch support.
+        </p>
+        <p style={{ fontSize: '0.95rem' }}>
+            While Monaco Editor excels on desktop, CodeMirror 6 provides a superior mobile experience with native selection, better performance, and touch-optimized UI.
+        </p>
+    </div>
+
+    <div className="feature">
+        <div style={{ color: 'var(--accent)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>2025-10-06</div>
+        <h3 className="feature-title">LANGUAGE SERVER SUPPORT</h3>
+        <p style={{ marginBottom: '1rem' }}>
+            Full LSP integration powered by Langium brings IntelliSense, validation, and more to VS Code and other editors.
+        </p>
+        <p style={{ fontSize: '0.95rem' }}>
+            The language server provides real-time diagnostics, code completion, go-to-definition, and all the features you'd expect from a modern development environment.
+        </p>
+    </div>
+
+    <div className="feature">
+        <div style={{ color: 'var(--accent)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>COMING SOON</div>
+        <h3 className="feature-title">GENERATIVE AI INTEGRATION</h3>
+        <p style={{ marginBottom: '1rem' }}>
+            We're working on deeper integration with AI models for Task nodes, enabling seamless prompt-based workflows.
+        </p>
+        <p style={{ fontSize: '0.95rem' }}>
+            Define AI tasks with natural language prompts and let DyGram orchestrate the execution, combining structured data with generative capabilities.
+        </p>
+    </div>
+
+    <div className="feature">
+        <div style={{ color: 'var(--accent)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>COMING SOON</div>
+        <h3 className="feature-title">VISUAL EDITOR</h3>
+        <p style={{ marginBottom: '1rem' }}>
+            A graphical interface for building DyGram diagrams with drag-and-drop nodes and connections.
+        </p>
+        <p style={{ fontSize: '0.95rem' }}>
+            Seamlessly switch between code and visual editing modes, with real-time synchronization between both views.
+        </p>
+    </div>
+
+    <div className="feature">
+        <div style={{ color: 'var(--accent)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>COMING SOON</div>
+        <h3 className="feature-title">PLUGIN ECOSYSTEM</h3>
+        <p style={{ marginBottom: '1rem' }}>
+            Extensible plugin system for custom entity types, validators, and execution engines.
+        </p>
+        <p style={{ fontSize: '0.95rem' }}>
+            Create domain-specific extensions that add new capabilities to DyGram while maintaining compatibility with the core language.
+        </p>
+    </div>
+</div>
+
+<div style={{ marginTop: '4rem', padding: '3rem', background: 'var(--secondary)', color: 'white', borderRadius: '8px' }}>
+    <h2 className="section-title" style={{ fontSize: '2rem', marginBottom: '1rem' }}>Stay Updated</h2>
+    <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>
+        Follow development progress and join the conversation:
+    </p>
+    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <a href="https://github.com/christopherdebeer/machine" target="_blank" className="btn" style={{ background: 'white', color: 'var(--primary)' }}>GITHUB →</a>
+        <a href="https://github.com/christopherdebeer/machine/discussions" target="_blank" className="btn btn-secondary" style={{ background: 'var(--primary)', color: 'white' }}>DISCUSSIONS →</a>
+    </div>
+</div>
+
