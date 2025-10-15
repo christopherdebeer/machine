@@ -38,7 +38,6 @@ Continuous Integration/Deployment pipeline with:
 **Test it:**
 ```bash
 npx dygram generate examples/workflows/ci-cd-pipeline.dygram -f html -d output/
-# Open the generated HTML file to see the interactive visualization
 ```
 
 ### `smart-task-prioritizer.dygram`
@@ -50,7 +49,6 @@ AI-powered task prioritization workflow with:
 
 **Test it:**
 ```bash
-# Requires ANTHROPIC_API_KEY environment variable
 export ANTHROPIC_API_KEY=your_api_key_here
 npx dygram execute examples/workflows/smart-task-prioritizer.dygram
 ```
@@ -65,7 +63,6 @@ Complete code generation workflow demonstrating:
 
 **Test it:**
 ```bash
-# Requires ANTHROPIC_API_KEY environment variable
 export ANTHROPIC_API_KEY=your_api_key_here
 npx dygram execute examples/workflows/code-generation-demo.dygram
 ```
@@ -90,12 +87,9 @@ npx dygram parseAndValidate examples/workflows/user-onboarding.dygram
 
 Generate in multiple formats:
 ```bash
-# JSON only (default)
 npx dygram generate examples/workflows/user-onboarding.dygram
 
-# Multiple formats
 npx dygram generate examples/workflows/user-onboarding.dygram -f json,mermaid,html -d output/
 
-# View the generated files
 ls output/
 ```

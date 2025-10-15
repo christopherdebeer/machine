@@ -42,11 +42,9 @@ Self-healing pipeline that monitors error metrics and adds error handling nodes 
 
 **Test it:**
 ```bash
-# Requires ANTHROPIC_API_KEY environment variable
 export ANTHROPIC_API_KEY=your_api_key_here
 npx dygram exec examples/meta-programming/self-healing.dygram
 
-# View the updated machine (saved as self-healing-updated.machine)
 cat self-healing-updated.machine
 ```
 
@@ -94,7 +92,6 @@ Meta-programming with rails-based execution model showing mutation tracking.
 export ANTHROPIC_API_KEY=your_api_key_here
 npx dygram exec examples/meta-programming/rails-meta-example.dygram
 
-# Check mutations log in output
 cat rails-meta-example-result.json
 ```
 

@@ -27,80 +27,50 @@ Complete example combining Phase 3 features:
 
 Notes attach explanatory documentation to nodes:
 
-```dygram
-task authenticate {
-    prompt: "Verify credentials";
-}
 
-note for authenticate "This task validates credentials.
-Uses JWT tokens for session management.
-Timeout: 30 seconds"
-```
+<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
+
 
 #### Multiline Notes
 
 Use `\n` for line breaks:
 
-```dygram
-note for processData "Step 1: Validate input\nStep 2: Transform data\nStep 3: Store results"
-```
+
+<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
+
 
 #### Multiple Notes
 
 Attach multiple notes to a single node:
 
-```dygram
-note for criticalTask "IMPORTANT: Critical operation"
-note for criticalTask "Must maintain ACID properties"
-note for criticalTask "Requires authentication"
-```
+
+<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
+
 
 ### Generic Types
 
 Generic types provide type parameters for attributes:
 
-```dygram
-task fetchData {
-    // Promise of Response
-    response<Promise<Response>>: "pending";
 
-    // Array of Records
-    data<Array<Record>>: [];
+<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
 
-    // Map with string keys and User values
-    cache<Map<string, User>>: [];
-
-    // Nested generics
-    results<Promise<Array<Result>>>: [];
-}
-```
 
 #### Common Generic Patterns
 
 **Promise Types:**
-```dygram
-task asyncOp {
-    result<Promise<string>>: null;
-    error<Promise<Error>>: null;
-}
-```
+
+<ExampleLoader path="examples/generated/example-5.dygram" height="400px" />
+
 
 **Collection Types:**
-```dygram
-task collections {
-    items<Array<Item>>: [];
-    lookup<Map<string, Value>>: [];
-    set<Set<string>>: [];
-}
-```
+
+<ExampleLoader path="examples/generated/example-6.dygram" height="400px" />
+
 
 **Function Types:**
-```dygram
-task handlers {
-    callback<Function<Event, void>>: null;
-    mapper<Function<Input, Output>>: null;
-}
-```
+
+<ExampleLoader path="examples/generated/example-7.dygram" height="400px" />
+
 
 ## Use Cases
 

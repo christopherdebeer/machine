@@ -30,47 +30,24 @@ Nested attribute access patterns:
 ## Context Node Patterns
 
 ### Pattern 1: Configuration Storage
-```dygram
-context appConfig {
-    apiEndpoint<string>: "https://api.example.com";
-    timeout<number>: 5000;
-    maxRetries<number>: 3;
-}
-```
+
+<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
+
 
 ### Pattern 2: Dynamic Value Storage
-```dygram
-Task generateData {
-    meta: true;
-    prompt: "Generate data and store using set_context_value";
-}
 
-context output {
-    result<string>: "";
-    timestamp<number>: 0;
-}
-```
+<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
+
 
 ### Pattern 3: Template Variable Usage
-```dygram
-Task processData {
-    prompt: "Process data from {{output.result}} at {{output.timestamp}}";
-}
-```
+
+<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
+
 
 ### Pattern 4: Nested Context
-```dygram
-context config {
-    database {
-        host<string>: "localhost";
-        port<number>: 5432;
-    }
-    api {
-        endpoint<string>: "https://api.example.com";
-        timeout<number>: 5000;
-    }
-}
-```
+
+<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
+
 
 ## Available Context Tools
 

@@ -56,7 +56,7 @@ Test runs generate inspection artifacts in `test-output/generative/`:
 ### Edge Features
 - Unicode characters in names and labels
 - Special characters and quoted identifiers
-- All arrow types (→, -->, =>, <-->)
+- All arrow types (→, -->, =>, `<-->`)
 - Edge labels with attributes
 
 ### Attribute Testing
@@ -80,10 +80,8 @@ Test runs generate inspection artifacts in `test-output/generative/`:
 ## Running Tests
 
 ```bash
-# Run all tests including generative suite
 npm test
 
-# Run only generative tests
 npm test -- test/integration/generative.test.ts
 ```
 

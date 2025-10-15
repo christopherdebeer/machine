@@ -1,6 +1,5 @@
 # CLI Reference
 
-
 ## CLI Reference
 
 Complete reference for the DyGram command-line interface.
@@ -16,16 +15,12 @@ npx dygram [command] [options] <file>
 ### Quick Examples
 
 ```bash
-# Execute a machine
 npx dygram my-machine.dygram
 
-# Validate syntax
 npx dygram validate my-machine.dygram
 
-# Export to Mermaid
 npx dygram export --format mermaid my-machine.dygram
 
-# Export to JSON
 npx dygram export --format json my-machine.dygram
 ```
 
@@ -44,10 +39,8 @@ npx dygram [execute] <file>
 
 **Examples**:
 ```bash
-# Explicit execute command
 npx dygram execute hello.dygram
 
-# Implicit (execute is default)
 npx dygram hello.dygram
 ```
 
@@ -58,13 +51,10 @@ npx dygram hello.dygram
 
 **Examples with options**:
 ```bash
-# Verbose execution
 npx dygram --verbose hello.dygram
 
-# Custom output directory
 npx dygram --output ./results hello.dygram
 
-# With initial context
 npx dygram --context '{"key":"value"}' hello.dygram
 ```
 
@@ -81,13 +71,10 @@ npx dygram validate <file>
 
 **Examples**:
 ```bash
-# Validate single file
 npx dygram validate my-machine.dygram
 
-# Validate multiple files
 npx dygram validate file1.dygram file2.dygram
 
-# Validate all .dygram files in directory
 npx dygram validate **/*.dygram
 ```
 
@@ -117,13 +104,10 @@ npx dygram export --format <format> <file>
 
 **Examples**:
 ```bash
-# Export to Mermaid
 npx dygram export --format mermaid my-machine.dygram
 
-# Export to JSON
 npx dygram export --format json my-machine.dygram
 
-# Export with custom output file
 npx dygram export --format mermaid --output diagram.mmd my-machine.dygram
 ```
 
@@ -145,10 +129,8 @@ npx dygram generate [options] <file>
 
 **Examples**:
 ```bash
-# Generate with default options
 npx dygram generate my-machine.dygram
 
-# Generate with specific output
 npx dygram generate --output ./generated my-machine.dygram
 ```
 
@@ -161,7 +143,6 @@ Display version information.
 **Syntax**:
 ```bash
 npx dygram version
-# or
 npx dygram --version
 npx dygram -v
 ```
@@ -181,17 +162,14 @@ Display help information.
 **Syntax**:
 ```bash
 npx dygram help [command]
-# or
 npx dygram --help
 npx dygram -h
 ```
 
 **Examples**:
 ```bash
-# General help
 npx dygram help
 
-# Command-specific help
 npx dygram help execute
 npx dygram help validate
 npx dygram help export
@@ -313,10 +291,8 @@ npx dygram my-machine.dygram
 ### Pipe Machine Code
 
 ```bash
-# From stdin
 echo 'machine "Test" state start;' | npx dygram execute -
 
-# Validate from stdin
 cat my-machine.dygram | npx dygram validate -
 ```
 
@@ -325,7 +301,6 @@ cat my-machine.dygram | npx dygram validate -
 ```bash
 #!/bin/bash
 
-# Validate before executing
 if npx dygram validate my-machine.dygram; then
     echo "Validation passed, executing..."
     npx dygram execute my-machine.dygram
@@ -338,12 +313,10 @@ fi
 ### Batch Processing
 
 ```bash
-# Validate all .dygram files
 for file in *.dygram; do
     npx dygram validate "$file"
 done
 
-# Execute all machines in directory
 find ./machines -name "*.dygram" -exec npx dygram execute {} \;
 ```
 
@@ -398,7 +371,6 @@ Create `.git/hooks/pre-commit`:
 ```bash
 #!/bin/bash
 
-# Validate all staged .dygram files
 git diff --cached --name-only --diff-filter=ACM | grep '\.dygram$' | while read file; do
     npx dygram validate "$file"
     if [ $? -ne 0 ]; then
@@ -446,7 +418,6 @@ validator.addRule('custom-rule', (machine) => {
 For large Machine files:
 
 ```bash
-# Increase Node.js memory
 NODE_OPTIONS="--max-old-space-size=4096" npx dygram execute large-machine.dygram
 ```
 
@@ -455,10 +426,8 @@ NODE_OPTIONS="--max-old-space-size=4096" npx dygram execute large-machine.dygram
 Execute multiple machines in parallel:
 
 ```bash
-# Using GNU parallel
 ls *.dygram | parallel npx dygram execute {}
 
-# Using xargs
 find . -name "*.dygram" | xargs -P 4 -I {} npx dygram execute {}
 ```
 
@@ -471,10 +440,8 @@ find . -name "*.dygram" | xargs -P 4 -I {} npx dygram execute {}
 If `dygram` command isn't found:
 
 ```bash
-# Use npx
 npx dygram --help
 
-# Or install globally
 npm install -g .
 ```
 
@@ -483,10 +450,8 @@ npm install -g .
 On Linux/macOS:
 
 ```bash
-# Fix npm permissions
 sudo chown -R $(whoami) ~/.npm
 
-# Or use npx (no installation needed)
 npx dygram my-machine.dygram
 ```
 
@@ -506,4 +471,3 @@ npx dygram --verbose validate my-machine.dygram
 - [Integration Guide](integration.html) - Integrate Machine into workflows
 - [Examples](examples-index.html) - Example Machine files
 - [Troubleshooting](troubleshooting.html) - Common issues
-

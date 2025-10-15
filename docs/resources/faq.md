@@ -1,6 +1,5 @@
 # FAQ
 
-
 ## Frequently Asked Questions
 
 ---
@@ -232,4 +231,3 @@ If your question isn't answered here:
 - Check the [Documentation Index](documentation.html)
 - Browse the [Examples](examples-index.html)
 - Ask in [GitHub Discussions](https://github.com/christopherdebeer/machine/discussions)
-

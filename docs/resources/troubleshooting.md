@@ -1,6 +1,5 @@
 # Troubleshooting
 
-
 ## Troubleshooting Guide
 
 Common issues and their solutions when working with DyGram and the Machine DSL.
@@ -278,7 +277,6 @@ start --> end;
 **Solutions**:
 - Use correct import syntax:
   ```machine
-  import agent analyzer from "path/to/file.dygram";
   ```
 - Verify file paths are relative or absolute
 - Ensure imported file is valid Machine code
@@ -332,4 +330,3 @@ When reporting issues, include:
 - Full error message
 - OS and Node.js version
 - Steps to reproduce
-

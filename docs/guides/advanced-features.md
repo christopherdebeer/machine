@@ -1,7 +1,7 @@
+# Advanced Features
 
 <Layout>
 
-# Advanced Features
 
 This guide covers advanced diagram expressivity features introduced across multiple development phases. These features enhance the semantic richness and visual clarity of DyGram state machines.
 
@@ -175,9 +175,9 @@ Multiplicity expresses quantitative relationships between nodes, indicating how 
 
 ### Syntax
 
-```dygram
-source "sourceMultiplicity" -> "targetMultiplicity" target
-```
+
+<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
+
 
 ### Valid Multiplicity Formats
 
@@ -253,11 +253,9 @@ Annotations provide semantic metadata about nodes using the `@Name` or `@Name("v
 
 ### Syntax
 
-```dygram
-task myTask @Async @Deprecated("Use newTask instead") {
-    // attributes
-}
-```
+
+<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
+
 
 ### Common Annotations
 
@@ -417,11 +415,9 @@ Generic types allow you to specify parameterized types for attributes, enhancing
 ### Syntax
 
 Use angle brackets for generic type parameters:
-```dygram
-node {
-    attribute<GenericType<TypeParam>>: value;
-}
-```
+
+<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
+
 
 ### Supported Generic Patterns
 
@@ -501,9 +497,9 @@ Notes attach explanatory documentation to nodes using the `note for` syntax.
 
 ### Syntax
 
-```dygram
-note for targetNode "Note content goes here"
-```
+
+<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
+
 
 ### Examples
 

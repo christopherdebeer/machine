@@ -1,4 +1,8 @@
-# Validation Error Handling
+import { PageLayout } from '../src/components/PageLayout';
+import { ExampleLoader } from '../src/components/ExampleLoader';
+
+<PageLayout title="Validation Error Handling">
+
 
 This document describes the comprehensive validation error handling system, including runtime validation, error propagation, and machine-definable error behavior.
 
@@ -88,8 +92,6 @@ const summary = context.getSummary();
 ### Type Validation with Error Handling
 
 ```typescript
-import { TypeChecker } from './type-checker.js';
-import { ValidationContext } from './validation-errors.js';
 
 // Parse machine
 const machine = /* ... */;
@@ -119,8 +121,6 @@ if (context.hasCriticalErrors()) {
 ### Graph Validation with Error Handling
 
 ```typescript
-import { GraphValidator } from './graph-validator.js';
-import { ValidationContext, GraphErrorCodes } from './validation-errors.js';
 
 const context = new ValidationContext();
 const graphValidator = new GraphValidator(machine);
@@ -459,3 +459,6 @@ class ValidationContext {
 - [Type Checking System](./archive/VALIDATION_FEATURES.md#type-checking-system)
 - [Graph Validation](./archive/VALIDATION_FEATURES.md#graph-validation)
 - [Semantic Validation](./archive/VALIDATION_FEATURES.md#semantic-validation)
+
+
+</PageLayout>

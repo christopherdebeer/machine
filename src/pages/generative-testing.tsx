@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Content from '../../docs/GenerativeTesting.mdx';
-import '../index.css';
+import Content from '../../docs/guides/generative-testing.mdx';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

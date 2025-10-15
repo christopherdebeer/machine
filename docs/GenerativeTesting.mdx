@@ -1,4 +1,8 @@
-# Generative Testing Approach
+import { PageLayout } from '../src/components/PageLayout';
+import { ExampleLoader } from '../src/components/ExampleLoader';
+
+<PageLayout title="Generative Testing Approach">
+
 
 ## Overview
 
@@ -80,10 +84,8 @@ Test runs generate inspection artifacts in `test-output/generative/`:
 ## Running Tests
 
 ```bash
-# Run all tests including generative suite
 npm test
 
-# Run only generative tests
 npm test -- test/integration/generative.test.ts
 ```
 
@@ -164,3 +166,6 @@ test('Generated: My Pattern', async () => {
 - **Fuzzing integration**: Connect with fuzzers for security testing
 - **Visual diff tool**: Compare Mermaid outputs graphically
 - **CI integration**: Run subset of generative tests on every commit
+
+
+</PageLayout>

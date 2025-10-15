@@ -1,0 +1,507 @@
+<PageLayout title="CLI Reference" description="Complete command-line interface reference for DyGram and Machine DSL">
+
+## CLI Reference
+
+Complete reference for the DyGram command-line interface.
+
+---
+
+## Basic Usage
+
+```bash
+npx dygram [command] [options] <file>
+```
+
+### Quick Examples
+
+```bash
+# Execute a machine
+npx dygram my-machine.dygram
+
+# Validate syntax
+npx dygram validate my-machine.dygram
+
+# Export to Mermaid
+npx dygram export --format mermaid my-machine.dygram
+
+# Export to JSON
+npx dygram export --format json my-machine.dygram
+```
+
+---
+
+## Commands
+
+### `execute` (default)
+
+Execute a Machine file.
+
+**Syntax**:
+```bash
+npx dygram [execute] <file>
+```
+
+**Examples**:
+```bash
+# Explicit execute command
+npx dygram execute hello.dygram
+
+# Implicit (execute is default)
+npx dygram hello.dygram
+```
+
+**Options**:
+- `--verbose` - Show detailed execution logs
+- `--output <dir>` - Specify output directory
+- `--context <json>` - Provide initial context as JSON
+
+**Examples with options**:
+```bash
+# Verbose execution
+npx dygram --verbose hello.dygram
+
+# Custom output directory
+npx dygram --output ./results hello.dygram
+
+# With initial context
+npx dygram --context '{"key":"value"}' hello.dygram
+```
+
+---
+
+### `validate`
+
+Validate Machine file syntax without executing.
+
+**Syntax**:
+```bash
+npx dygram validate <file>
+```
+
+**Examples**:
+```bash
+# Validate single file
+npx dygram validate my-machine.dygram
+
+# Validate multiple files
+npx dygram validate file1.dygram file2.dygram
+
+# Validate all .dygram files in directory
+npx dygram validate **/*.dygram
+```
+
+**Output**:
+- **Success**: "✓ Validation successful"
+- **Errors**: Detailed error messages with line numbers
+
+**Exit codes**:
+- `0` - Validation successful
+- `1` - Validation failed
+
+---
+
+### `export`
+
+Export Machine to various formats.
+
+**Syntax**:
+```bash
+npx dygram export --format <format> <file>
+```
+
+**Supported formats**:
+- `mermaid` - Mermaid diagram syntax
+- `json` - JSON representation
+- `dot` - GraphViz DOT format (if implemented)
+
+**Examples**:
+```bash
+# Export to Mermaid
+npx dygram export --format mermaid my-machine.dygram
+
+# Export to JSON
+npx dygram export --format json my-machine.dygram
+
+# Export with custom output file
+npx dygram export --format mermaid --output diagram.mmd my-machine.dygram
+```
+
+**Options**:
+- `--format <format>` - Output format (required)
+- `--output <file>` - Output file path (optional)
+- `--pretty` - Pretty-print JSON output
+
+---
+
+### `generate`
+
+Generate code or artifacts from Machine files.
+
+**Syntax**:
+```bash
+npx dygram generate [options] <file>
+```
+
+**Examples**:
+```bash
+# Generate with default options
+npx dygram generate my-machine.dygram
+
+# Generate with specific output
+npx dygram generate --output ./generated my-machine.dygram
+```
+
+---
+
+### `version`
+
+Display version information.
+
+**Syntax**:
+```bash
+npx dygram version
+# or
+npx dygram --version
+npx dygram -v
+```
+
+**Output**:
+```
+DyGram v1.0.0
+Machine DSL v1.0.0
+```
+
+---
+
+### `help`
+
+Display help information.
+
+**Syntax**:
+```bash
+npx dygram help [command]
+# or
+npx dygram --help
+npx dygram -h
+```
+
+**Examples**:
+```bash
+# General help
+npx dygram help
+
+# Command-specific help
+npx dygram help execute
+npx dygram help validate
+npx dygram help export
+```
+
+---
+
+## Global Options
+
+Options that work with all commands:
+
+### `--verbose`
+
+Enable verbose logging.
+
+```bash
+npx dygram --verbose execute my-machine.dygram
+```
+
+### `--quiet`
+
+Suppress non-essential output.
+
+```bash
+npx dygram --quiet validate my-machine.dygram
+```
+
+### `--no-color`
+
+Disable colored output.
+
+```bash
+npx dygram --no-color execute my-machine.dygram
+```
+
+### `--config <file>`
+
+Use custom configuration file.
+
+```bash
+npx dygram --config ./custom-config.json execute my-machine.dygram
+```
+
+---
+
+## Configuration File
+
+Create a `.dygramrc.json` file in your project root:
+
+```json
+{
+  "executor": {
+    "verbose": false,
+    "timeout": 30000,
+    "maxIterations": 100
+  },
+  "validator": {
+    "strict": true,
+    "warningsAsErrors": false
+  },
+  "export": {
+    "defaultFormat": "mermaid",
+    "prettify": true
+  }
+}
+```
+
+---
+
+## Environment Variables
+
+Configure behavior via environment variables:
+
+### `DYGRAM_VERBOSE`
+
+Enable verbose mode.
+
+```bash
+export DYGRAM_VERBOSE=1
+npx dygram my-machine.dygram
+```
+
+### `DYGRAM_OUTPUT_DIR`
+
+Set default output directory.
+
+```bash
+export DYGRAM_OUTPUT_DIR=./output
+npx dygram my-machine.dygram
+```
+
+### `DYGRAM_AI_PROVIDER`
+
+Configure AI provider for meta-programming.
+
+```bash
+export DYGRAM_AI_PROVIDER=openai
+export OPENAI_API_KEY=your-key-here
+npx dygram my-machine.dygram
+```
+
+---
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | Validation error |
+| 2 | Execution error |
+| 3 | File not found |
+| 4 | Invalid arguments |
+| 5 | Configuration error |
+
+---
+
+## Piping and Scripting
+
+### Pipe Machine Code
+
+```bash
+# From stdin
+echo 'machine "Test" state start;' | npx dygram execute -
+
+# Validate from stdin
+cat my-machine.dygram | npx dygram validate -
+```
+
+### Use in Shell Scripts
+
+```bash
+#!/bin/bash
+
+# Validate before executing
+if npx dygram validate my-machine.dygram; then
+    echo "Validation passed, executing..."
+    npx dygram execute my-machine.dygram
+else
+    echo "Validation failed!"
+    exit 1
+fi
+```
+
+### Batch Processing
+
+```bash
+# Validate all .dygram files
+for file in *.dygram; do
+    npx dygram validate "$file"
+done
+
+# Execute all machines in directory
+find ./machines -name "*.dygram" -exec npx dygram execute {} \;
+```
+
+---
+
+## Integration Examples
+
+### npm Scripts
+
+Add to `package.json`:
+
+```json
+{
+  "scripts": {
+    "machine:validate": "npx dygram validate",
+    "machine:run": "npx dygram execute",
+    "machine:export": "npx dygram export --format mermaid"
+  }
+}
+```
+
+Usage:
+```bash
+npm run machine:validate my-machine.dygram
+npm run machine:run my-machine.dygram
+npm run machine:export my-machine.dygram
+```
+
+### CI/CD (GitHub Actions)
+
+```yaml
+name: Validate Machine Files
+
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+      - run: npm install
+      - run: npx dygram validate **/*.dygram
+```
+
+### Pre-commit Hook
+
+Create `.git/hooks/pre-commit`:
+
+```bash
+#!/bin/bash
+
+# Validate all staged .dygram files
+git diff --cached --name-only --diff-filter=ACM | grep '\.dygram$' | while read file; do
+    npx dygram validate "$file"
+    if [ $? -ne 0 ]; then
+        echo "Validation failed for $file"
+        exit 1
+    fi
+done
+```
+
+---
+
+## Advanced Usage
+
+### Programmatic API
+
+For more control, use the TypeScript API:
+
+```typescript
+
+const executor = new MachineExecutor();
+const result = await executor.execute('my-machine.dygram');
+console.log(result);
+```
+
+See [API Reference](api.html) for details.
+
+### Custom Validators
+
+Extend validation with custom rules:
+
+```typescript
+
+const validator = new ValidationService();
+validator.addRule('custom-rule', (machine) => {
+  // Custom validation logic
+});
+```
+
+---
+
+## Performance Tips
+
+### Large Files
+
+For large Machine files:
+
+```bash
+# Increase Node.js memory
+NODE_OPTIONS="--max-old-space-size=4096" npx dygram execute large-machine.dygram
+```
+
+### Parallel Execution
+
+Execute multiple machines in parallel:
+
+```bash
+# Using GNU parallel
+ls *.dygram | parallel npx dygram execute {}
+
+# Using xargs
+find . -name "*.dygram" | xargs -P 4 -I {} npx dygram execute {}
+```
+
+---
+
+## Troubleshooting
+
+### Command Not Found
+
+If `dygram` command isn't found:
+
+```bash
+# Use npx
+npx dygram --help
+
+# Or install globally
+npm install -g .
+```
+
+### Permission Errors
+
+On Linux/macOS:
+
+```bash
+# Fix npm permissions
+sudo chown -R $(whoami) ~/.npm
+
+# Or use npx (no installation needed)
+npx dygram my-machine.dygram
+```
+
+### Syntax Errors
+
+Enable verbose mode to see detailed errors:
+
+```bash
+npx dygram --verbose validate my-machine.dygram
+```
+
+---
+
+## See Also
+
+- [API Reference](api.html) - Programmatic API
+- [Integration Guide](integration.html) - Integrate Machine into workflows
+- [Examples](examples-index.html) - Example Machine files
+- [Troubleshooting](troubleshooting.html) - Common issues

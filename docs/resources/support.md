@@ -1,6 +1,5 @@
 # Support
 
-
 ## Getting Help
 
 We're here to help! Find the right channel for your needs.
@@ -222,4 +221,3 @@ We're committed to providing a welcoming and inclusive environment. Please:
 - Help create a positive community
 
 Report code of conduct violations to the project maintainers.
-

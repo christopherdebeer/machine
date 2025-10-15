@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Content from '../../docs/VscodeExtension.mdx';
-import '../index.css';
+import Content from '../../docs/integration/vscode-extension.mdx';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

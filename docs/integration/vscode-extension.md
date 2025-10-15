@@ -1,6 +1,5 @@
 # VS Code Extension
 
-
 ## Editor Integration
 
 Full DyGram language support in Visual Studio Code.
@@ -85,13 +84,10 @@ Full DyGram language support in Visual Studio Code.
         <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px' }}>{`# Clone the repository
 git clone https://github.com/christopherdebeer/machine.git
 
-# Install dependencies
 npm install
 
-# Build the extension
 npm run build
 
-# Open in VS Code
 code .`}</pre>
     </div>
 </div>
@@ -126,4 +122,3 @@ code .`}</pre>
         </div>
     </div>
 </div>
-

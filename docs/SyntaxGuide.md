@@ -1,0 +1,291 @@
+<Layout>
+
+# DyGram Syntax Guide
+
+Complete reference for DyGram language syntax.
+
+## Machine Declaration
+
+Every file starts with a machine declaration:
+
+<CodeEditor
+    initialCode={`machine "Machine Title"`}
+    language="dygram"
+    readOnly
+    height="60px"
+/>
+
+[Example: examples/basic/minimal.dygram](../examples/basic/minimal.dygram)
+
+## Node Declarations
+
+### Untyped Nodes
+
+<CodeEditor
+    initialCode={`nodeName;`}
+    language="dygram"
+    readOnly
+    height="60px"
+/>
+
+[Example: examples/basic/simple-nodes-3.dygram](../examples/basic/simple-nodes-3.dygram)
+
+### Typed Nodes
+
+<CodeEditor
+    initialCode={`task taskNode;
+state stateNode;
+init initNode;
+context contextNode;`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
+
+[Example: examples/basic/typed-nodes.dygram](../examples/basic/typed-nodes.dygram)
+
+### Nodes with Labels
+
+<CodeEditor
+    initialCode={`task processData "Process User Data";
+state waiting "Waiting for Input";`}
+    language="dygram"
+    readOnly
+    height="80px"
+/>
+
+[Example: examples/basic/all-node-types.dygram](../examples/basic/all-node-types.dygram)
+
+### Nodes with Attributes
+
+<CodeEditor
+    initialCode={`nodeName {
+    attribute: value;
+}`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
+
+#### Attribute Types
+- **String**: `name<string>: "value";`
+- **Number**: `count<number>: 42;` or `ratio<number>: 3.14;`
+- **Boolean**: `enabled<boolean>: true;`
+- **Array**: `items: ["a", "b", "c"];`
+- **Untyped**: `setting: "value";`
+
+[Example: examples/attributes/basic-attributes.dygram](../examples/attributes/basic-attributes.dygram)
+
+## Edge Declarations
+
+### Basic Edges
+
+<CodeEditor
+    initialCode={`source -> target;`}
+    language="dygram"
+    readOnly
+    height="60px"
+/>
+
+[Example: examples/edges/basic-edges.dygram](../examples/edges/basic-edges.dygram)
+
+### Arrow Types
+- `->` - Standard arrow
+- `-->` - Dashed arrow
+- `=>` - Thick arrow
+- `← -->` - Bidirectional arrow
+
+[Example: examples/edges/mixed-arrow-types.dygram](../examples/edges/mixed-arrow-types.dygram)
+
+### Edge Labels
+
+#### Simple Label
+
+<CodeEditor
+    initialCode={`start -init-> middle;`}
+    language="dygram"
+    readOnly
+    height="60px"
+/>
+
+#### Quoted Label
+
+<CodeEditor
+    initialCode={`middle -"user clicks button"-> end;`}
+    language="dygram"
+    readOnly
+    height="60px"
+/>
+
+#### Label with Attributes
+
+<CodeEditor
+    initialCode={`error -retry: 3; timeout: 5000;-> start;
+end -if: '(count > 10)';-> start;`}
+    language="dygram"
+    readOnly
+    height="80px"
+/>
+
+[Example: examples/edges/labeled-edges.dygram](../examples/edges/labeled-edges.dygram)
+
+### Chained Edges
+
+<CodeEditor
+    initialCode={`a -> b -> c -> d;`}
+    language="dygram"
+    readOnly
+    height="60px"
+/>
+
+[Example: examples/edge-cases/edge-cases-collection.dygram](../examples/edge-cases/edge-cases-collection.dygram)
+
+## Nesting
+
+Nodes can contain child nodes:
+
+<CodeEditor
+    initialCode={`parent {
+    child1;
+    child2;
+}`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
+
+### Multiple Levels
+
+<CodeEditor
+    initialCode={`level1 {
+    level2 {
+        level3 {
+            level4;
+        }
+    }
+}`}
+    language="dygram"
+    readOnly
+    height="140px"
+/>
+
+[Example: examples/nesting/deep-nested-5-levels.dygram](../examples/nesting/deep-nested-5-levels.dygram)
+
+### Mixed Nesting with Attributes
+
+<CodeEditor
+    initialCode={`parent {
+    child1 {
+        attr: "value";
+    }
+    child2;
+}`}
+    language="dygram"
+    readOnly
+    height="120px"
+/>
+
+[Example: examples/nesting/complex-nesting.dygram](../examples/nesting/complex-nesting.dygram)
+
+## Context Definitions
+
+Context nodes define shared configuration:
+
+<CodeEditor
+    initialCode={`context configName {
+    setting1<string>: "value";
+    setting2<number>: 100;
+}`}
+    language="dygram"
+    readOnly
+    height="100px"
+/>
+
+[Example: examples/complex/context-heavy.dygram](../examples/complex/context-heavy.dygram)
+
+## Complete Example
+
+Combining all features:
+
+<CodeEditor
+    initialCode={`machine "Complete Example"
+
+context config {
+    env<string>: "production";
+    maxRetries<number>: 3;
+    debug<boolean>: false;
+    tags: ["generated", "test"];
+}
+
+init startup "System Start" {
+    priority: "high";
+    timeout: 10000;
+}
+
+task process1 {
+    parallelism: 4;
+}
+
+task process2 {
+    batchSize: 100;
+}
+
+state validation;
+state cleanup;
+
+workflow recovery {
+    detect;
+    analyze;
+    fix;
+    detect -> analyze -> fix;
+}
+
+startup -> process1;
+process1 -> process2;
+process2 -> validation;
+validation -> cleanup;
+process1 -on: error;-> recovery;
+recovery -timeout: 30000;-> process1;
+cleanup -if: '(config.debug == true)';-> startup;`}
+    language="dygram"
+    readOnly
+    height="550px"
+/>
+
+[Example: examples/complex/complex-machine.dygram](../examples/complex/complex-machine.dygram)
+
+## Identifiers
+
+### Valid Identifiers
+- Start with letter or underscore: `_node`, `node1`, `myNode`
+- Contain letters, numbers, underscores: `node_123`, `my_node_2`
+
+[Example: examples/edge-cases/special-characters.dygram](../examples/edge-cases/special-characters.dygram)
+
+### Unicode Identifiers
+Full Unicode support in identifiers and labels:
+
+<CodeEditor
+    initialCode={`start "開始";
+process "処理";`}
+    language="dygram"
+    readOnly
+    height="80px"
+/>
+
+[Example: examples/complex/unicode-machine.dygram](../examples/complex/unicode-machine.dygram)
+
+## Known Limitations
+
+- Quoted node identifiers (e.g., `"node with spaces"`) are not supported
+- Negative numbers in attributes are not currently supported
+
+See [Testing Approach](testing-approach.html) for validation details.
+
+## See Also
+
+- [Language Overview](language-overview.html) - Conceptual introduction
+- [Examples Index](examples-index.html) - All examples organized by category
+- [Testing Approach](testing-approach.html) - Validation methodology
+
+</Layout>

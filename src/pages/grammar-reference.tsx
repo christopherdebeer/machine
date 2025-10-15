@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Content from '../../docs/GrammarReference.mdx';
-import '../index.css';
+import Content from '../../docs/reference/grammar-reference.mdx';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

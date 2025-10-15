@@ -10,22 +10,9 @@ Edge conditions allow you to control when a transition should occur based on run
 
 Conditions can be specified on edges using labels with the `if:`, `when:`, or `unless:` keywords:
 
-```dygram
-machine "Conditional Transitions"
 
-state idle;
-state processing;
-state complete;
+<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
 
-// Simple condition
-idle -if: '(errorCount == 0)';-> processing;
-
-// Using "when" (same as "if")
-processing -when: '(status == "ready")';-> complete;
-
-// Using "unless" (negated condition)
-processing -unless: '(errorCount > 0)';-> complete;
-```
 
 ## CEL Expression Syntax
 
@@ -40,15 +27,9 @@ CEL uses standard comparison operators:
 - `<=` - Less than or equal to
 - `>=` - Greater than or equal to
 
-```dygram
-// Numeric comparisons
-retry -if: '(retryCount < maxRetries)';-> task;
-task -if: '(errorCount >= threshold)';-> failed;
 
-// String comparisons
-task -if: '(status == "pending")';-> processing;
-processing -if: '(activeState != "idle")';-> complete;
-```
+<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
+
 
 ### Logical Operators
 
@@ -58,25 +39,17 @@ Combine conditions using logical operators:
 - `||` - Logical OR
 - `!` - Logical NOT
 
-```dygram
-// AND condition
-task -if: '(retryCount < maxRetries && circuitState == "CLOSED")';-> retry;
 
-// OR condition
-task -if: '(errorCount > 5 || timeout == true)';-> failed;
+<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
 
-// NOT condition
-task -unless: '(isValid)';-> validation;
-```
 
 ### Parentheses
 
 Use parentheses to group expressions and control evaluation order:
 
-```dygram
-task -if: '((retryCount < maxRetries) && (errorCount > 0))';-> retry;
-task -if: '((status == "ready") || (force == true)) && (enabled == true)';-> process;
-```
+
+<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
+
 
 ## Variable Access
 
@@ -88,125 +61,45 @@ DyGram provides several built-in variables:
 - `errors` - Alias for `errorCount` (backward compatibility)
 - `activeState` - Name of the current active state
 
-```dygram
-// Using errorCount
-task -if: '(errorCount > 0)';-> errorHandler;
 
-// Using activeState
-task -if: '(activeState == "processing")';-> continue;
-```
+<ExampleLoader path="examples/generated/example-5.dygram" height="400px" />
+
 
 ### Attribute Access
 
 Access node attributes using dot notation:
 
-```dygram
-machine "Attribute Access"
 
-context config {
-    maxRetries<number>: 3;
-    timeout<number>: 5000;
-    debug<boolean>: false;
-}
+<ExampleLoader path="examples/generated/example-6.dygram" height="400px" />
 
-task apiCall {
-    retryCount<number>: 0;
-}
-
-// Access flat attributes
-apiCall -if: '(retryCount < maxRetries)';-> retry;
-
-// Access nested attributes (from context)
-apiCall -if: '(config.debug == true)';-> debugMode;
-```
 
 ### Template Variable Syntax
 
 You can use template variable syntax `{{ nodeName.attributeName }}` which is automatically converted to CEL syntax:
 
-```dygram
-machine "Template Variables"
 
-context userData {
-    name<string>: "start";
-    priority<number>: 5;
-}
+<ExampleLoader path="examples/generated/example-7.dygram" height="400px" />
 
-task validation;
-state processing;
-
-// Template syntax (automatically converted to CEL)
-validation -if: '({{ userData.name }} == "start")';-> processing;
-validation -if: '({{ userData.priority }} > 3)';-> processing;
-```
 
 ## Real-World Examples
 
 ### Retry Logic
 
-```dygram
-machine "Retry Pattern"
 
-context retryConfig {
-    maxRetries<number>: 3;
-    baseDelay<number>: 1000;
-}
+<ExampleLoader path="examples/generated/example-8.dygram" height="400px" />
 
-task apiCall {
-    retryCount<number>: 0;
-}
-
-task retryHandler;
-state failed;
-state success;
-
-// Retry if under limit
-apiCall -if: '(retryCount < maxRetries)';-> retryHandler;
-
-// Fail if limit exceeded
-apiCall -if: '(retryCount >= maxRetries)';-> failed;
-```
 
 ### Circuit Breaker Pattern
 
-```dygram
-machine "Circuit Breaker"
 
-context circuitBreakerState {
-    state<string>: "CLOSED";
-    failureCount<number>: 0;
-    threshold<number>: 5;
-}
+<ExampleLoader path="examples/generated/example-9.dygram" height="400px" />
 
-task protectedCall;
-state circuitOpen;
-state success;
-
-// Open circuit if threshold exceeded
-protectedCall -if: '(failureCount >= threshold && circuitBreakerState.state == "CLOSED")';-> circuitOpen;
-
-// Allow call if circuit closed
-protectedCall -if: '(circuitBreakerState.state == "CLOSED")';-> success;
-```
 
 ### State-Based Routing
 
-```dygram
-machine "State Routing"
 
-context request {
-    priority<string>: "high";
-    type<string>: "urgent";
-}
+<ExampleLoader path="examples/generated/example-10.dygram" height="400px" />
 
-task router;
-task highPriorityHandler;
-task normalHandler;
-
-// Route based on multiple conditions
-router -if: '(request.priority == "high" && request.type == "urgent")';-> highPriorityHandler;
-router -if: '(request.priority != "high")';-> normalHandler;
-```
 
 ## Migration from JavaScript eval()
 
@@ -223,13 +116,9 @@ Prior to version 0.3.5, DyGram used JavaScript `eval()` for condition evaluation
 
 The executor automatically converts JavaScript-style operators to CEL equivalents:
 
-```dygram
-// Old JavaScript-style (still works - automatically converted)
-task -if: '(count === 5)';-> next;
 
-// New CEL-style (preferred)
-task -if: '(count == 5)';-> next;
-```
+<ExampleLoader path="examples/generated/example-11.dygram" height="400px" />
+
 
 ## Best Practices
 
@@ -247,10 +136,9 @@ task -if: '(count == 5)';-> next;
 
 If a condition fails to evaluate (syntax error, undefined variable, etc.), the condition returns `false` by default (fail-safe behavior). This prevents unexpected transitions when conditions are malformed.
 
-```dygram
-// If this condition has an error, it will return false
-task -if: '(invalidSyntax >)';-> next;  // Won't transition due to error
-```
+
+<ExampleLoader path="examples/generated/example-12.dygram" height="400px" />
+
 
 ## See Also
 

@@ -1,7 +1,7 @@
+# DyGram Language Overview
 
 <Layout>
 
-# DyGram Language Overview
 
 DyGram is a declarative language for defining state machines, workflows, and process graphs with rich metadata.
 

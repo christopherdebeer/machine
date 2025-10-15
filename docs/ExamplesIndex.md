@@ -1,7 +1,7 @@
+# Examples Index
 
 <Layout>
 
-# Examples Index
 
 Comprehensive index of all DyGram examples organized by category.
 

@@ -15,35 +15,15 @@ DyGram supports semantic nesting that goes beyond simple visual grouping. Nested
 
 ### Simple Hierarchy
 
-```dygram
-machine "Basic Nesting"
 
-Parent {
-    Child1;
-    Child2;
-}
+<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
 
-// Can reference using simple names (backward compatible)
-Child1 -> Child2;
-```
 
 ### Qualified Names
 
-```dygram
-machine "Qualified Names"
 
-Pipeline {
-    task Start;
-    task End;
-}
+<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
 
-External;
-
-// Reference nested nodes using qualified names
-External -> Pipeline.Start;
-Pipeline.Start -> Pipeline.End;
-Pipeline.End -> External;
-```
 
 ## Context Inheritance
 
@@ -51,57 +31,15 @@ Child nodes automatically inherit **read-only** access to context nodes accessib
 
 ### Basic Inheritance
 
-```dygram
-machine "Context Inheritance"
 
-Pipeline {
-    context config {
-        apiUrl: "https://api.example.com";
-    }
+<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
 
-    task FetchData {
-        prompt: "Fetch data from API";
-        // Automatically has read access to config - no edge needed!
-    }
-
-    task ProcessData {
-        prompt: "Process the fetched data";
-        // Also has read access to config
-    }
-}
-
-// Parent node has explicit access to config
-Pipeline -reads-> Pipeline.config;
-
-// Children inherit this access automatically
-```
 
 ### Multi-Level Inheritance
 
-```dygram
-machine "Multi-Level Inheritance"
 
-context globalSettings {
-    timeout: 5000;
-}
+<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
 
-Workflow {
-    context workflowState {
-        status: "running";
-    }
-
-    Phase1 {
-        task Task1 {
-            // Inherits read access to:
-            // - globalSettings (from Workflow's parent)
-            // - workflowState (from Workflow)
-        }
-    }
-}
-
-Workflow -reads-> globalSettings;
-Workflow -writes-> Workflow.workflowState;
-```
 
 ### Inheritance Rules
 
@@ -112,26 +50,9 @@ Workflow -writes-> Workflow.workflowState;
 
 ### Example: Explicit Override
 
-```dygram
-machine "Override Example"
 
-Pipeline {
-    context data;
+<ExampleLoader path="examples/generated/example-5.dygram" height="400px" />
 
-    task Reader {
-        // Inherits read-only access
-    }
-
-    task Writer {
-        // Explicit edge overrides inherited read-only with write access
-    }
-}
-
-Pipeline -reads-> Pipeline.data;
-
-// Writer explicitly gets write access (overrides inherited read-only)
-Pipeline.Writer -writes-> Pipeline.data;
-```
 
 ## Examples in this Directory
 
@@ -181,38 +102,23 @@ Comprehensive example showing optional type inference:
 ### 1. Clear Organization
 Nesting creates logical groupings that reflect your workflow structure:
 
-```dygram
-DataPipeline {
-    ValidationPhase { /* validation tasks */ }
-    ProcessingPhase { /* processing tasks */ }
-    StoragePhase { /* storage tasks */ }
-}
-```
+
+<ExampleLoader path="examples/generated/example-6.dygram" height="400px" />
+
 
 ### 2. Reduced Boilerplate
 Context inheritance eliminates repetitive edge declarations:
 
-```dygram
-// Before: Explicit edges for every task
-task1 -reads-> config;
-task2 -reads-> config;
-task3 -reads-> config;
 
-// After: Single edge for parent, children inherit
-Pipeline -reads-> config;
-Pipeline {
-    task1; // Inherits read access
-    task2; // Inherits read access
-    task3; // Inherits read access
-}
-```
+<ExampleLoader path="examples/generated/example-7.dygram" height="400px" />
+
 
 ### 3. Better Scoping
 Qualified names prevent naming collisions and make references explicit:
 
-```dygram
-Pipeline1.Task1 -> Pipeline2.Task1;  // Clear which tasks
-```
+
+<ExampleLoader path="examples/generated/example-8.dygram" height="400px" />
+
 
 ### 4. Intuitive Context Access
 Context inheritance matches natural expectations - child contexts can see parent contexts, just like lexical scoping in programming languages.
@@ -225,24 +131,17 @@ Context inheritance matches natural expectations - child contexts can see parent
 
 A state module is simply a `state` node that contains child nodes:
 
-```dygram
-// This is a state module
-state DataPipeline {
-    state validate;
-    state process;
-    state store;
 
-    validate -> process -> store;
-}
-```
+<ExampleLoader path="examples/generated/example-9.dygram" height="400px" />
+
 
 ### Module Entry
 
 When you transition to a state module, execution automatically enters at the **first child**:
 
-```dygram
-start -> DataPipeline;  // Automatically enters at 'validate' (first child)
-```
+
+<ExampleLoader path="examples/generated/example-10.dygram" height="400px" />
+
 
 **Entry Priority:**
 1. Task nodes (actual executable work)
@@ -253,15 +152,9 @@ start -> DataPipeline;  // Automatically enters at 'validate' (first child)
 
 Terminal nodes (those with no outbound edges) within a module automatically inherit the module-level exit edges:
 
-```dygram
-state Pipeline {
-    state task1 -> task2 -> task3;  // task3 is terminal
-}
 
-Pipeline -> complete;  // Module-level exit
+<ExampleLoader path="examples/generated/example-11.dygram" height="400px" />
 
-// When task3 completes, it inherits Pipeline's exit and transitions to 'complete'
-```
 
 **Explicit edges always take precedence** over inherited module exits.
 
@@ -269,82 +162,38 @@ Pipeline -> complete;  // Module-level exit
 
 Modules can contain other modules, creating hierarchical workflows:
 
-```dygram
-state OuterPipeline {
-    // Nested module
-    state ValidationPhase {
-        state check -> validate -> verify;
-    }
 
-    state ProcessingPhase {
-        state transform -> aggregate;
-    }
+<ExampleLoader path="examples/generated/example-12.dygram" height="400px" />
 
-    ValidationPhase -> ProcessingPhase;
-}
-
-// Transitioning to OuterPipeline:
-// OuterPipeline -> ValidationPhase -> check (enters nested module)
-```
 
 ### Module Composition Patterns
 
 **Sequential Composition:**
-```dygram
-state ModuleA { /* ... */ }
-state ModuleB { /* ... */ }
-state ModuleC { /* ... */ }
 
-start -> ModuleA;
-ModuleA -> ModuleB;
-ModuleB -> ModuleC;
-ModuleC -> end;
-```
+<ExampleLoader path="examples/generated/example-13.dygram" height="400px" />
+
 
 **Conditional Composition:**
-```dygram
-state Validation { /* ... */ }
-state SuccessPath { /* ... */ }
-state ErrorPath { /* ... */ }
 
-start -> Validation;
-Validation -success-> SuccessPath;
-Validation -error-> ErrorPath;
-```
+<ExampleLoader path="examples/generated/example-14.dygram" height="400px" />
+
 
 **Module with Error Handling:**
-```dygram
-state Pipeline {
-    state task1 -> task2 -> task3;
-}
 
-task handleError;
+<ExampleLoader path="examples/generated/example-15.dygram" height="400px" />
 
-// Explicit error paths from specific tasks
-Pipeline.task2 -error-> handleError;
-
-// Module-level exit for success
-Pipeline -> complete;
-```
 
 ### State Modules vs Simple States
 
 **Simple State** (no children):
-```dygram
-state ready;
-state processing;
 
-ready -> processing;  // Normal state transition
-```
+<ExampleLoader path="examples/generated/example-16.dygram" height="400px" />
+
 
 **State Module** (with children):
-```dygram
-state ProcessingModule {
-    state step1 -> step2;
-}
 
-ready -> ProcessingModule;  // Enters at step1
-```
+<ExampleLoader path="examples/generated/example-17.dygram" height="400px" />
+
 
 Simple states work exactly as before - only state nodes with children gain module semantics.
 
@@ -358,29 +207,9 @@ Simple states work exactly as before - only state nodes with children gain modul
 
 ### Example: ETL Pipeline with Modules
 
-```dygram
-machine "ETL Pipeline"
 
-// Each phase is a state module
-state Extract {
-    state fetchData -> validateSource;
-}
+<ExampleLoader path="examples/generated/example-18.dygram" height="400px" />
 
-state Transform {
-    state cleanData -> enrichData -> aggregate;
-}
-
-state Load {
-    state prepareTarget -> writeData -> verifyLoad;
-}
-
-// Compose modules
-init start;
-start -> Extract;
-Extract -> Transform;
-Transform -> Load;
-Load -> complete;
-```
 
 When this executes:
 1. `start -> Extract` enters at `Extract.fetchData`
@@ -392,15 +221,9 @@ When this executes:
 
 ### Backward Compatibility
 Simple names still work for backward compatibility:
-```dygram
-Pipeline {
-    Child;
-}
 
-// Both work:
-Child -> End;              // Simple name
-Pipeline.Child -> End;     // Qualified name
-```
+<ExampleLoader path="examples/generated/example-19.dygram" height="400px" />
+
 
 ### Context Inheritance Control
 Context inheritance is enabled by default. It follows these principles:
@@ -427,18 +250,14 @@ Use simple names when:
 ### Why Optional Types?
 
 Traditional approach with explicit types:
-```dygram
-task fetchData { prompt: "Fetch from API"; }
-context apiConfig { url: "https://api.com"; }
-state ready;
-```
+
+<ExampleLoader path="examples/generated/example-20.dygram" height="400px" />
+
 
 With optional types (same behavior):
-```dygram
-fetchData { prompt: "Fetch from API"; }  // Inferred as task
-apiConfig { url: "https://api.com"; }    // Inferred as context
-ready;                                    // Inferred as state
-```
+
+<ExampleLoader path="examples/generated/example-21.dygram" height="400px" />
+
 
 ### Inference Rules
 
@@ -457,13 +276,9 @@ The system infers types in **priority order**:
 
 Tasks are inferred from the `prompt` attribute:
 
-```dygram
-// Explicit
-task analyze { prompt: "Analyze data"; }
 
-// Inferred (same behavior)
-analyze { prompt: "Analyze data"; }
-```
+<ExampleLoader path="examples/generated/example-22.dygram" height="400px" />
+
 
 **When to use explicit `task`:**
 - When you want to make the type explicit for documentation
@@ -473,23 +288,9 @@ analyze { prompt: "Analyze data"; }
 
 Contexts are inferred from naming patterns or data-only attributes:
 
-```dygram
-// Inferred from name patterns
-userContext { id: "123"; }           // has "context"
-apiConfig { url: "..."; }            // has "config"
-queryResult { rows: []; }            // has "result"
-userData { name: "Alice"; }          // has "data"
-inputParams { x: 1, y: 2; }          // has "input"
-outputData { value: 42; }            // has "output"
-appState { status: "running"; }      // has "state" (but not exact "state")
 
-// Inferred from data-only attributes
-settings {
-    theme: "dark";
-    timeout: 5000;
-    // No executable attributes → context
-}
-```
+<ExampleLoader path="examples/generated/example-23.dygram" height="400px" />
+
 
 **When to use explicit `context`:**
 - When the name doesn't match patterns and attributes are ambiguous
@@ -499,88 +300,41 @@ settings {
 
 Tools are inferred from schema-like attributes:
 
-```dygram
-// Inferred from schema attributes
-calculator {
-    input: "{ x: number, y: number }";
-    output: "{ result: number }";
-}
 
-validator {
-    schema: "{ type: 'object', properties: {...} }";
-}
+<ExampleLoader path="examples/generated/example-24.dygram" height="400px" />
 
-api {
-    parameters: "{ endpoint: string }";
-    returns: "Response";
-}
-```
 
 ### State Inference (Default)
 
 Simple nodes without special attributes default to states:
 
-```dygram
-// These are all inferred as states
-ready;
-waiting;
-processing;
-idle "Idle State";
-```
+
+<ExampleLoader path="examples/generated/example-25.dygram" height="400px" />
+
 
 ### Init Inference
 
 Init nodes can be inferred from graph structure (no incoming edges):
 
-```dygram
-// This node has no incoming edges, has outgoing → inferred as init
-start;
-start -> process;
 
-// However, explicit init is recommended for clarity
-init start;
-```
+<ExampleLoader path="examples/generated/example-26.dygram" height="400px" />
+
 
 ### Mixing Explicit and Inferred Types
 
 You can freely mix explicit and inferred types:
 
-```dygram
-state Pipeline {
-    // Explicit type
-    task validate {
-        prompt: "Validate input";
-    }
 
-    // Inferred type (same behavior)
-    transform {
-        prompt: "Transform data";
-    }
+<ExampleLoader path="examples/generated/example-27.dygram" height="400px" />
 
-    // Inferred as state (default)
-    intermediate;
-
-    // Workflow
-    validate -> transform -> intermediate;
-}
-```
 
 ### Explicit Type Overrides Inference
 
 Explicit types always take precedence over inference:
 
-```dygram
-// Name suggests context, but explicit type makes it a state
-state userData {
-    // This is a control flow state, not a data context
-}
 
-// Has prompt, but explicit type makes it a state
-state processor {
-    prompt: "This won't execute as a task";
-    // Type is state, not task
-}
-```
+<ExampleLoader path="examples/generated/example-28.dygram" height="400px" />
+
 
 ### Benefits of Optional Types
 
@@ -606,65 +360,17 @@ state processor {
 
 ### Example: Complete Data Pipeline
 
-```dygram
-machine "ETL Pipeline with Optional Types"
 
-// Inferred context (name pattern)
-apiConfig {
-    url: "https://api.example.com";
-    timeout: 5000;
-}
+<ExampleLoader path="examples/generated/example-29.dygram" height="400px" />
 
-// Inferred as state module (default)
-Pipeline {
-    // All inferred as tasks (have prompts)
-    extract { prompt: "Extract data from {{ apiConfig.url }}"; }
-    transform { prompt: "Transform extracted data"; }
-    load { prompt: "Load data into warehouse"; }
-
-    extract -> transform -> load;
-}
-
-// Inferred context (name pattern)
-results {
-    recordCount: 0;
-    status: "pending";
-}
-
-// Explicit init for clarity
-init start;
-
-start -> Pipeline;
-Pipeline -reads-> apiConfig;
-Pipeline -writes-> results;
-```
 
 ### Inference Priority Example
 
 When multiple rules could apply, priority determines the type:
 
-```dygram
-// Name has "data" (context pattern) BUT has prompt (task rule)
-// → Task wins (higher priority)
-processData {
-    prompt: "Process the data";
-    // Inferred as: task
-}
 
-// Name has "input" (context pattern) AND has schema (tool rule)
-// → Tool wins (higher priority than context)
-dataInput {
-    schema: "{ type: 'object' }";
-    // Inferred as: tool
-}
+<ExampleLoader path="examples/generated/example-30.dygram" height="400px" />
 
-// Name has "config" (context pattern), no other attributes
-// → Context wins
-appConfig {
-    setting: "value";
-    // Inferred as: context
-}
-```
 
 ## See Also
 

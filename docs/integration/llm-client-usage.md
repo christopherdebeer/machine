@@ -153,11 +153,9 @@ const toolResponse = await anthropicClient.invokeWithTools(
 For security, use environment variables in production:
 
 ```bash
-# For Anthropic
 export ANTHROPIC_API_KEY="your-api-key"
 export ANTHROPIC_MODEL_ID="claude-3-5-haiku-20241022"  # Optional, override default model
 
-# For Bedrock (AWS credentials)
 export AWS_ACCESS_KEY_ID="your-access-key"
 export AWS_SECRET_ACCESS_KEY="your-secret-key"
 export AWS_REGION="us-west-2"

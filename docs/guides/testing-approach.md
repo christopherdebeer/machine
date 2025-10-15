@@ -1,7 +1,7 @@
+# DyGram Testing Approach
 
 <Layout>
 
-# DyGram Testing Approach
 
 Comprehensive guide to the generative testing methodology used to validate DyGram.
 

@@ -1,6 +1,5 @@
 # Examples
 
-
 ## Learn by Example
 
 Explore real-world DyGram patterns and use cases.
@@ -157,4 +156,3 @@ solution -documented_in-> docs;`}</pre>
     </p>
     <a href="playground-mobile.html" className="btn">OPEN PLAYGROUND →</a>
 </div>
-

@@ -85,25 +85,20 @@ At each node, the agent receives:
 When agent is at node `analyze`:
 
 ```markdown
-# Role
 You are executing a state machine workflow.
 
-# Current Position
 - Node: **analyze** (Task)
 - Objective: Analyze the data and decide next step
 
-# Available Context
 - **input**: read
   - Fields: data, format
 - **metrics**: read, write
   - Fields: errorCount, quality
 
-# Available Transitions
 - **summarize**: Process successful, summarize results
 - **retry**: Analysis failed, retry with different approach
 - **abort**: Fatal error, terminate workflow
 
-# Your Task
 Use the provided tools to accomplish your objective and choose the appropriate transition.
 ```
 
@@ -441,10 +436,8 @@ complete -@auto-> idle;                   // Loop back
 ## CLI Usage
 
 ```bash
-# Execute with Rails-Based Architecture (default)
 dygram exec file.mach
 
-# Execution history saved to execution-history.json
 cat execution-history.json
 ```
 

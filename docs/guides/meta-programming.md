@@ -1,4 +1,3 @@
-
 # Meta-Programming: Dynamic Machine Modification
 
 DyGram supports meta-programming capabilities that allow agents to inspect and modify the machine definition at runtime. This enables self-evolving machines that can adapt their structure based on execution results.
@@ -218,13 +217,10 @@ dygram exec self-healing.machine
 ### Inspecting Updated Machine
 
 ```bash
-# View the updated machine
 cat self-healing-updated.machine
 
-# Generate visualization of updated machine
 dygram generate self-healing-updated.machine -f mermaid
 
-# Execute the updated machine
 dygram exec self-healing-updated.machine
 ```
 
@@ -381,4 +377,3 @@ class RailsExecutor {
 - [Rails-Based Architecture](./RailsBasedArchitecture.md)
 - [Agent SDK Integration](./AgentSDKIntegration.md)
 - [Backward Compilation](./BackwardCompilation.md)
-

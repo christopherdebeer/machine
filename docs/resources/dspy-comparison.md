@@ -126,22 +126,9 @@ class QA(dspy.Signature):
 **How DyGram Could Adopt:**
 DyGram already has typed attributes, but could enhance with:
 
-```dygram
-// Enhanced signature-like node definitions
-Signature AnswerQuestion {
-    inputs {
-        question<string>: "User's question";
-    };
-    outputs {
-        answer<string>: "Concise answer (1-5 words)";
-    };
-    instructions: "Provide short, factual answers based on context";
-}
 
-Task answerTask inherits AnswerQuestion {
-    prompt: "{{ instructions }}";
-}
-```
+<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
+
 
 **Benefits:**
 - Type safety
@@ -166,48 +153,23 @@ class RAG(dspy.Module):
 **DyGram Already Has:**
 DyGram already supports nesting and composition:
 
-```dygram
-task RAGPipeline {
-    task retrieve {
-        prompt: "Find relevant documents for: {{ query }}";
-    };
 
-    task generate {
-        prompt: "Given context {{ retrieve.documents }}, answer {{ query }}";
-    };
+<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
 
-    retrieve -> generate;
-}
-```
 
 **Enhancement Opportunity:**
 Add explicit composition patterns like DSPy's built-in modules:
 
-```dygram
-// Pre-built composition patterns (could be library)
-Module ChainOfThought {
-    task reason {
-        prompt: "Let's think step by step...";
-    };
-    task answer {
-        prompt: "Based on reasoning, provide answer...";
-    };
-    reason -> answer;
-}
 
-task myTask inherits ChainOfThought {
-    // Customize specific parts
-}
-```
+<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
+
 
 ### 3.3 Bootstrap Optimization → Automatic Prompt Evolution
 
 **DSPy's Key Innovation:**
 ```python
-# Define program
 program = MyModule()
 
-# Optimize automatically
 optimizer = BootstrapFewShot(metric=my_metric)
 compiled_program = optimizer.compile(program, trainset=examples)
 ```
@@ -215,19 +177,9 @@ compiled_program = optimizer.compile(program, trainset=examples)
 **DyGram Enhancement Opportunity:**
 Add an optimization layer:
 
-```dygram
-machine "Optimizable Pipeline"
 
-config {
-    optimizationMode: "bootstrap";
-    evaluationMetric: "accuracy";
-    trainingExamples: "./examples.json";
-};
+<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
 
-task analyze @optimize {
-    prompt: "Analyze the input...";  // Will be auto-improved
-};
-```
 
 **Implementation Approach:**
 1. Add `@optimize` annotation to tasks
@@ -252,20 +204,9 @@ dspy.Suggest(is_factual(answer), "Try to be more factual")
 ```
 
 **DyGram Could Add:**
-```dygram
-task summarize {
-    prompt: "Summarize in under 100 words...";
 
-    // Post-conditions that trigger retry or alternate paths
-    assert lengthUnder(output, 100): "Output too long";
-    suggest isFactual(output): "Improve factuality";
+<ExampleLoader path="examples/generated/example-5.dygram" height="400px" />
 
-    // Automatic retry on assertion failure
-};
-
-summarize -@retry(max: 3)-> success;
-summarize -@on_failure-> fallback;
-```
 
 **Benefits:**
 - Self-healing systems
@@ -283,26 +224,9 @@ trainset = [
 ```
 
 **DyGram Enhancement:**
-```dygram
-machine "Learning Pipeline"
 
-examples {
-    example1 {
-        inputs {
-            query: "What is DyGram?";
-        };
-        expected {
-            response: "A DSL for state machines";
-        };
-    };
-};
+<ExampleLoader path="examples/generated/example-6.dygram" height="400px" />
 
-task respond {
-    prompt: "Answer the query";
-    useExamples: true;  // Include examples in context
-    fewShotCount: 3;    // How many examples to include
-};
-```
 
 ### 3.6 Parallel Execution → Concurrent Tasks
 
@@ -313,17 +237,9 @@ results = parallel(examples)
 ```
 
 **DyGram Could Add:**
-```dygram
-task analyze {
-    parallel: true;
-    parallelism: 4;
-    prompt: "Analyze item {{ item }}";
-};
 
-// Fork-join pattern
-start -@parallel-> [task1, task2, task3];
-[task1, task2, task3] -@join-> aggregate;
-```
+<ExampleLoader path="examples/generated/example-7.dygram" height="400px" />
+
 
 ### 3.7 Metrics & Evaluation → Built-in Testing
 
@@ -336,17 +252,9 @@ score = evaluate(program)
 ```
 
 **DyGram Could Add:**
-```dygram
-test suite "Pipeline Tests" {
-    testCase "basic_flow" {
-        input: { query: "test" };
-        expectedOutput: { result: "success" };
-        metric: exactMatch;
-    };
-};
 
-// Run tests with: dygram test my-pipeline.dygram
-```
+<ExampleLoader path="examples/generated/example-8.dygram" height="400px" />
+
 
 ---
 
@@ -419,22 +327,9 @@ test suite "Pipeline Tests" {
 **Why:** DSPy's killer feature. Would make DyGram systems self-improving.
 
 **Implementation:**
-```dygram
-machine "Self-Improving System"
 
-config {
-    optimization {
-        enabled: true;
-        strategy: "bootstrap";  // or "mipro", "random_search"
-        metric: accuracy;
-        trainingSet: "./data/train.json";
-    };
-};
+<ExampleLoader path="examples/generated/example-9.dygram" height="400px" />
 
-task analyze @optimize {
-    prompt: "Initial prompt...";  // Will be improved automatically
-};
-```
 
 **Technical Approach:**
 1. Create `OptimizationService` that runs after executions
@@ -447,146 +342,59 @@ task analyze @optimize {
 **Why:** Makes nodes more reusable and validates at compile-time.
 
 **Implementation:**
-```dygram
-Signature DataProcessor {
-    inputs {
-        rawData<string>: "Unprocessed input data";
-        config<object>: "Processing configuration";
-    };
-    outputs {
-        processedData<string>: "Cleaned and formatted data";
-        errors<array>: "List of processing errors";
-    };
-    instructions: "Process data according to config";
-}
 
-task processor implements DataProcessor {
-    prompt: "{{ instructions }}. Input: {{ rawData }}";
-}
-```
+<ExampleLoader path="examples/generated/example-10.dygram" height="400px" />
+
 
 #### 3. **Built-in Assertions & Self-Healing**
 **Why:** Makes systems more robust and reduces manual error handling.
 
 **Implementation:**
-```dygram
-task summarize {
-    prompt: "Summarize the text...";
 
-    postconditions {
-        assert length(output) < 500: "Too long";
-        assert containsKeyPoints(output): "Missing key info";
-    };
+<ExampleLoader path="examples/generated/example-11.dygram" height="400px" />
 
-    retry {
-        maxAttempts: 3;
-        backoff: exponential;
-    };
-};
-
-summarize -@success-> next;
-summarize -@max_retries-> fallback;
-```
 
 ### 5.2 Medium Priority (Enhance Existing Features)
 
 #### 4. **Example-Based Learning**
 **Why:** Enable few-shot learning directly in the DSL.
 
-```dygram
-task classify {
-    prompt: "Classify the sentiment...";
 
-    examples: [
-        { input: "I love this!", output: "positive" },
-        { input: "This is terrible", output: "negative" },
-        { input: "It's okay", output: "neutral" }
-    ];
+<ExampleLoader path="examples/generated/example-12.dygram" height="400px" />
 
-    fewShotStrategy: "dynamic";  // or "fixed", "adaptive"
-};
-```
 
 #### 5. **Parallel Execution Support**
 **Why:** Speed up independent operations.
 
-```dygram
-// Fork-join pattern
-start -@parallel-> [analyze1, analyze2, analyze3];
-[analyze1, analyze2, analyze3] -@join-> aggregate {
-    prompt: "Combine results: {{ analyze1.result }}, {{ analyze2.result }}...";
-};
-```
+
+<ExampleLoader path="examples/generated/example-13.dygram" height="400px" />
+
 
 #### 6. **Testing Framework**
 **Why:** Built-in testing improves reliability.
 
-```dygram
-test suite "PipelineTests" {
-    describe "basic flow" {
-        it "processes valid input" {
-            input: { query: "test" };
-            expect: { status: "success" };
-        };
 
-        it "handles errors gracefully" {
-            input: { query: null };
-            expect: { status: "error", message: "Invalid input" };
-        };
-    };
-};
+<ExampleLoader path="examples/generated/example-14.dygram" height="400px" />
 
-// Run: dygram test pipeline.dygram
-```
 
 ### 5.3 Low Priority (Nice to Have)
 
 #### 7. **Module Library**
 Create reusable patterns like DSPy's built-in modules:
 
-```dygram
-// Built-in modules (in standard library)
-import ChainOfThought from "dygram/modules";
-import ReAct from "dygram/modules";
-import RAG from "dygram/modules";
 
-task myTask inherits ChainOfThought {
-    // Customize
-};
-```
+<ExampleLoader path="examples/generated/example-15.dygram" height="400px" />
+
 
 #### 8. **Multi-Model Support**
-```dygram
-config {
-    models {
-        fast: "claude-3-haiku-20240307";
-        smart: "claude-3-opus-20240229";
-    };
-};
 
-task simple {
-    model: "fast";
-    prompt: "Quick task...";
-};
+<ExampleLoader path="examples/generated/example-16.dygram" height="400px" />
 
-task complex {
-    model: "smart";
-    prompt: "Complex reasoning...";
-};
-```
 
 #### 9. **Metrics & Monitoring**
-```dygram
-machine "Production Pipeline"
 
-monitoring {
-    metrics: ["latency", "cost", "success_rate"];
-    alerts {
-        on errorRate > 0.1: notify("ops-team");
-        on avgLatency > 5000: scale("increase");
-    };
-};
-```
+<ExampleLoader path="examples/generated/example-17.dygram" height="400px" />
+
 
 ---
 

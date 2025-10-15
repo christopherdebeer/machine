@@ -1,4 +1,8 @@
-# LLM Client Usage Guide
+import { PageLayout } from '../src/components/PageLayout';
+import { ExampleLoader } from '../src/components/ExampleLoader';
+
+<PageLayout title="LLM Client Usage Guide">
+
 
 This guide explains how to use the unified LLM client abstraction in the Machine language, which supports both Anthropic API and AWS Bedrock.
 
@@ -13,7 +17,6 @@ The Machine language now supports multiple LLM providers through a unified `LLMC
 ### Using Anthropic API (Recommended for Playgrounds)
 
 ```typescript
-import { MachineExecutor } from './src/language/machine-executor.js';
 
 // Create executor with Anthropic client
 const executor = await MachineExecutor.create(machineData, {
@@ -31,7 +34,6 @@ await executor.execute();
 ### Using AWS Bedrock
 
 ```typescript
-import { MachineExecutor } from './src/language/machine-executor.js';
 
 // Create executor with Bedrock client
 const executor = await MachineExecutor.create(machineData, {
@@ -132,8 +134,6 @@ console.log('Execution complete:', result);
 You can also use the clients directly:
 
 ```typescript
-import { AnthropicClient } from './src/language/anthropic-client.js';
-import { BedrockClient } from './src/language/bedrock-client.js';
 
 // Direct Anthropic client
 const anthropicClient = new AnthropicClient({
@@ -157,11 +157,9 @@ const toolResponse = await anthropicClient.invokeWithTools(
 For security, use environment variables in production:
 
 ```bash
-# For Anthropic
 export ANTHROPIC_API_KEY="your-api-key"
 export ANTHROPIC_MODEL_ID="claude-3-5-haiku-20241022"  # Optional, override default model
 
-# For Bedrock (AWS credentials)
 export AWS_ACCESS_KEY_ID="your-access-key"
 export AWS_SECRET_ACCESS_KEY="your-secret-key"
 export AWS_REGION="us-west-2"
@@ -201,7 +199,6 @@ try {
 
 **Before:**
 ```typescript
-import { BedrockClient } from './src/language/bedrock-client.js';
 
 const executor = new MachineExecutor(machineData, {
     bedrock: { region: 'us-west-2' }
@@ -253,3 +250,6 @@ const executor = await MachineExecutor.create(machineData, {
 For issues or questions:
 - GitHub Issues: https://github.com/christopherdebeer/machine/issues
 - Documentation: Check other docs in `/docs` folder
+
+
+</PageLayout>

@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
 /**
  * Parse markdown and extract codeblocks, converting to MDX
  */
-async function transformMarkdown(mdContent, filename, sourcePath) {
+async function transformMarkdown(mdContent, filename, sourcePath, relativeDepth = 0) {
     const lines = mdContent.split('\n');
     const examples = [];
     const mdxLines = [];
@@ -31,10 +31,13 @@ async function transformMarkdown(mdContent, filename, sourcePath) {
         }
     }
 
+    // Calculate correct import path based on directory depth
+    const importPrefix = relativeDepth > 0 ? '../'.repeat(relativeDepth + 1) : '../';
+
     // Add imports for MDX if we're processing markdown
     if (hasH1) {
-        mdxLines.push(`import { PageLayout } from '../src/components/PageLayout';`);
-        mdxLines.push(`import { ExampleLoader } from '../src/components/ExampleLoader';`);
+        mdxLines.push(`import { PageLayout } from '${importPrefix}src/components/PageLayout';`);
+        mdxLines.push(`import { ExampleLoader } from '${importPrefix}src/components/ExampleLoader';`);
         mdxLines.push('');
         mdxLines.push(`<PageLayout title="${h1Title}">`);
         mdxLines.push('');
@@ -118,8 +121,11 @@ async function processMarkdownFile(filePath, projectRoot, docsDir) {
         return { examples: [], processed: false };
     }
 
+    // Calculate directory depth (how many subdirectories deep from docs/)
+    const depth = fileDir === '.' ? 0 : fileDir.split('/').length;
+
     // Transform markdown to MDX and extract examples
-    const result = await transformMarkdown(content, fileName, filePath);
+    const result = await transformMarkdown(content, fileName, filePath, depth);
 
     // Determine output path
     let outputPath;

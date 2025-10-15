@@ -79,61 +79,33 @@ DyGram supports semantic relationship types:
 
 Annotations provide metadata about nodes:
 
-```dygram
-task BaseHandler @Abstract {
-    desc: "Base class";
-}
 
-context Config @Singleton {
-    apiKey: "secret";
-}
+<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
 
-task OldAPI @Deprecated("Use NewAPI") {
-    endpoint: "/v1/old";
-}
-
-task AsyncTask @Async @Critical {
-    timeout: 5000;
-}
-```
 
 ### Multiplicity
 
 Express quantitative relationships:
 
-```dygram
-User "1" -> "*" Order;        // One user, many orders
-Order "1" -> "1" Payment;      // One-to-one
-Student "*" -> "*" Course;     // Many-to-many
-User "1" -> "0..1" Profile;    // Optional relationship
-```
+
+<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
+
 
 ### Dependency Inference
 
 Template variables automatically create dependencies:
 
-```dygram
-context config {
-    timeout<number>: 5000;
-}
 
-task apiCall {
-    prompt: "Call API with {{config.timeout}}ms timeout";
-}
-// Automatic dependency: apiCall ..> config
-```
+<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
+
 
 ### Optional Types
 
 Use `?` suffix for nullable types:
 
-```dygram
-task userProfile {
-    userId<string>: "user123";       // Required
-    phoneNumber<string?>: null;      // Optional
-    avatar<string?>: null;           // Optional
-}
-```
+
+<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
+
 
 ## Usage
 

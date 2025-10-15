@@ -18,25 +18,9 @@ The Machine DSL supports flexible model ID configuration with the following prio
 
 Demonstrates using different models for different tasks based on complexity:
 
-```dygram
-Task quick_analysis {
-    meta: true;
-    prompt: "Quick summary...";
-    // Uses default (haiku)
-};
 
-Task deep_analysis {
-    meta: true;
-    modelId: "claude-3-5-sonnet-20241022";
-    prompt: "Deep analysis...";
-};
+<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
 
-Task strategic_decision {
-    meta: true;
-    modelId: "claude-3-opus-20240229";
-    prompt: "Strategic recommendation...";
-};
-```
 
 **Use case**: Cost optimization by using fast/cheap models for simple tasks and more capable models only when needed.
 
@@ -44,24 +28,9 @@ Task strategic_decision {
 
 Demonstrates setting a default model for all tasks in a machine:
 
-```dygram
-machine "Cost-Optimized System"
 
-config {
-    modelId: "claude-3-5-haiku-20241022";
-};
+<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
 
-Task task1 {
-    meta: true;
-    prompt: "Uses haiku (from machine config)...";
-};
-
-Task complex_task {
-    meta: true;
-    modelId: "claude-3-5-sonnet-20241022";  // Override
-    prompt: "Uses sonnet (task override)...";
-};
-```
 
 **Use case**: Set a sensible default for the entire machine while allowing specific tasks to override.
 

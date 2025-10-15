@@ -1,6 +1,5 @@
 # Installation
 
-
 ## Installation Guide
 
 Complete instructions for installing and setting up DyGram.
@@ -33,11 +32,9 @@ If you need to install or update Node.js, visit [nodejs.org](https://nodejs.org/
 Clone the repository and install dependencies:
 
 ```bash
-# Clone the repository
 git clone https://github.com/christopherdebeer/machine.git
 cd machine
 
-# Install dependencies
 npm install
 ```
 
@@ -113,10 +110,8 @@ dygram your-file.dygram
 When installed locally, use via npm scripts or npx:
 
 ```bash
-# Via npx
 npx dygram your-file.dygram
 
-# Via npm script
 npm run cli -- your-file.dygram
 ```
 
@@ -161,10 +156,8 @@ Once installed, you get:
 #### Using Homebrew (if Node.js not installed)
 
 ```bash
-# Install Node.js
 brew install node
 
-# Clone and install DyGram
 git clone https://github.com/christopherdebeer/machine.git
 cd machine
 npm install
@@ -179,11 +172,9 @@ No special configuration needed. Node.js runs natively on Apple Silicon.
 #### Ubuntu/Debian
 
 ```bash
-# Install Node.js (if not installed)
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-# Clone and install DyGram
 git clone https://github.com/christopherdebeer/machine.git
 cd machine
 npm install
@@ -192,11 +183,9 @@ npm install
 #### Fedora/RHEL
 
 ```bash
-# Install Node.js (if not installed)
 curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
 sudo dnf install -y nodejs
 
-# Clone and install DyGram
 git clone https://github.com/christopherdebeer/machine.git
 cd machine
 npm install
@@ -228,13 +217,10 @@ Follow the Linux instructions within your WSL environment.
 ### Test CLI
 
 ```bash
-# Validate a file
 npx dygram validate examples/basic/simple-state.dygram
 
-# Execute a file
 npx dygram examples/basic/simple-state.dygram
 
-# Generate Mermaid diagram
 npx dygram export --format mermaid examples/basic/simple-state.dygram
 ```
 
@@ -313,7 +299,6 @@ Language configuration in `langium-config.json`:
 
 **macOS/Linux**:
 ```bash
-# If you get EACCES errors
 sudo chown -R $(whoami) ~/.npm
 ```
 
@@ -330,7 +315,6 @@ npm run dev -- --port 3000
 ### Dependency Installation Fails
 
 ```bash
-# Clear cache and reinstall
 rm -rf node_modules package-lock.json
 npm cache clean --force
 npm install
@@ -405,4 +389,3 @@ Now that you have DyGram installed:
 4. **Try the playground**: [Mobile Playground](playground-mobile.html)
 
 Need help? Check the [Support page](support.html).
-

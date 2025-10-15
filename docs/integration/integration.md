@@ -1,6 +1,5 @@
 # Integration
 
-
 ## Integrate DyGram
 
 Embed DyGram into your development workflow and toolchain.
@@ -91,7 +90,6 @@ const result = await executor.execute();`}</pre>
             <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px', fontSize: '0.9rem' }}>{`# Generate Mermaid diagram
 dygram export --format mermaid file.mach
 
-# Export to JSON
 dygram export --format json file.mach`}</pre>
         </div>
     </div>
@@ -117,4 +115,3 @@ dygram export --format json file.mach`}</pre>
         </div>
     </div>
 </div>
-

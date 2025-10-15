@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import Content from '../../docs/QuickStart.mdx';
-import '../index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

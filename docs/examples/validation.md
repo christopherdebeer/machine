@@ -8,7 +8,7 @@ This directory contains examples demonstrating DyGram's comprehensive validation
 Type checking and type validation:
 - Primitive type validation (string, number, boolean)
 - Collection type validation (arrays)
-- Generic type validation (Promise<T>, Array<T>)
+- Generic type validation (`Promise<T>`, `Array<T>`)
 - Optional type validation (string?)
 - Type inference from values
 - Template variable type checking
@@ -51,149 +51,82 @@ Complete example with all validation features:
 Validates attribute types and catches type errors:
 
 #### Primitive Types
-```dygram
-task example {
-    name<string>: "Alice";     // ✅ Valid
-    count<number>: 42;          // ✅ Valid
-    enabled<boolean>: true;     // ✅ Valid
 
-    invalid<number>: "text";    // ❌ Type mismatch
-}
-```
+<ExampleLoader path="examples/generated/example-1.dygram" height="400px" />
+
 
 #### Collection Types
-```dygram
-task lists {
-    items<array>: ["a", "b"];   // ✅ Valid
-    empty<array>: [];            // ✅ Valid
 
-    wrong<array>: 42;            // ❌ Type mismatch
-}
-```
+<ExampleLoader path="examples/generated/example-2.dygram" height="400px" />
+
 
 #### Optional Types
-```dygram
-task optional {
-    maybeValue<string?>: null;    // ✅ Valid (optional)
-    maybeValue<string?>: "text";  // ✅ Valid (has value)
 
-    required<string>: null;       // ❌ Cannot be null
-}
-```
+<ExampleLoader path="examples/generated/example-3.dygram" height="400px" />
+
 
 #### Type Inference
-```dygram
-task inferred {
-    autoString: "hello";      // Inferred: string
-    autoNumber: 42;           // Inferred: number
-    autoBool: true;           // Inferred: boolean
-}
-```
+
+<ExampleLoader path="examples/generated/example-4.dygram" height="400px" />
+
 
 ### 2. Graph Validation
 
 Ensures structural integrity:
 
 #### Unreachable Nodes
-```dygram
-init start;
-task reachable;
-task orphan;  // ⚠️ Warning: Unreachable
 
-start -> reachable;
-// orphan is never reached
-```
+<ExampleLoader path="examples/generated/example-5.dygram" height="400px" />
+
 
 #### Cycle Detection
-```dygram
-task a;
-task b;
-task c;
 
-a -> b;
-b -> c;
-c -> a;  // ⚠️ Cycle detected
-```
+<ExampleLoader path="examples/generated/example-6.dygram" height="400px" />
+
 
 #### Entry Point Validation
-```dygram
-machine "No Entry"
-// ❌ Error: No init node
 
-task a;
-task b;
-a -> b;
-```
+<ExampleLoader path="examples/generated/example-7.dygram" height="400px" />
+
 
 #### Orphaned Nodes
-```dygram
-init start;
-task connected;
-task isolated;  // ⚠️ Warning: Orphaned (no edges)
 
-start -> connected;
-```
+<ExampleLoader path="examples/generated/example-8.dygram" height="400px" />
+
 
 ### 3. Semantic Validation
 
 Enforces design patterns and best practices:
 
 #### Init Node Rules
-```dygram
-init start;  // ❌ Error: No outgoing edges
-```
+
+<ExampleLoader path="examples/generated/example-9.dygram" height="400px" />
+
 
 **Valid:**
-```dygram
-init start;
-task next;
-start -> next;  // ✅ Valid
-```
+
+<ExampleLoader path="examples/generated/example-10.dygram" height="400px" />
+
 
 #### Context Node Rules
-```dygram
-context config {
-    value: 42;
-}
 
-task setup;
-setup -> config;  // ⚠️ Warning: Context has incoming edge
-```
+<ExampleLoader path="examples/generated/example-11.dygram" height="400px" />
+
 
 **Valid:**
-```dygram
-context config {
-    value: 42;
-}
 
-task setup {
-    prompt: "Use {{config.value}}";  // ✅ Valid (dependency)
-}
-```
+<ExampleLoader path="examples/generated/example-12.dygram" height="400px" />
+
 
 #### Annotation Validation
-```dygram
-state waiting @Async;  // ❌ Error: @Async only on tasks
 
-init startup @Singleton;  // ❌ Error: @Singleton not on init
+<ExampleLoader path="examples/generated/example-13.dygram" height="400px" />
 
-init start @Abstract;  // ❌ Error: Init cannot be abstract
-```
 
 **Valid:**
-```dygram
-task asyncOp @Async {
-    prompt: "Long operation";
-}
 
-context config @Singleton {
-    apiKey: "secret";
-}
+<ExampleLoader path="examples/generated/example-14.dygram" height="400px" />
 
-task baseHandler @Abstract {
-    prompt: "Override this";
-}
-```
 
 ## Validation Levels
 

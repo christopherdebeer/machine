@@ -54,7 +54,6 @@ function generateTSX(pageName, mdxPath, projectRoot) {
     return `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import Content from '${relativeMdxPath}';
-import '../index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

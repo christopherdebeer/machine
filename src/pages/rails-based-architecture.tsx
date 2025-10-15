@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Content from '../../docs/RailsBasedArchitecture.mdx';
-import '../index.css';
+import Content from '../../docs/architecture/rails-based-architecture.mdx';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

@@ -1,7 +1,7 @@
+# DyGram Syntax Guide
 
 <Layout>
 
-# DyGram Syntax Guide
 
 Complete reference for DyGram language syntax.
 
