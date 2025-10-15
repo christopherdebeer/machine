@@ -20,17 +20,10 @@ playwright-report/
 playwright/.cache/
 
 # Generated documentation files
-# Source files are .md in docs/, hand-authored .mdx (Index, QuickStart, Api, Evolution, ReactMdxSetup, RuntimeAndEvolution, LangiumQuickstart)
+# Source files are .md in docs/, only Index.mdx is hand-authored
 # Generated .mdx files (from .md sources)
 docs/**/*.mdx
 !docs/Index.mdx
-!docs/QuickStart.mdx
-!docs/Api.mdx
-!docs/Evolution.mdx
-!docs/ReactMdxSetup.mdx
-!docs/RuntimeAndEvolution.mdx
-!docs/LangiumQuickstart.mdx
-!docs/*/index.mdx
 
 # Generated HTML entry files (except hand-authored)
 *.html

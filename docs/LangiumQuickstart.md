@@ -1,8 +1,4 @@
-import { PageLayout } from '../src/components/PageLayout';
-import { ExampleLoader } from '../src/components/ExampleLoader';
-
-<PageLayout title="Welcome to your Langium VS Code Extension">
-
+# Welcome to your Langium VS Code Extension
 
 ## What's in the folder
 
@@ -42,6 +38,3 @@ This folder contains all necessary files for your language extension.
 ## To Go Further
 
 Documentation about the Langium framework is available at https://langium.org
-
-
-</PageLayout>
