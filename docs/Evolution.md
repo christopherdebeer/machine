@@ -1,9 +1,6 @@
 # Evolution System | DyGram
 
-return <EvolutionContent />
-    ;
 
-    return (
 
 
 
@@ -415,5 +412,3 @@ console.log(\`\${evolutions.length} tasks evolved\`);`}
                         [SEE EXAMPLES →](examples.html)
 
 
-
-        );

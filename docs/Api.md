@@ -1,9 +1,6 @@
 # API Reference
 
-return <ApiContent />
-    ;
 
-    return (
 
 
 
@@ -250,5 +247,3 @@ npx dygram export --format mermaid file.mach
 
 
 
-
-        );
