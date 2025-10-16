@@ -6,6 +6,7 @@ import { extractDestinationAndName } from '../../cli/cli-util.js';
 import { Edge, MachineJSON } from '../machine-module.js';
 import { DependencyAnalyzer } from '../dependency-analyzer.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
+import { generateMermaidFromJSON } from '../diagram/index.js';
 
 // Common interfaces
 interface GeneratorOptions {
@@ -347,15 +348,7 @@ class JSONGenerator extends BaseGenerator {
     }
 }
 
-
-interface TypeHierarchy {
-    [key: string]: {
-        nodes: Node[];
-        subtypes: string[];
-    };
-}
-
-// Helper function to wrap text at word boundaries
+// Helper function to wrap text at word boundaries (kept for MarkdownGenerator)
 function wrapText(text: string, maxWidth: number = 60): string {
     if (text.length <= maxWidth) return text;
 
@@ -380,64 +373,21 @@ function wrapText(text: string, maxWidth: number = 60): string {
 class MermaidGenerator extends BaseGenerator {
     protected fileExtension = 'md';
 
-    /**
-     * Maps DyGram arrow types to Mermaid relationship types
-     * This preserves semantic meaning in the diagram
-     */
-    private getRelationshipType(arrowType: string): string {
-        const mapping: Record<string, string> = {
-            '->': '-->',      // Association (default)
-            '-->': '..>',     // Dependency (dashed)
-            '=>': '-->',      // Association (thick arrow - Mermaid doesn't have distinct thick)
-            '<-->': '<-->',   // Bidirectional
-            '<|--': '<|--',   // Inheritance
-            '*-->': '*--',    // Composition
-            'o-->': 'o--',    // Aggregation
-        };
-        return mapping[arrowType] || '-->';
-    }
-
-    /**
-     * Convert generic types from angle brackets to Mermaid tildes
-     * e.g., "Promise<Result>" → "Promise~Result~"
-     * Handles nested generics: "Promise<Array<Record>>" → "Promise~Array~Record~~"
-     */
-    private convertTypeToMermaid(typeStr: string): string {
-        if (!typeStr || typeof typeStr !== 'string') return '';
-        // Replace all < and > with ~ for Mermaid generic types
-        // This handles nested generics correctly
-        return typeStr.replace(/</g, '~').replace(/>/g, '~');
-    }
-
     protected generateContent(): FileGenerationResult {
         // First generate JSON as intermediate format
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
         const jsonContent = jsonGen.generate();
         const machineJson: MachineJSON = JSON.parse(jsonContent.content);
 
-        // Build type hierarchy
-        const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
-        const rootTypes = this.getRootTypes(hierarchy);
-
-        const fileNode = expandToNode`---
-"title": "${this.machine.title}"
-config:
-    class:
-        hideEmptyMembersBox: true
----
-classDiagram-v2
-  ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
-  
-  ${toString(this.generateNodeTypeStyling(machineJson.nodes))}
-  
-  ${toString(this.generateEdges(machineJson.edges))}
-  ${machineJson.notes && machineJson.notes.length > 0 ? toString(this.generateNotes(machineJson.notes)) : ''}
-  ${machineJson.inferredDependencies && machineJson.inferredDependencies.length > 0 ? toString(this.generateInferredDependencies(machineJson.inferredDependencies)) : ''}
-`.appendNewLineIfNotEmpty();
+        // Use the encapsulated diagram generator
+        const mermaidContent = generateMermaidFromJSON(machineJson, {
+            diagramType: 'class',
+            title: this.machine.title
+        });
 
         return {
             filePath: this.filePath,
-            content: toString(fileNode)
+            content: mermaidContent
         };
     }
 
@@ -447,352 +397,11 @@ classDiagram-v2
         const jsonContent = jsonGen.generate();
         const machineJson: MachineJSON = JSON.parse(jsonContent.content);
 
-        // Build type hierarchy
-        const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
-        const rootTypes = this.getRootTypes(hierarchy);
-
-        return toString(expandToNode`---
-title: "${this.machine.title}"
-config:
-  class:
-    hideEmptyMembersBox: true
----
-classDiagram-v2
-  ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
-  
-  ${toString(this.generateNodeTypeStyling(machineJson.nodes))}
-  
-  ${toString(this.generateEdges(machineJson.edges))}`);
-    }
-
-    private buildTypeHierarchy(nodes: Node[]): TypeHierarchy {
-        const hierarchy: TypeHierarchy = {};
-
-        // Initialize hierarchy with all nodes
-        nodes.forEach(node => {
-            const type = node.type || 'undefined';
-            if (!hierarchy[type]) {
-                hierarchy[type] = { nodes: [], subtypes: [] };
-            }
-            hierarchy[type].nodes.push(node);
+        // Use the encapsulated diagram generator
+        return generateMermaidFromJSON(machineJson, {
+            diagramType: 'class',
+            title: this.machine.title
         });
-
-        // Build subtype relationships
-        nodes.forEach(node => {
-            if (node.type && hierarchy[node.name]) {
-                hierarchy[node.type].subtypes.push(node.name);
-            }
-        });
-        return hierarchy;
-    }
-
-    private getRootTypes(hierarchy: TypeHierarchy): string[] {
-        const allTypes = new Set(Object.keys(hierarchy));
-        const subTypes = new Set(
-            Object.values(hierarchy)
-                .flatMap(h => h.subtypes)
-        );
-        return Array.from(allTypes)
-            .filter(type => !subTypes.has(type));
-    }
-
-    private generateTypeHierarchy(hierarchy: TypeHierarchy, types: string[], level = 0): string {
-        // Get all edges for type inference (needed for init node detection)
-        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
-        const jsonContent = jsonGen.generate();
-        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
-        const edges = machineJson.edges;
-
-        const result = joinToNode(types, type => {
-            const { nodes, subtypes } = hierarchy[type];
-            const indent = '  '.repeat(level);
-
-            // Generate namespace content
-            const content = joinToNode(nodes, node => {
-                // Prefer node title over desc/prompt attributes for display
-                const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
-                let displayValue: any = node.title || desc?.value;
-                if (displayValue && typeof displayValue === 'string') {
-                    displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
-                    displayValue = wrapText(displayValue, 60); // Apply text wrapping
-                }
-                
-                // Get CSS class for this node using type inference
-                const typeClass = this.getTypeClassName(node, edges);
-                const classStyle = typeClass ? `:::${typeClass}` : '';
-                
-                const header = `class ${node.name}${displayValue ? `["${displayValue}"]` : ''}${classStyle}`;
-
-                // Format all attributes except desc/prompt for the class body
-                const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
-                const attributeLines = attributes.length > 0
-                    ? attributes.map(a => {
-                        // Extract the actual value from the attribute
-                        let displayValue = a.value?.value ?? a.value;
-                        // Remove quotes from string values for display
-                        if (typeof displayValue === 'string') {
-                            displayValue = displayValue.replace(/^["']|["']$/g, '');
-                            displayValue = wrapText(displayValue, 60); // Apply text wrapping
-                        }
-                        // Convert generic types to Mermaid format (< > to ~ ~)
-                        // Note: a.type is already serialized as a string in JSON
-                        const typeStr = a.type ? this.convertTypeToMermaid(String(a.type)) : '';
-                        return `+${a.name}${typeStr ? ` : ${typeStr}` : ''} = ${displayValue}`;
-                    }).join('\n')
-                    : '';
-
-                // Check if this is a state module (state node with children)
-                const isStateModule = node.type?.toLowerCase() === 'state' && this.hasChildren(node.name);
-
-                // Add parent annotation for hierarchical context (node is from JSON, has parent field)
-                const parentAnnotation = (node as any).parent ? `+parent : ${(node as any).parent}` : '';
-
-                // Generate annotations (filter out @note annotations which are handled separately)
-                const annotations = node.annotations?.filter(ann => ann.name !== 'note').map(ann => `<<${ann.name}>>`).join('\n' + indent + '    ') || '';
-                const typeAnnotation = node.type ? `<<${node.type}>>` : '';
-
-                // Add module annotation for state modules
-                const moduleAnnotation = isStateModule ? '<<module>>' : '';
-
-                const allAnnotations = [typeAnnotation, moduleAnnotation, annotations].filter(Boolean).join('\n' + indent + '    ');
-
-                // Combine parent annotation with attributes
-                const allLines = [parentAnnotation, attributeLines].filter(Boolean).join('\n' + indent + '    ');
-
-                return `${indent}  ${header} {
-${indent}    ${allAnnotations}${allLines ? '\n' + indent + '    ' + allLines : ''}
-${indent}  }`;
-            }, {
-                separator: '\n',
-                appendNewLineIfNotEmpty: true,
-                skipNewLineAfterLastItem: true,
-            });
-
-            // Generate subtype hierarchy
-            // Note: Mermaid doesn't support nested namespaces, so we only create namespaces at level 0
-            // At deeper levels, we just output the classes without wrapping them in namespaces
-            const subtypeContent = subtypes.length > 0 ?
-                this.generateTypeHierarchy(hierarchy, subtypes, level + 1) : '';
-
-            if (type === 'undefined' || nodes.length === 1) {
-                return toString(expandToNode`${toString(content)}${subtypeContent ? "\n" + toString(subtypeContent) : ''}`)
-            }
-
-            // Only create namespace at the top level (level 0)
-            // At deeper levels, just output classes with their subtype content
-            if (level === 0) {
-                return toString(expandToNode`${indent}namespace ${type}s {
-${toString(content)}${subtypeContent ? '\n' + toString(subtypeContent) : ''}
-${indent}}`);
-            } else {
-                // At nested levels, don't create a namespace - just output the classes
-                return toString(expandToNode`${toString(content)}${subtypeContent ? "\n" + toString(subtypeContent) : ''}`);
-            }
-        }, {
-            separator: '\n',
-            appendNewLineIfNotEmpty: true,
-            skipNewLineAfterLastItem: true,
-        });
-
-        return toString(result);
-    }
-
-    /**
-     * Get type-based CSS class name for styling using NodeTypeChecker
-     * This properly handles both explicit and inferred types
-     */
-    private getTypeClassName(node: any, edges?: any[]): string | null {
-        // Use NodeTypeChecker to get the effective type (explicit or inferred)
-        const nodeType = NodeTypeChecker.getNodeType(node, edges);
-        
-        if (!nodeType) return null;
-
-        // Map node types to CSS class names
-        switch (nodeType) {
-            case 'task': return 'taskType';
-            case 'state': return 'stateType';
-            case 'context': return 'contextType';
-            case 'init': return 'initType';
-            case 'tool': return 'toolType';
-            default: return null;
-        }
-    }
-
-    /**
-     * Generate node type styling declarations
-     * Only generates classDef declarations - nodes are styled inline with :::
-     */
-    private generateNodeTypeStyling(nodes: Node[]): string {
-        const lines: string[] = [];
-        
-        lines.push('  %% Node Type Styling');
-        lines.push('  classDef taskType fill:#E3F2FD,stroke:#1976D2,stroke-width:2px');
-        lines.push('  classDef stateType fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px');
-        lines.push('  classDef contextType fill:#E8F5E9,stroke:#388E3C,stroke-width:2px');
-        lines.push('  classDef toolType fill:#FFF9C4,stroke:#F57F17,stroke-width:2px');
-        lines.push('  classDef initType fill:#FFF3E0,stroke:#F57C00,stroke-width:2px');
-
-        return lines.join('\n');
-    }
-
-    /**
-     * Check if a node has children (for state module detection)
-     */
-    private hasChildren(nodeName: string): boolean {
-        // First generate JSON to get flattened node data
-        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
-        const jsonContent = jsonGen.generate();
-        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
-
-        // Check if any node has this node as parent
-        return machineJson.nodes.some((n: any) => n.parent === nodeName);
-    }
-
-    /**
-     * Generate notes for nodes
-     */
-    private generateNotes(notes: any[]): string {
-        if (!notes || notes.length === 0) return '';
-
-        const lines: string[] = [];
-        lines.push('  %% Notes');
-
-        notes.forEach(note => {
-            const content = note.content.replace(/\\n/g, '<br/>'); // Convert \n to Mermaid line breaks
-            lines.push(`  note for ${note.target} "${content}"`);
-        });
-
-        return lines.join('\n');
-    }
-
-    private generateEdges(edges: Edge[]): string {
-        // Return empty string if no edges
-        if (!edges || edges.length === 0) return '';
-
-        const lines: string[] = [];
-
-        // Generate explicit edges
-        edges.forEach(edge => {
-            const edgeValue = edge.value || {};
-            const keys = Object.keys(edgeValue);
-
-            // Use arrow type mapping to determine relationship type
-            const relationshipType = this.getRelationshipType(edge.arrowType || '->');
-
-            // Build multiplicity strings
-            const srcMult = edge.sourceMultiplicity ? ` "${edge.sourceMultiplicity}"` : '';
-            const tgtMult = edge.targetMultiplicity ? ` "${edge.targetMultiplicity}"` : '';
-
-            if (keys.length === 0) {
-                // No label, but may have multiplicity
-                lines.push(`  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}`);
-                return;
-            }
-
-            // Construct label from JSON properties, prioritizing non-text properties
-            const textValue = edgeValue.text;
-            const otherProps = keys.filter(k => k !== 'text');
-
-            let labelJSON = '';
-
-            if (otherProps.length > 0) {
-                // Use properties instead of text for cleaner labels
-                labelJSON = otherProps.map(key => `${key}=${edgeValue[key]}`).join(', ');
-            } else if (textValue) {
-                // Only use text if no other properties exist
-                labelJSON = textValue;
-            }
-
-            // Handle special characters in labels that could confuse Mermaid parser
-            // Mermaid classDiagram doesn't properly support colons in labels even when quoted
-            // Replace problematic characters with safe Unicode alternatives
-            if (labelJSON) {
-                // Replace colons with similar Unicode character (ratio symbol ∶ U+2236)
-                labelJSON = labelJSON.replace(/:/g, '∶');
-                // Replace semicolons with similar Unicode character (fullwidth semicolon ； U+FF1B)
-                labelJSON = labelJSON.replace(/;/g, '；');
-                // Replace double quotes with single quotes
-                labelJSON = labelJSON.replace(/"/g, "'");
-            }
-
-            lines.push(`  ${edge.source}${srcMult} ${relationshipType}${tgtMult} ${edge.target}${labelJSON ? ` : ${labelJSON}` : ''}`);
-        });
-
-        // Add inherited context access edges (Phase 1 feature visualization)
-        const inheritedEdges = this.generateInheritedContextEdges();
-        if (inheritedEdges.length > 0) {
-            lines.push('');
-            lines.push('  %% Inherited Context Access (Phase 1)');
-            lines.push(...inheritedEdges);
-        }
-
-        return lines.join('\n');
-    }
-
-    /**
-     * Generate visualization of inherited context access (Phase 1 feature)
-     * Shows implicit read-only context access from parent nodes
-     */
-    private generateInheritedContextEdges(): string[] {
-        // Get machine data from JSON
-        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
-        const jsonContent = jsonGen.generate();
-        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
-
-        const inheritedEdges: string[] = [];
-        const explicitEdges = new Set(machineJson.edges.map(e => `${e.source}->${e.target}`));
-
-        // For each node, check what context it can access via parent
-        machineJson.nodes.forEach((node: any) => {
-            if (!node.parent) return;
-
-            // Walk up parent chain to find context access
-            let currentParent: string | undefined = node.parent;
-            const visitedParents = new Set<string>();
-
-            while (currentParent && !visitedParents.has(currentParent)) {
-                visitedParents.add(currentParent);
-
-                // Find edges from parent to context nodes (reads, writes, stores)
-                machineJson.edges.forEach(edge => {
-                    if (edge.source === currentParent) {
-                        const target = machineJson.nodes.find((n: any) => n.name === edge.target);
-                        if (target && (target as any).type?.toLowerCase() === 'context') {
-                            // Check if this is an explicit reads/writes edge
-                            const edgeLabel = edge.value?.text || '';
-                            if (edgeLabel.includes('reads') || edgeLabel.includes('writes') || edgeLabel.includes('stores')) {
-                                // Check if child doesn't already have explicit edge to this context
-                                const edgeKey = `${node.name}->${(target as any).name}`;
-                                if (!explicitEdges.has(edgeKey)) {
-                                    // Add inherited read access edge (dashed)
-                                    inheritedEdges.push(`  ${node.name} ..> ${(target as any).name} : inherited-read`);
-                                }
-                            }
-                        }
-                    }
-                });
-
-                // Move up to next parent
-                const parentNode = machineJson.nodes.find((n: any) => n.name === currentParent);
-                currentParent = parentNode ? (parentNode as any).parent : undefined;
-            }
-        });
-
-        return inheritedEdges;
-    }
-
-    private generateInferredDependencies(deps: any[]): string {
-        if (deps.length === 0) return '';
-
-        const lines: string[] = [];
-        lines.push('  %% Inferred Dependencies (from template variables)');
-
-        deps.forEach(dep => {
-            // Use dashed arrow for inferred dependencies
-            lines.push(`  ${dep.source} ..> ${dep.target} : ${dep.reason}`);
-        });
-
-        return lines.join('\n');
     }
 }
 

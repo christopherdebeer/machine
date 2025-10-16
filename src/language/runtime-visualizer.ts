@@ -4,6 +4,7 @@
  */
 
 import { MachineExecutor, MachineExecutionContext, MachineData } from './machine-executor.js';
+import { generateRuntimeMermaid, MermaidOptions, RuntimeContext as DiagramRuntimeContext } from './diagram/index.js';
 
 export interface RuntimeVisualizationOptions {
     showRuntimeValues?: boolean;
@@ -92,9 +93,46 @@ export class RuntimeVisualizer {
     }
 
     /**
+     * Convert execution context to diagram runtime context
+     */
+    private toDiagramContext(): DiagramRuntimeContext {
+        return {
+            currentNode: this.context.currentNode,
+            currentTaskNode: this.context.currentTaskNode,
+            activeState: this.context.activeState,
+            errorCount: this.context.errorCount || 0,
+            visitedNodes: this.context.visitedNodes,
+            attributes: this.context.attributes,
+            history: this.context.history,
+            nodeInvocationCounts: this.context.nodeInvocationCounts,
+            stateTransitions: this.context.stateTransitions
+        };
+    }
+
+    /**
      * Generate class diagram with runtime overlays (maintains static format consistency)
      */
     private generateClassDiagramRuntime(options: RuntimeVisualizationOptions): string {
+        // Convert to diagram module format and use encapsulated generator
+        const diagramContext = this.toDiagramContext();
+        const diagramOptions: MermaidOptions = {
+            diagramType: 'class',
+            showRuntimeState: options.showCurrentState !== false,
+            showVisitCounts: options.showVisitCounts !== false,
+            showExecutionPath: options.showExecutionPath !== false,
+            showRuntimeValues: options.showRuntimeValues !== false,
+            mobileOptimized: options.mobileOptimized || false,
+            title: this.machineData.title
+        };
+
+        return generateRuntimeMermaid(this.machineData, diagramContext, diagramOptions);
+    }
+
+    /**
+     * Generate class diagram with runtime overlays (old implementation, kept for reference)
+     * @deprecated Use the new diagram module instead
+     */
+    private generateClassDiagramRuntimeOld(options: RuntimeVisualizationOptions): string {
         const lines: string[] = [];
         const nodeStates = this.buildNodeStates();
         const edgeStates = this.buildEdgeStates();

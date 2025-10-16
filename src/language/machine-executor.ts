@@ -25,6 +25,7 @@ import {
 import { extractValueFromAST } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
 import { ContextPermissionsResolver } from './utils/context-permissions.js';
+import { generateRuntimeMermaid, RuntimeContext as DiagramRuntimeContext } from './diagram/index.js';
 
 // Re-export interfaces for backward compatibility
 export type { MachineExecutionContext, MachineData, MachineMutation, MachineExecutorConfig };
@@ -1018,9 +1019,42 @@ export class MachineExecutor extends BaseExecutor {
 
 
     /**
+     * Convert execution context to diagram runtime context
+     */
+    private toDiagramContext(): DiagramRuntimeContext {
+        return {
+            currentNode: this.context.currentNode,
+            currentTaskNode: this.context.currentTaskNode,
+            activeState: this.context.activeState,
+            errorCount: this.context.errorCount || 0,
+            visitedNodes: this.context.visitedNodes,
+            attributes: this.context.attributes,
+            history: this.context.history,
+            nodeInvocationCounts: this.context.nodeInvocationCounts,
+            stateTransitions: this.context.stateTransitions
+        };
+    }
+
+    /**
      * Generate a Mermaid class diagram showing the current execution state
      */
     public toMermaidRuntime(): string {
+        // Use the encapsulated diagram generator
+        const diagramContext = this.toDiagramContext();
+        return generateRuntimeMermaid(this.machineData, diagramContext, {
+            diagramType: 'class',
+            showRuntimeState: true,
+            showVisitCounts: true,
+            showExecutionPath: true,
+            title: this.machineData.title
+        });
+    }
+
+    /**
+     * Generate a Mermaid class diagram showing the current execution state (old implementation)
+     * @deprecated Use the new diagram module instead
+     */
+    public toMermaidRuntimeOld(): string {
         const lines: string[] = [];
 
         // Header with runtime indicator
