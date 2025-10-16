@@ -16,6 +16,9 @@ let currentExecutor: RailsExecutor | null = null;
 let isExecuting = false;
 let executionStepMode = false;
 
+// Extension registration state - ensure we only register once
+let extensionRegistered = false;
+
 // define global functions for TypeScript
 declare global {
     interface Window {
@@ -44,6 +47,40 @@ export const setupConfigExtended = (src: string, options: any): UserConfig => {
     const extensionFilesOrContents = new Map();
     extensionFilesOrContents.set('/language-configuration.json', new URL('../language-configuration.json', import.meta.url));
     extensionFilesOrContents.set('/machine-grammar.json', new URL('../syntaxes/machine.tmLanguage.json', import.meta.url));
+    
+    // Only register extension once across all editor instances to prevent duplicate registration errors
+    const extensions = extensionRegistered ? [] : [{
+        config: {
+            name: 'machine-web',
+            publisher: 'generator-langium',
+            version: '1.0.0',
+            engines: {
+                vscode: '*'
+            },
+            contributes: {
+                languages: [{
+                    id: 'machine',
+                    extensions: [
+                        '.machine'
+                    ],
+                    configuration: './language-configuration.json'
+                }],
+                grammars: [{
+                    language: 'machine',
+                    scopeName: 'source.machine',
+                    path: './machine-grammar.json'
+                }]
+            }
+        },
+        filesOrContents: extensionFilesOrContents,
+    }];
+    
+    // Mark extension as registered after first use
+    if (!extensionRegistered) {
+        extensionRegistered = true;
+        console.log('Monaco extension registered for machine language');
+    }
+    
     const config : EditorAppConfigExtended = {
         $type: 'extended',
         languageId: 'machine',
@@ -56,31 +93,7 @@ export const setupConfigExtended = (src: string, options: any): UserConfig => {
             ...options,
             
         },
-        extensions: [{
-            config: {
-                name: 'machine-web',
-                publisher: 'generator-langium',
-                version: '1.0.0',
-                engines: {
-                    vscode: '*'
-                },
-                contributes: {
-                    languages: [{
-                        id: 'machine',
-                        extensions: [
-                            '.machine'
-                        ],
-                        configuration: './language-configuration.json'
-                    }],
-                    grammars: [{
-                        language: 'machine',
-                        scopeName: 'source.machine',
-                        path: './machine-grammar.json'
-                    }]
-                }
-            },
-            filesOrContents: extensionFilesOrContents,
-        }],                
+        extensions: extensions,                
         userConfiguration: {
             json: JSON.stringify({
                 'workbench.colorTheme': 'Default Dark Modern',
@@ -144,8 +157,6 @@ function setupSettingsUI(): void {
 export const executeExtended = async (htmlElement: HTMLElement, useDefault : boolean, outputEl : HTMLElement): Promise<MonacoEditorLanguageClientWrapper> => {
     // Initialize theme when the editor starts
     initTheme();
-    console.log({useDefault, htmlElement, outputEl})
-    debugger;
     // Setup settings UI
     setupSettingsUI();
     const defaultSrc = `// Machine is running in the web!
@@ -276,22 +287,33 @@ s1 -catch-> init;
             let result = JSON.parse(resp.content);
             let data = result.$data;
             let mermaid = result.$mermaid;
+            
             try {
                 // Get API key and model from localStorage
                 const settings = loadSettings();
 
+                // Validate API key before attempting to create executor
+                if (!settings.apiKey || settings.apiKey.trim() === '') {
+                    console.warn('No API key configured. RailsExecutor creation skipped.');
+                    // Still render the diagram even without executor
+                    window.render(mermaid, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
+                    running = false;
+                    return;
+                }
+
                 // Create RailsExecutor with configuration
+                console.log('Creating RailsExecutor with API key present');
                 currentExecutor = await RailsExecutor.create(data, {
                     llm: {
                         provider: 'anthropic' as const,
-                        apiKey: settings.apiKey || undefined,
+                        apiKey: settings.apiKey,
                         modelId: 'claude-3-5-sonnet-20241022'
                     },
                     agentSDK: {
                         model: 'sonnet' as const,
                         maxTurns: 20,
                         persistHistory: false, // Don't persist in playground
-                        apiKey: settings.apiKey || undefined
+                        apiKey: settings.apiKey
                     }
                 });
 
@@ -304,14 +326,28 @@ s1 -catch-> init;
                     }
                 });
 
-                console.log('RailsExecutor created:', currentExecutor);
+                console.log('RailsExecutor created successfully:', currentExecutor);
 
                 running = false;
                 console.log(resp, data, mermaid, currentExecutor)
                 window.render(mermaid, outputEl, `${Math.floor(Math.random()  * 1000000000)}`)
             } catch (e) {
-                // failed at some point, log & disable running so we can try again
-                console.error(e);
+                // Improved error handling with detailed logging
+                const error = e as Error;
+                console.error('Failed to create RailsExecutor:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+                
+                // Still try to render the diagram even if executor creation fails
+                try {
+                    window.render(mermaid, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
+                } catch (renderError) {
+                    console.error('Failed to render diagram:', renderError);
+                }
+                
                 running = false;
             }
         }, 200);

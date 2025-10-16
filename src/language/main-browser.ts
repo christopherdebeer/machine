@@ -25,6 +25,34 @@ type DocumentChange = { uri: string, content: string, diagnostics: Diagnostic[] 
 const documentChangeNotification = new NotificationType<DocumentChange>('browser/DocumentChange');
 // use the built-in AST serializer
 const jsonSerializer = services.Machine.serializer.JsonSerializer;
+/**
+ * Generate an error diagram showing parse/validation errors
+ */
+function generateErrorDiagram(diagnostics: Diagnostic[]): string {
+    const errors = diagnostics.filter(d => d.severity === 1); // Severity 1 = Error
+    
+    if (errors.length === 0) {
+        return "";
+    }
+    
+    let diagram = `flowchart TD\n`;
+    diagram += `    ErrorHeader["⚠️ Parse Errors Detected (${errors.length})"]\n`;
+    diagram += `    style ErrorHeader fill:#ff6b6b,stroke:#c92a2a,color:#fff\n\n`;
+    
+    errors.forEach((error, index) => {
+        const errorId = `E${index}`;
+        const line = error.range.start.line + 1; // Convert 0-based to 1-based
+        const col = error.range.start.character + 1;
+        const message = error.message.replace(/"/g, "'"); // Escape quotes for mermaid
+        
+        diagram += `    ${errorId}["Line ${line}:${col} - ${message}"]\n`;
+        diagram += `    ErrorHeader --> ${errorId}\n`;
+        diagram += `    style ${errorId} fill:#ffe0e0,stroke:#ff6b6b\n`;
+    });
+    
+    return diagram;
+}
+
 // listen on fully validated documents
 services.shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, documents => {
     // perform this for every validated document in this build phase batch
@@ -33,12 +61,16 @@ services.shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, 
         let json: MachineJSON = {title: "", nodes: [], edges: []};
         let mermaid: string = "";
 
+        const hasErrors = document.diagnostics !== undefined 
+            && document.diagnostics.filter((i) => i.severity === 1).length > 0;
+
         // only generate commands if there are no errors
-        if(document.diagnostics === undefined 
-            || document.diagnostics.filter((i) => i.severity === 1).length === 0
-            ) {
+        if(!hasErrors) {
             json = JSON.parse(generateJSON(model, document.textDocument.uri, undefined).content);
             mermaid = generateMermaid(model, document.textDocument.uri, undefined).content;
+        } else {
+            // Generate error diagram to show parse errors visually
+            mermaid = generateErrorDiagram(document.diagnostics!);
         }
         
         // inject the commands into the model
@@ -59,4 +91,3 @@ services.shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, 
 
 
 console.log('Language Server started')
-

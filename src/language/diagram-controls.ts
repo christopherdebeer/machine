@@ -69,6 +69,10 @@ export function downloadPNG(): void {
 
 // Function to render the diagram
 export async function render(code: string, containerOveride?: Element, id?: string): Promise<void> {
+    if (!code) {
+        console.warn('No code provided to render');
+        return;
+    }
     try {
         const uniqueId = "mermaid-svg-" + (id || Date.now());
         console.log("Rendering diagram with code:", code);
