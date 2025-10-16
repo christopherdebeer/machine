@@ -123,3 +123,14 @@ export interface TypeHierarchy {
         subtypes: string[];
     };
 }
+
+/**
+ * Semantic hierarchy structure for organizing nodes by parent-child relationships
+ * This preserves the lexical nesting structure from the DSL
+ */
+export interface SemanticHierarchy {
+    [nodeName: string]: {
+        node: any;
+        children: string[];
+    };
+}

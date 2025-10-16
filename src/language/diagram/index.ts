@@ -51,7 +51,8 @@ export type {
     RuntimeContext,
     RuntimeNodeState,
     RuntimeEdgeState,
-    TypeHierarchy
+    TypeHierarchy,
+    SemanticHierarchy
 } from './types.js';
 
 // Internal generators (for advanced usage)
