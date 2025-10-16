@@ -366,6 +366,7 @@ ${indent}  }`;
 
             lines.push(`${indent}namespace ${node.name} {`);
             lines.push(classDefinition);
+            lines.push(''); // Add blank line between parent class and children
             lines.push(childContent);
             lines.push(`${indent}}`);
         } else {

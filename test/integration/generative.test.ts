@@ -392,6 +392,12 @@ describe('Generative Integration Tests', () => {
         expect(result.passed).toBe(true);
     });
 
+    test('Nesting: Semantic Nesting Example', async () => {
+        const source = loadExample('nesting', 'semantic-nesting-example.dygram');
+        const result = await runGenerativeTest('Semantic Nesting Example', source);
+        expect(result.passed).toBe(true);
+    });
+
     // Complex Examples
     test('Complex: Complex Machine', async () => {
         const source = loadExample('complex', 'complex-machine.dygram');

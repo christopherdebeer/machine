@@ -386,4 +386,11 @@ test.describe('E2E Mermaid Rendering Tests', () => {
         expect(result.success, `Rendering failed: ${result.errorMessage}`).toBe(true);
         expect(result.svgGenerated, 'SVG was not generated').toBe(true);
     });
+
+    test('Nesting: Semantic Nesting Example', async ({ page }) => {
+        const source = loadExample('nesting', 'semantic-nesting-example.dygram');
+        const result = await testMermaidRendering(page, 'Semantic Nesting Example', source);
+        expect(result.success, `Rendering failed: ${result.errorMessage}`).toBe(true);
+        expect(result.svgGenerated, 'SVG was not generated').toBe(true);
+    });
 });
