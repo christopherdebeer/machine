@@ -5,6 +5,7 @@ import * as path from 'node:path';
 import { extractDestinationAndName } from '../../cli/cli-util.js';
 import { Edge, MachineJSON } from '../machine-module.js';
 import { DependencyAnalyzer } from '../dependency-analyzer.js';
+import { NodeTypeChecker } from '../node-type-checker.js';
 
 // Common interfaces
 interface GeneratorOptions {
@@ -426,6 +427,9 @@ config:
 ---
 classDiagram-v2
   ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
+  
+  ${toString(this.generateNodeTypeStyling(machineJson.nodes))}
+  
   ${toString(this.generateEdges(machineJson.edges))}
   ${machineJson.notes && machineJson.notes.length > 0 ? toString(this.generateNotes(machineJson.notes)) : ''}
   ${machineJson.inferredDependencies && machineJson.inferredDependencies.length > 0 ? toString(this.generateInferredDependencies(machineJson.inferredDependencies)) : ''}
@@ -455,6 +459,9 @@ config:
 ---
 classDiagram-v2
   ${toString(this.generateTypeHierarchy(hierarchy, rootTypes))}
+  
+  ${toString(this.generateNodeTypeStyling(machineJson.nodes))}
+  
   ${toString(this.generateEdges(machineJson.edges))}`);
     }
 
@@ -490,6 +497,12 @@ classDiagram-v2
     }
 
     private generateTypeHierarchy(hierarchy: TypeHierarchy, types: string[], level = 0): string {
+        // Get all edges for type inference (needed for init node detection)
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+        const edges = machineJson.edges;
+
         const result = joinToNode(types, type => {
             const { nodes, subtypes } = hierarchy[type];
             const indent = '  '.repeat(level);
@@ -503,7 +516,12 @@ classDiagram-v2
                     displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
                     displayValue = wrapText(displayValue, 60); // Apply text wrapping
                 }
-                const header = `class ${node.name}${displayValue ? `["${displayValue}"]` : ''}`;
+                
+                // Get CSS class for this node using type inference
+                const typeClass = this.getTypeClassName(node, edges);
+                const classStyle = typeClass ? `:::${typeClass}` : '';
+                
+                const header = `class ${node.name}${displayValue ? `["${displayValue}"]` : ''}${classStyle}`;
 
                 // Format all attributes except desc/prompt for the class body
                 const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
@@ -577,6 +595,44 @@ ${indent}}`);
         });
 
         return toString(result);
+    }
+
+    /**
+     * Get type-based CSS class name for styling using NodeTypeChecker
+     * This properly handles both explicit and inferred types
+     */
+    private getTypeClassName(node: any, edges?: any[]): string | null {
+        // Use NodeTypeChecker to get the effective type (explicit or inferred)
+        const nodeType = NodeTypeChecker.getNodeType(node, edges);
+        
+        if (!nodeType) return null;
+
+        // Map node types to CSS class names
+        switch (nodeType) {
+            case 'task': return 'taskType';
+            case 'state': return 'stateType';
+            case 'context': return 'contextType';
+            case 'init': return 'initType';
+            case 'tool': return 'toolType';
+            default: return null;
+        }
+    }
+
+    /**
+     * Generate node type styling declarations
+     * Only generates classDef declarations - nodes are styled inline with :::
+     */
+    private generateNodeTypeStyling(nodes: Node[]): string {
+        const lines: string[] = [];
+        
+        lines.push('  %% Node Type Styling');
+        lines.push('  classDef taskType fill:#E3F2FD,stroke:#1976D2,stroke-width:2px');
+        lines.push('  classDef stateType fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px');
+        lines.push('  classDef contextType fill:#E8F5E9,stroke:#388E3C,stroke-width:2px');
+        lines.push('  classDef toolType fill:#FFF9C4,stroke:#F57F17,stroke-width:2px');
+        lines.push('  classDef initType fill:#FFF3E0,stroke:#F57C00,stroke-width:2px');
+
+        return lines.join('\n');
     }
 
     /**
