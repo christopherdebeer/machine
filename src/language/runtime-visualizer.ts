@@ -132,6 +132,7 @@ export class RuntimeVisualizer {
      * Generate class diagram with runtime overlays (old implementation, kept for reference)
      * @deprecated Use the new diagram module instead
      */
+    // @ts-ignore - deprecated method kept for reference
     private generateClassDiagramRuntimeOld(options: RuntimeVisualizationOptions): string {
         const lines: string[] = [];
         const nodeStates = this.buildNodeStates();

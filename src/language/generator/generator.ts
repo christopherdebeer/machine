@@ -5,8 +5,8 @@ import * as path from 'node:path';
 import { extractDestinationAndName } from '../../cli/cli-util.js';
 import { Edge, MachineJSON } from '../machine-module.js';
 import { DependencyAnalyzer } from '../dependency-analyzer.js';
-import { NodeTypeChecker } from '../node-type-checker.js';
 import { generateMermaidFromJSON } from '../diagram/index.js';
+import { TypeHierarchy } from '../diagram/types.js';
 
 // Common interfaces
 interface GeneratorOptions {
@@ -534,7 +534,7 @@ classDiagram-v2
             // Generate namespace content
             const content = joinToNode(nodes, node => {
                 // Prefer node title over desc/prompt attributes for display
-                const desc = node.attributes?.find(a => a.name === 'desc') || node.attributes?.find(a => a.name === 'prompt');
+                const desc = node.attributes?.find((a: any) => a.name === 'desc') || node.attributes?.find((a: any) => a.name === 'prompt');
                 let displayValue: any = node.title || desc?.value;
                 if (displayValue && typeof displayValue === 'string') {
                     displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
@@ -543,9 +543,9 @@ classDiagram-v2
                 const header = `class ${node.name}${displayValue ? `["${displayValue}"]` : ''}`;
 
                 // Format all attributes except desc/prompt for the class body
-                const attributes = node.attributes?.filter(a => a.name !== 'desc' && a.name !== 'prompt') || [];
+                const attributes = node.attributes?.filter((a: any) => a.name !== 'desc' && a.name !== 'prompt') || [];
                 const attributeLines = attributes.length > 0
-                    ? attributes.map(a => {
+                    ? attributes.map((a: any) => {
                         // Extract the actual value from the attribute
                         let displayValue = a.value?.value ?? a.value;
                         // Remove quotes from string values for display
@@ -558,7 +558,7 @@ classDiagram-v2
                     : '';
 
                 // Generate annotations
-                const annotations = node.annotations?.map(ann => `<<${ann.name}>>`).join('\n' + indent + '    ') || '';
+                const annotations = node.annotations?.map((ann: any) => `<<${ann.name}>>`).join('\n' + indent + '    ') || '';
                 const typeAnnotation = node.type ? `<<${node.type}>>` : '';
                 const allAnnotations = [typeAnnotation, annotations].filter(Boolean).join('\n' + indent + '    ');
 

@@ -307,6 +307,9 @@ function generateTypeHierarchy(hierarchy: TypeHierarchy, types: string[], machin
         const { nodes, subtypes } = hierarchy[type];
         const indent = '  '.repeat(level);
 
+        // Use a local array for this type's content to avoid clearing shared state
+        const typeLines: string[] = [];
+
         // Generate namespace content
         nodes.forEach(node => {
             // Prefer node title over desc/prompt attributes for display
@@ -358,26 +361,28 @@ function generateTypeHierarchy(hierarchy: TypeHierarchy, types: string[], machin
             // Combine parent annotation with attributes
             const allLines = [parentAnnotation, attributeLines].filter(Boolean).join('\n' + indent + '    ');
 
-            lines.push(`${indent}  ${header} {`);
-            lines.push(`${indent}    ${allAnnotations}${allLines ? '\n' + indent + '    ' + allLines : ''}`);
-            lines.push(`${indent}  }`);
+            typeLines.push(`${indent}  ${header} {`);
+            typeLines.push(`${indent}    ${allAnnotations}${allLines ? '\n' + indent + '    ' + allLines : ''}`);
+            typeLines.push(`${indent}  }`);
         });
 
         // Generate subtype hierarchy
         if (subtypes.length > 0) {
             const subtypeContent = generateTypeHierarchy(hierarchy, subtypes, machineJson, level + 1);
             if (subtypeContent) {
-                lines.push(subtypeContent);
+                typeLines.push(subtypeContent);
             }
         }
 
         // Only create namespace at the top level for grouped types
         if (level === 0 && type !== 'undefined' && nodes.length > 1) {
-            const content = lines.join('\n');
-            lines.length = 0; // Clear array
+            const content = typeLines.join('\n');
             lines.push(`${indent}namespace ${type}s {`);
             lines.push(content);
             lines.push(`${indent}}`);
+        } else {
+            // Add this type's content to the main lines array
+            lines.push(...typeLines);
         }
     });
 

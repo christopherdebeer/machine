@@ -5,7 +5,17 @@
  * mermaid diagrams from JSON machine definitions.
  */
 
-import { MachineJSON } from '../machine-module.js';
+/**
+ * Flexible machine JSON that accepts both Langium AST nodes and simplified runtime nodes
+ * We use a flexible structure to support both the Langium AST format and simplified runtime format
+ */
+export interface MachineJSON {
+    title?: string;
+    nodes: any[]; // Flexible to accept both Node[] from AST and simplified runtime nodes
+    edges: any[]; // Flexible to accept both Edge[] from AST and simplified runtime edges
+    notes?: any[];
+    inferredDependencies?: any[];
+}
 
 /**
  * Options for mermaid diagram generation
@@ -70,7 +80,7 @@ export interface RuntimeContext {
     /** State transition history for cycle detection */
     stateTransitions?: Array<{
         state: string;
-        timestamp: number;
+        timestamp: string;
     }>;
 }
 
@@ -113,6 +123,3 @@ export interface TypeHierarchy {
         subtypes: string[];
     };
 }
-
-// Re-export MachineJSON for convenience
-export type { MachineJSON };
