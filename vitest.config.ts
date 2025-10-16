@@ -16,6 +16,10 @@ export default defineConfig({
             interopDefault: true
         },
         include: ['**/*.test.ts'],
-        exclude: ['**/e2e/**', '**/node_modules/**']
+        exclude: ['**/e2e/**', '**/node_modules/**'],
+        reporters: ['default', 'junit'],
+        outputFile: {
+            junit: 'test-output/vitest/junit.xml'
+        }
     }
 });

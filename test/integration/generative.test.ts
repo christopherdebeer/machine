@@ -117,10 +117,190 @@ class ValidationReporter {
         return report;
     }
 
+    generateHtmlReport(): string {
+        const total = this.results.length;
+        const passed = this.results.filter(r => r.passed).length;
+        const failed = total - passed;
+        const successRate = ((passed / total) * 100).toFixed(2);
+
+        const allParseErrors = this.results.flatMap(r => r.parseErrors);
+        const allTransformErrors = this.results.flatMap(r => r.transformErrors);
+        const allCompletenessIssues = this.results.flatMap(r => r.completenessIssues);
+        const allLosslessnessIssues = this.results.flatMap(r => r.losslessnessIssues);
+        const allMermaidParseErrors = this.results.flatMap(r => r.mermaidParseErrors);
+
+        const failedResults = this.results.filter(r => !r.passed);
+
+        let html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Test Report - DyGram</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; padding: 2rem; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; }
+        h1 { color: #667eea; margin-bottom: 0.5rem; }
+        .subtitle { color: #666; margin-bottom: 2rem; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { padding: 1.5rem; border-radius: 6px; text-align: center; }
+        .stat-card.total { background: #e3f2fd; }
+        .stat-card.passed { background: #e8f5e9; }
+        .stat-card.failed { background: #ffebee; }
+        .stat-value { font-size: 2.5rem; font-weight: bold; }
+        .stat-label { color: #666; font-size: 0.875rem; margin-top: 0.5rem; }
+        .issues { margin-bottom: 2rem; }
+        .issue-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+        .issue-card { padding: 1rem; border-radius: 4px; background: #f9f9f9; border-left: 4px solid #667eea; }
+        .issue-count { font-size: 1.5rem; font-weight: bold; color: #667eea; }
+        .issue-label { font-size: 0.875rem; color: #666; }
+        .test-list { margin-top: 2rem; }
+        .test-item { border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 1rem; overflow: hidden; }
+        .test-header { padding: 1rem; background: #fafafa; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .test-header:hover { background: #f5f5f5; }
+        .test-name { font-weight: 600; }
+        .test-status { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; font-weight: 600; }
+        .test-status.passed { background: #4caf50; color: white; }
+        .test-status.failed { background: #f44336; color: white; }
+        .test-details { padding: 1rem; display: none; background: white; border-top: 1px solid #e0e0e0; }
+        .test-details.active { display: block; }
+        .error-section { margin-top: 1rem; }
+        .error-section h4 { color: #d32f2f; margin-bottom: 0.5rem; }
+        .error-list { list-style: none; padding-left: 1rem; }
+        .error-list li { padding: 0.25rem 0; color: #666; }
+        .error-list li:before { content: "⚠ "; color: #d32f2f; }
+        .artifact-link { display: inline-block; margin-top: 0.5rem; padding: 0.5rem 1rem; background: #667eea; color: white; text-decoration: none; border-radius: 4px; font-size: 0.875rem; }
+        .artifact-link:hover { background: #5568d3; }
+    </style>
+    <script>
+        function toggleDetails(id) {
+            const details = document.getElementById(id);
+            details.classList.toggle('active');
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Generative Test Report</h1>
+        <p class="subtitle">Complete DyGram transformation pipeline validation</p>
+
+        <div class="summary">
+            <div class="stat-card total">
+                <div class="stat-value">${total}</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat-card passed">
+                <div class="stat-value">${passed}</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat-card failed">
+                <div class="stat-value">${failed}</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-value">${successRate}%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+
+        <div class="issues">
+            <h2>Issue Summary</h2>
+            <div class="issue-grid">
+                <div class="issue-card">
+                    <div class="issue-count">${allParseErrors.length}</div>
+                    <div class="issue-label">Parse Errors</div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-count">${allTransformErrors.length}</div>
+                    <div class="issue-label">Transform Errors</div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-count">${allCompletenessIssues.length}</div>
+                    <div class="issue-label">Completeness Issues</div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-count">${allLosslessnessIssues.length}</div>
+                    <div class="issue-label">Losslessness Issues</div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-count">${allMermaidParseErrors.length}</div>
+                    <div class="issue-label">Mermaid Errors</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-list">
+            <h2>Test Results</h2>`;
+
+        this.results.forEach((result, index) => {
+            const fileName = result.testName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const detailsId = `details-${index}`;
+            html += `
+            <div class="test-item">
+                <div class="test-header" onclick="toggleDetails('${detailsId}')">
+                    <span class="test-name">${result.testName}</span>
+                    <span class="test-status ${result.passed ? 'passed' : 'failed'}">${result.passed ? 'PASSED' : 'FAILED'}</span>
+                </div>
+                <div class="test-details" id="${detailsId}">
+                    <a href="${fileName}.md" class="artifact-link" target="_blank">View Full Artifacts →</a>`;
+
+            if (!result.passed) {
+                if (result.parseErrors.length > 0) {
+                    html += `<div class="error-section">
+                        <h4>Parse Errors</h4>
+                        <ul class="error-list">${result.parseErrors.map(e => `<li>${e}</li>`).join('')}</ul>
+                    </div>`;
+                }
+                if (result.transformErrors.length > 0) {
+                    html += `<div class="error-section">
+                        <h4>Transform Errors</h4>
+                        <ul class="error-list">${result.transformErrors.map(e => `<li>${e}</li>`).join('')}</ul>
+                    </div>`;
+                }
+                if (result.completenessIssues.length > 0) {
+                    html += `<div class="error-section">
+                        <h4>Completeness Issues</h4>
+                        <ul class="error-list">${result.completenessIssues.map(e => `<li>${e}</li>`).join('')}</ul>
+                    </div>`;
+                }
+                if (result.losslessnessIssues.length > 0) {
+                    html += `<div class="error-section">
+                        <h4>Losslessness Issues</h4>
+                        <ul class="error-list">${result.losslessnessIssues.map(e => `<li>${e}</li>`).join('')}</ul>
+                    </div>`;
+                }
+                if (result.mermaidParseErrors.length > 0) {
+                    html += `<div class="error-section">
+                        <h4>Mermaid Parse Errors</h4>
+                        <ul class="error-list">${result.mermaidParseErrors.map(e => `<li>${e}</li>`).join('')}</ul>
+                    </div>`;
+                }
+            }
+
+            html += `
+                </div>
+            </div>`;
+        });
+
+        html += `
+        </div>
+    </div>
+</body>
+</html>`;
+
+        return html;
+    }
+
     writeReport(): void {
         const report = this.generateReport();
+        const htmlReport = this.generateHtmlReport();
+
         fs.writeFileSync(path.join(this.outputDir, 'REPORT.md'), report);
+        fs.writeFileSync(path.join(this.outputDir, 'index.html'), htmlReport);
+
         console.log(`\n📊 Generative test report written to: ${path.join(this.outputDir, 'REPORT.md')}`);
+        console.log(`🌐 HTML report available at: ${path.join(this.outputDir, 'index.html')}`);
         console.log(`📁 Individual test outputs: ${this.outputDir}\n`);
     }
 }

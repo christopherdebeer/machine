@@ -25,6 +25,41 @@ function getHtmlEntries() {
     return entries;
 }
 
+/**
+ * Get static copy targets, including test-output if it exists
+ */
+function getStaticCopyTargets() {
+    const targets = [
+        { src: 'static/styles.css', dest: 'static' },
+        { src: 'static/styles/*', dest: 'static/styles' },
+        { src: 'examples/attributes', dest: 'examples' },
+        { src: 'examples/basic', dest: 'examples' },
+        { src: 'examples/complex', dest: 'examples' },
+        { src: 'examples/edge-cases', dest: 'examples' },
+        { src: 'examples/edges', dest: 'examples' },
+        { src: 'examples/nesting', dest: 'examples' },
+        { src: 'examples/advanced', dest: 'examples' },
+        { src: 'examples/documentation', dest: 'examples' },
+        { src: 'examples/validation', dest: 'examples' },
+        { src: 'examples/context', dest: 'examples' },
+        { src: 'examples/stress', dest: 'examples' },
+        { src: 'examples/workflows', dest: 'examples' },
+        { src: 'examples/meta-programming', dest: 'examples' },
+        { src: 'examples/rails', dest: 'examples' },
+        { src: 'examples/model-configuration', dest: 'examples' },
+        { src: 'examples/README.md', dest: 'examples' },
+        { src: 'examples/generated', dest: 'examples' }
+    ];
+
+    // Only include test-output if it exists
+    const testOutputDir = path.join(__dirname, 'test-output');
+    if (fs.existsSync(testOutputDir)) {
+        targets.push({ src: 'test-output/*', dest: 'test-output' });
+    }
+
+    return targets;
+}
+
 export default defineConfig(() => {
     const config = {
         base: process.env.VITE_BASE_URL || '/machine/',
@@ -47,84 +82,7 @@ export default defineConfig(() => {
             },
             react(),
             viteStaticCopy({
-                targets: [
-                    {
-                        src: 'static/styles.css',
-                        dest: 'static'
-                    },
-                    {
-                        src: 'static/styles/*',
-                        dest: 'static/styles'
-                    },
-                    {
-                        src: 'examples/attributes',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/basic',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/complex',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/edge-cases',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/edges',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/nesting',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/advanced',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/documentation',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/validation',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/context',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/stress',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/workflows',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/meta-programming',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/rails',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/model-configuration',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/README.md',
-                        dest: 'examples'
-                    },
-                    {
-                        src: 'examples/generated',
-                        dest: 'examples'
-                    }
-                ]
+                targets: getStaticCopyTargets()
             })
         ],
         resolve: {
