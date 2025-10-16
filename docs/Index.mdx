@@ -121,7 +121,7 @@ source -> processor -> destination;`
 
 Concept problem "User Authentication" {
     domain: "Security";
-    priority<Integer>: 9;
+    priority<number>: 9;
     constraints: ["GDPR Compliance", "Low Latency"];
 };
 
@@ -139,7 +139,7 @@ problem -addresses-> solution;`
 
 Concept problem "User Authentication" {
     domain: "Security";
-    priority<Integer>: 9;
+    priority<number>: 9;
     constraints: ["GDPR Compliance", "Low Latency"];
     stakeholders: ["Security Team", "UX Team"];
 };
@@ -159,7 +159,7 @@ problem -addresses, confidence: 0.8-> solution;`
 
 Concept problem "User Authentication" {
     domain: "Security";
-    priority<Integer>: 9;
+    priority<number>: 9;
     constraints: ["GDPR Compliance", "Low Latency"];
     stakeholders: ["Security Team", "UX Team"];
     risks: ["Token Theft", "Session Hijacking"];
@@ -201,7 +201,7 @@ solution -documented_by-> documentation;`
 Concept idea "Neural Interface" {
     creator: "Research Team";
     created<Date>: "2025-01-15";
-    priority<Integer>: 8;
+    priority<number>: 8;
     domain: "Neuroscience";
     description: "Direct neural interface for thought-to-text";
     tags: ["neural", "interface", "breakthrough"];

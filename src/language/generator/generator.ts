@@ -1092,7 +1092,7 @@ class HTMLGenerator extends BaseGenerator {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = '${this.machine.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_diagram.svg';
+            a.download = '${this.machine.title?.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_diagram.svg';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1181,7 +1181,7 @@ class HTMLGenerator extends BaseGenerator {
                 ctx.drawImage(loader, 0, 0);
                 const a = document.createElement('a');
                 a.href = canvas.toDataURL('image/png');
-                a.download = '${this.machine.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_diagram.png';
+                a.download = '${this.machine.title?.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_diagram.png';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -1441,7 +1441,7 @@ export function generateDSL(machineJson: MachineJSON): string {
     const lines: string[] = [];
 
     // Add machine title
-    lines.push(`machine ${quoteString(machineJson.title)}`);
+    lines.push(`machine ${quoteString(machineJson.title || "")}`);
     lines.push('');
 
     // Track which nodes have been added to avoid duplicates

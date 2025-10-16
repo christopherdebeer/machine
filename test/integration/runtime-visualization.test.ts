@@ -143,7 +143,7 @@ describe('Runtime Visualization - Circular Reference Prevention', () => {
             source: `machine "Task Management"
                 Input task {
                     description<string>: "TBD";
-                    priority<Integer>: 5;
+                    priority<number>: 5;
                 };
                 Task process {
                     prompt: "Analyze task: {{ task.description }}";
@@ -343,7 +343,7 @@ describe('Runtime Visualization - Mobile Playground Integration', () => {
         const workflowSource = `machine "Task Management"
             Input task {
                 description<string>: "TBD";
-                priority<Integer>: 5;
+                priority<number>: 5;
             };
             Task process {
                 prompt: "Analyze task: {{ task.description }}";

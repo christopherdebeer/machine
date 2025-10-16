@@ -168,11 +168,11 @@ state s2;
 tool validator;
 
 context input {
-  query<string>;
+  query<string>: "";
 }
 
 context data {
-  meta<any>;
+  meta<any>: true;
 }
 
 init -reads: query-> data;

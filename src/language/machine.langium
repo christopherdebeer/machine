@@ -53,8 +53,8 @@ QualifiedName returns string:
 ;
 
 entry Machine:
-    'machine' title=STRING
-    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)*
+    ('machine' title=STRING ';'?)?
+    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)* 
 ;
 
 // Note: Using '=' for single values and '+=' for arrays is intentional.
@@ -80,7 +80,7 @@ TypeDef:
 ;
 
 Attribute:
-name=ID ('<' type=TypeDef '>')? (':' value=AttributeValue)? ';'
+    name=ID ('<' type=TypeDef '>')? (':' value=AttributeValue)? ';'?
 ;
 
 Node<isRoot>:

@@ -14,7 +14,7 @@ export class MachineValidationRegistry extends ValidationRegistry {
         const validator = services.validation.MachineValidator;
         const checks: ValidationChecks<MachineAstType> = {
             Machine: [
-                validator.checkMachineStartsWithCapital.bind(validator),
+                // validator.checkMachineStartsWithCapital.bind(validator),
                 validator.checkDuplicateStates.bind(validator),
                 validator.checkReservedNodeNames.bind(validator),
                 validator.checkInvalidStateReferences.bind(validator),
@@ -49,9 +49,9 @@ export class MachineValidationRegistry extends ValidationRegistry {
 export class MachineValidator {
 
     checkMachineStartsWithCapital(machine: Machine, accept: ValidationAcceptor): void {
-        if (!machine.title || machine.title.length === 0) {
-            accept('error', 'Machine must have a title', { node: machine, property: 'title' });
-        }
+        // if (!machine.title || machine.title.length === 0) {
+        //     accept('error', 'Machine must have a title', { node: machine, property: 'title' });
+        // }
     }
 
     checkDuplicateStates(machine: Machine, accept: ValidationAcceptor): void {

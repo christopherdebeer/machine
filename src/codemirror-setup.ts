@@ -43,7 +43,7 @@ start -> end;`,
 
 Input task {
     description<string>: "TBD";
-    priority<Integer>: 5;
+    priority<number>: 5;
 };
 
 Task process {

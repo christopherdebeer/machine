@@ -160,7 +160,7 @@ machine "Task System"
 
 Concept task "User Story" {
     description<string>: "Implement feature";
-    priority<Integer>: 8;
+    priority<number>: 8;
     tags: ["backend", "api"];
 };
 

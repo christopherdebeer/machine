@@ -52,7 +52,7 @@ describe('Validating', () => {
 
         expect(document.diagnostics?.some(d =>
             d.message.includes('Machine must have a title')
-        )).toBe(true);
+        )).toBe(false);
     });
 
     test('check duplicate state names are detected', async () => {

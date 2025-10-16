@@ -45,7 +45,7 @@ export interface InferredDependency {
 }
 
 export interface MachineJSON {
-    title: string;
+    title?: string;
     nodes: Node[];
     edges: Edge[];
     notes?: NoteInfo[];
