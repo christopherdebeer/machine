@@ -29,7 +29,7 @@ interface ExampleLoaderProps {
 export const ExampleLoader: React.FC<ExampleLoaderProps> = ({
     path,
     language = 'dygram',
-    readOnly = true,
+    readOnly = false,
     height = '200px',
     id
 }) => {
