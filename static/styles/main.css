@@ -37,13 +37,16 @@ header {
     font-size: clamp(2rem, 12vw, 8rem);
     line-height: 0.9;
     font-weight: 700;
-    margin-bottom: 2rem;
 }
 
 .tagline {
     font-size: clamp(1rem, 5vw, 2rem);
     margin-bottom: 3rem;
     max-width: 800px;
+}
+
+h2, h3, h4 {
+    margin: 1em 0 2em;
 }
 
 .accent {
@@ -112,11 +115,15 @@ section {
     justify-content: center;
 }
 
-.code {
+.code, pre > code {
     background-color: var(--code-bg);
     border-left: 8px solid var(--accent);
     padding: 1em 0;
+    color: var(--light);
     box-sizing: content-box;
+    display: block;
+    margin: 0.3em 0;
+    padding-left: 0.3em;
 }
 
 .evolution {

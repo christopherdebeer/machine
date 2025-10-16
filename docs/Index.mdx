@@ -1,5 +1,6 @@
 import { PageLayout } from '../src/components/PageLayout';
 import { Carousel } from '../src/components/Carousel';
+import { CodeEditor } from '../src/components/CodeEditor';
 
 export default function IndexPage() {
     return <PageLayout title="DyGram | Thought → System">
@@ -56,15 +57,22 @@ export function IndexContent() {
                             <div className="stage-content">
                                 <p>Start with an immediately executable, unstructured representation of your domain.</p>
 
-                                <Carousel slides={[
-                                    {
-                                        id: 'example-001',
-                                        code: `machine "Solution Sketch"
+                                <CodeEditor
+                                    initialCode={`machine "Solution Sketch"
 
 problem;
 solution;
 
-problem -> solution;`
+problem -> solution;`}
+                                    language="dygram"
+                                    id={`ex`}
+                                    readOnly
+                                />
+
+                                <Carousel slides={[
+                                    {
+                                        id: 'example-001',
+                                        code: ``
                                     },
                                     {
                                         id: 'example-002',

@@ -141,10 +141,11 @@ function setupSettingsUI(): void {
     });
 }
 
-export const executeExtended = async (htmlElement: HTMLElement, useDefault : boolean, outputEl : HTMLElement) => {
+export const executeExtended = async (htmlElement: HTMLElement, useDefault : boolean, outputEl : HTMLElement): Promise<MonacoEditorLanguageClientWrapper> => {
     // Initialize theme when the editor starts
     initTheme();
-
+    console.log({useDefault, htmlElement, outputEl})
+    debugger;
     // Setup settings UI
     setupSettingsUI();
     const defaultSrc = `// Machine is running in the web!
@@ -315,6 +316,8 @@ s1 -catch-> init;
             }
         }, 200);
     });
+
+    return wrapper;
 };
 
 /**
