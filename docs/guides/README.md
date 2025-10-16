@@ -1,4 +1,4 @@
-# DyGram Guides
+# Guides
 
 Comprehensive guides for understanding and using DyGram effectively.
 

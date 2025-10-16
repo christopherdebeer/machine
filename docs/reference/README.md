@@ -1,4 +1,4 @@
-# DyGram Reference
+# Reference
 
 Technical reference documentation for DyGram language specifications, CLI commands, and APIs.
 

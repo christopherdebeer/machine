@@ -1,4 +1,4 @@
-# DyGram Integration
+# Integration
 
 Documentation for integrating DyGram with editors, tools, and external systems.
 

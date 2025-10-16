@@ -1,4 +1,4 @@
-# DyGram Examples
+# Examples
 
 Comprehensive collection of DyGram language examples demonstrating various features and use cases.
 

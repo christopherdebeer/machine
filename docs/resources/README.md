@@ -1,4 +1,4 @@
-# DyGram Resources
+# Resources
 
 Additional resources, community support, comparisons, and troubleshooting.
 
@@ -34,13 +34,6 @@ Articles, updates, and in-depth explorations:
 - Use case studies
 - Best practices
 - Development insights
-
-### [DSPy Comparison](dspy-comparison.md)
-Comparison between DyGram and DSPy:
-- Philosophy and approach
-- Use cases and strengths
-- Integration possibilities
-- When to use each
 
 ## Additional Documentation
 

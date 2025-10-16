@@ -22,17 +22,17 @@ playwright/.cache/
 # Generated documentation files
 # Source files are .md in docs/, only Index.mdx is hand-authored
 # Generated .mdx files (from .md sources)
-docs/**/*.mdx
+#docs/**/*.mdx
 !docs/Index.mdx
 
 # Generated HTML entry files (except hand-authored)
-*.html
+#*.html
 !index.html
 !playground.html
 !playground-mobile.html
 
 # Generated TSX page entries (except hand-authored)
-src/pages/*.tsx
+# src/pages/*.tsx
 !src/pages/index.tsx
 !src/pages/playground.tsx
 
