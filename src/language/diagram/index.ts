@@ -60,3 +60,13 @@ export {
     generateClassDiagram,
     generateRuntimeClassDiagram
 } from './mermaid-class-diagram.js';
+
+export {
+    generateFlowchart,
+    generateRuntimeFlowchart
+} from './mermaid-flowchart.js';
+
+export {
+    generateStateDiagram,
+    generateRuntimeStateDiagram
+} from './mermaid-statediagram.js';

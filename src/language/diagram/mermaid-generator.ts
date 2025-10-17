@@ -13,6 +13,8 @@
 
 import { MachineJSON, MermaidOptions, RuntimeContext } from './types.js';
 import { generateClassDiagram, generateRuntimeClassDiagram } from './mermaid-class-diagram.js';
+import { generateFlowchart, generateRuntimeFlowchart } from './mermaid-flowchart.js';
+import { generateStateDiagram, generateRuntimeStateDiagram } from './mermaid-statediagram.js';
 
 /**
  * Generate a mermaid diagram from MachineJSON
@@ -36,19 +38,18 @@ export function generateMermaidFromJSON(
     json: MachineJSON,
     options: MermaidOptions = {}
 ): string {
-    const diagramType = options.diagramType || 'class';
+    // Default to flowchart (better handles nesting)
+    const diagramType = options.diagramType || 'flowchart';
 
     switch (diagramType) {
         case 'class':
             return generateClassDiagram(json, options);
 
         case 'state':
-            // TODO: Implement state diagram generation
-            throw new Error('State diagram generation not yet implemented. Use diagramType: "class" for now.');
+            return generateStateDiagram(json, options);
 
         case 'flowchart':
-            // TODO: Implement flowchart generation
-            throw new Error('Flowchart generation not yet implemented. Use diagramType: "class" for now.');
+            return generateFlowchart(json, options);
 
         default:
             throw new Error(`Unsupported diagram type: ${diagramType}`);
@@ -85,7 +86,8 @@ export function generateRuntimeMermaid(
     context: RuntimeContext,
     options: MermaidOptions = {}
 ): string {
-    const diagramType = options.diagramType || 'class';
+    // Default to state diagram for runtime (semantic match for state machines)
+    const diagramType = options.diagramType || 'state';
 
     // Set defaults for runtime visualization
     const runtimeOptions: MermaidOptions = {
@@ -101,12 +103,10 @@ export function generateRuntimeMermaid(
             return generateRuntimeClassDiagram(json, context, runtimeOptions);
 
         case 'state':
-            // TODO: Implement runtime state diagram
-            throw new Error('State diagram generation not yet implemented. Use diagramType: "class" for now.');
+            return generateRuntimeStateDiagram(json, context, runtimeOptions);
 
         case 'flowchart':
-            // TODO: Implement runtime flowchart
-            throw new Error('Flowchart generation not yet implemented. Use diagramType: "class" for now.');
+            return generateRuntimeFlowchart(json, context, runtimeOptions);
 
         default:
             throw new Error(`Unsupported diagram type: ${diagramType}`);
