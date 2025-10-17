@@ -197,6 +197,7 @@ function addNodeRecursive(
         // This is a parent node - create a cluster
         g.setNode(node.name, {
             label: getNodeLabel(node),
+            labelType: 'html',
             clusterLabelPos: 'top',
             style: `fill: ${colors.fill}; stroke: ${colors.stroke}; stroke-width: 2px;`,
             labelStyle: 'font-weight: bold; font-size: 14px;'
@@ -213,6 +214,7 @@ function addNodeRecursive(
         // Leaf node
         g.setNode(node.name, {
             label: getNodeLabel(node),
+            labelType: 'html',
             shape: 'rect',
             style: `fill: ${colors.fill}; stroke: ${colors.stroke}; stroke-width: 2px;`,
             labelStyle: 'font-size: 12px;'
@@ -260,6 +262,7 @@ function addRuntimeNodeRecursive(
         // Parent node - create cluster
         g.setNode(node.name, {
             label: emoji + ' ' + label,
+            labelType: 'html',
             clusterLabelPos: 'top',
             style: `fill: ${colors.fill}; stroke: ${colors.stroke}; stroke-width: ${state?.status === 'current' ? 4 : 2}px;`,
             labelStyle: 'font-weight: bold; font-size: 14px;'
@@ -275,6 +278,7 @@ function addRuntimeNodeRecursive(
         // Leaf node
         g.setNode(node.name, {
             label: emoji + ' ' + label,
+            labelType: 'html',
             shape: 'rect',
             style: `fill: ${colors.fill}; stroke: ${colors.stroke}; stroke-width: ${state?.status === 'current' ? 4 : 2}px;`,
             labelStyle: 'font-size: 12px;'
