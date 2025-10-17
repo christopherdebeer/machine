@@ -88,6 +88,9 @@ export const ExampleLoader: React.FC<ExampleLoaderProps> = ({
         );
     }
 
+    // Extract filename from path
+    const filename = path.split('/').pop() || 'example';
+
     return (
         <CodeEditor
             initialCode={code}
@@ -95,6 +98,7 @@ export const ExampleLoader: React.FC<ExampleLoaderProps> = ({
             readOnly={readOnly}
             height={height}
             id={id}
+            filename={filename}
         />
     );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper';
 
 interface CodeEditorProps {
@@ -7,7 +7,11 @@ interface CodeEditorProps {
     readOnly?: boolean;
     height?: string;
     id?: string;
+    filename?: string;
 }
+
+type ViewMode = 'source' | 'diagram' | 'both';
+type LayoutMode = 'vertical' | 'horizontal';
 
 /**
  * Interactive code editor component that integrates with Monaco and executeExtended
@@ -18,12 +22,27 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     language = 'machine',
     readOnly = false,
     height,
-    id
+    id,
+    filename = 'code.machine'
 }) => {
     const codeRef = useRef<HTMLDivElement>(null);
     const outputRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<MonacoEditorLanguageClientWrapper | null>(null);
     const initializingRef = useRef<boolean>(false);
+
+    // View and layout state
+    const [viewMode, setViewMode] = useState<ViewMode>('both');
+    const [layoutMode, setLayoutMode] = useState<LayoutMode>('vertical');
+    const [isDesktop, setIsDesktop] = useState<boolean>(window.innerWidth >= 768);
+
+    // Handle responsive behavior
+    useEffect(() => {
+        const handleResize = () => {
+            setIsDesktop(window.innerWidth >= 768);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         let mounted = true;
@@ -94,18 +113,127 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         };
     }, [initialCode]);
 
+    // Determine which views to show
+    const showSource = viewMode === 'source' || viewMode === 'both';
+    const showDiagram = viewMode === 'diagram' || viewMode === 'both';
+    const showBothViews = viewMode === 'both';
+
+    // Container layout
+    const containerStyle: React.CSSProperties = {
+        marginTop: '1rem',
+        display: 'flex',
+        flexDirection: showBothViews && isDesktop && layoutMode === 'horizontal' ? 'row' : 'column',
+        gap: showBothViews ? '1rem' : '0'
+    };
+
+    // Styles for the superscript header
+    const headerStyle: React.CSSProperties = {
+        fontSize: '0.75rem',
+        color: '#666',
+        marginBottom: '0.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        flexWrap: 'wrap'
+    };
+
+    const linkStyle: React.CSSProperties = {
+        cursor: 'pointer',
+        textDecoration: 'none',
+        color: '#666',
+        padding: '0 0.25rem'
+    };
+
+    const activeLinkStyle: React.CSSProperties = {
+        ...linkStyle,
+        fontWeight: 'bold',
+        color: '#000'
+    };
+
+    const separatorStyle: React.CSSProperties = {
+        color: '#ccc'
+    };
+
     return (
-        <div className="code-block" style={{ marginTop: '1rem' }}>
-            <div
-                ref={codeRef}
-                className="code machine-lang"
-                id={id}
-                data-language={language}
-                style={{ height: height }}
-            >
-                {initialCode}
+        <div style={{ marginTop: '1rem' }}>
+            {/* Superscript header with filename and view controls */}
+            <div style={headerStyle}>
+                <span>{filename}</span>
+                <span style={separatorStyle}>•</span>
+                <span>View:</span>
+                <a
+                    style={viewMode === 'source' ? activeLinkStyle : linkStyle}
+                    onClick={(e) => { e.preventDefault(); setViewMode('source'); }}
+                    href="#"
+                >
+                    Source
+                </a>
+                <span style={separatorStyle}>|</span>
+                <a
+                    style={viewMode === 'diagram' ? activeLinkStyle : linkStyle}
+                    onClick={(e) => { e.preventDefault(); setViewMode('diagram'); }}
+                    href="#"
+                >
+                    Diagram
+                </a>
+                <span style={separatorStyle}>|</span>
+                <a
+                    style={viewMode === 'both' ? activeLinkStyle : linkStyle}
+                    onClick={(e) => { e.preventDefault(); setViewMode('both'); }}
+                    href="#"
+                >
+                    Both
+                </a>
+                {/* Layout toggle - only show when both views are visible and on desktop */}
+                {showBothViews && isDesktop && (
+                    <>
+                        <span style={separatorStyle}>•</span>
+                        <span>Layout:</span>
+                        <a
+                            style={layoutMode === 'vertical' ? activeLinkStyle : linkStyle}
+                            onClick={(e) => { e.preventDefault(); setLayoutMode('vertical'); }}
+                            href="#"
+                        >
+                            ↓ Vertical
+                        </a>
+                        <span style={separatorStyle}>|</span>
+                        <a
+                            style={layoutMode === 'horizontal' ? activeLinkStyle : linkStyle}
+                            onClick={(e) => { e.preventDefault(); setLayoutMode('horizontal'); }}
+                            href="#"
+                        >
+                            → Horizontal
+                        </a>
+                    </>
+                )}
             </div>
-            <div ref={outputRef} className="output"></div>
+
+            {/* Content container */}
+            <div style={containerStyle}>
+                {/* Source view */}
+                {showSource && (
+                    <div className="code-block" style={{ flex: showBothViews ? 1 : undefined }}>
+                        <div
+                            ref={codeRef}
+                            className="code machine-lang"
+                            id={id}
+                            data-language={language}
+                            style={{ height: height }}
+                        >
+                            {initialCode}
+                        </div>
+                    </div>
+                )}
+
+                {/* Diagram view */}
+                {showDiagram && (
+                    <div
+                        ref={outputRef}
+                        className="output"
+                        style={{ flex: showBothViews ? 1 : undefined }}
+                    ></div>
+                )}
+            </div>
         </div>
     );
 };
