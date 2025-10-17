@@ -54,7 +54,7 @@ function getStaticCopyTargets() {
     // Only include test-output if it exists
     const testOutputDir = path.join(__dirname, 'test-output');
     if (fs.existsSync(testOutputDir)) {
-        targets.push({ src: 'test-output/*', dest: 'test-output' });
+        targets.push({ src: 'test-output/**/*', dest: 'test-output' });
     }
 
     return targets;

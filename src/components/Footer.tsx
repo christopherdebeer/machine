@@ -78,6 +78,9 @@ export const Footer: React.FC<FooterProps> = ({ hierarchy = [] }) => {
         resources.push(
             { title: 'GitHub', url: 'https://github.com/christopherdebeer/machine', external: true }
         );
+        resources.push(
+            { title: 'Test artifacts', url: '/test-output/index.html', external: false }
+        );
         community.push(
             { title: 'GitHub Discussions', url: 'https://github.com/christopherdebeer/machine/discussions', external: true }
         );
