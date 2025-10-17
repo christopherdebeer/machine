@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper';
 
 type ViewMode = 'source' | 'diagram' | 'both';
-type LayoutMode = 'vertical' | 'horizontal';
 
 interface CodeEditorProps {
     initialCode: string;
@@ -30,24 +29,19 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
     // View control state
     const [viewMode, setViewMode] = useState<ViewMode>('both');
-    const [layoutMode, setLayoutMode] = useState<LayoutMode>('vertical');
-    const [isCompact, setIsCompact] = useState<boolean>(false);
+    const [isLandscape, setIsLandscape] = useState<boolean>(false);
 
-    // Responsive layout detection
+    // Responsive layout detection - landscape vs portrait
     useEffect(() => {
         const handleResize = () => {
-            const width = window.innerWidth;
-            setIsCompact(width < 768);
-            // Auto-switch to vertical on mobile
-            if (width < 768 && layoutMode === 'horizontal') {
-                setLayoutMode('vertical');
-            }
+            const isLandscapeOrientation = window.innerWidth > window.innerHeight;
+            setIsLandscape(isLandscapeOrientation);
         };
 
         handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [layoutMode]);
+    }, []);
 
     useEffect(() => {
         let mounted = true;
@@ -118,119 +112,96 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         };
     }, [initialCode]);
 
-    // Button styles
-    const buttonStyle: React.CSSProperties = {
-        background: 'none',
-        border: '1px solid rgba(0, 0, 0, 0.2)',
-        padding: '0.25rem 0.5rem',
-        fontSize: '0.75rem',
-        cursor: 'pointer',
-        borderRadius: '3px',
-        color: '#666',
-        transition: 'all 0.2s ease',
-        fontFamily: 'inherit'
+    // Cycle through view modes
+    const cycleViewMode = () => {
+        setViewMode(current => {
+            if (current === 'both') return 'source';
+            if (current === 'source') return 'diagram';
+            return 'both';
+        });
     };
 
-    const activeButtonStyle: React.CSSProperties = {
-        ...buttonStyle,
-        background: 'rgba(0, 0, 0, 0.1)',
-        color: '#000',
-        borderColor: 'rgba(0, 0, 0, 0.3)'
+    // Get icon and label for current view mode
+    const getViewModeDisplay = () => {
+        switch (viewMode) {
+            case 'source': return { icon: '⌨', label: 'Source' };
+            case 'diagram': return { icon: '◊', label: 'Diagram' };
+            case 'both': return { icon: '⊞', label: 'Both' };
+        }
+    };
+
+    const { icon, label } = getViewModeDisplay();
+
+    // Overlay button style
+    const overlayButtonStyle: React.CSSProperties = {
+        position: 'absolute',
+        top: '0.5rem',
+        right: '0.5rem',
+        zIndex: 10,
+        background: 'rgba(255, 255, 255, 0.9)',
+        border: '1px solid rgba(0, 0, 0, 0.15)',
+        padding: '0.35rem 0.6rem',
+        fontSize: '0.7rem',
+        cursor: 'pointer',
+        borderRadius: '4px',
+        color: '#555',
+        transition: 'all 0.2s ease',
+        fontFamily: 'inherit',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.3rem',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        backdropFilter: 'blur(4px)'
     };
 
     const containerStyle: React.CSSProperties = {
         marginTop: '1rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem'
+        position: 'relative'
     };
 
-    const controlsStyle: React.CSSProperties = {
-        display: 'flex',
-        gap: '0.5rem',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        padding: '0.5rem',
-        background: 'rgba(0, 0, 0, 0.02)',
-        borderRadius: '4px',
-        fontSize: '0.75rem'
-    };
+    // Use landscape orientation for side-by-side layout
+    const useHorizontalLayout = isLandscape && viewMode === 'both';
 
     const contentWrapperStyle: React.CSSProperties = {
         display: 'flex',
-        flexDirection: layoutMode === 'horizontal' && viewMode === 'both' ? 'row' : 'column',
+        flexDirection: useHorizontalLayout ? 'row' : 'column',
         gap: '1rem',
         width: '100%'
     };
 
     const editorStyle: React.CSSProperties = {
         display: viewMode === 'diagram' ? 'none' : 'block',
-        flex: layoutMode === 'horizontal' && viewMode === 'both' ? '1' : 'none',
-        minWidth: layoutMode === 'horizontal' && viewMode === 'both' ? '0' : 'auto',
+        flex: useHorizontalLayout ? '1' : 'none',
+        minWidth: useHorizontalLayout ? '0' : 'auto',
         height: height
     };
 
     const outputStyle: React.CSSProperties = {
         display: viewMode === 'source' ? 'none' : 'flex',
         justifyContent: 'center',
-        flex: layoutMode === 'horizontal' && viewMode === 'both' ? '1' : 'none',
-        minWidth: layoutMode === 'horizontal' && viewMode === 'both' ? '0' : 'auto'
+        flex: useHorizontalLayout ? '1' : 'none',
+        minWidth: useHorizontalLayout ? '0' : 'auto'
     };
 
     return (
         <div className="code-block" style={containerStyle}>
-            {/* View Controls */}
-            <div style={controlsStyle}>
-                <span style={{ fontSize: '0.75rem', color: '#666', marginRight: '0.5rem' }}>View:</span>
-                <button
-                    onClick={() => setViewMode('source')}
-                    style={viewMode === 'source' ? activeButtonStyle : buttonStyle}
-                    title="Show source code only"
-                >
-                    Source
-                </button>
-                <button
-                    onClick={() => setViewMode('diagram')}
-                    style={viewMode === 'diagram' ? activeButtonStyle : buttonStyle}
-                    title="Show diagram only"
-                >
-                    Diagram
-                </button>
-                <button
-                    onClick={() => setViewMode('both')}
-                    style={viewMode === 'both' ? activeButtonStyle : buttonStyle}
-                    title="Show both source and diagram"
-                >
-                    Both
-                </button>
-
-                {/* Layout toggle - only show when both views are visible */}
-                {viewMode === 'both' && !isCompact && (
-                    <>
-                        <span style={{
-                            marginLeft: '1rem',
-                            marginRight: '0.5rem',
-                            color: '#999',
-                            fontSize: '0.75rem'
-                        }}>|</span>
-                        <span style={{ fontSize: '0.75rem', color: '#666', marginRight: '0.5rem' }}>Layout:</span>
-                        <button
-                            onClick={() => setLayoutMode('vertical')}
-                            style={layoutMode === 'vertical' ? activeButtonStyle : buttonStyle}
-                            title="Stack views vertically"
-                        >
-                            ↓ Vertical
-                        </button>
-                        <button
-                            onClick={() => setLayoutMode('horizontal')}
-                            style={layoutMode === 'horizontal' ? activeButtonStyle : buttonStyle}
-                            title="Place views side by side"
-                        >
-                            → Horizontal
-                        </button>
-                    </>
-                )}
-            </div>
+            {/* Single overlay toggle button */}
+            <button
+                onClick={cycleViewMode}
+                style={overlayButtonStyle}
+                title={`Currently showing: ${label}. Click to cycle views.`}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)';
+                    e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.25)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
+                    e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.15)';
+                }}
+            >
+                <span style={{ fontSize: '0.9rem' }}>{icon}</span>
+                <span>{label}</span>
+            </button>
 
             {/* Content */}
             <div style={contentWrapperStyle}>
