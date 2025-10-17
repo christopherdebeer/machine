@@ -69,10 +69,29 @@ export default defineConfig(() => {
             cssMinify: true,
             rollupOptions: {
                 input: getHtmlEntries(),
+                output: {
+                    // Use 'es' format for workers to support code-splitting
+                    format: 'es'
+                },
+                external: [
+                    'node:fs',
+                    'node:path',
+                    'node:process',
+                    'fs',
+                    'path',
+                    'vscode'
+                ]
             },
             outDir: 'dist'
         },
-
+        worker: {
+            format: 'es',
+            rollupOptions: {
+                output: {
+                    format: 'es'
+                }
+            }
+        },
         plugins: [
             {
                 enforce: 'pre',

@@ -717,44 +717,55 @@ class HTMLGenerator extends BaseGenerator {
     protected fileExtension = 'html';
 
     protected generateContent(): FileGenerationResult {
-        // Find the project root by looking for package.json
-        // Resolve to absolute path first
-        const absoluteFilePath = this.filePath ? path.resolve(this.filePath) : process.cwd();
-        let currentDir = path.dirname(absoluteFilePath);
-        let projectRoot = currentDir;
-        
-        // Walk up the directory tree to find package.json
-        while (projectRoot !== path.dirname(projectRoot)) {
-            if (fs.existsSync(path.join(projectRoot, 'package.json'))) {
-                break;
-            }
-            projectRoot = path.dirname(projectRoot);
-        }
-        
-        // Try multiple possible locations for the enhanced web executor
-        const possiblePaths = [
-            path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web-enhanced.js'),
-            path.join(projectRoot, 'out', 'language', 'machine-executor-web-enhanced.js'),
-            path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web-enhanced.js'),
-            path.join(projectRoot, 'dist', 'language', 'machine-executor-web-enhanced.js'),
-            // Fallback to basic version
-            path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web.js'),
-            path.join(projectRoot, 'out', 'language', 'machine-executor-web.js'),
-            path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web.js'),
-            path.join(projectRoot, 'dist', 'language', 'machine-executor-web.js')
-        ];
-        
-        let webExecutorPath = possiblePaths.find(p => fs.existsSync(p));
-        
-        if (!webExecutorPath) {
-            throw new Error(`Could not find machine-executor-web-enhanced.js or machine-executor-web.js. Tried:\n${possiblePaths.join('\n')}`);
-        }
-
         const graphvizGen = new GraphvizGenerator(this.machine, this.filePath, this.options);
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
         const jsonContent = jsonGen.generate();
         const machineJson = jsonContent.content;
         const dotDefinition = escapeHTML(graphvizGen.getDotDefinition());
+
+        // Note: In browser/web builds, the executor script is loaded from CDN or bundled separately
+        // In Node.js builds (CLI), we embed the script directly when possible
+        let executorScript = '';
+
+        // Only attempt to read the file in Node.js environment
+        if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+            try {
+                // Find the project root by looking for package.json
+                const absoluteFilePath = this.filePath ? path.resolve(this.filePath) : process.cwd();
+                let currentDir = path.dirname(absoluteFilePath);
+                let projectRoot = currentDir;
+
+                // Walk up the directory tree to find package.json
+                while (projectRoot !== path.dirname(projectRoot)) {
+                    if (fs.existsSync(path.join(projectRoot, 'package.json'))) {
+                        break;
+                    }
+                    projectRoot = path.dirname(projectRoot);
+                }
+
+                // Try multiple possible locations for the enhanced web executor
+                const possiblePaths = [
+                    path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web-enhanced.js'),
+                    path.join(projectRoot, 'out', 'language', 'machine-executor-web-enhanced.js'),
+                    path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web-enhanced.js'),
+                    path.join(projectRoot, 'dist', 'language', 'machine-executor-web-enhanced.js'),
+                    // Fallback to basic version
+                    path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web.js'),
+                    path.join(projectRoot, 'out', 'language', 'machine-executor-web.js'),
+                    path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web.js'),
+                    path.join(projectRoot, 'dist', 'language', 'machine-executor-web.js')
+                ];
+
+                const webExecutorPath = possiblePaths.find(p => fs.existsSync(p));
+
+                if (webExecutorPath) {
+                    executorScript = fs.readFileSync(webExecutorPath, 'utf-8');
+                }
+            } catch (error) {
+                // Silently fail in browser environments or when file is not found
+                console.warn('Could not load executor script:', error);
+            }
+        }
 
         const fileNode = expandToNode`<!DOCTYPE html>
 <html lang="en">
@@ -763,7 +774,7 @@ class HTMLGenerator extends BaseGenerator {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bundled machine executor -->
-    <script type="module">${fs.readFileSync(webExecutorPath, 'utf-8')}</script>
+    ${executorScript ? `<script type="module">${executorScript}</script>` : '<!-- Executor script not embedded -->'}
     <script type="module">
         import { Graphviz } from 'https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2.26.3/dist/index.js';
 

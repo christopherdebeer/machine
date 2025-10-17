@@ -13,12 +13,15 @@ import { NodeTypeChecker } from '../node-type-checker.js';
  */
 function escapeDot(text: string): string {
     if (!text) return '';
-    // Escape backslashes, quotes, and newlines for DOT labels
+    // Escape backslashes, quotes, newlines, and record delimiters for DOT labels
     return text
         .replace(/\\/g, '\\\\')
         .replace(/"/g, '\\"')
         .replace(/\n/g, '\\n')
-        .replace(/\r/g, '');
+        .replace(/\r/g, '')
+        .replace(/\{/g, '\\{')
+        .replace(/\}/g, '\\}')
+        .replace(/\|/g, '\\|');
 }
 
 /**
