@@ -45,11 +45,68 @@ function getNodeShape(node: any): { start: string; end: string } {
 }
 
 /**
- * Get label for a node
+ * Helper function to wrap text at word boundaries
+ */
+function wrapText(text: string, maxWidth: number = 40): string {
+    if (text.length <= maxWidth) return text;
+
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+        const testLine = currentLine ? currentLine + ' ' + word : word;
+        if (testLine.length <= maxWidth) {
+            currentLine = testLine;
+        } else {
+            if (currentLine) lines.push(currentLine);
+            currentLine = word;
+        }
+    }
+    if (currentLine) lines.push(currentLine);
+
+    return lines.join('<br/>');
+}
+
+/**
+ * Get label for a node - includes title/description and key attributes
  */
 function getNodeLabel(node: any): string {
-    const label = node.label || node.name;
-    const sanitizedLabel = label.replace(/"/g, '#quot;');
+    // Priority: title > desc attribute > prompt attribute > label > name
+    const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
+                 node.attributes?.find((a: any) => a.name === 'prompt');
+    let displayValue: any = node.title || desc?.value;
+
+    if (displayValue && typeof displayValue === 'string') {
+        displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
+        displayValue = wrapText(displayValue, 40); // Apply text wrapping
+    }
+
+    const primaryLabel = displayValue || node.label || node.name;
+    const sanitizedLabel = primaryLabel.replace(/"/g, '#quot;');
+
+    // Add key attributes as additional lines (limit to 2 most important)
+    const attributes = node.attributes?.filter((a: any) =>
+        a.name !== 'desc' && a.name !== 'prompt'
+    ) || [];
+
+    if (attributes.length > 0) {
+        const attrLines: string[] = [];
+        attributes.slice(0, 2).forEach((attr: any) => {
+            let attrValue = attr.value?.value ?? attr.value;
+            if (typeof attrValue === 'string') {
+                attrValue = attrValue.replace(/^["']|["']$/g, '');
+                if (attrValue.length > 20) attrValue = attrValue.substring(0, 20) + '...';
+            }
+            const typeStr = attr.type ? `<${attr.type}>` : '';
+            attrLines.push(`${attr.name}${typeStr}: ${attrValue}`.replace(/"/g, '#quot;'));
+        });
+
+        if (attrLines.length > 0) {
+            return sanitizedLabel + '<br/>' + attrLines.join('<br/>');
+        }
+    }
+
     return sanitizedLabel;
 }
 
@@ -228,6 +285,64 @@ function generateEdges(machineJson: MachineJSON): string[] {
 }
 
 /**
+ * Generate comments showing additional attributes and annotations
+ * (Flowcharts don't support notes, so we use comments for documentation)
+ */
+function generateAttributeComments(machineJson: MachineJSON): string[] {
+    const lines: string[] = [];
+    let hasComments = false;
+
+    machineJson.nodes.forEach(node => {
+        const attributes = node.attributes?.filter((a: any) =>
+            a.name !== 'desc' && a.name !== 'prompt'
+        ) || [];
+        const annotations = node.annotations?.filter((ann: any) => ann.name !== 'note') || [];
+
+        if (attributes.length > 2 || annotations.length > 0) {
+            if (!hasComments) {
+                lines.push('');
+                lines.push('  %% Additional Node Details:');
+                hasComments = true;
+            }
+
+            lines.push(`  %% ${node.name}:`);
+
+            // Show type if available
+            if (node.type) {
+                lines.push(`  %%   Type: ${node.type}`);
+            }
+
+            // Show parent if available
+            if (node.parent) {
+                lines.push(`  %%   Parent: ${node.parent}`);
+            }
+
+            // Show remaining attributes
+            if (attributes.length > 2) {
+                const remainingAttrs = attributes.slice(2);
+                remainingAttrs.forEach((attr: any) => {
+                    let attrValue = attr.value?.value ?? attr.value;
+                    if (typeof attrValue === 'string') {
+                        attrValue = attrValue.replace(/^["']|["']$/g, '');
+                    }
+                    const typeStr = attr.type ? `<${attr.type}>` : '';
+                    lines.push(`  %%   ${attr.name}${typeStr}: ${attrValue}`);
+                });
+            }
+
+            // Show annotations
+            if (annotations.length > 0) {
+                annotations.forEach((ann: any) => {
+                    lines.push(`  %%   @${ann.name}`);
+                });
+            }
+        }
+    });
+
+    return lines;
+}
+
+/**
  * Generate a static mermaid flowchart from MachineJSON
  */
 export function generateFlowchart(machineJson: MachineJSON, options: MermaidOptions = {}): string {
@@ -265,6 +380,10 @@ export function generateFlowchart(machineJson: MachineJSON, options: MermaidOpti
 
     const nodeStyleLines = applyNodeStyling(machineJson.nodes);
     lines.push(...nodeStyleLines);
+
+    // Add attribute comments for additional details
+    const commentLines = generateAttributeComments(machineJson);
+    lines.push(...commentLines);
 
     return lines.join('\n');
 }

@@ -22,10 +22,44 @@ function sanitizeId(name: string): string {
 }
 
 /**
- * Get label for a state/node
+ * Helper function to wrap text at word boundaries
+ */
+function wrapText(text: string, maxWidth: number = 40): string {
+    if (text.length <= maxWidth) return text;
+
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+        const testLine = currentLine ? currentLine + ' ' + word : word;
+        if (testLine.length <= maxWidth) {
+            currentLine = testLine;
+        } else {
+            if (currentLine) lines.push(currentLine);
+            currentLine = word;
+        }
+    }
+    if (currentLine) lines.push(currentLine);
+
+    return lines.join(' ');
+}
+
+/**
+ * Get label for a state/node - includes title/description
  */
 function getStateLabel(node: any): string {
-    return node.label || node.name;
+    // Priority: title > desc attribute > prompt attribute > label > name
+    const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
+                 node.attributes?.find((a: any) => a.name === 'prompt');
+    let displayValue: any = node.title || desc?.value;
+
+    if (displayValue && typeof displayValue === 'string') {
+        displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
+        displayValue = wrapText(displayValue, 40); // Apply text wrapping
+    }
+
+    return displayValue || node.label || node.name;
 }
 
 /**
@@ -80,6 +114,45 @@ function generateStateHierarchy(
         if (children.length > 0) {
             lines.push(`${indent}state "${label}" as ${stateId} {`);
 
+            // Add attributes and annotations for the composite state itself
+            const compositeIndent = '    '.repeat(level + 1);
+
+            // Add type annotation if available
+            if (node.node.type) {
+                lines.push(`${compositeIndent}${stateId} : <<${node.node.type}>>`);
+            }
+
+            // Add parent annotation if available
+            if (node.node.parent) {
+                lines.push(`${compositeIndent}${stateId} : parent=${node.node.parent}`);
+            }
+
+            // Add attributes for composite state
+            const attributes = node.node.attributes?.filter((a: any) =>
+                a.name !== 'desc' && a.name !== 'prompt'
+            ) || [];
+
+            if (attributes.length > 0) {
+                attributes.forEach((attr: any) => {
+                    let attrValue = attr.value?.value ?? attr.value;
+                    if (typeof attrValue === 'string') {
+                        attrValue = attrValue.replace(/^["']|["']$/g, '');
+                        if (attrValue.length > 40) attrValue = attrValue.substring(0, 40) + '...';
+                    }
+                    const typeStr = attr.type ? `<${attr.type}>` : '';
+                    const attrStr = typeStr ? `${attr.name}${typeStr}=${attrValue}` : `${attr.name}=${attrValue}`;
+                    lines.push(`${compositeIndent}${stateId} : ${attrStr}`);
+                });
+            }
+
+            // Add custom annotations
+            const annotations = node.node.annotations?.filter((ann: any) => ann.name !== 'note') || [];
+            if (annotations.length > 0) {
+                annotations.forEach((ann: any) => {
+                    lines.push(`${compositeIndent}${stateId} : @${ann.name}`);
+                });
+            }
+
             // Recursively add child states
             const childNodes = children.map(childName => ({
                 name: childName,
@@ -93,17 +166,40 @@ function generateStateHierarchy(
             // Leaf state - simple state definition
             lines.push(`${indent}${stateId} : ${label}`);
 
-            // Add attributes if any
-            const attributes = node.node.attributes || [];
+            // Add type annotation if available
+            if (node.node.type) {
+                lines.push(`${indent}${stateId} : <<${node.node.type}>>`);
+            }
+
+            // Add parent annotation if available
+            if (node.node.parent) {
+                lines.push(`${indent}${stateId} : parent=${node.node.parent}`);
+            }
+
+            // Add ALL attributes (not just first 3)
+            const attributes = node.node.attributes?.filter((a: any) =>
+                a.name !== 'desc' && a.name !== 'prompt'
+            ) || [];
+
             if (attributes.length > 0) {
-                attributes.slice(0, 3).forEach((attr: any) => {
-                    const attrValue = attr.value !== undefined ? attr.value : '';
-                    const attrStr = attr.type ? `${attr.name}: ${attr.type}` : `${attr.name}: ${attrValue}`;
+                attributes.forEach((attr: any) => {
+                    let attrValue = attr.value?.value ?? attr.value;
+                    if (typeof attrValue === 'string') {
+                        attrValue = attrValue.replace(/^["']|["']$/g, '');
+                        if (attrValue.length > 40) attrValue = attrValue.substring(0, 40) + '...';
+                    }
+                    const typeStr = attr.type ? `<${attr.type}>` : '';
+                    const attrStr = typeStr ? `${attr.name}${typeStr}=${attrValue}` : `${attr.name}=${attrValue}`;
                     lines.push(`${indent}${stateId} : ${attrStr}`);
                 });
-                if (attributes.length > 3) {
-                    lines.push(`${indent}${stateId} : ... (${attributes.length - 3} more)`);
-                }
+            }
+
+            // Add custom annotations
+            const annotations = node.node.annotations?.filter((ann: any) => ann.name !== 'note') || [];
+            if (annotations.length > 0) {
+                annotations.forEach((ann: any) => {
+                    lines.push(`${indent}${stateId} : @${ann.name}`);
+                });
             }
         }
     });
