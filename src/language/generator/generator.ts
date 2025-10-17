@@ -379,9 +379,8 @@ class MermaidGenerator extends BaseGenerator {
         const jsonContent = jsonGen.generate();
         const machineJson: MachineJSON = JSON.parse(jsonContent.content);
 
-        // Use the encapsulated diagram generator
+        // Use the encapsulated diagram generator with new default (flowchart)
         const mermaidContent = generateMermaidFromJSON(machineJson, {
-            diagramType: 'class',
             title: this.machine.title
         });
 
@@ -397,9 +396,8 @@ class MermaidGenerator extends BaseGenerator {
         const jsonContent = jsonGen.generate();
         const machineJson: MachineJSON = JSON.parse(jsonContent.content);
 
-        // Use the encapsulated diagram generator
+        // Use the encapsulated diagram generator with new default (flowchart)
         return generateMermaidFromJSON(machineJson, {
-            diagramType: 'class',
             title: this.machine.title
         });
     }

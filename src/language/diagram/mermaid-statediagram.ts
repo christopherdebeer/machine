@@ -232,8 +232,17 @@ export function generateStateDiagram(machineJson: MachineJSON, options: MermaidO
     const hierarchy = buildSemanticHierarchy(machineJson.nodes);
     const rootNodes = getRootNodes(machineJson.nodes);
 
-    // Add start state marker if there's an initial state
-    const initialNode = machineJson.nodes.find(n => n.type === 'initial' || n.name === 'start');
+    // Add start state marker - supports both explicit and inferred initial states
+    let initialNode = machineJson.nodes.find(n => n.type === 'initial' || n.name === 'start');
+
+    // If no explicit initial node, infer it from graph structure (node with no incoming edges)
+    if (!initialNode && machineJson.edges) {
+        initialNode = machineJson.nodes.find(node => {
+            const hasIncoming = machineJson.edges.some(edge => edge.target === node.name);
+            return !hasIncoming;
+        });
+    }
+
     if (initialNode) {
         lines.push(`  [*] --> ${sanitizeId(initialNode.name)}`);
     }
@@ -294,8 +303,17 @@ export function generateRuntimeStateDiagram(
     const hierarchy = buildSemanticHierarchy(machineJson.nodes);
     const rootNodes = getRootNodes(machineJson.nodes);
 
-    // Add start state marker if there's an initial state
-    const initialNode = machineJson.nodes.find(n => n.type === 'initial' || n.name === 'start');
+    // Add start state marker - supports both explicit and inferred initial states
+    let initialNode = machineJson.nodes.find(n => n.type === 'initial' || n.name === 'start');
+
+    // If no explicit initial node, infer it from graph structure (node with no incoming edges)
+    if (!initialNode && machineJson.edges) {
+        initialNode = machineJson.nodes.find(node => {
+            const hasIncoming = machineJson.edges.some(edge => edge.target === node.name);
+            return !hasIncoming;
+        });
+    }
+
     if (initialNode) {
         lines.push(`  [*] --> ${sanitizeId(initialNode.name)}`);
     }

@@ -1039,10 +1039,9 @@ export class MachineExecutor extends BaseExecutor {
      * Generate a Mermaid class diagram showing the current execution state
      */
     public toMermaidRuntime(): string {
-        // Use the encapsulated diagram generator
+        // Use the encapsulated diagram generator with new default (state for runtime)
         const diagramContext = this.toDiagramContext();
         return generateRuntimeMermaid(this.machineData, diagramContext, {
-            diagramType: 'class',
             showRuntimeState: true,
             showVisitCounts: true,
             showExecutionPath: true,

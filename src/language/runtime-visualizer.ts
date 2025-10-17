@@ -114,9 +114,9 @@ export class RuntimeVisualizer {
      */
     private generateClassDiagramRuntime(options: RuntimeVisualizationOptions): string {
         // Convert to diagram module format and use encapsulated generator
+        // Note: Not specifying diagramType allows default to be used (state for runtime)
         const diagramContext = this.toDiagramContext();
         const diagramOptions: MermaidOptions = {
-            diagramType: 'class',
             showRuntimeState: options.showCurrentState !== false,
             showVisitCounts: options.showVisitCounts !== false,
             showExecutionPath: options.showExecutionPath !== false,
