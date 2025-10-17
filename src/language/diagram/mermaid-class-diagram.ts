@@ -346,22 +346,30 @@ function generateSemanticHierarchy(
             }
         });
 
-        // Generate the class definition for this node
-        const classDefinition = generateClassDefinition(node, edges, '  ');
-
         // If this node has children
         if (children.length > 0) {
+            // Generate namespace containing the children
             lines.push(`namespace ${node.name} {`);
-            lines.push(classDefinition);
+            
+            // Generate placeholder class for this namespace (to allow edges to target it)
+            lines.push(generatePlaceholderClass(node, edges, '  ', 'namespace'));
             lines.push('');
-
-            // Generate leaf children inline
-            if (leafChildren.length > 0) {
-                leafChildren.forEach(childName => {
-                    const childNode = hierarchy[childName].node;
-                    lines.push(generateClassDefinition(childNode, edges, '    '));
-                });
+            
+            // Generate placeholder classes for parent children (extracted nodes)
+            parentChildren.forEach(childName => {
+                const childNode = hierarchy[childName].node;
+                lines.push(generatePlaceholderClass(childNode, edges, '  ', 'extracted'));
+            });
+            
+            if (parentChildren.length > 0) {
+                lines.push('');
             }
+            
+            // Generate leaf children class definitions
+            leafChildren.forEach(childName => {
+                const childNode = hierarchy[childName].node;
+                lines.push(generateClassDefinition(childNode, edges, '  '));
+            });
 
             lines.push('}');
             lines.push('');
@@ -380,6 +388,7 @@ function generateSemanticHierarchy(
             });
         } else {
             // Leaf node - just output the class
+            const classDefinition = generateClassDefinition(node, edges, '  ');
             lines.push(classDefinition);
         }
     });
@@ -404,7 +413,8 @@ function generateSemanticHierarchy(
             }
         });
         uniqueEdges.forEach(({ parent, child }) => {
-            lines.push(`  ${parent} ..> ${child} : contains`);
+            // Use placeholder classes (ext_) to connect namespaces
+            lines.push(`  ${parent}.ext_${child} ..> ${child}.ext_${child} : contains`);
         });
     }
 
@@ -459,6 +469,30 @@ function generateClassDefinition(node: any, edges: any[], indent: string): strin
 
     return `${indent}${header} {
 ${indent}  ${allAnnotations}${allLines ? '\n' + indent + '  ' + allLines : ''}
+${indent}}`;
+}
+
+/**
+ * Generate a placeholder class for extracted/namespace nodes
+ * This avoids namespace-class name conflicts and allows edges to target classes
+ */
+function generatePlaceholderClass(node: any, edges: any[], indent: string, placeholderType: 'namespace' | 'extracted'): string {
+    const className = `ext_${node.name}`;
+    
+    // Get CSS class for this node using type inference
+    const typeClass = getTypeClassName(node, edges);
+    const classStyle = typeClass ? `:::${typeClass}` : '';
+
+    const header = `class ${className}${classStyle}`;
+
+    // Add annotation to indicate this is a placeholder
+    const annotation = placeholderType === 'namespace' ? '<<namespace>>' : '<<extracted>>';
+    
+    // Add parent annotation for hierarchical context
+    const parentAnnotation = node.parent ? `+parent : ${node.parent}` : '';
+
+    return `${indent}${header} {
+${indent}  ${annotation}${parentAnnotation ? '\n' + indent + '  ' + parentAnnotation : ''}
 ${indent}}`;
 }
 
