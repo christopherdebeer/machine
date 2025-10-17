@@ -81,13 +81,27 @@ export function generateClassDiagram(machineJson: MachineJSON, options: MermaidO
     const hierarchy = buildSemanticHierarchy(machineJson.nodes);
     const rootNodes = getRootNodes(machineJson.nodes);
 
+    // Track extracted nodes and edges for styling
+    const extractedNodes = new Set<string>();
+    const parentChildEdges: Array<{ parent: string; child: string }> = [];
+    const generationContext = { extractedNodes, parentChildEdges };
+
     // Generate nodes organized by semantic/lexical nesting
-    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson));
+    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 0, generationContext));
     lines.push('');
 
     // Generate node type styling
     lines.push(generateNodeTypeStyling());
     lines.push('');
+
+    // Apply extracted styling to extracted nodes
+    if (extractedNodes.size > 0) {
+        lines.push('  %% Apply extracted styling to nested parents');
+        extractedNodes.forEach(nodeName => {
+            lines.push(`  class ${nodeName} extractedType`);
+        });
+        lines.push('');
+    }
 
     // Generate edges
     if (machineJson.edges && machineJson.edges.length > 0) {
@@ -295,88 +309,157 @@ function getRootNodes(nodes: any[]): any[] {
 }
 
 /**
- * Generate mermaid diagram based on semantic/lexical hierarchy
- * This creates namespaces based on parent-child nesting, not types
+ * Generation context for tracking extracted nodes and edges
  */
-function generateSemanticHierarchy(hierarchy: SemanticHierarchy, nodes: any[], machineJson: MachineJSON, level = 0): string {
-    const indent = '  '.repeat(level);
+interface GenerationContext {
+    extractedNodes: Set<string>;
+    parentChildEdges: Array<{ parent: string; child: string }>;
+}
+
+/**
+ * Generate mermaid diagram with flat namespaces
+ * Extracts nested parents to root level to avoid Mermaid's nested namespace limitation
+ */
+function generateSemanticHierarchy(
+    hierarchy: SemanticHierarchy,
+    nodes: any[],
+    machineJson: MachineJSON,
+    level = 0,
+    context?: GenerationContext
+): string {
     const lines: string[] = [];
     const edges = machineJson.edges;
+    const extractedNamespaces: string[] = [];
 
     nodes.forEach(node => {
         const { children } = hierarchy[node.name];
 
+        // Separate children into leaf nodes and parent nodes
+        const leafChildren: string[] = [];
+        const parentChildren: string[] = [];
+
+        children.forEach(childName => {
+            if (hierarchy[childName].children.length > 0) {
+                parentChildren.push(childName);
+            } else {
+                leafChildren.push(childName);
+            }
+        });
+
         // Generate the class definition for this node
-        const desc = node.attributes?.find((a: any) => a.name === 'desc') || node.attributes?.find((a: any) => a.name === 'prompt');
-        let displayValue: any = node.title || desc?.value;
-        if (displayValue && typeof displayValue === 'string') {
-            displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
-            displayValue = wrapText(displayValue, 60); // Apply text wrapping
-        }
+        const classDefinition = generateClassDefinition(node, edges, '  ');
 
-        // Get CSS class for this node using type inference
-        const typeClass = getTypeClassName(node, edges);
-        const classStyle = typeClass ? `:::${typeClass}` : '';
-
-        const header = `class ${node.name}${displayValue ? `["${displayValue}"]` : ''}${classStyle}`;
-
-        // Format all attributes except desc/prompt for the class body
-        const attributes = node.attributes?.filter((a: any) => a.name !== 'desc' && a.name !== 'prompt') || [];
-        const attributeLines = attributes.length > 0
-            ? attributes.map((a: any) => {
-                // Extract the actual value from the attribute
-                let displayValue = a.value?.value ?? a.value;
-                // Remove quotes from string values for display
-                if (typeof displayValue === 'string') {
-                    displayValue = displayValue.replace(/^["']|["']$/g, '');
-                    displayValue = wrapText(displayValue, 60); // Apply text wrapping
-                }
-                // Convert generic types to Mermaid format (< > to ~ ~)
-                const typeStr = a.type ? convertTypeToMermaid(String(a.type)) : '';
-                return `+${a.name}${typeStr ? ` : ${typeStr}` : ''} = ${displayValue}`;
-            }).join('\n')
-            : '';
-
-        // Check if this is a state module (state node with children)
-        const isStateModule = node.type?.toLowerCase() === 'state' && children.length > 0;
-
-        // Add parent annotation for hierarchical context
-        const parentAnnotation = node.parent ? `+parent : ${node.parent}` : '';
-
-        // Generate annotations (filter out @note annotations which are handled separately)
-        const annotations = node.annotations?.filter((ann: any) => ann.name !== 'note').map((ann: any) => `<<${ann.name}>>`).join('\n' + indent + '    ') || '';
-        const typeAnnotation = node.type ? `<<${node.type}>>` : '';
-
-        // Add module annotation for state modules
-        const moduleAnnotation = isStateModule ? '<<module>>' : '';
-
-        const allAnnotations = [typeAnnotation, moduleAnnotation, annotations].filter(Boolean).join('\n' + indent + '    ');
-
-        // Combine parent annotation with attributes
-        const allLines = [parentAnnotation, attributeLines].filter(Boolean).join('\n' + indent + '    ');
-
-        const classDefinition = `${indent}  ${header} {
-${indent}    ${allAnnotations}${allLines ? '\n' + indent + '    ' + allLines : ''}
-${indent}  }`;
-
-        // If this node has children, create a namespace for it
+        // If this node has children
         if (children.length > 0) {
-            const childNodes = children.map(childName => hierarchy[childName].node);
-            const childContent = generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1);
-
-            lines.push(`${indent}namespace ${node.name} {`);
+            lines.push(`namespace ${node.name} {`);
             lines.push(classDefinition);
-            // Add blank line with proper indentation between parent class and children
-            lines.push(`${indent}  `);
-            lines.push(childContent);
-            lines.push(`${indent}}`);
+            lines.push('');
+
+            // Generate leaf children inline
+            if (leafChildren.length > 0) {
+                leafChildren.forEach(childName => {
+                    const childNode = hierarchy[childName].node;
+                    lines.push(generateClassDefinition(childNode, edges, '    '));
+                });
+            }
+
+            lines.push('}');
+            lines.push('');
+
+            // Extract parent children to root level and track connections
+            parentChildren.forEach(childName => {
+                extractedNamespaces.push(childName);
+                // Track extracted nodes for styling
+                if (context) {
+                    context.extractedNodes.add(childName);
+                    // Safety check: don't add self-loops
+                    if (node.name !== childName) {
+                        context.parentChildEdges.push({ parent: node.name, child: childName });
+                    }
+                }
+            });
         } else {
             // Leaf node - just output the class
             lines.push(classDefinition);
         }
     });
 
+    // Recursively generate extracted namespaces at root level
+    if (extractedNamespaces.length > 0) {
+        const extractedNodes = extractedNamespaces.map(name => hierarchy[name].node);
+        const extractedContent = generateSemanticHierarchy(hierarchy, extractedNodes, machineJson, level + 1, context);
+        lines.push(extractedContent);
+    }
+
+    // Generate edges connecting parents to extracted children (only at top level)
+    if (level === 0 && context && context.parentChildEdges.length > 0) {
+        lines.push('');
+        lines.push('  %% Parent-Child Connections (extracted namespaces)');
+        // Deduplicate edges to avoid cycles
+        const uniqueEdges = new Map<string, { parent: string; child: string }>();
+        context.parentChildEdges.forEach(edge => {
+            const key = `${edge.parent}->${edge.child}`;
+            if (!uniqueEdges.has(key) && edge.parent !== edge.child) {
+                uniqueEdges.set(key, edge);
+            }
+        });
+        uniqueEdges.forEach(({ parent, child }) => {
+            lines.push(`  ${parent} ..> ${child} : contains`);
+        });
+    }
+
     return lines.join('\n');
+}
+
+/**
+ * Generate a class definition for a single node
+ */
+function generateClassDefinition(node: any, edges: any[], indent: string): string {
+    const desc = node.attributes?.find((a: any) => a.name === 'desc') || node.attributes?.find((a: any) => a.name === 'prompt');
+    let displayValue: any = node.title || desc?.value;
+    if (displayValue && typeof displayValue === 'string') {
+        displayValue = displayValue.replace(/^["']|["']$/g, ''); // Remove outer quotes
+        displayValue = wrapText(displayValue, 60); // Apply text wrapping
+    }
+
+    // Get CSS class for this node using type inference
+    const typeClass = getTypeClassName(node, edges);
+    const classStyle = typeClass ? `:::${typeClass}` : '';
+
+    const header = `class ${node.name}${displayValue ? `["${displayValue}"]` : ''}${classStyle}`;
+
+    // Format all attributes except desc/prompt for the class body
+    const attributes = node.attributes?.filter((a: any) => a.name !== 'desc' && a.name !== 'prompt') || [];
+    const attributeLines = attributes.length > 0
+        ? attributes.map((a: any) => {
+            // Extract the actual value from the attribute
+            let displayValue = a.value?.value ?? a.value;
+            // Remove quotes from string values for display
+            if (typeof displayValue === 'string') {
+                displayValue = displayValue.replace(/^["']|["']$/g, '');
+                displayValue = wrapText(displayValue, 60); // Apply text wrapping
+            }
+            // Convert generic types to Mermaid format (< > to ~ ~)
+            const typeStr = a.type ? convertTypeToMermaid(String(a.type)) : '';
+            return `+${a.name}${typeStr ? ` : ${typeStr}` : ''} = ${displayValue}`;
+        }).join('\n')
+        : '';
+
+    // Add parent annotation for hierarchical context
+    const parentAnnotation = node.parent ? `+parent : ${node.parent}` : '';
+
+    // Generate annotations (filter out @note annotations which are handled separately)
+    const annotations = node.annotations?.filter((ann: any) => ann.name !== 'note').map((ann: any) => `<<${ann.name}>>`).join('\n' + indent + '  ') || '';
+    const typeAnnotation = node.type ? `<<${node.type}>>` : '';
+
+    const allAnnotations = [typeAnnotation, annotations].filter(Boolean).join('\n' + indent + '  ');
+
+    // Combine parent annotation with attributes
+    const allLines = [parentAnnotation, attributeLines].filter(Boolean).join('\n' + indent + '  ');
+
+    return `${indent}${header} {
+${indent}  ${allAnnotations}${allLines ? '\n' + indent + '  ' + allLines : ''}
+${indent}}`;
 }
 
 /**
@@ -410,6 +493,7 @@ function generateNodeTypeStyling(): string {
     lines.push('  classDef contextType fill:#E8F5E9,stroke:#388E3C,stroke-width:2px');
     lines.push('  classDef toolType fill:#FFF9C4,stroke:#F57F17,stroke-width:2px');
     lines.push('  classDef initType fill:#FFF3E0,stroke:#F57C00,stroke-width:2px');
+    lines.push('  classDef extractedType fill:#FFF,stroke:#999,stroke-width:3px');
 
     return lines.join('\n');
 }
