@@ -6,7 +6,6 @@ import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } 
 import { foldGutter, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldKeymap } from '@codemirror/language';
 import { lintKeymap } from '@codemirror/lint';
 import { oneDark } from '@codemirror/theme-one-dark';
-import mermaid from 'mermaid';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import { createMachineServices } from './language/machine-module.js';
@@ -18,13 +17,6 @@ import { VisualizingMachineExecutor } from './language/runtime-visualizer.js';
 import { createStorage } from './language/storage.js';
 import { createLangiumExtensions } from './codemirror-langium.js';
 import examplesList from './generated/examples-list.json';
-
-// Initialize mermaid with custom settings
-mermaid.initialize({
-    startOnLoad: false,
-    securityLevel: 'loose',
-    htmlLabels: true
-});
 
 // Initialize Langium services for parsing
 const services = createMachineServices(EmptyFileSystem);
@@ -258,15 +250,12 @@ function downloadPNG(): void {
 }
 
 /**
- * Render Mermaid diagram
+ * Render D3 diagram (SVG string)
  */
-async function renderDiagram(mermaidCode: string, container: HTMLElement): Promise<void> {
+async function renderDiagram(svgString: string, container: HTMLElement): Promise<void> {
     try {
-        const uniqueId = "mermaid-svg-" + Date.now();
-        await mermaid.mermaidAPI.getDiagramFromText(mermaidCode);
-        const render = await mermaid.render(uniqueId, mermaidCode);
-        container.innerHTML = render.svg;
-        render.bindFunctions?.(container);
+        // The diagram is now an SVG string from D3, just insert it directly
+        container.innerHTML = svgString;
     } catch (error) {
         console.error('Error rendering diagram:', error);
         container.innerHTML = `

@@ -39,8 +39,8 @@ const ctx = await esbuild.context({
     outExtension: {
         '.js': '.cjs'
     },
-    loader: { '.ts': 'ts' },
-    external: ['vscode'],
+    loader: { '.ts': 'ts', '.node': 'empty' },
+    external: ['vscode', 'jsdom', 'canvas'],
     platform: 'node',
     sourcemap: !minify,
     minify,

@@ -1,12 +1,5 @@
-import mermaid from 'mermaid';
-
-// Initialize mermaid with custom settings
-mermaid.initialize({
-    startOnLoad: false,
-    securityLevel: 'loose',
-    // logLevel: 0,
-    htmlLabels: true
-});
+// D3 rendering is handled directly in the d3-diagram-renderer module
+// No initialization needed
 
 // Function to toggle dark/light theme
 export function toggleTheme(): void {
@@ -68,25 +61,23 @@ export function downloadPNG(): void {
 }
 
 // Function to render the diagram
-export async function render(code: string, containerOveride?: Element, id?: string): Promise<void> {
-    if (!code) {
-        console.warn('No code provided to render');
+// Now expects an SVG string from D3 renderer instead of Mermaid code
+export async function render(svgString: string, containerOveride?: Element, id?: string): Promise<void> {
+    if (!svgString) {
+        console.warn('No SVG content provided to render');
         return;
     }
     try {
-        const uniqueId = "mermaid-svg-" + (id || Date.now());
-        console.log("Rendering diagram with code:", code);
-        await mermaid.mermaidAPI.getDiagramFromText(code);
-        const svg = document.createElement('svg');
-        const render = await mermaid.render(uniqueId, code);
+        console.log("Rendering D3 diagram");
         const container = containerOveride || document.querySelector('#diagram');
         if (!container) {
             throw new Error('Diagram container not found');
         }
-        container.innerHTML = "";
-        container.appendChild(svg);
-        svg.outerHTML = render.svg;
-        render.bindFunctions?.(container);
+        // Insert the SVG directly into the container
+        container.innerHTML = svgString;
+
+        // Make the diagram interactive (zoom/pan already embedded in SVG)
+        console.log('D3 diagram rendered successfully');
     } catch (error) {
         console.error('Error rendering diagram:', error);
     }

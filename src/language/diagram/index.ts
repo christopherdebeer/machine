@@ -2,47 +2,44 @@
  * Diagram Generation Module
  *
  * This module encapsulates all diagram generation logic for the Machine language.
- * It provides a clean, minimal public interface for generating various diagram types
+ * It provides a clean, minimal public interface for generating diagrams using D3.js
  * from MachineJSON definitions.
  *
  * ## Usage
  *
  * ### Static Diagrams
  * ```typescript
- * import { generateMermaidFromJSON } from './language/diagram';
+ * import { generateD3FromJSON } from './language/diagram';
  *
- * const mermaid = generateMermaidFromJSON(machineJson, {
- *   diagramType: 'class',
+ * const svg = generateD3FromJSON(machineJson, {
  *   title: 'My Machine'
  * });
  * ```
  *
  * ### Runtime Diagrams
  * ```typescript
- * import { generateRuntimeMermaid } from './language/diagram';
+ * import { generateRuntimeD3 } from './language/diagram';
  *
- * const runtimeMermaid = generateRuntimeMermaid(machineJson, executionContext, {
+ * const runtimeSvg = generateRuntimeD3(machineJson, executionContext, {
  *   showRuntimeState: true,
  *   showVisitCounts: true
  * });
  * ```
- *
- * ## Future Extensions
- *
- * This module is designed to support multiple diagram types:
- * - classDiagram (currently supported)
- * - stateDiagram (planned)
- * - flowchart (planned)
- *
- * Simply pass the desired `diagramType` in the options.
  */
 
 // Main public API
 export {
-    generateMermaidFromJSON,
-    generateRuntimeMermaid,
-    generateMobileMermaid
-} from './mermaid-generator.js';
+    generateD3FromJSON,
+    generateRuntimeD3,
+    generateMobileD3
+} from './d3-generator.js';
+
+// Backward compatibility aliases
+export {
+    generateD3FromJSON as generateMermaidFromJSON,
+    generateRuntimeD3 as generateRuntimeMermaid,
+    generateMobileD3 as generateMobileMermaid
+} from './d3-generator.js';
 
 // Types for public consumption
 export type {
@@ -55,8 +52,10 @@ export type {
     SemanticHierarchy
 } from './types.js';
 
-// Internal generators (for advanced usage)
+// D3 renderer exports (for advanced usage)
 export {
-    generateClassDiagram,
-    generateRuntimeClassDiagram
-} from './mermaid-class-diagram.js';
+    generateD3Diagram,
+    generateRuntimeD3Diagram
+} from './d3-diagram-renderer.js';
+
+export type { D3DiagramConfig } from './d3-diagram-renderer.js';
