@@ -7,37 +7,45 @@
  *
  * ## Usage
  *
- * ### Static Diagrams
+ * ### Static Diagrams with Graphviz
  * ```typescript
- * import { generateMermaidFromJSON } from './language/diagram';
+ * import { generateGraphvizFromJSON, renderDotToSVG } from './language/diagram';
  *
- * const mermaid = generateMermaidFromJSON(machineJson, {
- *   diagramType: 'class',
+ * const dot = generateGraphvizFromJSON(machineJson, {
  *   title: 'My Machine'
  * });
+ * const svg = await renderDotToSVG(dot);
  * ```
  *
  * ### Runtime Diagrams
  * ```typescript
- * import { generateRuntimeMermaid } from './language/diagram';
+ * import { generateRuntimeGraphviz } from './language/diagram';
  *
- * const runtimeMermaid = generateRuntimeMermaid(machineJson, executionContext, {
+ * const runtimeDot = generateRuntimeGraphviz(machineJson, executionContext, {
  *   showRuntimeState: true,
  *   showVisitCounts: true
  * });
  * ```
  *
- * ## Future Extensions
+ * ### Convenience SVG Generation
+ * ```typescript
+ * import { generateGraphvizSVG } from './language/diagram';
  *
- * This module is designed to support multiple diagram types:
- * - classDiagram (currently supported)
- * - stateDiagram (planned)
- * - flowchart (planned)
- *
- * Simply pass the desired `diagramType` in the options.
+ * const svg = await generateGraphvizSVG(machineJson, { title: 'My Machine' });
+ * ```
  */
 
-// Main public API
+// Main public API - Graphviz
+export {
+    generateGraphvizFromJSON,
+    generateRuntimeGraphviz,
+    generateMobileGraphviz,
+    renderDotToSVG,
+    generateGraphvizSVG,
+    generateRuntimeGraphvizSVG
+} from './graphviz-generator.js';
+
+// Legacy Mermaid API (deprecated)
 export {
     generateMermaidFromJSON,
     generateRuntimeMermaid,
@@ -47,6 +55,7 @@ export {
 // Types for public consumption
 export type {
     MachineJSON,
+    DiagramOptions,
     MermaidOptions,
     RuntimeContext,
     RuntimeNodeState,
@@ -60,3 +69,8 @@ export {
     generateClassDiagram,
     generateRuntimeClassDiagram
 } from './mermaid-class-diagram.js';
+
+export {
+    generateDotDiagram,
+    generateRuntimeDotDiagram
+} from './graphviz-dot-diagram.js';

@@ -18,12 +18,9 @@ export interface MachineJSON {
 }
 
 /**
- * Options for mermaid diagram generation
+ * Options for diagram generation
  */
-export interface MermaidOptions {
-    /** Type of diagram to generate */
-    diagramType?: 'class' | 'state' | 'flowchart';
-
+export interface DiagramOptions {
     /** Show runtime state information */
     showRuntimeState?: boolean;
 
@@ -41,6 +38,15 @@ export interface MermaidOptions {
 
     /** Custom title override */
     title?: string;
+}
+
+/**
+ * Options for mermaid diagram generation (deprecated, use DiagramOptions)
+ * @deprecated Use DiagramOptions instead
+ */
+export interface MermaidOptions extends DiagramOptions {
+    /** Type of diagram to generate */
+    diagramType?: 'class' | 'state' | 'flowchart';
 }
 
 /**

@@ -6,6 +6,7 @@ import { extractDestinationAndName } from '../../cli/cli-util.js';
 import { Edge, MachineJSON } from '../machine-module.js';
 import { DependencyAnalyzer } from '../dependency-analyzer.js';
 import { generateMermaidFromJSON } from '../diagram/index.js';
+import { generateGraphvizFromJSON } from '../diagram/index.js';
 import { TypeHierarchy } from '../diagram/types.js';
 
 // Common interfaces
@@ -405,6 +406,39 @@ class MermaidGenerator extends BaseGenerator {
     }
 }
 
+class GraphvizGenerator extends BaseGenerator {
+    protected fileExtension = 'dot';
+
+    protected generateContent(): FileGenerationResult {
+        // First generate JSON as intermediate format
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+
+        // Use the Graphviz DOT generator
+        const dotContent = generateGraphvizFromJSON(machineJson, {
+            title: this.machine.title
+        });
+
+        return {
+            filePath: this.filePath,
+            content: dotContent
+        };
+    }
+
+    public getDotDefinition(): string {
+        // First generate JSON as intermediate format
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+
+        // Use the Graphviz DOT generator
+        return generateGraphvizFromJSON(machineJson, {
+            title: this.machine.title
+        });
+    }
+}
+
 class MarkdownGenerator extends BaseGenerator {
     protected fileExtension = 'md';
 
@@ -715,12 +749,12 @@ class HTMLGenerator extends BaseGenerator {
         if (!webExecutorPath) {
             throw new Error(`Could not find machine-executor-web-enhanced.js or machine-executor-web.js. Tried:\n${possiblePaths.join('\n')}`);
         }
-        
-        const mermaidGen = new MermaidGenerator(this.machine, this.filePath, this.options);
+
+        const graphvizGen = new GraphvizGenerator(this.machine, this.filePath, this.options);
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
         const jsonContent = jsonGen.generate();
         const machineJson = jsonContent.content;
-        const mermaidDefinition = escapeHTML(mermaidGen.getMermaidDefinition());
+        const dotDefinition = escapeHTML(graphvizGen.getDotDefinition());
 
         const fileNode = expandToNode`<!DOCTYPE html>
 <html lang="en">
@@ -731,15 +765,16 @@ class HTMLGenerator extends BaseGenerator {
     <!-- Bundled machine executor -->
     <script type="module">${fs.readFileSync(webExecutorPath, 'utf-8')}</script>
     <script type="module">
-        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        import { Graphviz } from 'https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2.26.3/dist/index.js';
 
-        // Initialize mermaid with custom settings
-        mermaid.initialize({
-            startOnLoad: false,
-            securityLevel: 'loose',
-            logLevel: 0,
-            htmlLabels: true
-        });
+        // Initialize Graphviz
+        let graphviz = null;
+        async function initGraphviz() {
+            if (!graphviz) {
+                graphviz = await Graphviz.load();
+            }
+            return graphviz;
+        }
 
         // Function to toggle dark/light mode
         window.toggleTheme = function() {
@@ -769,7 +804,7 @@ class HTMLGenerator extends BaseGenerator {
             const machineData = ${machineJson};
             const resultDiv = document.getElementById('executionResult');
             const diagramContainer = document.getElementById('diagram');
-            
+
             resultDiv.innerHTML = '<div style="color: #858585;">Executing machine...</div>';
             document.getElementById('results').style.display = 'block';
 
@@ -778,13 +813,12 @@ class HTMLGenerator extends BaseGenerator {
                 if (typeof window.executeWithVisualization === 'function') {
                     // Use enhanced execution with visualization
                     const result = await window.executeWithVisualization(machineData);
-                    
+
                     // Update diagram with runtime visualization
                     if (result.mobileVisualization) {
-                        const uniqueId = "mermaid-runtime-" + Date.now();
-                        const render = await mermaid.render(uniqueId, result.mobileVisualization);
-                        diagramContainer.innerHTML = render.svg;
-                        render.bindFunctions?.(diagramContainer);
+                        const gv = await initGraphviz();
+                        const svg = gv.dot(result.mobileVisualization);
+                        diagramContainer.innerHTML = svg;
                     }
                     
                     // Display execution results
@@ -858,26 +892,28 @@ class HTMLGenerator extends BaseGenerator {
         }
 
         // Set initial theme
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const savedTheme = localStorage.getItem('theme') || 'light';
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-theme');
             }
+
+            // Render initial DOT diagram
+            const dotCode = document.querySelector('.graphviz-dot').textContent.trim();
+            console.log('DOT code:', dotCode);
+
+            try {
+                const gv = await initGraphviz();
+                const svg = gv.dot(dotCode);
+                console.log('Rendered SVG');
+
+                const container = document.querySelector('#diagram');
+                container.innerHTML = svg;
+            } catch (error) {
+                console.error('Error rendering Graphviz diagram:', error);
+                document.querySelector('#diagram').innerHTML = '<p>Error rendering diagram: ' + error.message + '</p>';
+            }
         });
-        const uniqueId = "mermaid-svg-" + Date.now();
-        const content = document.querySelector('.mermaid');
-        const code = content.textContent.trim();
-        console.log(code);
-        let Diagram = window.Diagram = await mermaid.mermaidAPI.getDiagramFromText(code);
-        console.log(Diagram)
-        const svg = document.createElement('svg')
-        const render = await mermaid.render(uniqueId, code);
-        console.log("Render", render);
-        const container = document.querySelector('#diagram');
-        container.innerHTML = "";
-        container.appendChild(svg)
-        svg.outerHTML = render.svg
-        render.bindFunctions?.(container);
 
     </script>
     <style>
@@ -1050,7 +1086,7 @@ class HTMLGenerator extends BaseGenerator {
     
     <div class="title">${this.machine.title}</div>
     <div id="diagram">
-        <code class="mermaid">${mermaidDefinition}</code>
+        <code class="graphviz-dot" style="display:none;">${dotDefinition}</code>
     </div>
     <div id=\"results\">
         <h2>Execution Results</h2>
@@ -1074,6 +1110,9 @@ class GeneratorFactory {
                 return new JSONGenerator(machine, filePath, options);
             case 'mermaid':
                 return new MermaidGenerator(machine, filePath, options);
+            case 'graphviz':
+            case 'dot':
+                return new GraphvizGenerator(machine, filePath, options);
             case 'markdown':
                 return new MarkdownGenerator(machine, filePath, options);
             case 'html':
@@ -1099,6 +1138,10 @@ export function generateMarkdown(machine: Machine, filePath: string, destination
 
 export function generateHTML(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
     return GeneratorFactory.createGenerator('html', machine, filePath, { destination }).generate();
+}
+
+export function generateGraphviz(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
+    return GeneratorFactory.createGenerator('graphviz', machine, filePath, { destination }).generate();
 }
 
 // Backward compiler: JSON -> DyGram DSL
