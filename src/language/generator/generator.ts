@@ -776,13 +776,37 @@ class HTMLGenerator extends BaseGenerator {
     <!-- Bundled machine executor -->
     ${executorScript ? `<script type="module">${executorScript}</script>` : '<!-- Executor script not embedded -->'}
     <script type="module">
-        import { Graphviz } from 'https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2.26.3/dist/index.js';
+        console.log('[Graphviz] Starting module initialization...');
 
-        // Initialize Graphviz
+        // Comprehensive error logging
+        window.addEventListener('error', (e) => {
+            console.error('[Global Error]', e.error || e.message);
+        });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('[Unhandled Promise Rejection]', e.reason);
+        });
+
         let graphviz = null;
+
+        // Try to load Graphviz with detailed error handling
         async function initGraphviz() {
             if (!graphviz) {
-                graphviz = await Graphviz.load();
+                try {
+                    console.log('[Graphviz] Loading from CDN...');
+                    const { Graphviz } = await import('https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2.26.3/dist/index.js');
+                    console.log('[Graphviz] Module loaded, initializing WASM...');
+                    graphviz = await Graphviz.load();
+                    console.log('[Graphviz] WASM initialized successfully');
+                } catch (error) {
+                    console.error('[Graphviz] Failed to load:', error);
+                    console.error('[Graphviz] Error details:', {
+                        message: error.message,
+                        stack: error.stack,
+                        name: error.name
+                    });
+                    throw error;
+                }
             }
             return graphviz;
         }
@@ -904,25 +928,62 @@ class HTMLGenerator extends BaseGenerator {
 
         // Set initial theme
         document.addEventListener('DOMContentLoaded', async () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-theme');
-            }
-
-            // Render initial DOT diagram
-            const dotCode = document.querySelector('.graphviz-dot').textContent.trim();
-            console.log('DOT code:', dotCode);
+            console.log('[DOM] DOMContentLoaded event fired');
 
             try {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                console.log('[Theme] Applying theme:', savedTheme);
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-theme');
+                }
+
+                // Render initial DOT diagram
+                const dotElement = document.querySelector('.graphviz-dot');
+                console.log('[DOT] Element found:', !!dotElement);
+
+                if (!dotElement) {
+                    throw new Error('DOT code element not found');
+                }
+
+                const dotCode = dotElement.textContent.trim();
+                console.log('[DOT] Code length:', dotCode.length);
+                console.log('[DOT] First 200 chars:', dotCode.substring(0, 200));
+
+                console.log('[Render] Initializing Graphviz...');
                 const gv = await initGraphviz();
+                console.log('[Render] Graphviz initialized, rendering DOT...');
+
                 const svg = gv.dot(dotCode);
-                console.log('Rendered SVG');
+                console.log('[Render] SVG generated, length:', svg.length);
+                console.log('[Render] First 200 chars of SVG:', svg.substring(0, 200));
 
                 const container = document.querySelector('#diagram');
+                console.log('[Render] Diagram container found:', !!container);
+
                 container.innerHTML = svg;
+                console.log('[Render] ✓ Diagram rendered successfully');
             } catch (error) {
-                console.error('Error rendering Graphviz diagram:', error);
-                document.querySelector('#diagram').innerHTML = '<p>Error rendering diagram: ' + error.message + '</p>';
+                console.error('[Render] ✗ Error rendering diagram:', error);
+                console.error('[Render] Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+
+                const container = document.querySelector('#diagram');
+                if (container) {
+                    container.innerHTML = \`
+                        <div style="padding: 20px; background: #ffebee; border: 2px solid #f44336; border-radius: 4px; color: #c62828;">
+                            <h3 style="margin-top: 0;">⚠️ Diagram Rendering Error</h3>
+                            <p><strong>Error:</strong> \${error.message}</p>
+                            <p><strong>Check the browser console for detailed logs.</strong></p>
+                            <details style="margin-top: 10px;">
+                                <summary style="cursor: pointer;">Technical Details</summary>
+                                <pre style="background: white; padding: 10px; overflow: auto;">\${error.stack || 'No stack trace available'}</pre>
+                            </details>
+                        </div>
+                    \`;
+                }
             }
         });
 
