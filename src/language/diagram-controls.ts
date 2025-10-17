@@ -1,12 +1,19 @@
-import mermaid from 'mermaid';
+import { Graphviz } from '@hpcc-js/wasm';
 
-// Initialize mermaid with custom settings
-mermaid.initialize({
-    startOnLoad: false,
-    securityLevel: 'loose',
-    // logLevel: 0,
-    htmlLabels: true
-});
+// Cached Graphviz instance for performance
+let graphvizInstance: Awaited<ReturnType<typeof Graphviz.load>> | null = null;
+
+/**
+ * Get or create the Graphviz WASM instance
+ */
+async function getGraphviz(): Promise<Awaited<ReturnType<typeof Graphviz.load>>> {
+    if (!graphvizInstance) {
+        console.log('[Playground] Initializing Graphviz WASM...');
+        graphvizInstance = await Graphviz.load();
+        console.log('[Playground] Graphviz WASM initialized successfully');
+    }
+    return graphvizInstance;
+}
 
 // Function to toggle dark/light theme
 export function toggleTheme(): void {
@@ -67,28 +74,42 @@ export function downloadPNG(): void {
     loader.src = source;
 }
 
-// Function to render the diagram
+// Function to render the diagram using Graphviz
 export async function render(code: string, containerOveride?: Element, id?: string): Promise<void> {
     if (!code) {
-        console.warn('No code provided to render');
+        console.warn('[Playground] No code provided to render');
         return;
     }
+
     try {
-        const uniqueId = "mermaid-svg-" + (id || Date.now());
-        console.log("Rendering diagram with code:", code);
-        await mermaid.mermaidAPI.getDiagramFromText(code);
-        const svg = document.createElement('svg');
-        const render = await mermaid.render(uniqueId, code);
+        console.log('[Playground] Rendering Graphviz diagram...');
+        console.log('[Playground] DOT code length:', code.length);
+        console.log('[Playground] DOT code preview:', code.substring(0, 200));
+
+        const gv = await getGraphviz();
+        const svg = gv.dot(code);
+
+        console.log('[Playground] SVG generated, length:', svg.length);
+
         const container = containerOveride || document.querySelector('#diagram');
         if (!container) {
             throw new Error('Diagram container not found');
         }
-        container.innerHTML = "";
-        container.appendChild(svg);
-        svg.outerHTML = render.svg;
-        render.bindFunctions?.(container);
+
+        container.innerHTML = svg;
+        console.log('[Playground] ✓ Diagram rendered successfully');
     } catch (error) {
-        console.error('Error rendering diagram:', error);
+        console.error('[Playground] Error rendering diagram:', error);
+        const container = containerOveride || document.querySelector('#diagram');
+        if (container) {
+            container.innerHTML = `
+                <div style="padding: 20px; background: #ffebee; border: 2px solid #f44336; border-radius: 4px; color: #c62828;">
+                    <h3 style="margin-top: 0;">⚠️ Diagram Rendering Error</h3>
+                    <p><strong>Error:</strong> ${error instanceof Error ? error.message : String(error)}</p>
+                    <p><strong>Check the browser console for detailed logs.</strong></p>
+                </div>
+            `;
+        }
     }
 }
 
