@@ -4,7 +4,7 @@
  */
 
 import { MachineExecutor, MachineExecutionContext, MachineData } from './machine-executor.js';
-import { generateRuntimeMermaid, MermaidOptions, RuntimeContext as DiagramRuntimeContext } from './diagram/index.js';
+import { generateRuntimeGraphviz, DiagramOptions, RuntimeContext as DiagramRuntimeContext } from './diagram/index.js';
 
 export interface RuntimeVisualizationOptions {
     showRuntimeValues?: boolean;
@@ -67,7 +67,7 @@ export class RuntimeVisualizer {
     }
 
     /**
-     * Generate enhanced runtime visualization that matches static format
+     * Generate enhanced runtime visualization using Graphviz DOT format
      */
     public generateRuntimeVisualization(options: RuntimeVisualizationOptions = {}): string {
         const opts = {
@@ -80,16 +80,8 @@ export class RuntimeVisualizer {
             ...options
         };
 
-        switch (opts.format) {
-            case 'class':
-                return this.generateClassDiagramRuntime(opts);
-            case 'state':
-                return this.generateStateDiagramRuntime(opts);
-            case 'hybrid':
-                return this.generateHybridVisualization(opts);
-            default:
-                return this.generateClassDiagramRuntime(opts);
-        }
+        // Use the unified Graphviz generator from diagram module
+        return this.generateGraphvizRuntime(opts);
     }
 
     /**
@@ -110,13 +102,12 @@ export class RuntimeVisualizer {
     }
 
     /**
-     * Generate class diagram with runtime overlays (maintains static format consistency)
+     * Generate Graphviz DOT diagram with runtime overlays
      */
-    private generateClassDiagramRuntime(options: RuntimeVisualizationOptions): string {
-        // Convert to diagram module format and use encapsulated generator
+    private generateGraphvizRuntime(options: RuntimeVisualizationOptions): string {
+        // Convert to diagram module format and use encapsulated Graphviz generator
         const diagramContext = this.toDiagramContext();
-        const diagramOptions: MermaidOptions = {
-            diagramType: 'class',
+        const diagramOptions: DiagramOptions = {
             showRuntimeState: options.showCurrentState !== false,
             showVisitCounts: options.showVisitCounts !== false,
             showExecutionPath: options.showExecutionPath !== false,
@@ -125,7 +116,7 @@ export class RuntimeVisualizer {
             title: this.machineData.title
         };
 
-        return generateRuntimeMermaid(this.machineData, diagramContext, diagramOptions);
+        return generateRuntimeGraphviz(this.machineData, diagramContext, diagramOptions);
     }
 
     /**
@@ -302,69 +293,6 @@ export class RuntimeVisualizer {
         return lines.join('\n');
     }
 
-    /**
-     * Generate state diagram with enhanced runtime information
-     */
-    private generateStateDiagramRuntime(options: RuntimeVisualizationOptions): string {
-        const lines: string[] = [];
-        const nodeStates = this.buildNodeStates();
-        const edgeStates = this.buildEdgeStates();
-
-        lines.push('stateDiagram-v2');
-        lines.push('');
-
-        // Define states with runtime annotations
-        nodeStates.forEach(node => {
-            const statusEmoji = this.getStatusEmoji(node.status);
-            const annotation = options.showCurrentState ? ` : ${statusEmoji} ${node.status.toUpperCase()}` : '';
-            
-            lines.push(`  ${node.name}${annotation}`);
-            
-            // Add notes for current and visited states
-            if (options.showCurrentState) {
-                if (node.status === 'current') {
-                    lines.push(`  note right of ${node.name} : ▶️ EXECUTING`);
-                } else if (node.status === 'visited' && node.visitCount > 0) {
-                    lines.push(`  note right of ${node.name} : ✓ VISITED (${node.visitCount}x)`);
-                }
-            }
-
-            // Add runtime values as notes
-            if (options.showRuntimeValues && node.runtimeValues) {
-                const runtimeInfo = Object.entries(node.runtimeValues)
-                    .map(([k, v]) => `${k}: ${this.formatAttributeValue(v)}`)
-                    .join('\\n');
-                if (runtimeInfo) {
-                    lines.push(`  note left of ${node.name} : ${runtimeInfo}`);
-                }
-            }
-        });
-
-        lines.push('');
-
-        // Define transitions with runtime data
-        edgeStates.forEach(edge => {
-            let label = edge.label || '';
-            
-            if (options.showVisitCounts && edge.traversalCount > 0) {
-                label += (label ? ' ' : '') + `[${edge.traversalCount}x]`;
-            }
-
-            lines.push(`  ${edge.source} --> ${edge.target}${label ? ` : ${label}` : ''}`);
-        });
-
-        return lines.join('\n');
-    }
-
-    /**
-     * Generate hybrid visualization combining class and state diagram benefits
-     */
-    private generateHybridVisualization(options: RuntimeVisualizationOptions): string {
-        // This would combine the structural clarity of class diagrams
-        // with the flow clarity of state diagrams
-        // For now, default to enhanced class diagram
-        return this.generateClassDiagramRuntime(options);
-    }
 
     /**
      * Build runtime state for all nodes
@@ -576,7 +504,9 @@ export class VisualizingMachineExecutor extends MachineExecutor {
     }
 
     /**
-     * Override toMermaidRuntime to use enhanced visualization
+     * Override toMermaidRuntime to use enhanced Graphviz visualization
+     * Note: Despite the method name, this now returns Graphviz DOT format
+     * @deprecated Name is misleading - returns DOT format, not Mermaid
      */
     public override toMermaidRuntime(): string {
         return this.getRuntimeVisualization({

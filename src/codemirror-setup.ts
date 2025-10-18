@@ -11,7 +11,7 @@ import { parseHelper } from 'langium/test';
 import { createMachineServices } from './language/machine-module.js';
 import { Machine } from './language/generated/ast.js';
 import { generateJSON, generateGraphviz } from './language/generator/generator.js';
-import { render as renderGraphviz } from './language/diagram-controls.js';
+import { render as renderGraphviz, downloadSVG, downloadPNG } from './language/diagram-controls.js';
 import { MachineExecutor } from './language/machine-executor.js';
 import { EvolutionaryExecutor } from './language/task-evolution.js';
 import { VisualizingMachineExecutor } from './language/runtime-visualizer.js';
@@ -193,62 +193,6 @@ const STORAGE_KEYS = {
     MODEL: 'dygram_selected_model',
     API_KEY: 'dygram_api_key'
 };
-
-/**
- * Download the diagram as SVG
- */
-function downloadSVG(): void {
-    const svg = document.querySelector('#diagram svg');
-    if (!svg) {
-        alert('No diagram to download. Please run the code first.');
-        return;
-    }
-    const serializer = new XMLSerializer();
-    const source = serializer.serializeToString(svg);
-    const blob = new Blob([source], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'machine_diagram.svg';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-/**
- * Download the diagram as PNG
- */
-function downloadPNG(): void {
-    const svg = document.querySelector('#diagram svg');
-    if (!svg) {
-        alert('No diagram to download. Please run the code first.');
-        return;
-    }
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        console.error('Could not get 2D context for canvas');
-        return;
-    }
-    const loader = new Image();
-
-    loader.onload = function() {
-        canvas.width = loader.width;
-        canvas.height = loader.height;
-        ctx.drawImage(loader, 0, 0);
-        const a = document.createElement('a');
-        a.href = canvas.toDataURL('image/png');
-        a.download = 'machine_diagram.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-
-    const serializer = new XMLSerializer();
-    const source = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serializer.serializeToString(svg));
-    loader.src = source;
-}
 
 /**
  * Render Graphviz DOT diagram
