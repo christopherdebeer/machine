@@ -74,11 +74,6 @@ export default defineConfig(() => {
                     format: 'es'
                 },
                 external: [
-                    'node:fs',
-                    'node:path',
-                    'node:process',
-                    'fs',
-                    'path',
                     'vscode'
                 ]
             },
@@ -105,7 +100,15 @@ export default defineConfig(() => {
             })
         ],
         resolve: {
-            dedupe: ['vscode']
+            dedupe: ['vscode'],
+            alias: {
+                'node:fs/promises': path.resolve(__dirname, 'src/shims/node-fs-promises.ts'),
+                'node:fs': path.resolve(__dirname, 'src/shims/node-fs.ts'),
+                'node:path': path.resolve(__dirname, 'src/shims/node-path.ts'),
+                'fs/promises': path.resolve(__dirname, 'src/shims/node-fs-promises.ts'),
+                'fs': path.resolve(__dirname, 'src/shims/node-fs.ts'),
+                'path': path.resolve(__dirname, 'src/shims/node-path.ts')
+            }
         },
         optimizeDeps: {
             esbuildOptions: {
