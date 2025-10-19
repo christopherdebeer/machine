@@ -24,14 +24,15 @@ export function toggleTheme(): void {
 
 // Function to download the diagram as SVG
 export function downloadSVG(): void {
-    const svg = document.querySelector('#diagram svg');
-    if (!svg) {
+    const img = document.querySelector('#diagram img') as HTMLImageElement;
+    if (!img || !img.src.startsWith('data:image/svg+xml')) {
         console.warn('No SVG diagram found to download');
         return;
     }
-    const serializer = new XMLSerializer();
-    const source = serializer.serializeToString(svg);
-    const blob = new Blob([source], { type: 'image/svg+xml' });
+    // Decode the data URI to get the SVG content
+    const dataUri = img.src;
+    const svgContent = decodeURIComponent(dataUri.split(',')[1]);
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -44,8 +45,8 @@ export function downloadSVG(): void {
 
 // Function to download the diagram as PNG
 export function downloadPNG(): void {
-    const svg = document.querySelector('#diagram svg');
-    if (!svg) {
+    const img = document.querySelector('#diagram img') as HTMLImageElement;
+    if (!img || !img.src.startsWith('data:image/svg+xml')) {
         console.warn('No SVG diagram found to download');
         return;
     }
@@ -69,9 +70,8 @@ export function downloadPNG(): void {
         document.body.removeChild(a);
     }
 
-    const serializer = new XMLSerializer();
-    const source = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serializer.serializeToString(svg));
-    loader.src = source;
+    // Use the existing data URI from the img element
+    loader.src = img.src;
 }
 
 // Function to render the diagram using Graphviz
@@ -96,8 +96,24 @@ export async function render(code: string, containerOveride?: Element, id?: stri
             throw new Error('Diagram container not found');
         }
 
-        container.innerHTML = svg;
-        console.log('[Playground] ✓ Diagram rendered successfully');
+        // Encode SVG as data URI and render in an img element
+        const dataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+
+        // Create img element with proper styling for responsive display
+        const img = document.createElement('img');
+        img.src = dataUri;
+        img.alt = 'Machine diagram';
+        img.style.width = '100%';
+        img.style.height = 'auto';
+        img.style.maxWidth = '100%';
+        img.style.objectFit = 'contain';
+        img.style.display = 'block';
+
+        // Clear container and add the image
+        container.innerHTML = '';
+        container.appendChild(img);
+
+        console.log('[Playground] ✓ Diagram rendered successfully as data URI');
     } catch (error) {
         console.error('[Playground] Error rendering diagram:', error);
         const container = containerOveride || document.querySelector('#diagram');
