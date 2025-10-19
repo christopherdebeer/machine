@@ -25,12 +25,46 @@ function escapeDot(text: string): string {
 }
 
 /**
- * Generate node attributes for styling based on type
+ * Get node shape based on type and annotations
+ */
+function getNodeShape(node: any, edges?: any[]): string {
+    const nodeType = NodeTypeChecker.getNodeType(node, edges);
+
+    // Check for annotations
+    const annotations = node.annotations || [];
+    const hasAbstract = annotations.some((a: any) => a.name === 'Abstract');
+
+    // Map node types to shapes
+    const shapeMap: Record<string, string> = {
+        init: 'ellipse',       // Start/entry points
+        task: 'box',           // Tasks/actions
+        state: 'diamond',      // State nodes
+        context: 'folder',     // Context/data storage
+        tool: 'component',     // Tool/utility nodes
+    };
+
+    // Abstract nodes use octagon
+    if (hasAbstract) {
+        return 'octagon';
+    }
+
+    return (nodeType && shapeMap[nodeType]) || 'box';
+}
+
+/**
+ * Generate node attributes for styling based on type and annotations
  */
 function getNodeStyle(node: any, edges?: any[]): string {
     const nodeType = NodeTypeChecker.getNodeType(node, edges);
+    const annotations = node.annotations || [];
 
-    if (!nodeType) {
+    // Check for special annotations
+    const hasDeprecated = annotations.some((a: any) => a.name === 'Deprecated');
+    const hasCritical = annotations.some((a: any) => a.name === 'Critical');
+    const hasSingleton = annotations.some((a: any) => a.name === 'Singleton');
+    const hasAbstract = annotations.some((a: any) => a.name === 'Abstract');
+
+    if (!nodeType && annotations.length === 0) {
         return 'fillcolor="#FFFFFF", style=filled, color="#000000"';
     }
 
@@ -42,7 +76,34 @@ function getNodeStyle(node: any, edges?: any[]): string {
         init: 'fillcolor="#FFF3E0", style=filled, color="#F57C00"',
     };
 
-    return styles[nodeType] || 'fillcolor="#FFFFFF", style=filled, color="#000000"';
+    let baseStyle = (nodeType && styles[nodeType]) || 'fillcolor="#FFFFFF", style=filled, color="#000000"';
+
+    // Modify style based on annotations
+    if (hasDeprecated) {
+        // Deprecated: use dashed border and gray out
+        baseStyle = baseStyle.replace('style=filled', 'style="filled,dashed"');
+        baseStyle += ', fontcolor="#999999"';
+    }
+
+    if (hasCritical) {
+        // Critical: use bold border and red accent
+        baseStyle += ', penwidth=3';
+        baseStyle = baseStyle.replace(/color="[^"]*"/, 'color="#D32F2F"');
+    }
+
+    if (hasSingleton) {
+        // Singleton: use double border
+        baseStyle += ', peripheries=2';
+    }
+
+    if (hasAbstract) {
+        // Abstract: use dashed style if not already set
+        if (!baseStyle.includes('dashed')) {
+            baseStyle = baseStyle.replace('style=filled', 'style="filled,dashed"');
+        }
+    }
+
+    return baseStyle;
 }
 
 /**
@@ -60,7 +121,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push('  fontname="Arial";');
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
-    lines.push('  node [shape=record, fontname="Arial", fontsize=10];');
+    lines.push('  node [fontname="Arial", fontsize=10];');  // Removed default shape=record to allow per-node shapes
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
 
@@ -119,7 +180,7 @@ export function generateRuntimeDotDiagram(
     lines.push('  fontname="Arial";');
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
-    lines.push('  node [shape=record, fontname="Arial", fontsize=10];');
+    lines.push('  node [fontname="Arial", fontsize=10];');  // Removed default shape=record to allow per-node shapes
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
 
@@ -319,19 +380,29 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
     // Build label parts
     const labelParts: string[] = [];
 
-    // Add main label
-    labelParts.push(displayValue || node.name);
+    // ALWAYS show node ID first (for losslessness)
+    // If there's a title, show: "title [id: nodeName]"
+    // If no title, just show: "nodeName"
+    if (displayValue && displayValue !== node.name) {
+        labelParts.push(`${displayValue} [id: ${node.name}]`);
+    } else {
+        labelParts.push(displayValue || node.name);
+    }
 
     // Add type annotation
     if (node.type) {
         labelParts.push(`<<${node.type}>>`);
     }
 
-    // Add annotations
+    // Add annotations with their values if any
     if (node.annotations) {
         node.annotations.forEach((ann: any) => {
             if (ann.name !== 'note') {
-                labelParts.push(`<<${ann.name}>>`);
+                if (ann.value) {
+                    labelParts.push(`@${ann.name}("${escapeDot(ann.value)}")`);
+                } else {
+                    labelParts.push(`@${ann.name}`);
+                }
             }
         });
     }
@@ -360,10 +431,11 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
         ? `{${labelParts.map(p => escapeDot(p)).join('|')}}`
         : escapeDot(labelParts[0]);
 
-    // Get styling
+    // Get shape and styling
+    const shape = getNodeShape(node, edges);
     const style = getNodeStyle(node, edges);
 
-    return `${indent}"${node.name}" [label="${recordLabel}", ${style}];`;
+    return `${indent}"${node.name}" [label="${recordLabel}", shape=${shape}, ${style}];`;
 }
 
 /**
@@ -380,7 +452,7 @@ function generateEdges(machineJson: MachineJSON): string {
         const edgeValue = edge.value || {};
         const keys = Object.keys(edgeValue);
 
-        // Build label from edge value
+        // Build label from edge value and multiplicity
         let label = '';
         const textValue = edgeValue.text;
         const otherProps = keys.filter(k => k !== 'text');
@@ -389,6 +461,14 @@ function generateEdges(machineJson: MachineJSON): string {
             label = otherProps.map(key => `${key}=${edgeValue[key]}`).join(', ');
         } else if (textValue) {
             label = textValue;
+        }
+
+        // Add multiplicity to label if present
+        if (edge.sourceMultiplicity || edge.targetMultiplicity) {
+            const sourceMult = edge.sourceMultiplicity || '';
+            const targetMult = edge.targetMultiplicity || '';
+            const multLabel = `${sourceMult}..${targetMult}`;
+            label = label ? `${label} [${multLabel}]` : multLabel;
         }
 
         // Get arrow style based on arrow type
@@ -405,17 +485,17 @@ function generateEdges(machineJson: MachineJSON): string {
 }
 
 /**
- * Map arrow types to DOT styles
+ * Map arrow types to DOT styles with enhanced arrow heads
  */
 function getArrowStyle(arrowType: string): string {
     const styles: Record<string, string> = {
-        '->': '',
-        '-->': ', style=dashed',
-        '=>': ', penwidth=2',
-        '<-->': ', dir=both',
-        '<|--': ', arrowhead=empty',
-        '*-->': ', arrowhead=diamond',
-        'o-->': ', arrowhead=odiamond',
+        '->': '',                                           // Association: normal arrow
+        '-->': ', style=dashed',                           // Dependency: dashed arrow
+        '=>': ', penwidth=3, color="#D32F2F"',            // Critical path: thick red arrow
+        '<-->': ', dir=both, arrowhead=normal, arrowtail=normal',  // Bidirectional: both arrows
+        '<|--': ', arrowhead=empty, dir=back',            // Inheritance: empty arrow pointing to parent
+        '*-->': ', arrowhead=diamond, arrowtail=diamond, dir=forward',  // Composition: filled diamond
+        'o-->': ', arrowhead=odiamond, arrowtail=none',   // Aggregation: open diamond
     };
     return styles[arrowType] || '';
 }
@@ -427,9 +507,11 @@ function generateNotes(notes: any[]): string {
     if (!notes || notes.length === 0) return '';
 
     const lines: string[] = [];
-    notes.forEach(note => {
-        // Represent notes as labels on invisible edges
-        lines.push(`  "${note.target}" -> "${note.target}" [label="${escapeDot(note.content)}", style=invis];`);
+    notes.forEach((note, index) => {
+        // Create a visible note node connected to the target
+        const noteId = `note_${index}_${note.target}`;
+        lines.push(`  "${noteId}" [label="${escapeDot(note.content)}", shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
+        lines.push(`  "${noteId}" -> "${note.target}" [style=dashed, color="#999999", arrowhead=none];`);
     });
 
     return lines.join('\n');
