@@ -286,7 +286,7 @@ s1 -catch-> init;
             console.info('generating & running current code with Rails-Based Architecture...');
             let result = JSON.parse(resp.content);
             let data = result.$data;
-            let mermaid = result.$mermaid;
+            let dotCode = result.$mermaid; // Note: Despite property name, contains DOT/Graphviz format
             
             try {
                 // Get API key and model from localStorage
@@ -296,7 +296,7 @@ s1 -catch-> init;
                 if (!settings.apiKey || settings.apiKey.trim() === '') {
                     console.warn('No API key configured. RailsExecutor creation skipped.');
                     // Still render the diagram even without executor
-                    window.render(mermaid, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
+                    window.render(dotCode, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
                     running = false;
                     return;
                 }
@@ -329,8 +329,8 @@ s1 -catch-> init;
                 console.log('RailsExecutor created successfully:', currentExecutor);
 
                 running = false;
-                console.log(resp, data, mermaid, currentExecutor)
-                window.render(mermaid, outputEl, `${Math.floor(Math.random()  * 1000000000)}`)
+                console.log(resp, data, dotCode, currentExecutor)
+                window.render(dotCode, outputEl, `${Math.floor(Math.random()  * 1000000000)}`)
             } catch (e) {
                 // Improved error handling with detailed logging
                 const error = e as Error;
@@ -343,7 +343,7 @@ s1 -catch-> init;
                 
                 // Still try to render the diagram even if executor creation fails
                 try {
-                    window.render(mermaid, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
+                    window.render(dotCode, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
                 } catch (renderError) {
                     console.error('Failed to render diagram:', renderError);
                 }

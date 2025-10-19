@@ -6,25 +6,18 @@ import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } 
 import { foldGutter, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldKeymap } from '@codemirror/language';
 import { lintKeymap } from '@codemirror/lint';
 import { oneDark } from '@codemirror/theme-one-dark';
-import mermaid from 'mermaid';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import { createMachineServices } from './language/machine-module.js';
 import { Machine } from './language/generated/ast.js';
-import { generateJSON, generateMermaid } from './language/generator/generator.js';
+import { generateJSON, generateGraphviz } from './language/generator/generator.js';
+import { render as renderGraphviz, downloadSVG, downloadPNG } from './language/diagram-controls.js';
 import { MachineExecutor } from './language/machine-executor.js';
 import { EvolutionaryExecutor } from './language/task-evolution.js';
 import { VisualizingMachineExecutor } from './language/runtime-visualizer.js';
 import { createStorage } from './language/storage.js';
 import { createLangiumExtensions } from './codemirror-langium.js';
 import examplesList from './generated/examples-list.json';
-
-// Initialize mermaid with custom settings
-mermaid.initialize({
-    startOnLoad: false,
-    securityLevel: 'loose',
-    htmlLabels: true
-});
 
 // Initialize Langium services for parsing
 const services = createMachineServices(EmptyFileSystem);
@@ -202,71 +195,12 @@ const STORAGE_KEYS = {
 };
 
 /**
- * Download the diagram as SVG
+ * Render Graphviz DOT diagram
  */
-function downloadSVG(): void {
-    const svg = document.querySelector('#diagram svg');
-    if (!svg) {
-        alert('No diagram to download. Please run the code first.');
-        return;
-    }
-    const serializer = new XMLSerializer();
-    const source = serializer.serializeToString(svg);
-    const blob = new Blob([source], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'machine_diagram.svg';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-/**
- * Download the diagram as PNG
- */
-function downloadPNG(): void {
-    const svg = document.querySelector('#diagram svg');
-    if (!svg) {
-        alert('No diagram to download. Please run the code first.');
-        return;
-    }
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        console.error('Could not get 2D context for canvas');
-        return;
-    }
-    const loader = new Image();
-
-    loader.onload = function() {
-        canvas.width = loader.width;
-        canvas.height = loader.height;
-        ctx.drawImage(loader, 0, 0);
-        const a = document.createElement('a');
-        a.href = canvas.toDataURL('image/png');
-        a.download = 'machine_diagram.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-
-    const serializer = new XMLSerializer();
-    const source = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serializer.serializeToString(svg));
-    loader.src = source;
-}
-
-/**
- * Render Mermaid diagram
- */
-async function renderDiagram(mermaidCode: string, container: HTMLElement): Promise<void> {
+async function renderDiagram(dotCode: string, container: HTMLElement): Promise<void> {
     try {
-        const uniqueId = "mermaid-svg-" + Date.now();
-        await mermaid.mermaidAPI.getDiagramFromText(mermaidCode);
-        const render = await mermaid.render(uniqueId, mermaidCode);
-        container.innerHTML = render.svg;
-        render.bindFunctions?.(container);
+        console.log('[Playground] Rendering diagram with Graphviz...');
+        await renderGraphviz(dotCode, container);
     } catch (error) {
         console.error('Error rendering diagram:', error);
         container.innerHTML = `
@@ -319,8 +253,8 @@ function scheduleUpdateDiagram(code: string, diagramElement: HTMLElement | null)
     updateDiagramTimeout = window.setTimeout(async () => {
         if (diagramElement) {
             try {
-                const mermaidCode = await generateMermaidFromCode(code);
-                await renderDiagram(mermaidCode, diagramElement);
+                const dotCode = await generateGraphvizFromCode(code);
+                await renderDiagram(dotCode, diagramElement);
             } catch (error) {
                 console.error('Error updating diagram:', error);
             }
@@ -478,9 +412,9 @@ function convertToMachineData(machine: Machine): any {
 }
 
 /**
- * Generate Mermaid diagram from Machine DSL code using the actual parser and generator
+ * Generate Graphviz DOT diagram from Machine DSL code using the actual parser and generator
  */
-async function generateMermaidFromCode(code: string): Promise<string> {
+async function generateGraphvizFromCode(code: string): Promise<string> {
     try {
         // Parse the code using the Langium parser
         const document = await parse(code);
@@ -499,15 +433,18 @@ async function generateMermaidFromCode(code: string): Promise<string> {
             throw new Error('Failed to parse machine: no model returned');
         }
 
-        // Generate mermaid diagram using the actual generator
-        const result = generateMermaid(model, 'playground.machine', undefined);
+        // Generate Graphviz DOT diagram using the actual generator
+        const result = generateGraphviz(model, 'playground.machine', undefined);
         return result.content;
     } catch (error) {
-        console.error('Error generating mermaid from code:', error);
-        // Return a simple error diagram
-        return `stateDiagram-v2
-    [*] --> Error
-    Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        console.error('Error generating Graphviz from code:', error);
+        // Return a simple error diagram in DOT format
+        const errorMsg = (error instanceof Error ? error.message : 'Unknown error').replace(/"/g, '\\"');
+        return `digraph {
+    rankdir=TB;
+    node [shape=box, style=filled, fillcolor="#ff6b6b", fontcolor=white];
+    Error [label="Error: ${errorMsg}"];
+}`;
     }
 }
 
@@ -637,14 +574,14 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         let executionSteps = 0;
         let maxSteps = 10; // Prevent infinite loops in demo
 
-        // Generate both static and runtime diagrams
-        const staticMermaidCode = await generateMermaidFromCode(code);
+        // Generate static Graphviz diagram
+        const staticDotCode = await generateGraphvizFromCode(code);
 
-        // Render the appropriate diagram (runtime if available, otherwise static)
+        // Render the static diagram initially
         if (diagramElement) {
             diagramElement.innerHTML = '<div class="loading">Rendering diagram...</div>';
             try {
-                await renderDiagram(staticMermaidCode, diagramElement);
+                await renderDiagram(staticDotCode, diagramElement);
             } catch (err) {
                 console.warn(`Failed to render diagram/`)
                 console.error(err);
@@ -698,29 +635,23 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         const mutations = executor.getMutations();
         const evolutions = mutations.filter((m: any) => m.type === 'task_evolution');
 
-        
-        let runtimeMermaidCode = staticMermaidCode;
-        
+        // For now, we'll use the static Graphviz diagram for all cases
+        // TODO: Migrate runtime visualizer to support Graphviz format
+        let runtimeDotCode = staticDotCode;
+
         console.log('🎨 Diagram generation:', {
             hasExecutionResult: !!executionResult,
             visualizingExecutorType: visualizingExecutor.constructor.name,
-            isVisualizingMachineExecutor: visualizingExecutor instanceof VisualizingMachineExecutor
+            isVisualizingMachineExecutor: visualizingExecutor instanceof VisualizingMachineExecutor,
+            usingGraphviz: true
         });
-        
+
         if (executionResult) {
-            // Generate enhanced runtime diagram showing execution state
-            // Use the main executor that has the actual execution state
-            console.log('🔄 Using main executor for runtime diagram');
-            try {
-                runtimeMermaidCode = executor.toMermaidRuntime();
-                console.log('🎯 Generated runtime mermaid code:', runtimeMermaidCode);
-            } catch (runtimeError) {
-                console.error('❌ Error generating runtime diagram:', runtimeError);
-                // Fall back to static diagram
-                runtimeMermaidCode = staticMermaidCode;
-            }
+            // Runtime visualization not yet migrated to Graphviz
+            // Using static diagram for now
+            console.log('ℹ️ Runtime visualization will use static Graphviz diagram (runtime migration pending)');
         } else {
-            console.log('ℹ️ No execution result - using static diagram', staticMermaidCode);
+            console.log('ℹ️ No execution result - using static diagram', staticDotCode.substring(0, 100));
         }
 
         // Display comprehensive results
@@ -833,24 +764,24 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         // Add intermediate information
         outputHTML += `
             <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
-                <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">[${machineData.title}] Diagram source:</div>
+                <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">[${machineData.title}] Diagram source (Graphviz DOT):</div>
                 <div style="color: #d4d4d4; font-size: 11px;">
-                    <pre><code>${escapeHtml(staticMermaidCode)}</code></pre>
+                    <pre><code>${escapeHtml(staticDotCode)}</code></pre>
                 </div>
             </div>
         `;
 
         outputElement.innerHTML = outputHTML;
 
-        // Render the appropriate diagram (runtime if available, otherwise static)
+        // Render the final diagram
         if (diagramElement) {
             diagramElement.innerHTML = '<div class="loading">Rendering diagram...</div>';
             try {
-                await renderDiagram(runtimeMermaidCode, diagramElement);
+                await renderDiagram(runtimeDotCode, diagramElement);
             } catch (err) {
-                console.warn(`Failed to render diagram/`)
+                console.warn(`Failed to render diagram`)
                 console.error(err);
-            } 
+            }
         }
 
         // Save machine version to storage for future reference

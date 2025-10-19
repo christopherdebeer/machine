@@ -1,0 +1,567 @@
+/**
+ * Graphviz DOT Diagram Generator
+ *
+ * Generates DOT syntax from MachineJSON for rendering with Graphviz.
+ * Supports both static and runtime visualizations with full nested namespace support.
+ */
+
+import { MachineJSON, DiagramOptions, RuntimeContext, RuntimeNodeState, RuntimeEdgeState, SemanticHierarchy } from './types.js';
+import { NodeTypeChecker } from '../node-type-checker.js';
+
+/**
+ * Helper function to escape DOT special characters
+ */
+function escapeDot(text: string): string {
+    if (!text) return '';
+    // Escape backslashes, quotes, newlines, and record delimiters for DOT labels
+    return text
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '')
+        .replace(/\{/g, '\\{')
+        .replace(/\}/g, '\\}')
+        .replace(/\|/g, '\\|');
+}
+
+/**
+ * Generate node attributes for styling based on type
+ */
+function getNodeStyle(node: any, edges?: any[]): string {
+    const nodeType = NodeTypeChecker.getNodeType(node, edges);
+
+    if (!nodeType) {
+        return 'fillcolor="#FFFFFF", style=filled, color="#000000"';
+    }
+
+    const styles: Record<string, string> = {
+        task: 'fillcolor="#E3F2FD", style=filled, color="#1976D2"',
+        state: 'fillcolor="#F3E5F5", style=filled, color="#7B1FA2"',
+        context: 'fillcolor="#E8F5E9", style=filled, color="#388E3C"',
+        tool: 'fillcolor="#FFF9C4", style=filled, color="#F57F17"',
+        init: 'fillcolor="#FFF3E0", style=filled, color="#F57C00"',
+    };
+
+    return styles[nodeType] || 'fillcolor="#FFFFFF", style=filled, color="#000000"';
+}
+
+/**
+ * Generate a static DOT diagram from MachineJSON
+ */
+export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOptions = {}): string {
+    const lines: string[] = [];
+
+    // Header
+    lines.push('digraph {');
+    lines.push('  // Graph attributes');
+    lines.push('  label="' + escapeDot(options.title || machineJson.title || 'Machine Diagram') + '";');
+    lines.push('  labelloc="t";');
+    lines.push('  fontsize=16;');
+    lines.push('  fontname="Arial";');
+    lines.push('  compound=true;');
+    lines.push('  rankdir=TB;');
+    lines.push('  node [shape=record, fontname="Arial", fontsize=10];');
+    lines.push('  edge [fontname="Arial", fontsize=9];');
+    lines.push('');
+
+    // Build semantic hierarchy based on parent-child relationships
+    const hierarchy = buildSemanticHierarchy(machineJson.nodes);
+    const rootNodes = getRootNodes(machineJson.nodes);
+
+    // Generate nodes organized by semantic/lexical nesting
+    lines.push('  // Node definitions with nested namespaces');
+    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1));
+    lines.push('');
+
+    // Generate edges
+    if (machineJson.edges && machineJson.edges.length > 0) {
+        lines.push('  // Edges');
+        lines.push(generateEdges(machineJson));
+    }
+
+    // Generate notes as edge labels
+    if (machineJson.notes && machineJson.notes.length > 0) {
+        lines.push('');
+        lines.push('  // Notes');
+        lines.push(generateNotes(machineJson.notes));
+    }
+
+    // Generate inferred dependencies
+    if (machineJson.inferredDependencies && machineJson.inferredDependencies.length > 0) {
+        lines.push('');
+        lines.push('  // Inferred Dependencies');
+        lines.push(generateInferredDependencies(machineJson.inferredDependencies));
+    }
+
+    lines.push('}');
+
+    return lines.join('\n');
+}
+
+/**
+ * Generate a runtime DOT diagram with execution state
+ */
+export function generateRuntimeDotDiagram(
+    machineJson: MachineJSON,
+    context: RuntimeContext,
+    options: DiagramOptions = {}
+): string {
+    const lines: string[] = [];
+    const nodeStates = buildNodeStates(machineJson, context);
+    const edgeStates = buildEdgeStates(machineJson, context);
+
+    // Header with runtime indicator
+    lines.push('digraph {');
+    lines.push('  // Graph attributes');
+    lines.push('  label="' + escapeDot((machineJson.title || 'Machine') + ' [RUNTIME]') + '";');
+    lines.push('  labelloc="t";');
+    lines.push('  fontsize=16;');
+    lines.push('  fontname="Arial";');
+    lines.push('  compound=true;');
+    lines.push('  rankdir=TB;');
+    lines.push('  node [shape=record, fontname="Arial", fontsize=10];');
+    lines.push('  edge [fontname="Arial", fontsize=9];');
+    lines.push('');
+
+    // Generate nodes with runtime state
+    lines.push('  // Nodes with runtime state');
+    nodeStates.forEach(node => {
+        const statusEmoji = getStatusEmoji(node.status);
+        const statusText = node.status.toUpperCase();
+
+        // Build label
+        let label = '';
+        if (options.showRuntimeState !== false) {
+            label = `${statusEmoji} ${node.name}`;
+        } else {
+            label = node.name;
+        }
+
+        // Build attributes section
+        const attrs: string[] = [];
+
+        if (node.type) {
+            attrs.push(`<<${node.type}>>`);
+        }
+
+        if (options.showRuntimeState !== false) {
+            attrs.push(`status: ${statusText}`);
+            if (node.visitCount > 0) {
+                attrs.push(`visits: ${node.visitCount}`);
+            }
+        }
+
+        // Add node attributes with runtime values
+        if (node.attributes && node.attributes.length > 0) {
+            node.attributes.forEach(attr => {
+                if (attr.name === 'prompt' || attr.name === 'desc') return;
+
+                let displayValue = formatAttributeValue(attr.value);
+
+                if (options.showRuntimeValues && attr.runtimeValue !== undefined &&
+                    attr.runtimeValue !== attr.value) {
+                    displayValue = `${displayValue} → ${formatAttributeValue(attr.runtimeValue)}`;
+                }
+
+                const typeAnnotation = attr.type ? ` : ${attr.type}` : '';
+                attrs.push(`${attr.name}${typeAnnotation} = ${displayValue}`);
+            });
+        }
+
+        // Add runtime values if any
+        if (options.showRuntimeValues && node.runtimeValues) {
+            Object.entries(node.runtimeValues).forEach(([key, value]) => {
+                attrs.push(`${key}[runtime] = ${formatAttributeValue(value)}`);
+            });
+        }
+
+        // Format as DOT record
+        const recordLabel = attrs.length > 0
+            ? `{${escapeDot(label)}|${attrs.map(a => escapeDot(a)).join('\\n')}}`
+            : escapeDot(label);
+
+        // Get styling based on status
+        const style = getRuntimeNodeStyle(node);
+
+        lines.push(`  "${node.name}" [label="${recordLabel}", ${style}];`);
+    });
+
+    lines.push('');
+
+    // Generate edges with runtime information
+    lines.push('  // Edges with runtime state');
+    edgeStates.forEach(edge => {
+        let label = edge.label || '';
+
+        if (options.showVisitCounts !== false && edge.traversalCount > 0) {
+            label += (label ? ' ' : '') + `[${edge.traversalCount}x]`;
+        }
+
+        if (options.showRuntimeValues && edge.runtimeData) {
+            const runtimeInfo = Object.entries(edge.runtimeData)
+                .map(([k, v]) => `${k}=${v}`)
+                .join(', ');
+            if (runtimeInfo) {
+                label += (label ? ', ' : '') + runtimeInfo;
+            }
+        }
+
+        const edgeLine = label
+            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}"];`
+            : `  "${edge.source}" -> "${edge.target}";`;
+        lines.push(edgeLine);
+    });
+
+    // Add execution path information as comments
+    if (options.showExecutionPath && context.history.length > 0) {
+        lines.push('');
+        lines.push('  // Execution Path:');
+        context.history.forEach((step, idx) => {
+            const timestamp = new Date(step.timestamp).toLocaleTimeString();
+            lines.push(`  // ${idx + 1}. ${step.from} → ${step.to} (${step.transition}) at ${timestamp}`);
+            if (step.output) {
+                const truncatedOutput = step.output.length > 50
+                    ? step.output.substring(0, 50) + '...'
+                    : step.output;
+                lines.push(`  //    Output: ${truncatedOutput}`);
+            }
+        });
+    }
+
+    lines.push('}');
+
+    return lines.join('\n');
+}
+
+/**
+ * Build semantic hierarchy based on parent-child relationships
+ */
+function buildSemanticHierarchy(nodes: any[]): SemanticHierarchy {
+    const hierarchy: SemanticHierarchy = {};
+
+    nodes.forEach(node => {
+        hierarchy[node.name] = {
+            node: node,
+            children: []
+        };
+    });
+
+    nodes.forEach(node => {
+        if (node.parent && hierarchy[node.parent]) {
+            hierarchy[node.parent].children.push(node.name);
+        }
+    });
+
+    return hierarchy;
+}
+
+/**
+ * Get root nodes (nodes without parents)
+ */
+function getRootNodes(nodes: any[]): any[] {
+    return nodes.filter(node => !node.parent);
+}
+
+/**
+ * Generate DOT syntax with true nested subgraphs
+ */
+function generateSemanticHierarchy(
+    hierarchy: SemanticHierarchy,
+    nodes: any[],
+    machineJson: MachineJSON,
+    level = 0
+): string {
+    const lines: string[] = [];
+    const indent = '  '.repeat(level);
+    const edges = machineJson.edges;
+
+    nodes.forEach(node => {
+        const { children } = hierarchy[node.name];
+
+        if (children.length > 0) {
+            // Node has children - create a cluster subgraph
+            lines.push(`${indent}subgraph cluster_${node.name} {`);
+            lines.push(`${indent}  label="${escapeDot(node.name)}";`);
+            lines.push(`${indent}  style=filled;`);
+            lines.push(`${indent}  fillcolor="#F5F5F5";`);
+            lines.push(`${indent}  color="#999999";`);
+            lines.push('');
+
+            // Generate the parent node itself within the cluster
+            lines.push(generateNodeDefinition(node, edges, indent + '  '));
+            lines.push('');
+
+            // Recursively generate children
+            const childNodes = children.map(childName => hierarchy[childName].node);
+            lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1));
+
+            lines.push(`${indent}}`);
+        } else {
+            // Leaf node
+            lines.push(generateNodeDefinition(node, edges, indent));
+        }
+    });
+
+    return lines.join('\n');
+}
+
+/**
+ * Generate a node definition in DOT format
+ */
+function generateNodeDefinition(node: any, edges: any[], indent: string): string {
+    const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
+                 node.attributes?.find((a: any) => a.name === 'prompt');
+    let displayValue: any = node.title || desc?.value;
+    if (displayValue && typeof displayValue === 'string') {
+        displayValue = displayValue.replace(/^["']|["']$/g, '');
+    }
+
+    // Build label parts
+    const labelParts: string[] = [];
+
+    // Add main label
+    labelParts.push(displayValue || node.name);
+
+    // Add type annotation
+    if (node.type) {
+        labelParts.push(`<<${node.type}>>`);
+    }
+
+    // Add annotations
+    if (node.annotations) {
+        node.annotations.forEach((ann: any) => {
+            if (ann.name !== 'note') {
+                labelParts.push(`<<${ann.name}>>`);
+            }
+        });
+    }
+
+    // Add parent annotation
+    if (node.parent) {
+        labelParts.push(`parent: ${node.parent}`);
+    }
+
+    // Add attributes
+    const attributes = node.attributes?.filter((a: any) =>
+        a.name !== 'desc' && a.name !== 'prompt'
+    ) || [];
+
+    attributes.forEach((a: any) => {
+        let displayValue = a.value?.value ?? a.value;
+        if (typeof displayValue === 'string') {
+            displayValue = displayValue.replace(/^["']|["']$/g, '');
+        }
+        const typeStr = a.type ? ` : ${a.type}` : '';
+        labelParts.push(`${a.name}${typeStr} = ${displayValue}`);
+    });
+
+    // Format as record label
+    const recordLabel = labelParts.length > 1
+        ? `{${labelParts.map(p => escapeDot(p)).join('|')}}`
+        : escapeDot(labelParts[0]);
+
+    // Get styling
+    const style = getNodeStyle(node, edges);
+
+    return `${indent}"${node.name}" [label="${recordLabel}", ${style}];`;
+}
+
+/**
+ * Generate edges section
+ */
+function generateEdges(machineJson: MachineJSON): string {
+    const lines: string[] = [];
+
+    if (!machineJson.edges || machineJson.edges.length === 0) {
+        return '';
+    }
+
+    machineJson.edges.forEach(edge => {
+        const edgeValue = edge.value || {};
+        const keys = Object.keys(edgeValue);
+
+        // Build label from edge value
+        let label = '';
+        const textValue = edgeValue.text;
+        const otherProps = keys.filter(k => k !== 'text');
+
+        if (otherProps.length > 0) {
+            label = otherProps.map(key => `${key}=${edgeValue[key]}`).join(', ');
+        } else if (textValue) {
+            label = textValue;
+        }
+
+        // Get arrow style based on arrow type
+        const arrowStyle = getArrowStyle(edge.arrowType || '->');
+
+        const edgeLine = label
+            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}"${arrowStyle}];`
+            : `  "${edge.source}" -> "${edge.target}"${arrowStyle};`;
+
+        lines.push(edgeLine);
+    });
+
+    return lines.join('\n');
+}
+
+/**
+ * Map arrow types to DOT styles
+ */
+function getArrowStyle(arrowType: string): string {
+    const styles: Record<string, string> = {
+        '->': '',
+        '-->': ', style=dashed',
+        '=>': ', penwidth=2',
+        '<-->': ', dir=both',
+        '<|--': ', arrowhead=empty',
+        '*-->': ', arrowhead=diamond',
+        'o-->': ', arrowhead=odiamond',
+    };
+    return styles[arrowType] || '';
+}
+
+/**
+ * Generate notes section
+ */
+function generateNotes(notes: any[]): string {
+    if (!notes || notes.length === 0) return '';
+
+    const lines: string[] = [];
+    notes.forEach(note => {
+        // Represent notes as labels on invisible edges
+        lines.push(`  "${note.target}" -> "${note.target}" [label="${escapeDot(note.content)}", style=invis];`);
+    });
+
+    return lines.join('\n');
+}
+
+/**
+ * Generate inferred dependencies section
+ */
+function generateInferredDependencies(deps: any[]): string {
+    if (deps.length === 0) return '';
+
+    const lines: string[] = [];
+    deps.forEach(dep => {
+        lines.push(`  "${dep.source}" -> "${dep.target}" [label="${escapeDot(dep.reason)}", style=dashed, color=blue];`);
+    });
+
+    return lines.join('\n');
+}
+
+/**
+ * Build runtime node states
+ */
+function buildNodeStates(machineJson: MachineJSON, context: RuntimeContext): RuntimeNodeState[] {
+    return machineJson.nodes.map(node => {
+        const isCurrent = node.name === context.currentNode;
+        const isVisited = context.visitedNodes.has(node.name);
+        const visitCount = context.history.filter(h => h.from === node.name).length;
+
+        const lastVisit = context.history
+            .filter(h => h.from === node.name)
+            .pop()?.timestamp;
+
+        const runtimeValues: Record<string, any> = {};
+
+        if (isCurrent && context.attributes.size > 0) {
+            context.attributes.forEach((value, key) => {
+                runtimeValues[key] = value;
+            });
+        }
+
+        return {
+            name: node.name,
+            type: node.type,
+            status: isCurrent ? 'current' : (isVisited ? 'visited' : 'pending'),
+            visitCount,
+            lastVisited: lastVisit,
+            runtimeValues: Object.keys(runtimeValues).length > 0 ? runtimeValues : undefined,
+            attributes: node.attributes?.map((attr: any) => ({
+                name: attr.name,
+                type: attr.type,
+                value: attr.value,
+                runtimeValue: runtimeValues[attr.name]
+            }))
+        };
+    });
+}
+
+/**
+ * Build runtime edge states
+ */
+function buildEdgeStates(machineJson: MachineJSON, context: RuntimeContext): RuntimeEdgeState[] {
+    return machineJson.edges.map(edge => {
+        const traversalCount = context.history.filter(
+            h => h.from === edge.source && h.to === edge.target
+        ).length;
+
+        const lastTraversal = context.history
+            .filter(h => h.from === edge.source && h.to === edge.target)
+            .pop();
+
+        const edgeValue = edge.value || {};
+        const label = edgeValue.text || '';
+
+        return {
+            source: edge.source,
+            target: edge.target,
+            label,
+            traversalCount,
+            lastTraversed: lastTraversal?.timestamp,
+            runtimeData: undefined
+        };
+    });
+}
+
+/**
+ * Get status emoji for visual indication
+ */
+function getStatusEmoji(status: 'current' | 'visited' | 'pending'): string {
+    switch (status) {
+        case 'current': return '▶️';
+        case 'visited': return '✅';
+        case 'pending': return '⏸️';
+        default: return '◯';
+    }
+}
+
+/**
+ * Get runtime node styling based on status
+ */
+function getRuntimeNodeStyle(node: RuntimeNodeState): string {
+    switch (node.status) {
+        case 'current':
+            return 'fillcolor="#4CAF50", style=filled, color="#2E7D32", penwidth=3';
+        case 'visited':
+            return 'fillcolor="#2196F3", style=filled, color="#1565C0", penwidth=2';
+        case 'pending':
+            return 'fillcolor="#FFC107", style=filled, color="#F57F17"';
+        default:
+            return 'fillcolor="#FFFFFF", style=filled, color="#000000"';
+    }
+}
+
+/**
+ * Format attribute values for display
+ */
+function formatAttributeValue(value: any): string {
+    if (value === null || value === undefined) {
+        return 'null';
+    }
+
+    if (typeof value === 'string') {
+        const cleaned = value.replace(/^["']|["']$/g, '');
+        return cleaned.length > 30 ? cleaned.substring(0, 30) + '...' : cleaned;
+    }
+
+    if (Array.isArray(value)) {
+        return `[${value.join(', ')}]`;
+    }
+
+    if (typeof value === 'object') {
+        return JSON.stringify(value);
+    }
+
+    return String(value);
+}

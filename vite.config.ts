@@ -69,10 +69,21 @@ export default defineConfig(() => {
             cssMinify: true,
             rollupOptions: {
                 input: getHtmlEntries(),
+                output: {
+                    // Use 'es' format for workers to support code-splitting
+                    format: 'es'
+                }
             },
             outDir: 'dist'
         },
-
+        worker: {
+            format: 'es',
+            rollupOptions: {
+                output: {
+                    format: 'es'
+                }
+            }
+        },
         plugins: [
             {
                 enforce: 'pre',
@@ -86,7 +97,15 @@ export default defineConfig(() => {
             })
         ],
         resolve: {
-            dedupe: ['vscode']
+            dedupe: ['vscode'],
+            alias: {
+                'node:fs/promises': path.resolve(__dirname, 'src/shims/node-fs-promises.ts'),
+                'node:fs': path.resolve(__dirname, 'src/shims/node-fs.ts'),
+                'node:path': path.resolve(__dirname, 'src/shims/node-path.ts'),
+                'fs/promises': path.resolve(__dirname, 'src/shims/node-fs-promises.ts'),
+                'fs': path.resolve(__dirname, 'src/shims/node-fs.ts'),
+                'path': path.resolve(__dirname, 'src/shims/node-path.ts')
+            }
         },
         optimizeDeps: {
             esbuildOptions: {

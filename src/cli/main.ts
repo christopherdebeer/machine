@@ -5,7 +5,7 @@ import { MachineLanguageMetaData } from '../language/generated/module.js';
 import { createMachineServices } from '../language/machine-module.js';
 import { extractAstNode, extractDocument, extractDestinationAndName } from './cli-util.js';
 import { RailsExecutor, type MachineData } from '../language/rails-executor.js';
-import { generateJSON, generateMermaid, generateHTML, generateDSL, FileGenerationResult } from '../language/generator/generator.js';
+import { generateJSON, generateMermaid, generateHTML, generateDSL, generateGraphviz, FileGenerationResult } from '../language/generator/generator.js';
 import { NodeFileSystem } from 'langium/node';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
@@ -18,7 +18,7 @@ import { dirname } from 'node:path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-type GenerateFormat = 'json' | 'mermaid' | 'html' | 'dsl';
+type GenerateFormat = 'json' | 'mermaid' | 'html' | 'dsl' | 'graphviz' | 'dot';
 
 interface GenerateOptions {
     destination?: string;
@@ -36,7 +36,7 @@ interface BatchOptions {
     quiet?: boolean;
 }
 
-const VALID_FORMATS: GenerateFormat[] = ['json', 'mermaid', 'html', 'dsl'];
+const VALID_FORMATS: GenerateFormat[] = ['json', 'mermaid', 'html', 'dsl', 'graphviz', 'dot'];
 
 function isValidFormat(format: string): format is GenerateFormat {
     return VALID_FORMATS.includes(format as GenerateFormat);
@@ -100,6 +100,10 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
                     break;
                 case 'mermaid':
                     res = generateMermaid(model, fileName, opts.destination);
+                    break;
+                case 'graphviz':
+                case 'dot':
+                    res = generateGraphviz(model, fileName, opts.destination);
                     break;
                 case 'html':
                     res = generateHTML(model, fileName, opts.destination);
@@ -473,7 +477,7 @@ function initializeCLI(): Promise<void> {
                     .option('-d, --destination <dir>', 'destination directory for generated files')
                     .option('--debug', 'debug output raw ast', false)
                     .option('-f, --format <formats>',
-                        'comma-separated list of output formats (json,mermaid,html,dsl). Use "dsl" with JSON input for backward compilation. Default: json',
+                        'comma-separated list of output formats (json,graphviz,dot,html,dsl). Use "dsl" with JSON input for backward compilation. Default: json',
                         'json')
                     .option('-v, --verbose', 'verbose output')
                     .option('-q, --quiet', 'quiet output (errors only)')
@@ -486,7 +490,7 @@ function initializeCLI(): Promise<void> {
                     .argument('<pattern>', 'glob pattern for files to process (e.g., "examples/**/*.dygram")')
                     .option('-d, --destination <dir>', 'destination directory for generated files')
                     .option('-f, --format <formats>',
-                        'comma-separated list of output formats (json,mermaid,html). Default: json',
+                        'comma-separated list of output formats (json,graphviz,dot,html). Default: json',
                         'json')
                     .option('--continue-on-error', 'continue processing remaining files if an error occurs', false)
                     .option('-v, --verbose', 'verbose output')

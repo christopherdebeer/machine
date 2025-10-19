@@ -3,7 +3,7 @@ import { startLanguageServer } from 'langium/lsp';
 import { BrowserMessageReader, BrowserMessageWriter, createConnection, Diagnostic, NotificationType } from 'vscode-languageserver/browser.js';
 import { createMachineServices, MachineJSON } from './machine-module.js';
 import { Machine } from './generated/ast.js';
-import { generateJSON, generateMermaid } from './generator/generator.js';
+import { generateJSON, generateGraphviz } from './generator/generator.js';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -26,30 +26,37 @@ const documentChangeNotification = new NotificationType<DocumentChange>('browser
 // use the built-in AST serializer
 const jsonSerializer = services.Machine.serializer.JsonSerializer;
 /**
- * Generate an error diagram showing parse/validation errors
+ * Generate an error diagram showing parse/validation errors using Graphviz DOT format
  */
 function generateErrorDiagram(diagnostics: Diagnostic[]): string {
     const errors = diagnostics.filter(d => d.severity === 1); // Severity 1 = Error
-    
+
     if (errors.length === 0) {
         return "";
     }
-    
-    let diagram = `flowchart TD\n`;
-    diagram += `    ErrorHeader["⚠️ Parse Errors Detected (${errors.length})"]\n`;
-    diagram += `    style ErrorHeader fill:#ff6b6b,stroke:#c92a2a,color:#fff\n\n`;
-    
+
+    const escapeLabel = (str: string) => str.replace(/"/g, '\\"').replace(/\n/g, '\\n');
+
+    let diagram = `digraph {\n`;
+    diagram += `  // Graph attributes\n`;
+    diagram += `  rankdir=TB;\n`;
+    diagram += `  node [shape=box, fontname="Arial", fontsize=12];\n\n`;
+
+    diagram += `  ErrorHeader [label="⚠️ Parse Errors Detected (${errors.length})", `;
+    diagram += `fillcolor="#ff6b6b", style=filled, fontcolor=white];\n\n`;
+
     errors.forEach((error, index) => {
         const errorId = `E${index}`;
         const line = error.range.start.line + 1; // Convert 0-based to 1-based
         const col = error.range.start.character + 1;
-        const message = error.message.replace(/"/g, "'"); // Escape quotes for mermaid
-        
-        diagram += `    ${errorId}["Line ${line}:${col} - ${message}"]\n`;
-        diagram += `    ErrorHeader --> ${errorId}\n`;
-        diagram += `    style ${errorId} fill:#ffe0e0,stroke:#ff6b6b\n`;
+        const message = escapeLabel(error.message);
+
+        diagram += `  ${errorId} [label="Line ${line}:${col}\\n${message}", `;
+        diagram += `fillcolor="#ffe0e0", style=filled, color="#ff6b6b"];\n`;
+        diagram += `  ErrorHeader -> ${errorId};\n`;
     });
-    
+
+    diagram += `}\n`;
     return diagram;
 }
 
@@ -67,15 +74,16 @@ services.shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, 
         // only generate commands if there are no errors
         if(!hasErrors) {
             json = JSON.parse(generateJSON(model, document.textDocument.uri, undefined).content);
-            mermaid = generateMermaid(model, document.textDocument.uri, undefined).content;
+            mermaid = generateGraphviz(model, document.textDocument.uri, undefined).content;
         } else {
             // Generate error diagram to show parse errors visually
             mermaid = generateErrorDiagram(document.diagnostics!);
         }
-        
+
         // inject the commands into the model
         // this is safe so long as you careful to not clobber existing properties
         // and is incredibly helpful to enrich the feedback you get from the LS per document
+        // Note: $mermaid property name kept for backwards compatibility, but now contains DOT/Graphviz format
         (model as unknown as {$data: MachineJSON, $mermaid: string}).$data = json;
         (model as unknown as {$data: MachineJSON, $mermaid: string}).$mermaid = mermaid;
 

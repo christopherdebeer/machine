@@ -6,6 +6,7 @@ import { extractDestinationAndName } from '../../cli/cli-util.js';
 import { Edge, MachineJSON } from '../machine-module.js';
 import { DependencyAnalyzer } from '../dependency-analyzer.js';
 import { generateMermaidFromJSON } from '../diagram/index.js';
+import { generateGraphvizFromJSON } from '../diagram/index.js';
 import { TypeHierarchy } from '../diagram/types.js';
 
 // Common interfaces
@@ -405,6 +406,39 @@ class MermaidGenerator extends BaseGenerator {
     }
 }
 
+class GraphvizGenerator extends BaseGenerator {
+    protected fileExtension = 'dot';
+
+    protected generateContent(): FileGenerationResult {
+        // First generate JSON as intermediate format
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+
+        // Use the Graphviz DOT generator
+        const dotContent = generateGraphvizFromJSON(machineJson, {
+            title: this.machine.title
+        });
+
+        return {
+            filePath: this.filePath,
+            content: dotContent
+        };
+    }
+
+    public getDotDefinition(): string {
+        // First generate JSON as intermediate format
+        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
+        const jsonContent = jsonGen.generate();
+        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+
+        // Use the Graphviz DOT generator
+        return generateGraphvizFromJSON(machineJson, {
+            title: this.machine.title
+        });
+    }
+}
+
 class MarkdownGenerator extends BaseGenerator {
     protected fileExtension = 'md';
 
@@ -683,44 +717,55 @@ class HTMLGenerator extends BaseGenerator {
     protected fileExtension = 'html';
 
     protected generateContent(): FileGenerationResult {
-        // Find the project root by looking for package.json
-        // Resolve to absolute path first
-        const absoluteFilePath = this.filePath ? path.resolve(this.filePath) : process.cwd();
-        let currentDir = path.dirname(absoluteFilePath);
-        let projectRoot = currentDir;
-        
-        // Walk up the directory tree to find package.json
-        while (projectRoot !== path.dirname(projectRoot)) {
-            if (fs.existsSync(path.join(projectRoot, 'package.json'))) {
-                break;
-            }
-            projectRoot = path.dirname(projectRoot);
-        }
-        
-        // Try multiple possible locations for the enhanced web executor
-        const possiblePaths = [
-            path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web-enhanced.js'),
-            path.join(projectRoot, 'out', 'language', 'machine-executor-web-enhanced.js'),
-            path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web-enhanced.js'),
-            path.join(projectRoot, 'dist', 'language', 'machine-executor-web-enhanced.js'),
-            // Fallback to basic version
-            path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web.js'),
-            path.join(projectRoot, 'out', 'language', 'machine-executor-web.js'),
-            path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web.js'),
-            path.join(projectRoot, 'dist', 'language', 'machine-executor-web.js')
-        ];
-        
-        let webExecutorPath = possiblePaths.find(p => fs.existsSync(p));
-        
-        if (!webExecutorPath) {
-            throw new Error(`Could not find machine-executor-web-enhanced.js or machine-executor-web.js. Tried:\n${possiblePaths.join('\n')}`);
-        }
-        
-        const mermaidGen = new MermaidGenerator(this.machine, this.filePath, this.options);
+        const graphvizGen = new GraphvizGenerator(this.machine, this.filePath, this.options);
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
         const jsonContent = jsonGen.generate();
         const machineJson = jsonContent.content;
-        const mermaidDefinition = escapeHTML(mermaidGen.getMermaidDefinition());
+        const dotDefinition = escapeHTML(graphvizGen.getDotDefinition());
+
+        // Note: In browser/web builds, the executor script is loaded from CDN or bundled separately
+        // In Node.js builds (CLI), we embed the script directly when possible
+        let executorScript = '';
+
+        // Only attempt to read the file in Node.js environment
+        if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+            try {
+                // Find the project root by looking for package.json
+                const absoluteFilePath = this.filePath ? path.resolve(this.filePath) : process.cwd();
+                let currentDir = path.dirname(absoluteFilePath);
+                let projectRoot = currentDir;
+
+                // Walk up the directory tree to find package.json
+                while (projectRoot !== path.dirname(projectRoot)) {
+                    if (fs.existsSync(path.join(projectRoot, 'package.json'))) {
+                        break;
+                    }
+                    projectRoot = path.dirname(projectRoot);
+                }
+
+                // Try multiple possible locations for the enhanced web executor
+                const possiblePaths = [
+                    path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web-enhanced.js'),
+                    path.join(projectRoot, 'out', 'language', 'machine-executor-web-enhanced.js'),
+                    path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web-enhanced.js'),
+                    path.join(projectRoot, 'dist', 'language', 'machine-executor-web-enhanced.js'),
+                    // Fallback to basic version
+                    path.join(projectRoot, 'out', 'extension', 'web', 'machine-executor-web.js'),
+                    path.join(projectRoot, 'out', 'language', 'machine-executor-web.js'),
+                    path.join(projectRoot, 'dist', 'extension', 'web', 'machine-executor-web.js'),
+                    path.join(projectRoot, 'dist', 'language', 'machine-executor-web.js')
+                ];
+
+                const webExecutorPath = possiblePaths.find(p => fs.existsSync(p));
+
+                if (webExecutorPath) {
+                    executorScript = fs.readFileSync(webExecutorPath, 'utf-8');
+                }
+            } catch (error) {
+                // Silently fail in browser environments or when file is not found
+                console.warn('Could not load executor script:', error);
+            }
+        }
 
         const fileNode = expandToNode`<!DOCTYPE html>
 <html lang="en">
@@ -729,17 +774,42 @@ class HTMLGenerator extends BaseGenerator {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bundled machine executor -->
-    <script type="module">${fs.readFileSync(webExecutorPath, 'utf-8')}</script>
+    ${executorScript ? `<script type="module">${executorScript}</script>` : '<!-- Executor script not embedded -->'}
     <script type="module">
-        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        console.log('[Graphviz] Starting module initialization...');
 
-        // Initialize mermaid with custom settings
-        mermaid.initialize({
-            startOnLoad: false,
-            securityLevel: 'loose',
-            logLevel: 0,
-            htmlLabels: true
+        // Comprehensive error logging
+        window.addEventListener('error', (e) => {
+            console.error('[Global Error]', e.error || e.message);
         });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('[Unhandled Promise Rejection]', e.reason);
+        });
+
+        let graphviz = null;
+
+        // Try to load Graphviz with detailed error handling
+        async function initGraphviz() {
+            if (!graphviz) {
+                try {
+                    console.log('[Graphviz] Loading from CDN...');
+                    const { Graphviz } = await import('https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2.26.3/dist/index.js');
+                    console.log('[Graphviz] Module loaded, initializing WASM...');
+                    graphviz = await Graphviz.load();
+                    console.log('[Graphviz] WASM initialized successfully');
+                } catch (error) {
+                    console.error('[Graphviz] Failed to load:', error);
+                    console.error('[Graphviz] Error details:', {
+                        message: error.message,
+                        stack: error.stack,
+                        name: error.name
+                    });
+                    throw error;
+                }
+            }
+            return graphviz;
+        }
 
         // Function to toggle dark/light mode
         window.toggleTheme = function() {
@@ -769,7 +839,7 @@ class HTMLGenerator extends BaseGenerator {
             const machineData = ${machineJson};
             const resultDiv = document.getElementById('executionResult');
             const diagramContainer = document.getElementById('diagram');
-            
+
             resultDiv.innerHTML = '<div style="color: #858585;">Executing machine...</div>';
             document.getElementById('results').style.display = 'block';
 
@@ -778,13 +848,12 @@ class HTMLGenerator extends BaseGenerator {
                 if (typeof window.executeWithVisualization === 'function') {
                     // Use enhanced execution with visualization
                     const result = await window.executeWithVisualization(machineData);
-                    
+
                     // Update diagram with runtime visualization
                     if (result.mobileVisualization) {
-                        const uniqueId = "mermaid-runtime-" + Date.now();
-                        const render = await mermaid.render(uniqueId, result.mobileVisualization);
-                        diagramContainer.innerHTML = render.svg;
-                        render.bindFunctions?.(diagramContainer);
+                        const gv = await initGraphviz();
+                        const svg = gv.dot(result.mobileVisualization);
+                        diagramContainer.innerHTML = svg;
                     }
                     
                     // Display execution results
@@ -858,26 +927,65 @@ class HTMLGenerator extends BaseGenerator {
         }
 
         // Set initial theme
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-theme');
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('[DOM] DOMContentLoaded event fired');
+
+            try {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                console.log('[Theme] Applying theme:', savedTheme);
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-theme');
+                }
+
+                // Render initial DOT diagram
+                const dotElement = document.querySelector('.graphviz-dot');
+                console.log('[DOT] Element found:', !!dotElement);
+
+                if (!dotElement) {
+                    throw new Error('DOT code element not found');
+                }
+
+                const dotCode = dotElement.textContent.trim();
+                console.log('[DOT] Code length:', dotCode.length);
+                console.log('[DOT] First 200 chars:', dotCode.substring(0, 200));
+
+                console.log('[Render] Initializing Graphviz...');
+                const gv = await initGraphviz();
+                console.log('[Render] Graphviz initialized, rendering DOT...');
+
+                const svg = gv.dot(dotCode);
+                console.log('[Render] SVG generated, length:', svg.length);
+                console.log('[Render] First 200 chars of SVG:', svg.substring(0, 200));
+
+                const container = document.querySelector('#diagram');
+                console.log('[Render] Diagram container found:', !!container);
+
+                container.innerHTML = svg;
+                console.log('[Render] ✓ Diagram rendered successfully');
+            } catch (error) {
+                console.error('[Render] ✗ Error rendering diagram:', error);
+                console.error('[Render] Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+
+                const container = document.querySelector('#diagram');
+                if (container) {
+                    container.innerHTML = \`
+                        <div style="padding: 20px; background: #ffebee; border: 2px solid #f44336; border-radius: 4px; color: #c62828;">
+                            <h3 style="margin-top: 0;">⚠️ Diagram Rendering Error</h3>
+                            <p><strong>Error:</strong> \${error.message}</p>
+                            <p><strong>Check the browser console for detailed logs.</strong></p>
+                            <details style="margin-top: 10px;">
+                                <summary style="cursor: pointer;">Technical Details</summary>
+                                <pre style="background: white; padding: 10px; overflow: auto;">\${error.stack || 'No stack trace available'}</pre>
+                            </details>
+                        </div>
+                    \`;
+                }
             }
         });
-        const uniqueId = "mermaid-svg-" + Date.now();
-        const content = document.querySelector('.mermaid');
-        const code = content.textContent.trim();
-        console.log(code);
-        let Diagram = window.Diagram = await mermaid.mermaidAPI.getDiagramFromText(code);
-        console.log(Diagram)
-        const svg = document.createElement('svg')
-        const render = await mermaid.render(uniqueId, code);
-        console.log("Render", render);
-        const container = document.querySelector('#diagram');
-        container.innerHTML = "";
-        container.appendChild(svg)
-        svg.outerHTML = render.svg
-        render.bindFunctions?.(container);
 
     </script>
     <style>
@@ -1050,7 +1158,7 @@ class HTMLGenerator extends BaseGenerator {
     
     <div class="title">${this.machine.title}</div>
     <div id="diagram">
-        <code class="mermaid">${mermaidDefinition}</code>
+        <code class="graphviz-dot" style="display:none;">${dotDefinition}</code>
     </div>
     <div id=\"results\">
         <h2>Execution Results</h2>
@@ -1074,6 +1182,9 @@ class GeneratorFactory {
                 return new JSONGenerator(machine, filePath, options);
             case 'mermaid':
                 return new MermaidGenerator(machine, filePath, options);
+            case 'graphviz':
+            case 'dot':
+                return new GraphvizGenerator(machine, filePath, options);
             case 'markdown':
                 return new MarkdownGenerator(machine, filePath, options);
             case 'html':
@@ -1099,6 +1210,10 @@ export function generateMarkdown(machine: Machine, filePath: string, destination
 
 export function generateHTML(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
     return GeneratorFactory.createGenerator('html', machine, filePath, { destination }).generate();
+}
+
+export function generateGraphviz(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
+    return GeneratorFactory.createGenerator('graphviz', machine, filePath, { destination }).generate();
 }
 
 // Backward compiler: JSON -> DyGram DSL

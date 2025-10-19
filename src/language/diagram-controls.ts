@@ -1,12 +1,19 @@
-import mermaid from 'mermaid';
+import { Graphviz } from '@hpcc-js/wasm';
 
-// Initialize mermaid with custom settings
-mermaid.initialize({
-    startOnLoad: false,
-    securityLevel: 'loose',
-    // logLevel: 0,
-    htmlLabels: true
-});
+// Cached Graphviz instance for performance
+let graphvizInstance: Awaited<ReturnType<typeof Graphviz.load>> | null = null;
+
+/**
+ * Get or create the Graphviz WASM instance
+ */
+async function getGraphviz(): Promise<Awaited<ReturnType<typeof Graphviz.load>>> {
+    if (!graphvizInstance) {
+        console.log('[Playground] Initializing Graphviz WASM...');
+        graphvizInstance = await Graphviz.load();
+        console.log('[Playground] Graphviz WASM initialized successfully');
+    }
+    return graphvizInstance;
+}
 
 // Function to toggle dark/light theme
 export function toggleTheme(): void {
@@ -17,14 +24,15 @@ export function toggleTheme(): void {
 
 // Function to download the diagram as SVG
 export function downloadSVG(): void {
-    const svg = document.querySelector('#diagram svg');
-    if (!svg) {
+    const img = document.querySelector('#diagram img') as HTMLImageElement;
+    if (!img || !img.src.startsWith('data:image/svg+xml')) {
         console.warn('No SVG diagram found to download');
         return;
     }
-    const serializer = new XMLSerializer();
-    const source = serializer.serializeToString(svg);
-    const blob = new Blob([source], { type: 'image/svg+xml' });
+    // Decode the data URI to get the SVG content
+    const dataUri = img.src;
+    const svgContent = decodeURIComponent(dataUri.split(',')[1]);
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -37,8 +45,8 @@ export function downloadSVG(): void {
 
 // Function to download the diagram as PNG
 export function downloadPNG(): void {
-    const svg = document.querySelector('#diagram svg');
-    if (!svg) {
+    const img = document.querySelector('#diagram img') as HTMLImageElement;
+    if (!img || !img.src.startsWith('data:image/svg+xml')) {
         console.warn('No SVG diagram found to download');
         return;
     }
@@ -62,33 +70,62 @@ export function downloadPNG(): void {
         document.body.removeChild(a);
     }
 
-    const serializer = new XMLSerializer();
-    const source = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serializer.serializeToString(svg));
-    loader.src = source;
+    // Use the existing data URI from the img element
+    loader.src = img.src;
 }
 
-// Function to render the diagram
+// Function to render the diagram using Graphviz
 export async function render(code: string, containerOveride?: Element, id?: string): Promise<void> {
     if (!code) {
-        console.warn('No code provided to render');
+        console.warn('[Playground] No code provided to render');
         return;
     }
+
     try {
-        const uniqueId = "mermaid-svg-" + (id || Date.now());
-        console.log("Rendering diagram with code:", code);
-        await mermaid.mermaidAPI.getDiagramFromText(code);
-        const svg = document.createElement('svg');
-        const render = await mermaid.render(uniqueId, code);
+        console.log('[Playground] Rendering Graphviz diagram...');
+        console.log('[Playground] DOT code length:', code.length);
+        console.log('[Playground] DOT code preview:', code.substring(0, 200));
+
+        const gv = await getGraphviz();
+        const svg = gv.dot(code);
+
+        console.log('[Playground] SVG generated, length:', svg.length);
+
         const container = containerOveride || document.querySelector('#diagram');
         if (!container) {
             throw new Error('Diagram container not found');
         }
-        container.innerHTML = "";
-        container.appendChild(svg);
-        svg.outerHTML = render.svg;
-        render.bindFunctions?.(container);
+
+        // Encode SVG as data URI and render in an img element
+        const dataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+
+        // Create img element with proper styling for responsive display
+        const img = document.createElement('img');
+        img.src = dataUri;
+        img.alt = 'Machine diagram';
+        img.style.width = '100%';
+        img.style.height = 'auto';
+        img.style.maxWidth = '100%';
+        img.style.objectFit = 'contain';
+        img.style.display = 'block';
+
+        // Clear container and add the image
+        container.innerHTML = '';
+        container.appendChild(img);
+
+        console.log('[Playground] ✓ Diagram rendered successfully as data URI');
     } catch (error) {
-        console.error('Error rendering diagram:', error);
+        console.error('[Playground] Error rendering diagram:', error);
+        const container = containerOveride || document.querySelector('#diagram');
+        if (container) {
+            container.innerHTML = `
+                <div style="padding: 20px; background: #ffebee; border: 2px solid #f44336; border-radius: 4px; color: #c62828;">
+                    <h3 style="margin-top: 0;">⚠️ Diagram Rendering Error</h3>
+                    <p><strong>Error:</strong> ${error instanceof Error ? error.message : String(error)}</p>
+                    <p><strong>Check the browser console for detailed logs.</strong></p>
+                </div>
+            `;
+        }
     }
 }
 
