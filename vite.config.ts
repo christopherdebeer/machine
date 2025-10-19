@@ -72,10 +72,7 @@ export default defineConfig(() => {
                 output: {
                     // Use 'es' format for workers to support code-splitting
                     format: 'es'
-                },
-                external: [
-                    'vscode'
-                ]
+                }
             },
             outDir: 'dist'
         },
