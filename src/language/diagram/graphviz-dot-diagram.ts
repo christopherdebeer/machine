@@ -514,7 +514,7 @@ function generateEdges(machineJson: MachineJSON): string {
         const edgeValue = edge.value || {};
         const keys = Object.keys(edgeValue);
 
-        // Build label from edge value and multiplicity
+        // Build label from edge value (without multiplicity)
         let label = '';
         const textValue = edgeValue.text;
         const otherProps = keys.filter(k => k !== 'text');
@@ -525,22 +525,33 @@ function generateEdges(machineJson: MachineJSON): string {
             label = textValue;
         }
 
-        // Add multiplicity to label if present
-        // Display as "source -> target" format to avoid doubling range notation
-        if (edge.sourceMultiplicity || edge.targetMultiplicity) {
-            const sourceMult = edge.sourceMultiplicity || '*';
-            const targetMult = edge.targetMultiplicity || '*';
-            const multLabel = `${sourceMult} → ${targetMult}`;
-            label = label ? `${label} [${multLabel}]` : multLabel;
-        }
-
         // Get arrow style based on arrow type
         const arrowStyle = getArrowStyle(edge.arrowType || '->');
 
-        const edgeLine = label
-            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}"${arrowStyle ? `,${arrowStyle}` : ''}, labelOverlay="75%", labelhref="#srcLineTBD"];`
-            : `  "${edge.source}" -> "${edge.target}" [labelOverlay="75%", ${arrowStyle}];`;
+        // Build edge attributes array
+        const edgeAttrs: string[] = [];
+        
+        if (label) {
+            edgeAttrs.push(`label="${escapeDot(label)}"`);
+        }
+        
+        // Add multiplicity using taillabel and headlabel (proper UML style)
+        if (edge.sourceMultiplicity) {
+            edgeAttrs.push(`taillabel="${escapeDot(edge.sourceMultiplicity)}"`);
+        }
+        
+        if (edge.targetMultiplicity) {
+            edgeAttrs.push(`headlabel="${escapeDot(edge.targetMultiplicity)}"`);
+        }
+        
+        if (arrowStyle) {
+            edgeAttrs.push(arrowStyle);
+        }
+        
+        edgeAttrs.push('labelOverlay="75%"');
+        edgeAttrs.push('labelhref="#srcLineTBD"');
 
+        const edgeLine = `  "${edge.source}" -> "${edge.target}" [${edgeAttrs.join(', ')}];`;
         lines.push(edgeLine);
     });
 
