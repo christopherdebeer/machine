@@ -192,7 +192,7 @@ export function generateRuntimeDotDiagram(
     lines.push('  fontname="Arial";');
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
-    lines.push('  node [fontname="Arial", fontsize=10];');  // Removed default shape=record to allow per-node shapes
+    lines.push('  node [fontname="Arial", fontsize=10, shape=record];');  // Restored shape=record for runtime diagrams
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
 
@@ -392,40 +392,43 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
     // Build HTML label
     let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
-    // Header row: Title and ID
+    // First row: Annotations (italic) and ID (bold)
     htmlLabel += '<tr><td align="left">';
-    if (displayValue && displayValue !== node.name) {
-        // Break long titles into multiple lines (approx 40 chars per line)
-        const titleLines = breakLongText(displayValue, 40);
-        htmlLabel += titleLines.map(line => escapeHtml(line)).join('<br/>');
-        htmlLabel += '<br/><b>' + escapeHtml(node.name) + '</b>';
-    } else {
-        htmlLabel += '<b>' + escapeHtml(displayValue || node.name) + '</b>';
-    }
-    htmlLabel += '</td></tr>';
 
-    // Type annotation
-    if (node.type) {
-        htmlLabel += '<tr><td align="left">';
-        htmlLabel += '&lt;&lt;' + escapeHtml(node.type) + '&gt;&gt;';
-        htmlLabel += '</td></tr>';
-    }
-
-    // Annotations with their values if any
+    // Annotations first (italic)
     if (node.annotations && node.annotations.length > 0) {
         const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
         if (displayAnnotations.length > 0) {
-            htmlLabel += '<tr><td align="left"><i>';
+            htmlLabel += '<i>';
             displayAnnotations.forEach((ann: any, idx: number) => {
-                if (idx > 0) htmlLabel += '<br/>';
+                if (idx > 0) htmlLabel += ' ';
                 if (ann.value) {
                     htmlLabel += '@' + escapeHtml(ann.name) + '("' + escapeHtml(ann.value) + '")';
                 } else {
                     htmlLabel += '@' + escapeHtml(ann.name);
                 }
             });
-            htmlLabel += '</i></td></tr>';
+            htmlLabel += '</i> ';
         }
+    }
+
+    // ID (bold)
+    htmlLabel += '<b>' + escapeHtml(node.name) + '</b>';
+    htmlLabel += '</td></tr>';
+
+    // Description row (if different from ID)
+    if (displayValue && displayValue !== node.name) {
+        htmlLabel += '<tr><td align="left">';
+        const titleLines = breakLongText(displayValue, 40);
+        htmlLabel += titleLines.map(line => escapeHtml(line)).join('<br/>');
+        htmlLabel += '</td></tr>';
+    }
+
+    // Type annotation
+    if (node.type) {
+        htmlLabel += '<tr><td align="left">';
+        htmlLabel += '&lt;&lt;' + escapeHtml(node.type) + '&gt;&gt;';
+        htmlLabel += '</td></tr>';
     }
 
     // Parent annotation
