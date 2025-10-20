@@ -25,12 +25,58 @@ function escapeDot(text: string): string {
 }
 
 /**
- * Generate node attributes for styling based on type
+ * Helper function to escape text for HTML-like labels in Graphviz
+ */
+function escapeHtml(text: string): string {
+    if (!text) return '';
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+/**
+ * Get node shape based on type and annotations
+ */
+function getNodeShape(node: any, edges?: any[]): string {
+    const nodeType = NodeTypeChecker.getNodeType(node, edges);
+
+    // Check for annotations
+    const annotations = node.annotations || [];
+    const hasAbstract = annotations.some((a: any) => a.name === 'Abstract');
+
+    // Map node types to shapes
+    const shapeMap: Record<string, string> = {
+        init: 'ellipse',       // Start/entry points
+        task: 'box',           // Tasks/actions
+        state: 'diamond',      // State nodes
+        context: 'folder',     // Context/data storage
+        tool: 'component',     // Tool/utility nodes
+    };
+
+    // Abstract nodes use octagon
+    if (hasAbstract) {
+        return 'octagon';
+    }
+
+    return (nodeType && shapeMap[nodeType]) || 'box';
+}
+
+/**
+ * Generate node attributes for styling based on type and annotations
  */
 function getNodeStyle(node: any, edges?: any[]): string {
     const nodeType = NodeTypeChecker.getNodeType(node, edges);
+    const annotations = node.annotations || [];
 
-    if (!nodeType) {
+    // Check for special annotations
+    const hasDeprecated = annotations.some((a: any) => a.name === 'Deprecated');
+    const hasCritical = annotations.some((a: any) => a.name === 'Critical');
+    const hasSingleton = annotations.some((a: any) => a.name === 'Singleton');
+    const hasAbstract = annotations.some((a: any) => a.name === 'Abstract');
+
+    if (!nodeType && annotations.length === 0) {
         return 'fillcolor="#FFFFFF", style=filled, color="#000000"';
     }
 
@@ -42,7 +88,34 @@ function getNodeStyle(node: any, edges?: any[]): string {
         init: 'fillcolor="#FFF3E0", style=filled, color="#F57C00"',
     };
 
-    return styles[nodeType] || 'fillcolor="#FFFFFF", style=filled, color="#000000"';
+    let baseStyle = (nodeType && styles[nodeType]) || 'fillcolor="#FFFFFF", style=filled, color="#000000"';
+
+    // Modify style based on annotations
+    if (hasDeprecated) {
+        // Deprecated: use dashed border and gray out
+        baseStyle = baseStyle.replace('style=filled', 'style="filled,dashed"');
+        baseStyle += ', fontcolor="#999999"';
+    }
+
+    if (hasCritical) {
+        // Critical: use bold border and red accent
+        baseStyle += ', penwidth=3';
+        baseStyle = baseStyle.replace(/color="[^"]*"/, 'color="#D32F2F"');
+    }
+
+    if (hasSingleton) {
+        // Singleton: use double border
+        baseStyle += ', peripheries=2';
+    }
+
+    if (hasAbstract) {
+        // Abstract: use dashed style if not already set
+        if (!baseStyle.includes('dashed')) {
+            baseStyle = baseStyle.replace('style=filled', 'style="filled,dashed"');
+        }
+    }
+
+    return baseStyle;
 }
 
 /**
@@ -60,7 +133,8 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push('  fontname="Arial";');
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
-    lines.push('  node [shape=record, fontname="Arial", fontsize=10];');
+    lines.push('  pad=0.25;');
+    lines.push('  node [fontname="Arial", fontsize=10];');  // Removed default shape=record to allow per-node shapes
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
 
@@ -119,7 +193,8 @@ export function generateRuntimeDotDiagram(
     lines.push('  fontname="Arial";');
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
-    lines.push('  node [shape=record, fontname="Arial", fontsize=10];');
+    lines.push('  pad=0.25;');
+    lines.push('  node [fontname="Arial", fontsize=10, shape=record];');  // Restored shape=record for runtime diagrams
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
 
@@ -141,7 +216,7 @@ export function generateRuntimeDotDiagram(
         const attrs: string[] = [];
 
         if (node.type) {
-            attrs.push(`<<${node.type}>>`);
+            attrs.push(`&lt;${node.type}&gt;`);
         }
 
         if (options.showRuntimeState !== false) {
@@ -283,7 +358,7 @@ function generateSemanticHierarchy(
             lines.push(`${indent}subgraph cluster_${node.name} {`);
             lines.push(`${indent}  label="${escapeDot(node.name)}";`);
             lines.push(`${indent}  style=filled;`);
-            lines.push(`${indent}  fillcolor="#F5F5F5";`);
+            lines.push(`${indent}  fillcolor="#FFFFFF";`);
             lines.push(`${indent}  color="#999999";`);
             lines.push('');
 
@@ -306,7 +381,7 @@ function generateSemanticHierarchy(
 }
 
 /**
- * Generate a node definition in DOT format
+ * Generate a node definition in DOT format with HTML-like labels for multi-line formatting
  */
 function generateNodeDefinition(node: any, edges: any[], indent: string): string {
     const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
@@ -316,54 +391,120 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
         displayValue = displayValue.replace(/^["']|["']$/g, '');
     }
 
-    // Build label parts
-    const labelParts: string[] = [];
+    // Build HTML label
+    let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
-    // Add main label
-    labelParts.push(displayValue || node.name);
+    // First row: Type (italic), ID (bold), Annotations (italic) ONLY
+    htmlLabel += '<tr><td align="left">';
 
-    // Add type annotation
+    let firstRowContent = '';
+
+    // ID (bold) - always present
+    firstRowContent += '<b>' + escapeHtml(node.name) + '</b>';
+
+    // Type first (italic)
     if (node.type) {
-        labelParts.push(`<<${node.type}>>`);
+        firstRowContent += ' <i>&lt;' + escapeHtml(node.type) + '&gt;</i>';
     }
 
-    // Add annotations
-    if (node.annotations) {
-        node.annotations.forEach((ann: any) => {
-            if (ann.name !== 'note') {
-                labelParts.push(`<<${ann.name}>>`);
-            }
-        });
+    
+
+    // Annotations (italic)
+    if (node.annotations && node.annotations.length > 0) {
+        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
+        if (displayAnnotations.length > 0) {
+            firstRowContent += ' <i>';
+            displayAnnotations.forEach((ann: any, idx: number) => {
+                if (idx > 0) firstRowContent += ' ';
+                if (ann.value) {
+                    firstRowContent += '@' + escapeHtml(ann.name) + '("' + escapeHtml(ann.value) + '")';
+                } else {
+                    firstRowContent += '@' + escapeHtml(ann.name);
+                }
+            });
+            firstRowContent += '</i>';
+        }
     }
 
-    // Add parent annotation
+    htmlLabel += firstRowContent;
+    htmlLabel += '</td></tr>';
+
+    // Second row: Title/Description (if different from ID)
+    if (displayValue && displayValue !== node.name) {
+        htmlLabel += '<tr><td align="left">';
+        const titleLines = breakLongText(displayValue, 40);
+        htmlLabel += titleLines.map(line => escapeHtml(line)).join('<br/>');
+        htmlLabel += '</td></tr>';
+    }
+
+    // Parent annotation
     if (node.parent) {
-        labelParts.push(`parent: ${node.parent}`);
+        htmlLabel += '<tr><td align="left">';
+        htmlLabel += 'parent: ' + escapeHtml(node.parent);
+        htmlLabel += '</td></tr>';
     }
 
-    // Add attributes
+    // Attributes table
     const attributes = node.attributes?.filter((a: any) =>
         a.name !== 'desc' && a.name !== 'prompt'
     ) || [];
 
-    attributes.forEach((a: any) => {
-        let displayValue = a.value?.value ?? a.value;
-        if (typeof displayValue === 'string') {
-            displayValue = displayValue.replace(/^["']|["']$/g, '');
-        }
-        const typeStr = a.type ? ` : ${a.type}` : '';
-        labelParts.push(`${a.name}${typeStr} = ${displayValue}`);
-    });
+    if (attributes.length > 0) {
+        htmlLabel += '<tr><td>';
+        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
 
-    // Format as record label
-    const recordLabel = labelParts.length > 1
-        ? `{${labelParts.map(p => escapeDot(p)).join('|')}}`
-        : escapeDot(labelParts[0]);
+        attributes.forEach((a: any) => {
+            let displayValue = a.value?.value ?? a.value;
+            if (typeof displayValue === 'string') {
+                displayValue = displayValue.replace(/^["']|["']$/g, '');
+                // Break long values into multiple lines
+                displayValue = breakLongText(displayValue, 30).join('<br/>');
+            }
+            const typeStr = a.type ? ' : ' + escapeHtml(a.type) : '';
 
-    // Get styling
+            htmlLabel += '<tr>';
+            htmlLabel += '<td align="left">' + escapeHtml(a.name) + typeStr + '</td>';
+            htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+            htmlLabel += '</tr>';
+        });
+
+        htmlLabel += '</table>';
+        htmlLabel += '</td></tr>';
+    }
+
+    htmlLabel += '</table>';
+
+    // Get shape and styling
+    const shape = getNodeShape(node, edges);
     const style = getNodeStyle(node, edges);
 
-    return `${indent}"${node.name}" [label="${recordLabel}", ${style}];`;
+    return `${indent}"${node.name}" [label=<${htmlLabel}>, shape=${shape}, ${style}];`;
+}
+
+/**
+ * Break long text into multiple lines at word boundaries
+ */
+function breakLongText(text: string, maxLength: number): string[] {
+    if (!text || text.length <= maxLength) {
+        return [text || ''];
+    }
+
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+        if (currentLine.length + word.length + 1 <= maxLength) {
+            currentLine += (currentLine ? ' ' : '') + word;
+        } else {
+            if (currentLine) lines.push(currentLine);
+            currentLine = word;
+        }
+    }
+
+    if (currentLine) lines.push(currentLine);
+
+    return lines.length > 0 ? lines : [text];
 }
 
 /**
@@ -380,7 +521,7 @@ function generateEdges(machineJson: MachineJSON): string {
         const edgeValue = edge.value || {};
         const keys = Object.keys(edgeValue);
 
-        // Build label from edge value
+        // Build label from edge value and multiplicity
         let label = '';
         const textValue = edgeValue.text;
         const otherProps = keys.filter(k => k !== 'text');
@@ -391,12 +532,21 @@ function generateEdges(machineJson: MachineJSON): string {
             label = textValue;
         }
 
+        // Add multiplicity to label if present
+        // Display as "source -> target" format to avoid doubling range notation
+        if (edge.sourceMultiplicity || edge.targetMultiplicity) {
+            const sourceMult = edge.sourceMultiplicity || '*';
+            const targetMult = edge.targetMultiplicity || '*';
+            const multLabel = `${sourceMult} → ${targetMult}`;
+            label = label ? `${label} [${multLabel}]` : multLabel;
+        }
+
         // Get arrow style based on arrow type
         const arrowStyle = getArrowStyle(edge.arrowType || '->');
 
         const edgeLine = label
-            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}"${arrowStyle}];`
-            : `  "${edge.source}" -> "${edge.target}"${arrowStyle};`;
+            ? `  "${edge.source}" -> "${edge.target}" [labeldistance=2 taillabel="${escapeDot(label)}"${arrowStyle ? `,${arrowStyle}` : ''}, labelOverlay="75%", labelhref="#srcLineTBD"];`
+            : `  "${edge.source}" -> "${edge.target}" [labeldistance=2 labelOverlay="75%", ${arrowStyle}];`;
 
         lines.push(edgeLine);
     });
@@ -405,17 +555,17 @@ function generateEdges(machineJson: MachineJSON): string {
 }
 
 /**
- * Map arrow types to DOT styles
+ * Map arrow types to DOT styles with enhanced arrow heads
  */
 function getArrowStyle(arrowType: string): string {
     const styles: Record<string, string> = {
-        '->': '',
-        '-->': ', style=dashed',
-        '=>': ', penwidth=2',
-        '<-->': ', dir=both',
-        '<|--': ', arrowhead=empty',
-        '*-->': ', arrowhead=diamond',
-        'o-->': ', arrowhead=odiamond',
+        '->': '',                                           // Association: normal arrow
+        '-->': 'style="dashed"',                           // Dependency: dashed arrow
+        '=>': 'penwidth=3, color="#D32F2F"',            // Critical path: thick red arrow
+        '<-->': 'dir=both, arrowhead=normal, arrowtail=normal',  // Bidirectional: both arrows
+        '<|--': 'arrowhead=empty, dir=back',            // Inheritance: empty arrow pointing to parent
+        '*-->': 'arrowhead=diamond, arrowtail=diamond, dir=forward',  // Composition: filled diamond
+        'o-->': 'arrowhead=odiamond, arrowtail=none',   // Aggregation: open diamond
     };
     return styles[arrowType] || '';
 }
@@ -427,9 +577,11 @@ function generateNotes(notes: any[]): string {
     if (!notes || notes.length === 0) return '';
 
     const lines: string[] = [];
-    notes.forEach(note => {
-        // Represent notes as labels on invisible edges
-        lines.push(`  "${note.target}" -> "${note.target}" [label="${escapeDot(note.content)}", style=invis];`);
+    notes.forEach((note, index) => {
+        // Create a visible note node connected to the target
+        const noteId = `note_${index}_${note.target}`;
+        lines.push(`  "${noteId}" [label="${escapeDot(note.content)}", shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
+        lines.push(`  "${noteId}" -> "${note.target}" [style=dashed, color="#999999", arrowhead=none];`);
     });
 
     return lines.join('\n');

@@ -3,10 +3,9 @@ import { EmptyFileSystem } from "langium";
 import { parseHelper } from "langium/test";
 import { createMachineServices } from "../../src/language/machine-module.js";
 import { Machine, isMachine } from "../../src/language/generated/ast.js";
-import { generateJSON, generateMermaid } from "../../src/language/generator/generator.js";
+import { generateJSON, generateGraphviz } from "../../src/language/generator/generator.js";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import mermaid from "mermaid";
 
 let services: ReturnType<typeof createMachineServices>;
 let parse: ReturnType<typeof parseHelper<Machine>>;
@@ -21,7 +20,7 @@ beforeAll(async () => {
  *
  * This suite validates the complete DyGram transformation pipeline:
  * 1. Loads examples from the examples/ directory
- * 2. Transforms through full pipeline: DyGram → AST → JSON → Mermaid
+ * 2. Transforms through full pipeline: DyGram → AST → JSON → Graphviz
  * 3. Validates completeness and losslessness
  * 4. Outputs visual inspection data
  *
@@ -36,8 +35,8 @@ interface ValidationResult {
     transformErrors: string[];
     completenessIssues: string[];
     losslessnessIssues: string[];
-    mermaidParseErrors: string[];
-    mermaidOutput?: string;
+    graphvizParseErrors: string[];
+    graphvizOutput?: string;
     jsonOutput?: any;
 }
 
@@ -55,11 +54,11 @@ class ValidationReporter {
         this.results.push(result);
 
         // Write individual outputs for manual inspection
-        if (result.mermaidOutput) {
+        if (result.graphvizOutput) {
             const fileName = result.testName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
             fs.writeFileSync(
                 path.join(this.outputDir, `${fileName}.md`),
-                `# ${result.testName}\n\n## Source\n\`\`\`machine\n${result.source}\n\`\`\`\n\n## Mermaid Output\n\`\`\`mermaid\n${result.mermaidOutput}\n\`\`\`\n\n## JSON Output\n\`\`\`json\n${JSON.stringify(result.jsonOutput, null, 2)}\n\`\`\`\n\n## Validation Status\n- Passed: ${result.passed}\n- Parse Errors: ${result.parseErrors.length}\n- Transform Errors: ${result.transformErrors.length}\n- Completeness Issues: ${result.completenessIssues.length}\n- Losslessness Issues: ${result.losslessnessIssues.length}\n- Mermaid Parse Errors: ${result.mermaidParseErrors.length}${result.mermaidParseErrors.length > 0 ? '\n  - ' + result.mermaidParseErrors.join('\n  - ') : ''}\n`
+                `# ${result.testName}\n\n## Source\n\`\`\`machine\n${result.source}\n\`\`\`\n\n## Graphviz Output\n\`\`\`dot\n${result.graphvizOutput}\n\`\`\`\n\n## JSON Output\n\`\`\`json\n${JSON.stringify(result.jsonOutput, null, 2)}\n\`\`\`\n\n## Validation Status\n- Passed: ${result.passed}\n- Parse Errors: ${result.parseErrors.length}\n- Transform Errors: ${result.transformErrors.length}\n- Completeness Issues: ${result.completenessIssues.length}\n- Losslessness Issues: ${result.losslessnessIssues.length}\n- Graphviz Parse Errors: ${result.graphvizParseErrors.length}${result.graphvizParseErrors.length > 0 ? '\n  - ' + result.graphvizParseErrors.join('\n  - ') : ''}\n`
             );
         }
     }
@@ -81,14 +80,14 @@ class ValidationReporter {
         const allTransformErrors = this.results.flatMap(r => r.transformErrors);
         const allCompletenessIssues = this.results.flatMap(r => r.completenessIssues);
         const allLosslessnessIssues = this.results.flatMap(r => r.losslessnessIssues);
-        const allMermaidParseErrors = this.results.flatMap(r => r.mermaidParseErrors);
+        const allGraphvizParseErrors = this.results.flatMap(r => r.graphvizParseErrors);
 
         report += `## Issue Summary\n`;
         report += `- Parse Errors: ${allParseErrors.length}\n`;
         report += `- Transform Errors: ${allTransformErrors.length}\n`;
         report += `- Completeness Issues: ${allCompletenessIssues.length}\n`;
         report += `- Losslessness Issues: ${allLosslessnessIssues.length}\n`;
-        report += `- Mermaid Parse Errors: ${allMermaidParseErrors.length}\n\n`;
+        report += `- Graphviz Parse Errors: ${allGraphvizParseErrors.length}\n\n`;
 
         // Failed tests details
         const failedResults = this.results.filter(r => !r.passed);
@@ -108,8 +107,8 @@ class ValidationReporter {
                 if (r.losslessnessIssues.length > 0) {
                     report += `**Losslessness Issues:**\n${r.losslessnessIssues.map(e => `- ${e}`).join('\n')}\n\n`;
                 }
-                if (r.mermaidParseErrors.length > 0) {
-                    report += `**Mermaid Parse Errors:**\n${r.mermaidParseErrors.map(e => `- ${e}`).join('\n')}\n\n`;
+                if (r.graphvizParseErrors.length > 0) {
+                    report += `**Graphviz Parse Errors:**\n${r.graphvizParseErrors.map(e => `- ${e}`).join('\n')}\n\n`;
                 }
             });
         }
@@ -127,7 +126,7 @@ class ValidationReporter {
         const allTransformErrors = this.results.flatMap(r => r.transformErrors);
         const allCompletenessIssues = this.results.flatMap(r => r.completenessIssues);
         const allLosslessnessIssues = this.results.flatMap(r => r.losslessnessIssues);
-        const allMermaidParseErrors = this.results.flatMap(r => r.mermaidParseErrors);
+        const allGraphvizParseErrors = this.results.flatMap(r => r.graphvizParseErrors);
 
         const failedResults = this.results.filter(r => !r.passed);
 
@@ -224,8 +223,8 @@ class ValidationReporter {
                     <div class="issue-label">Losslessness Issues</div>
                 </div>
                 <div class="issue-card">
-                    <div class="issue-count">${allMermaidParseErrors.length}</div>
-                    <div class="issue-label">Mermaid Errors</div>
+                    <div class="issue-count">${allGraphvizParseErrors.length}</div>
+                    <div class="issue-label">Graphviz Errors</div>
                 </div>
             </div>
         </div>
@@ -270,10 +269,10 @@ class ValidationReporter {
                         <ul class="error-list">${result.losslessnessIssues.map(e => `<li>${e}</li>`).join('')}</ul>
                     </div>`;
                 }
-                if (result.mermaidParseErrors.length > 0) {
+                if (result.graphvizParseErrors.length > 0) {
                     html += `<div class="error-section">
-                        <h4>Mermaid Parse Errors</h4>
-                        <ul class="error-list">${result.mermaidParseErrors.map(e => `<li>${e}</li>`).join('')}</ul>
+                        <h4>Graphviz Parse Errors</h4>
+                        <ul class="error-list">${result.graphvizParseErrors.map(e => `<li>${e}</li>`).join('')}</ul>
                     </div>`;
                 }
             }
@@ -318,7 +317,7 @@ describe('Generative Integration Tests', () => {
             transformErrors: [],
             completenessIssues: [],
             losslessnessIssues: [],
-            mermaidParseErrors: []
+            graphvizParseErrors: []
         };
 
         try {
@@ -377,62 +376,42 @@ describe('Generative Integration Tests', () => {
                 result.passed = false;
             }
 
-            // Transform to Mermaid
+            // Transform to Graphviz
             try {
-                const mermaidResult = generateMermaid(machine, 'test.mach', undefined);
-                result.mermaidOutput = mermaidResult.content;
+                const graphvizResult = generateGraphviz(machine, 'test.mach', undefined);
+                result.graphvizOutput = graphvizResult.content;
 
-                // Validate Mermaid contains key elements
-                if (!result.mermaidOutput.includes('classDiagram-v2')) {
-                    result.losslessnessIssues.push('Mermaid output missing classDiagram-v2 declaration');
+                // Validate Graphviz contains key elements
+                if (!result.graphvizOutput.includes('digraph')) {
+                    result.losslessnessIssues.push('Graphviz output missing digraph declaration');
                     result.passed = false;
                 }
 
-                if (!result.mermaidOutput.includes(machine.title)) {
-                    result.losslessnessIssues.push(`Mermaid output missing machine title: "${machine.title}"`);
+                if (!result.graphvizOutput.includes(machine.title)) {
+                    result.losslessnessIssues.push(`Graphviz output missing machine title: "${machine.title}"`);
                     result.passed = false;
                 }
 
-                // Check that nodes appear in Mermaid
+                // Check that nodes appear in Graphviz
                 const sourceNodeNames = extractNodeNamesFromSource(source);
                 for (const nodeName of sourceNodeNames) {
-                    if (!result.mermaidOutput.includes(nodeName)) {
-                        result.losslessnessIssues.push(`Node "${nodeName}" not found in Mermaid output`);
+                    if (!result.graphvizOutput.includes(nodeName)) {
+                        result.losslessnessIssues.push(`Node "${nodeName}" not found in Graphviz output`);
                         result.passed = false;
                     }
                 }
 
-                // Validate Mermaid parsing
-                // Note: Mermaid.js requires a browser environment (DOM, DOMPurify)
-                // In Node.js test environment, we can't fully validate Mermaid parsing
-                // Instead, we validate structural completeness above
-                // For full Mermaid validation, review generated artifacts in test-output/generative/
-                try {
-                    // Initialize mermaid with minimal config for Node.js environment
-                    mermaid.initialize({
-                        startOnLoad: false,
-                        securityLevel: 'loose',
-                        logLevel: 0
-                    });
-
-                    // Try to parse the Mermaid diagram
-                    // This will throw if the diagram is invalid
-                    await mermaid.parse(result.mermaidOutput);
-                } catch (mermaidError: any) {
-                    // Silently log Mermaid parse errors as they're expected in Node.js
-                    // The error message is typically about missing DOM APIs (DOMPurify.sanitize)
-                    const errorMessage = mermaidError.message || String(mermaidError);
-
-                    // Only flag as issue if it's NOT a Node.js environment error
-                    if (!errorMessage.includes('DOMPurify') && !errorMessage.includes('document is not defined')) {
-                        result.mermaidParseErrors.push(`Mermaid parse failed: ${errorMessage}`);
-                        // Don't fail the test - Mermaid parsing in Node.js is optional
-                        // result.passed = false;
-                    }
+                // Basic DOT syntax validation
+                // Check for balanced braces
+                const openBraces = (result.graphvizOutput.match(/\{/g) || []).length;
+                const closeBraces = (result.graphvizOutput.match(/\}/g) || []).length;
+                if (openBraces !== closeBraces) {
+                    result.graphvizParseErrors.push(`Unbalanced braces: ${openBraces} open, ${closeBraces} close`);
+                    result.passed = false;
                 }
 
             } catch (e) {
-                result.transformErrors.push(`Mermaid generation failed: ${e}`);
+                result.transformErrors.push(`Graphviz generation failed: ${e}`);
                 result.passed = false;
             }
 

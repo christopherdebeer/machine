@@ -1,6 +1,6 @@
 /**
  * Dependency Analyzer
- * Analyzes template variable references and infers dependency edges
+ * Analyzes template variable references and CEL conditions to infer dependency edges
  */
 
 import type { Machine, Node, Attribute } from './generated/ast.js';
@@ -15,10 +15,12 @@ export interface InferredDependency {
 export class DependencyAnalyzer {
     private machine: Machine;
     private nodeMap: Map<string, Node>;
+    private nodeAttributes: Map<string, Set<string>>; // Maps node name to set of attribute names
 
     constructor(machine: Machine) {
         this.machine = machine;
         this.nodeMap = this.buildNodeMap();
+        this.nodeAttributes = this.buildNodeAttributeMap();
     }
 
     /**
@@ -29,6 +31,29 @@ export class DependencyAnalyzer {
 
         const processNode = (node: Node) => {
             map.set(node.name, node);
+            node.nodes.forEach(child => processNode(child));
+        };
+
+        this.machine.nodes.forEach(node => processNode(node));
+        return map;
+    }
+
+    /**
+     * Build a map of node names to their attribute names
+     */
+    private buildNodeAttributeMap(): Map<string, Set<string>> {
+        const map = new Map<string, Set<string>>();
+
+        const processNode = (node: Node) => {
+            const attrNames = new Set<string>();
+            node.attributes?.forEach(attr => {
+                if (attr.name) {
+                    attrNames.add(attr.name);
+                }
+            });
+            map.set(node.name, attrNames);
+
+            // Recursively process child nodes
             node.nodes.forEach(child => processNode(child));
         };
 
@@ -50,6 +75,74 @@ export class DependencyAnalyzer {
         }
 
         return references;
+    }
+
+    /**
+     * Extract CEL condition from edge label
+     * Looks for patterns like: when: "condition", unless: "condition", if: "condition"
+     */
+    private extractCelCondition(edgeLabel: string): string | null {
+        // Look for when: pattern
+        const whenMatch = edgeLabel.match(/when:\s*['"]([^'"]+)['"]/i);
+        if (whenMatch) {
+            return whenMatch[1];
+        }
+
+        // Look for unless: pattern (we'll negate it)
+        const unlessMatch = edgeLabel.match(/unless:\s*['"]([^'"]+)['"]/i);
+        if (unlessMatch) {
+            return unlessMatch[1]; // Return as-is, negation is semantic
+        }
+
+        // Look for if: pattern
+        const ifMatch = edgeLabel.match(/if:\s*['"]([^'"]+)['"]/i);
+        if (ifMatch) {
+            return ifMatch[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract variable references from a CEL condition
+     * Returns identifiers that could be attribute names
+     * Examples: "errorCount > 0" => ["errorCount"]
+     *           "retries < maxRetries" => ["retries", "maxRetries"]
+     *           "config.retry.maxAttempts == 3" => ["config"]
+     */
+    private extractCelVariables(condition: string): string[] {
+        const variables: string[] = [];
+
+        // Pattern to match identifiers (variable names)
+        // This matches the first part of dotted paths like "config.retry.maxAttempts" => "config"
+        const identifierPattern = /\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g;
+        let match;
+
+        // Reserved CEL keywords and built-in variables that shouldn't be treated as node references
+        const reserved = new Set(['true', 'false', 'null', 'errorCount', 'errors', 'activeState']);
+
+        while ((match = identifierPattern.exec(condition)) !== null) {
+            const identifier = match[1];
+            if (!reserved.has(identifier)) {
+                variables.push(identifier);
+            }
+        }
+
+        // Remove duplicates
+        return [...new Set(variables)];
+    }
+
+    /**
+     * Find which node defines a given attribute name
+     * Returns the node name that has this attribute, or null if not found
+     */
+    private findNodeByAttribute(attributeName: string): string | null {
+        for (const [nodeName, attributes] of this.nodeAttributes.entries()) {
+            if (attributes.has(attributeName)) {
+                return nodeName;
+            }
+        }
+        return null;
     }
 
     /**
@@ -123,7 +216,80 @@ export class DependencyAnalyzer {
     }
 
     /**
-     * Analyze all nodes and infer dependencies based on template variable usage
+     * Analyze edge conditions for dependencies
+     * Extracts CEL conditions and resolves variable references to nodes
+     */
+    private analyzeEdgeConditions(): InferredDependency[] {
+        const dependencies: InferredDependency[] = [];
+
+        // Analyze all edges in the machine
+        this.machine.edges?.forEach(edge => {
+            edge.segments.forEach(segment => {
+                // Get edge label (could contain condition)
+                if (!segment.label || segment.label.length === 0) return;
+
+                // Extract label text from AST
+                const labelText = segment.label
+                    .map(l => {
+                        if (l.$cstNode && 'text' in l.$cstNode) {
+                            return l.$cstNode.text;
+                        }
+                        return '';
+                    })
+                    .filter(t => t)
+                    .join(' ');
+
+                if (!labelText) return;
+
+                // Extract CEL condition
+                const condition = this.extractCelCondition(labelText);
+                if (!condition) return;
+
+                // Extract variables from condition
+                const variables = this.extractCelVariables(condition);
+
+                // For each variable, find which node defines it
+                variables.forEach(varName => {
+                    // First check if it's directly a node name
+                    if (this.nodeMap.has(varName)) {
+                        // It's a node reference
+                        edge.source.forEach(sourceRef => {
+                            const sourceName = sourceRef.ref?.name;
+                            if (sourceName && sourceName !== varName) {
+                                dependencies.push({
+                                    source: sourceName,
+                                    target: varName,
+                                    reason: `condition references ${varName}`,
+                                    path: condition
+                                });
+                            }
+                        });
+                    } else {
+                        // Check if it's an attribute defined by a node
+                        const definingNode = this.findNodeByAttribute(varName);
+                        if (definingNode) {
+                            edge.source.forEach(sourceRef => {
+                                const sourceName = sourceRef.ref?.name;
+                                if (sourceName && sourceName !== definingNode) {
+                                    dependencies.push({
+                                        source: sourceName,
+                                        target: definingNode,
+                                        reason: `condition references ${varName}`,
+                                        path: condition
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+        });
+
+        return dependencies;
+    }
+
+    /**
+     * Analyze all nodes and infer dependencies based on template variable usage and edge conditions
      */
     public inferDependencies(): InferredDependency[] {
         const dependencies: InferredDependency[] = [];
@@ -147,6 +313,16 @@ export class DependencyAnalyzer {
         };
 
         this.machine.nodes.forEach(node => analyzeNode(node));
+
+        // Analyze edge conditions for dependencies
+        const edgeDeps = this.analyzeEdgeConditions();
+        edgeDeps.forEach(dep => {
+            const key = `${dep.source}:${dep.target}:${dep.path}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                dependencies.push(dep);
+            }
+        });
 
         return dependencies;
     }
