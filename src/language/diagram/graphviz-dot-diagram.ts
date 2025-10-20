@@ -100,8 +100,8 @@ function getNodeStyle(node: any, edges?: any[]): string {
 
     if (hasCritical) {
         // Critical: use bold border and red accent
+        // baseStyle = baseStyle.replace(/color="[^"]*"/, 'color="#ffadad"');
         baseStyle += ', penwidth=3';
-        baseStyle = baseStyle.replace(/color="[^"]*"/, 'color="#D32F2F"');
     }
 
     if (hasSingleton) {
@@ -359,6 +359,7 @@ function generateSemanticHierarchy(
             lines.push(`${indent}subgraph cluster_${node.name} {`);
             lines.push(`${indent}  label="${escapeDot(node.name)}";`);
             lines.push(`${indent}  style=filled;`);
+            lines.push(`${indent}  fontsize=12pt;`);
             lines.push(`${indent}  fillcolor="#FFFFFF";`);
             lines.push(`${indent}  color="#999999";`);
             lines.push('');
@@ -572,7 +573,9 @@ function generateNotes(notes: any[]): string {
     notes.forEach((note, index) => {
         // Create a visible note node connected to the target
         const noteId = `note_${index}_${note.target}`;
-        lines.push(`  "${noteId}" [label="${escapeDot(note.content)}", shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
+        const content = breakLongText(note.content, 40);
+        const htmlLabel = content.map(line => escapeHtml(line)).join('<br/>');
+        lines.push(`  "${noteId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
         lines.push(`  "${noteId}" -> "${note.target}" [style=dashed, color="#999999", arrowhead=none];`);
     });
 
