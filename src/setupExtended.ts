@@ -2,14 +2,10 @@ import { MonacoEditorLanguageClientWrapper, UserConfig, EditorAppConfigExtended 
 import { configureWorker, defineUserServices } from './setupCommon.js';
 import { RailsExecutor } from './language/rails-executor.js';
 import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './language/diagram-controls.js';
+import { loadSettings, saveSettings } from './language/shared-settings.js';
+import { renderExampleButtons } from './language/shared-examples.js';
 import { IDimension } from 'vscode/services';
 import { KeyCode, KeyMod } from 'monaco-editor';
-
-// LocalStorage keys
-const STORAGE_KEYS = {
-    MODEL: 'dygram_selected_model',
-    API_KEY: 'dygram_api_key'
-};
 
 // Execution state
 let currentExecutor: RailsExecutor | null = null;
@@ -111,24 +107,6 @@ export const setupConfigExtended = (src: string, options: any): UserConfig => {
 };
 
 /**
- * Load settings from localStorage
- */
-function loadSettings(): { model: string; apiKey: string } {
-    return {
-        model: localStorage.getItem(STORAGE_KEYS.MODEL) || 'anthropic.claude-3-sonnet-20240229-v1:0',
-        apiKey: localStorage.getItem(STORAGE_KEYS.API_KEY) || ''
-    };
-}
-
-/**
- * Save settings to localStorage
- */
-function saveSettings(model: string, apiKey: string): void {
-    localStorage.setItem(STORAGE_KEYS.MODEL, model);
-    localStorage.setItem(STORAGE_KEYS.API_KEY, apiKey);
-}
-
-/**
  * Setup settings UI
  */
 function setupSettingsUI(): void {
@@ -146,12 +124,40 @@ function setupSettingsUI(): void {
 
     // Save on change
     modelSelect.addEventListener('change', () => {
-        saveSettings(modelSelect.value, apiKeyInput.value);
+        const currentSettings = loadSettings();
+        saveSettings(modelSelect.value, currentSettings.apiKey);
     });
 
     apiKeyInput.addEventListener('input', () => {
-        saveSettings(modelSelect.value, apiKeyInput.value);
+        const currentSettings = loadSettings();
+        saveSettings(currentSettings.model, apiKeyInput.value);
     });
+}
+
+/**
+ * Setup examples UI
+ */
+function setupExamplesUI(wrapper: MonacoEditorLanguageClientWrapper): void {
+    const examplesContainer = document.getElementById('monaco-examples');
+    if (!examplesContainer) {
+        return;
+    }
+
+    // Use shared example loader with category view
+    renderExampleButtons(
+        examplesContainer,
+        (content, example) => {
+            const editor = wrapper.getEditor();
+            if (editor) {
+                editor.setValue(content);
+            }
+        },
+        {
+            categoryView: true,
+            buttonClass: 'example-btn',
+            categoryButtonClass: 'example-btn category-btn'
+        }
+    );
 }
 
 export const executeExtended = async (htmlElement: HTMLElement, useDefault : boolean, outputEl : HTMLElement): Promise<MonacoEditorLanguageClientWrapper> => {
@@ -352,6 +358,9 @@ s1 -catch-> init;
             }
         }, 200);
     });
+
+    // Setup examples UI
+    setupExamplesUI(wrapper);
 
     return wrapper;
 };
