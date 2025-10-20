@@ -545,8 +545,8 @@ function generateEdges(machineJson: MachineJSON): string {
         const arrowStyle = getArrowStyle(edge.arrowType || '->');
 
         const edgeLine = label
-            ? `  "${edge.source}" -> "${edge.target}" [labeldistance=2 taillabel="${escapeDot(label)}"${arrowStyle ? `,${arrowStyle}` : ''}, labelOverlay="75%", labelhref="#srcLineTBD"];`
-            : `  "${edge.source}" -> "${edge.target}" [labeldistance=2 labelOverlay="75%", ${arrowStyle}];`;
+            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}"${arrowStyle ? `,${arrowStyle}` : ''}, labelOverlay="75%", labelhref="#srcLineTBD"];`
+            : `  "${edge.source}" -> "${edge.target}" [labelOverlay="75%", ${arrowStyle}];`;
 
         lines.push(edgeLine);
     });
