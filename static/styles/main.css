@@ -174,31 +174,7 @@ section {
 .diagram svg {
     width: 100%;
     height: 100%;
-}
-
-.node {
-    fill: white;
-    stroke: var(--primary);
-    stroke-width: 2px;
-}
-
-.node-text {
-    font-family: 'Fira Code', monospace;
-    font-size: 14px;
-    text-anchor: middle;
-    dominant-baseline: middle;
-}
-
-.edge {
-    stroke: var(--primary);
-    stroke-width: 2px;
-}
-
-.edge-text {
-    font-family: 'Fira Code', monospace;
-    font-size: 12px;
-    text-anchor: middle;
-    fill: var(--primary);
+    font-family: Arial;
 }
 
 .arrow {

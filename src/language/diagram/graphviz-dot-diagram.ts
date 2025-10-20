@@ -545,8 +545,8 @@ function generateEdges(machineJson: MachineJSON): string {
         const arrowStyle = getArrowStyle(edge.arrowType || '->');
 
         const edgeLine = label
-            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}"${arrowStyle}, labelhref="#foo"];`
-            : `  "${edge.source}" -> "${edge.target}"${arrowStyle};`;
+            ? `  "${edge.source}" -> "${edge.target}" [labeldistance=2 taillabel="${escapeDot(label)}"${arrowStyle ? `,${arrowStyle}` : ''}, labelOverlay="75%", labelhref="#srcLineTBD"];`
+            : `  "${edge.source}" -> "${edge.target}" [labeldistance=2 labelOverlay="75%", ${arrowStyle}];`;
 
         lines.push(edgeLine);
     });
@@ -560,12 +560,12 @@ function generateEdges(machineJson: MachineJSON): string {
 function getArrowStyle(arrowType: string): string {
     const styles: Record<string, string> = {
         '->': '',                                           // Association: normal arrow
-        '-->': ', style=dashed',                           // Dependency: dashed arrow
-        '=>': ', penwidth=3, color="#D32F2F"',            // Critical path: thick red arrow
-        '<-->': ', dir=both, arrowhead=normal, arrowtail=normal',  // Bidirectional: both arrows
-        '<|--': ', arrowhead=empty, dir=back',            // Inheritance: empty arrow pointing to parent
-        '*-->': ', arrowhead=diamond, arrowtail=diamond, dir=forward',  // Composition: filled diamond
-        'o-->': ', arrowhead=odiamond, arrowtail=none',   // Aggregation: open diamond
+        '-->': 'style="dashed"',                           // Dependency: dashed arrow
+        '=>': 'penwidth=3, color="#D32F2F"',            // Critical path: thick red arrow
+        '<-->': 'dir=both, arrowhead=normal, arrowtail=normal',  // Bidirectional: both arrows
+        '<|--': 'arrowhead=empty, dir=back',            // Inheritance: empty arrow pointing to parent
+        '*-->': 'arrowhead=diamond, arrowtail=diamond, dir=forward',  // Composition: filled diamond
+        'o-->': 'arrowhead=odiamond, arrowtail=none',   // Aggregation: open diamond
     };
     return styles[arrowType] || '';
 }
