@@ -227,3 +227,103 @@ cat test-output/generative/new_feature.md
 - [Examples Index](examples-index.html) - All test examples
 - [Language Overview](language-overview.html) - Conceptual introduction
 
+
+## Stress Testing
+
+Large machine for performance and stress testing:
+
+```dygram examples/stress/large-50-nodes.dygram
+machine "Large Machine"
+node0 {
+    id<number>: 0;
+    name<string>: "Node 0";
+}
+node1;
+node2;
+node3;
+node4;
+node5 {
+    id<number>: 5;
+    name<string>: "Node 5";
+}
+node6;
+node7;
+node8;
+node9;
+node10 {
+    id<number>: 10;
+    name<string>: "Node 10";
+}
+node11;
+node12;
+node13;
+node14;
+node15 {
+    id<number>: 15;
+    name<string>: "Node 15";
+}
+node16;
+node17;
+node18;
+node19;
+node20 {
+    id<number>: 20;
+    name<string>: "Node 20";
+}
+node21;
+node22;
+node23;
+node24;
+node25 {
+    id<number>: 25;
+    name<string>: "Node 25";
+}
+node26;
+node27;
+node28;
+node29;
+node30 {
+    id<number>: 30;
+    name<string>: "Node 30";
+}
+node31;
+node32;
+node33;
+node34;
+node35 {
+    id<number>: 35;
+    name<string>: "Node 35";
+}
+node36;
+node37;
+node38;
+node39;
+node40 {
+    id<number>: 40;
+    name<string>: "Node 40";
+}
+node41;
+node42;
+node43;
+node44;
+node45 {
+    id<number>: 45;
+    name<string>: "Node 45";
+}
+node46;
+node47;
+node48;
+node49;
+
+node0 -> node1 -> node2 -> node3 -> node4 -> node5;
+node5 -> node6 -> node7 -> node8 -> node9 -> node10;
+node10 -> node11 -> node12 -> node13 -> node14 -> node15;
+node15 -> node16 -> node17 -> node18 -> node19 -> node20;
+node20 -> node21 -> node22 -> node23 -> node24 -> node25;
+node25 -> node26 -> node27 -> node28 -> node29 -> node30;
+node30 -> node31 -> node32 -> node33 -> node34 -> node35;
+node35 -> node36 -> node37 -> node38 -> node39 -> node40;
+node40 -> node41 -> node42 -> node43 -> node44 -> node45;
+node45 -> node46 -> node47 -> node48 -> node49;
+```
+

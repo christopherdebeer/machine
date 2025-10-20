@@ -239,3 +239,55 @@ See [Testing Approach](testing-approach.html) for validation details.
 - [Examples Index](examples-index.html) - All examples organized by category
 - [Testing Approach](testing-approach.html) - Validation methodology
 
+
+## Additional Examples
+
+### Minimal Empty Machine
+
+```dygram examples/basic/empty-and-minimal.dygram
+machine "Minimal Test"
+a;
+```
+
+### Deep Attributes
+
+Complex attribute usage with multiple types and long values:
+
+```dygram examples/attributes/deep-attributes.dygram
+machine "Deep Attributes Test"
+node1 {
+    name<string>: "Primary Node";
+    count<number>: 42;
+    enabled<boolean>: true;
+    items: ["alpha", "beta", "gamma"];
+    ratio<number>: 3.14159;
+    status: "active";
+}
+
+node2 {
+    config: ["opt1", "opt2", "opt3"];
+    maxValue<number>: 99999;
+    minValue<number>: 0;
+    description<string>: "This is a very long description that contains multiple words and should be preserved exactly as written in the transformation pipeline";
+}
+
+node1 -config: "primary";-> node2;
+```
+
+### Quoted Edge Labels
+
+Edges with quoted labels for complex descriptions:
+
+```dygram examples/edges/quoted-labels.dygram
+machine "Quoted Labels Machine"
+start;
+middle;
+end;
+error;
+
+start -"user clicks button"-> middle;
+middle -"validation: passed; retry: 3;"-> end;
+middle -"error: timeout"-> error;
+error -"retry attempt"-> start;
+```
+

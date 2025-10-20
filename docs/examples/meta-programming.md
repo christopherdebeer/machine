@@ -257,3 +257,201 @@ Connect tasks to tools using edges:
 - [Meta-Programming Documentation](../../docs/MetaProgramming.mdx)
 - [Rails-Based Architecture](../../docs/RailsBasedArchitecture.md)
 - [Context & Schema Guide](../../docs/ContextAndSchemaGuide.mdx)
+
+### `tool-creation.dygram`
+
+Tool Creation Example
+
+```dygram examples/meta-programming/tool-creation.dygram
+machine "Tool Creation Example"
+
+// Demonstrates dynamic tool construction with loosely defined Tool nodes
+// When meta: true is enabled, the agent can build out tool definitions
+
+// A loosely defined tool - just has a name and basic description
+Tool sentiment_analyzer {
+    description: "Analyze sentiment of text and return score";
+}
+
+// A more complete tool with input schema but no implementation
+Tool data_transformer {
+    description: "Transform data from one format to another";
+    input_schema: '{"type": "object", "properties": {"data": {"type": "string"}, "target_format": {"type": "string"}}}';
+}
+
+// Task with meta capability to build out tools
+Task builder {
+    meta: true;
+    prompt: "Inspect the tool nodes (sentiment_analyzer and data_transformer). For each tool, use construct_tool to register them with complete input_schema, output_schema, and an implementation strategy. For sentiment_analyzer, use 'agent_backed' strategy. For data_transformer, use 'code_generation' strategy with sample JavaScript code.";
+}
+
+// Task that will use the tools after they are built
+Task processor {
+    prompt: "Use the sentiment_analyzer tool to analyze: 'This is a great product!'. Then use data_transformer to convert some sample JSON to YAML format.";
+}
+
+State complete {
+    desc: "Processing complete";
+}
+
+// Workflow
+builder -uses-> sentiment_analyzer, data_transformer;
+builder -> processor;
+processor -> complete;
+
+```
+
+### `self-healing.dygram`
+
+Self-Healing Pipeline
+
+```dygram examples/meta-programming/self-healing.dygram
+machine "Self-Healing Pipeline"
+
+// Demonstrates meta-programming capabilities for self-healing systems
+// The monitor task can add error handling nodes if error rate is too high
+
+context metrics {
+    errorCount<number>: 0;
+    successRate<number>: 1.0;
+    totalRequests<number>: 0;
+}
+
+Task monitor {
+    meta: true;
+    prompt: "Monitor the metrics context. If errorCount > 3 or successRate < 0.7, use get_machine_definition to inspect the current structure, then use update_definition to add retry logic and error handler nodes. Add a 'retryHandler' Task node and 'errorRecovery' State node with edges: processing -> retryHandler -> errorRecovery -> processing.";
+}
+
+State processing {
+    desc: "Main processing state";
+}
+
+State complete {
+    desc: "Pipeline completed successfully";
+}
+
+// Workflow
+monitor -reads-> metrics;
+monitor -> processing;
+processing -> complete;
+
+```
+
+### `self-modifying-pipeline.dygram`
+
+Self-Modifying Pipeline
+
+```dygram examples/meta-programming/self-modifying-pipeline.dygram
+machine "Self-Modifying Pipeline"
+
+// Demonstrates basic meta-programming where an agent modifies the machine structure
+
+State start;
+
+Task optimizer {
+    meta: true;
+    prompt: "Analyze the current pipeline using get_machine_definition. If the pipeline is simple (fewer than 5 nodes), add a validation step before processing and an audit step after processing. Use update_definition to add these nodes.";
+}
+
+State processing {
+    desc: "Main data processing";
+}
+
+State complete {
+    desc: "Processing complete";
+}
+
+// Initial workflow
+start -> optimizer;
+optimizer -> processing;
+processing -> complete;
+
+```
+
+### `conditional-evolution.dygram`
+
+Conditional Evolution System
+
+```dygram examples/meta-programming/conditional-evolution.dygram
+machine "Conditional Evolution System"
+
+// Demonstrates context-driven meta-programming evolution
+
+context config {
+    mode<string>: "production";
+    maxRetries<number>: 3;
+    enableLogging<boolean>: true;
+}
+
+context performance {
+    avgResponseTime<number>: 0;
+    peakMemory<number>: 0;
+}
+
+State start;
+
+Task adapter {
+    meta: true;
+    prompt: "Read the config and performance contexts. Use get_machine_definition to see the current structure. Based on conditions, modify the machine:
+    - If mode='production' and maxRetries > 1: add retry logic with exponential backoff
+    - If avgResponseTime > 1000ms: add caching layer
+    - If enableLogging=true: add logging nodes at key points
+    Use update_definition to apply changes.";
+}
+
+State processing {
+    desc: "Main processing logic";
+}
+
+State complete {
+    desc: "System operation complete";
+}
+
+// Edges
+start -> adapter;
+adapter -reads-> config;
+adapter -reads-> performance;
+adapter -> processing;
+processing -> complete;
+
+```
+
+### `rails-meta-example.dygram`
+
+Rails-Based Meta-Programming
+
+```dygram examples/meta-programming/rails-meta-example.dygram
+machine "Rails-Based Meta-Programming"
+
+// Demonstrates meta-programming with rails-based execution model
+// Rails allow agents to modify the machine while tracking mutations
+
+context system {
+    version<string>: "1.0.0";
+    features<string>: "basic";
+}
+
+Task analyzer {
+    meta: true;
+    prompt: "Analyze the system context using get_context_value. Get the current machine definition with get_machine_definition. If features='basic', evolve the machine to add advanced features: add 'authentication' Task, 'authorization' Task, and 'audit' State nodes. Use update_definition with a clear reason for the modification.";
+}
+
+State init {
+    desc: "System initialization";
+}
+
+Task process {
+    prompt: "Execute main processing logic";
+}
+
+State complete {
+    desc: "Execution complete";
+}
+
+// Workflow with rails
+init -> analyzer;
+analyzer -reads-> system;
+analyzer -> process;
+process -> complete;
+
+```
