@@ -221,3 +221,468 @@ Have a Rails-Based Architecture pattern to share? Submit a PR with:
 2. Comprehensive inline comments explaining behavior
 3. Update this README with the example description
 4. Add test coverage if applicable
+
+### `auto-transitions.mach`
+
+Automated Transitions Demo
+
+```dygram examples/rails/auto-transitions.mach
+machine "Automated Transitions Demo"
+
+// This example demonstrates automatic transitions that execute
+// without invoking the agent, improving efficiency.
+
+// Context for metrics
+context metrics {
+    errorCount<number>: 0;
+    processingTime<number>: 0;
+    quality<number>: 0.0;
+};
+
+// State nodes (automatically transition)
+State idle;
+State initializing;
+State ready;
+State error;
+State complete;
+
+// Task nodes (require agent decisions)
+Task process {
+    prompt: "Process the data and update metrics";
+};
+
+Task handleError {
+    prompt: "Diagnose and handle the error";
+};
+
+// Automatic transitions
+// 1. State nodes always auto-transition if they have single outbound edge
+idle -> initializing;
+initializing -> ready;
+
+// 2. Simple conditions auto-evaluate without agent
+ready -> process;  // Agent decides when to start processing
+
+process -reads-> metrics;
+process -writes-> metrics;
+
+// 3. Agent decides what to do based on metrics
+// The agent can transition to handleError, complete, or retry (back to process)
+process -> handleError, complete;
+
+handleError -reads-> metrics;
+handleError -writes-> metrics;
+
+// Agent decides: retry or give up
+handleError -> process, error;
+
+// Terminal states
+error -> idle;      // Restart after error
+complete -> idle;   // Restart after completion
+
+// Execution flow:
+// 1. idle → initializing → ready: Automatic (state nodes)
+// 2. ready → process: Agent-controlled (decides when ready)
+// 3. process: Agent processes data, updates metrics
+// 4. process → handleError|complete|process: Automatic (conditions)
+// 5. handleError: Agent decides retry or give up
+// 6. error|complete → idle: Automatic (restart)
+
+```
+
+### `dynamic-tool-construction.mach`
+
+Dynamic Tool Construction Demo
+
+```dygram examples/rails/dynamic-tool-construction.mach
+machine "Dynamic Tool Construction Demo"
+
+// This example demonstrates how an agent can construct tools
+// dynamically when they don't exist in the codebase.
+
+// Context nodes
+context input {
+    text<string>: "Sample text for analysis";
+    language<string>: "en";
+};
+
+context output {
+    results<string>: "{}";
+};
+
+context toolRegistry {
+    customTools<string>: "[]";
+};
+
+// State machine
+State idle;
+State complete;
+
+// Task with meta-programming enabled
+Task analyze {
+    meta: true;
+    prompt: "Analyze the input text. If no analysis tool exists, construct one using construct_tool.";
+};
+
+// Flow
+idle -> analyze;
+
+analyze -reads-> input;
+analyze -writes-> output;
+analyze -writes-> toolRegistry;  // Can register new tools
+
+analyze -> complete;
+
+complete -> idle;
+
+// Expected agent behavior:
+// 1. Agent receives prompt to analyze text
+// 2. Agent checks available tools via list_available_tools
+// 3. No analysis tool exists
+// 4. Agent uses construct_tool:
+//    {
+//      name: "analyze_sentiment",
+//      description: "Analyze text sentiment",
+//      input_schema: {
+//        type: "object",
+//        properties: {
+//          text: { type: "string" }
+//        }
+//      },
+//      implementation_strategy: "agent_backed",
+//      implementation_details: "Analyze sentiment as positive/negative/neutral..."
+//    }
+// 5. Tool is registered and immediately available
+// 6. Agent uses new analyze_sentiment tool
+// 7. Agent writes results to output context
+// 8. Agent transitions to complete
+
+```
+
+### `phase-specific-context.mach`
+
+Phase-Specific Context Demo
+
+```dygram examples/rails/phase-specific-context.mach
+machine "Phase-Specific Context Demo"
+
+// This example demonstrates how agents receive only relevant
+// context at each node, based on edge permissions.
+
+// Context nodes
+context userInput {
+    query<string>: "What is the weather today?";
+    userId<string>: "user123";
+};
+
+context sessionData {
+    history<string>: "[]";
+    preferences<string>: "{}";
+};
+
+context apiCredentials {
+    weatherApiKey<string>: "secret-key";
+    openaiApiKey<string>: "secret-key";
+};
+
+context results {
+    weatherData<string>: "{}";
+    response<string>: "";
+};
+
+// State machine
+State idle;
+State complete;
+
+// Tasks with different context permissions
+Task parseQuery {
+    prompt: "Parse the user query and extract intent";
+};
+
+Task fetchWeather {
+    prompt: "Fetch weather data from API";
+};
+
+Task generateResponse {
+    prompt: "Generate a natural language response";
+};
+
+// Flow with explicit permissions
+idle -> parseQuery;
+
+// parseQuery: Can read user input and session data
+parseQuery -reads-> userInput;
+parseQuery -reads-> sessionData;
+parseQuery -> fetchWeather;
+
+// fetchWeather: Can read query, access API credentials, write results
+fetchWeather -read, query-> userInput;           // Field-level: only query field
+fetchWeather -reads-> apiCredentials;            // Full access to credentials
+fetchWeather -writes-> results;                  // Can write results
+fetchWeather -> generateResponse;
+
+// generateResponse: Can read results and session, write final response
+generateResponse -reads-> results;
+generateResponse -reads-> sessionData;
+generateResponse -write, response-> results;     // Field-level: only response field
+generateResponse -> complete;
+
+complete -> idle;
+
+// Phase-specific context in action:
+//
+// At parseQuery:
+//   Available Context:
+//   - userInput: read (query, userId)
+//   - sessionData: read (history, preferences)
+//   Available Tools:
+//   - read_userInput(field?)
+//   - read_sessionData(field?)
+//   - transition_to_fetchWeather(reason?)
+//
+// At fetchWeather:
+//   Available Context:
+//   - userInput: read (query only)
+//   - apiCredentials: read (weatherApiKey, openaiApiKey)
+//   - results: write (weatherData, response)
+//   Available Tools:
+//   - read_userInput(field?) -- limited to 'query'
+//   - read_apiCredentials(field?)
+//   - write_results(field, value)
+//   - transition_to_generateResponse(reason?)
+//
+// At generateResponse:
+//   Available Context:
+//   - results: read (weatherData, response)
+//   - sessionData: read (history, preferences)
+//   - results: write (response only)
+//   Available Tools:
+//   - read_results(field?)
+//   - read_sessionData(field?)
+//   - write_results(field, value) -- limited to 'response'
+//   - transition_to_complete(reason?)
+//
+// Notice: apiCredentials are NOT visible to parseQuery or generateResponse
+// This demonstrates security through permission-based context access
+
+```
+
+### `self-improving-pipeline.mach`
+
+Self-Improving Data Pipeline
+
+```dygram examples/rails/self-improving-pipeline.mach
+machine "Self-Improving Data Pipeline"
+
+// This is the complete example from the Rails-Based Architecture docs
+// demonstrating meta-programming with tool construction and improvement.
+
+// Context nodes
+context input {
+    data<string>: "[]";
+    format<string>: "json";
+};
+
+context output {
+    processed<string>: "[]";
+    metrics<string>: "{}";
+};
+
+context toolRegistry {
+    customTools<string>: "[]";
+};
+
+// State machine
+State idle;
+State processing;
+State optimizing;
+State complete;
+
+// Tasks
+Task ingest {
+    prompt: "Load data from input context";
+};
+
+Task process {
+    meta: true;
+    prompt: "Process the data. If no suitable tool exists, construct one.";
+};
+
+Task optimize {
+    meta: true;
+    prompt: "Review the tools used. Can they be improved?";
+};
+
+// Flow with mixed automatic and agent-controlled transitions
+idle -> ingest;                           // Start with ingest
+
+ingest -reads-> input;                    // Permission: can read input
+ingest -> process;                        // Agent decides when ready
+
+process -reads-> input;                   // Can read input
+process -writes-> output;                 // Can write output
+process -writes-> toolRegistry;           // Can construct tools
+process -> optimizing, complete;          // Agent decides: optimize or finish?
+
+optimizing -reads-> toolRegistry;         // Can review tools
+optimizing -reads-> output;               // Can see results
+optimizing -writes-> toolRegistry;        // Can improve tools
+optimizing -> complete, process;          // Agent: complete or retry with improved tools
+
+complete -> idle;                         // Loop back
+
+// Expected execution flow:
+//
+// 1. idle → ingest: Automatic (state node + @auto)
+//
+// 2. ingest:
+//    - Agent receives system prompt with context about input
+//    - Has tools: read_input, transition_to_process
+//    - Loads data, chooses transition to process
+//
+// 3. ingest → process: Agent-controlled
+//
+// 4. process (first time):
+//    - Agent receives prompt: "Process the data. If no suitable tool exists, construct one."
+//    - Has tools: read_input, write_output, write_toolRegistry, construct_tool, transition_to_optimizing, transition_to_complete
+//    - Realizes no processing tool exists
+//    - Uses construct_tool to create analyze_sentiment tool
+//    - Uses new tool to process data
+//    - Stores results in output
+//    - Decides to transition to optimizing
+//
+// 5. optimizing (first time):
+//    - Agent reviews analyze_sentiment tool
+//    - Sees it could be more efficient
+//    - Uses propose_tool_improvement to suggest optimization
+//    - Checks metrics.quality = 0.85 (< 0.9)
+//    - Decides to transition back to process to try improved version
+//
+// 6. process (second time):
+//    - Uses improved analyze_sentiment tool
+//    - Quality improves to 0.92
+//    - Transitions to optimizing
+//
+// 7. optimizing (second time):
+//    - Condition metrics.quality > 0.9 is true
+//    - Automatic transition to complete
+//
+// 8. complete → idle: Automatic (state node + @auto)
+
+```
+
+### `tool-review-improvement.mach`
+
+Tool Review and Improvement Demo
+
+```dygram examples/rails/tool-review-improvement.mach
+machine "Tool Review and Improvement Demo"
+
+// This example demonstrates how an agent can review existing
+// tools and propose improvements.
+
+// Context nodes
+context input {
+    numbers<string>: "[10, 20, 30, 40, 50]";
+};
+
+context output {
+    average<number>: 0;
+    median<number>: 0;
+    stddev<number>: 0;
+};
+
+context toolRegistry {
+    tools<string>: "[]";
+    improvements<string>: "[]";
+};
+
+// State machine
+State idle;
+State reviewing;
+State complete;
+
+// Tasks
+Task calculate {
+    meta: true;
+    prompt: "Calculate statistics. If no tool exists, construct one.";
+};
+
+Task review {
+    meta: true;
+    prompt: "Review the tools used in calculate. Are they efficient? Can they be improved?";
+};
+
+Task apply {
+    meta: true;
+    prompt: "Apply the proposed improvements to tools";
+};
+
+// Flow
+idle -> calculate;
+
+calculate -reads-> input;
+calculate -writes-> output;
+calculate -writes-> toolRegistry;
+calculate -> reviewing;
+
+reviewing -> review;
+
+review -reads-> toolRegistry;
+review -reads-> output;
+review -writes-> toolRegistry;  // Can record improvements
+review -> apply, complete;      // Agent decides if improvements needed
+
+apply -reads-> toolRegistry;
+apply -writes-> toolRegistry;
+apply -> calculate;             // Try again with improved tools
+
+complete -> idle;
+
+// Expected execution flow:
+//
+// 1. idle → calculate: Automatic
+//
+// 2. calculate (first time):
+//    - No statistics tool exists
+//    - Agent uses construct_tool to create calculate_stats tool:
+//      implementation_strategy: 'code_generation'
+//      implementation_details: 'async (input) => {
+//        const sum = input.numbers.reduce((a, b) => a + b, 0);
+//        return sum / input.numbers.length;
+//      }'
+//    - Tool is basic, only calculates average
+//    - Calculates average, writes to output
+//    - Transitions to reviewing
+//
+// 3. reviewing → review: Automatic
+//
+// 4. review:
+//    - Agent uses list_available_tools(include_source: true)
+//    - Sees calculate_stats tool implementation
+//    - Realizes it only calculates average, not median or stddev
+//    - Uses propose_tool_improvement:
+//      tool_name: 'calculate_stats'
+//      rationale: 'Current tool only calculates average. Should calculate median and stddev too.'
+//      proposed_changes: 'Add median and standard deviation calculations...'
+//    - Decides to transition to apply
+//
+// 5. apply:
+//    - Reads improvement proposals from toolRegistry
+//    - Updates calculate_stats tool with enhanced implementation
+//    - Transitions back to calculate
+//
+// 6. calculate (second time):
+//    - Uses improved calculate_stats tool
+//    - Now calculates average, median, and stddev
+//    - Writes all results to output
+//    - Transitions to reviewing
+//
+// 7. review (second time):
+//    - Tool is now comprehensive
+//    - No further improvements needed
+//    - Transitions to complete
+//
+// 8. complete → idle: Automatic
+
+```

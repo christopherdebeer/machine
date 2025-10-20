@@ -157,3 +157,425 @@ npm test -- --grep validation
 - [Validation Error Handling](../../docs/VALIDATION_ERROR_HANDLING.md) - Error reference
 - [Testing Approach](../../docs/testing-approach.md) - Validation methodology
 - [Syntax Guide](../../docs/syntax-guide.md) - Language syntax
+
+### `complete-validated.dygram`
+
+Phase 4: Complete Validated Example
+
+```dygram examples/validation/complete-validated.dygram
+machine "Phase 4: Complete Validated Example"
+
+// This example demonstrates all Phase 4 validation features working together
+// All validation checks pass for this machine
+
+// ========== Configuration Context ==========
+
+context apiConfig @Singleton {
+    baseUrl<string>: "https://api.example.com";
+    apiKey<string>: "secret-key-12345";
+    timeout<number>: 5000;
+    maxRetries<number>: 3;
+}
+
+context appSettings {
+    debugMode<boolean>: false;
+    logLevel<string>: "INFO";
+    cacheSize<number>: 1000;
+}
+
+// ========== Abstract Base Classes ==========
+
+task BaseDataProcessor @Abstract {
+    version<string>: "2.0";
+    retries<number>: 3;
+}
+
+task BaseValidator @Abstract {
+    strictMode<boolean>: true;
+}
+
+// ========== Concrete Task Implementations ==========
+
+task DataFetcher @Async {
+    url<string>: "{{ apiConfig.baseUrl }}/data";
+    response<Promise<Response>>: "pending";
+    timeoutMs<number>: 10;
+}
+
+task DataProcessor {
+    input<Array<Record>>: [];
+    output<Map<string, any>>: [];
+    processedCount<number>: 0;
+}
+
+task DataValidator {
+    rules<Array<string>>: ["required", "format", "range"];
+    validationResult<boolean>: false;
+}
+
+task DataPersister @Async {
+    saveLocation<string>: "database";
+    saved<boolean>: false;
+}
+
+// ========== Service Tasks ==========
+
+task CacheService @Singleton {
+    cacheData<Map<string, any>>: [];
+    hitRate<number>: 0;
+}
+
+task LoggingService @Singleton {
+    logs<Array<string>>: [];
+    level<string>: "{{ appSettings.logLevel }}";
+}
+
+// ========== State Nodes ==========
+
+state ValidationPassed {
+    timestamp<number>: 0;
+    recordCount<number>: 0;
+}
+
+state ValidationFailed {
+    errors<Array<string>>: [];
+    failureReason<string>: "unknown";
+}
+
+state ProcessingComplete {
+    duration<number>: 0;
+    status<string>: "success";
+}
+
+state ProcessingError {
+    errorMessage<string>: "An error occurred";
+    stackTrace<string>: "";
+}
+
+// ========== Clear Entry Point ==========
+
+init start {
+    startTime<number>: 0;
+    initiator<string>: "system";
+}
+
+// ========== Inheritance Relationships ==========
+
+// Valid inheritance: same node types
+BaseDataProcessor <|-- DataFetcher;
+BaseDataProcessor <|-- DataProcessor;
+BaseValidator <|-- DataValidator;
+
+// ========== Execution Flow (No Cycles, No Unreachable Nodes) ==========
+
+// Entry point flows to data fetching
+start -> DataFetcher;
+
+// Fetched data is validated
+DataFetcher -> DataValidator;
+
+// Validation outcomes
+DataValidator -> ValidationPassed;
+DataValidator -> ValidationFailed;
+
+// Passed validation proceeds to processing
+ValidationPassed -> DataProcessor;
+
+// Failed validation goes to error state
+ValidationFailed -> ProcessingError;
+
+// Processed data is persisted
+DataProcessor -> DataPersister;
+
+// Persistence outcomes
+DataPersister -> ProcessingComplete;
+DataPersister -> ProcessingError;
+
+// ========== Dependencies ==========
+
+// Inferred dependencies from template variables:
+// - DataFetcher depends on apiConfig (via url template)
+// - LoggingService depends on appSettings (via level template)
+
+// These are automatically detected by the dependency analyzer
+
+// ========== Notes on Validation ==========
+
+note for start "Entry point for the data processing pipeline. All validation checks pass."
+
+note for apiConfig "Configuration context - properly has no incoming edges"
+
+note for BaseDataProcessor "Abstract base class - properly marked with @Abstract annotation"
+
+note for DataFetcher "Async task properly marked with @Async annotation"
+
+note for ProcessingComplete "Exit point - has no outgoing edges (expected)"
+
+// ========== Validation Summary ==========
+
+// ✅ Type Checking:
+//    - All type annotations match their values
+//    - Generic types are properly formatted
+//    - Template references are valid
+
+// ✅ Graph Structure:
+//    - Clear entry point: start (init node)
+//    - Clear exit points: ProcessingComplete, ProcessingError
+//    - No unreachable nodes
+//    - No orphaned nodes
+//    - Intentional cycle-free design
+
+// ✅ Semantic Validation:
+//    - Init node (start) has outgoing edges
+//    - Context nodes (apiConfig, appSettings) have no incoming edges
+//    - @Async annotations only on task nodes
+//    - @Abstract annotations on base classes (tasks)
+//    - @Singleton annotations on services and contexts
+//    - Inheritance relationships between same node types
+
+// ✅ All Phase 4 validations pass successfully!
+
+```
+
+### `type-checking.dygram`
+
+Phase 4: Type Checking Examples
+
+```dygram examples/validation/type-checking.dygram
+machine "Phase 4: Type Checking Examples"
+
+// ========== Valid Type Checking ==========
+
+task validTypes {
+    // Primitive types
+    name<string>: "DyGram";
+    count<number>: 42;
+    enabled<boolean>: true;
+
+    // Generic types
+    response<Promise<Response>>: "pending";
+    users<Array<User>>: [];
+    cache<Map<string, any>>: [];
+
+    // Nested generics
+    asyncData<Promise<Array<Record>>>: "loading";
+
+    // Optional types
+    optionalValue<string?>: null;
+}
+
+// ========== Type Inference ==========
+
+task typeInference {
+    // Types inferred automatically
+    inferredString: "Hello";        // Inferred as string
+    inferredNumber: 123;            // Inferred as number
+    inferredBoolean: false;         // Inferred as boolean
+    inferredArray: ["a", "b", "c"]; // Inferred as Array<string>
+}
+
+// ========== Type Compatibility ==========
+
+context apiConfig {
+    baseUrl<string>: "https://api.example.com";
+    timeout<number>: 5000;
+    retries<number>: 3;
+}
+
+task apiCall {
+    // Valid template references with compatible types
+    url<string>: "{{ apiConfig.baseUrl }}";
+    maxRetries<number>: 5;
+}
+
+// ========== Complex Generic Types ==========
+
+task dataProcessing {
+    // Map with complex value type
+    userCache<Map<string, User>>: [];
+
+    // Promise with nested generics
+    fetchUsers<Promise<Array<User>>>: "pending";
+
+    // Multiple generic parameters
+    transformer<Function<Input, Output>>: null;
+}
+
+// ========== Edge Cases ==========
+
+task edgeCases {
+    // Empty arrays (type: Array<any>)
+    emptyArray<Array<any>>: [];
+
+    // Any type (accepts anything)
+    flexible<any>: "can be anything";
+}
+
+```
+
+### `graph-validation.dygram`
+
+Phase 4: Graph Validation Examples
+
+```dygram examples/validation/graph-validation.dygram
+machine "Phase 4: Graph Validation Examples"
+
+// ========== Valid Graph Structure ==========
+
+// Clear entry point
+init start {
+    desc: "Entry point for execution";
+}
+
+// Connected execution flow
+task fetchData {
+    desc: "Fetch data from API";
+}
+
+task processData {
+    desc: "Process the fetched data";
+}
+
+task saveData {
+    desc: "Save processed data";
+}
+
+// Clear exit points
+state Success {
+    desc: "Successful completion";
+}
+
+state Error {
+    desc: "Error occurred";
+}
+
+// Valid flow: start -> fetch -> process -> save -> success/error
+start -> fetchData;
+fetchData -> processData;
+processData -> saveData;
+saveData -> Success;
+saveData -> Error;
+
+// ========== Demonstrating Cycle Detection ==========
+
+task retryLoop {
+    desc: "Task with retry mechanism";
+}
+
+task checkStatus {
+    desc: "Check if retry is needed";
+}
+
+// This creates a cycle (intentional for retry logic)
+retryLoop -> checkStatus;
+checkStatus -> retryLoop;  // Cycle: retryLoop -> checkStatus -> retryLoop
+// Note: Cycles are detected but may be intentional for retry logic
+
+// ========== Configuration Context ==========
+
+context config {
+    // Context nodes are excluded from reachability checks
+    maxRetries<number>: 3;
+    timeout<number>: 5000;
+}
+
+```
+
+### `semantic-validation.dygram`
+
+Phase 4: Semantic Validation Examples
+
+```dygram examples/validation/semantic-validation.dygram
+machine "Phase 4: Semantic Validation Examples"
+
+// ========== Valid Node Type Usage ==========
+
+// Init nodes: Entry points with outgoing edges
+init start {
+    desc: "Proper init node with transitions";
+}
+
+// Task nodes: Active operations
+task processData @Async {
+    desc: "Asynchronous data processing";
+    timeout<number>: 5000;
+}
+
+task transformData {
+    desc: "Transform data synchronously";
+}
+
+// State nodes: Passive conditions/outcomes
+state DataReady {
+    desc: "Data is ready for next step";
+}
+
+state Complete {
+    desc: "Process completed successfully";
+}
+
+// Context nodes: Configuration (no execution edges)
+context appConfig @Singleton {
+    apiUrl<string>: "https://api.example.com";
+    debug<boolean>: false;
+}
+
+// ========== Valid Annotation Usage ==========
+
+// @Abstract on base tasks
+task BaseProcessor @Abstract {
+    desc: "Base processor class";
+    version<string>: "1.0";
+}
+
+// @Singleton on services and contexts
+task DatabaseService @Singleton {
+    desc: "Database connection service";
+}
+
+context serviceConfig @Singleton {
+    connectionString<string>: "localhost:5432";
+}
+
+// @Async on tasks that perform async operations
+task fetchFromAPI @Async {
+    desc: "Fetches data from external API";
+    endpoint<string>: "{{ appConfig.apiUrl }}";
+}
+
+// @Critical on important nodes
+task validatePayment @Critical {
+    desc: "Critical payment validation step";
+}
+
+// @Deprecated with migration message
+task oldProcessor @Deprecated("Use transformData instead") {
+    desc: "Legacy processor - do not use";
+}
+
+// ========== Valid Inheritance Relationships ==========
+
+// Inheritance between same node types
+task SpecificProcessor {
+    desc: "Concrete implementation";
+}
+
+BaseProcessor <|-- SpecificProcessor;  // ✅ Valid: Both are tasks
+
+// ========== Valid Execution Flow ==========
+
+// Init node with outgoing edges
+start -> processData;
+
+// Task execution flow
+processData -> DataReady;
+DataReady -> transformData;
+transformData -> Complete;
+
+// Template variable usage (creates inferred dependencies)
+task useConfig {
+    apiCall<string>: "Call {{ appConfig.apiUrl }}";
+    debugMode<boolean>: false;
+}
+
+```

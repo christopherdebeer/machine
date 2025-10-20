@@ -142,3 +142,99 @@ Map<K,V> → Map~K,V~
 - [Advanced Features](../../docs/advanced-features.md) - Complete documentation
 - [Language Overview](../../docs/language-overview.md) - Core concepts
 - [Syntax Guide](../../docs/syntax-guide.md) - Syntax reference
+
+### `complete-phase3.dygram`
+Phase 3: Complete Feature Demo
+
+```dygram examples/documentation/complete-phase3.dygram
+machine "Phase 3: Complete Feature Demo"
+
+// Configuration context with generic types
+context apiConfig @Singleton {
+    endpoint<string>: "https://api.example.com";
+    headers<Map<string, string>>: ["Authorization", "Bearer token"];
+    retries<number>: 3;
+}
+
+// Abstract base task with generic result type
+task BaseTask @Abstract {
+    result<Promise<any>>: "pending";
+    status<string>: "initialized";
+}
+
+// Concrete tasks extending base
+task FetchTask @Async {
+    data<Promise<Response>>: "pending";
+}
+
+task TransformTask {
+    output<Array<Record>>: [];
+}
+
+// States
+state Success {
+    message<string>: "Operation completed";
+}
+
+state Error {
+    error<Optional<string>>: "none";
+}
+
+// Relationships with annotations
+BaseTask <|-- FetchTask;
+BaseTask <|-- TransformTask;
+
+FetchTask "1" --> "1" TransformTask;
+TransformTask "1" --> "0..1" Success;
+TransformTask "1" --> "0..1" Error;
+
+// Documentation notes
+note for apiConfig "Singleton configuration for API access. Contains endpoint URL, authentication headers, and retry policy."
+
+note for FetchTask "Asynchronous task that fetches data from the API. Returns Promise<Response> which resolves to the HTTP response."
+
+note for TransformTask "Transforms the raw API response into an array of typed records. Handles data validation and normalization."
+
+note for Success "Indicates successful completion. All data has been fetched and transformed."
+
+note for Error "Error state with optional error message. Triggered on API failures or transformation errors."
+
+```
+
+### `notes-and-generics.dygram`
+
+Phase 3: Notes and Generic Types
+
+```dygram examples/documentation/notes-and-generics.dygram
+machine "Phase 3: Notes and Generic Types"
+
+// Generic types demonstration
+context config {
+    items<List<string>>: ["item1", "item2"];
+    result<Promise<Result>>: "pending";
+}
+
+// Task with generic return type
+task fetchData @Async {
+    response<Promise<Response>>: "pending";
+    timeout<number>: 5000;
+}
+
+task processData {
+    data<Array<Record>>: [];
+}
+
+state complete {
+    message<string>: "All done";
+}
+
+// Edges
+fetchData -> processData;
+processData -> complete;
+
+// Notes provide documentation
+note for fetchData "Fetches data from external API. Returns Promise<Response> with the fetched data."
+note for processData "Processes the fetched data and transforms it into Array<Record> format."
+note for complete "Final state indicating successful completion of the workflow."
+
+```

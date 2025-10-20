@@ -94,15 +94,24 @@ async function transformMarkdown(mdContent, filename, sourcePath, relativeDepth 
             continue;
         }
 
-        // Detect codeblock start: ```lang [name]
+        // Detect codeblock start: ```lang [path]
         if (line.startsWith('```')) {
             if (!inCodeblock) {
                 const match = line.match(/```(\w+)(?:\s+(.+))?/);
                 if (match && (match[1] === 'dygram' || match[1] === 'mach')) {
                     inCodeblock = true;
                     codeblockLang = match[1];
-                    codeblockName = match[2] || `example-${examples.length + 1}`;
-                    codeblockContent = [];
+                    // Check if it's a path (contains 'examples/')
+                    const pathInfo = match[2] || '';
+                    if (pathInfo.includes('examples/')) {
+                        // This is a code block with a path - use the path as-is
+                        codeblockName = pathInfo;
+                        codeblockContent = [];
+                    } else {
+                        // Old format without path - skip extraction (handled by extract-examples-from-docs.js)
+                        codeblockName = null;
+                        codeblockContent = [];
+                    }
                 } else {
                     // Pass through other codeblocks
                     mdxLines.push(line);
@@ -111,21 +120,26 @@ async function transformMarkdown(mdContent, filename, sourcePath, relativeDepth 
                 // Codeblock end
                 inCodeblock = false;
 
-                // Generate filename for example
-                const exampleFilename = `${codeblockName}.${codeblockLang}`;
-                const examplePath = `examples/generated/${exampleFilename}`;
+                if (codeblockName && codeblockName.includes('examples/')) {
+                    // This example has a path - create ExampleLoader component
+                    const examplePath = codeblockName;
 
-                // Store example for extraction
-                examples.push({
-                    filename: exampleFilename,
-                    path: examplePath,
-                    content: codeblockContent.join('\n')
-                });
+                    // Store example metadata (but don't extract - that's done by extract-examples-from-docs.js)
+                    examples.push({
+                        path: examplePath,
+                        hasPath: true
+                    });
 
-                // Replace with ExampleLoader component
-                mdxLines.push('');
-                mdxLines.push(`<ExampleLoader path="${examplePath}" height="400px" />`);
-                mdxLines.push('');
+                    // Replace with ExampleLoader component
+                    mdxLines.push('');
+                    mdxLines.push(`<ExampleLoader path="${examplePath}" height="400px" />`);
+                    mdxLines.push('');
+                } else {
+                    // Old format or inline example - just pass through as regular code block
+                    mdxLines.push('```' + codeblockLang);
+                    mdxLines.push(...codeblockContent);
+                    mdxLines.push('```');
+                }
             }
         } else if (inCodeblock) {
             codeblockContent.push(line);
@@ -193,15 +207,8 @@ async function processMarkdownFile(filePath, projectRoot, docsDir) {
     await writeFile(outputPath, result.mdx, 'utf-8');
     console.log(`    Generated: ${relative(projectRoot, outputPath)}`);
 
-    // Write extracted examples
-    const examplesGeneratedDir = join(projectRoot, 'examples', 'generated');
-    await mkdir(examplesGeneratedDir, { recursive: true });
-
-    for (const example of result.examples) {
-        const exampleFullPath = join(projectRoot, example.path);
-        await writeFile(exampleFullPath, example.content, 'utf-8');
-        console.log(`    Extracted: ${example.path}`);
-    }
+    // Note: Example extraction is now handled by extract-examples-from-docs.js
+    // This script only converts markdown to MDX with ExampleLoader components
 
     return {
         examples: result.examples,

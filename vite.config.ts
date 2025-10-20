@@ -47,8 +47,7 @@ function getStaticCopyTargets() {
         { src: 'examples/meta-programming', dest: 'examples' },
         { src: 'examples/rails', dest: 'examples' },
         { src: 'examples/model-configuration', dest: 'examples' },
-        { src: 'examples/README.md', dest: 'examples' },
-        { src: 'examples/generated', dest: 'examples' }
+        { src: 'examples/README.md', dest: 'examples' }
     ];
 
     // Only include test-output if it exists

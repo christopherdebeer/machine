@@ -15,12 +15,13 @@
         "onCommand:extension.generateAndPreview"
     ],
     "scripts": {
+        "extract:examples": "node scripts/extract-examples-from-docs.js",
         "generate:examples": "node scripts/generate-examples-list.js",
         "generate:example-pages": "node scripts/generate-example-pages.js",
         "generate:docs": "node scripts/generate-docs.js",
         "generate:hierarchy": "node scripts/generate-hierarchy.js",
         "generate:html": "node scripts/generate-html-entries.js",
-        "generate:all": "npm run generate:examples && npm run generate:hierarchy && npm run generate:docs",
+        "generate:all": "npm run extract:examples && npm run generate:examples && npm run generate:hierarchy && npm run generate:docs",
         "prebuild": "npm run generate:all && npm run langium:generate",
         "build": "npm run build:all",
         "build:all": "npm run prebuild && npm run build:extension && npm run build:web",

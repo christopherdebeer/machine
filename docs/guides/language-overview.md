@@ -8,22 +8,21 @@ DyGram is a declarative language for defining state machines, workflows, and pro
 ### Machines
 Every DyGram file defines a machine with a title:
 
-```dygram
-machine "My Machine"
+```dygram examples/basic/minimal.dygram
+machine "Generated Minimal Machine"
 ```
-
-[Example: examples/basic/minimal.dygram](../examples/basic/minimal.dygram)
 
 ### Nodes
 Nodes are the fundamental building blocks. They can be untyped or have specific types:
 
 **Untyped node:**
 
-```dygram
-myNode;
+```dygram examples/basic/simple-nodes-3.dygram
+machine "Simple Node Machine"
+node1;
+node2;
+node3;
 ```
-
-[Example: examples/basic/simple-nodes-3.dygram](../examples/basic/simple-nodes-3.dygram)
 
 **Typed nodes:**
 - `task` - Represents a processing step or action
@@ -31,75 +30,122 @@ myNode;
 - `init` - Initial/entry point
 - `context` - Configuration or shared state
 
-```dygram
-task processData;
-state waiting;
-init startup;
-context config;
+```dygram examples/basic/typed-nodes.dygram
+machine "Typed Nodes Machine"
+task taskNode1;
+task taskNode2;
+state stateNode1;
+state stateNode2;
+init initNode1;
+init initNode2;
+context contextNode1;
+context contextNode2;
 ```
-
-[Example: examples/basic/typed-nodes.dygram](../examples/basic/typed-nodes.dygram)
 
 ### Node Labels
 Nodes can have human-readable labels:
 
-```dygram
-init startup "System Initialization";
-task process "Process User Data";
-```
+```dygram examples/basic/all-node-types.dygram
+machine "All Node Types Test"
+init startNode "Initialization Phase";
+task processTask "Process Data";
+state waitingState;
+context configContext {
+    setting: "value";
+}
 
-[Example: examples/basic/all-node-types.dygram](../examples/basic/all-node-types.dygram)
+regularNode;
+
+startNode -> processTask;
+processTask -> waitingState;
+waitingState -> regularNode;
+```
 
 ### Attributes
 Nodes can have typed or untyped attributes:
 
-```dygram
-myNode {
-    name<string>: "Primary";
-    count<number>: 42;
-    enabled<boolean>: true;
-    tags: ["tag1", "tag2"];
+```dygram examples/attributes/basic-attributes.dygram
+machine "Attributes Machine"
+node1 {
+    stringAttr<string>: "test value";
+    numberAttr<number>: 42.5;
+    boolAttr<boolean>: true;
+    arrayAttr: ["a", "b", "c"];
+    untypedAttr: "untyped";
+    prompt: "an llm prompt";
 }
 ```
-
-[Example: examples/attributes/basic-attributes.dygram](../examples/attributes/basic-attributes.dygram)
 
 ### Edges
 Edges define transitions between nodes with multiple arrow styles:
 
-```dygram
-start -> middle;      // Standard transition
-middle --> end;       // Dashed transition
-error => recovery;    // Thick arrow
-a <--> b;            // Bidirectional
-```
+```dygram examples/edges/mixed-arrow-types.dygram
+machine "Mixed Arrow Types"
 
-[Example: examples/edges/mixed-arrow-types.dygram](../examples/edges/mixed-arrow-types.dygram)
+// This example demonstrates the syntax of different arrow types
+// For semantic meanings, see: relationship-types.dygram
+
+// -> : Standard arrow (association)
+a;
+b;
+a -> b;
+
+// --> : Dashed arrow (dependency)
+c;
+b --> c;
+
+// => : Fat arrow (emphasis/critical path)
+d;
+c => d;
+
+// <--> : Bidirectional arrow (mutual relationship)
+e;
+d <--> e;
+
+// Circular connection back to start
+e -> a;
+```
 
 ### Edge Labels
 Edges can have labels and attributes:
 
-```dygram
-start -init-> middle;
-middle -"user action"-> end;
-error -retry: 3; timeout: 5000;-> start;
-```
+```dygram examples/edges/labeled-edges.dygram
+machine "Labeled Edges Machine"
+start;
+middle;
+end;
+error;
 
-[Example: examples/edges/labeled-edges.dygram](../examples/edges/labeled-edges.dygram)
+start -init-> middle;
+middle -"process complete"-> end;
+middle -timeout: 5000;-> error;
+error -retry: 3; logLevel: 0;-> start;
+end -if: '(count > 10)';-> start;
+```
 
 ### Nesting
 Nodes can contain child nodes to create hierarchies:
 
-```dygram
-parent {
-    child1;
-    child2 {
-        grandchild;
+```dygram examples/nesting/complex-nesting.dygram
+machine "Complex Nesting Test"
+root {
+    level1a {
+        level2a {
+            level3a;
+            level3b {
+                level4;
+            }
+        }
+        level2b;
+    }
+    level1b {
+        level2c;
+        level2d {
+            level3c;
+        }
     }
 }
 ```
-
-[Example: examples/nesting/complex-nesting.dygram](../examples/nesting/complex-nesting.dygram)
 
 ### Context Nodes
 Context nodes define shared configuration and data storage:

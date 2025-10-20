@@ -287,3 +287,507 @@ When multiple rules could apply, priority determines the type:
 - [Context Examples](../context/README.md) - More on context nodes and permissions
 - [Workflows Examples](../workflows/README.md) - Complex workflow patterns
 - [Advanced Examples](../advanced/README.md) - Advanced language features
+
+### `nested-2-levels.dygram`
+Nested Machine
+
+```dygram examples/nesting/nested-2-levels.dygram
+machine "Nested Machine"
+level1 {
+    level2a;
+    level2b;
+}
+```
+
+### `nested-3-levels.dygram`
+Nested Machine
+
+```dygram examples/nesting/nested-3-levels.dygram
+machine "Nested Machine"
+level1 {
+    level2a {
+        level3a;
+        level3b;
+    }
+    level2b {
+        level3c;
+        level3d;
+    }
+}
+```
+
+### `optional-types-example.dygram`
+Optional Types Example
+
+```dygram examples/nesting/optional-types-example.dygram
+machine "Optional Types Example"
+
+// ═══════════════════════════════════════════════════════════════════
+// OPTIONAL TYPES - Types can be inferred when not explicitly provided
+// ═══════════════════════════════════════════════════════════════════
+
+// ────────────────────────────────────────────────────────────────────
+// 1. TASK INFERENCE - Nodes with 'prompt' attribute are inferred as tasks
+// ────────────────────────────────────────────────────────────────────
+
+// Explicit task type (traditional approach)
+task explicitTask {
+    prompt: "Analyze the data";
+}
+
+// Inferred task type (prompt attribute makes it a task)
+inferredTask {
+    prompt: "Transform the results";
+}
+
+// Both are functionally equivalent!
+note for explicitTask "Traditional explicit task type"
+note for inferredTask "Type inferred from 'prompt' attribute - same behavior as explicit task"
+
+// ────────────────────────────────────────────────────────────────────
+// 2. CONTEXT INFERENCE - Data nodes are inferred as contexts
+// ────────────────────────────────────────────────────────────────────
+
+// Explicit context type
+context apiConfig {
+    url: "https://api.example.com";
+    timeout: 5000;
+}
+
+// Inferred context from name pattern (contains "config")
+appConfig {
+    apiKey: "xxx";
+    retries: 3;
+}
+
+// Inferred context from data attributes only
+settings {
+    theme: "dark";
+    language: "en";
+}
+
+note for apiConfig "Explicit context type"
+note for appConfig "Type inferred from name containing 'config'"
+note for settings "Type inferred from having only data attributes"
+
+// ────────────────────────────────────────────────────────────────────
+// 3. STATE INFERENCE - Simple nodes default to state (control flow)
+// ────────────────────────────────────────────────────────────────────
+
+// Explicit state type
+state explicitReady "Ready State";
+
+// Inferred state (default for simple nodes)
+waiting "Waiting";
+processing "Processing";
+
+note for explicitReady "Explicit state type"
+note for waiting "Type inferred as state (default for simple nodes)"
+
+// ────────────────────────────────────────────────────────────────────
+// 4. TOOL INFERENCE - Nodes with schema-like attributes are inferred as tools
+// ────────────────────────────────────────────────────────────────────
+
+// Explicit tool type
+tool explicitCalculator {
+    input: "{ x: number, y: number }";
+    output: "{ result: number }";
+}
+
+// Inferred tool from schema attributes
+formatter {
+    input: "{ data: string }";
+    output: "{ formatted: string }";
+}
+
+note for explicitCalculator "Explicit tool type"
+note for formatter "Type inferred from input/output schema attributes"
+
+// ────────────────────────────────────────────────────────────────────
+// 5. INIT INFERENCE - Nodes with no incoming edges can be inferred as init
+// ────────────────────────────────────────────────────────────────────
+
+// Explicit init type
+init start "Entry Point";
+
+// Note: Init inference requires graph analysis, so explicit type is recommended
+// for clarity. However, the system can infer init from graph structure.
+
+// ────────────────────────────────────────────────────────────────────
+// 6. MIXED USAGE - Explicit and inferred types work together seamlessly
+// ────────────────────────────────────────────────────────────────────
+
+state Pipeline {
+    // Explicit types
+    task validateExplicit {
+        prompt: "Validate input";
+    }
+
+    // Inferred types (same behavior)
+    validate {
+        prompt: "Validate input";
+    }
+
+    transform {
+        prompt: "Transform data";
+    }
+
+    intermediate "Processing"; // Inferred as state
+
+    store {
+        prompt: "Store results";
+    }
+
+    // Workflow
+    validate -> transform -> intermediate -> store;
+}
+
+// ────────────────────────────────────────────────────────────────────
+// 7. CONTEXT INHERITANCE WITH INFERRED TYPES
+// ────────────────────────────────────────────────────────────────────
+
+// Inferred context from name
+globalConfig {
+    environment: "production";
+}
+
+state DataPipeline {
+    // These tasks automatically inherit read access to globalConfig
+    extract {
+        prompt: "Extract data from {{ globalConfig.environment }}";
+    }
+
+    processData { // "Data" in name, but has prompt → inferred as task (priority)
+        prompt: "Process extracted data";
+    }
+}
+
+DataPipeline -reads-> globalConfig;
+
+// ────────────────────────────────────────────────────────────────────
+// 8. EXPLICIT TYPE OVERRIDES INFERENCE
+// ────────────────────────────────────────────────────────────────────
+
+// Force a node to be a state even though it has data-like name
+state userData {
+    // This is a control flow state, not a context
+    // Explicit type overrides name-based inference
+}
+
+// ────────────────────────────────────────────────────────────────────
+// KEY BENEFITS OF OPTIONAL TYPES
+// ────────────────────────────────────────────────────────────────────
+
+// 1. LESS CEREMONY: Don't need to specify type when it's obvious
+// 2. CLEANER SYNTAX: Focus on attributes, not type declarations
+// 3. BACKWARD COMPATIBLE: All explicit types still work
+// 4. FLEXIBLE: Mix explicit and inferred types freely
+// 5. CLEAR OVERRIDES: Explicit type always wins over inference
+
+// ────────────────────────────────────────────────────────────────────
+// INFERENCE PRIORITY (from highest to lowest)
+// ────────────────────────────────────────────────────────────────────
+
+// 1. Explicit type (always wins)
+// 2. Has 'prompt' attribute → task
+// 3. Has schema attributes (input/output/parameters/schema/returns) → tool
+// 4. Name matches patterns (context/data/input/output/result/config) OR
+//    has only data attributes → context
+// 5. No incoming edges + has outgoing edges → init (requires edges)
+// 6. Default → state
+
+// ────────────────────────────────────────────────────────────────────
+// MAIN WORKFLOW
+// ────────────────────────────────────────────────────────────────────
+
+start -> explicitTask -> inferredTask;
+inferredTask -> Pipeline;
+Pipeline -> waiting -> processing;
+
+```
+
+### `semantic-nesting-example.dygram`
+Semantic Nesting Example
+
+```dygram examples/nesting/semantic-nesting-example.dygram
+machine "Semantic Nesting Example"
+
+// Context nodes at the top level
+context globalConfig {
+    apiEndpoint: "https://api.example.com";
+    timeout: 5000;
+    retryCount: 3;
+}
+
+// Data Pipeline with nested structure and context inheritance
+task DataPipeline "Data Processing Pipeline" {
+
+    // Context shared within the pipeline
+    context pipelineState {
+        recordsProcessed: 0;
+        errors: 0;
+        status: "initializing";
+    }
+
+    // Validation phase
+    task ValidationPhase "Data Validation" {
+        task fetchData {
+            prompt: "Fetch data from the API endpoint specified in globalConfig";
+        }
+
+        task validateSchema {
+            prompt: "Validate the data schema";
+        }
+
+        task checkQuality {
+            prompt: "Check data quality metrics";
+        }
+    }
+
+    // Processing phase
+    task ProcessingPhase "Data Transformation" {
+        task transform {
+            prompt: "Transform the validated data";
+        }
+
+        task enrich {
+            prompt: "Enrich data with additional information";
+        }
+
+        task aggregate {
+            prompt: "Aggregate processed data";
+        }
+    }
+
+    // Storage phase
+    task StoragePhase "Data Storage" {
+        context storageConfig {
+            database: "primary";
+            batchSize: 100;
+        }
+
+        task prepareData {
+            prompt: "Prepare data for storage";
+        }
+
+        task writeData {
+            prompt: "Write data to storage";
+        }
+
+        task verifyStorage {
+            prompt: "Verify data was stored correctly";
+        }
+    }
+}
+
+// Simple workflow coordinator at top level
+task start {
+    prompt: "Initialize the data pipeline";
+}
+
+task end {
+    prompt: "Finalize and report results";
+}
+
+// Workflow using qualified names to reference nested nodes
+start -> DataPipeline.ValidationPhase.fetchData;
+
+// Within ValidationPhase
+DataPipeline.ValidationPhase.fetchData -> DataPipeline.ValidationPhase.validateSchema;
+DataPipeline.ValidationPhase.validateSchema -> DataPipeline.ValidationPhase.checkQuality;
+
+// Transition to ProcessingPhase
+DataPipeline.ValidationPhase.checkQuality -> DataPipeline.ProcessingPhase.transform;
+
+// Within ProcessingPhase
+DataPipeline.ProcessingPhase.transform -> DataPipeline.ProcessingPhase.enrich;
+DataPipeline.ProcessingPhase.enrich -> DataPipeline.ProcessingPhase.aggregate;
+
+// Transition to StoragePhase
+DataPipeline.ProcessingPhase.aggregate -> DataPipeline.StoragePhase.prepareData;
+
+// Within StoragePhase
+DataPipeline.StoragePhase.prepareData -> DataPipeline.StoragePhase.writeData;
+DataPipeline.StoragePhase.writeData -> DataPipeline.StoragePhase.verifyStorage;
+
+// Complete the pipeline
+DataPipeline.StoragePhase.verifyStorage -> end;
+
+// Context relationships
+// DataPipeline reads global configuration
+DataPipeline -reads-> globalConfig;
+
+// DataPipeline writes to its own state
+DataPipeline -writes-> DataPipeline.pipelineState;
+
+// ValidationPhase tasks inherit read access to globalConfig and pipelineState
+// No explicit edges needed - inheritance provides access
+
+// ProcessingPhase tasks also inherit access
+// ProcessingPhase.transform updates pipeline state
+DataPipeline.ProcessingPhase.transform -writes-> DataPipeline.pipelineState;
+
+// StoragePhase has its own config and inherits parent contexts
+// StoragePhase nodes can read storageConfig, pipelineState, and globalConfig
+DataPipeline.StoragePhase.writeData -writes-> DataPipeline.pipelineState;
+
+// Error handling node at top level
+task handleError {
+    prompt: "Handle any errors that occurred during pipeline execution";
+}
+
+// Error transitions (can be triggered from any phase)
+DataPipeline.ValidationPhase.validateSchema -error-> handleError;
+DataPipeline.ProcessingPhase.transform -error-> handleError;
+DataPipeline.StoragePhase.writeData -error-> handleError;
+
+note for DataPipeline "This pipeline demonstrates semantic nesting with qualified names and context inheritance. Child tasks automatically inherit read-only access to parent context nodes."
+
+note for DataPipeline.ValidationPhase.fetchData "This task inherits read access to globalConfig (from DataPipeline) and pipelineState (from DataPipeline) without explicit edges."
+
+note for DataPipeline.StoragePhase.prepareData "This task inherits access to globalConfig and pipelineState from ancestors, plus storageConfig from its direct parent."
+
+```
+
+### `state-modules-example.dygram`
+State Modules Example - ETL Pipeline
+
+```dygram examples/nesting/state-modules-example.dygram
+machine "State Modules Example - ETL Pipeline"
+
+// Global configuration context
+context globalConfig {
+    apiUrl: "https://api.example.com";
+    timeout: 5000;
+    environment: "production";
+}
+
+// State module for data extraction
+state Extract "Data Extraction Module" {
+    state fetchData "Fetch from API" {
+        prompt: "Fetch data from the API endpoint";
+    }
+
+    state validateSource "Validate Source Data" {
+        prompt: "Validate that source data is complete and well-formed";
+    }
+
+    // Internal flow within Extract module
+    fetchData -> validateSource;
+}
+
+// State module for data transformation
+state Transform "Data Transformation Module" {
+    context transformConfig {
+        batchSize: 1000;
+        parallelism: 4;
+    }
+
+    state cleanData "Clean Data" {
+        prompt: "Remove invalid entries and normalize data";
+    }
+
+    state enrichData "Enrich Data" {
+        prompt: "Add calculated fields and enrichments";
+    }
+
+    state aggregate "Aggregate Results" {
+        prompt: "Aggregate data by specified dimensions";
+    }
+
+    // Internal flow within Transform module
+    cleanData -> enrichData -> aggregate;
+}
+
+// State module for data loading
+state Load "Data Loading Module" {
+    context loadConfig {
+        targetDatabase: "warehouse";
+        writeMode: "append";
+    }
+
+    state prepareTarget "Prepare Target" {
+        prompt: "Ensure target table exists and is ready";
+    }
+
+    state writeData "Write Data" {
+        prompt: "Write processed data to target";
+    }
+
+    state verifyLoad "Verify Load" {
+        prompt: "Verify all data was loaded correctly";
+    }
+
+    // Internal flow within Load module
+    prepareTarget -> writeData -> verifyLoad;
+}
+
+// Entry and exit points for the pipeline
+init start;
+state complete;
+state failed;
+
+// Module composition - entry points are automatically determined
+// Entering Extract module goes to Extract.fetchData (first task)
+start -> Extract;
+
+// Module exits - when validateSource completes, transition to Transform
+// Transform module entry goes to Transform.cleanData (first task)
+Extract -> Transform;
+
+// When aggregate completes, transition to Load
+// Load module entry goes to Load.prepareTarget (first task)
+Transform -> Load;
+
+// When verifyLoad completes, transition to complete
+// This demonstrates module-level exit routing
+Load -> complete;
+
+// Error handling - specific nodes can have explicit error paths
+Extract.fetchData -error-> failed;
+Transform.cleanData -error-> failed;
+Load.writeData -error-> failed;
+
+// Context relationships
+// Extract module reads global config
+Extract -reads-> globalConfig;
+
+// Transform reads config and has its own context
+Transform -reads-> globalConfig;
+
+// Load reads config and has its own context
+Load -reads-> globalConfig;
+
+// Child nodes within each module inherit parent context access automatically
+// For example, Extract.fetchData can read globalConfig without explicit edge
+// Transform.cleanData can read both globalConfig and Transform.transformConfig
+
+note for Extract "State module with automatic entry at fetchData. Terminal node validateSource inherits parent's exit edge to Transform."
+
+note for Transform "Nested state module with internal context. Entry at cleanData, exit from aggregate to Load module."
+
+note for Load "State module demonstrating context inheritance. Child nodes inherit access to both globalConfig and loadConfig."
+
+note for start "Pipeline starts here and enters the Extract module at its first child (fetchData)."
+
+note for Extract.validateSource "Terminal node within Extract module. No explicit outbound edge, so it inherits the module-level exit to Transform."
+
+```
+
+### `deep-nested-5-levels.dygram`
+
+Deep Nested Machine
+
+```dygram examples/nesting/deep-nested-5-levels.dygram
+machine "Deep Nested Machine"
+level1 {
+    level2 {
+        level3 {
+            level4 {
+                level5a;
+                level5b;
+            }
+        }
+    }
+}
+```
