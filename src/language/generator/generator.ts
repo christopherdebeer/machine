@@ -69,6 +69,7 @@ class JSONGenerator extends BaseGenerator {
         // Create a serializable object representation of the machine
         const machineObject : MachineJSON = {
             title: this.machine.title,
+            attributes: this.serializeMachineAttributes(),
             nodes: this.serializeNodes(),
             edges: this.serializeEdges(),
             notes: this.serializeNotes(),
@@ -84,6 +85,26 @@ class JSONGenerator extends BaseGenerator {
             filePath: this.filePath,
             content: JSON.stringify(machineObject, null, 2)
         };
+    }
+
+    private serializeMachineAttributes(): any[] {
+        if (!this.machine.machineAttributes || this.machine.machineAttributes.length === 0) {
+            return [];
+        }
+
+        return this.machine.machineAttributes.map(attr => {
+            // Extract the actual value from the AttributeValue using recursive extraction
+            const value: any = this.extractPrimitiveValue(attr.value);
+
+            // Serialize type (including generic types)
+            const typeStr = attr.type ? this.serializeType(attr.type) : undefined;
+
+            return {
+                name: attr.name,
+                type: typeStr,
+                value: value
+            };
+        });
     }
 
     private serializeNodes(): any[] {
@@ -1224,6 +1245,14 @@ export function generateDSL(machineJson: MachineJSON): string {
     lines.push(`machine ${quoteString(machineJson.title || "")}`);
     lines.push('');
 
+    // Add machine attributes if present
+    if (machineJson.attributes && machineJson.attributes.length > 0) {
+        machineJson.attributes.forEach(attr => {
+            lines.push(generateMachineAttributeDSL(attr));
+        });
+        lines.push('');
+    }
+
     // Track which nodes have been added to avoid duplicates
     const addedNodes = new Set<string>();
 
@@ -1266,6 +1295,35 @@ export function generateDSL(machineJson: MachineJSON): string {
     }
 
     return lines.join('\n').trim() + '\n';
+}
+
+function generateMachineAttributeDSL(attr: any): string {
+    let result = attr.name;
+
+    // Add type if present
+    if (attr.type) {
+        result += `<${attr.type}>`;
+    }
+
+    // Add value
+    result += ': ';
+    if (Array.isArray(attr.value)) {
+        // Array value - each element needs proper formatting
+        const arrayValues = attr.value.map((v: any) => {
+            // For array elements, always quote strings
+            if (typeof v === 'string') {
+                return quoteString(v);
+            } else {
+                return formatValue(v);
+            }
+        });
+        result += '[' + arrayValues.join(', ') + ']';
+    } else {
+        result += formatValue(attr.value);
+    }
+
+    result += ';';
+    return result;
 }
 
 function generateNodeDSL(node: any): string {
