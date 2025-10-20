@@ -15,8 +15,8 @@ import { render as renderGraphviz, downloadSVG, downloadPNG } from './language/d
 import { RailsExecutor } from './language/rails-executor.js';
 import { createStorage } from './language/storage.js';
 import { createLangiumExtensions } from './codemirror-langium.js';
-import { loadSettings, saveSettings, getEffectiveModelId } from './language/shared-settings.js';
-import { renderExampleButtons, getDefaultExample } from './language/shared-examples.js';
+import { loadSettings, saveSettings } from './language/shared-settings.js';
+import { renderExampleButtons } from './language/shared-examples.js';
 
 // Initialize Langium services for parsing
 const services = createMachineServices(EmptyFileSystem);

@@ -2,7 +2,7 @@ import { MonacoEditorLanguageClientWrapper, UserConfig, EditorAppConfigExtended 
 import { configureWorker, defineUserServices } from './setupCommon.js';
 import { RailsExecutor } from './language/rails-executor.js';
 import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './language/diagram-controls.js';
-import { loadSettings, saveSettings, getEffectiveModelId } from './language/shared-settings.js';
+import { loadSettings, saveSettings } from './language/shared-settings.js';
 import { renderExampleButtons } from './language/shared-examples.js';
 import { IDimension } from 'vscode/services';
 import { KeyCode, KeyMod } from 'monaco-editor';
