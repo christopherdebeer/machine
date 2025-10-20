@@ -12,12 +12,11 @@ import { createMachineServices } from './language/machine-module.js';
 import { Machine } from './language/generated/ast.js';
 import { generateJSON, generateGraphviz } from './language/generator/generator.js';
 import { render as renderGraphviz, downloadSVG, downloadPNG } from './language/diagram-controls.js';
-import { MachineExecutor } from './language/machine-executor.js';
-import { EvolutionaryExecutor } from './language/task-evolution.js';
-import { VisualizingMachineExecutor } from './language/runtime-visualizer.js';
+import { RailsExecutor } from './language/rails-executor.js';
 import { createStorage } from './language/storage.js';
 import { createLangiumExtensions } from './codemirror-langium.js';
-import examplesList from './generated/examples-list.json';
+import { loadSettings, saveSettings, getEffectiveModelId } from './language/shared-settings.js';
+import { renderExampleButtons, getDefaultExample } from './language/shared-examples.js';
 
 // Initialize Langium services for parsing
 const services = createMachineServices(EmptyFileSystem);
@@ -72,111 +71,33 @@ processor -stores-> destination;`
 };
 
 /**
- * Load examples dynamically from the examples directory
- * Now uses build-time generated list with bundled content
- * Implements drill-down navigation: categories -> examples
+ * Load examples dynamically using shared example loader
  */
 export async function loadDynamicExamples(): Promise<void> {
     try {
         const examplesContainer = document.querySelector('.examples');
         if (!examplesContainer) return;
 
-        // Load all examples content from the bundled list (no fetch required)
-        for (const example of examplesList) {
-            const key = example.name.toLowerCase().replace(/\s+/g, '-');
-            // Content is now bundled at build time
-            if (example.content) {
-                examples[key] = example.content;
-            } else {
-                console.warn(`Example ${example.name} has no bundled content`);
+        // Use shared example loader with category view
+        renderExampleButtons(
+            examplesContainer as HTMLElement,
+            (content, example) => {
+                if (editorView) {
+                    editorView.dispatch({
+                        changes: {
+                            from: 0,
+                            to: editorView.state.doc.length,
+                            insert: content,
+                        },
+                    });
+                }
+            },
+            {
+                categoryView: true,
+                buttonClass: 'example-btn',
+                categoryButtonClass: 'example-btn category-btn'
             }
-        }
-
-        // Group examples by category
-        const categoriesMap = new Map<string, typeof examplesList>();
-        for (const example of examplesList) {
-            if (!categoriesMap.has(example.category)) {
-                categoriesMap.set(example.category, []);
-            }
-            categoriesMap.get(example.category)!.push(example);
-        }
-
-        // Function to render category view
-        const renderCategories = () => {
-            examplesContainer.innerHTML = '';
-
-            // Sort categories by name
-            const sortedCategories = Array.from(categoriesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-
-            for (const [category, categoryExamples] of sortedCategories) {
-                const btn = document.createElement('button');
-                btn.className = 'example-btn category-btn';
-                btn.setAttribute('data-category', category);
-                btn.textContent = `${category} (${categoryExamples.length})`;
-                btn.title = `View ${categoryExamples.length} examples in ${category}`;
-                examplesContainer.appendChild(btn);
-
-                // Add click handler to drill into category
-                btn.addEventListener('click', () => {
-                    renderExamples(category, categoryExamples);
-                });
-            }
-        };
-
-        // Function to render examples within a category
-        const renderExamples = (category: string, categoryExamples: typeof examplesList) => {
-            examplesContainer.innerHTML = '';
-
-            // Add back button
-            const backBtn = document.createElement('button');
-            backBtn.className = 'example-btn back-btn';
-            backBtn.textContent = '← Back to Categories';
-            backBtn.title = 'Return to category list';
-            examplesContainer.appendChild(backBtn);
-
-            backBtn.addEventListener('click', () => {
-                renderCategories();
-            });
-
-            // Add examples from this category
-            for (const example of categoryExamples) {
-                const key = example.name.toLowerCase().replace(/\s+/g, '-');
-
-                const btn = document.createElement('button');
-                btn.className = 'example-btn';
-                btn.setAttribute('data-example', key);
-                btn.setAttribute('data-category', example.category);
-                btn.textContent = example.name;
-                btn.title = example.title;
-                examplesContainer.appendChild(btn);
-
-                // Add click handler
-                btn.addEventListener('click', async () => {
-                    if (editorView && examples[key]) {
-                        editorView.dispatch({
-                            changes: {
-                                from: 0,
-                                to: editorView.state.doc.length,
-                                insert: examples[key],
-                            },
-                        });
-
-                        // // Update diagram source display immediately when example is switched
-                        // const outputElement = document.getElementById('outputInfo');
-                        // const diagramElement = document.getElementById('diagram');
-                        // if (outputElement) {
-                        //     // // Auto-execute the new example to update diagram source
-                        //     // setTimeout(() => {
-                        //     //     executeCode(examples[key], outputElement, diagramElement);
-                        //     // }, 100);
-                        // }
-                    }
-                });
-            }
-        };
-
-        // Start by showing categories
-        renderCategories();
+        );
     } catch (error) {
         console.error('Error loading dynamic examples:', error);
     }
@@ -184,12 +105,6 @@ export async function loadDynamicExamples(): Promise<void> {
 
 let editorView: EditorView | null = null;
 let updateDiagramTimeout: number | null = null;
-
-// LocalStorage keys
-const STORAGE_KEYS = {
-    MODEL: 'dygram_selected_model',
-    API_KEY: 'dygram_api_key'
-};
 
 /**
  * Render Graphviz DOT diagram
@@ -206,37 +121,6 @@ async function renderDiagram(dotCode: string, container: HTMLElement): Promise<v
             </div>
         `;
     }
-}
-
-/**
- * Get API key from environment variable or localStorage
- */
-function getApiKey(): string {
-    // In browser environment, we can't access process.env directly
-    // But we can check if it was injected during build time
-    const envApiKey = typeof process !== 'undefined' && process.env?.ANTHROPIC_API_KEY;
-    const localStorageApiKey = localStorage.getItem(STORAGE_KEYS.API_KEY);
-    
-    // Priority: environment variable > localStorage > default
-    return envApiKey || localStorageApiKey || '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';
-}
-
-/**
- * Load settings from localStorage with environment variable support
- */
-function loadSettings(): { model: string; apiKey: string } {
-    return {
-        model: localStorage.getItem(STORAGE_KEYS.MODEL) || 'claude-3-5-sonnet-20241022',
-        apiKey: getApiKey()
-    };
-}
-
-/**
- * Save settings to localStorage
- */
-function saveSettings(model: string, apiKey: string): void {
-    localStorage.setItem(STORAGE_KEYS.MODEL, model);
-    localStorage.setItem(STORAGE_KEYS.API_KEY, apiKey);
 }
 
 /**
@@ -379,13 +263,15 @@ export function setupCodeMirrorPlayground(): void {
     // Set up settings change listeners
     if (modelSelect) {
         modelSelect.addEventListener('change', () => {
-            saveSettings(modelSelect.value, apiKeyInput?.value || '');
+            const currentSettings = loadSettings();
+            saveSettings(modelSelect.value, currentSettings.apiKey);
         });
     }
 
     if (apiKeyInput) {
         apiKeyInput.addEventListener('input', () => {
-            saveSettings(modelSelect?.value || '', apiKeyInput.value);
+            const currentSettings = loadSettings();
+            saveSettings(currentSettings.model, apiKeyInput.value);
         });
     }
 
@@ -498,54 +384,48 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         
         // Get settings for LLM configuration
         const settings = loadSettings();
-        
-        // Initialize storage system
-        const storage = getStorage();
-        
-        outputElement.innerHTML = '<div class="loading">Creating evolutionary executor...</div>';
 
-        // Create EvolutionaryExecutor with storage and LLM configuration
-        let executor: EvolutionaryExecutor;
-        
+        // Initialize storage system (kept for future use but not required for RailsExecutor)
+        const storage = getStorage();
+
+        outputElement.innerHTML = '<div class="loading">Creating executor...</div>';
+
+        // Create RailsExecutor with LLM configuration
+        let executor: RailsExecutor | null = null;
+
         const llmConfig = settings.apiKey.trim() ? {
             llm: {
                 provider: 'anthropic' as const, // Use Anthropic for better browser compatibility
                 apiKey: settings.apiKey,
                 modelId: settings.model
+            },
+            agentSDK: {
+                model: 'sonnet' as const,
+                maxTurns: 20,
+                persistHistory: false,
+                apiKey: settings.apiKey
             }
         } : {};
 
-        console.log('🔧 Creating EvolutionaryExecutor with config:', {
+        console.log('🔧 Creating RailsExecutor with config:', {
             hasApiKey: !!settings.apiKey.trim(),
             apiKeyPrefix: settings.apiKey.substring(0, 10) + '...',
             model: settings.model,
             llmConfig
         });
 
-        // Create base executor first with proper LLM client
-        const baseExecutor = llmConfig.llm ? 
-            await MachineExecutor.create(machineData, llmConfig) :
-            new MachineExecutor(machineData, llmConfig);
-        
-        // Create VisualizingMachineExecutor for enhanced runtime visualization
-        console.log('🔧 Creating VisualizingMachineExecutor...');
-        const visualizingExecutor: VisualizingMachineExecutor = llmConfig.llm ? 
-            await VisualizingMachineExecutor.create(machineData, llmConfig) :
-            new VisualizingMachineExecutor(machineData, llmConfig);
-        
-        console.log('✅ VisualizingMachineExecutor created:', {
-            type: visualizingExecutor.constructor.name,
-            hasGetMobileRuntimeVisualization: typeof visualizingExecutor.getMobileRuntimeVisualization === 'function',
-            machineTitle: machineData.title,
-            nodeCount: machineData.nodes.length
-        });
-        
-        // Create EvolutionaryExecutor by extending the properly configured base executor
-        executor = new EvolutionaryExecutor(machineData, llmConfig, storage);
-        
-        // Replace the LLM client with the properly configured one
-        if (llmConfig.llm && baseExecutor) {
-            (executor as any).llmClient = (baseExecutor as any).llmClient;
+        // Create RailsExecutor with proper LLM client
+        if (llmConfig.llm) {
+            try {
+                executor = await RailsExecutor.create(machineData, llmConfig);
+                console.log('✅ RailsExecutor created successfully');
+            } catch (error) {
+                console.error('❌ Failed to create RailsExecutor:', error);
+            }
+        } else {
+            // Create executor without LLM for static analysis only
+            executor = new RailsExecutor(machineData, {});
+            console.log('✅ RailsExecutor created (no API key - static mode only)');
         }
 
         // Identify task nodes for execution
@@ -585,7 +465,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             } 
         }
         
-        if (hasTaskNodes && hasApiKey) {
+        if (hasTaskNodes && hasApiKey && executor) {
             console.log('🚀 Starting execution with LLM support...');
             try {
                 // Execute the machine step by step until completion or max steps
@@ -593,18 +473,18 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
                     console.log(`🔄 Attempting step ${executionSteps + 1}...`);
                     const stepped = await executor.step();
                     executionSteps++;
-                    
+
                     console.log(`✅ Step ${executionSteps} result:`, { stepped, currentContext: executor.getContext() });
-                    
+
                     if (!stepped) {
                         console.log('🛑 No more transitions available');
                         break;
                     }
-                    
+
                     // Update UI with progress
                     outputElement.innerHTML = `<div class="loading">Executing step ${executionSteps}...</div>`;
                 }
-                
+
                 executionResult = executor.getContext();
                 console.log('🏁 Final execution result:', executionResult);
             } catch (execError) {
@@ -612,44 +492,21 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
                 // Continue with static analysis even if execution fails
             }
         } else if (hasTaskNodes && !hasApiKey) {
-            console.log('⚠️ Simulating execution without API key...');
-            // Simulate execution without LLM calls for demo purposes
-            try {
-                const stepped = await executor.step();
-                if (stepped) {
-                    executionResult = executor.getContext();
-                }
-                console.log('🔄 Simulated execution result:', { stepped, executionResult });
-            } catch (execError) {
-                console.warn('❌ Simulated execution failed:', execError);
-            }
+            console.log('⚠️ Machine with tasks but no API key - showing static analysis only');
         } else {
-            console.log('ℹ️ No task nodes or API key - skipping execution');
+            console.log('ℹ️ No task nodes - static analysis only');
         }
 
-        // Get task metrics and evolution information
-        const taskMetrics = executor.getTaskMetrics();
-        const mutations = executor.getMutations();
-        const evolutions = mutations.filter((m: any) => m.type === 'task_evolution');
+        // Get mutations from executor if available
+        const mutations = executor ? executor.getMutations() : [];
 
-        // For now, we'll use the static Graphviz diagram for all cases
-        // TODO: Migrate runtime visualizer to support Graphviz format
+        // Use the static Graphviz diagram
         let runtimeDotCode = staticDotCode;
 
         console.log('🎨 Diagram generation:', {
             hasExecutionResult: !!executionResult,
-            visualizingExecutorType: visualizingExecutor.constructor.name,
-            isVisualizingMachineExecutor: visualizingExecutor instanceof VisualizingMachineExecutor,
             usingGraphviz: true
         });
-
-        if (executionResult) {
-            // Runtime visualization not yet migrated to Graphviz
-            // Using static diagram for now
-            console.log('ℹ️ Runtime visualization will use static Graphviz diagram (runtime migration pending)');
-        } else {
-            console.log('ℹ️ No execution result - using static diagram', staticDotCode.substring(0, 100));
-        }
 
         // Display comprehensive results
         const lines = code.split('\n').length;
@@ -679,7 +536,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
                 Nodes: ${machineData.nodes.length} (${taskNodes.length} tasks)<br>
                 Edges: ${machineData.edges.length}<br>
                 ${executionResult ? `Visited: ${executionResult.visitedNodes.size}<br>` : ''}
-                ${evolutions.length > 0 ? `Evolutions: ${evolutions.length}<br>` : ''}
+                ${mutations.length > 0 ? `Mutations: ${mutations.length}<br>` : ''}
                 Time: ${timestamp}
             </div>
         `;
@@ -715,48 +572,21 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             `;
         }
 
-        // Add task evolution metrics if available
-        if (taskMetrics.size > 0) {
+        // Add mutations if any occurred
+        if (mutations.length > 0) {
             outputHTML += `
                 <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
-                    <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Task Evolution Status:</div>
-                    ${Array.from(taskMetrics.entries()).map(([taskName, metrics]) => `
-                        <div style="color: #d4d4d4; font-size: 11px; margin-bottom: 4px;">
-                            <strong>${taskName}</strong>: ${metrics.stage} 
-                            (${metrics.execution_count} runs, ${(metrics.success_rate * 100).toFixed(1)}% success)
-                            ${metrics.code_path ? `<br>&nbsp;&nbsp;&nbsp;&nbsp;Code: ${metrics.code_path}` : ''}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        // Add evolution events if any occurred
-        if (evolutions.length > 0) {
-            outputHTML += `
-                <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
-                    <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Evolution Events:</div>
-                    ${evolutions.map((evolution: any, idx: number) => `
+                    <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Machine Mutations:</div>
+                    ${mutations.slice(0, 10).map((mutation: any, idx: number) => `
                         <div style="color: #4ec9b0; font-size: 11px;">
-                            ${idx + 1}. ${evolution.data.task}: ${evolution.data.from_stage} → ${evolution.data.to_stage}
-                            <br>&nbsp;&nbsp;&nbsp;&nbsp;Generated: ${evolution.data.code_path}
+                            ${idx + 1}. ${mutation.type}${mutation.data ? ': ' + JSON.stringify(mutation.data).substring(0, 50) : ''}
                         </div>
                     `).join('')}
+                    ${mutations.length > 10 ? `<div style="color: #858585; font-size: 11px; margin-top: 4px;">... and ${mutations.length - 10} more</div>` : ''}
                 </div>
             `;
         }
 
-        // Add storage information
-        outputHTML += `
-            <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
-                <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Storage:</div>
-                <div style="color: #d4d4d4; font-size: 11px;">
-                    Backend: ${storage.constructor.name}<br>
-                    Patterns: Available for reuse<br>
-                    Persistence: ${storage.constructor.name !== 'MemoryStorage' ? 'Enabled' : 'Session-only'}
-                </div>
-            </div>
-        `;
         
         // Add intermediate information
         outputHTML += `
@@ -810,12 +640,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             const safeMutations = mutations.map((mutation: any) => ({
                 type: mutation.type,
                 timestamp: mutation.timestamp,
-                data: mutation.data ? {
-                    task: mutation.data.task,
-                    from_stage: mutation.data.from_stage,
-                    to_stage: mutation.data.to_stage,
-                    code_path: mutation.data.code_path
-                } : {}
+                data: mutation.data || {}
             }));
             
             await storage.saveMachineVersion(versionKey, {
