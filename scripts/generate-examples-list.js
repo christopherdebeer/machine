@@ -38,10 +38,11 @@ async function scanExamples(dir, baseDir = dir) {
                     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(' ');
 
-                // Try to read first few lines to get machine title
+                // Read the file content and extract title
                 let title = readableName;
+                let content = '';
                 try {
-                    const content = await readFile(fullPath, 'utf-8');
+                    content = await readFile(fullPath, 'utf-8');
                     const titleMatch = content.match(/^machine\s+"([^"]+)"/m);
                     if (titleMatch) {
                         title = titleMatch[1];
@@ -55,7 +56,8 @@ async function scanExamples(dir, baseDir = dir) {
                     name: readableName,
                     title: title,
                     category: category,
-                    filename: entry.name
+                    filename: entry.name,
+                    content: content
                 });
             }
         }

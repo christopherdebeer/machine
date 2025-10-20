@@ -73,7 +73,7 @@ processor -stores-> destination;`
 
 /**
  * Load examples dynamically from the examples directory
- * Now uses build-time generated list instead of hardcoded paths
+ * Now uses build-time generated list with bundled content
  * Implements drill-down navigation: categories -> examples
  */
 export async function loadDynamicExamples(): Promise<void> {
@@ -81,17 +81,14 @@ export async function loadDynamicExamples(): Promise<void> {
         const examplesContainer = document.querySelector('.examples');
         if (!examplesContainer) return;
 
-        // Pre-load all examples content
+        // Load all examples content from the bundled list (no fetch required)
         for (const example of examplesList) {
-            try {
-                const response = await fetch(example.path);
-                if (response.ok) {
-                    const content = await response.text();
-                    const key = example.name.toLowerCase().replace(/\s+/g, '-');
-                    examples[key] = content;
-                }
-            } catch (error) {
-                console.warn(`Failed to load example: ${example.path}`, error);
+            const key = example.name.toLowerCase().replace(/\s+/g, '-');
+            // Content is now bundled at build time
+            if (example.content) {
+                examples[key] = example.content;
+            } else {
+                console.warn(`Example ${example.name} has no bundled content`);
             }
         }
 
