@@ -25,6 +25,14 @@ body {
     overflow-x: hidden;
 }
 
+a {
+    color: var(--accent);
+}
+
+a:visited {
+    color: var(--accent);
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;

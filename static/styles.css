@@ -159,10 +159,10 @@ select.settings-input {
 
 #diagram {
     background-color: white;
-    padding: 2em;
     display: flex;
     max-height: 50vh;
     box-sizing: border-box;
+    justify-content: center;
 }
 
 /* Theme support */

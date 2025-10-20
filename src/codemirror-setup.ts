@@ -605,7 +605,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         outputHTML += `
             <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
                 <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">[${machineData.title}] Diagram source (Graphviz DOT):</div>
-                <div style="color: #d4d4d4; font-size: 11px;">
+                <div class="diagram-render-source" style="color: #d4d4d4; font-size: 11px; ">
                     <pre><code>${escapeHtml(staticDotCode)}</code></pre>
                 </div>
             </div>
