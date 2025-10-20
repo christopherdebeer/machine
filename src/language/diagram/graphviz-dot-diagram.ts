@@ -49,7 +49,7 @@ function getNodeShape(node: any, edges?: any[]): string {
     // Map node types to shapes
     const shapeMap: Record<string, string> = {
         init: 'ellipse',       // Start/entry points
-        end: 'cds',        // End/exit points
+        end: 'ellipse',        // End/exit points
         task: 'box',           // Tasks/actions
         state: 'diamond',      // State nodes
         context: 'folder',     // Context/data storage
