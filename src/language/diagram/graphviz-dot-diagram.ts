@@ -364,7 +364,15 @@ function generateSemanticHierarchy(
             lines.push(`${indent}  color="#999999";`);
             lines.push('');
 
-            
+            // Add representative node for parent if it has attributes, type, or annotations
+            const hasAttributes = node.attributes && node.attributes.length > 0;
+            const hasType = node.type && node.type.length > 0;
+            const hasAnnotations = node.annotations && node.annotations.length > 0;
+
+            if (hasAttributes || hasType || hasAnnotations) {
+                lines.push(generateNodeDefinition(node, edges, indent + '  '));
+                lines.push('');
+            }
 
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);
