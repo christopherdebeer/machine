@@ -139,6 +139,13 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
 
+    // Machine attributes (if present) - displayed as a special node below the title
+    if (machineJson.attributes && machineJson.attributes.length > 0) {
+        lines.push('  // Machine Attributes');
+        lines.push(generateMachineAttributesNode(machineJson.attributes));
+        lines.push('');
+    }
+
     // Build semantic hierarchy based on parent-child relationships
     const hierarchy = buildSemanticHierarchy(machineJson.nodes);
     const rootNodes = getRootNodes(machineJson.nodes);
@@ -307,6 +314,49 @@ export function generateRuntimeDotDiagram(
     lines.push('}');
 
     return lines.join('\n');
+}
+
+/**
+ * Generate a special node for displaying machine attributes
+ * Styled with transparent/white borders similar to leaf nodes but distinguished
+ */
+function generateMachineAttributesNode(attributes: any[]): string {
+    // Build HTML label for machine attributes
+    let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
+
+    // Header row
+    htmlLabel += '<tr><td align="left">';
+    htmlLabel += '<b>Machine</b> <i>&lt;Attributes&gt;</i>';
+    htmlLabel += '</td></tr>';
+
+    // Attributes table
+    if (attributes.length > 0) {
+        htmlLabel += '<tr><td>';
+        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
+
+        attributes.forEach((attr: any) => {
+            let displayValue = attr.value;
+            if (typeof displayValue === 'string') {
+                displayValue = displayValue.replace(/^["']|["']$/g, '');
+                // Break long values into multiple lines
+                displayValue = breakLongText(displayValue, 30).join('<br/>');
+            }
+            const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
+
+            htmlLabel += '<tr>';
+            htmlLabel += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
+            htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+            htmlLabel += '</tr>';
+        });
+
+        htmlLabel += '</table>';
+        htmlLabel += '</td></tr>';
+    }
+
+    htmlLabel += '</table>';
+
+    // Style with white/transparent borders (similar to leaf nodes but lighter)
+    return `  "MachineAttributes" [label=<${htmlLabel}>, shape=box, fillcolor="#FAFAFA", style=filled, color="#E0E0E0", penwidth=1];`;
 }
 
 /**

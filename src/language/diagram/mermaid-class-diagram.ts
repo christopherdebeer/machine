@@ -77,6 +77,12 @@ export function generateClassDiagram(machineJson: MachineJSON, options: MermaidO
     lines.push('classDiagram-v2');
     lines.push('');
 
+    // Machine attributes (if present) - displayed as a special class below the title
+    if (machineJson.attributes && machineJson.attributes.length > 0) {
+        lines.push(generateMachineAttributesClass(machineJson.attributes));
+        lines.push('');
+    }
+
     // Build semantic hierarchy based on parent-child relationships
     const hierarchy = buildSemanticHierarchy(machineJson.nodes);
     const rootNodes = getRootNodes(machineJson.nodes);
@@ -306,6 +312,38 @@ function buildSemanticHierarchy(nodes: any[]): SemanticHierarchy {
  */
 function getRootNodes(nodes: any[]): any[] {
     return nodes.filter(node => !node.parent);
+}
+
+/**
+ * Generate a special class for displaying machine attributes
+ * Styled with transparent borders to distinguish from regular nodes
+ */
+function generateMachineAttributesClass(attributes: any[]): string {
+    const lines: string[] = [];
+
+    // Create a special class for machine attributes
+    lines.push('  class MachineAttributes {');
+    lines.push('    <<Machine>>');
+
+    // Add each attribute with type and value
+    attributes.forEach(attr => {
+        let displayValue = attr.value;
+        if (typeof displayValue === 'string') {
+            displayValue = displayValue.replace(/^["']|["']$/g, '');
+            displayValue = wrapText(displayValue, 60);
+        }
+
+        const typeStr = attr.type ? convertTypeToMermaid(String(attr.type)) : '';
+        lines.push(`    +${attr.name}${typeStr ? ` : ${typeStr}` : ''} = ${displayValue}`);
+    });
+
+    lines.push('  }');
+
+    // Apply special styling for machine attributes (white/transparent borders)
+    lines.push('  classDef machineAttributesStyle fill:#FAFAFA,stroke:#E0E0E0,stroke-width:1px,stroke-dasharray: 5 5');
+    lines.push('  class MachineAttributes machineAttributesStyle');
+
+    return lines.join('\n');
 }
 
 /**
