@@ -79,7 +79,7 @@ h2, h3, h4 {
 }
 
 .btn:hover {
-    background-color: var(--accent);
+    background-color: white;
 }
 
 section {
@@ -201,11 +201,12 @@ section {
     background-color: var(--primary);
     color: white;
     text-align: center;
-    padding: calc(var(--spacing) * 2) 0;
+    padding: 0;
 }
 
 .cta h2 {
     font-size: clamp(2rem, 6vw, 4rem);
+    margin: 0;
     margin-bottom: 2rem;
 }
 
