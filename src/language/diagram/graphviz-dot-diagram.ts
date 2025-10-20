@@ -392,14 +392,22 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
     // Build HTML label
     let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
-    // First row: Annotations (italic) and ID (bold)
+    // First row: Type (italic), ID (bold), Annotations (italic), Description
     htmlLabel += '<tr><td align="left">';
 
-    // Annotations first (italic)
+    // Type first (italic)
+    if (node.type) {
+        htmlLabel += '<i>&lt;&lt;' + escapeHtml(node.type) + '&gt;&gt;</i> ';
+    }
+
+    // ID (bold)
+    htmlLabel += '<b>' + escapeHtml(node.name) + '</b>';
+
+    // Annotations (italic)
     if (node.annotations && node.annotations.length > 0) {
         const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
         if (displayAnnotations.length > 0) {
-            htmlLabel += '<i>';
+            htmlLabel += ' <i>';
             displayAnnotations.forEach((ann: any, idx: number) => {
                 if (idx > 0) htmlLabel += ' ';
                 if (ann.value) {
@@ -408,28 +416,18 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
                     htmlLabel += '@' + escapeHtml(ann.name);
                 }
             });
-            htmlLabel += '</i> ';
+            htmlLabel += '</i>';
         }
     }
 
-    // ID (bold)
-    htmlLabel += '<b>' + escapeHtml(node.name) + '</b>';
-    htmlLabel += '</td></tr>';
-
-    // Description row (if different from ID)
+    // Description (if different from ID)
     if (displayValue && displayValue !== node.name) {
-        htmlLabel += '<tr><td align="left">';
+        htmlLabel += ' ';
         const titleLines = breakLongText(displayValue, 40);
         htmlLabel += titleLines.map(line => escapeHtml(line)).join('<br/>');
-        htmlLabel += '</td></tr>';
     }
 
-    // Type annotation
-    if (node.type) {
-        htmlLabel += '<tr><td align="left">';
-        htmlLabel += '&lt;&lt;' + escapeHtml(node.type) + '&gt;&gt;';
-        htmlLabel += '</td></tr>';
-    }
+    htmlLabel += '</td></tr>';
 
     // Parent annotation
     if (node.parent) {
