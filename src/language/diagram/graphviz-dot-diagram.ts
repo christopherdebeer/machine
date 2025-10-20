@@ -133,6 +133,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push('  fontname="Arial";');
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
+    lines.push('  pad=0.25;');
     lines.push('  node [fontname="Arial", fontsize=10];');  // Removed default shape=record to allow per-node shapes
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
@@ -192,6 +193,7 @@ export function generateRuntimeDotDiagram(
     lines.push('  fontname="Arial";');
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
+    lines.push('  pad=0.25;');
     lines.push('  node [fontname="Arial", fontsize=10, shape=record];');  // Restored shape=record for runtime diagrams
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
@@ -214,7 +216,7 @@ export function generateRuntimeDotDiagram(
         const attrs: string[] = [];
 
         if (node.type) {
-            attrs.push(`<<${node.type}>>`);
+            attrs.push(`&lt;${node.type}&gt;`);
         }
 
         if (options.showRuntimeState !== false) {
@@ -356,7 +358,7 @@ function generateSemanticHierarchy(
             lines.push(`${indent}subgraph cluster_${node.name} {`);
             lines.push(`${indent}  label="${escapeDot(node.name)}";`);
             lines.push(`${indent}  style=filled;`);
-            lines.push(`${indent}  fillcolor="#F5F5F5";`);
+            lines.push(`${indent}  fillcolor="#FFFFFF";`);
             lines.push(`${indent}  color="#999999";`);
             lines.push('');
 
@@ -397,14 +399,15 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
 
     let firstRowContent = '';
 
+    // ID (bold) - always present
+    firstRowContent += '<b>' + escapeHtml(node.name) + '</b>';
+
     // Type first (italic)
     if (node.type) {
-        firstRowContent += '<i>&lt;&lt;' + escapeHtml(node.type) + '&gt;&gt;</i>';
+        firstRowContent += ' <i>&lt;' + escapeHtml(node.type) + '&gt;</i>';
     }
 
-    // ID (bold) - always present
-    if (firstRowContent) firstRowContent += ' ';
-    firstRowContent += '<b>' + escapeHtml(node.name) + '</b>';
+    
 
     // Annotations (italic)
     if (node.annotations && node.annotations.length > 0) {
@@ -542,7 +545,7 @@ function generateEdges(machineJson: MachineJSON): string {
         const arrowStyle = getArrowStyle(edge.arrowType || '->');
 
         const edgeLine = label
-            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}"${arrowStyle}];`
+            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}"${arrowStyle}, labelhref="#foo"];`
             : `  "${edge.source}" -> "${edge.target}"${arrowStyle};`;
 
         lines.push(edgeLine);

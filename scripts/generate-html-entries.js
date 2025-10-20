@@ -31,6 +31,7 @@ function generateHTML(pageName, title) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DyGram | ${title}</title>
     <link rel="stylesheet" href="static/styles/main.css">
+    <link rel="stylesheet" href="static/styles/carousel.css">
     <link rel="icon" type="image/jpeg" href="icon.jpg">
 </head>
 <body>
