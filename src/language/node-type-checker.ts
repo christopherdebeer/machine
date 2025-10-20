@@ -37,7 +37,7 @@ export interface EdgeLike {
 /**
  * Node types that can be inferred
  */
-export type InferredNodeType = 'task' | 'state' | 'context' | 'init' | 'tool' | undefined;
+export type InferredNodeType = 'task' | 'state' | 'context' | 'init' | 'tool' | 'end' | undefined;
 
 /**
  * Node Type Checker - Static utilities for node type identification
@@ -104,8 +104,17 @@ export class NodeTypeChecker {
             return 'init';
         }
 
-        // 5. Default: state (control flow node)
-        return 'state';
+        // 4. Graph structure: no outgoing edges + has incomming edges → end
+        if (edges && !this.hasOutgoingGraphStructure(node.name, edges)) {
+            return 'end';
+        }
+
+        if (edges && this.hasOutgoingGraphStructure(node.name, edges)) {
+            return 'state';
+        }
+
+        // n. Default: state
+        return undefined;
     }
 
     /**
@@ -159,6 +168,13 @@ export class NodeTypeChecker {
         const hasOutgoing = edges.some(edge => edge.source === nodeName);
 
         return !hasIncoming && hasOutgoing;
+    }
+
+    /**
+     * Check if node has outgoing edges)
+     */
+    private static hasOutgoingGraphStructure(nodeName: string, edges: EdgeLike[]): boolean {
+        return  edges.some(edge => edge.source === nodeName);
     }
 
     /**

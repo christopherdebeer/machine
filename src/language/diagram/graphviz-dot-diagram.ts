@@ -49,6 +49,7 @@ function getNodeShape(node: any, edges?: any[]): string {
     // Map node types to shapes
     const shapeMap: Record<string, string> = {
         init: 'ellipse',       // Start/entry points
+        end: 'cds',        // End/exit points
         task: 'box',           // Tasks/actions
         state: 'diamond',      // State nodes
         context: 'folder',     // Context/data storage
@@ -57,7 +58,7 @@ function getNodeShape(node: any, edges?: any[]): string {
 
     // Abstract nodes use octagon
     if (hasAbstract) {
-        return 'octagon';
+        return 'egg';
     }
 
     return (nodeType && shapeMap[nodeType]) || 'box';
@@ -362,9 +363,7 @@ function generateSemanticHierarchy(
             lines.push(`${indent}  color="#999999";`);
             lines.push('');
 
-            // Generate the parent node itself within the cluster
-            lines.push(generateNodeDefinition(node, edges, indent + '  '));
-            lines.push('');
+            
 
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);
@@ -434,13 +433,6 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
         htmlLabel += '<tr><td align="left">';
         const titleLines = breakLongText(displayValue, 40);
         htmlLabel += titleLines.map(line => escapeHtml(line)).join('<br/>');
-        htmlLabel += '</td></tr>';
-    }
-
-    // Parent annotation
-    if (node.parent) {
-        htmlLabel += '<tr><td align="left">';
-        htmlLabel += 'parent: ' + escapeHtml(node.parent);
         htmlLabel += '</td></tr>';
     }
 

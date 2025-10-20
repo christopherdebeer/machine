@@ -22,7 +22,7 @@ a:link {
 }
 
 a:visited {
-    color: lightskyblue;
+    color: white;
 }
 
 /* Header Controls */
@@ -35,7 +35,16 @@ a:visited {
     gap: 10px;
     border-bottom: 1px solid #444;
 }
-
+.header-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+}
+.header-title a {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+}
 .header-controls-left {
     display: flex;
     gap: 15px;
