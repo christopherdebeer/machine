@@ -13,6 +13,34 @@ machine "Machine Title"
 
 [Example: examples/basic/minimal.dygram](../examples/basic/minimal.dygram)
 
+### Machine-Level Attributes
+
+Machine-level attributes can be declared at the root level to configure the entire machine. These attributes use the `:` syntax and can appear anywhere at the root level:
+
+```dygram
+machine "Production System"
+
+modelId: "claude-4-sonnet-latest";
+title: "Alternative to base case";
+description: "Longer text can be provided to inform viewer";
+strictMode: true;
+
+Init start;
+end;
+
+start -"proceeds to"-> end;
+```
+
+**Common Machine Attributes:**
+- `title<string>` - Machine title (alternative to `machine "title"` syntax)
+- `modelId<string>` - Default LLM model for all tasks
+- `description<string>` - Detailed machine description
+- `strictMode<boolean>` - Enable strict validation mode
+- `version<string>` - Machine version
+- Custom attributes - Any custom machine-level configuration
+
+Machine attributes are distinguished from nodes by the `:` syntax - nodes use `{` or `;` instead.
+
 ## Node Declarations
 
 ### Untyped Nodes
@@ -166,6 +194,11 @@ Combining all features:
 
 ```dygram
 machine "Complete Example"
+
+// Machine-level configuration
+modelId: "claude-4-sonnet-latest";
+version: "1.0.0";
+description: "Production workflow with recovery";
 
 context config {
     env<string>: "production";

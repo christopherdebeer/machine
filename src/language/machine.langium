@@ -54,7 +54,13 @@ QualifiedName returns string:
 
 entry Machine:
     ('machine' title=STRING ';'?)?
-    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)* 
+    (machineAttributes+=MachineAttribute | nodes+=Node<true> | edges+=Edge<true> | notes+=Note)*
+;
+
+// Machine-level attributes at root level (e.g., modelId: "...", title: "...", strictMode: true)
+// Distinguished from nodes by the presence of ':' after the name
+MachineAttribute:
+    name=ID ('<' type=TypeDef '>')? ':' value=AttributeValue ';'?
 ;
 
 // Note: Using '=' for single values and '+=' for arrays is intentional.

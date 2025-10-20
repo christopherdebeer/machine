@@ -66,10 +66,8 @@ Cost-Optimized System
 machine "Cost-Optimized System"
 
 // Machine-level configuration using haiku for all tasks (unless overridden)
-config {
-    modelId: "claude-3-5-haiku-20241022";
-    desc: "Use haiku by default for cost optimization";
-};
+modelId: "claude-3-5-haiku-20241022";
+description: "Use haiku by default for cost optimization";
 
 state start;
 
