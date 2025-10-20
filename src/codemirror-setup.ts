@@ -465,8 +465,8 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             } 
         }
         
-        if (hasTaskNodes && hasApiKey && executor) {
-            console.log('🚀 Starting execution with LLM support...');
+        if (hasTaskNodes && executor) {
+            console.log('🚀 Starting execution...');
             try {
                 // Execute the machine step by step until completion or max steps
                 while (executionSteps < maxSteps) {
@@ -489,10 +489,23 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
                 console.log('🏁 Final execution result:', executionResult);
             } catch (execError) {
                 console.error('❌ Execution failed:', execError);
+
+                // Check if this is an API key related error
+                const errorMessage = execError instanceof Error ? execError.message : String(execError);
+                if (!hasApiKey || errorMessage.toLowerCase().includes('api key') || errorMessage.toLowerCase().includes('unauthorized')) {
+                    console.log('⚠️ Execution failed: API key required for agent decisions');
+                    outputElement.innerHTML = `
+                        <div style="color: #ffa500; margin-bottom: 12px;">
+                            ⚠ Execution stopped: API key required
+                        </div>
+                        <div style="color: #858585; font-size: 12px;">
+                            This machine requires an API key to execute agent decisions.<br>
+                            Please add your Anthropic API key in the settings above.
+                        </div>
+                    `;
+                }
                 // Continue with static analysis even if execution fails
             }
-        } else if (hasTaskNodes && !hasApiKey) {
-            console.log('⚠️ Machine with tasks but no API key - showing static analysis only');
         } else {
             console.log('ℹ️ No task nodes - static analysis only');
         }
@@ -514,15 +527,15 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         
         let statusMessage = '✓ Machine parsed and analyzed';
         let statusColor = '#4ec9b0';
-        
+
         if (executionResult && executionSteps > 0) {
             statusMessage = `✓ Machine executed (${executionSteps} steps) - Current: ${executionResult.currentNode}`;
             statusColor = '#4ec9b0';
-        } else if (hasTaskNodes && !hasApiKey) {
-            statusMessage = '⚠ Machine ready (API key required for task execution)';
+        } else if (hasTaskNodes && executionSteps === 0 && !hasApiKey) {
+            statusMessage = '⚠ Machine ready (API key may be required for agent decisions)';
             statusColor = '#ffa500';
-        } else if (hasTaskNodes && hasApiKey) {
-            statusMessage = '⚠ Machine parsed (execution failed - check credentials)';
+        } else if (hasTaskNodes && executionSteps === 0 && hasApiKey) {
+            statusMessage = '⚠ Machine parsed (execution stopped - check error above)';
             statusColor = '#ffa500';
         }
 
