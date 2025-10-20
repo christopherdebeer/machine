@@ -364,15 +364,11 @@ function generateSemanticHierarchy(
             lines.push(`${indent}  color="#999999";`);
             lines.push('');
 
-            // Add representative node for parent if it has attributes, type, or annotations
+            // Always add representative node for namespace to show id, type, title, description
+            // Use placeholder record only for attributes (if any exist)
             const hasAttributes = node.attributes && node.attributes.length > 0;
-            const hasType = node.type && node.type.length > 0;
-            const hasAnnotations = node.annotations && node.annotations.length > 0;
-
-            if (hasAttributes || hasType || hasAnnotations) {
-                lines.push(generateNodeDefinition(node, edges, indent + '  '));
-                lines.push('');
-            }
+            lines.push(generateNamespaceNodeDefinition(node, edges, indent + '  ', hasAttributes));
+            lines.push('');
 
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);
@@ -386,6 +382,102 @@ function generateSemanticHierarchy(
     });
 
     return lines.join('\n');
+}
+
+/**
+ * Generate a namespace node definition (for nodes with children)
+ * Shows id, type, title, description consistently with leaf nodes
+ * Only includes attributes as a placeholder record if they exist
+ */
+function generateNamespaceNodeDefinition(node: any, edges: any[], indent: string, hasAttributes: boolean): string {
+    const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
+                 node.attributes?.find((a: any) => a.name === 'prompt');
+    let displayValue: any = node.title || desc?.value;
+    if (displayValue && typeof displayValue === 'string') {
+        displayValue = displayValue.replace(/^["']|["']$/g, '');
+    }
+
+    // Build HTML label
+    let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
+
+    // First row: Type (italic), ID (bold), Annotations (italic) ONLY
+    htmlLabel += '<tr><td align="left">';
+
+    let firstRowContent = '';
+
+    // ID (bold) - always present
+    firstRowContent += '<b>' + escapeHtml(node.name) + '</b>';
+
+    // Type first (italic)
+    if (node.type) {
+        firstRowContent += ' <i>&lt;' + escapeHtml(node.type) + '&gt;</i>';
+    }
+
+    // Annotations (italic)
+    if (node.annotations && node.annotations.length > 0) {
+        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
+        if (displayAnnotations.length > 0) {
+            firstRowContent += ' <i>';
+            displayAnnotations.forEach((ann: any, idx: number) => {
+                if (idx > 0) firstRowContent += ' ';
+                if (ann.value) {
+                    firstRowContent += '@' + escapeHtml(ann.name) + '("' + escapeHtml(ann.value) + '")';
+                } else {
+                    firstRowContent += '@' + escapeHtml(ann.name);
+                }
+            });
+            firstRowContent += '</i>';
+        }
+    }
+
+    htmlLabel += firstRowContent;
+    htmlLabel += '</td></tr>';
+
+    // Second row: Title/Description (if different from ID)
+    if (displayValue && displayValue !== node.name) {
+        htmlLabel += '<tr><td align="left">';
+        const titleLines = breakLongText(displayValue, 40);
+        htmlLabel += titleLines.map(line => escapeHtml(line)).join('<br/>');
+        htmlLabel += '</td></tr>';
+    }
+
+    // Attributes table - only if attributes exist (placeholder record)
+    if (hasAttributes) {
+        const attributes = node.attributes?.filter((a: any) =>
+            a.name !== 'desc' && a.name !== 'prompt'
+        ) || [];
+
+        if (attributes.length > 0) {
+            htmlLabel += '<tr><td>';
+            htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
+
+            attributes.forEach((a: any) => {
+                let displayValue = a.value?.value ?? a.value;
+                if (typeof displayValue === 'string') {
+                    displayValue = displayValue.replace(/^["']|["']$/g, '');
+                    // Break long values into multiple lines
+                    displayValue = breakLongText(displayValue, 30).join('<br/>');
+                }
+                const typeStr = a.type ? ' : ' + escapeHtml(a.type) : '';
+
+                htmlLabel += '<tr>';
+                htmlLabel += '<td align="left">' + escapeHtml(a.name) + typeStr + '</td>';
+                htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+                htmlLabel += '</tr>';
+            });
+
+            htmlLabel += '</table>';
+            htmlLabel += '</td></tr>';
+        }
+    }
+
+    htmlLabel += '</table>';
+
+    // Get shape and styling
+    const shape = getNodeShape(node, edges);
+    const style = getNodeStyle(node, edges);
+
+    return `${indent}"${node.name}" [label=<${htmlLabel}>, shape=${shape}, ${style}];`;
 }
 
 /**
