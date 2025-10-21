@@ -105,6 +105,11 @@ export class MachineValidator {
         // Check if @StrictMode annotation is present
         const isStrictMode = machine.annotations?.some(ann => ann.name === 'StrictMode') ?? false;
 
+        // In non-strict mode, skip validation since linker will auto-create missing nodes
+        if (!isStrictMode) {
+            return;
+        }
+
         // Collect all explicitly defined node names
         const stateNames = new Set<string>();
         const collectStateNames = (node: Node) => {
@@ -118,11 +123,10 @@ export class MachineValidator {
             collectStateNames(node);
         }
 
-        // Check all edge references
+        // Check all edge references (only in strict mode)
         for (const edge of machine.edges) {
             edge.source.forEach(source => {
                 if (!stateNames.has(source.$refText)) {
-                    // In strict mode: error, in non-strict mode: error (will be auto-created but still an error)
                     accept('error', `Reference to undefined state: ${source.$refText}`, { node: edge, property: 'source' });
                 }
             })
@@ -130,7 +134,6 @@ export class MachineValidator {
             for (const segment of edge.segments) {
                 segment.target.forEach(target => {
                     if (!stateNames.has(target.$refText)) {
-                        // In strict mode: error, in non-strict mode: error (will be auto-created but still an error)
                         accept('error', `Reference to undefined state: ${target.$refText}`, { node: segment, property: 'target' });
                     }
                 })

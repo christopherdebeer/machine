@@ -241,7 +241,7 @@ describe('Error case tests', () => {
 
     test('detect invalid state reference', async () => {
         document = await parse(`
-            machine "invalid ref"
+            machine "invalid ref" @StrictMode
             start;
             start => nonexistent;
         `);
