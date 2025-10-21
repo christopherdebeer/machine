@@ -1,70 +1,43 @@
-import { PageLayout } from '../src/components/PageLayout';
-import { Carousel } from '../src/components/Carousel';
-import { CodeEditor } from '../src/components/CodeEditor';
+# DyGram | Thought → System
 
-export default function IndexPage() {
-    return <PageLayout title="DyGram | Thought → System">
-        <IndexContent />
-    </PageLayout>;
-}
+A lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting.
 
-export function IndexContent() {
-    return (
-        <>
-            <header>
-                <div className="container">
-                    <div className="tagline">
-                        A lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting.
-                    </div>
-                    <a href="#evolution" className="btn">EXPLORE →</a>
-                </div>
-            </header>
+## Quick Start
 
-            <section id="about">
-                <div className="container">
-                    <h2 className="section-title">RAPID PROTOTYPING</h2>
-                    <p style={{fontSize: '1.5rem', maxWidth: '800px'}}>
-                        DyGram starts broad and unstructured but is immediately executable, evolving toward more structured and complex systems through feedback and iteration.
-                    </p>
+- [Installation](getting-started/README.md) - Get DyGram up and running in minutes
+- [Syntax Guide](syntax/README.md) - Learn the language fundamentals
+- [Try it now](playground-mobile.html) - Interactive playground
 
-                    <div className="feature-grid">
-                        <div className="feature">
-                            <h3 className="feature-title">LEAN CORE DSL</h3>
-                            <p>Begin with a minimal, intuitive language that captures domain concepts without unnecessary complexity.</p>
-                        </div>
-                        <div className="feature">
-                            <h3 className="feature-title">ITERATIVE EVOLUTION</h3>
-                            <p>Refine your model through execution, generative prompting, and continuous feedback loops.</p>
-                        </div>
-                        <div className="feature">
-                            <h3 className="feature-title">STRUCTURED EMERGENCE</h3>
-                            <p>Watch your system naturally evolve from explorative sketches to structured implementations as requirements clarify.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+## What is DyGram?
 
-            <section id="evolution" className="dark">
-                <div className="container">
-                    <h2 className="section-title">EVOLUTION IN ACTION</h2>
+DyGram starts broad and unstructured but is immediately executable, evolving toward more structured and complex systems through feedback and iteration.
 
-                    <div className="evolution">
-                        <div className="stage">
-                            <div className="stage-header">
-                                <div className="stage-number">01</div>
-                                <h3 className="stage-title">INITIAL EXPLORATION</h3>
-                            </div>
-                            <div className="stage-content">
-                                <p>Start with an immediately executable, unstructured representation of your domain.</p>
+### Lean Core DSL
 
-                                <Carousel slides={[
-                                    {
-                                        id: 'example-001',
-                                        code: `problem -> solution;`
-                                    },
-                                    {
-                                        id: 'example-002',
-                                        code: `machine "Solution Sketch"
+Begin with a minimal, intuitive language that captures domain concepts without unnecessary complexity.
+
+### Iterative Evolution
+
+Refine your model through execution, generative prompting, and continuous feedback loops.
+
+### Structured Emergence
+
+Watch your system naturally evolve from explorative sketches to structured implementations as requirements clarify.
+
+## Evolution in Action
+
+### Stage 1: Initial Exploration
+
+Start with an immediately executable, unstructured representation of your domain.
+
+```dygram
+problem -> solution;
+```
+
+Or add more structure:
+
+```dygram
+machine "Solution Sketch"
 
 Input problem {
     query<string>: "TBD";
@@ -78,62 +51,15 @@ Result solution {
     value: "TBD";
 };
 
-problem -necessitates-> solution;`
-                                    },
-                                ]} />
-                            </div>
-                        </div>
+problem -necessitates-> solution;
+```
 
-                        <div className="stage">
-                            <div className="stage-header">
-                                <div className="stage-number">02</div>
-                                <h3 className="stage-title">ITERATIVE REFINEMENT</h3>
-                            </div>
-                            <div className="stage-content">
-                                <p>Through execution and feedback, add context and structure to your prototype.</p>
+### Stage 2: Iterative Refinement
 
-                                <Carousel slides={[
-                                    {
-                                        id: 'example-004',
-                                        code: `machine "Solution Framework"
+Through execution and feedback, add context and structure to your prototype.
 
-Concept problem "User Authentication" {
-    domain: "Security";
-    priority<number>: 9;
-    constraints: ["GDPR Compliance", "Low Latency"];
-};
-
-Concept solution "Token-based Auth" {
-    status: "Prototyping";
-    approach: "JWT Implementation";
-    metrics: ["Security", "Performance", "UX"];
-};
-
-problem -addresses-> solution;`
-                                    },
-                                    {
-                                        id: 'example-005',
-                                        code: `machine "Solution Framework"
-
-Concept problem "User Authentication" {
-    domain: "Security";
-    priority<number>: 9;
-    constraints: ["GDPR Compliance", "Low Latency"];
-    stakeholders: ["Security Team", "UX Team"];
-};
-
-Concept solution "Token-based Auth" {
-    status: "In Progress";
-    approach: "JWT Implementation";
-    metrics: ["Security", "Performance", "UX"];
-    components: ["JWT Generator", "Token Validator"];
-};
-
-problem -addresses, confidence: 0.8-> solution;`
-                                    },
-                                    {
-                                        id: 'example-006',
-                                        code: `machine "Solution Framework"
+```dygram
+machine "Solution Framework"
 
 Concept problem "User Authentication" {
     domain: "Security";
@@ -157,24 +83,15 @@ Resource documentation "Auth Flow Diagram" {
 };
 
 problem -addresses, confidence: 0.9-> solution;
-solution -documented_by-> documentation;`
-                                    }
-                                ]} />
-                            </div>
-                        </div>
+solution -documented_by-> documentation;
+```
 
-                        <div className="stage">
-                            <div className="stage-header">
-                                <div className="stage-number">03</div>
-                                <h3 className="stage-title">STRUCTURED SYSTEM</h3>
-                            </div>
-                            <div className="stage-content">
-                                <p>Evolve into a comprehensive executable model that bridges conceptual and technical domains.</p>
+### Stage 3: Structured System
 
-                                <Carousel slides={[
-                                    {
-                                        id: 'example-007',
-                                        code: `machine "Knowledge Management System"
+Evolve into a comprehensive executable model that bridges conceptual and technical domains.
+
+```dygram
+machine "Knowledge Management System"
 
 Concept idea "Neural Interface" {
     creator: "Research Team";
@@ -202,192 +119,38 @@ Resource resource1 "Research Paper" {
 
 idea -inspires, confidence: 0.85-> implementation;
 idea -documented_in-> resource1;
-implementation -references-> resource1;`
-                                    },
-                                    {
-                                        id: 'example-008',
-                                        code: `machine "Project Management System"
+implementation -references-> resource1;
+```
 
-Team team "Development Squad" {
-    lead: "Jane Smith";
-    members: ["Alice", "Bob", "Charlie"];
-    skills: ["Frontend", "Backend", "DevOps"];
-};
+## Documentation
 
-Feature feature "User Dashboard" {
-    priority<Integer>: 8;
-    epic: "User Experience";
-    status: "In Progress";
-    description: "Interactive dashboard showing user activity";
-    acceptance_criteria: [
-        "Shows activity graph for last 30 days",
-        "Allows filtering by activity type",
-        "Exports data in CSV format"
-    ];
-};
+### [Getting Started](getting-started/README.md)
+Installation, quick start, and your first machine
 
-Task task1 "Design Dashboard UI" {
-    assignee: "Alice";
-    estimated_hours<Float>: 8.5;
-    status: "Completed";
-};
+### [Syntax Reference](syntax/README.md)
+Complete language syntax - nodes, edges, attributes, types
 
-Task task2 "Implement API" {
-    assignee: "Bob";
-    estimated_hours<Float>: 16.0;
-    status: "In Progress";
-    dependencies: ["Database Schema Update"];
-};
+### [CLI Tools](cli/README.md)
+Command-line interface for generation and execution
 
-feature -broken_down_into-> task1;
-feature -broken_down_into-> task2;
-team -responsible_for-> feature;
-//team.members[0] -assigned_to-> task1;`
-                                    },
-                                    {
-                                        id: 'example-009',
-                                        code: `machine "Supply Chain System"
+### [API Reference](api/README.md)
+Programmatic integration and library API
 
-Entity supplier "Global Electronics Inc" {
-    id<UUID>: "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
-    location: "Shanghai, China";
-    reliability<Float>: 0.92;
-    lead_time_days<Integer>: 14;
-    certification: ["ISO9001", "ISO14001"];
-};
+### [Examples](examples/README.md)
+Practical patterns organized by use case
 
-Entity component "CPU-X5000" {
-    sku: "CP-X5000-01";
-    category: "Processor";
-    unit_cost<Currency>: "USD 120.50";
-    stock<Integer>: 250;
-    reorder_point<Integer>: 100;
-};
+### [Documentation Archive](archived/README.md)
+Previous versions and legacy content
 
-Process ordering "Procurement Process" {
-    trigger: "Stock below reorder point";
-    steps: [
-        "Generate purchase request",
-        "Approve purchase order",
-        "Send to supplier",
-        "Confirm receipt",
-        "Update inventory"
-    ];
-    avg_cycle_time_days<Float>: 18.5;
-    owner: "Procurement Team";
-};
+## Playgrounds
 
-supplier -provides-> component;
-component -used_in-> ordering;
-ordering -involves-> supplier;`
-                                    }
-                                ]} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+- [CodeMirror Playground](playground-mobile.html) - Mobile-friendly editor
+- [Monaco Playground](playground.html) - Desktop IDE experience
 
-            <section id="documentation" className="light">
-                <div className="container">
-                    <h2 className="section-title">DOCUMENTATION</h2>
+## Contributing
 
-                    <div className="doc-grid">
-                        <div className="doc-card">
-                            <h3>Getting Started</h3>
-                            <p>Installation, quick start, and your first machine</p>
-                            <a href="getting-started-index.html" className="doc-link">Get Started →</a>
-                        </div>
+Found an issue or want to improve DyGram? Visit our [GitHub repository](https://github.com/christopherdebeer/machine).
 
-                        <div className="doc-card">
-                            <h3>Syntax Reference</h3>
-                            <p>Complete language syntax - nodes, edges, attributes, types</p>
-                            <a href="syntax-index.html" className="doc-link">Learn Syntax →</a>
-                        </div>
+---
 
-                        <div className="doc-card">
-                            <h3>CLI Tools</h3>
-                            <p>Command-line interface for generation and execution</p>
-                            <a href="cli-index.html" className="doc-link">Use CLI →</a>
-                        </div>
-
-                        <div className="doc-card">
-                            <h3>API Reference</h3>
-                            <p>Programmatic integration and library API</p>
-                            <a href="api-index.html" className="doc-link">Explore API →</a>
-                        </div>
-
-                        <div className="doc-card">
-                            <h3>Examples</h3>
-                            <p>Practical patterns organized by use case</p>
-                            <a href="examples-index.html" className="doc-link">Browse Examples →</a>
-                        </div>
-
-                        <div className="doc-card">
-                            <h3>Documentation Archive</h3>
-                            <p>Previous versions and legacy content</p>
-                            <a href="archived-documentation.html" className="doc-link">View Archive →</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section className="cta">
-                <div className="container">
-                    <h2>EXPLORATION → IMPLEMENTATION</h2>
-                    <a href="playground-mobile.html" className="btn">CodeMirror PLAYGROUND →</a>
-                    <a href="playground.html" className="btn btn-secondary" style={{marginLeft: '12px'}}>Monaco PLAYGROUND →</a>
-                </div>
-            </section>
-
-            <style>{`
-                .doc-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                    gap: 2rem;
-                    margin-top: 2rem;
-                }
-
-                .doc-card {
-                    background: var(--light);
-                    padding: 2rem;
-                    border-radius: 8px;
-                    border: 1px solid rgba(0, 0, 0, 0.1);
-                    transition: transform 0.2s, box-shadow 0.2s;
-                }
-
-                .doc-card:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-                }
-
-                .doc-card h3 {
-                    color: var(--primary);
-                    margin-bottom: 0.5rem;
-                    font-size: 1.5rem;
-                }
-
-                .doc-card p {
-                    color: var(--secondary);
-                    margin-bottom: 1rem;
-                    line-height: 1.6;
-                }
-
-                .doc-link {
-                    color: var(--accent);
-                    text-decoration: none;
-                    font-weight: 600;
-                    transition: opacity 0.2s;
-                }
-
-                .doc-link:hover {
-                    opacity: 0.8;
-                }
-
-                .light {
-                    background: #f5f5f5;
-                }
-            `}</style>
-        </>
-    );
-}
+**Exploration → Implementation** - Start sketching your systems today.

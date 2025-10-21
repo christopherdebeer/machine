@@ -16,7 +16,7 @@ export default function remarkTOC(options = {}) {
         const headings = [];
         let firstHeadingIndex = -1;
 
-        // First pass: collect all headings
+        // First pass: collect all headings and assign IDs
         visit(tree, 'heading', (node, index) => {
             if (node.depth <= maxDepth && node.depth > 1) {
                 // Extract text from heading
@@ -31,6 +31,15 @@ export default function remarkTOC(options = {}) {
                     .replace(/[^\w\s-]/g, '')
                     .replace(/\s+/g, '-')
                     .replace(/^-+|-+$/g, '');
+
+                // Apply slug as ID to the heading node
+                if (!node.data) {
+                    node.data = {};
+                }
+                if (!node.data.hProperties) {
+                    node.data.hProperties = {};
+                }
+                node.data.hProperties.id = slug;
 
                 headings.push({
                     depth: node.depth,

@@ -7,6 +7,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 import react from '@vitejs/plugin-react';
 import mdx from '@mdx-js/rollup';
 import remarkLinkRewrite from './scripts/remark-link-rewrite.js';
+import remarkTOC from './scripts/remark-toc.js';
 
 /**
  * Dynamically scan for HTML entry files
@@ -86,7 +87,7 @@ export default defineConfig(() => {
             {
                 enforce: 'pre',
                 ...mdx({
-                    remarkPlugins: [remarkLinkRewrite]
+                    remarkPlugins: [remarkLinkRewrite, remarkTOC]
                 })
             },
             react(),
