@@ -2,16 +2,6 @@
 
 Programmatic API for integrating DyGram into your applications.
 
-## Table of Contents
-
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Core Modules](#core-modules)
-- [Parsing and Validation](#parsing-and-validation)
-- [Generation](#generation)
-- [Execution](#execution)
-- [TypeScript Support](#typescript-support)
-
 ## Installation
 
 ```bash

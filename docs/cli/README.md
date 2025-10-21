@@ -2,14 +2,6 @@
 
 Complete reference for the DyGram command-line interface.
 
-## Table of Contents
-
-- [Installation](#installation)
-- [Commands](#commands)
-- [Global Options](#global-options)
-- [Output Formats](#output-formats)
-- [Examples](#examples)
-
 ## Installation
 
 ```bash

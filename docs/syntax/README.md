@@ -2,17 +2,6 @@
 
 Complete reference for the DyGram language syntax.
 
-## Table of Contents
-
-- [Machine Declaration](#machine-declaration)
-- [Nodes](#nodes)
-- [Edges](#edges)
-- [Attributes](#attributes)
-- [Types](#types)
-- [Annotations](#annotations)
-- [Notes](#notes)
-- [Comments](#comments)
-
 ## Machine Declaration
 
 Every DyGram file can optionally start with a machine declaration:
