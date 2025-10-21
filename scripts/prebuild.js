@@ -281,12 +281,12 @@ async function generateHierarchy(projectRoot) {
         let path = relativePath.replace(/\.(md|mdx)$/, '');
         if (basename(path) === 'README' || basename(path) === 'index') {
             const dir = dirname(path);
-            if (dir === '.') return 'documentation.html';
-            return `${basename(dir)}-index.html`;
+            if (dir === '.') return '/'; // Root index
+            return `${basename(dir)}/`; // Folder-based URL
         }
         const baseName = basename(path);
         const kebabName = baseName.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
-        return `${kebabName}.html`;
+        return `${kebabName}/`; // Folder-based URL for other pages too
     }
 
     async function scanDirectory(dir, basePath = '') {

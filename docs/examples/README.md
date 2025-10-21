@@ -2,15 +2,6 @@
 
 Practical examples organized by use case and domain.
 
-## Table of Contents
-
-- [Basic Examples](#basic-examples)
-- [Workflow Examples](#workflow-examples)
-- [State Machine Examples](#state-machine-examples)
-- [LLM Integration Examples](#llm-integration-examples)
-- [Advanced Features](#advanced-features)
-- [Domain-Specific Examples](#domain-specific-examples)
-
 ## Basic Examples
 
 ### Hello World
