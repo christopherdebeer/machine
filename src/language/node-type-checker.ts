@@ -104,17 +104,14 @@ export class NodeTypeChecker {
             return 'init';
         }
 
-        // 4. Graph structure: no outgoing edges + has incomming edges → end
+        // 4. Graph structure: no outgoing edges + has incoming edges → end
         if (edges && !this.hasOutgoingGraphStructure(node.name, edges)) {
             return 'end';
         }
 
-        if (edges && this.hasOutgoingGraphStructure(node.name, edges)) {
-            return 'state';
-        }
-
-        // n. Default: state
-        return undefined;
+        // 5. Default: state (control flow node)
+        // This is the fallback for any node that doesn't match other patterns
+        return 'state';
     }
 
     /**

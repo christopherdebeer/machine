@@ -104,14 +104,8 @@ export class MachineValidator {
     checkInvalidStateReferences(machine: Machine, accept: ValidationAcceptor): void {
         // Check if @StrictMode annotation is present
         const isStrictMode = machine.annotations?.some(ann => ann.name === 'StrictMode') ?? false;
-        
-        // In non-strict mode, we allow undefined node references (they will be auto-created)
-        // This avoids duplicate errors with Langium's built-in linker
-        if (!isStrictMode) {
-            return;
-        }
 
-        // In strict mode, validate that all referenced nodes exist
+        // Collect all explicitly defined node names
         const stateNames = new Set<string>();
         const collectStateNames = (node: Node) => {
             stateNames.add(node.name);
@@ -124,9 +118,11 @@ export class MachineValidator {
             collectStateNames(node);
         }
 
+        // Check all edge references
         for (const edge of machine.edges) {
             edge.source.forEach(source => {
                 if (!stateNames.has(source.$refText)) {
+                    // In strict mode: error, in non-strict mode: error (will be auto-created but still an error)
                     accept('error', `Reference to undefined state: ${source.$refText}`, { node: edge, property: 'source' });
                 }
             })
@@ -134,6 +130,7 @@ export class MachineValidator {
             for (const segment of edge.segments) {
                 segment.target.forEach(target => {
                     if (!stateNames.has(target.$refText)) {
+                        // In strict mode: error, in non-strict mode: error (will be auto-created but still an error)
                         accept('error', `Reference to undefined state: ${target.$refText}`, { node: segment, property: 'target' });
                     }
                 })

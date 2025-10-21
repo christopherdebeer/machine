@@ -37,11 +37,15 @@ export class MachineLinker extends DefaultLinker {
     private autoCreateMissingNodes(machine: Machine): void {
         const existingNodes = new Set<string>();
         
-        // Collect all existing node names
-        const collectNodeNames = (nodes: Node[]) => {
+        // Collect all existing node names (both simple and qualified)
+        const collectNodeNames = (nodes: Node[], prefix: string = '') => {
             for (const node of nodes) {
                 existingNodes.add(node.name);
-                collectNodeNames(node.nodes);
+                // Also add qualified name if nested
+                if (prefix) {
+                    existingNodes.add(`${prefix}.${node.name}`);
+                }
+                collectNodeNames(node.nodes, prefix ? `${prefix}.${node.name}` : node.name);
             }
         };
         collectNodeNames(machine.nodes);
@@ -67,9 +71,15 @@ export class MachineLinker extends DefaultLinker {
         }
         
         // Create placeholder nodes for missing references
-        for (const nodeName of referencedNodes) {
-            if (!existingNodes.has(nodeName)) {
-                this.createPlaceholderNode(machine, nodeName);
+        for (const refText of referencedNodes) {
+            if (!existingNodes.has(refText)) {
+                // Extract the simple name from qualified name (e.g., "Parent.Child" -> "Child")
+                const simpleName = refText.includes('.') ? refText.split('.').pop()! : refText;
+                
+                // Only create if the simple name doesn't exist
+                if (!existingNodes.has(simpleName)) {
+                    this.createPlaceholderNode(machine, simpleName);
+                }
             }
         }
     }
@@ -102,10 +112,12 @@ export class MachineLinker extends DefaultLinker {
             return existingNode;
         }
 
-        // Create a new placeholder node
+        // Create a new placeholder node with all required Langium properties
         const placeholderNode: Node = {
             $type: 'Node',
             $container: machine,
+            $containerProperty: 'nodes',
+            $containerIndex: machine.nodes.length,
             name: nodeName,
             title: undefined,
             type: undefined,
