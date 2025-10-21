@@ -1,7 +1,6 @@
-import { DefaultLinker, AstNode, AstNodeDescription, LangiumDocument } from 'langium';
+import { DefaultLinker, LangiumDocument } from 'langium';
 import { Machine, Node, isMachine, } from './generated/ast.js';
 import type { MachineServices } from './machine-module.js';
-import { URI } from 'langium';
 
 /**
  * Custom linker that auto-creates nodes for undefined references when not in @StrictMode
@@ -92,17 +91,6 @@ export class MachineLinker extends DefaultLinker {
     }
 
     /**
-     * Get the Machine container for any AST node
-     */
-    private getMachineContainer(node: AstNode): Machine | undefined {
-        let current: AstNode | undefined = node;
-        while (current && !isMachine(current)) {
-            current = current.$container;
-        }
-        return current as Machine | undefined;
-    }
-
-    /**
      * Create a placeholder node for an undefined reference
      */
     private createPlaceholderNode(machine: Machine, nodeName: string): Node | undefined {
@@ -146,36 +134,5 @@ export class MachineLinker extends DefaultLinker {
             return undefined;
         };
         return findInNodes(machine.nodes);
-    }
-
-    /**
-     * Create an AstNodeDescription for a node
-     */
-    private createDescription(node: Node, name: string): AstNodeDescription {
-        const uri = node.$document?.uri;
-        return {
-            node,
-            name,
-            type: 'Node',
-            documentUri: uri ? (typeof uri === 'string' ? URI.parse(uri) : uri) : URI.parse(''),
-            path: this.getNodePath(node)
-        };
-    }
-
-    /**
-     * Get the path to a node in the AST
-     */
-    private getNodePath(node: AstNode): string {
-        const segments: string[] = [];
-        let current: AstNode | undefined = node;
-        
-        while (current) {
-            if ('name' in current && typeof current.name === 'string') {
-                segments.unshift(current.name);
-            }
-            current = current.$container;
-        }
-        
-        return segments.join('/');
     }
 }
