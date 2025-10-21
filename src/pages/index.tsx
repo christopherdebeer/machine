@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { PageLayout } from '../components/PageLayout';
-import Content from '../../docs/index.mdx';
+import Content from '../../docs/syntax/index.mdx';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

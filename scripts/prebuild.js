@@ -506,10 +506,11 @@ async function transformMarkdownToMdx(projectRoot) {
                 if (entry.name === 'archived') continue;
                 files.push(...await scanMarkdownFiles(fullPath, relativePath));
             } else if (entry.name.endsWith('.md')) {
-                // All .md files become .mdx
-                const outputName = entry.name === 'README.md' || entry.name === 'Index.md'
-                    ? 'index.mdx'
-                    : entry.name.replace(/\.md$/, '.mdx');
+                // Skip Index.md as it's replaced by README.md
+                if (entry.name === 'Index.md') continue;
+
+                // All .md files become .mdx (keeping their names)
+                const outputName = entry.name.replace(/\.md$/, '.mdx');
                 files.push({
                     fullPath,
                     relativePath: join(dirname(relativePath), outputName).replace(/\\/g, '/'),
@@ -578,7 +579,8 @@ async function generateEntries(projectRoot) {
                 const baseName = basename(entry.name, '.mdx');
                 let pageName, title;
 
-                if (baseName === 'index') {
+                // README.mdx becomes index.html for its directory
+                if (baseName === 'README') {
                     const parentDir = basename(dirname(fullPath));
                     if (parentDir === 'docs') {
                         pageName = 'index';
