@@ -485,8 +485,17 @@ async function transformMarkdownToMdx(projectRoot) {
                 // Non-dygram code block content, pass through
                 output.push(line);
             } else {
-                // Regular content, pass through
-                output.push(line);
+                // Regular content - rewrite README.md links
+                let processedLine = line;
+
+                // Rewrite links: folder/README.md → folder/ or folder/index.html
+                processedLine = processedLine.replace(/\]\(([^)]+\/README\.md)\)/g, (match, path) => {
+                    // Remove README.md and add trailing slash or index.html
+                    const folderPath = path.replace(/\/README\.md$/, '/');
+                    return `](${folderPath})`;
+                });
+
+                output.push(processedLine);
             }
         }
 
