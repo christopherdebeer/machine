@@ -1,9 +1,0 @@
-machine "Attributes Machine"
-node1 {
-    stringAttr<string>: "test value";
-    numberAttr<number>: 42.5;
-    boolAttr<boolean>: true;
-    arrayAttr: ["a", "b", "c"];
-    untypedAttr: "untyped";
-    prompt: "an llm prompt";
-}
