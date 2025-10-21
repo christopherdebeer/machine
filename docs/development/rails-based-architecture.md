@@ -355,7 +355,7 @@ task -read: field3-> context;
 
 ## Complete Example
 
-```dygram example/meta/self-improving-pipeline.dygram
+```dygram examples/meta/self-improving-pipeline.dygram
 machine "Self-Improving Data Pipeline"
 
 // Context nodes

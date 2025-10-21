@@ -154,7 +154,7 @@ monitor -reads-> metrics;
 ```
 
 ### Pattern 2: Configuration-Driven Modification
-```dygram examplse/meta/config.dygram
+```dygram examples/meta/config.dygram
 Task adapter {
     meta: true;
     prompt: "Based on config.mode, add appropriate nodes";
