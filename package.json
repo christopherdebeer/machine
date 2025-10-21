@@ -15,16 +15,11 @@
         "onCommand:extension.generateAndPreview"
     ],
     "scripts": {
-        "extract:examples": "node scripts/extract-examples-from-docs.js",
-        "generate:examples": "node scripts/generate-examples-list.js",
-        "generate:hierarchy": "node scripts/generate-hierarchy.js",
-        "generate:html": "node scripts/generate-html-entries.js",
-        "generate:all": "npm run extract:examples && npm run generate:examples && npm run generate:hierarchy",
-        "prebuild": "npm run generate:all && npm run langium:generate",
+        "prebuild": "node scripts/prebuild.js && npm run langium:generate",
         "build": "npm run build:all",
         "build:all": "npm run prebuild && npm run build:extension && npm run build:web",
         "build:extension": "tsc -b tsconfig.src.json && node esbuild.mjs",
-        "build:web": "npm run generate:html && vite build",
+        "build:web": "vite build && node scripts/generate-sitemap.js",
         "watch": "npm run prebuild && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild.mjs --watch\"",
         "dev": "npm run prebuild && concurrently -n watch,web -c blue,yellow \"npm run watch:extension\" \"npm run dev:web\"",
         "watch:extension": "concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild.mjs --watch\"",
@@ -37,7 +32,7 @@
         "vscode:package": "vsce package",
         "bundle": "npm run build:web",
         "bundle:serve": "http-server ./dist --port 5175",
-        "dev:debug": "npm run generate:examples && vite --debug --force",
+        "dev:debug": "vite --debug --force",
         "serve": "npm run dev",
         "test": "vitest run",
         "test:runtime": "vitest run test/integration/runtime-visualization.test.ts",
@@ -47,7 +42,7 @@
         "test:e2e:headed": "playwright test --headed",
         "test:all": "npm run test && npm run test:runtime && npm run test:e2e",
         "test:reports": "npm run test && npm run test:e2e && node scripts/generate-test-index.js",
-        "build:with-tests": "npm run generate:all && npm run test:reports && npm run build"
+        "build:with-tests": "npm run test:reports && npm run build"
     },
     "dependencies": {
         "@anthropic-ai/claude-agent-sdk": "^0.1.14",
@@ -98,6 +93,7 @@
         "playwright": "^1.56.0",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
+        "sitemap": "^8.0.1",
         "typescript": "~5.1.6",
         "vite": "^5.4.20",
         "vite-plugin-static-copy": "^2.3.0",
