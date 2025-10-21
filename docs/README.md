@@ -1,165 +1,48 @@
 # DyGram Documentation
 
-Welcome to the DyGram documentation! DyGram is a lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting.
+Welcome to DyGram - a lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems.
 
-## 🚀 Getting Started
-
-New to DyGram? Start here:
-
-- **[Installation](getting-started/installation.md)** - Set up DyGram on your system
-- **[Quick Start](QuickStart.mdx)** - Your first DyGram machine in minutes
-- **[Language Overview](guides/language-overview.md)** - Core concepts and introduction
-
-## 📚 Documentation Sections
+## Quick Navigation
 
 ### [Getting Started](getting-started/README.md)
-Installation guides, quick start tutorials, and your first steps with DyGram.
+New to DyGram? Start here for installation and your first machine.
 
-### [Guides](guides/README.md)
-Comprehensive guides covering language features, syntax, patterns, and best practices:
-- Language Overview & Syntax Guide
-- Context and Schema Management
-- Advanced Features & Edge Conditions
-- Meta-Programming & Self-Evolving Systems
-- Testing Approaches
+### [Syntax](syntax/README.md)
+Complete language syntax reference - nodes, edges, attributes, types, and more.
 
-### [Reference](reference/README.md)
-Technical reference documentation:
-- Grammar Reference (formal specification)
-- CLI Reference (command-line tools)
-- API Reference (programmatic usage)
-- Events & Validation Errors
+### [CLI](cli/README.md)
+Command-line tools for generating, validating, and executing machines.
 
-### [Integration](integration/README.md)
-Integrating DyGram with editors, tools, and systems:
-- VS Code Extension
-- LLM Client Usage (Claude, Bedrock)
-- Libraries and Packages
-- Build System Integration
-
-### [Architecture](architecture/README.md)
-System architecture and execution model:
-- Rails-Based Architecture
-- Runtime and Evolution
-- Pattern Recognition
-- Cost Optimization
+### [API](api/README.md)
+Programmatic API for embedding DyGram in your applications.
 
 ### [Examples](examples/README.md)
-Practical examples demonstrating features and use cases:
-- Advanced Features Examples
-- Context Management
-- Meta-Programming
-- Workflows & Rails Architecture
-- Validation Patterns
+Practical examples organized by use case and domain.
 
-### [Resources](resources/README.md)
-Additional resources and community support:
-- FAQ & Troubleshooting
-- Blog & Articles
-- DSPy Comparison
-- Community & Support
+## What is DyGram?
 
-## 🎯 Quick Links
+DyGram is a domain-specific language that enables rapid prototyping through:
 
-### For Beginners
-1. [Install DyGram](getting-started/installation.md)
-2. [Quick Start Guide](QuickStart.mdx)
-3. [Basic Examples](examples/README.md)
-4. [Syntax Guide](guides/syntax-guide.md)
+- **Immediate Execution** - Start with minimal sketches that run immediately
+- **Iterative Evolution** - Refine through execution and feedback
+- **Rails-Based Architecture** - Guide agents with deterministic state machines
+- **Cost Optimization** - Evolve from flexible LLM execution to efficient code
 
-### For Developers
-- [API Reference](Api.mdx)
-- [CLI Reference](reference/cli-reference.md)
-- [VS Code Extension](integration/vscode-extension.md)
-- [LLM Integration](integration/llm-client-usage.md)
+## Documentation Philosophy
 
-### For Advanced Users
-- [Meta-Programming](guides/meta-programming.md)
-- [Rails Architecture](architecture/rails-based-architecture.md)
-- [Advanced Features](guides/advanced-features.md)
-- [Runtime Evolution](RuntimeAndEvolution.mdx)
+This documentation is organized by purpose:
 
-## 💡 What Makes DyGram Special?
+- **Syntax** - Language reference for what you can write
+- **CLI** - Tools reference for how to use the command line
+- **API** - Library reference for programmatic integration
+- **Examples** - Practical patterns for common scenarios
 
-### Rapid Prototyping
-Start with minimal, unstructured representations that are immediately executable. No need for complete specifications upfront.
+Each section is designed to stand alone while providing cross-references to related topics.
 
-### Iterative Evolution
-Systems naturally evolve from explorative sketches to structured implementations through execution, feedback, and generative prompting.
+## Contributing
 
-### Rails-Based Execution
-Your machine definition acts as "rails" guiding a single agent. Automated transitions for deterministic paths, agent decisions for complex branching.
-
-### Cost Optimization
-Tasks automatically evolve from flexible LLM execution to efficient generated code as patterns emerge, reducing costs over time.
-
-### Meta-Programming
-Agents can inspect and modify machine definitions at runtime, enabling self-evolving systems that adapt to changing requirements.
-
-## 🔥 Popular Pages
-
-- [Rails-Based Architecture](architecture/rails-based-architecture.md) - Understand the execution model
-- [Meta-Programming Guide](guides/meta-programming.md) - Build self-evolving systems
-- [Advanced Features](guides/advanced-features.md) - Master sophisticated patterns
-- [Context Management](guides/context-and-schema-guide.md) - Data flow and validation
-- [Examples Collection](examples/README.md) - Learn from practical examples
-
-## Language Features Overview
-
-### Basic Features
-- **Nodes** - Basic building blocks with optional types (task, state, init, context)
-- **Attributes** - Typed and untyped metadata on nodes
-- **Edges** - Transitions with labels, conditions, and multiple arrow styles
-- **Nesting** - Hierarchical structures with unlimited depth
-- **Context** - Shared configuration and state
-- **Unicode Support** - Full internationalization for identifiers and labels
-
-### Advanced Features
-- **Relationship Types** - 7 semantic arrow types (association, dependency, inheritance, composition, aggregation, bidirectional, emphasis)
-- **Multiplicity** - Cardinality expressions (1, *, 0..1, 1..*, ranges)
-- **Annotations** - Semantic metadata (@Abstract, @Singleton, @Async, @Deprecated, @Critical)
-- **Dependency Inference** - Automatic detection from template variables
-- **Generic Types** - Parameterized types (Promise\<T\>, Array\<T\>, Map\<K,V\>)
-- **Documentation Notes** - Inline notes attached to nodes
-- **Type Checking** - Attribute type validation and inference
-- **Graph Validation** - Reachability, cycles, orphans, entry/exit points
-- **Semantic Validation** - Node type rules and annotation compatibility
-
-See [Advanced Features](guides/advanced-features.md) for details.
-
-## Transformation Pipeline
-
-DyGram supports transformations to multiple output formats:
-```
-DyGram source → AST → JSON → Mermaid diagrams
-```
-
-All transformations are validated for:
-- **Completeness** - No information lost during parsing
-- **Losslessness** - Round-trip transformations preserve semantics
-- **Validity** - Output formats are syntactically correct
-
-## 🤝 Contributing
-
-We welcome contributions! Whether it's:
-- Reporting bugs
-- Suggesting features
-- Improving documentation
-- Submitting code
-
-See the main [README](../README.md) and visit our [GitHub repository](https://github.com/christopherdebeer/machine).
-
-## 📝 Documentation for Contributors
-
-- [Langium Quickstart](LangiumQuickstart.mdx) - Language implementation guide
-- [React + MDX Setup](ReactMdxSetup.mdx) - Documentation system architecture
-
-## Archive
-
-Historical phase documentation has been consolidated into the main guides. See [archive/](archive/) for reference.
+Found an issue or want to improve the docs? Visit our [GitHub repository](https://github.com/christopherdebeer/machine).
 
 ---
 
-**Explore. Execute. Evolve.**
-
-Ready to get started? Head to the [Installation Guide](getting-started/installation.md) or jump into the [Quick Start](QuickStart.mdx)!
+**Previous Documentation**: Historical documentation is available in [archived/](archived/).

@@ -288,6 +288,50 @@ ordering -involves-> supplier;`
                 </div>
             </section>
 
+            <section id="documentation" className="light">
+                <div className="container">
+                    <h2 className="section-title">DOCUMENTATION</h2>
+
+                    <div className="doc-grid">
+                        <div className="doc-card">
+                            <h3>Getting Started</h3>
+                            <p>Installation, quick start, and your first machine</p>
+                            <a href="getting-started-index.html" className="doc-link">Get Started →</a>
+                        </div>
+
+                        <div className="doc-card">
+                            <h3>Syntax Reference</h3>
+                            <p>Complete language syntax - nodes, edges, attributes, types</p>
+                            <a href="syntax-index.html" className="doc-link">Learn Syntax →</a>
+                        </div>
+
+                        <div className="doc-card">
+                            <h3>CLI Tools</h3>
+                            <p>Command-line interface for generation and execution</p>
+                            <a href="cli-index.html" className="doc-link">Use CLI →</a>
+                        </div>
+
+                        <div className="doc-card">
+                            <h3>API Reference</h3>
+                            <p>Programmatic integration and library API</p>
+                            <a href="api-index.html" className="doc-link">Explore API →</a>
+                        </div>
+
+                        <div className="doc-card">
+                            <h3>Examples</h3>
+                            <p>Practical patterns organized by use case</p>
+                            <a href="examples-index.html" className="doc-link">Browse Examples →</a>
+                        </div>
+
+                        <div className="doc-card">
+                            <h3>Documentation Archive</h3>
+                            <p>Previous versions and legacy content</p>
+                            <a href="archived-documentation.html" className="doc-link">View Archive →</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section className="cta">
                 <div className="container">
                     <h2>EXPLORATION → IMPLEMENTATION</h2>
@@ -295,6 +339,55 @@ ordering -involves-> supplier;`
                     <a href="playground.html" className="btn btn-secondary" style={{marginLeft: '12px'}}>Monaco PLAYGROUND →</a>
                 </div>
             </section>
+
+            <style>{`
+                .doc-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    gap: 2rem;
+                    margin-top: 2rem;
+                }
+
+                .doc-card {
+                    background: var(--light);
+                    padding: 2rem;
+                    border-radius: 8px;
+                    border: 1px solid rgba(0, 0, 0, 0.1);
+                    transition: transform 0.2s, box-shadow 0.2s;
+                }
+
+                .doc-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+                }
+
+                .doc-card h3 {
+                    color: var(--primary);
+                    margin-bottom: 0.5rem;
+                    font-size: 1.5rem;
+                }
+
+                .doc-card p {
+                    color: var(--secondary);
+                    margin-bottom: 1rem;
+                    line-height: 1.6;
+                }
+
+                .doc-link {
+                    color: var(--accent);
+                    text-decoration: none;
+                    font-weight: 600;
+                    transition: opacity 0.2s;
+                }
+
+                .doc-link:hover {
+                    opacity: 0.8;
+                }
+
+                .light {
+                    background: #f5f5f5;
+                }
+            `}</style>
         </>
     );
 }
