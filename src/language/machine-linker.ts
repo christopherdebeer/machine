@@ -1,5 +1,5 @@
-import { DefaultLinker, AstNode, AstNodeDescription, ReferenceInfo, LinkingError, LangiumDocument } from 'langium';
-import { Machine, Node, isMachine, isEdge } from './generated/ast.js';
+import { DefaultLinker, AstNode, AstNodeDescription, LangiumDocument } from 'langium';
+import { Machine, Node, isMachine, } from './generated/ast.js';
 import type { MachineServices } from './machine-module.js';
 import { URI } from 'langium';
 

@@ -427,15 +427,18 @@ describe('Generative Integration Tests', () => {
     // Helper to extract node names from source
     const extractNodeNamesFromSource = (source: string): string[] => {
         const names: string[] = [];
+        const excludedKeywords = ['machine', 'note', 'workflow'];
 
         // Match simple node declarations: nodeName;
         const simpleMatches = source.matchAll(/^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*;/gm);
         for (const match of simpleMatches) {
-            names.push(match[1]);
+            if (!excludedKeywords.includes(match[1])) {
+                names.push(match[1]);
+            }
         }
 
         // Match typed nodes: type nodeName;
-        const typedMatches = source.matchAll(/^\s*(?:task|state|init|context)\s+([a-zA-Z_][a-zA-Z0-9_]*)/gm);
+        const typedMatches = source.matchAll(/^\s*(?:task|state|init|context|workflow)\s+([a-zA-Z_][a-zA-Z0-9_]*)/gm);
         for (const match of typedMatches) {
             names.push(match[1]);
         }
@@ -443,7 +446,7 @@ describe('Generative Integration Tests', () => {
         // Match nodes with attributes: nodeName { ... }
         const attrMatches = source.matchAll(/^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/gm);
         for (const match of attrMatches) {
-            if (match[1] !== 'machine') {
+            if (!excludedKeywords.includes(match[1])) {
                 names.push(match[1]);
             }
         }
