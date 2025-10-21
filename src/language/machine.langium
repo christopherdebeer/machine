@@ -54,9 +54,9 @@ QualifiedName returns string:
 
 entry Machine:
     ('machine' title=STRING (annotations+=Annotation)* (('{'
-        (attributes+=Attribute)*
+        (attributes+=Attribute<false>)*
     '}' ';'?) | ';'?))?
-    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)*
+    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note | attributes+=Attribute<true>)*
 ;
 
 // Note: Using '=' for single values and '+=' for arrays is intentional.
@@ -81,7 +81,7 @@ TypeDef:
     base=ID ('<' generics+=TypeDef (',' generics+=TypeDef)* '>')?
 ;
 
-Attribute:
+Attribute<isRoot>:
     name=ID ('<' type=TypeDef '>')? (':' value=AttributeValue)? ';'?
 ;
 
@@ -91,7 +91,7 @@ Node<isRoot>:
     (title=STRING)?
     (annotations+=Annotation)*
     (('{'
-        (nodes+=Node<true> | edges+=Edge<true> | attributes+=Attribute)*
+        (nodes+=Node<true> | edges+=Edge<true> | attributes+=Attribute<false>)*
     '}' ';'?) | ';')
 ;
 
