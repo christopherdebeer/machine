@@ -409,11 +409,140 @@ export default hierarchy;
 }
 
 // ============================================================================
-// STEP 4: Generate MDX Wrappers and HTML Entries
+// STEP 4: Transform Markdown to MDX with CodeEditor Components
+// ============================================================================
+
+async function transformMarkdownToMdx(projectRoot) {
+    logSection('STEP 4: Transform Markdown to MDX');
+
+    const docsDir = join(projectRoot, 'docs');
+
+    log(`Scanning for markdown files: ${relative(projectRoot, docsDir)}`);
+
+    // Transform a single markdown file to MDX
+    async function transformFile(mdPath) {
+        const content = await readFile(mdPath, 'utf-8');
+        const lines = content.split('\n');
+        const output = [];
+        let inCodeBlock = false;
+        let codeBlockLang = null;
+        let codeBlockContent = [];
+        let codeBlockId = 0;
+
+        // Check if file needs CodeEditor imports
+        const hasDygramBlocks = /```(dygram|mach|machine)/m.test(content);
+
+        if (hasDygramBlocks) {
+            output.push("import { CodeEditor } from '../src/components/CodeEditor';");
+            output.push('');
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+
+            if (line.startsWith('```')) {
+                if (!inCodeBlock) {
+                    // Starting a code block
+                    const match = line.match(/^```(dygram|mach|machine)(?:\s+(.+))?$/);
+                    if (match) {
+                        inCodeBlock = true;
+                        codeBlockLang = match[1];
+                        codeBlockContent = [];
+                    } else {
+                        // Non-dygram code block, pass through
+                        output.push(line);
+                    }
+                } else {
+                    // Ending a code block
+                    if (codeBlockLang) {
+                        // Transform to CodeEditor component
+                        const code = codeBlockContent.join('\\n').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+                        codeBlockId++;
+                        output.push('');
+                        output.push(`<CodeEditor`);
+                        output.push(`  initialCode={\`${code}\`}`);
+                        output.push(`  language="${codeBlockLang}"`);
+                        output.push(`  id="code-editor-${codeBlockId}"`);
+                        output.push(`/>`);
+                        output.push('');
+                    } else {
+                        output.push(line);
+                    }
+                    inCodeBlock = false;
+                    codeBlockLang = null;
+                    codeBlockContent = [];
+                }
+            } else if (inCodeBlock && codeBlockLang) {
+                // Accumulate code block content
+                codeBlockContent.push(line);
+            } else if (inCodeBlock) {
+                // Non-dygram code block content, pass through
+                output.push(line);
+            } else {
+                // Regular content, pass through
+                output.push(line);
+            }
+        }
+
+        return output.join('\n');
+    }
+
+    // Scan for markdown files recursively
+    async function scanMarkdownFiles(dir, basePath = '') {
+        const files = [];
+        const entries = await readdir(dir, { withFileTypes: true });
+
+        for (const entry of entries) {
+            const fullPath = join(dir, entry.name);
+            const relativePath = join(basePath, entry.name);
+
+            if (entry.isDirectory()) {
+                if (entry.name === 'archived') continue;
+                files.push(...await scanMarkdownFiles(fullPath, relativePath));
+            } else if (entry.name.endsWith('.md')) {
+                // All .md files become .mdx
+                const outputName = entry.name === 'README.md' || entry.name === 'Index.md'
+                    ? 'index.mdx'
+                    : entry.name.replace(/\.md$/, '.mdx');
+                files.push({
+                    fullPath,
+                    relativePath: join(dirname(relativePath), outputName).replace(/\\/g, '/'),
+                    isConversion: true
+                });
+            }
+        }
+        return files;
+    }
+
+    const markdownFiles = await scanMarkdownFiles(docsDir);
+    log(`Found ${markdownFiles.length} markdown files to transform`, 'info');
+
+    // Transform each markdown file
+    let transformCount = 0;
+    for (const { fullPath, relativePath } of markdownFiles) {
+        const mdxContent = await transformFile(fullPath);
+
+        // Output path is already determined in relativePath
+        const outputPath = join(docsDir, relativePath);
+
+        await mkdir(dirname(outputPath), { recursive: true });
+        await writeFile(outputPath, mdxContent, 'utf-8');
+
+        log(`  ${relative(docsDir, fullPath)} → ${relative(docsDir, outputPath)}`);
+        transformCount++;
+    }
+
+    log(`Transformed ${transformCount} markdown files to MDX`, 'success');
+
+    return { count: transformCount };
+}
+
+// ============================================================================
+// STEP 5: Generate Page Entries (HTML + TSX)
 // ============================================================================
 
 async function generateEntries(projectRoot) {
-    logSection('STEP 4: Generate MDX Wrappers and HTML Entries');
+    logSection('STEP 5: Generate Page Entries');
 
     const docsDir = join(projectRoot, 'docs');
     const pagesDir = join(projectRoot, 'src', 'pages');
@@ -541,11 +670,11 @@ root.render(
 }
 
 // ============================================================================
-// STEP 5: Validate Links
+// STEP 6: Validate Links
 // ============================================================================
 
 async function validateLinks(projectRoot) {
-    logSection('STEP 5: Validate Links');
+    logSection('STEP 6: Validate Links');
 
     const docsDir = join(projectRoot, 'docs');
 
@@ -646,10 +775,13 @@ async function main() {
         // Step 3: Generate hierarchy
         const hierarchy = await generateHierarchy(projectRoot);
 
-        // Step 4: Generate entries
+        // Step 4: Transform markdown to MDX
+        const transform = await transformMarkdownToMdx(projectRoot);
+
+        // Step 5: Generate entries
         const entries = await generateEntries(projectRoot);
 
-        // Step 5: Validate links
+        // Step 6: Validate links
         const validation = await validateLinks(projectRoot);
 
         // Summary
@@ -659,6 +791,7 @@ async function main() {
         log(`Examples extracted: ${examples.count}`, 'success');
         log(`Examples cataloged: ${examplesList.count} (${examplesList.categories} categories)`, 'success');
         log(`Documentation hierarchy: ${hierarchy.sections} sections, ${hierarchy.pages} pages`, 'success');
+        log(`Markdown transformed: ${transform.count} files to MDX`, 'success');
         log(`Generated entries: ${entries.count} pages`, 'success');
         log(`Link validation: ${validation.total} links (${validation.broken} broken)`, validation.broken > 0 ? 'warn' : 'success');
         log(`Total duration: ${duration}s`, 'info');
