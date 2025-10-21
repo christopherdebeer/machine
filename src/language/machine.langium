@@ -53,8 +53,10 @@ QualifiedName returns string:
 ;
 
 entry Machine:
-    ('machine' title=STRING ';'?)?
-    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)* 
+    ('machine' title=STRING (annotations+=Annotation)* (('{'
+        (attributes+=Attribute)*
+    '}' ';'?) | ';'?))?
+    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)*
 ;
 
 // Note: Using '=' for single values and '+=' for arrays is intentional.

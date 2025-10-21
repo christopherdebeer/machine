@@ -11,6 +11,8 @@
  */
 export interface MachineJSON {
     title?: string;
+    attributes?: any[];
+    annotations?: any[];
     nodes: any[]; // Flexible to accept both Node[] from AST and simplified runtime nodes
     edges: any[]; // Flexible to accept both Edge[] from AST and simplified runtime edges
     notes?: any[];

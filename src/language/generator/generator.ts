@@ -69,6 +69,13 @@ class JSONGenerator extends BaseGenerator {
         // Create a serializable object representation of the machine
         const machineObject : MachineJSON = {
             title: this.machine.title,
+            attributes: this.machine.attributes ? this.serializeMachineAttributes(this.machine.attributes) : undefined,
+            annotations: this.machine.annotations && this.machine.annotations.length > 0
+                ? this.machine.annotations.map(ann => ({
+                    name: ann.name,
+                    value: ann.value?.replace(/^"|"$/g, '')
+                }))
+                : undefined,
             nodes: this.serializeNodes(),
             edges: this.serializeEdges(),
             notes: this.serializeNotes(),
@@ -189,6 +196,22 @@ class JSONGenerator extends BaseGenerator {
 
     private serializeAttributes(node: Node): any[] {
         return node.attributes?.map(attr => {
+            // Extract the actual value from the AttributeValue using recursive extraction
+            let value: any = this.extractPrimitiveValue(attr.value);
+
+            // Serialize type (including generic types)
+            const typeStr = attr.type ? this.serializeType(attr.type) : undefined;
+
+            return {
+                name: attr.name,
+                type: typeStr,
+                value: value
+            };
+        }) || [];
+    }
+
+    private serializeMachineAttributes(attributes: any[]): any[] {
+        return attributes?.map(attr => {
             // Extract the actual value from the AttributeValue using recursive extraction
             let value: any = this.extractPrimitiveValue(attr.value);
 
