@@ -433,11 +433,14 @@ async function transformMarkdownToMdx(projectRoot) {
         const hasDygramBlocks = /```(dygram|mach|machine)/m.test(content);
 
         if (hasDygramBlocks) {
-            // Calculate relative path to src/components/CodeEditor based on file depth
-            // relativePath is like "index.mdx" or "syntax/index.mdx" or "api/subpage.mdx"
-            const depth = relativePath.split('/').length - 1; // -1 because filename is included
-            // From docs/ we need 1 level up (..), from docs/syntax/ we need 2 levels up (../..), etc.
-            const levelsUp = depth + 1;
+            // Calculate relative path from this MDX file to src/components/CodeEditor
+            // relativePath is like "README.mdx" or "examples/README.mdx" or "api/README.mdx"
+            const pathParts = relativePath.split('/');
+            const depth = pathParts.length - 1; // Number of directories deep (excluding filename)
+
+            // From docs/README.mdx: ../src/components/CodeEditor
+            // From docs/examples/README.mdx: ../../src/components/CodeEditor
+            const levelsUp = depth + 1; // +1 to go from docs to project root
             const relativePrefix = Array(levelsUp).fill('..').join('/');
             output.push(`import { CodeEditor } from '${relativePrefix}/src/components/CodeEditor';`);
             output.push('');
