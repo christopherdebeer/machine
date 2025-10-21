@@ -69,7 +69,7 @@ Models can be specified via (in priority order):
 5. **Default** (lowest): `claude-3-5-haiku-20241022`
 
 **Example:**
-```dygram
+```dygram examples/model-configuration/basic.dygram
 config {
     modelId: "claude-3-5-haiku-20241022";  // Machine default
 };
@@ -119,7 +119,7 @@ DyGram features a unique execution model where your machine definition acts as "
 - **📊 Phase-Specific Context**: Agents receive only relevant data at each node
 
 **Example:**
-```machine
+```dygram
 machine "Smart Pipeline"
 
 State idle;
@@ -141,7 +141,7 @@ Learn more: [Rails-Based Architecture Documentation](docs/RailsBasedArchitecture
 
 ### Basic Structure
 
-```machine
+```dygram
 machine "My System"
 
 // Define nodes
@@ -155,7 +155,7 @@ start -> process -> end;
 
 ### Typed Concepts
 
-```machine
+```dygram examples/types/concepts.dygram
 machine "Task System"
 
 Concept task "User Story" {
@@ -174,7 +174,7 @@ task -drives-> implementation;
 
 ### Generative Tasks
 
-```machine
+```dygram examples/workflows/generative.dygram
 machine "AI Pipeline"
 
 Input query {
@@ -196,7 +196,7 @@ query -> analyze -> output;
 
 DyGram supports semantic nesting with qualified names and automatic context inheritance:
 
-```machine
+```dygram examples/nesting/data-pipeline.dygram
 machine "Data Pipeline"
 
 // Global configuration
@@ -245,7 +245,7 @@ DataPipeline -writes-> DataPipeline.pipelineState;
 - **Intuitive Scoping**: Hierarchical structure reflects natural context and workflow relationships
 
 **Example - State Module:**
-```dygram
+```dygram examples/nesting/state-module.dygram
 state DataPipeline {
     state validate -> process -> store;
 }

@@ -6,8 +6,7 @@ node_modules/
 out/
 src/language/generated/
 syntaxes/
-examples/*
-!examples/*.mach
+
 *.vsix
 generated
 .DS_Store
@@ -18,12 +17,16 @@ test-output/
 test-results/
 playwright-report/
 playwright/.cache/
+.playwright-mcp/
 
 # Generated documentation files
 # Source files are .md in docs/, only Index.mdx is hand-authored
 # Generated .mdx files (from .md sources)
 docs/**/*.mdx
 !docs/Index.mdx
+
+# Examples are extracted from docs/*.md files
+examples/*
 
 # Generated HTML entry files (except hand-authored)
 *.html
@@ -36,8 +39,7 @@ src/pages/*.tsx
 !src/pages/index.tsx
 !src/pages/playground.tsx
 
-# Generated examples
-examples/generated/
+
 
 # Generated data files
 src/data/doc-hierarchy.json

@@ -37,3 +37,41 @@ node_with_underscores -> nodeWithSpaces;
 nodeWithSpaces -"transition: with-dashes"-> node123;
 node123 -"emoji: 🎉"-> _privateNode;
 ```
+
+
+### `interleaved.dygram`
+
+Interleaved nodes, edges and attributes (including at root)
+
+```dygram examples/edge-cases/interleaved.dygram
+machine "Interleaved attributes, nodes and edges" @Example("foo")
+
+four: 1
+
+one -> two;
+
+problem "The Problem...";
+
+two -> one;
+
+solution @best;
+
+problem -> solution;
+
+one; two;
+
+three: "foo";
+
+parent {
+    test: true;
+
+    child1;
+    child2;
+    the_third {
+        title: "foo"
+        fourth;
+    }
+
+    -> solution;
+}
+```

@@ -22,7 +22,7 @@ Context nodes and context value management:
 
 ### [Documentation Features](documentation.md)
 Documentation features including:
-- Documentation notes with `note for nodeName "content"` syntax
+- Documentation notes with `note nodeName "content"` syntax
 - Multiline notes
 - Generic types: `Promise<T>`, `Array<T>`, `Map<K,V>`
 - Type documentation in diagrams

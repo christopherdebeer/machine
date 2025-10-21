@@ -4,6 +4,7 @@ import { MachineGeneratedModule, MachineGeneratedSharedModule } from './generate
 import { MachineValidator, MachineValidationRegistry } from './machine-validator.js';
 import { MachineScopeProvider } from './machine-scope.js';
 import { MachineSemanticTokenProvider } from './machine-semantic-token-provider.js';
+import { MachineLinker } from './machine-linker.js';
 import { Node } from './generated/ast.js';
 
 /**
@@ -46,6 +47,8 @@ export interface InferredDependency {
 
 export interface MachineJSON {
     title?: string;
+    attributes?: any[];
+    annotations?: any[];
     nodes: Node[];
     edges: Edge[];
     notes?: NoteInfo[];
@@ -72,7 +75,8 @@ export const MachineModule: Module<MachineServices, PartialLangiumServices & Mac
         SemanticTokenProvider: (services) => new MachineSemanticTokenProvider(services)
     },
     references: {
-        ScopeProvider: (services) => new MachineScopeProvider(services)
+        ScopeProvider: (services) => new MachineScopeProvider(services),
+        Linker: (services) => new MachineLinker(services)
     }
 };
 

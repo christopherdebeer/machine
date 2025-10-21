@@ -341,8 +341,8 @@ inferredTask {
 }
 
 // Both are functionally equivalent!
-note for explicitTask "Traditional explicit task type"
-note for inferredTask "Type inferred from 'prompt' attribute - same behavior as explicit task"
+note explicitTask "Traditional explicit task type"
+note inferredTask "Type inferred from 'prompt' attribute - same behavior as explicit task"
 
 // ────────────────────────────────────────────────────────────────────
 // 2. CONTEXT INFERENCE - Data nodes are inferred as contexts
@@ -366,9 +366,9 @@ settings {
     language: "en";
 }
 
-note for apiConfig "Explicit context type"
-note for appConfig "Type inferred from name containing 'config'"
-note for settings "Type inferred from having only data attributes"
+note apiConfig "Explicit context type"
+note appConfig "Type inferred from name containing 'config'"
+note settings "Type inferred from having only data attributes"
 
 // ────────────────────────────────────────────────────────────────────
 // 3. STATE INFERENCE - Simple nodes default to state (control flow)
@@ -381,8 +381,8 @@ state explicitReady "Ready State";
 waiting "Waiting";
 processing "Processing";
 
-note for explicitReady "Explicit state type"
-note for waiting "Type inferred as state (default for simple nodes)"
+note explicitReady "Explicit state type"
+note waiting "Type inferred as state (default for simple nodes)"
 
 // ────────────────────────────────────────────────────────────────────
 // 4. TOOL INFERENCE - Nodes with schema-like attributes are inferred as tools
@@ -400,8 +400,8 @@ formatter {
     output: "{ formatted: string }";
 }
 
-note for explicitCalculator "Explicit tool type"
-note for formatter "Type inferred from input/output schema attributes"
+note explicitCalculator "Explicit tool type"
+note formatter "Type inferred from input/output schema attributes"
 
 // ────────────────────────────────────────────────────────────────────
 // 5. INIT INFERENCE - Nodes with no incoming edges can be inferred as init
@@ -641,11 +641,11 @@ DataPipeline.ValidationPhase.validateSchema -error-> handleError;
 DataPipeline.ProcessingPhase.transform -error-> handleError;
 DataPipeline.StoragePhase.writeData -error-> handleError;
 
-note for DataPipeline "This pipeline demonstrates semantic nesting with qualified names and context inheritance. Child tasks automatically inherit read-only access to parent context nodes."
+note DataPipeline "This pipeline demonstrates semantic nesting with qualified names and context inheritance. Child tasks automatically inherit read-only access to parent context nodes."
 
-note for DataPipeline.ValidationPhase.fetchData "This task inherits read access to globalConfig (from DataPipeline) and pipelineState (from DataPipeline) without explicit edges."
+note DataPipeline.ValidationPhase.fetchData "This task inherits read access to globalConfig (from DataPipeline) and pipelineState (from DataPipeline) without explicit edges."
 
-note for DataPipeline.StoragePhase.prepareData "This task inherits access to globalConfig and pipelineState from ancestors, plus storageConfig from its direct parent."
+note DataPipeline.StoragePhase.prepareData "This task inherits access to globalConfig and pipelineState from ancestors, plus storageConfig from its direct parent."
 
 ```
 
@@ -762,15 +762,15 @@ Load -reads-> globalConfig;
 // For example, Extract.fetchData can read globalConfig without explicit edge
 // Transform.cleanData can read both globalConfig and Transform.transformConfig
 
-note for Extract "State module with automatic entry at fetchData. Terminal node validateSource inherits parent's exit edge to Transform."
+note Extract "State module with automatic entry at fetchData. Terminal node validateSource inherits parent's exit edge to Transform."
 
-note for Transform "Nested state module with internal context. Entry at cleanData, exit from aggregate to Load module."
+note Transform "Nested state module with internal context. Entry at cleanData, exit from aggregate to Load module."
 
-note for Load "State module demonstrating context inheritance. Child nodes inherit access to both globalConfig and loadConfig."
+note Load "State module demonstrating context inheritance. Child nodes inherit access to both globalConfig and loadConfig."
 
-note for start "Pipeline starts here and enters the Extract module at its first child (fetchData)."
+note start "Pipeline starts here and enters the Extract module at its first child (fetchData)."
 
-note for Extract.validateSource "Terminal node within Extract module. No explicit outbound edge, so it inherits the module-level exit to Transform."
+note Extract.validateSource "Terminal node within Extract module. No explicit outbound edge, so it inherits the module-level exit to Transform."
 
 ```
 

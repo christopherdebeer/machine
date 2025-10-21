@@ -76,7 +76,7 @@ describe('Validating', () => {
 
     test('check invalid state references in edges', async () => {
         document = await parse(`
-            machine "Test Machine"
+            machine "Test Machine" @StrictMode
 
             State1;
             State1 --> NonExistentState;

@@ -120,6 +120,65 @@ function getNodeStyle(node: any, edges?: any[]): string {
 }
 
 /**
+ * Generate HTML label for machine root showing title, description, version, and attributes
+ */
+function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions): string {
+    let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
+
+    // Title (bold, larger font)
+    const title = options.title || machineJson.title || '';
+    if (title) htmlLabel += '<tr><td align="center"><font point-size="12"><b>' + escapeHtml(title) + '</b></font></td></tr>';
+
+    // Version (if present in attributes)
+    const versionAttr = machineJson.attributes?.find(a => a.name === 'version');
+    if (versionAttr || machineJson.annotations && machineJson.annotations.length > 0) {
+        const versionValue = typeof versionAttr.value === 'string'
+            ? versionAttr.value.replace(/^["']|["']$/g, '')
+            : String(versionAttr.value);
+            // Annotations (if present)
+        const annText = machineJson.annotations?.map(ann =>
+            ann.value ? '@' + ann.name + '("' + ann.value + '")' : '@' + ann.name
+        ).join(' ');
+        htmlLabel += '<tr><td align="center"><font point-size="10">v' + escapeHtml(versionValue || '') + ' ' + escapeHtml(annText || '') + '</font></td></tr>';
+    }
+
+    // Description (if present in attributes)
+    const descAttr = machineJson.attributes?.find(a => a.name === 'description' || a.name === 'desc');
+    if (descAttr) {
+        const descValue = typeof descAttr.value === 'string'
+            ? descAttr.value.replace(/^["']|["']$/g, '')
+            : String(descAttr.value);
+        htmlLabel += '<tr><td align="center"><font point-size="10"><i>' + escapeHtml(descValue) + '</i></font></td></tr>';
+    }
+
+    // Attributes table (excluding description and version which are shown above)
+    const displayAttrs = machineJson.attributes?.filter(a =>
+        a.name !== 'description' && a.name !== 'desc' && a.name !== 'version'
+    ) || [];
+
+    if (displayAttrs.length > 0) {
+        htmlLabel += '<tr><td>';
+        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
+        displayAttrs.forEach(attr => {
+            let displayValue = attr.value;
+            if (typeof displayValue === 'string') {
+                displayValue = displayValue.replace(/^["']|["']$/g, '');
+            }
+            const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
+            htmlLabel += '<tr>';
+            htmlLabel += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
+            htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+            htmlLabel += '</tr>';
+        });
+        htmlLabel += '</table>';
+        htmlLabel += '</td></tr>';
+    }
+
+    htmlLabel += '</table>';
+    return htmlLabel;
+}
+
+/**
  * Generate a static DOT diagram from MachineJSON
  */
 export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOptions = {}): string {
@@ -128,9 +187,12 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     // Header
     lines.push('digraph {');
     lines.push('  // Graph attributes');
-    lines.push('  label="' + escapeDot(options.title || machineJson.title || 'Machine Diagram') + '";');
+
+    // Generate machine label with title, description, version, and attributes
+    const machineLabel = generateMachineLabel(machineJson, options);
+    lines.push('  label=<' + machineLabel + '>;');
     lines.push('  labelloc="t";');
-    lines.push('  fontsize=16;');
+    lines.push('  fontsize=10;');
     lines.push('  fontname="Arial";');
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
@@ -339,6 +401,79 @@ function getRootNodes(nodes: any[]): any[] {
 }
 
 /**
+ * Generate HTML label for namespace (parent node) showing id, type, annotations, title, description, and attributes
+ */
+function generateNamespaceLabel(node: any): string {
+    let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
+
+    // First row: ID (bold), Type (italic), Annotations (italic)
+    let firstRow = '<b>' + escapeHtml(node.name) + '</b>';
+
+    if (node.type) {
+        firstRow += ' <i>&lt;' + escapeHtml(node.type) + '&gt;</i>';
+    }
+
+    // Annotations (excluding @note)
+    if (node.annotations && node.annotations.length > 0) {
+        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
+        if (displayAnnotations.length > 0) {
+            firstRow += ' <i>';
+            displayAnnotations.forEach((ann: any, idx: number) => {
+                if (idx > 0) firstRow += ' ';
+                if (ann.value) {
+                    firstRow += '@' + escapeHtml(ann.name) + '("' + escapeHtml(ann.value) + '")';
+                } else {
+                    firstRow += '@' + escapeHtml(ann.name);
+                }
+            });
+            firstRow += '</i>';
+        }
+    }
+
+    htmlLabel += '<tr><td align="left">' + firstRow + '</td></tr>';
+
+    // Title (if different from ID)
+    // Description
+    const descAttr = node.attributes?.find((a: any) => a.name === 'description' || a.name === 'desc' || a.name === 'prompt');
+    if (node.title || descAttr) {
+        const titleText = node.title.replace(/^"|"$/g, '');
+        let descValue = descAttr.value;
+        if (typeof descValue === 'string') {
+            descValue = descValue.replace(/^["']|["']$/g, '');
+        }
+        if (titleText !== node.name) {
+            htmlLabel += `<tr><td align="left"><b>${ escapeHtml(titleText) }</b>${node.title && descAttr ? ' — ' : ''}<i>${ escapeHtml(String(descValue)) }</i></td></tr>`;
+        }
+    }
+
+    // Attributes table (excluding description/desc/prompt)
+    const displayAttrs = node.attributes?.filter((a: any) =>
+        a.name !== 'description' && a.name !== 'desc' && a.name !== 'prompt'
+    ) || [];
+
+    if (displayAttrs.length > 0) {
+        htmlLabel += '<tr><td>';
+        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
+        displayAttrs.forEach((attr: any) => {
+            let displayValue = attr.value;
+            if (typeof displayValue === 'string') {
+                displayValue = displayValue.replace(/^["']|["']$/g, '');
+            }
+            const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
+            htmlLabel += '<tr>';
+            htmlLabel += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
+            htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+            htmlLabel += '</tr>';
+        });
+        htmlLabel += '</table>';
+        htmlLabel += '</td></tr>';
+    }
+
+    htmlLabel += '</table>';
+    return htmlLabel;
+}
+
+/**
  * Generate DOT syntax with true nested subgraphs
  */
 function generateSemanticHierarchy(
@@ -355,16 +490,18 @@ function generateSemanticHierarchy(
         const { children } = hierarchy[node.name];
 
         if (children.length > 0) {
-            // Node has children - create a cluster subgraph
+            // Node has children - create a cluster subgraph with enhanced label
             lines.push(`${indent}subgraph cluster_${node.name} {`);
-            lines.push(`${indent}  label="${escapeDot(node.name)}";`);
+
+            // Generate rich HTML label for namespace showing id, type, annotations, title, description, and attributes
+            const namespaceLabel = generateNamespaceLabel(node);
+            lines.push(`${indent}  label=<${namespaceLabel}>;`);
+
             lines.push(`${indent}  style=filled;`);
-            lines.push(`${indent}  fontsize=12pt;`);
+            lines.push(`${indent}  fontsize=10;`);
             lines.push(`${indent}  fillcolor="#FFFFFF";`);
             lines.push(`${indent}  color="#999999";`);
             lines.push('');
-
-            
 
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);

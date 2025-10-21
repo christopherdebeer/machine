@@ -310,7 +310,7 @@ classDiagram-v2
   start --> process
 
   %% Execution Notes
-  note for start "Currently executing\nLast transition: initial"
+  note start "Currently executing\nLast transition: initial"
 
   %% Execution Path:
   %% 1. initial → start (initialize) at 10:30:45

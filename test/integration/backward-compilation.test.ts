@@ -364,8 +364,8 @@ describe('Backward Compilation: JSON -> DSL', () => {
             machine "Machine with Notes"
             node1;
             node2;
-            note for node1 "This is an important node"
-            note for node2 "This node processes data"
+            note node1 "This is an important node"
+            note node2 "This node processes data"
         `;
 
         const doc1 = await parse(original);

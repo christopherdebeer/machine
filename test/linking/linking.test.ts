@@ -46,7 +46,7 @@ describe('Linking tests', () => {
 
     test('linking of non-existent nodes shows errors', async () => {
         document = await parse(`
-            machine "Test Machine"
+            machine "Test Machine" @StrictMode
 
             State1;
             State1 --> NonExistentState;

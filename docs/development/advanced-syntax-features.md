@@ -19,7 +19,7 @@ Notes allow you to attach documentation and explanations directly to nodes in yo
 ### Syntax
 
 ```dygram
-note for <nodeName> "Note content here"
+note <nodeName> "Note content here"
 ```
 
 ### Features
@@ -48,11 +48,11 @@ state complete {
 fetchData -> processData -> complete;
 
 // Attach documentation notes
-note for fetchData "Fetches data from the external API. Includes retry logic with exponential backoff."
+note fetchData "Fetches data from the external API. Includes retry logic with exponential backoff."
 
-note for processData "Processes and normalizes the fetched data. Applies schema validation and type checking."
+note processData "Processes and normalizes the fetched data. Applies schema validation and type checking."
 
-note for complete "Final state indicating successful completion of the entire workflow."
+note complete "Final state indicating successful completion of the entire workflow."
 ```
 
 ### Mermaid Output
@@ -68,9 +68,9 @@ classDiagram-v2
   processData --> complete
 
   %% Notes
-  note for fetchData "Fetches data from the external API..."
-  note for processData "Processes and normalizes..."
-  note for complete "Final state indicating..."
+  note fetchData "Fetches data from the external API..."
+  note processData "Processes and normalizes..."
+  note complete "Final state indicating..."
 ```
 
 ### Use Cases
@@ -375,15 +375,15 @@ TransformTask "1" --> "0..1" Error;
 FetchTask <--request/response--> apiConfig;
 
 // Documentation notes
-note for apiConfig "Singleton configuration for API access. Contains endpoint, headers, and retry policy."
+note apiConfig "Singleton configuration for API access. Contains endpoint, headers, and retry policy."
 
-note for FetchTask "Asynchronous task that fetches data from external API. Returns Promise<Response> which resolves to the HTTP response. Includes automatic retry logic with exponential backoff."
+note FetchTask "Asynchronous task that fetches data from external API. Returns Promise<Response> which resolves to the HTTP response. Includes automatic retry logic with exponential backoff."
 
-note for TransformTask "Transforms the raw API response into a typed array of records. Handles schema validation, type coercion, and error reporting."
+note TransformTask "Transforms the raw API response into a typed array of records. Handles schema validation, type coercion, and error reporting."
 
-note for Success "Indicates successful completion. Contains the transformed data as Optional<Array<Record>>."
+note Success "Indicates successful completion. Contains the transformed data as Optional<Array<Record>>."
 
-note for Error "Error state with optional error message. Captured from API failures or transformation errors."
+note Error "Error state with optional error message. Captured from API failures or transformation errors."
 ```
 
 This generates a rich, well-documented diagram with:
@@ -440,9 +440,9 @@ task processUser {
 
 fetchUser -on: "success";-> processUser;
 
-note for fetchUser "Fetches user data from the API. Returns Promise<User> which resolves to the user object."
+note fetchUser "Fetches user data from the API. Returns Promise<User> which resolves to the user object."
 
-note for processUser "Processes the fetched user data. Validates schema and updates local state."
+note processUser "Processes the fetched user data. Validates schema and updates local state."
 ```
 
 ---

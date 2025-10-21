@@ -99,7 +99,7 @@ cat rails-meta-example-result.json
 
 ### Enabling Meta-Programming
 Add `meta: true` to Task nodes:
-```machine
+```dygram examples/meta/attribute.dygram
 Task analyzer {
     meta: true;
     prompt: "Analyze and modify the machine...";
@@ -144,7 +144,7 @@ In the playground:
 ## Usage Patterns
 
 ### Pattern 1: Monitoring-Based Evolution
-```machine
+```dygram examples/meta/monitor.dygram
 Task monitor {
     meta: true;
     prompt: "If metrics exceed threshold, add error handling";
@@ -154,7 +154,7 @@ monitor -reads-> metrics;
 ```
 
 ### Pattern 2: Configuration-Driven Modification
-```machine
+```dygram examples/meta/config.dygram
 Task adapter {
     meta: true;
     prompt: "Based on config.mode, add appropriate nodes";
@@ -164,7 +164,7 @@ adapter -reads-> config;
 ```
 
 ### Pattern 3: Multi-Stage Evolution
-```machine
+```dygram examples/meta/multi-stage-evolution.dygram
 Task stage1 {
     meta: true;
     prompt: "Add validation nodes";
@@ -202,7 +202,7 @@ Tool nodes are a special node type that represent callable tools with input/outp
 
 ### Defining Tool Nodes
 
-```machine
+```dygram examples/tools/basic.dygram
 // Loosely defined - just name and description
 Tool my_tool {
     description: "Does something useful";
@@ -227,7 +227,7 @@ Tool formatter {
 
 When a task has `meta: true`, it can discover and build Tool nodes:
 
-```machine
+```dygram examples/tools/build.dygram
 Task builder {
     meta: true;
     prompt: "Find Tool nodes using get_tool_nodes, then build them using build_tool_from_node";

@@ -19,7 +19,7 @@ describe('Note Generation', () => {
         const input = `
             machine "Test"
             task process;
-            note for process "Test note"
+            note process "Test note"
         `;
         const result = await parse(input);
         const json = await generateMermaidFromModel(result.parseResult.value, '', {});
@@ -37,12 +37,12 @@ describe('Note Generation', () => {
         const input = `
             machine "Test"
             task process;
-            note for process "Process documentation"
+            note process "Process documentation"
         `;
         const result = await parse(input);
         const output = await generateMermaidFromModel(result.parseResult.value, '', {});
 
-        expect(output.mermaid).toContain('note for process');
+        expect(output.mermaid).toContain('note process');
         expect(output.mermaid).toContain('Process documentation');
     });
 
@@ -51,8 +51,8 @@ describe('Note Generation', () => {
             machine "Test"
             task first;
             task second;
-            note for first "First note"
-            note for second "Second note"
+            note first "First note"
+            note second "Second note"
         `;
         const result = await parse(input);
         const json = await generateMermaidFromModel(result.parseResult.value, '', {});
@@ -65,8 +65,8 @@ describe('Note Generation', () => {
         const input = `
             machine "Test"
             task valid;
-            note for valid "Valid note"
-            note for invalid "Invalid note"
+            note valid "Valid note"
+            note invalid "Invalid note"
         `;
         const result = await parse(input);
         const json = await generateMermaidFromModel(result.parseResult.value, '', {});
@@ -172,14 +172,14 @@ describe('Combined Feature Generation', () => {
                 result<Promise<Response>>: "pending";
             }
 
-            note for process "Async task returning Promise<Response>"
+            note process "Async task returning Promise<Response>"
         `;
         const result = await parse(input);
         const output = await generateMermaidFromModel(result.parseResult.value, '', {});
 
         // Check both features in output
         expect(output.mermaid).toContain('Promise~Response~');
-        expect(output.mermaid).toContain('note for process');
+        expect(output.mermaid).toContain('note process');
 
         const machineJson = JSON.parse(output.json);
         expect(machineJson.notes).toHaveLength(1);
@@ -200,8 +200,8 @@ describe('Combined Feature Generation', () => {
 
             base <|-- fetch;
 
-            note for base "Abstract base task"
-            note for fetch "Fetches data asynchronously"
+            note base "Abstract base task"
+            note fetch "Fetches data asynchronously"
         `;
         const result = await parse(input);
         const output = await generateMermaidFromModel(result.parseResult.value, '', {});
@@ -246,9 +246,9 @@ describe('Combined Feature Generation', () => {
 
             fetch "1" --> "1" transform;
 
-            note for config "Singleton configuration object"
-            note for fetch "Asynchronously fetches data from API"
-            note for transform "Transforms Response to Array of Records"
+            note config "Singleton configuration object"
+            note fetch "Asynchronously fetches data from API"
+            note transform "Transforms Response to Array of Records"
         `;
         const result = await parse(input);
         const output = await generateMermaidFromModel(result.parseResult.value, '', {});
@@ -283,7 +283,7 @@ describe('Mermaid Output Quality', () => {
         const input = `
             machine "Test"
             task process;
-            note for process "Documentation"
+            note process "Documentation"
         `;
         const result = await parse(input);
         const output = await generateMermaidFromModel(result.parseResult.value, '', {});
@@ -292,7 +292,7 @@ describe('Mermaid Output Quality', () => {
         expect(output.mermaid).toContain('classDiagram-v2');
 
         // Should have note syntax
-        expect(output.mermaid).toContain('note for process "Documentation"');
+        expect(output.mermaid).toContain('note process "Documentation"');
     });
 
     it('should produce valid Mermaid syntax with generic types', async () => {

@@ -206,34 +206,38 @@ export class GraphValidator {
     public detectCycles(): string[][] {
         const cycles: string[][] = [];
         const visited = new Set<string>();
-        const recursionStack: string[] = [];
+        const inRecursionStack = new Set<string>();
 
-        const dfs = (nodeName: string): void => {
+        const dfs = (nodeName: string, path: string[]): void => {
             // Check if we've found a cycle
-            const cycleStart = recursionStack.indexOf(nodeName);
-            if (cycleStart !== -1) {
-                // Found a cycle
-                const cycle = [...recursionStack.slice(cycleStart), nodeName];
-                cycles.push(cycle);
+            if (inRecursionStack.has(nodeName)) {
+                // Found a cycle - extract the cycle from the path
+                const cycleStart = path.indexOf(nodeName);
+                if (cycleStart !== -1) {
+                    const cycle = [...path.slice(cycleStart), nodeName];
+                    cycles.push(cycle);
+                }
                 return;
             }
 
             if (visited.has(nodeName)) return;
 
             visited.add(nodeName);
-            recursionStack.push(nodeName);
+            inRecursionStack.add(nodeName);
+            path.push(nodeName);
 
             const neighbors = this.adjacencyList.get(nodeName) || [];
             neighbors.forEach(neighbor => {
-                dfs(neighbor);
+                dfs(neighbor, path);
             });
 
-            recursionStack.pop();
+            path.pop();
+            inRecursionStack.delete(nodeName);
         };
 
         this.nodeMap.forEach((_, nodeName) => {
             if (!visited.has(nodeName)) {
-                dfs(nodeName);
+                dfs(nodeName, []);
             }
         });
 

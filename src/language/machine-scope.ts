@@ -9,6 +9,7 @@ export class MachineScopeProvider extends DefaultScopeProvider {
      */
     override getScope(context: ReferenceInfo): Scope {
         // For node references in edges and notes, we want to include all nodes in the machine
+        // Note: 'target' property is used in both Edge (for target node) and Note (for target node)
         if (context.property === 'source' || context.property === 'target') {
             const machine = this.getMachineContainer(context.container);
             if (machine) {
@@ -52,10 +53,15 @@ export class MachineScopeProvider extends DefaultScopeProvider {
     private getAllNodes(machine: Machine): Node[] {
         const nodes: Node[] = [];
 
-        const collectNodes = (container: { nodes: Node[] }) => {
+        const collectNodes = (container: { nodes?: Node[] }) => {
+            // Check if nodes array exists and is iterable
+            if (!container.nodes || !Array.isArray(container.nodes)) {
+                return;
+            }
+            
             for (const node of container.nodes) {
                 nodes.push(node);
-                if (isNode(node) && node.nodes.length > 0) {
+                if (isNode(node) && node.nodes && node.nodes.length > 0) {
                     collectNodes(node);
                 }
             }

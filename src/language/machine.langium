@@ -53,8 +53,10 @@ QualifiedName returns string:
 ;
 
 entry Machine:
-    ('machine' title=STRING ';'?)?
-    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note)* 
+    ('machine' title=STRING (annotations+=Annotation)* (('{'
+        (attributes+=Attribute<false>)*
+    '}' ';'?) | ';'?))?
+    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note | attributes+=Attribute<true>)*
 ;
 
 // Note: Using '=' for single values and '+=' for arrays is intentional.
@@ -70,8 +72,16 @@ Annotation:
 ;
 
 // Note attached to a node for documentation
+// The identifier after 'note' is the TARGET node, not the note's ID
+// This allows: note targetNode "content";
+// And also: note targetNode "Title" @Critical { with: 'attributes'; }
 Note:
-    'note' 'for' target=[Node:QualifiedName] content=STRING
+    'note' target=[Node:QualifiedName]
+    (title=STRING)?
+    (annotations+=Annotation)*
+    (('{'
+        (attributes+=Attribute<false>)*
+    '}' ';'?) | ';')
 ;
 
 // Type definition that supports generic types (e.g., Promise<Result>, List<Step>)
@@ -79,7 +89,7 @@ TypeDef:
     base=ID ('<' generics+=TypeDef (',' generics+=TypeDef)* '>')?
 ;
 
-Attribute:
+Attribute<isRoot>:
     name=ID ('<' type=TypeDef '>')? (':' value=AttributeValue)? ';'?
 ;
 
@@ -89,7 +99,7 @@ Node<isRoot>:
     (title=STRING)?
     (annotations+=Annotation)*
     (('{'
-        (nodes+=Node<true> | edges+=Edge<true> | attributes+=Attribute)*
+        (nodes+=Node<true> | edges+=Edge<true> | attributes+=Attribute<false>)*
     '}' ';'?) | ';')
 ;
 

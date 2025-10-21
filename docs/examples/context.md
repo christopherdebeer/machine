@@ -264,7 +264,7 @@ task validateConnection "Validate Connection" {
 
 validateConnection --> typedConfig;
 
-note for appConfig "Nested context access uses dot notation:
+note appConfig "Nested context access uses dot notation:
 {{contextName.level1.level2.attribute}}
 
 Benefits:
@@ -273,19 +273,19 @@ Benefits:
 - Type safety at each level
 - Better maintainability"
 
-note for systemConfig "Deep nesting guidelines:
+note systemConfig "Deep nesting guidelines:
 - Keep to 3-4 levels maximum
 - Use meaningful names at each level
 - Group related configuration together
 - Consider flattening if too deep"
 
-note for personalizeUI "Multiple context references:
+note personalizeUI "Multiple context references:
 - Tasks can reference multiple contexts
 - Each reference creates a dependency
 - Dependencies are automatically inferred
 - Visualized as dashed arrows in diagram"
 
-note for typedConfig "Type safety in nested structures:
+note typedConfig "Type safety in nested structures:
 - Types are enforced at each nesting level
 - Template variables are type-checked
 - Validation catches incorrect paths

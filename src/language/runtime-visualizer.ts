@@ -258,7 +258,7 @@ export class RuntimeVisualizer {
                 const currentSteps = this.context.history.filter(h => h.to === this.context.currentNode);
                 if (currentSteps.length > 0) {
                     const lastStep = currentSteps[currentSteps.length - 1];
-                    lines.push(`  note for ${this.context.currentNode} "Currently executing\\nLast transition: ${lastStep.transition}"`);
+                    lines.push(`  note ${this.context.currentNode} "Currently executing\\nLast transition: ${lastStep.transition}"`);
                 }
             }
 
@@ -269,7 +269,7 @@ export class RuntimeVisualizer {
                     const truncatedOutput = step.output.length > 40
                         ? step.output.substring(0, 40) + '...'
                         : step.output;
-                    lines.push(`  note for ${step.from} "Step ${this.context.history.length - recentVisits.length + idx + 1}: ${truncatedOutput}"`);
+                    lines.push(`  note ${step.from} "Step ${this.context.history.length - recentVisits.length + idx + 1}: ${truncatedOutput}"`);
                 }
             });
         }

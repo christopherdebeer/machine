@@ -1,7 +1,7 @@
 {
     "name": "dygram",
     "description": "Dynamic state machine prototyping language",
-    "version": "0.3.5",
+    "version": "0.3.6",
     "displayName": "DyGram",
     "icon": "icon.jpg",
     "publisher": "c15r",
@@ -49,7 +49,7 @@
         "test:e2e:headed": "playwright test --headed",
         "test:all": "npm run test && npm run test:runtime && npm run test:e2e",
         "test:reports": "npm run test && npm run test:e2e && node scripts/generate-test-index.js",
-        "build:with-tests": "npm run test:reports && npm run build"
+        "build:with-tests": "npm run generate:all && npm run test:reports && npm run build"
     },
     "dependencies": {
         "@anthropic-ai/claude-agent-sdk": "^0.1.14",
@@ -123,7 +123,8 @@
                 "id": "machine",
                 "aliases": [
                     "Machine",
-                    "machine"
+                    "machine",
+                    "Dygram"
                 ],
                 "extensions": [
                     ".mach",
@@ -137,12 +138,17 @@
                 "language": "machine",
                 "scopeName": "source.machine",
                 "path": "syntaxes/machine.tmLanguage.json"
+            },
+            {
+                "language": "DyGram",
+                "scopeName": "source.dygram",
+                "path": "syntaxes/machine.tmLanguage.json"
             }
         ],
         "commands": [
             {
                 "command": "extension.generateAndPreview",
-                "title": "DyGram: Generate and Preview Mermaid"
+                "title": "DyGram: Generate and Preview"
             }
         ]
     },

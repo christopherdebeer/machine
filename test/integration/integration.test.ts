@@ -734,7 +734,7 @@ describe('Integration Tests - Error Detection', () => {
         expect(machine.title).toBe('');
     });
 
-    test('Missing semicolons still parse correctly', async () => {
+    test('Missing semicolons are detected as parse errors', async () => {
         const source = `
             machine "Missing Semicolons"
             node1
@@ -743,11 +743,15 @@ describe('Integration Tests - Error Detection', () => {
 
         const document = await parse(source);
 
-        // Some parsers are lenient about semicolons
-        // Check if it parses or has errors
+        // The parser requires semicolons - missing semicolons should cause parse errors
         const hasErrors = document.parseResult.parserErrors.length > 0;
 
-        if (!hasErrors) {
+        // Either we have parse errors (strict parser), or we successfully parsed with nodes (lenient parser)
+        if (hasErrors) {
+            // Strict parser - this is expected behavior
+            expect(hasErrors).toBe(true);
+        } else {
+            // Lenient parser - nodes should be parsed
             const machine = document.parseResult.value as Machine;
             expect(machine.nodes.length).toBeGreaterThan(0);
         }

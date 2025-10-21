@@ -1,9 +1,0 @@
-machine "Typed Nodes Machine"
-task taskNode1;
-task taskNode2;
-state stateNode1;
-state stateNode2;
-init initNode1;
-init initNode2;
-context contextNode1;
-context contextNode2;
