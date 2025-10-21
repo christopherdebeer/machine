@@ -17,7 +17,7 @@ test-output/
 test-results/
 playwright-report/
 playwright/.cache/
-# .playwright-mcp/
+.playwright-mcp/
 
 # Generated documentation files
 # Source files are .md in docs/, only Index.mdx is hand-authored
