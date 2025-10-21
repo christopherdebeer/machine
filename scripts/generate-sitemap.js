@@ -39,17 +39,29 @@ async function main() {
     const distDir = join(projectRoot, 'dist');
     const outputFile = join(distDir, 'sitemap.xml');
 
-    // Use SITEMAP_BASE_URL env var, fallback to production URL
-    // Note: VITE_BASE_URL is for the base path (/machine/), not the full URL
-    let baseUrl = process.env.SITEMAP_BASE_URL || 'https://christopherdebeer.github.io/machine/';
+    // Determine base URL from environment variables
+    // Priority: SITEMAP_BASE_URL > VERCEL_PROJECT_PRODUCTION_URL > default
+    let baseUrl = process.env.SITEMAP_BASE_URL;
 
-    // Ensure baseUrl has protocol and trailing slash
-    if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
-        console.error('❌ Error: SITEMAP_BASE_URL must include http:// or https:// protocol');
-        console.error(`   Received: ${baseUrl}`);
-        process.exit(1);
+    if (!baseUrl && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+        // Vercel provides hostname without protocol
+        baseUrl = `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+        console.log(`   Using Vercel production URL: ${baseUrl}`);
     }
 
+    if (!baseUrl) {
+        // Default fallback
+        baseUrl = 'https://christopherdebeer.github.io/machine/';
+        console.log(`   Using default URL: ${baseUrl}`);
+    }
+
+    // Ensure baseUrl has protocol
+    if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+        // If no protocol, assume https
+        baseUrl = `https://${baseUrl}`;
+    }
+
+    // Ensure trailing slash
     if (!baseUrl.endsWith('/')) {
         baseUrl += '/';
     }

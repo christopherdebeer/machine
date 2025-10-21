@@ -10,19 +10,38 @@ import remarkLinkRewrite from './scripts/remark-link-rewrite.js';
 import remarkTOC from './scripts/remark-toc.js';
 
 /**
- * Dynamically scan for HTML entry files
+ * Dynamically scan for HTML entry files (including subdirectories)
  */
 function getHtmlEntries() {
     const entries: Record<string, string> = {};
-    const htmlFiles = fs.readdirSync(__dirname).filter(f => f.endsWith('.html'));
 
-    for (const file of htmlFiles) {
-        const name = path.basename(file, '.html');
-        // Convert kebab-case to camelCase for entry key
-        const key = name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-        entries[key] = path.resolve(__dirname, file);
+    function scanDirectory(dir: string, basePath: string = '') {
+        const items = fs.readdirSync(dir, { withFileTypes: true });
+
+        for (const item of items) {
+            const fullPath = path.join(dir, item.name);
+
+            if (item.isDirectory()) {
+                // Skip node_modules, dist, and hidden directories
+                if (item.name === 'node_modules' || item.name === 'dist' || item.name.startsWith('.')) {
+                    continue;
+                }
+                scanDirectory(fullPath, path.join(basePath, item.name));
+            } else if (item.isFile() && item.name.endsWith('.html')) {
+                // Create entry key from path
+                const relativePath = path.join(basePath, item.name);
+                const name = path.basename(item.name, '.html');
+                const dirPrefix = basePath ? basePath.replace(/[\/\\]/g, '-') + '-' : '';
+                const entryName = dirPrefix + name;
+
+                // Convert kebab-case to camelCase for entry key
+                const key = entryName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+                entries[key] = path.resolve(dir, item.name);
+            }
+        }
     }
 
+    scanDirectory(__dirname);
     return entries;
 }
 

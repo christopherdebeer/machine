@@ -434,7 +434,11 @@ async function generateEntries(projectRoot) {
 
             if (entry.isDirectory()) {
                 if (entry.name === 'archived') continue;
-                pages.set(...await scanForPages(fullPath, relativePath));
+                const subPages = await scanForPages(fullPath, relativePath);
+                // Merge subPages into pages
+                for (const [key, value] of subPages.entries()) {
+                    pages.set(key, value);
+                }
             } else if (entry.isFile() && entry.name.endsWith('.mdx')) {
                 const baseName = basename(entry.name, '.mdx');
                 let pageName, title;
@@ -442,11 +446,11 @@ async function generateEntries(projectRoot) {
                 if (baseName === 'index') {
                     const parentDir = basename(dirname(fullPath));
                     if (parentDir === 'docs') {
-                        pageName = 'documentation';
-                        title = 'Documentation';
+                        pageName = 'index';
+                        title = 'DyGram';
                     } else {
                         pageName = `${parentDir}-index`;
-                        title = toTitleCase(parentDir) + ' Index';
+                        title = toTitleCase(parentDir);
                     }
                 } else {
                     pageName = baseName.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
@@ -470,6 +474,24 @@ async function generateEntries(projectRoot) {
     logSubsection('Generating page files');
 
     for (const [pageName, page] of pages.entries()) {
+        // Determine HTML file path - create folder structure
+        let htmlFilePath;
+        if (pageName === 'index') {
+            // Root index.html
+            htmlFilePath = join(projectRoot, 'index.html');
+        } else if (pageName.endsWith('-index')) {
+            // Section index: getting-started-index → getting-started/index.html
+            const sectionName = pageName.replace(/-index$/, '');
+            htmlFilePath = join(projectRoot, sectionName, 'index.html');
+        } else {
+            // Regular page: some-page → some-page/index.html
+            htmlFilePath = join(projectRoot, pageName, 'index.html');
+        }
+
+        // Calculate relative path to assets from this HTML file
+        const depth = htmlFilePath.split('/').length - projectRoot.split('/').length - 1;
+        const relativeRoot = depth === 0 ? './' : '../'.repeat(depth);
+
         // Generate HTML entry
         const htmlContent = `<!DOCTYPE html>
 <html lang="en">
@@ -477,9 +499,9 @@ async function generateEntries(projectRoot) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DyGram | ${page.title}</title>
-    <link rel="stylesheet" href="static/styles/main.css">
-    <link rel="stylesheet" href="static/styles/carousel.css">
-    <link rel="icon" type="image/jpeg" href="icon.jpg">
+    <link rel="stylesheet" href="${relativeRoot}static/styles/main.css">
+    <link rel="stylesheet" href="${relativeRoot}static/styles/carousel.css">
+    <link rel="icon" type="image/jpeg" href="${relativeRoot}icon.jpg">
 </head>
 <body>
     <div id="root"></div>
@@ -487,7 +509,8 @@ async function generateEntries(projectRoot) {
 </body>
 </html>
 `;
-        await writeFile(join(projectRoot, page.htmlFile), htmlContent, 'utf-8');
+        await mkdir(dirname(htmlFilePath), { recursive: true });
+        await writeFile(htmlFilePath, htmlContent, 'utf-8');
 
         // Generate TSX entry
         const importName = basename(page.mdxPath, '.mdx');
@@ -508,7 +531,8 @@ root.render(
 `;
         await writeFile(join(pagesDir, page.tsxFile), tsxContent, 'utf-8');
 
-        log(`  ${pageName}: ${page.htmlFile} + ${page.tsxFile}`);
+        const relativeHtmlPath = relative(projectRoot, htmlFilePath);
+        log(`  ${pageName}: ${relativeHtmlPath} + ${page.tsxFile}`);
     }
 
     log(`Generated ${pages.size} HTML files and ${pages.size} TSX files`, 'success');
