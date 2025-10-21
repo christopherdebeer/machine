@@ -6,7 +6,7 @@ This directory contains examples demonstrating documentation features in DyGram,
 
 ### `notes-and-generics.dygram`
 Documentation notes and generic types:
-- Using `note for nodeName "content"` syntax
+- Using `note nodeName "content"` syntax
 - Multiline notes with `\n`
 - Multiple notes per node
 - Generic types: `Promise<T>`, `Array<T>`, `Map<K,V>`
@@ -57,20 +57,20 @@ Generic types provide type parameters for attributes:
 
 1. **Explain Complex Logic**
    ```dygram
-   note for algorithm "Uses Dijkstra's algorithm for shortest path.
+   note algorithm "Uses Dijkstra's algorithm for shortest path.
    Time complexity: O(V^2)
    Space complexity: O(V)"
    ```
 
 2. **Warnings and Constraints**
    ```dygram
-   note for criticalTask "⚠️ WARNING: This operation is irreversible.
+   note criticalTask "⚠️ WARNING: This operation is irreversible.
    Requires manual approval for production environments."
    ```
 
 3. **Usage Instructions**
    ```dygram
-   note for apiCall "Usage:
+   note apiCall "Usage:
    1. Set API key in context
    2. Configure timeout
    3. Call with valid payload
@@ -79,7 +79,7 @@ Generic types provide type parameters for attributes:
 
 4. **Context and Background**
    ```dygram
-   note for migrationTask "Legacy System Migration:
+   note migrationTask "Legacy System Migration:
    Migrating from Oracle to PostgreSQL.
    Must maintain backward compatibility.
    Expected completion: Q2 2025"
@@ -127,7 +127,7 @@ Generic types provide type parameters for attributes:
 class taskNode {
   <<task>>
 }
-note for taskNode "Documentation here"
+note taskNode "Documentation here"
 ```
 
 **Generic Types** use tilde syntax:
@@ -189,15 +189,15 @@ TransformTask "1" --> "0..1" Success;
 TransformTask "1" --> "0..1" Error;
 
 // Documentation notes
-note for apiConfig "Singleton configuration for API access. Contains endpoint URL, authentication headers, and retry policy."
+note apiConfig "Singleton configuration for API access. Contains endpoint URL, authentication headers, and retry policy."
 
-note for FetchTask "Asynchronous task that fetches data from the API. Returns Promise<Response> which resolves to the HTTP response."
+note FetchTask "Asynchronous task that fetches data from the API. Returns Promise<Response> which resolves to the HTTP response."
 
-note for TransformTask "Transforms the raw API response into an array of typed records. Handles data validation and normalization."
+note TransformTask "Transforms the raw API response into an array of typed records. Handles data validation and normalization."
 
-note for Success "Indicates successful completion. All data has been fetched and transformed."
+note Success "Indicates successful completion. All data has been fetched and transformed."
 
-note for Error "Error state with optional error message. Triggered on API failures or transformation errors."
+note Error "Error state with optional error message. Triggered on API failures or transformation errors."
 
 ```
 
@@ -233,8 +233,8 @@ fetchData -> processData;
 processData -> complete;
 
 // Notes provide documentation
-note for fetchData "Fetches data from external API. Returns Promise<Response> with the fetched data."
-note for processData "Processes the fetched data and transforms it into Array<Record> format."
-note for complete "Final state indicating successful completion of the workflow."
+note fetchData "Fetches data from external API. Returns Promise<Response> with the fetched data."
+note processData "Processes the fetched data and transforms it into Array<Record> format."
+note complete "Final state indicating successful completion of the workflow."
 
 ```

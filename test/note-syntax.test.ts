@@ -20,7 +20,7 @@ machine "Test"
 
 node1;
 
-note node1 "This is a note for node1";
+note node1 "This is a note node1";
         `;
 
         const document = await parse(text);
@@ -30,7 +30,7 @@ note node1 "This is a note for node1";
         const machine = document.parseResult.value;
         expect(machine.notes).toHaveLength(1);
         expect(machine.notes[0].target.$refText).toBe('node1');
-        expect(machine.notes[0].title).toBe('This is a note for node1');
+        expect(machine.notes[0].title).toBe('This is a note node1');
     });
 
     test('should parse note with annotations', async () => {

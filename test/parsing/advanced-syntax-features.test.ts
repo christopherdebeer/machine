@@ -12,14 +12,14 @@ describe('Note Support', () => {
         const input = `
             machine "Test"
             task process;
-            note for process "This is a note"
+            note process "This is a note";
         `;
         const result = await parse(input);
         expect(result.parseResult.lexerErrors).toHaveLength(0);
         expect(result.parseResult.parserErrors).toHaveLength(0);
         expect(result.parseResult.value.notes).toHaveLength(1);
-        expect(result.parseResult.value.notes?.[0].target.ref?.name).toBe('process');
-        expect(result.parseResult.value.notes?.[0].content).toContain('This is a note');
+        expect(result.parseResult.value.notes?.[0].target.$refText).toBe('process');
+        expect(result.parseResult.value.notes?.[0].title).toContain('This is a note');
     });
 
     it('should parse multiple notes', async () => {
@@ -27,8 +27,8 @@ describe('Note Support', () => {
             machine "Test"
             task first;
             task second;
-            note for first "First note"
-            note for second "Second note"
+            note first "First note";
+            note second "Second note";
         `;
         const result = await parse(input);
         expect(result.parseResult.parserErrors).toHaveLength(0);
@@ -39,9 +39,9 @@ describe('Note Support', () => {
         const input = `
             machine "Test"
             task process;
-            note for process "This is a multiline note.
+            note process "This is a multiline note.
             It spans multiple lines.
-            And provides detailed documentation."
+            And provides detailed documentation.";
         `;
         const result = await parse(input);
         expect(result.parseResult.parserErrors).toHaveLength(0);
@@ -130,7 +130,7 @@ describe('Combined Features', () => {
             task process {
                 result<Promise<Result>>: "pending";
             }
-            note for process "Returns Promise<Result>"
+            note process "Returns Promise<Result>";
         `;
         const result = await parse(input);
         expect(result.parseResult.parserErrors).toHaveLength(0);
@@ -156,8 +156,8 @@ describe('Combined Features', () => {
 
             fetch -> transform;
 
-            note for fetch "Fetches data asynchronously"
-            note for transform "Transforms the response"
+            note fetch "Fetches data asynchronously";
+            note transform "Transforms the response";
         `;
         const result = await parse(input);
         expect(result.parseResult.parserErrors).toHaveLength(0);
@@ -172,7 +172,7 @@ describe('Edge Cases', () => {
         const input = `
             machine "Test"
             task process;
-            note for nonexistent "This should reference an invalid target"
+            note nonexistent "This should reference an invalid target";
         `;
         const result = await parse(input);
         // Parser should succeed but validator should catch the error

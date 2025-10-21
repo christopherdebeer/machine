@@ -305,34 +305,34 @@ batchProcessor3 -> mergeResults;
 batchProcessor4 -> mergeResults;
 mergeResults -> prepareLoad;
 
-note for extractData "Extract Phase:
+note extractData "Extract Phase:
 - Pull data from source system
 - Handle incremental vs full loads
 - Validate data quality at source
 - Track extraction metrics"
 
-note for transformData "Transform Phase:
+note transformData "Transform Phase:
 - Clean and standardize data
 - Apply business rules
 - Enrich with reference data
 - Calculate derived values
 - Parallel processing for performance"
 
-note for loadData "Load Phase:
+note loadData "Load Phase:
 - Prepare staging tables
 - Bulk insert for performance
 - Handle conflicts (upsert/merge)
 - Verify data integrity
 - Update metadata/lineage"
 
-note for checkExtractQuality "Data Quality Checks:
+note checkExtractQuality "Data Quality Checks:
 - Completeness: No missing records
 - Accuracy: Values within expected ranges
 - Consistency: Referential integrity maintained
 - Timeliness: Data is current
 - Uniqueness: No duplicates"
 
-note for recordMetrics "Pipeline Metrics:
+note recordMetrics "Pipeline Metrics:
 - Execution time
 - Records processed
 - Data quality scores

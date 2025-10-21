@@ -301,15 +301,15 @@ DataPersister -> ProcessingError;
 
 // ========== Notes on Validation ==========
 
-note for start "Entry point for the data processing pipeline. All validation checks pass."
+note start "Entry point for the data processing pipeline. All validation checks pass."
 
-note for apiConfig "Configuration context - properly has no incoming edges"
+note apiConfig "Configuration context - properly has no incoming edges"
 
-note for BaseDataProcessor "Abstract base class - properly marked with @Abstract annotation"
+note BaseDataProcessor "Abstract base class - properly marked with @Abstract annotation"
 
-note for DataFetcher "Async task properly marked with @Async annotation"
+note DataFetcher "Async task properly marked with @Async annotation"
 
-note for ProcessingComplete "Exit point - has no outgoing edges (expected)"
+note ProcessingComplete "Exit point - has no outgoing edges (expected)"
 
 // ========== Validation Summary ==========
 

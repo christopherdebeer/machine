@@ -437,7 +437,7 @@ task authenticate {
     prompt: "Verify user credentials";
 }
 
-note for authenticate "This task validates credentials against the identity provider.
+note authenticate "This task validates credentials against the identity provider.
 Uses JWT tokens for session management."
 ```
 
@@ -748,7 +748,7 @@ AuthHandler -"success"-> authenticated;
 AuthHandler -"failure"-> error;
 authenticated -> OrderHandler;
 
-note for AuthHandler "Authenticates user credentials.
+note AuthHandler "Authenticates user credentials.
 Uses JWT tokens with {{ AppConfig.timeout }}ms timeout.
 Retries up to {{ AppConfig.maxRetries }} times on failure."
 ```

@@ -39,6 +39,8 @@ src/pages/*.tsx
 !src/pages/index.tsx
 !src/pages/playground.tsx
 
+
+
 # Generated data files
 src/data/doc-hierarchy.json
 src/data/doc-hierarchy.ts

@@ -526,19 +526,19 @@ validationError -> formatValidationError;
 validationError -> logValidationError;
 formatValidationError -> complete;
 
-note for errorHandler "Error handlers should:
+note errorHandler "Error handlers should:
 1. Log error details with context
 2. Update metrics/monitoring
 3. Determine if error is recoverable
 4. Take appropriate action (retry, fallback, or fail)"
 
-note for retryHandler "Retry logic should:
+note retryHandler "Retry logic should:
 1. Implement exponential backoff
 2. Add jitter to prevent thundering herd
 3. Respect max retry limits
 4. Consider idempotency"
 
-note for protectedCall "Circuit breaker states:
+note protectedCall "Circuit breaker states:
 - CLOSED: Normal operation, requests pass through
 - OPEN: Too many failures, requests rejected immediately
 - HALF_OPEN: Testing if service recovered"
@@ -726,17 +726,17 @@ protectedOperation -if: '(failureCount >= threshold)';-> circuitBreakerOpen;
 circuitBreakerOpen -> waitForTimeout;
 waitForTimeout -if: '(circuitBreaker.state == "HALF_OPEN")';-> protectedOperation;
 
-note for validateUser "CEL (Common Expression Language) provides safe, sandboxed expression evaluation.
+note validateUser "CEL (Common Expression Language) provides safe, sandboxed expression evaluation.
 No access to JavaScript globals or functions - secure by design."
 
-note for apiCall "Operators:
+note apiCall "Operators:
 - Equality: == (not ===)
 - Inequality: != (not !==)
 - Comparison: <, >, <=, >=
 - Logical: &&, ||, !
 - Parentheses: () for grouping"
 
-note for checkEnvironment "Best practices:
+note checkEnvironment "Best practices:
 1. Keep conditions simple and readable
 2. Use parentheses for clarity
 3. Leverage context nodes for configuration
@@ -912,17 +912,17 @@ task applyPreferences "Apply Preferences" {
 
 applyPreferences --> userPreferences;
 
-note for userProfile "Optional types use ? suffix.
+note userProfile "Optional types use ? suffix.
 They can be null or have a value.
 Type checker validates both cases."
 
-note for fetchUserData "When working with optional data:
+note fetchUserData "When working with optional data:
 1. Always check for null before using
 2. Provide fallback/default values
 3. Handle both present and absent cases
 4. Document when null is expected"
 
-note for formValidation "Required vs Optional guidelines:
+note formValidation "Required vs Optional guidelines:
 - Required: Must always have a valid value
 - Optional: May be null, needs null checks
 - Use optionals for: partial data, user input, API responses

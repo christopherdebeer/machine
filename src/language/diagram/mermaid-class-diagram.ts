@@ -597,7 +597,7 @@ function generateNotes(notes: any[]): string {
 
     notes.forEach(note => {
         const content = note.content.replace(/\\n/g, '<br/>');
-        lines.push(`  note for ${note.target} "${content}"`);
+        lines.push(`  note ${note.target} "${content}"`);
     });
 
     return lines.join('\n');

@@ -243,7 +243,7 @@ DyGram includes powerful features for expressing complex relationships and valid
 - **Annotations** - Add metadata with `@Abstract`, `@Singleton`, `@Async`, `@Deprecated`, `@Critical`
 - **Dependency Inference** - Automatically detect dependencies from `{{ template.variables }}`
 - **Generic Types** - Use parameterized types like `Promise<Result>`, `Array<Record>`, `Map<K,V>`
-- **Documentation Notes** - Attach explanatory notes with `note for node "content"`
+- **Documentation Notes** - Attach explanatory notes with `note node "content"`
 - **Type Checking** - Validate attribute types and infer types from values
 - **Graph Validation** - Detect unreachable nodes, cycles, orphans, and structural issues
 - **Semantic Validation** - Enforce node type rules and annotation compatibility
@@ -265,7 +265,7 @@ task APIHandler @Async {
 BaseHandler <|-- APIHandler;
 APIHandler --> Config;  // Dependency
 
-note for APIHandler "Handles API requests asynchronously.
+note APIHandler "Handles API requests asynchronously.
 Uses {{ Config.apiKey }} for authentication."
 ```
 

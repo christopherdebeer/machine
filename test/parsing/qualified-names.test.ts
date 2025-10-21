@@ -148,7 +148,7 @@ describe('Qualified Names', () => {
                 Node1;
             }
 
-            note for Group.Node1 "This is a note for a nested node"
+            note Group.Node1 "This is a note a nested node"
         `);
 
         const errors = checkDocumentValid(document);
