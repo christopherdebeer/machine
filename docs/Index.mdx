@@ -57,22 +57,34 @@ export function IndexContent() {
                             <div className="stage-content">
                                 <p>Start with an immediately executable, unstructured representation of your domain.</p>
 
-                                <CodeEditor
-                                    initialCode={`machine "Solution Sketch"
+                                <Carousel slides={[
+                                    {
+                                        id: 'example-001',
+                                        code: `machine "Solution Sketch" @Example
 
 problem;
 solution;
 
-problem -> solution;`}
-                                    language="dygram"
-                                    id={`ex`}
-                                    readOnly
-                                />
+problem -> solution;
 
-                                <Carousel slides={[
-                                    {
-                                        id: 'example-001',
-                                        code: ``
+title: "Overriden title?"
+description: "A long and rambling description..."
+version: '0.0.1';
+
+foo parent "Parent Title" @Parent {
+    description: "A long and rambling description for this parent and its children, but not the root"
+    property: 23;
+    anotherProp: true;
+    
+    child1;
+    task child2;
+    child3 {
+        attr: "val"
+    }
+
+    -> child1;
+}
+`
                                     },
                                     {
                                         id: 'example-002',
@@ -92,16 +104,6 @@ Result solution {
 
 problem -necessitates-> solution;`
                                     },
-                                    {
-                                        id: 'example-003',
-                                        code: `machine "Data Pipeline"
-
-Concept source;
-Concept processor;
-Concept destination;
-
-source -> processor -> destination;`
-                                    }
                                 ]} />
                             </div>
                         </div>

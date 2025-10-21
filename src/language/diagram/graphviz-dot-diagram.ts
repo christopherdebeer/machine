@@ -127,7 +127,20 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
 
     // Title (bold, larger font)
     const title = options.title || machineJson.title || 'Machine Diagram';
-    htmlLabel += '<tr><td align="center"><font point-size="18"><b>' + escapeHtml(title) + '</b></font></td></tr>';
+    htmlLabel += '<tr><td align="center"><font point-size="12"><b>' + escapeHtml(title) + '</b></font></td></tr>';
+
+    // Version (if present in attributes)
+    const versionAttr = machineJson.attributes?.find(a => a.name === 'version');
+    if (versionAttr || machineJson.annotations && machineJson.annotations.length > 0) {
+        const versionValue = typeof versionAttr.value === 'string'
+            ? versionAttr.value.replace(/^["']|["']$/g, '')
+            : String(versionAttr.value);
+            // Annotations (if present)
+        const annText = machineJson.annotations?.map(ann =>
+            ann.value ? '@' + ann.name + '("' + ann.value + '")' : '@' + ann.name
+        ).join(' ');
+        htmlLabel += '<tr><td align="center"><font point-size="10">v' + escapeHtml(versionValue || '') + ' ' + escapeHtml(annText || '') + '</font></td></tr>';
+    }
 
     // Description (if present in attributes)
     const descAttr = machineJson.attributes?.find(a => a.name === 'description' || a.name === 'desc');
@@ -135,24 +148,7 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
         const descValue = typeof descAttr.value === 'string'
             ? descAttr.value.replace(/^["']|["']$/g, '')
             : String(descAttr.value);
-        htmlLabel += '<tr><td align="center"><i>' + escapeHtml(descValue) + '</i></td></tr>';
-    }
-
-    // Version (if present in attributes)
-    const versionAttr = machineJson.attributes?.find(a => a.name === 'version');
-    if (versionAttr) {
-        const versionValue = typeof versionAttr.value === 'string'
-            ? versionAttr.value.replace(/^["']|["']$/g, '')
-            : String(versionAttr.value);
-        htmlLabel += '<tr><td align="center">Version: ' + escapeHtml(versionValue) + '</td></tr>';
-    }
-
-    // Annotations (if present)
-    if (machineJson.annotations && machineJson.annotations.length > 0) {
-        const annText = machineJson.annotations.map(ann =>
-            ann.value ? '@' + ann.name + '("' + ann.value + '")' : '@' + ann.name
-        ).join(' ');
-        htmlLabel += '<tr><td align="center"><i>' + escapeHtml(annText) + '</i></td></tr>';
+        htmlLabel += '<tr><td align="center"><font point-size="10"><i>' + escapeHtml(descValue) + '</i></font></td></tr>';
     }
 
     // Attributes table (excluding description and version which are shown above)
@@ -196,7 +192,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     const machineLabel = generateMachineLabel(machineJson, options);
     lines.push('  label=<' + machineLabel + '>;');
     lines.push('  labelloc="t";');
-    lines.push('  fontsize=16;');
+    lines.push('  fontsize=10;');
     lines.push('  fontname="Arial";');
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
@@ -437,21 +433,17 @@ function generateNamespaceLabel(node: any): string {
     htmlLabel += '<tr><td align="left">' + firstRow + '</td></tr>';
 
     // Title (if different from ID)
-    if (node.title) {
-        const titleText = node.title.replace(/^"|"$/g, '');
-        if (titleText !== node.name) {
-            htmlLabel += '<tr><td align="left">' + escapeHtml(titleText) + '</td></tr>';
-        }
-    }
-
     // Description
     const descAttr = node.attributes?.find((a: any) => a.name === 'description' || a.name === 'desc' || a.name === 'prompt');
-    if (descAttr) {
+    if (node.title || descAttr) {
+        const titleText = node.title.replace(/^"|"$/g, '');
         let descValue = descAttr.value;
         if (typeof descValue === 'string') {
             descValue = descValue.replace(/^["']|["']$/g, '');
         }
-        htmlLabel += '<tr><td align="left"><i>' + escapeHtml(String(descValue)) + '</i></td></tr>';
+        if (titleText !== node.name) {
+            htmlLabel += `<tr><td align="left"><b>${ escapeHtml(titleText) }</b>${node.title && descAttr ? ' — ' : ''}<i>${ escapeHtml(String(descValue)) }</i></td></tr>`;
+        }
     }
 
     // Attributes table (excluding description/desc/prompt)
@@ -506,7 +498,7 @@ function generateSemanticHierarchy(
             lines.push(`${indent}  label=<${namespaceLabel}>;`);
 
             lines.push(`${indent}  style=filled;`);
-            lines.push(`${indent}  fontsize=12pt;`);
+            lines.push(`${indent}  fontsize=10;`);
             lines.push(`${indent}  fillcolor="#FFFFFF";`);
             lines.push(`${indent}  color="#999999";`);
             lines.push('');
