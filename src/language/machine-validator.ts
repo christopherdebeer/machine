@@ -139,6 +139,15 @@ export class MachineValidator {
                 })
             }
         }
+
+        // Check all note target references (only in strict mode)
+        if (machine.notes) {
+            for (const note of machine.notes) {
+                if (note.target && !stateNames.has(note.target.$refText)) {
+                    accept('error', `Note references undefined node: ${note.target.$refText}`, { node: note, property: 'target' });
+                }
+            }
+        }
     }
 
     /**

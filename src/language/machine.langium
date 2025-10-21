@@ -72,8 +72,16 @@ Annotation:
 ;
 
 // Note attached to a node for documentation
+// The identifier after 'note' is the TARGET node, not the note's ID
+// This allows: note targetNode "content";
+// And also: note targetNode "Title" @Critical { with: 'attributes'; }
 Note:
-    'note' 'for' target=[Node:QualifiedName] content=STRING
+    'note' target=[Node:QualifiedName]
+    (title=STRING)?
+    (annotations+=Annotation)*
+    (('{'
+        (attributes+=Attribute<false>)*
+    '}' ';'?) | ';')
 ;
 
 // Type definition that supports generic types (e.g., Promise<Result>, List<Step>)

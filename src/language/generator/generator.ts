@@ -251,6 +251,7 @@ class JSONGenerator extends BaseGenerator {
 
     /**
      * Serialize notes attached to nodes
+     * Notes now have target reference, optional title, annotations, and attributes
      */
     private serializeNotes(): any[] {
         if (!this.machine.notes || this.machine.notes.length === 0) {
@@ -259,7 +260,7 @@ class JSONGenerator extends BaseGenerator {
 
         return this.machine.notes.map(note => ({
             target: note.target.ref?.name || '',
-            content: note.content?.replace(/^"|"$/g, '') || ''
+            content: note.title?.replace(/^"|"$/g, '') || ''
         })).filter(n => n.target); // Filter out notes with invalid targets
     }
 
@@ -1284,7 +1285,7 @@ export function generateDSL(machineJson: MachineJSON): string {
     // Generate notes
     if (machineJson.notes && machineJson.notes.length > 0) {
         machineJson.notes.forEach(note => {
-            lines.push(`note for ${note.target} ${quoteString(note.content)}`);
+            lines.push(`note ${note.target} ${quoteString(note.content)};`);
         });
     }
 
