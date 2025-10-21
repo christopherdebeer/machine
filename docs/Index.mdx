@@ -60,31 +60,7 @@ export function IndexContent() {
                                 <Carousel slides={[
                                     {
                                         id: 'example-001',
-                                        code: `machine "Solution Sketch" @Example
-
-problem;
-solution;
-
-problem -> solution;
-
-title: "Overriden title?"
-description: "A long and rambling description..."
-version: '0.0.1';
-
-foo parent "Parent Title" @Parent {
-    description: "A long and rambling description for this parent and its children, but not the root"
-    property: 23;
-    anotherProp: true;
-    
-    child1;
-    task child2;
-    child3 {
-        attr: "val"
-    }
-
-    -> child1;
-}
-`
+                                        code: `problem -> solution;`
                                     },
                                     {
                                         id: 'example-002',

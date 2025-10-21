@@ -126,8 +126,8 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
     let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
     // Title (bold, larger font)
-    const title = options.title || machineJson.title || 'Machine Diagram';
-    htmlLabel += '<tr><td align="center"><font point-size="12"><b>' + escapeHtml(title) + '</b></font></td></tr>';
+    const title = options.title || machineJson.title || '';
+    if (title) htmlLabel += '<tr><td align="center"><font point-size="12"><b>' + escapeHtml(title) + '</b></font></td></tr>';
 
     // Version (if present in attributes)
     const versionAttr = machineJson.attributes?.find(a => a.name === 'version');

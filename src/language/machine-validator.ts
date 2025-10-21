@@ -102,6 +102,16 @@ export class MachineValidator {
     }
 
     checkInvalidStateReferences(machine: Machine, accept: ValidationAcceptor): void {
+        // Check if @StrictMode annotation is present
+        const isStrictMode = machine.annotations?.some(ann => ann.name === 'StrictMode') ?? false;
+        
+        // In non-strict mode, we allow undefined node references (they will be auto-created)
+        // This avoids duplicate errors with Langium's built-in linker
+        if (!isStrictMode) {
+            return;
+        }
+
+        // In strict mode, validate that all referenced nodes exist
         const stateNames = new Set<string>();
         const collectStateNames = (node: Node) => {
             stateNames.add(node.name);
