@@ -52,14 +52,20 @@ function generateTSX(pageName, mdxPath, projectRoot) {
     const absoluteMdxPath = join(projectRoot, mdxPath);
     const relativeMdxPath = relative(srcPagesDir, absoluteMdxPath).replace(/\\/g, '/');
 
+    // Calculate relative path to PageLayout from src/pages/
+    const pageLayoutPath = '../components/PageLayout';
+
     return `import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { PageLayout } from '${pageLayoutPath}';
 import Content from '${relativeMdxPath}';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
     <React.StrictMode>
-        <Content />
+        <PageLayout title="${importName}" backLink={${pageName !== 'index'}}>
+            <Content />
+        </PageLayout>
     </React.StrictMode>
 );
 `;
