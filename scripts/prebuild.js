@@ -420,7 +420,7 @@ async function transformMarkdownToMdx(projectRoot) {
     log(`Scanning for markdown files: ${relative(projectRoot, docsDir)}`);
 
     // Transform a single markdown file to MDX
-    async function transformFile(mdPath) {
+    async function transformFile(mdPath, relativePath) {
         const content = await readFile(mdPath, 'utf-8');
         const lines = content.split('\n');
         const output = [];
@@ -433,7 +433,13 @@ async function transformMarkdownToMdx(projectRoot) {
         const hasDygramBlocks = /```(dygram|mach|machine)/m.test(content);
 
         if (hasDygramBlocks) {
-            output.push("import { CodeEditor } from '../src/components/CodeEditor';");
+            // Calculate relative path to src/components/CodeEditor based on file depth
+            // relativePath is like "index.mdx" or "syntax/index.mdx" or "api/subpage.mdx"
+            const depth = relativePath.split('/').length - 1; // -1 because filename is included
+            // From docs/ we need 1 level up (..), from docs/syntax/ we need 2 levels up (../..), etc.
+            const levelsUp = depth + 1;
+            const relativePrefix = Array(levelsUp).fill('..').join('/');
+            output.push(`import { CodeEditor } from '${relativePrefix}/src/components/CodeEditor';`);
             output.push('');
         }
 
@@ -520,7 +526,7 @@ async function transformMarkdownToMdx(projectRoot) {
     // Transform each markdown file
     let transformCount = 0;
     for (const { fullPath, relativePath } of markdownFiles) {
-        const mdxContent = await transformFile(fullPath);
+        const mdxContent = await transformFile(fullPath, relativePath);
 
         // Output path is already determined in relativePath
         const outputPath = join(docsDir, relativePath);
