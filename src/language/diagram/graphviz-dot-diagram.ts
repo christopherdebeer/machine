@@ -158,7 +158,7 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
 
     if (displayAttrs.length > 0) {
         htmlLabel += '<tr><td>';
-        htmlLabel += '<table border="1" cellborder="0" cellspacing="0" cellpadding="2">';
+        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
         displayAttrs.forEach(attr => {
             let displayValue = attr.value;
             if (typeof displayValue === 'string') {
@@ -453,7 +453,7 @@ function generateNamespaceLabel(node: any): string {
 
     if (displayAttrs.length > 0) {
         htmlLabel += '<tr><td>';
-        htmlLabel += '<table border="1" cellborder="0" cellspacing="0" cellpadding="2">';
+        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
         displayAttrs.forEach((attr: any) => {
             let displayValue = attr.value;
             if (typeof displayValue === 'string') {
