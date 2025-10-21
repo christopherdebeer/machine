@@ -38,7 +38,21 @@ async function main() {
     const projectRoot = join(__dirname, '..');
     const distDir = join(projectRoot, 'dist');
     const outputFile = join(distDir, 'sitemap.xml');
-    const baseUrl = process.env.VITE_BASE_URL || 'https://christopherdebeer.github.io/machine/';
+
+    // Use SITEMAP_BASE_URL env var, fallback to production URL
+    // Note: VITE_BASE_URL is for the base path (/machine/), not the full URL
+    let baseUrl = process.env.SITEMAP_BASE_URL || 'https://christopherdebeer.github.io/machine/';
+
+    // Ensure baseUrl has protocol and trailing slash
+    if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+        console.error('❌ Error: SITEMAP_BASE_URL must include http:// or https:// protocol');
+        console.error(`   Received: ${baseUrl}`);
+        process.exit(1);
+    }
+
+    if (!baseUrl.endsWith('/')) {
+        baseUrl += '/';
+    }
 
     console.log('📍 Generating sitemap...');
     console.log(`   Dist directory: ${distDir}`);
