@@ -68,8 +68,10 @@ services.shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, 
         let json: MachineJSON = {title: "", nodes: [], edges: []};
         let mermaid: string = "";
 
-        const hasErrors = document.diagnostics !== undefined 
-            && document.diagnostics.filter((i) => i.severity === 1).length > 0;
+        // Filter to only include error-level diagnostics (severity 1)
+        const relevantErrors = document.diagnostics?.filter(diagnostic => diagnostic.severity === 1) || [];
+
+        const hasErrors = relevantErrors.length > 0;
 
         // only generate commands if there are no errors
         if(!hasErrors) {
@@ -77,7 +79,7 @@ services.shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, 
             mermaid = generateGraphviz(model, document.textDocument.uri, undefined).content;
         } else {
             // Generate error diagram to show parse errors visually
-            mermaid = generateErrorDiagram(document.diagnostics!);
+            mermaid = generateErrorDiagram(relevantErrors);
         }
 
         // inject the commands into the model
