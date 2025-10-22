@@ -131,16 +131,19 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
     if (title) htmlLabel += '<tr><td align="center"><font point-size="12"><b>' + escapeHtml(title) + '</b></font></td></tr>';
 
     // Version (if present in attributes)
-    const versionAttr : Attribute | undefined = machineJson.attributes?.find(a => a.name === 'version');
-    if (versionAttr || machineJson.annotations && machineJson.annotations.length > 0) {
-        const versionValue = typeof versionAttr?.value === 'string'
-            ? versionAttr.value.replace(/^["']|["']$/g, '')
-            : String(versionAttr?.value);
-            // Annotations (if present)
+    const versionAttr = machineJson.attributes?.find(a => a.name === 'version');
+    if (versionAttr || (machineJson.annotations && machineJson.annotations.length > 0)) {
+        let versionValue = '';
+        if (versionAttr?.value !== undefined) {
+            versionValue = typeof versionAttr.value === 'string'
+                ? versionAttr.value.replace(/^["']|["']$/g, '')
+                : String(versionAttr.value);
+        }
+        // Annotations (if present)
         const annText = machineJson.annotations?.map(ann =>
             ann.value ? '@' + ann.name + '("' + ann.value + '")' : '@' + ann.name
         ).join(' ');
-        htmlLabel += '<tr><td align="center"><font point-size="10">v' + escapeHtml(versionValue || '') + ' ' + escapeHtml(annText || '') + '</font></td></tr>';
+        htmlLabel += '<tr><td align="center"><font point-size="10">v' + escapeHtml(versionValue) + ' ' + escapeHtml(annText || '') + '</font></td></tr>';
     }
 
     // Description (if present in attributes)
@@ -437,13 +440,13 @@ function generateNamespaceLabel(node: any): string {
     // Description
     const descAttr = node.attributes?.find((a: any) => a.name === 'description' || a.name === 'desc' || a.name === 'prompt');
     if (node.title || descAttr) {
-        const titleText = node.title.replace(/^"|"$/g, '');
-        let descValue = descAttr.value;
+        const titleText = node.title ? String(node.title).replace(/^"|"$/g, '') : '';
+        let descValue = descAttr?.value;
         if (typeof descValue === 'string') {
             descValue = descValue.replace(/^["']|["']$/g, '');
         }
-        if (titleText !== node.name) {
-            htmlLabel += `<tr><td align="left"><b>${ escapeHtml(titleText) }</b>${node.title && descAttr ? ' — ' : ''}<i>${ escapeHtml(String(descValue)) }</i></td></tr>`;
+        if (titleText && titleText !== node.name) {
+            htmlLabel += `<tr><td align="left"><b>${ escapeHtml(titleText) }</b>${node.title && descAttr ? ' — ' : ''}<i>${ escapeHtml(String(descValue || '')) }</i></td></tr>`;
         }
     }
 
