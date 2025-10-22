@@ -71,7 +71,8 @@
         "monaco-editor-wrapper": "~4.0.2",
         "monaco-languageclient": "~8.1.1",
         "vscode-languageclient": "~9.0.1",
-        "vscode-languageserver": "~9.0.1"
+        "vscode-languageserver": "~9.0.1",
+        "zod": "^3.24.1"
     },
     "devDependencies": {
         "@codingame/esbuild-import-meta-url-plugin": "~1.0.2",
