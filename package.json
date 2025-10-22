@@ -1,7 +1,7 @@
 {
     "name": "dygram",
     "description": "Dynamic state machine prototyping language",
-    "version": "0.3.6",
+    "version": "0.3.7",
     "displayName": "DyGram",
     "icon": "icon.jpg",
     "publisher": "c15r",
