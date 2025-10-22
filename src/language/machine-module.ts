@@ -23,6 +23,7 @@ export interface Edge {
     arrowType?: string;  // Arrow type for relationship mapping
     sourceMultiplicity?: string;  // Source multiplicity (e.g., "1", "*", "0..1")
     targetMultiplicity?: string;  // Target multiplicity (e.g., "1", "*", "1..*")
+    annotations?: Array<{ name: string; value?: string }>;  // Edge annotations
     style?: EdgeStyle;  // Custom styling for the edge
     roleName?: string;  // Role name for bidirectional relationships
 }
