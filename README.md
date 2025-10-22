@@ -36,12 +36,17 @@ npm install
 # Start development server
 npm run dev
 
-# Build for production
+# Build for production (with tests)
+npm run build:with-tests
+
+# Build only (without tests)
 npm run bundle
 
 # Run tests
 npm test
 ```
+
+> **📖 For detailed build process documentation**, see [BUILDING.md](BUILDING.md)
 
 ### CLI Usage
 
