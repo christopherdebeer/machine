@@ -289,9 +289,35 @@ export function createLangumLinter() {
                     if (error.token && typeof error.token === 'object') {
                         // Try to extract position from token
                         const token = error.token as any;
+
+                        // First try offset-based positioning (most accurate)
                         if (token.offset !== undefined && token.length !== undefined) {
                             from = token.offset;
                             to = from + token.length;
+                        }
+                        // Fall back to line/column based positioning
+                        else if (token.startLine !== undefined) {
+                            try {
+                                // Convert 1-based line numbers to 0-based
+                                const line = view.state.doc.line(token.startLine);
+                                const startCol = token.startColumn !== undefined ? token.startColumn - 1 : 0;
+                                from = line.from + startCol;
+
+                                // Calculate end position
+                                if (token.endLine !== undefined && token.endColumn !== undefined) {
+                                    const endLine = view.state.doc.line(token.endLine);
+                                    const endCol = token.endColumn - 1;
+                                    to = endLine.from + endCol;
+                                } else {
+                                    // If no end position, highlight to end of line or next few chars
+                                    to = Math.min(line.to, from + Math.max(1, token.image?.length || 1));
+                                }
+                            } catch (lineError) {
+                                console.warn('Error converting line/column to offset:', lineError);
+                                // Fall back to start of document
+                                from = 0;
+                                to = 1;
+                            }
                         }
                     }
 
@@ -394,6 +420,57 @@ export const semanticHighlightTheme = EditorView.baseTheme({
         fontSize: '12px',
         lineHeight: '1.4',
         color: '#d4d4d4'
+    },
+
+    // Inline lint decorations (underlines in the editor)
+    '.cm-lintRange-error': {
+        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%23f48771\' fill=\'none\' stroke-width=\'.7\'/></svg>")',
+        backgroundRepeat: 'repeat-x',
+        backgroundPosition: 'left bottom',
+        paddingBottom: '2px'
+    },
+    '.cm-lintRange-warning': {
+        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%23cca700\' fill=\'none\' stroke-width=\'.7\'/></svg>")',
+        backgroundRepeat: 'repeat-x',
+        backgroundPosition: 'left bottom',
+        paddingBottom: '2px'
+    },
+    '.cm-lintRange-info': {
+        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%2375beff\' fill=\'none\' stroke-width=\'.7\'/></svg>")',
+        backgroundRepeat: 'repeat-x',
+        backgroundPosition: 'left bottom',
+        paddingBottom: '2px'
+    },
+    '.cm-lintRange-active': {
+        backgroundColor: 'rgba(244, 135, 113, 0.15)'
+    },
+
+    // Lint panel (the popup that shows all errors)
+    '.cm-panel.cm-panel-lint': {
+        background: '#2d2d30',
+        border: '1px solid #3e3e42',
+        color: '#d4d4d4'
+    },
+    '.cm-panel.cm-panel-lint ul': {
+        maxHeight: '200px',
+        overflowY: 'auto'
+    },
+    '.cm-panel.cm-panel-lint li': {
+        padding: '4px 8px',
+        cursor: 'pointer',
+        borderBottom: '1px solid #3e3e42'
+    },
+    '.cm-panel.cm-panel-lint li:hover': {
+        background: '#3e3e42'
+    },
+    '.cm-diagnostic-error .cm-diagnostic': {
+        color: '#f48771'
+    },
+    '.cm-diagnostic-warning .cm-diagnostic': {
+        color: '#cca700'
+    },
+    '.cm-diagnostic-info .cm-diagnostic': {
+        color: '#75beff'
     }
 });
 
