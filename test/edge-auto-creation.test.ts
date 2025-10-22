@@ -139,18 +139,106 @@ end -> start;
         `;
 
         const document = await parse(input);
-        
+
         // Should have no errors
         const diagnostics = document.diagnostics ?? [];
         expect(diagnostics).toHaveLength(0);
-        
+
         // Should have 3 nodes
         const machine = document.parseResult.value;
         expect(machine.nodes).toHaveLength(3);
-        
+
         const nodeNames = machine.nodes.map(n => n.name);
         expect(nodeNames).toContain('start');
         expect(nodeNames).toContain('middle');
         expect(nodeNames).toContain('end');
+    });
+
+    test('should create nested nodes from qualified edge names', async () => {
+        const input = `
+workflow.start -> workflow.process;
+        `;
+
+        const document = await parse(input);
+
+        // Should have no errors
+        const diagnostics = document.diagnostics ?? [];
+        expect(diagnostics).toHaveLength(0);
+
+        // Should have 1 parent node (workflow)
+        const machine = document.parseResult.value;
+        expect(machine.nodes).toHaveLength(1);
+
+        const workflowNode = machine.nodes[0];
+        expect(workflowNode.name).toBe('workflow');
+
+        // workflow should have 2 children (start and process)
+        expect(workflowNode.nodes).toHaveLength(2);
+        const childNames = workflowNode.nodes.map(n => n.name);
+        expect(childNames).toContain('start');
+        expect(childNames).toContain('process');
+    });
+
+    test('should create deeply nested nodes from qualified names', async () => {
+        const input = `
+app.module.service.init -> app.module.service.run;
+        `;
+
+        const document = await parse(input);
+
+        // Should have no errors
+        const diagnostics = document.diagnostics ?? [];
+        expect(diagnostics).toHaveLength(0);
+
+        // Should have 1 top-level node (app)
+        const machine = document.parseResult.value;
+        expect(machine.nodes).toHaveLength(1);
+
+        const appNode = machine.nodes[0];
+        expect(appNode.name).toBe('app');
+
+        // app should have 1 child (module)
+        expect(appNode.nodes).toHaveLength(1);
+        const moduleNode = appNode.nodes[0];
+        expect(moduleNode.name).toBe('module');
+
+        // module should have 1 child (service)
+        expect(moduleNode.nodes).toHaveLength(1);
+        const serviceNode = moduleNode.nodes[0];
+        expect(serviceNode.name).toBe('service');
+
+        // service should have 2 children (init and run)
+        expect(serviceNode.nodes).toHaveLength(2);
+        const leafNames = serviceNode.nodes.map(n => n.name);
+        expect(leafNames).toContain('init');
+        expect(leafNames).toContain('run');
+    });
+
+    test('should mix flat and nested nodes correctly', async () => {
+        const input = `
+start;
+start -> workflow.process;
+workflow.process -> end;
+        `;
+
+        const document = await parse(input);
+
+        // Should have no errors
+        const diagnostics = document.diagnostics ?? [];
+        expect(diagnostics).toHaveLength(0);
+
+        // Should have 3 top-level nodes (start, workflow, end)
+        const machine = document.parseResult.value;
+        expect(machine.nodes).toHaveLength(3);
+
+        const nodeNames = machine.nodes.map(n => n.name);
+        expect(nodeNames).toContain('start');
+        expect(nodeNames).toContain('workflow');
+        expect(nodeNames).toContain('end');
+
+        // workflow should have 1 child (process)
+        const workflowNode = machine.nodes.find(n => n.name === 'workflow');
+        expect(workflowNode?.nodes).toHaveLength(1);
+        expect(workflowNode?.nodes[0].name).toBe('process');
     });
 });
