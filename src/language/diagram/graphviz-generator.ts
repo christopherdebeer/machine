@@ -85,6 +85,7 @@ export function generateRuntimeGraphviz(
         showVisitCounts: true,
         showExecutionPath: true,
         showRuntimeValues: true,
+        runtimeContext: context, // Pass context for template interpolation
         ...options
     };
 
