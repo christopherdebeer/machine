@@ -17,6 +17,8 @@ import { createStorage } from './language/storage.js';
 import { createLangiumExtensions } from './codemirror-langium.js';
 import { loadSettings, saveSettings } from './language/shared-settings.js';
 import { renderExampleButtons } from './language/shared-examples.js';
+import { ExecutionControls } from './language/playground-execution-controls.js';
+import { OutputPanel } from './language/playground-output-panel.js';
 
 // Initialize Langium services for parsing
 const services = createMachineServices(EmptyFileSystem);
@@ -106,6 +108,13 @@ export async function loadDynamicExamples(): Promise<void> {
 let editorView: EditorView | null = null;
 let updateDiagramTimeout: number | null = null;
 
+// Shared components
+let executionControls: ExecutionControls | null = null;
+let outputPanel: OutputPanel | null = null;
+
+// Current executor
+let currentExecutor: RailsExecutor | null = null;
+
 /**
  * Render Graphviz DOT diagram
  */
@@ -126,21 +135,153 @@ async function renderDiagram(dotCode: string, container: HTMLElement): Promise<v
 /**
  * Update diagram with debouncing
  */
-function scheduleUpdateDiagram(code: string, diagramElement: HTMLElement | null): void {
+function scheduleUpdateDiagram(code: string): void {
     if (updateDiagramTimeout !== null) {
         clearTimeout(updateDiagramTimeout);
     }
 
     updateDiagramTimeout = window.setTimeout(async () => {
-        if (diagramElement) {
+        if (outputPanel) {
             try {
                 const dotCode = await generateGraphvizFromCode(code);
-                await renderDiagram(dotCode, diagramElement);
+                const tempDiv = window.document.createElement('div');
+                await renderDiagram(dotCode, tempDiv);
+
+                // Parse the code to get the machine model
+                const langiumDoc = await parse(code);
+                const model = langiumDoc.parseResult.value as Machine;
+
+                if (model) {
+                    // Convert to JSON for OutputPanel
+                    const machineData = convertToMachineData(model);
+                    outputPanel.updateData({
+                        svg: tempDiv.innerHTML,
+                        dot: dotCode,
+                        json: JSON.stringify(machineData, null, 2),
+                        machine: model,
+                        ast: model
+                    });
+                }
             } catch (error) {
                 console.error('Error updating diagram:', error);
             }
         }
     }, 500); // 500ms debounce
+}
+
+/**
+ * Setup shared components (OutputPanel and ExecutionControls)
+ */
+function setupSharedComponents(): void {
+    // Initialize OutputPanel
+    const outputContainer = document.getElementById('output-panel-container');
+    if (outputContainer) {
+        outputPanel = new OutputPanel({
+            container: outputContainer,
+            defaultFormat: 'svg',
+            mobile: true // Mobile-optimized
+        });
+    }
+
+    // Initialize ExecutionControls
+    const executionContainer = document.getElementById('execution-controls');
+    if (executionContainer) {
+        executionControls = new ExecutionControls({
+            container: executionContainer,
+            onExecute: executeFullMachine,
+            onStep: stepMachine,
+            onStop: stopMachine,
+            onReset: resetMachine,
+            mobile: true, // Mobile-optimized
+            showLog: true
+        });
+    }
+}
+
+/**
+ * Execute full machine (auto-execute all steps)
+ */
+async function executeFullMachine(): Promise<void> {
+    if (!currentExecutor) {
+        if (executionControls) {
+            executionControls.addLogEntry('No executor available. Please run code first.', 'error');
+        }
+        return;
+    }
+
+    let stepCount = 0;
+    const maxSteps = 10;
+
+    while (stepCount < maxSteps) {
+        const stepped = await currentExecutor.step();
+        stepCount++;
+
+        const context = currentExecutor.getContext();
+        if (executionControls) {
+            executionControls.updateState({
+                currentNode: context.currentNode,
+                stepCount: context.history.length
+            });
+            executionControls.addLogEntry(`Step ${stepCount}: At node ${context.currentNode}`, 'info');
+        }
+
+        if (!stepped) {
+            if (executionControls) {
+                executionControls.addLogEntry('Machine execution complete', 'success');
+            }
+            break;
+        }
+    }
+}
+
+/**
+ * Execute one step
+ */
+async function stepMachine(): Promise<void> {
+    if (!currentExecutor) {
+        if (executionControls) {
+            executionControls.addLogEntry('No executor available. Please run code first.', 'error');
+        }
+        return;
+    }
+
+    const stepped = await currentExecutor.step();
+    const context = currentExecutor.getContext();
+
+    if (executionControls) {
+        executionControls.updateState({
+            currentNode: context.currentNode,
+            stepCount: context.history.length
+        });
+        executionControls.addLogEntry(`Step: At node ${context.currentNode}`, 'info');
+    }
+
+    if (!stepped) {
+        if (executionControls) {
+            executionControls.addLogEntry('Machine execution complete', 'success');
+        }
+    }
+}
+
+/**
+ * Stop execution
+ */
+function stopMachine(): void {
+    // Reset state
+    if (executionControls) {
+        executionControls.addLogEntry('Execution stopped', 'warning');
+    }
+}
+
+/**
+ * Reset machine
+ */
+function resetMachine(): void {
+    currentExecutor = null;
+    if (executionControls) {
+        executionControls.clearLog();
+        executionControls.addLogEntry('Machine reset', 'info');
+    }
 }
 
 /**
@@ -151,8 +292,6 @@ export function setupCodeMirrorPlayground(): void {
     const runBtn = document.getElementById('run-btn');
     const downloadSvgBtn = document.getElementById('download-svg-btn');
     const downloadPngBtn = document.getElementById('download-png-btn');
-    const outputElement = document.getElementById('outputInfo');
-    const diagramElement = document.getElementById('diagram');
     const modelSelect = document.getElementById('model-select') as HTMLSelectElement;
     const apiKeyInput = document.getElementById('api-key-input') as HTMLInputElement;
 
@@ -160,6 +299,9 @@ export function setupCodeMirrorPlayground(): void {
         console.error('Editor element not found');
         return;
     }
+
+    // Initialize shared components
+    setupSharedComponents();
 
     // Load saved settings
     const settings = loadSettings();
@@ -227,9 +369,9 @@ export function setupCodeMirrorPlayground(): void {
             editorView?.update([transaction]);
 
             // Update diagram on code changes
-            if (transaction.docChanged && diagramElement) {
+            if (transaction.docChanged) {
                 const code = editorView?.state.doc.toString() || '';
-                scheduleUpdateDiagram(code, diagramElement);
+                scheduleUpdateDiagram(code);
             }
         }
     });
@@ -239,9 +381,9 @@ export function setupCodeMirrorPlayground(): void {
     // Set up run button
     if (runBtn) {
         runBtn.addEventListener('click', () => {
-            if (editorView && outputElement) {
+            if (editorView) {
                 const code = editorView.state.doc.toString();
-                executeCode(code, outputElement, diagramElement);
+                executeCode(code);
             }
         });
     }
@@ -277,9 +419,9 @@ export function setupCodeMirrorPlayground(): void {
 
     // Auto-run on load
     setTimeout(() => {
-        if (editorView && outputElement) {
+        if (editorView) {
             const code = editorView.state.doc.toString();
-            executeCode(code, outputElement, diagramElement);
+            executeCode(code);
         }
     }, 500);
 }
@@ -380,15 +522,6 @@ async function generateGraphvizFromCode(code: string): Promise<string> {
     }
 }
 
-/**
- * Escape HTML characters to prevent XSS and ensure proper display in HTML
- */
-function escapeHtml(text: string): string {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
 // Global storage instance for persistence
 let globalStorage: any = null;
 
@@ -405,10 +538,11 @@ function getStorage() {
 /**
  * Execute the code using the full EvolutionaryExecutor system
  */
-async function executeCode(code: string, outputElement: HTMLElement | null, diagramElement: HTMLElement | null): Promise<void> {
-    if (!outputElement) return;
-
-    outputElement.innerHTML = '<div class="loading">Initializing runtime system...</div>';
+async function executeCode(code: string): Promise<void> {
+    if (!outputPanel) {
+        console.error('OutputPanel not initialized');
+        return;
+    }
 
     try {
         // Parse the code using the actual Langium parser
@@ -438,35 +572,18 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             // Generate error diagram
             const errorDiagram = generateErrorDiagram(errors);
 
-            // Render the error diagram
-            if (diagramElement) {
-                diagramElement.innerHTML = '<div class="loading">Rendering error diagram...</div>';
-                try {
-                    await renderDiagram(errorDiagram, diagramElement);
-                } catch (err) {
-                    console.warn('Failed to render error diagram:', err);
-                }
+            // Render the error diagram to OutputPanel
+            const tempDiv = window.document.createElement('div');
+            try {
+                await renderDiagram(errorDiagram, tempDiv);
+                outputPanel.updateData({
+                    svg: tempDiv.innerHTML,
+                    dot: errorDiagram
+                });
+            } catch (err) {
+                console.warn('Failed to render error diagram:', err);
             }
 
-            // Display error details in output
-            const errorMessages = errors.map(e => {
-                const location = e.line !== undefined && e.col !== undefined
-                    ? `Line ${e.line}:${e.col}: `
-                    : '';
-                return `${location}${e.message}`;
-            }).join('\n');
-
-            outputElement.innerHTML = `
-                <div style="color: #f48771; margin-bottom: 12px;">
-                    ⚠ Parse Errors Detected (${errors.length})
-                </div>
-                <div style="color: #d4d4d4; font-size: 12px; white-space: pre-wrap; font-family: monospace;">
-                    ${escapeHtml(errorMessages)}
-                </div>
-                <div style="color: #858585; font-size: 11px; margin-top: 12px;">
-                    Please fix the errors above to execute the machine.
-                </div>
-            `;
             return;
         }
 
@@ -475,19 +592,17 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         if (!model) {
             const errorDiagram = generateErrorDiagram([{ message: 'Failed to parse machine: no model returned' }]);
 
-            if (diagramElement) {
-                try {
-                    await renderDiagram(errorDiagram, diagramElement);
-                } catch (err) {
-                    console.warn('Failed to render error diagram:', err);
-                }
+            const tempDiv = window.document.createElement('div');
+            try {
+                await renderDiagram(errorDiagram, tempDiv);
+                outputPanel.updateData({
+                    svg: tempDiv.innerHTML,
+                    dot: errorDiagram
+                });
+            } catch (err) {
+                console.warn('Failed to render error diagram:', err);
             }
 
-            outputElement.innerHTML = `
-                <div class="error">
-                    <strong>Parse Error:</strong> Failed to parse machine: no model returned
-                </div>
-            `;
             return;
         }
 
@@ -499,8 +614,6 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
 
         // Initialize storage system (kept for future use but not required for RailsExecutor)
         const storage = getStorage();
-
-        outputElement.innerHTML = '<div class="loading">Creating executor...</div>';
 
         // Create RailsExecutor with LLM configuration
         let executor: RailsExecutor | null = null;
@@ -530,6 +643,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         if (llmConfig.llm) {
             try {
                 executor = await RailsExecutor.create(machineData, llmConfig);
+                currentExecutor = executor; // Store globally for execution controls
                 console.log('✅ RailsExecutor created successfully');
             } catch (error) {
                 console.error('❌ Failed to create RailsExecutor:', error);
@@ -537,6 +651,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         } else {
             // Create executor without LLM for static analysis only
             executor = new RailsExecutor(machineData, {});
+            currentExecutor = executor; // Store globally for execution controls
             console.log('✅ RailsExecutor created (no API key - static mode only)');
         }
 
@@ -557,8 +672,6 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             apiKeyLength: settings.apiKey.length
         });
 
-        outputElement.innerHTML = '<div class="loading">Executing machine...</div>';
-
         let executionResult = null;
         let executionSteps = 0;
         let maxSteps = 10; // Prevent infinite loops in demo
@@ -566,15 +679,20 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         // Generate static Graphviz diagram
         const staticDotCode = await generateGraphvizFromCode(code);
 
-        // Render the static diagram initially
-        if (diagramElement) {
-            diagramElement.innerHTML = '<div class="loading">Rendering diagram...</div>';
-            try {
-                await renderDiagram(staticDotCode, diagramElement);
-            } catch (err) {
-                console.warn(`Failed to render diagram/`)
-                console.error(err);
-            } 
+        // Render the static diagram initially using OutputPanel
+        const tempDiv = window.document.createElement('div');
+        try {
+            await renderDiagram(staticDotCode, tempDiv);
+            outputPanel.updateData({
+                svg: tempDiv.innerHTML,
+                dot: staticDotCode,
+                json: JSON.stringify(machineData, null, 2),
+                machine: model,
+                ast: model
+            });
+        } catch (err) {
+            console.warn(`Failed to render diagram`);
+            console.error(err);
         }
         
         if (hasTaskNodes && executor) {
@@ -592,9 +710,6 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
                         console.log('🛑 No more transitions available');
                         break;
                     }
-
-                    // Update UI with progress
-                    outputElement.innerHTML = `<div class="loading">Executing step ${executionSteps}...</div>`;
                 }
 
                 executionResult = executor.getContext();
@@ -602,19 +717,10 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             } catch (execError) {
                 console.error('❌ Execution failed:', execError);
 
-                // Check if this is an API key related error
+                // Log API key related errors
                 const errorMessage = execError instanceof Error ? execError.message : String(execError);
                 if (!hasApiKey || errorMessage.toLowerCase().includes('api key') || errorMessage.toLowerCase().includes('unauthorized')) {
                     console.log('⚠️ Execution failed: API key required for agent decisions');
-                    outputElement.innerHTML = `
-                        <div style="color: #ffa500; margin-bottom: 12px;">
-                            ⚠ Execution stopped: API key required
-                        </div>
-                        <div style="color: #858585; font-size: 12px;">
-                            This machine requires an API key to execute agent decisions.<br>
-                            Please add your Anthropic API key in the settings above.
-                        </div>
-                    `;
                 }
                 // Continue with static analysis even if execution fails
             }
@@ -622,125 +728,19 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
             console.log('ℹ️ No task nodes - static analysis only');
         }
 
-        // Get mutations from executor if available
-        const mutations = executor ? executor.getMutations() : [];
-
-        // Use the static Graphviz diagram
-        let runtimeDotCode = staticDotCode;
-
-        console.log('🎨 Diagram generation:', {
+        // Log execution summary
+        console.log('🎨 Execution complete:', {
             hasExecutionResult: !!executionResult,
-            usingGraphviz: true
+            executionSteps,
+            hasTaskNodes,
+            hasApiKey
         });
-
-        // Display comprehensive results
-        const lines = code.split('\n').length;
-        const timestamp = new Date().toISOString();
-        
-        let statusMessage = '✓ Machine parsed and analyzed';
-        let statusColor = '#4ec9b0';
-
-        if (executionResult && executionSteps > 0) {
-            statusMessage = `✓ Machine executed (${executionSteps} steps) - Current: ${executionResult.currentNode}`;
-            statusColor = '#4ec9b0';
-        } else if (hasTaskNodes && executionSteps === 0 && !hasApiKey) {
-            statusMessage = '⚠ Machine ready (API key may be required for agent decisions)';
-            statusColor = '#ffa500';
-        } else if (hasTaskNodes && executionSteps === 0 && hasApiKey) {
-            statusMessage = '⚠ Machine parsed (execution stopped - check error above)';
-            statusColor = '#ffa500';
-        }
-
-        // Build detailed output
-        let outputHTML = `
-            <div style="color: ${statusColor}; margin-bottom: 12px;">
-                ${statusMessage}
-            </div>
-            <div style="color: #858585; font-size: 12px;">
-                Lines: ${lines}<br>
-                Nodes: ${machineData.nodes.length} (${taskNodes.length} tasks)<br>
-                Edges: ${machineData.edges.length}<br>
-                ${executionResult ? `Visited: ${executionResult.visitedNodes.size}<br>` : ''}
-                ${mutations.length > 0 ? `Mutations: ${mutations.length}<br>` : ''}
-                Time: ${timestamp}
-            </div>
-        `;
-
-        // Add execution history if available
-        if (executionResult && executionResult.history.length > 0) {
-            outputHTML += `
-                <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
-                    <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Execution History:</div>
-                    ${executionResult.history.map((step: any, idx: number) => {
-                        let outputDisplay = '';
-                        if (step.output) {
-                            let serializedOutput: string;
-                            if (typeof step.output === 'object' && step.output !== null) {
-                                try {
-                                    serializedOutput = JSON.stringify(step.output);
-                                } catch (error) {
-                                    serializedOutput = String(step.output);
-                                }
-                            } else {
-                                serializedOutput = String(step.output);
-                            }
-                            outputDisplay = `<br>&nbsp;&nbsp;&nbsp;&nbsp;Output: ${serializedOutput.substring(0, 50)}${serializedOutput.length > 50 ? '...' : ''}`;
-                        }
-                        return `
-                        <div style="color: #d4d4d4; font-size: 11px;">
-                            ${idx + 1}. ${step.from} → ${step.to} (${step.transition})
-                            ${outputDisplay}
-                        </div>
-                    `;
-                    }).join('')}
-                </div>
-            `;
-        }
-
-        // Add mutations if any occurred
-        if (mutations.length > 0) {
-            outputHTML += `
-                <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
-                    <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">Machine Mutations:</div>
-                    ${mutations.slice(0, 10).map((mutation: any, idx: number) => `
-                        <div style="color: #4ec9b0; font-size: 11px;">
-                            ${idx + 1}. ${mutation.type}${mutation.data ? ': ' + JSON.stringify(mutation.data).substring(0, 50) : ''}
-                        </div>
-                    `).join('')}
-                    ${mutations.length > 10 ? `<div style="color: #858585; font-size: 11px; margin-top: 4px;">... and ${mutations.length - 10} more</div>` : ''}
-                </div>
-            `;
-        }
-
-        
-        // Add intermediate information
-        outputHTML += `
-            <div style="margin-top: 12px; padding: 8px; background: #2d2d30; border-radius: 4px;">
-                <div style="color: #cccccc; font-size: 12px; margin-bottom: 4px;">[${machineData.title}] Diagram source (Graphviz DOT):</div>
-                <div class="diagram-render-source" style="color: #d4d4d4; font-size: 11px; ">
-                    <pre><code>${escapeHtml(staticDotCode)}</code></pre>
-                </div>
-            </div>
-        `;
-
-        outputElement.innerHTML = outputHTML;
-
-        // Render the final diagram
-        if (diagramElement) {
-            diagramElement.innerHTML = '<div class="loading">Rendering diagram...</div>';
-            try {
-                await renderDiagram(runtimeDotCode, diagramElement);
-            } catch (err) {
-                console.warn(`Failed to render diagram`)
-                console.error(err);
-            }
-        }
 
         // Save machine version to storage for future reference
         try {
             const machineId = machineData.title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
             const versionKey = `machine_${machineId}_${Date.now()}`;
-            
+
             // Create a safe copy of machine data without circular references
             const safeMachineData = {
                 title: machineData.title,
@@ -760,14 +760,15 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
                     type: edge.type
                 }))
             };
-            
-            // Create safe mutations copy
+
+            // Get mutations from executor if available
+            const mutations = executor ? executor.getMutations() : [];
             const safeMutations = mutations.map((mutation: any) => ({
                 type: mutation.type,
                 timestamp: mutation.timestamp,
                 data: mutation.data || {}
             }));
-            
+
             await storage.saveMachineVersion(versionKey, {
                 version: `v${Date.now()}`,
                 timestamp: new Date().toISOString(),
@@ -785,10 +786,22 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         }
 
     } catch (error) {
-        outputElement.innerHTML = `
-            <div class="error">
-                <strong>Runtime Error:</strong> ${error instanceof Error ? error.message : 'Unknown error'}
-            </div>
-        `;
+        console.error('Runtime error:', error);
+        // Display error in OutputPanel
+        if (outputPanel) {
+            const errorDiagram = generateErrorDiagram([{
+                message: error instanceof Error ? error.message : 'Unknown error'
+            }]);
+            const tempDiv = window.document.createElement('div');
+            try {
+                await renderDiagram(errorDiagram, tempDiv);
+                outputPanel.updateData({
+                    svg: tempDiv.innerHTML,
+                    dot: errorDiagram
+                });
+            } catch (err) {
+                console.error('Failed to render error diagram:', err);
+            }
+        }
     }
 }
