@@ -17,6 +17,8 @@ import { createStorage } from './language/storage.js';
 import { createLangiumExtensions } from './codemirror-langium.js';
 import { loadSettings, saveSettings } from './language/shared-settings.js';
 import { renderExampleButtons } from './language/shared-examples.js';
+import { ExecutionControls } from './language/playground-execution-controls.js';
+import { OutputPanel } from './language/playground-output-panel.js';
 
 // Initialize Langium services for parsing
 const services = createMachineServices(EmptyFileSystem);
@@ -106,6 +108,13 @@ export async function loadDynamicExamples(): Promise<void> {
 let editorView: EditorView | null = null;
 let updateDiagramTimeout: number | null = null;
 
+// Shared components
+let executionControls: ExecutionControls | null = null;
+let outputPanel: OutputPanel | null = null;
+
+// Current executor
+let currentExecutor: RailsExecutor | null = null;
+
 /**
  * Render Graphviz DOT diagram
  */
@@ -144,6 +153,121 @@ function scheduleUpdateDiagram(code: string, diagramElement: HTMLElement | null)
 }
 
 /**
+ * Setup shared components (OutputPanel and ExecutionControls)
+ */
+function setupSharedComponents(): void {
+    // Initialize OutputPanel
+    const outputContainer = document.getElementById('output-panel-container');
+    if (outputContainer) {
+        outputPanel = new OutputPanel({
+            container: outputContainer,
+            defaultFormat: 'svg',
+            mobile: true // Mobile-optimized
+        });
+    }
+
+    // Initialize ExecutionControls
+    const executionContainer = document.getElementById('execution-controls');
+    if (executionContainer) {
+        executionControls = new ExecutionControls({
+            container: executionContainer,
+            onExecute: executeFullMachine,
+            onStep: stepMachine,
+            onStop: stopMachine,
+            onReset: resetMachine,
+            mobile: true, // Mobile-optimized
+            showLog: true
+        });
+    }
+}
+
+/**
+ * Execute full machine (auto-execute all steps)
+ */
+async function executeFullMachine(): Promise<void> {
+    if (!currentExecutor) {
+        if (executionControls) {
+            executionControls.addLogEntry('No executor available. Please run code first.', 'error');
+        }
+        return;
+    }
+
+    let stepCount = 0;
+    const maxSteps = 10;
+
+    while (stepCount < maxSteps) {
+        const stepped = await currentExecutor.step();
+        stepCount++;
+
+        const context = currentExecutor.getContext();
+        if (executionControls) {
+            executionControls.updateState({
+                currentNode: context.currentNode,
+                stepCount: context.history.length
+            });
+            executionControls.addLogEntry(`Step ${stepCount}: At node ${context.currentNode}`, 'info');
+        }
+
+        if (!stepped) {
+            if (executionControls) {
+                executionControls.addLogEntry('Machine execution complete', 'success');
+            }
+            break;
+        }
+    }
+}
+
+/**
+ * Execute one step
+ */
+async function stepMachine(): Promise<void> {
+    if (!currentExecutor) {
+        if (executionControls) {
+            executionControls.addLogEntry('No executor available. Please run code first.', 'error');
+        }
+        return;
+    }
+
+    const stepped = await currentExecutor.step();
+    const context = currentExecutor.getContext();
+
+    if (executionControls) {
+        executionControls.updateState({
+            currentNode: context.currentNode,
+            stepCount: context.history.length
+        });
+        executionControls.addLogEntry(`Step: At node ${context.currentNode}`, 'info');
+    }
+
+    if (!stepped) {
+        if (executionControls) {
+            executionControls.addLogEntry('Machine execution complete', 'success');
+        }
+    }
+}
+
+/**
+ * Stop execution
+ */
+function stopMachine(): void {
+    // Reset state
+    if (executionControls) {
+        executionControls.addLogEntry('Execution stopped', 'warning');
+    }
+}
+
+/**
+ * Reset machine
+ */
+function resetMachine(): void {
+    currentExecutor = null;
+    if (executionControls) {
+        executionControls.clearLog();
+        executionControls.addLogEntry('Machine reset', 'info');
+    }
+}
+
+/**
  * Set up CodeMirror editor with mobile-optimized configuration
  */
 export function setupCodeMirrorPlayground(): void {
@@ -160,6 +284,9 @@ export function setupCodeMirrorPlayground(): void {
         console.error('Editor element not found');
         return;
     }
+
+    // Initialize shared components
+    setupSharedComponents();
 
     // Load saved settings
     const settings = loadSettings();
@@ -530,6 +657,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         if (llmConfig.llm) {
             try {
                 executor = await RailsExecutor.create(machineData, llmConfig);
+                currentExecutor = executor; // Store globally for execution controls
                 console.log('✅ RailsExecutor created successfully');
             } catch (error) {
                 console.error('❌ Failed to create RailsExecutor:', error);
@@ -537,6 +665,7 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         } else {
             // Create executor without LLM for static analysis only
             executor = new RailsExecutor(machineData, {});
+            currentExecutor = executor; // Store globally for execution controls
             console.log('✅ RailsExecutor created (no API key - static mode only)');
         }
 
@@ -567,14 +696,31 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         const staticDotCode = await generateGraphvizFromCode(code);
 
         // Render the static diagram initially
-        if (diagramElement) {
+        if (outputPanel) {
+            // Use OutputPanel to render
+            const tempDiv = window.document.createElement('div');
+            try {
+                await renderDiagram(staticDotCode, tempDiv);
+                outputPanel.updateData({
+                    svg: tempDiv.innerHTML,
+                    dot: staticDotCode,
+                    json: JSON.stringify(machineData, null, 2),
+                    machine: model,
+                    ast: model
+                });
+            } catch (err) {
+                console.warn(`Failed to render diagram`);
+                console.error(err);
+            }
+        } else if (diagramElement) {
+            // Fallback to old method
             diagramElement.innerHTML = '<div class="loading">Rendering diagram...</div>';
             try {
                 await renderDiagram(staticDotCode, diagramElement);
             } catch (err) {
-                console.warn(`Failed to render diagram/`)
+                console.warn(`Failed to render diagram`);
                 console.error(err);
-            } 
+            }
         }
         
         if (hasTaskNodes && executor) {

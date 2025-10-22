@@ -4,6 +4,8 @@ import { RailsExecutor } from './language/rails-executor.js';
 import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './language/diagram-controls.js';
 import { loadSettings, saveSettings } from './language/shared-settings.js';
 import { renderExampleButtons } from './language/shared-examples.js';
+import { ExecutionControls } from './language/playground-execution-controls.js';
+import { OutputPanel } from './language/playground-output-panel.js';
 import { IDimension } from 'vscode/services';
 import { KeyCode, KeyMod } from 'monaco-editor';
 
@@ -11,6 +13,10 @@ import { KeyCode, KeyMod } from 'monaco-editor';
 let currentExecutor: RailsExecutor | null = null;
 let isExecuting = false;
 let executionStepMode = false;
+
+// Shared components
+let executionControls: ExecutionControls | null = null;
+let outputPanel: OutputPanel | null = null;
 
 // Extension registration state - ensure we only register once
 let extensionRegistered = false;
@@ -160,11 +166,43 @@ function setupExamplesUI(wrapper: MonacoEditorLanguageClientWrapper): void {
     );
 }
 
+/**
+ * Setup shared components (OutputPanel and ExecutionControls)
+ */
+function setupSharedComponents(outputEl: HTMLElement): void {
+    // Initialize OutputPanel
+    const outputContainer = document.getElementById('output-panel-container');
+    if (outputContainer) {
+        outputPanel = new OutputPanel({
+            container: outputContainer,
+            defaultFormat: 'svg',
+            mobile: false
+        });
+    }
+
+    // Initialize ExecutionControls
+    const executionContainer = document.getElementById('execution-controls');
+    if (executionContainer) {
+        executionControls = new ExecutionControls({
+            container: executionContainer,
+            onExecute: executeMachine,
+            onStep: stepMachine,
+            onStop: stopMachine,
+            onReset: resetMachine,
+            mobile: false,
+            showLog: true
+        });
+    }
+}
+
 export const executeExtended = async (htmlElement: HTMLElement, useDefault : boolean, outputEl : HTMLElement): Promise<MonacoEditorLanguageClientWrapper> => {
     // Initialize theme when the editor starts
     initTheme();
     // Setup settings UI
     setupSettingsUI();
+
+    // Initialize shared components
+    setupSharedComponents(outputEl);
     const defaultSrc = `// Machine is running in the web!
 machine "Example machine, with various nodes"
 
@@ -336,7 +374,26 @@ s1 -catch-> init;
 
                 running = false;
                 console.log(resp, data, dotCode, currentExecutor)
-                window.render(dotCode, outputEl, `${Math.floor(Math.random()  * 1000000000)}`)
+
+                // Render SVG for OutputPanel
+                if (outputPanel) {
+                    const machine = result.$machine;
+
+                    // Render SVG in a temporary div to capture the output
+                    const tempDiv = document.createElement('div');
+                    await window.render(dotCode, tempDiv, `${Math.floor(Math.random()  * 1000000000)}`);
+
+                    outputPanel.updateData({
+                        svg: tempDiv.innerHTML,
+                        dot: dotCode,
+                        json: JSON.stringify(data, null, 2),
+                        machine: machine,
+                        ast: machine
+                    });
+                } else {
+                    // Fallback to old render method
+                    window.render(dotCode, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
+                }
             } catch (e) {
                 // Improved error handling with detailed logging
                 const error = e as Error;
@@ -370,6 +427,13 @@ s1 -catch-> init;
  */
 
 function addLogEntry(message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') {
+    // Use ExecutionControls if available
+    if (executionControls) {
+        executionControls.addLogEntry(message, type);
+        return;
+    }
+
+    // Fallback to old method
     const logContent = document.getElementById('log-content');
     if (!logContent) return;
 
@@ -384,6 +448,16 @@ function addLogEntry(message: string, type: 'info' | 'success' | 'warning' | 'er
 }
 
 function updateStatus(status: string, currentNode: string, stepCount: number) {
+    // Use ExecutionControls if available
+    if (executionControls) {
+        executionControls.updateState({
+            currentNode: currentNode,
+            stepCount: stepCount
+        });
+        return;
+    }
+
+    // Fallback to old method
     const statusText = document.getElementById('status-text');
     const currentNodeEl = document.getElementById('current-node');
     const stepCountEl = document.getElementById('step-count');
