@@ -38,6 +38,34 @@ function escapeHtml(text: string): string {
 }
 
 /**
+ * Format attribute value for display in graphviz labels
+ * Properly handles nested objects and arrays
+ */
+function formatAttributeValueForDisplay(value: any): string {
+    if (value === null || value === undefined) {
+        return 'null';
+    }
+
+    if (typeof value === 'string') {
+        return value.replace(/^["']|["']$/g, '');
+    }
+
+    if (typeof value === 'boolean' || typeof value === 'number') {
+        return String(value);
+    }
+
+    if (Array.isArray(value)) {
+        return JSON.stringify(value);
+    }
+
+    if (typeof value === 'object') {
+        return JSON.stringify(value);
+    }
+
+    return String(value);
+}
+
+/**
  * Get node shape based on type and annotations
  */
 function getNodeShape(node: any, edges?: any[]): string {
@@ -281,14 +309,11 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
         htmlLabel += '<tr><td>';
         htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
         displayAttrs.forEach(attr => {
-            let displayValue = attr.value;
-            if (typeof displayValue === 'string') {
-                displayValue = displayValue.replace(/^["']|["']$/g, '');
-            }
+            const displayValue = formatAttributeValueForDisplay(attr.value);
             const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
             htmlLabel += '<tr>';
             htmlLabel += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
-            htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+            htmlLabel += '<td align="left">' + escapeHtml(displayValue) + '</td>';
             htmlLabel += '</tr>';
         });
         htmlLabel += '</table>';
@@ -594,14 +619,11 @@ function generateNamespaceLabel(node: any): string {
         htmlLabel += '<tr><td>';
         htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
         displayAttrs.forEach((attr: any) => {
-            let displayValue = attr.value;
-            if (typeof displayValue === 'string') {
-                displayValue = displayValue.replace(/^["']|["']$/g, '');
-            }
+            const displayValue = formatAttributeValueForDisplay(attr.value);
             const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
             htmlLabel += '<tr>';
             htmlLabel += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
-            htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+            htmlLabel += '<td align="left">' + escapeHtml(displayValue) + '</td>';
             htmlLabel += '</tr>';
         });
         htmlLabel += '</table>';
@@ -725,16 +747,17 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
 
         attributes.forEach((a: any) => {
             let displayValue = a.value?.value ?? a.value;
-            if (typeof displayValue === 'string') {
-                displayValue = displayValue.replace(/^["']|["']$/g, '');
-                // Break long values into multiple lines
+            displayValue = formatAttributeValueForDisplay(displayValue);
+
+            // Break long values into multiple lines (only for strings)
+            if (typeof displayValue === 'string' && displayValue.length > 30) {
                 displayValue = breakLongText(displayValue, 30).join('<br/>');
             }
             const typeStr = a.type ? ' : ' + escapeHtml(a.type) : '';
 
             htmlLabel += '<tr>';
             htmlLabel += '<td align="left">' + escapeHtml(a.name) + typeStr + '</td>';
-            htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+            htmlLabel += '<td align="left">' + escapeHtml(displayValue) + '</td>';
             htmlLabel += '</tr>';
         });
 
