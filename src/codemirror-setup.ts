@@ -295,6 +295,41 @@ function convertToMachineData(machine: Machine): any {
 }
 
 /**
+ * Generate an error diagram showing parse/validation errors using Graphviz DOT format
+ * This matches the behavior in Monaco's main-browser.ts
+ */
+function generateErrorDiagram(errors: Array<{message: string, line?: number, col?: number}>): string {
+    if (errors.length === 0) {
+        return "";
+    }
+
+    const escapeLabel = (str: string) => str.replace(/"/g, '\\"').replace(/\n/g, '\\n');
+
+    let diagram = `digraph {\n`;
+    diagram += `  // Graph attributes\n`;
+    diagram += `  rankdir=TB;\n`;
+    diagram += `  node [shape=box, fontname="Arial", fontsize=12];\n\n`;
+
+    diagram += `  ErrorHeader [label="⚠️ Parse Errors Detected (${errors.length})", `;
+    diagram += `fillcolor="#ff6b6b", style=filled, fontcolor=white];\n\n`;
+
+    errors.forEach((error, index) => {
+        const errorId = `E${index}`;
+        const location = error.line !== undefined && error.col !== undefined
+            ? `Line ${error.line}:${error.col}\\n`
+            : '';
+        const message = escapeLabel(error.message);
+
+        diagram += `  ${errorId} [label="${location}${message}", `;
+        diagram += `fillcolor="#ffe0e0", style=filled, color="#ff6b6b"];\n`;
+        diagram += `  ErrorHeader -> ${errorId};\n`;
+    });
+
+    diagram += `}\n`;
+    return diagram;
+}
+
+/**
  * Generate Graphviz DOT diagram from Machine DSL code using the actual parser and generator
  */
 async function generateGraphvizFromCode(code: string): Promise<string> {
@@ -302,18 +337,36 @@ async function generateGraphvizFromCode(code: string): Promise<string> {
         // Parse the code using the Langium parser
         const document = await parse(code);
 
-        // Check for parser errors
+        // Check for parser errors - but don't throw, generate error diagram instead
         if (document.parseResult.parserErrors.length > 0) {
-            const errors = document.parseResult.parserErrors
-                .map(e => e.message)
-                .join('\n');
-            throw new Error(`Parser errors:\n${errors}`);
+            const errors = document.parseResult.parserErrors.map(e => {
+                // Extract position information if available
+                let line: number | undefined;
+                let col: number | undefined;
+
+                if (e.token && typeof e.token === 'object') {
+                    const token = e.token as any;
+                    if (token.startLine !== undefined) {
+                        line = token.startLine;
+                        col = token.startColumn !== undefined ? token.startColumn : undefined;
+                    }
+                }
+
+                return {
+                    message: e.message,
+                    line,
+                    col
+                };
+            });
+
+            // Generate error diagram like Monaco does
+            return generateErrorDiagram(errors);
         }
 
         // Check if we got a valid machine
         const model = document.parseResult.value as Machine;
         if (!model) {
-            throw new Error('Failed to parse machine: no model returned');
+            return generateErrorDiagram([{ message: 'Failed to parse machine: no model returned' }]);
         }
 
         // Generate Graphviz DOT diagram using the actual generator
@@ -321,13 +374,9 @@ async function generateGraphvizFromCode(code: string): Promise<string> {
         return result.content;
     } catch (error) {
         console.error('Error generating Graphviz from code:', error);
-        // Return a simple error diagram in DOT format
-        const errorMsg = (error instanceof Error ? error.message : 'Unknown error').replace(/"/g, '\\"');
-        return `digraph {
-    rankdir=TB;
-    node [shape=box, style=filled, fillcolor="#ff6b6b", fontcolor=white];
-    Error [label="Error: ${errorMsg}"];
-}`;
+        // Return an error diagram in DOT format
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+        return generateErrorDiagram([{ message: errorMsg }]);
     }
 }
 
@@ -365,18 +414,81 @@ async function executeCode(code: string, outputElement: HTMLElement | null, diag
         // Parse the code using the actual Langium parser
         const document = await parse(code);
 
-        // Check for parser errors
+        // Check for parser errors - handle gracefully like Monaco does
         if (document.parseResult.parserErrors.length > 0) {
-            const errors = document.parseResult.parserErrors
-                .map(e => e.message)
-                .join('\n');
-            throw new Error(`Parser errors:\n${errors}`);
+            const errors = document.parseResult.parserErrors.map(e => {
+                let line: number | undefined;
+                let col: number | undefined;
+
+                if (e.token && typeof e.token === 'object') {
+                    const token = e.token as any;
+                    if (token.startLine !== undefined) {
+                        line = token.startLine;
+                        col = token.startColumn !== undefined ? token.startColumn : undefined;
+                    }
+                }
+
+                return {
+                    message: e.message,
+                    line,
+                    col
+                };
+            });
+
+            // Generate error diagram
+            const errorDiagram = generateErrorDiagram(errors);
+
+            // Render the error diagram
+            if (diagramElement) {
+                diagramElement.innerHTML = '<div class="loading">Rendering error diagram...</div>';
+                try {
+                    await renderDiagram(errorDiagram, diagramElement);
+                } catch (err) {
+                    console.warn('Failed to render error diagram:', err);
+                }
+            }
+
+            // Display error details in output
+            const errorMessages = errors.map(e => {
+                const location = e.line !== undefined && e.col !== undefined
+                    ? `Line ${e.line}:${e.col}: `
+                    : '';
+                return `${location}${e.message}`;
+            }).join('\n');
+
+            outputElement.innerHTML = `
+                <div style="color: #f48771; margin-bottom: 12px;">
+                    ⚠ Parse Errors Detected (${errors.length})
+                </div>
+                <div style="color: #d4d4d4; font-size: 12px; white-space: pre-wrap; font-family: monospace;">
+                    ${escapeHtml(errorMessages)}
+                </div>
+                <div style="color: #858585; font-size: 11px; margin-top: 12px;">
+                    Please fix the errors above to execute the machine.
+                </div>
+            `;
+            return;
         }
 
         // Check if we got a valid machine
         const model = document.parseResult.value as Machine;
         if (!model) {
-            throw new Error('Failed to parse machine: no model returned');
+            const errorDiagram = generateErrorDiagram([{ message: 'Failed to parse machine: no model returned' }]);
+
+            if (diagramElement) {
+                try {
+                    await renderDiagram(errorDiagram, diagramElement);
+                } catch (err) {
+                    console.warn('Failed to render error diagram:', err);
+                }
+            }
+
+            outputElement.innerHTML = `
+                <div class="error">
+                    <strong>Parse Error:</strong> Failed to parse machine: no model returned
+                </div>
+            `;
+            return;
         }
 
         // Convert to MachineData format for executor
