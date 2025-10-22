@@ -68,8 +68,26 @@ services.shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, 
         let json: MachineJSON = {title: "", nodes: [], edges: []};
         let mermaid: string = "";
 
-        const hasErrors = document.diagnostics !== undefined 
-            && document.diagnostics.filter((i) => i.severity === 1).length > 0;
+        // Check if machine is in strict mode
+        const isStrictMode = model.annotations?.some(ann => ann.name === 'StrictMode') ?? false;
+
+        // Filter diagnostics: in non-strict mode, ignore linking errors for undefined references
+        // since they will be auto-created by the MachineLinker
+        const relevantErrors = document.diagnostics?.filter(diagnostic => {
+            // Always include parse errors (severity 1)
+            if (diagnostic.severity !== 1) return false;
+
+            // In non-strict mode, filter out "could not resolve reference" errors
+            // These are linking errors that will be resolved by auto-creating nodes
+            if (!isStrictMode && diagnostic.message &&
+                diagnostic.message.toLowerCase().includes('could not resolve reference')) {
+                return false;
+            }
+
+            return true;
+        }) || [];
+
+        const hasErrors = relevantErrors.length > 0;
 
         // only generate commands if there are no errors
         if(!hasErrors) {
@@ -77,7 +95,7 @@ services.shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, 
             mermaid = generateGraphviz(model, document.textDocument.uri, undefined).content;
         } else {
             // Generate error diagram to show parse errors visually
-            mermaid = generateErrorDiagram(document.diagnostics!);
+            mermaid = generateErrorDiagram(relevantErrors);
         }
 
         // inject the commands into the model
