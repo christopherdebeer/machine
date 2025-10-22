@@ -265,28 +265,48 @@ class JSONGenerator extends BaseGenerator {
     }
 
     private serializeEdges(): any[] {
-        return this.machine.edges.flatMap(edge => {
-            const sources = edge.source.map(s => s.ref?.name);
-            let currentSources = sources;
+        // Recursively collect edges from all nodes
+        const collectEdges = (edges: any[], nodes: Node[]): any[] => {
+            // Add edges at current level
+            const currentEdges = edges.flatMap((edge: any) => {
+                const sources = edge.source.map((s: any) => s.ref?.name);
+                let currentSources = sources;
 
-            return edge.segments.flatMap(segment => {
-                const targets = segment.target.map(t => t.ref?.name);
-                const edgeValue = this.serializeEdgeValue(segment.label);
-                const edges = currentSources.flatMap(source =>
-                    targets.map(target => ({
-                        source,
-                        target,
-                        value: edgeValue,
-                        attributes: edgeValue,  // Keep for backward compatibility
-                        arrowType: segment.endType,  // Preserve arrow type
-                        sourceMultiplicity: segment.sourceMultiplicity?.replace(/"/g, ''),  // Remove quotes
-                        targetMultiplicity: segment.targetMultiplicity?.replace(/"/g, '')   // Remove quotes
-                    })).filter(e => e.source && e.target)
-                );
-                currentSources = targets; // Update sources for next segment
-                return edges;
+                return edge.segments.flatMap((segment: any) => {
+                    const targets = segment.target.map((t: any) => t.ref?.name);
+                    const edgeValue = this.serializeEdgeValue(segment.label);
+                    const edges = currentSources.flatMap((source: any) =>
+                        targets.map((target: any) => ({
+                            source,
+                            target,
+                            value: edgeValue,
+                            attributes: edgeValue,  // Keep for backward compatibility
+                            arrowType: segment.endType,  // Preserve arrow type
+                            sourceMultiplicity: segment.sourceMultiplicity?.replace(/"/g, ''),  // Remove quotes
+                            targetMultiplicity: segment.targetMultiplicity?.replace(/"/g, '')   // Remove quotes
+                        })).filter((e: any) => e.source && e.target)
+                    );
+                    currentSources = targets; // Update sources for next segment
+                    return edges;
+                });
             });
-        });
+
+            // Recursively collect edges from child nodes
+            const childEdges = nodes.flatMap(node => {
+                if (node.edges && node.edges.length > 0) {
+                    return collectEdges(node.edges, node.nodes || []);
+                }
+                // Still recurse into child nodes even if current node has no edges
+                if (node.nodes && node.nodes.length > 0) {
+                    return collectEdges([], node.nodes);
+                }
+                return [];
+            });
+
+            return [...currentEdges, ...childEdges];
+        };
+
+        return collectEdges(this.machine.edges, this.machine.nodes);
     }
 
     private serializeEdgeValue(labels?: EdgeType[]): Record<string, any> | undefined {
