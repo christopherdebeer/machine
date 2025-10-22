@@ -21,6 +21,12 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Get base URL from environment (Vercel sets VERCEL_BASE_URL, or use VITE_BASE_URL)
+const BASE_URL = process.env.VITE_BASE_URL || process.env.VERCEL_BASE_URL || '/machine/';
+// Ensure base URL starts and ends with /
+const normalizedBaseUrl = BASE_URL.startsWith('/') ? BASE_URL : `/${BASE_URL}`;
+const baseUrl = normalizedBaseUrl.endsWith('/') ? normalizedBaseUrl : `${normalizedBaseUrl}/`;
+
 // Color codes for terminal output
 const colors = {
     reset: '\x1b[0m',
@@ -281,12 +287,13 @@ async function generateHierarchy(projectRoot) {
         let path = relativePath.replace(/\.(md|mdx)$/, '');
         if (basename(path) === 'README' || basename(path) === 'index') {
             const dir = dirname(path);
-            if (dir === '.') return '/'; // Root index
-            return `${basename(dir)}/`; // Folder-based URL
+            if (dir === '.') return baseUrl; // Root index with base URL
+            return `${baseUrl}${basename(dir)}/`; // Folder-based URL with base URL
         }
         const baseName = basename(path);
         const kebabName = baseName.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
-        return `${kebabName}/`; // Folder-based URL for other pages too
+        return `${baseUrl}${kebabName}/`; // Folder-based URL with base URL
+
     }
 
     async function scanDirectory(dir, basePath = '') {
@@ -784,6 +791,7 @@ async function main() {
 
     log(`Project root: ${projectRoot}`, 'info');
     log(`Node version: ${process.version}`, 'info');
+    log(`Base URL: ${baseUrl}`, 'info');
 
     try {
         // Step 1: Extract examples
