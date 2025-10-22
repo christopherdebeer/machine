@@ -3,7 +3,7 @@
  * Manages type validators using Zod for semantic type checking
  */
 
-import { z, ZodType, ZodError } from 'zod';
+import { z, ZodType } from 'zod';
 
 export interface ValidationResult {
     valid: boolean;
@@ -39,7 +39,10 @@ export class TypeRegistry {
         this.register('URL', z.string().url({ message: 'Must be a valid URL' }));
 
         // Duration: ISO 8601 duration format (e.g., P1Y2M3DT4H5M6S)
-        this.register('Duration', z.string().duration({ message: 'Must be a valid ISO 8601 duration (e.g., P1Y2M3D, PT4H5M6S)' }));
+        this.register('Duration', z.string().regex(
+            /^P(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?$/,
+            { message: 'Must be a valid ISO 8601 duration (e.g., P1Y2M3D, PT4H5M6S)' }
+        ));
 
         // Numeric subtypes
         this.register('Integer', z.number().int({ message: 'Must be an integer' }));
@@ -105,18 +108,8 @@ export class TypeRegistry {
             return { valid: true, data: result.data };
         }
 
-        // Zod v4 stores errors in the message as JSON
-        let firstError: any;
-        try {
-            const errors = JSON.parse(result.error.message);
-            firstError = errors[0];
-        } catch {
-            // Fallback if message is not JSON
-            return {
-                valid: false,
-                message: result.error.message
-            };
-        }
+        // Get first error from Zod v3 issues array
+        const firstError = result.error.issues[0];
 
         if (!firstError) {
             return {
@@ -183,17 +176,8 @@ export class TypeRegistry {
                 return { valid: true, data: result.data };
             }
 
-            // Zod v4 stores errors in the message as JSON
-            let firstError: any;
-            try {
-                const errors = JSON.parse(result.error.message);
-                firstError = errors[0];
-            } catch {
-                return {
-                    valid: false,
-                    message: result.error.message
-                };
-            }
+            // Get first error from Zod v3 issues array
+            const firstError = result.error.issues[0];
 
             if (!firstError) {
                 return {
@@ -219,17 +203,8 @@ export class TypeRegistry {
                 return { valid: true, data: result.data };
             }
 
-            // Zod v4 stores errors in the message as JSON
-            let firstError: any;
-            try {
-                const errors = JSON.parse(result.error.message);
-                firstError = errors[0];
-            } catch {
-                return {
-                    valid: false,
-                    message: result.error.message
-                };
-            }
+            // Get first error from Zod v3 issues array
+            const firstError = result.error.issues[0];
 
             if (!firstError) {
                 return {

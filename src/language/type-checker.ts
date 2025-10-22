@@ -11,7 +11,7 @@ import {
     createValidationError,
     TypeErrorCodes
 } from './validation-errors.js';
-import { TypeRegistry, type ValidationResult } from './type-registry.js';
+import { TypeRegistry } from './type-registry.js';
 
 export interface TypeInfo {
     baseType: string;
