@@ -35,19 +35,6 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, backLin
                 url={`https://christopherdebeer.github.io/machine/${title.toLowerCase().replace(/\s+/g, '-')}.html`}
             />
             <Navigation />
-            <header>
-                <div className="container">
-                    {backLink && (
-                        <a href="index.html" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '1.2rem' }}>
-                            ← Back to Home
-                        </a>
-                    )}
-                    <div className="title-block" style={{ marginTop: backLink ? '2rem' : '0' }}>
-                        {title}<span className="accent">.</span>
-                    </div>
-                </div>
-            </header>
-
             <main id="main-content">
                 <section>
                     <div className="container">
