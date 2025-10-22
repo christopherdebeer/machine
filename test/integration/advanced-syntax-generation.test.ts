@@ -3,15 +3,14 @@ import { createMachineServices } from '../../src/language/machine-module.js';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import type { Machine } from '../../src/language/generated/ast.js';
-import { generateJSON, generateMermaid } from '../../src/language/generator/generator.js';
+import { generateJSON } from '../../src/language/generator/generator.js';
 
 const services = createMachineServices(EmptyFileSystem).Machine;
 const parse = parseHelper<Machine>(services);
 
-async function generateMermaidFromModel(model: Machine, filePath: string, options: any) {
+async function generateJSONFromModel(model: Machine, filePath: string, options: any) {
     const json = await generateJSON(model, filePath, options);
-    const mermaid = await generateMermaid(model, filePath, options);
-    return { json: json.content, mermaid: mermaid.content };
+    return { json: json.content };
 }
 
 describe('Note Generation', () => {
@@ -22,7 +21,7 @@ describe('Note Generation', () => {
             note process "Test note"
         `;
         const result = await parse(input);
-        const json = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         expect(json).toBeDefined();
         // JSON should contain notes array
@@ -33,17 +32,18 @@ describe('Note Generation', () => {
         expect(machineJson.notes[0].content).toBe('Test note');
     });
 
-    it('should render notes in Mermaid output', async () => {
+    it('should not generate Mermaid output (deprecated)', async () => {
         const input = `
             machine "Test"
             task process;
             note process "Process documentation"
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
-        expect(output.mermaid).toContain('note process');
-        expect(output.mermaid).toContain('Process documentation');
+        // Mermaid generation was removed, only JSON is generated now
+        expect(output.mermaid).toBeUndefined();
+        expect(output.json).toBeDefined();
     });
 
     it('should handle multiple notes', async () => {
@@ -55,7 +55,7 @@ describe('Note Generation', () => {
             note second "Second note"
         `;
         const result = await parse(input);
-        const json = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(json.json);
         expect(machineJson.notes).toHaveLength(2);
@@ -69,7 +69,7 @@ describe('Note Generation', () => {
             note invalid "Invalid note"
         `;
         const result = await parse(input);
-        const json = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(json.json);
         // Should only include notes with valid targets
@@ -86,14 +86,14 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const json = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(json.json);
         const processNode = machineJson.nodes.find((n: any) => n.name === 'process');
         expect(processNode.attributes[0].type).toBe('Promise<Result>');
     });
 
-    it('should convert generic types to Mermaid tildes', async () => {
+    it('should serialize generic types (Mermaid conversion deprecated)', async () => {
         const input = `
             machine "Test"
             task process {
@@ -101,10 +101,11 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
-        // Should convert < > to ~ ~
-        expect(output.mermaid).toContain('Promise~Result~');
+        // Mermaid generation was removed, only JSON is generated now
+        expect(output.mermaid).toBeUndefined();
+        expect(output.json).toBeDefined();
     });
 
     it('should handle nested generic types', async () => {
@@ -115,14 +116,14 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const json = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(json.json);
         const processNode = machineJson.nodes.find((n: any) => n.name === 'process');
         expect(processNode.attributes[0].type).toBe('Promise<Array<Record>>');
     });
 
-    it('should render nested generic types in Mermaid', async () => {
+    it('should render nested generic types (Mermaid deprecated)', async () => {
         const input = `
             machine "Test"
             task process {
@@ -130,13 +131,14 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
-        // Should handle nested conversion
-        expect(output.mermaid).toContain('Promise~Array~Record~~');
+        // Mermaid generation was removed, only JSON is generated now
+        expect(output.mermaid).toBeUndefined();
+        expect(output.json).toBeDefined();
     });
 
-    it('should handle Array generic type', async () => {
+    it('should handle Array generic type (Mermaid deprecated)', async () => {
         const input = `
             machine "Test"
             task process {
@@ -144,12 +146,13 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
-        expect(output.mermaid).toContain('Array~string~');
+        expect(output.mermaid).toBeUndefined();
+        expect(output.json).toBeDefined();
     });
 
-    it('should handle Map generic type with two parameters', async () => {
+    it('should handle Map generic type with two parameters (Mermaid deprecated)', async () => {
         const input = `
             machine "Test"
             context config {
@@ -157,9 +160,10 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
-        expect(output.mermaid).toContain('Map~string, string~');
+        expect(output.mermaid).toBeUndefined();
+        expect(output.json).toBeDefined();
     });
 });
 
@@ -175,11 +179,10 @@ describe('Combined Feature Generation', () => {
             note process "Async task returning Promise<Response>"
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
-        // Check both features in output
-        expect(output.mermaid).toContain('Promise~Response~');
-        expect(output.mermaid).toContain('note process');
+        // Check both features in JSON output (Mermaid deprecated)
+        expect(output.mermaid).toBeUndefined();
 
         const machineJson = JSON.parse(output.json);
         expect(machineJson.notes).toHaveLength(1);
@@ -204,18 +207,15 @@ describe('Combined Feature Generation', () => {
             note fetch "Fetches data asynchronously"
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(output.json);
 
         // Annotations
         expect(machineJson.nodes[0].annotations).toBeDefined();
 
-        // Relationship types
-        expect(output.mermaid).toContain('<|--');
-
-        // Generic types
-        expect(output.mermaid).toContain('Promise~Response~');
+        // Mermaid deprecated - only JSON checks
+        expect(output.mermaid).toBeUndefined();
 
         // Notes
         expect(machineJson.notes).toHaveLength(2);
@@ -251,12 +251,14 @@ describe('Combined Feature Generation', () => {
             note transform "Transforms Response to Array of Records"
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(output.json);
 
+        // Mermaid deprecated
+        expect(output.mermaid).toBeUndefined();
+
         // Relationship types
-        expect(output.mermaid).toContain('<|--');
         expect(machineJson.edges.some((e: any) => e.arrowType === '<|--')).toBe(true);
 
         // Annotations
@@ -269,33 +271,27 @@ describe('Combined Feature Generation', () => {
             e.sourceMultiplicity === '1' && e.targetMultiplicity === '1'
         )).toBe(true);
 
-        // Generic types
-        expect(output.mermaid).toContain('Promise~Response~');
-        expect(output.mermaid).toContain('Array~Record~');
-
         // Notes
         expect(machineJson.notes).toHaveLength(3);
     });
 });
 
-describe('Mermaid Output Quality', () => {
-    it('should produce valid Mermaid syntax with notes', async () => {
+describe('Mermaid Output Quality (deprecated)', () => {
+    it('should not generate Mermaid output with notes', async () => {
         const input = `
             machine "Test"
             task process;
             note process "Documentation"
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
-        // Should have classDiagram-v2 declaration
-        expect(output.mermaid).toContain('classDiagram-v2');
-
-        // Should have note syntax
-        expect(output.mermaid).toContain('note process "Documentation"');
+        // Mermaid generation was removed
+        expect(output.mermaid).toBeUndefined();
+        expect(output.json).toBeDefined();
     });
 
-    it('should produce valid Mermaid syntax with generic types', async () => {
+    it('should not generate Mermaid output with generic types', async () => {
         const input = `
             machine "Test"
             task process {
@@ -303,12 +299,10 @@ describe('Mermaid Output Quality', () => {
             }
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
-        // Should use tilde notation
-        expect(output.mermaid).toContain('Promise~Result~');
-
-        // Should not contain angle brackets (invalid in Mermaid)
-        expect(output.mermaid).not.toContain('Promise<Result>');
+        // Mermaid generation was removed
+        expect(output.mermaid).toBeUndefined();
+        expect(output.json).toBeDefined();
     });
 });

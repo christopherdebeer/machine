@@ -1,8 +1,8 @@
 /**
- * Types for Mermaid Diagram Generation
+ * Types for Diagram Generation
  *
  * This module defines the interfaces and types used for generating
- * mermaid diagrams from JSON machine definitions.
+ * diagrams from JSON machine definitions.
  */
 
 /**
@@ -61,14 +61,6 @@ export interface DiagramOptions {
     minSeverity?: 'error' | 'warning' | 'info' | 'hint';
 }
 
-/**
- * Options for mermaid diagram generation (deprecated, use DiagramOptions)
- * @deprecated Use DiagramOptions instead
- */
-export interface MermaidOptions extends DiagramOptions {
-    /** Type of diagram to generate */
-    diagramType?: 'class' | 'state' | 'flowchart';
-}
 
 /**
  * Runtime execution context for visualization

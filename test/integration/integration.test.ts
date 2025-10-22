@@ -3,7 +3,7 @@ import { EmptyFileSystem, type LangiumDocument } from "langium";
 import { parseHelper } from "langium/test";
 import { createMachineServices } from "../../src/language/machine-module.js";
 import { Machine, isMachine } from "../../src/language/generated/ast.js";
-import { generateJSON, generateMermaid } from "../../src/language/generator/generator.js";
+import { generateJSON } from "../../src/language/generator/generator.js";
 
 let services: ReturnType<typeof createMachineServices>;
 let parse: ReturnType<typeof parseHelper<Machine>>;
@@ -573,22 +573,6 @@ describe('Integration Tests - Transformation Losslessness', () => {
             expect(jsonObj.title).toBe(machine.title);
         });
 
-        test(`[Transform] ${testCase.name}: DyGram -> AST -> Mermaid`, async () => {
-            const document = await parse(testCase.source);
-            expect(document.parseResult.parserErrors).toHaveLength(0);
-
-            const machine = document.parseResult.value as Machine;
-
-            // Generate Mermaid from AST
-            const mermaidResult = generateMermaid(machine, 'test.mach', undefined);
-            expect(mermaidResult).toBeDefined();
-            expect(mermaidResult.content).toBeDefined();
-
-            // Verify Mermaid content has expected structure
-            const content = mermaidResult.content;
-            expect(content).toContain('classDiagram-v2');
-            expect(content).toContain(machine.title);
-        });
     });
 
     test('Node count is preserved through transformation', async () => {
@@ -713,14 +697,6 @@ describe('Integration Tests - Round-trip Validation', () => {
         expect(jsonObj.title).toBe(machine.title);
         expect(jsonObj.nodes.length).toBe(3);
         expect(jsonObj.edges.length).toBe(2);
-
-        // Second transformation: AST -> Mermaid
-        const mermaidResult = generateMermaid(machine, 'test.mach', undefined);
-
-        // Verify Mermaid contains all node names
-        expect(mermaidResult.content).toContain('start');
-        expect(mermaidResult.content).toContain('middle');
-        expect(mermaidResult.content).toContain('end');
     });
 });
 

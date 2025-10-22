@@ -5,7 +5,6 @@ import * as path from 'node:path';
 import { extractDestinationAndName } from '../../cli/cli-util.js';
 import { Edge, MachineJSON } from '../machine-module.js';
 import { DependencyAnalyzer } from '../dependency-analyzer.js';
-import { generateMermaidFromJSON } from '../diagram/index.js';
 import { generateGraphvizFromJSON } from '../diagram/index.js';
 import { TypeHierarchy } from '../diagram/types.js';
 import { TypeChecker } from '../type-checker.js';
@@ -664,41 +663,6 @@ function wrapText(text: string, maxWidth: number = 60): string {
     if (currentLine) lines.push(currentLine);
 
     return lines.join('<br/>');
-}
-
-class MermaidGenerator extends BaseGenerator {
-    protected fileExtension = 'md';
-
-    protected generateContent(): FileGenerationResult {
-        // First generate JSON as intermediate format
-        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
-        const jsonContent = jsonGen.generate();
-        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
-
-        // Use the encapsulated diagram generator
-        const mermaidContent = generateMermaidFromJSON(machineJson, {
-            diagramType: 'class',
-            title: this.machine.title
-        });
-
-        return {
-            filePath: this.filePath,
-            content: mermaidContent
-        };
-    }
-
-    public getMermaidDefinition(): string {
-        // First generate JSON as intermediate format
-        const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
-        const jsonContent = jsonGen.generate();
-        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
-
-        // Use the encapsulated diagram generator
-        return generateMermaidFromJSON(machineJson, {
-            diagramType: 'class',
-            title: this.machine.title
-        });
-    }
 }
 
 class GraphvizGenerator extends BaseGenerator {
@@ -1489,8 +1453,6 @@ class GeneratorFactory {
         switch (format.toLowerCase()) {
             case 'json':
                 return new JSONGenerator(machine, filePath, options);
-            case 'mermaid':
-                return new MermaidGenerator(machine, filePath, options);
             case 'graphviz':
             case 'dot':
                 return new GraphvizGenerator(machine, filePath, options);
@@ -1507,10 +1469,6 @@ class GeneratorFactory {
 // Public API
 export function generateJSON(machine: Machine, filePath?: string, destination?: string): FileGenerationResult {
     return GeneratorFactory.createGenerator('json', machine, filePath, { destination }).generate();
-}
-
-export function generateMermaid(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
-    return GeneratorFactory.createGenerator('mermaid', machine, filePath, { destination }).generate();
 }
 
 export function generateMarkdown(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {

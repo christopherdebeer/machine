@@ -25,7 +25,6 @@ import {
 import { extractValueFromAST } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
 import { ContextPermissionsResolver } from './utils/context-permissions.js';
-import { generateRuntimeMermaid, RuntimeContext as DiagramRuntimeContext } from './diagram/index.js';
 
 // Re-export interfaces for backward compatibility
 export type { MachineExecutionContext, MachineData, MachineMutation, MachineExecutorConfig };
@@ -1019,265 +1018,26 @@ export class MachineExecutor extends BaseExecutor {
 
 
     /**
-     * Convert execution context to diagram runtime context
-     */
-    private toDiagramContext(): DiagramRuntimeContext {
-        return {
-            currentNode: this.context.currentNode,
-            currentTaskNode: this.context.currentTaskNode,
-            activeState: this.context.activeState,
-            errorCount: this.context.errorCount || 0,
-            visitedNodes: this.context.visitedNodes,
-            attributes: this.context.attributes,
-            history: this.context.history,
-            nodeInvocationCounts: this.context.nodeInvocationCounts,
-            stateTransitions: this.context.stateTransitions
-        };
-    }
-
-    /**
      * Generate a Mermaid class diagram showing the current execution state
+     * @deprecated Mermaid support has been removed. Use Graphviz instead via the diagram module.
      */
     public toMermaidRuntime(): string {
-        // Use the encapsulated diagram generator
-        const diagramContext = this.toDiagramContext();
-        return generateRuntimeMermaid(this.machineData, diagramContext, {
-            diagramType: 'class',
-            showRuntimeState: true,
-            showVisitCounts: true,
-            showExecutionPath: true,
-            title: this.machineData.title
-        });
+        throw new Error('Mermaid support has been removed. Use Graphviz for diagram generation.');
     }
 
     /**
      * Generate a Mermaid class diagram showing the current execution state (old implementation)
-     * @deprecated Use the new diagram module instead
+     * @deprecated Mermaid support has been removed. Use Graphviz instead via the diagram module.
      */
     public toMermaidRuntimeOld(): string {
-        const lines: string[] = [];
-
-        // Header with runtime indicator
-        lines.push('---');
-        lines.push(`title: "${this.machineData.title} [RUNTIME]"`);
-        lines.push('config:');
-        lines.push('  class:');
-        lines.push('    hideEmptyMembersBox: true');
-        lines.push('---');
-        lines.push('classDiagram-v2');
-        lines.push('');
-
-        // Handle empty machine case
-        if (this.machineData.nodes.length === 0) {
-            lines.push('  class EmptyMachine["⚠️ Empty Machine"] {');
-            lines.push('    <<empty>>');
-            lines.push('    +status: NO_NODES');
-            lines.push('    +message: "Machine has no nodes to execute"');
-            lines.push('  }');
-            lines.push('');
-            lines.push('  classDef emptyNode fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff');
-            lines.push('  class EmptyMachine emptyNode');
-            return lines.join('\n');
-        }
-
-        // Calculate edge transition counts from history
-        const edgeCounts = new Map<string, number>();
-        this.context.history.forEach(step => {
-            const key = `${step.from}->${step.to}`;
-            edgeCounts.set(key, (edgeCounts.get(key) || 0) + 1);
-        });
-
-        // Define nodes with runtime state indicators
-        this.machineData.nodes.forEach(node => {
-            const isCurrent = node.name === this.context.currentNode;
-            const isVisited = this.context.visitedNodes.has(node.name);
-            const visitCount = this.context.history.filter(h => h.from === node.name).length;
-
-            const statusEmoji = isCurrent ? '▶️' : (isVisited ? '✅' : '⏸️');
-            const statusText = isCurrent ? 'CURRENT' : (isVisited ? 'VISITED' : 'PENDING');
-
-            // Build class header with runtime status
-            const classHeader = `class ${node.name}["${statusEmoji} ${node.name}"]`;
-            lines.push(`  ${classHeader} {`);
-            
-            // Add type annotation
-            if (node.type) {
-                lines.push(`    <<${node.type}>>`);
-            }
-
-            // Add runtime status info
-            lines.push(`    +status: ${statusText}`);
-            if (visitCount > 0) {
-                lines.push(`    +visits: ${visitCount}`);
-            }
-
-            // Add attributes
-            if (node.attributes && node.attributes.length > 0) {
-                node.attributes.forEach(attr => {
-                    if (attr.name === 'prompt' || attr.name === 'desc') return; // Skip display attributes
-                    
-                    let displayValue = this.formatAttributeValue(attr.value);
-                    const typeAnnotation = attr.type ? ` : ${attr.type}` : '';
-                    lines.push(`    +${attr.name}${typeAnnotation} = ${displayValue}`);
-                });
-            }
-
-            lines.push('  }');
-            lines.push('');
-        });
-
-        // Add styling for different states
-        lines.push('  %% Runtime State Styling');
-        lines.push('  classDef currentNode fill:#4CAF50,stroke:#2E7D32,stroke-width:4px,color:#fff');
-        lines.push('  classDef visitedNode fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff');
-        lines.push('  classDef pendingNode fill:#FFC107,stroke:#F57F17,stroke-width:1px,color:#000');
-        lines.push('');
-
-        // Apply styling to nodes
-        this.machineData.nodes.forEach(node => {
-            const isCurrent = node.name === this.context.currentNode;
-            const isVisited = this.context.visitedNodes.has(node.name);
-            const styleClass = isCurrent ? 'currentNode' : (isVisited ? 'visitedNode' : 'pendingNode');
-            lines.push(`  class ${node.name} ${styleClass}`);
-        });
-
-        lines.push('');
-
-        // Define edges with traversal counts
-        this.machineData.edges.forEach(edge => {
-            const key = `${edge.source}->${edge.target}`;
-            const count = edgeCounts.get(key) || 0;
-
-            let label = edge.label || edge.type || '';
-            if (count > 0) {
-                label += (label ? ' ' : '') + `[${count}x]`;
-            }
-
-            lines.push(`  ${edge.source} --> ${edge.target}${label ? ` : ${label}` : ''}`);
-        });
-
-        // Add execution path as comments
-        if (this.context.history.length > 0) {
-            lines.push('');
-            lines.push('  %% Execution Path:');
-            this.context.history.forEach((step, idx) => {
-                const timestamp = new Date(step.timestamp).toLocaleTimeString();
-                lines.push(`  %% ${idx + 1}. ${step.from} → ${step.to} (${step.transition}) at ${timestamp}`);
-                if (step.output) {
-                    const truncatedOutput = step.output.length > 50 
-                        ? step.output.substring(0, 50) + '...' 
-                        : step.output;
-                    lines.push(`  %%    Output: ${truncatedOutput}`);
-                }
-            });
-        }
-
-        // Add mutations if any
-        if (this.mutations.length > 0) {
-            lines.push('');
-            lines.push('  %% Mutations Applied:');
-            this.mutations.forEach((mut, idx) => {
-                lines.push(`  %% ${idx + 1}. ${mut.type}: ${JSON.stringify(mut.data)}`);
-            });
-        }
-
-        return lines.join('\n');
-    }
-
-    /**
-     * Format attribute values for display
-     */
-    private formatAttributeValue(value: any): string {
-        if (value === null || value === undefined) {
-            return 'null';
-        }
-        
-        if (typeof value === 'string') {
-            // Remove quotes and truncate if too long
-            const cleaned = value.replace(/^["']|["']$/g, '');
-            return cleaned.length > 30 ? cleaned.substring(0, 30) + '...' : cleaned;
-        }
-        
-        if (Array.isArray(value)) {
-            return `[${value.join(', ')}]`;
-        }
-        
-        if (typeof value === 'object') {
-            try {
-                return JSON.stringify(value);
-            } catch (error) {
-                return String(value);
-            }
-        }
-        
-        return String(value);
+        throw new Error('Mermaid support has been removed. Use Graphviz for diagram generation.');
     }
 
     /**
      * Generate a Mermaid class diagram with runtime state overlays
+     * @deprecated Mermaid support has been removed. Use Graphviz instead via the diagram module.
      */
     public toMermaidRuntimeClass(): string {
-        const lines: string[] = [];
-
-        lines.push('classDiagram');
-        lines.push('');
-
-        // Define classes with runtime info
-        this.machineData.nodes.forEach(node => {
-            const isCurrent = node.name === this.context.currentNode;
-            const isVisited = this.context.visitedNodes.has(node.name);
-
-            const type = node.type || 'node';
-            const statusEmoji = isCurrent ? '▶️' : (isVisited ? '✓' : '◯');
-
-            lines.push(`  class ${node.name} {`);
-            lines.push(`    <<${type}>>`);
-            lines.push(`    +status: ${statusEmoji} ${isCurrent ? 'CURRENT' : (isVisited ? 'VISITED' : 'PENDING')}`);
-
-            // Add attributes
-            if (node.attributes) {
-                node.attributes.forEach(attr => {
-                    lines.push(`    +${attr.name}: ${attr.value}`);
-                });
-            }
-
-            lines.push(`  }`);
-
-            // Styling
-            if (isCurrent) {
-                lines.push(`  class ${node.name} currentNode`);
-            } else if (isVisited) {
-                lines.push(`  class ${node.name} visitedNode`);
-            }
-        });
-
-        lines.push('');
-
-        // Edges with traversal annotations
-        const edgeCounts = new Map<string, number>();
-        this.context.history.forEach(step => {
-            const key = `${step.from}->${step.to}`;
-            edgeCounts.set(key, (edgeCounts.get(key) || 0) + 1);
-        });
-
-        this.machineData.edges.forEach(edge => {
-            const count = edgeCounts.get(`${edge.source}->${edge.target}`) || 0;
-            const weight = count > 0 ? ' : Traversed' : '';
-
-            let label = edge.type || '';
-            if (count > 0) {
-                label += ` (${count}x)`;
-            }
-
-            lines.push(`  ${edge.source} --> ${edge.target}${label ? ` : ${label}` : weight}`);
-        });
-
-        lines.push('');
-
-        // Style definitions
-        lines.push('  classDef currentNode fill:#4CAF50,stroke:#2E7D32,stroke-width:4px,color:#fff');
-        lines.push('  classDef visitedNode fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff');
-
-        return lines.join('\n');
+        throw new Error('Mermaid support has been removed. Use Graphviz for diagram generation.');
     }
 }
