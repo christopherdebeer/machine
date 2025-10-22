@@ -203,37 +203,86 @@ handler: #processHandler;
 
 ## Types
 
-DyGram supports type annotations for validation.
+DyGram supports type annotations for validation using Zod-powered runtime type checking.
 
 ### Built-in Types
 
+**Primitive Types:**
 - `string` - Text values
 - `number` - Numeric values (integers and floats)
 - `boolean` - true/false
-- `Date` - ISO 8601 dates
-- `UUID` - UUID strings
-- `URL` - Valid URLs
-- `Duration` - Time durations
-- `Integer` - Integer numbers only
-- `Float` - Floating-point numbers
+
+**Specialized String Types:**
+- `Date` - ISO 8601 datetime strings (e.g., `"2025-10-22T13:30:00Z"`)
+  - Must include time and timezone (Z format)
+- `UUID` - UUID strings (e.g., `"550e8400-e29b-41d4-a716-446655440000"`)
+- `URL` - Valid URLs (e.g., `"https://example.com"`)
+- `Duration` - ISO 8601 durations (e.g., `"P1Y2M3D"`, `"PT4H5M6S"`)
+
+**Numeric Subtypes:**
+- `Integer` - Integer numbers only (validates at runtime)
+- `Float` - Floating-point numbers (alias for `number`)
+
+**Example:**
+```dygram
+task myTask {
+  id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
+  createdAt<Date>: "2025-10-22T13:30:00Z";
+  endpoint<URL>: "https://api.example.com";
+  timeout<Duration>: "PT1H30M";
+  count<Integer>: 42;
+  price<Float>: 19.99;
+}
+```
 
 ### Generic Types
 
+Generic types support parameterized validation:
+
 ```dygram
-Array<T>
-List<T>
-Map<K, V>
-Promise<T>
-Result<T, E>
+Array<T>        # Array of type T (e.g., Array<Date>)
+List<T>         # Alias for Array<T>
+Map<K, V>       # Map with keys of type K and values of type V
+Promise<T>      # Promise resolving to type T (structural only)
+Result<T, E>    # Result type (structural only)
+```
+
+**Example with validated generics:**
+```dygram
+task myTask {
+  # Array elements are validated as Dates
+  dates<Array<Date>>: ["2025-10-22T13:30:00Z", "2025-10-23T14:00:00Z"];
+
+  # Array elements are validated as Integers
+  counts<Array<Integer>>: [1, 2, 3];
+}
 ```
 
 ### Custom Types
 
-You can use any identifier as a type:
+You can register custom types programmatically using the TypeRegistry:
+
+```typescript
+import { z } from 'zod';
+
+// Get the type registry from TypeChecker
+const typeChecker = new TypeChecker(machine);
+const registry = typeChecker.getTypeRegistry();
+
+// Register a custom Email type
+registry.register('Email', z.string().email());
+
+// Register a custom SemVer type
+registry.register('SemVer', z.string().regex(/^\d+\.\d+\.\d+$/));
+```
+
+Then use them in your DyGram files:
 
 ```dygram
-user<User>: #currentUser;
-config<AppConfig>: #config;
+user {
+  email<Email>: "user@example.com";
+  version<SemVer>: "1.2.3";
+}
 ```
 
 ## Annotations

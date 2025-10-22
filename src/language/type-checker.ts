@@ -11,6 +11,7 @@ import {
     createValidationError,
     TypeErrorCodes
 } from './validation-errors.js';
+import { TypeRegistry, type ValidationResult } from './type-registry.js';
 
 export interface TypeInfo {
     baseType: string;
@@ -28,10 +29,12 @@ export interface TypeCheckResult {
 export class TypeChecker {
     private machine: Machine;
     private nodeMap: Map<string, Node>;
+    private typeRegistry: TypeRegistry;
 
-    constructor(machine: Machine) {
+    constructor(machine: Machine, typeRegistry?: TypeRegistry) {
         this.machine = machine;
         this.nodeMap = this.buildNodeMap();
+        this.typeRegistry = typeRegistry || new TypeRegistry();
     }
 
     /**
@@ -313,7 +316,70 @@ export class TypeChecker {
             return true;
         }
 
+        // Specialized string types (Date, UUID, URL, Duration) are compatible with string
+        // since they're semantically validated strings
+        const stringBasedTypes = ['Date', 'UUID', 'URL', 'Duration'];
+        if (stringBasedTypes.includes(declared) && inferred === 'string') {
+            return true;
+        }
+
+        // Integer and Float are compatible with number
+        if ((declared === 'Integer' || declared === 'Float') && inferred === 'number') {
+            return true;
+        }
+
         return false;
+    }
+
+    /**
+     * Extract the raw value from an AttributeValue AST node
+     */
+    private extractValue(attrValue: AttributeValue): any {
+        if (typeof attrValue === 'object' && attrValue !== null) {
+            // Check if value property exists
+            if ('value' in attrValue && (attrValue as any).value !== undefined) {
+                const val = (attrValue as any).value;
+
+                // If it's already a primitive, return it
+                if (typeof val === 'boolean' || typeof val === 'number') {
+                    return val;
+                }
+
+                // Convert string booleans to actual booleans
+                if (val === 'true') return true;
+                if (val === 'false') return false;
+
+                // Convert string numbers to actual numbers
+                if (typeof val === 'string' && /^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(val)) {
+                    return parseFloat(val);
+                }
+
+                return val;
+            }
+
+            // Try to extract from CST node
+            if ('$cstNode' in attrValue && (attrValue as any).$cstNode) {
+                const text = (attrValue as any).$cstNode.text.trim();
+
+                // Remove quotes from strings
+                if (text.startsWith('"') || text.startsWith("'")) {
+                    return text.slice(1, -1);
+                }
+
+                // Parse numbers
+                if (/^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(text)) {
+                    return parseFloat(text);
+                }
+
+                // Parse booleans
+                if (text === 'true') return true;
+                if (text === 'false') return false;
+
+                return text;
+            }
+        }
+
+        return attrValue;
     }
 
     /**
@@ -342,7 +408,48 @@ export class TypeChecker {
             };
         }
 
-        // Infer value type and check compatibility
+        // Parse type information
+        const typeInfo = this.parseType(typeStr);
+
+        // Extract the actual value for validation
+        const extractedValue = this.extractValue(attr.value);
+
+        // Phase 1: Semantic validation using Zod
+        // Only for types that have semantic meaning (Date, UUID, URL, etc.)
+        if (typeInfo.genericParams && typeInfo.genericParams.length > 0) {
+            // Handle generic types with Zod
+            const zodResult = this.typeRegistry.validateGenericType(
+                typeInfo.baseType,
+                typeInfo.genericParams,
+                extractedValue
+            );
+
+            if (!zodResult.valid) {
+                const inferredType = this.inferType(attr.value);
+                return {
+                    valid: false,
+                    expectedType: typeStr,
+                    actualType: inferredType,
+                    message: zodResult.message || `Type validation failed for ${typeStr}`
+                };
+            }
+        } else if (this.typeRegistry.has(typeInfo.baseType)) {
+            // Validate non-generic types with Zod
+            const zodResult = this.typeRegistry.validate(typeInfo.baseType, extractedValue);
+
+            if (!zodResult.valid) {
+                const inferredType = this.inferType(attr.value);
+                return {
+                    valid: false,
+                    expectedType: typeStr,
+                    actualType: inferredType,
+                    message: zodResult.message || `Type validation failed for ${typeStr}`
+                };
+            }
+        }
+
+        // Phase 2: Structural validation (existing logic)
+        // This ensures type compatibility at the structural level
         const inferredType = this.inferType(attr.value);
         return this.areTypesCompatible(typeStr, inferredType);
     }
@@ -524,5 +631,13 @@ export class TypeChecker {
         }
 
         return this.inferType(attr.value);
+    }
+
+    /**
+     * Get the TypeRegistry instance for custom type registration
+     * @returns The TypeRegistry instance used by this TypeChecker
+     */
+    public getTypeRegistry(): TypeRegistry {
+        return this.typeRegistry;
     }
 }
