@@ -699,7 +699,25 @@ function generateEdges(machineJson: MachineJSON): string {
         return '';
     }
 
-    machineJson.edges.forEach(edge => {
+    // Build a set of parent nodes (nodes that have children)
+    const parentNodes = new Set<string>();
+    machineJson.nodes.forEach(node => {
+        if (node.parent) {
+            parentNodes.add(node.parent);
+        }
+    });
+
+    // Filter out edges between parent nodes, as Graphviz will create duplicate nodes
+    // Parent-to-parent edges remain in JSON but cannot be properly rendered in DOT
+    // without using compound graph features (ltail/lhead)
+    const renderableEdges = machineJson.edges.filter(edge => {
+        const sourceIsParent = parentNodes.has(edge.source);
+        const targetIsParent = parentNodes.has(edge.target);
+        // Only include edges where at least one endpoint is NOT a parent
+        return !(sourceIsParent && targetIsParent);
+    });
+
+    renderableEdges.forEach(edge => {
         const edgeValue = edge.value || {};
         const keys = Object.keys(edgeValue);
 
