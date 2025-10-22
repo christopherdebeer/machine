@@ -24,9 +24,17 @@ export class MachineLinker extends DefaultLinker {
         if (isLinkingError(candidate)) {
             const machine = AstUtils.getContainerOfType(refInfo.container, isMachine);
             if (machine && !this.isStrictMode(machine)) {
-                // Create the placeholder node
+                // Create the placeholder node (handle both simple and qualified names)
                 const nodeName = refInfo.reference.$refText;
-                const placeholderNode = this.createPlaceholderNode(machine, nodeName);
+                let placeholderNode: Node | undefined;
+
+                if (nodeName.includes('.')) {
+                    // Qualified name - create nested structure
+                    placeholderNode = this.createNestedPlaceholderNode(machine, nodeName);
+                } else {
+                    // Simple name - create at root level
+                    placeholderNode = this.createPlaceholderNode(machine, nodeName);
+                }
 
                 if (placeholderNode) {
                     // Return a node description for the placeholder instead of an error
@@ -63,7 +71,7 @@ export class MachineLinker extends DefaultLinker {
      */
     private autoCreateMissingNodes(machine: Machine): void {
         const existingNodes = new Set<string>();
-        
+
         // Collect all existing node names (both simple and qualified)
         const collectNodeNames = (nodes: Node[], prefix: string = '') => {
             for (const node of nodes) {
@@ -76,7 +84,7 @@ export class MachineLinker extends DefaultLinker {
             }
         };
         collectNodeNames(machine.nodes);
-        
+
         // Collect all referenced node names from edges
         const referencedNodes = new Set<string>();
         for (const edge of machine.edges) {
@@ -86,7 +94,7 @@ export class MachineLinker extends DefaultLinker {
                     referencedNodes.add(source.$refText);
                 }
             }
-            
+
             // Collect target references
             for (const segment of edge.segments) {
                 for (const target of segment.target) {
@@ -96,16 +104,16 @@ export class MachineLinker extends DefaultLinker {
                 }
             }
         }
-        
+
         // Create placeholder nodes for missing references
         for (const refText of referencedNodes) {
             if (!existingNodes.has(refText)) {
-                // Extract the simple name from qualified name (e.g., "Parent.Child" -> "Child")
-                const simpleName = refText.includes('.') ? refText.split('.').pop()! : refText;
-                
-                // Only create if the simple name doesn't exist
-                if (!existingNodes.has(simpleName)) {
-                    this.createPlaceholderNode(machine, simpleName);
+                // Handle qualified names (e.g., "workflow.start")
+                if (refText.includes('.')) {
+                    this.createNestedPlaceholderNode(machine, refText);
+                } else {
+                    // Simple name - create at root level
+                    this.createPlaceholderNode(machine, refText);
                 }
             }
         }
@@ -116,6 +124,82 @@ export class MachineLinker extends DefaultLinker {
      */
     private isStrictMode(machine: Machine): boolean {
         return machine.annotations?.some(ann => ann.name === 'StrictMode') ?? false;
+    }
+
+    /**
+     * Create a nested placeholder node for a qualified name (e.g., "workflow.start")
+     * This will create parent nodes as needed and nest the child node properly
+     */
+    private createNestedPlaceholderNode(machine: Machine, qualifiedName: string): Node | undefined {
+        const parts = qualifiedName.split('.');
+
+        // Start at the root machine
+        let currentContainer: Machine | Node = machine;
+        let currentPath = '';
+
+        // Process each part of the qualified name
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i];
+            const isLastPart = i === parts.length - 1;
+            currentPath = currentPath ? `${currentPath}.${part}` : part;
+
+            // Find or create the node at this level
+            let node: Node | undefined;
+
+            if (currentContainer.$type === 'Machine') {
+                // At root level
+                node = (currentContainer as Machine).nodes.find(n => n.name === part);
+
+                if (!node) {
+                    // Create new node at root level
+                    node = {
+                        $type: 'Node',
+                        $container: currentContainer,
+                        $containerProperty: 'nodes',
+                        $containerIndex: (currentContainer as Machine).nodes.length,
+                        name: part,
+                        title: undefined,
+                        type: undefined,
+                        annotations: [],
+                        nodes: [],
+                        edges: [],
+                        attributes: []
+                    };
+                    (currentContainer as Machine).nodes.push(node);
+                }
+            } else {
+                // At nested level
+                node = (currentContainer as Node).nodes.find(n => n.name === part);
+
+                if (!node) {
+                    // Create new nested node
+                    node = {
+                        $type: 'Node',
+                        $container: currentContainer,
+                        $containerProperty: 'nodes',
+                        $containerIndex: (currentContainer as Node).nodes.length,
+                        name: part,
+                        title: undefined,
+                        type: undefined,
+                        annotations: [],
+                        nodes: [],
+                        edges: [],
+                        attributes: []
+                    };
+                    (currentContainer as Node).nodes.push(node);
+                }
+            }
+
+            // If not the last part, this node becomes the container for the next part
+            if (!isLastPart) {
+                currentContainer = node;
+            } else {
+                // Return the final leaf node
+                return node;
+            }
+        }
+
+        return undefined;
     }
 
     /**
@@ -150,9 +234,15 @@ export class MachineLinker extends DefaultLinker {
     }
 
     /**
-     * Find a node by name in the machine
+     * Find a node by name in the machine (supports both simple and qualified names)
      */
     private findNodeByName(machine: Machine, name: string): Node | undefined {
+        // If it's a qualified name, use the qualified lookup
+        if (name.includes('.')) {
+            return this.findNodeByQualifiedName(machine, name);
+        }
+
+        // Simple name - search recursively
         const findInNodes = (nodes: Node[]): Node | undefined => {
             for (const node of nodes) {
                 if (node.name === name) return node;
@@ -162,6 +252,29 @@ export class MachineLinker extends DefaultLinker {
             return undefined;
         };
         return findInNodes(machine.nodes);
+    }
+
+    /**
+     * Find a node by qualified name (e.g., "workflow.start")
+     */
+    private findNodeByQualifiedName(machine: Machine, qualifiedName: string): Node | undefined {
+        const parts = qualifiedName.split('.');
+        let currentNodes = machine.nodes;
+
+        for (const part of parts) {
+            const node = currentNodes.find(n => n.name === part);
+            if (!node) return undefined;
+
+            // If this is the last part, we found it
+            if (part === parts[parts.length - 1]) {
+                return node;
+            }
+
+            // Otherwise, continue searching in child nodes
+            currentNodes = node.nodes;
+        }
+
+        return undefined;
     }
 
     /**
