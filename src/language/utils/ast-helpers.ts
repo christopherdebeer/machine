@@ -9,13 +9,15 @@
  * Extract the actual value from a Langium AST node
  *
  * Handles various AST node types:
- * - AST nodes with $type property
+ * - PrimitiveValue nodes (strings, numbers, IDs)
+ * - ObjectValue nodes (nested attributes as objects)
+ * - ArrayValue nodes (arrays of AttributeValues)
+ * - Legacy AST nodes with $type property
  * - CST nodes with text property
- * - Nested value properties
  * - String quote removal
  *
  * @param value - The value to extract (can be primitive, AST node, or object)
- * @returns The extracted value as a primitive type
+ * @returns The extracted value as a primitive type, object, or array
  */
 export function extractValueFromAST(value: any): any {
     // If not an object, return as-is
@@ -27,7 +29,85 @@ export function extractValueFromAST(value: any): any {
     if ('$type' in value) {
         const astNode = value as any;
 
-        // Try to extract text from CST node
+        // Handle new nested attribute types
+        switch (astNode.$type) {
+            case 'PrimitiveValue':
+                // Extract primitive value (string, number, ID)
+                if ('value' in astNode) {
+                    const primitiveValue = astNode.value;
+                    // If it has a CST node, extract text from it
+                    if (typeof primitiveValue === 'object' && primitiveValue && '$cstNode' in primitiveValue) {
+                        let text = primitiveValue.$cstNode.text;
+                        if (typeof text === 'string') {
+                            const hasQuotes = /^["']/.test(text);
+                            // Remove surrounding quotes
+                            text = text.replace(/^["']|["']$/g, '');
+
+                            // If no quotes, try to parse as boolean or number
+                            if (!hasQuotes) {
+                                // Try boolean
+                                if (text === 'true') return true;
+                                if (text === 'false') return false;
+
+                                // Try number
+                                const numValue = Number(text);
+                                if (!isNaN(numValue) && text.trim() !== '') {
+                                    return numValue;
+                                }
+                            }
+                        }
+                        return text;
+                    }
+                    // For direct string/number values, remove quotes if string
+                    if (typeof primitiveValue === 'string') {
+                        const hasQuotes = /^["']/.test(primitiveValue);
+                        const cleaned = primitiveValue.replace(/^["']|["']$/g, '');
+
+                        // If no quotes, try to parse as boolean or number
+                        if (!hasQuotes) {
+                            if (cleaned === 'true') return true;
+                            if (cleaned === 'false') return false;
+
+                            const numValue = Number(cleaned);
+                            if (!isNaN(numValue) && cleaned.trim() !== '') {
+                                return numValue;
+                            }
+                        }
+                        return cleaned;
+                    }
+                    return primitiveValue;
+                }
+                break;
+
+            case 'ObjectValue':
+                // Convert nested attributes to a plain object
+                if ('attributes' in astNode && Array.isArray(astNode.attributes)) {
+                    const result: Record<string, any> = {};
+                    for (const attr of astNode.attributes) {
+                        if (attr.name && attr.value) {
+                            result[attr.name] = extractValueFromAST(attr.value);
+                        }
+                    }
+                    return result;
+                }
+                return {};
+
+            case 'ArrayValue':
+                // Convert array of AttributeValues to a plain array
+                if ('values' in astNode && Array.isArray(astNode.values)) {
+                    return astNode.values.map((v: any) => extractValueFromAST(v));
+                }
+                return [];
+
+            case 'AttributeValue':
+                // Legacy: AttributeValue with direct value property
+                if ('value' in astNode) {
+                    return extractValueFromAST(astNode.value);
+                }
+                break;
+        }
+
+        // Try to extract text from CST node (legacy support)
         if ('$cstNode' in astNode && astNode.$cstNode && 'text' in astNode.$cstNode) {
             let text = astNode.$cstNode.text;
             if (typeof text === 'string') {
@@ -37,7 +117,7 @@ export function extractValueFromAST(value: any): any {
             return text;
         }
 
-        // Try to extract from value property (recursive)
+        // Try to extract from value property (recursive, legacy support)
         if ('value' in astNode) {
             return extractValueFromAST(astNode.value);
         }
@@ -102,8 +182,11 @@ export function parseAttributeValue(value: string, type: string): any {
 /**
  * Serialize a value for storage in machine data
  *
+ * Now supports nested objects and arrays natively.
+ * Objects and arrays are serialized to JSON strings for backward compatibility.
+ *
  * @param value - The value to serialize
- * @returns String representation of the value
+ * @returns String representation of the value, or JSON for objects/arrays
  */
 export function serializeValue(value: any): string {
     if (typeof value === 'string') {
