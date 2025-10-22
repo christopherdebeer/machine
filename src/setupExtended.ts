@@ -340,7 +340,20 @@ s1 -catch-> init;
                 if (!settings.apiKey || settings.apiKey.trim() === '') {
                     console.warn('No API key configured. RailsExecutor creation skipped.');
                     // Still render the diagram even without executor
-                    window.render(dotCode, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
+                    if (outputPanel) {
+                        const tempDiv = document.createElement('div');
+                        await window.render(dotCode, tempDiv, `${Math.floor(Math.random()  * 1000000000)}`);
+                        outputPanel.updateData({
+                            svg: tempDiv.innerHTML,
+                            dot: dotCode,
+                            json: JSON.stringify(data, null, 2),
+                            machine: result.$machine,
+                            ast: result.$machine
+                        });
+                    } else if (outputEl) {
+                        // Fallback to old render method if outputPanel isn't available
+                        window.render(dotCode, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
+                    }
                     running = false;
                     return;
                 }
@@ -406,7 +419,19 @@ s1 -catch-> init;
                 
                 // Still try to render the diagram even if executor creation fails
                 try {
-                    window.render(dotCode, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
+                    if (outputPanel) {
+                        const tempDiv = document.createElement('div');
+                        await window.render(dotCode, tempDiv, `${Math.floor(Math.random()  * 1000000000)}`);
+                        outputPanel.updateData({
+                            svg: tempDiv.innerHTML,
+                            dot: dotCode,
+                            json: JSON.stringify(data, null, 2),
+                            machine: result.$machine,
+                            ast: result.$machine
+                        });
+                    } else if (outputEl) {
+                        window.render(dotCode, outputEl, `${Math.floor(Math.random()  * 1000000000)}`);
+                    }
                 } catch (renderError) {
                     console.error('Failed to render diagram:', renderError);
                 }
