@@ -8,11 +8,228 @@ import { DependencyAnalyzer } from '../dependency-analyzer.js';
 import { generateMermaidFromJSON } from '../diagram/index.js';
 import { generateGraphvizFromJSON } from '../diagram/index.js';
 import { TypeHierarchy } from '../diagram/types.js';
+import { TypeChecker } from '../type-checker.js';
+import { GraphValidator } from '../graph-validator.js';
+import { ValidationContext, ValidationSeverity, ValidationCategory, createValidationError } from '../validation-errors.js';
 
 // Common interfaces
 interface GeneratorOptions {
     destination?: string;
     format?: string;
+}
+
+/**
+ * Check if a node has a specific annotation
+ */
+function hasAnnotation(annotations: any[] | undefined, name: string): boolean {
+    return annotations?.some((a: any) => a.name === name) ?? false;
+}
+
+/**
+ * Determine if warnings should be shown for a specific node
+ * Uses hierarchical checking: node → parent → machine
+ *
+ * Rules (in order):
+ * 1. If node has @HideWarnings → hide
+ * 2. If node has @ShowWarnings → show
+ * 3. Check parent recursively for @HideWarnings or @ShowWarnings
+ * 4. If machine has @StrictMode → show (strict mode enables warnings by default)
+ * 5. If machine has @ShowWarnings → show
+ * 6. Default: hide (opt-in behavior)
+ */
+function shouldShowWarningsForNode(
+    nodeName: string,
+    nodes: Node[],
+    machine: Machine
+): boolean {
+    // Build a map of node names to nodes for quick lookup
+    const nodeMap = new Map<string, Node>();
+    const buildNodeMap = (nodeList: Node[]) => {
+        nodeList.forEach(node => {
+            nodeMap.set(node.name, node);
+            if (node.nodes && node.nodes.length > 0) {
+                buildNodeMap(node.nodes);
+            }
+        });
+    };
+    buildNodeMap(nodes);
+
+    // Helper to get parent node name from the node's parent field
+    const getParentNodeName = (node: Node): string | undefined => {
+        // In the AST, parent relationships are tracked via the $container property
+        const container = (node as any).$container;
+        if (container && container.name) {
+            return container.name;
+        }
+        return undefined;
+    };
+
+    // Check the node and its parents recursively
+    const checkNodeHierarchy = (currentNodeName: string): boolean | undefined => {
+        const currentNode = nodeMap.get(currentNodeName);
+        if (!currentNode) return undefined;
+
+        // Check node's own annotations
+        if (hasAnnotation(currentNode.annotations, 'HideWarnings')) {
+            return false;  // Explicitly hidden
+        }
+        if (hasAnnotation(currentNode.annotations, 'ShowWarnings')) {
+            return true;  // Explicitly shown
+        }
+
+        // Check parent recursively
+        const parentName = getParentNodeName(currentNode);
+        if (parentName) {
+            const parentDecision = checkNodeHierarchy(parentName);
+            if (parentDecision !== undefined) {
+                return parentDecision;
+            }
+        }
+
+        return undefined;  // No decision at this level
+    };
+
+    // Check node hierarchy first
+    const nodeDecision = checkNodeHierarchy(nodeName);
+    if (nodeDecision !== undefined) {
+        return nodeDecision;
+    }
+
+    // Check machine-level annotations
+    if (hasAnnotation(machine.annotations, 'StrictMode')) {
+        // In strict mode, warnings are shown by default
+        // But can still be disabled with @HideWarnings
+        if (hasAnnotation(machine.annotations, 'HideWarnings')) {
+            return false;
+        }
+        return true;
+    }
+
+    if (hasAnnotation(machine.annotations, 'ShowWarnings')) {
+        return true;
+    }
+
+    // Default: warnings are hidden (opt-in behavior)
+    return false;
+}
+
+/**
+ * Build a ValidationContext from a Machine AST
+ * This runs all validation checks and collects errors into a ValidationContext
+ * that can be passed to diagram generators for visualization
+ *
+ * Warnings are filtered based on @ShowWarnings/@HideWarnings annotations
+ */
+function buildValidationContext(machine: Machine): ValidationContext {
+    const context = new ValidationContext();
+
+    // Run graph validation
+    try {
+        const graphValidator = new GraphValidator(machine);
+        const graphResult = graphValidator.validate();
+
+        // Add unreachable node warnings (filtered by annotations)
+        if (graphResult.unreachableNodes && graphResult.unreachableNodes.length > 0) {
+            graphResult.unreachableNodes.forEach(nodeName => {
+                // Check if warnings should be shown for this node
+                if (shouldShowWarningsForNode(nodeName, machine.nodes, machine)) {
+                    context.addError(createValidationError(
+                        `Node cannot be reached from entry points`,
+                        {
+                            severity: ValidationSeverity.WARNING,
+                            category: ValidationCategory.GRAPH,
+                            code: 'UNREACHABLE_NODE',
+                            location: { node: nodeName },
+                            suggestion: 'Add an edge from an entry point or init node to this node'
+                        }
+                    ));
+                }
+            });
+        }
+
+        // Add orphaned node warnings (filtered by annotations)
+        if (graphResult.orphanedNodes && graphResult.orphanedNodes.length > 0) {
+            graphResult.orphanedNodes.forEach(nodeName => {
+                // Check if warnings should be shown for this node
+                if (shouldShowWarningsForNode(nodeName, machine.nodes, machine)) {
+                    context.addError(createValidationError(
+                        `Node has no incoming or outgoing edges`,
+                        {
+                            severity: ValidationSeverity.WARNING,
+                            category: ValidationCategory.GRAPH,
+                            code: 'ORPHANED_NODE',
+                            location: { node: nodeName },
+                            suggestion: 'Connect this node to the graph or remove it if unused'
+                        }
+                    ));
+                }
+            });
+        }
+
+        // Add cycle warnings (filtered by annotations)
+        if (graphResult.cycles && graphResult.cycles.length > 0) {
+            graphResult.cycles.forEach((cycle, index) => {
+                const nodesInCycle = cycle.join(' → ');
+                // Add warning to each node in the cycle
+                cycle.forEach(nodeName => {
+                    // Check if warnings should be shown for this node
+                    if (shouldShowWarningsForNode(nodeName, machine.nodes, machine)) {
+                        context.addError(createValidationError(
+                            `Part of cycle: ${nodesInCycle}`,
+                            {
+                                severity: ValidationSeverity.WARNING,
+                                category: ValidationCategory.GRAPH,
+                                code: 'CYCLE_DETECTED',
+                                location: { node: nodeName },
+                                suggestion: 'Review cycle logic to prevent infinite loops'
+                            }
+                        ));
+                    }
+                });
+            });
+        }
+    } catch (error) {
+        console.warn('Error running graph validation:', error);
+    }
+
+    // Run type checking on all attributes
+    try {
+        const typeChecker = new TypeChecker(machine);
+        const processNode = (node: Node) => {
+            if (node.attributes) {
+                node.attributes.forEach(attr => {
+                    if (attr.type) {
+                        const result = typeChecker.validateAttributeType(attr);
+                        if (!result.valid && result.message) {
+                            context.addError(createValidationError(
+                                result.message,
+                                {
+                                    severity: ValidationSeverity.ERROR,
+                                    category: ValidationCategory.TYPE,
+                                    code: 'TYPE_MISMATCH',
+                                    location: {
+                                        node: node.name,
+                                        property: attr.name
+                                    },
+                                    expected: result.expectedType,
+                                    actual: result.actualType
+                                }
+                            ));
+                        }
+                    }
+                });
+            }
+
+            // Recursively process child nodes
+            node.nodes.forEach(child => processNode(child));
+        };
+
+        machine.nodes.forEach(node => processNode(node));
+    } catch (error) {
+        console.warn('Error running type checking:', error);
+    }
+
+    return context;
 }
 
 export interface FileGenerationResult {
@@ -459,9 +676,16 @@ class GraphvizGenerator extends BaseGenerator {
         const jsonContent = jsonGen.generate();
         const machineJson: MachineJSON = JSON.parse(jsonContent.content);
 
-        // Use the Graphviz DOT generator
+        // Build validation context from the machine AST
+        const validationContext = buildValidationContext(this.machine);
+
+        // Use the Graphviz DOT generator with validation context
         const dotContent = generateGraphvizFromJSON(machineJson, {
-            title: this.machine.title
+            title: this.machine.title,
+            validationContext: validationContext,
+            showValidationWarnings: true,
+            warningMode: 'both', // Show both inline badges and warning notes
+            minSeverity: 'warning' // Show warnings and errors (not info/hint)
         });
 
         return {
@@ -476,9 +700,16 @@ class GraphvizGenerator extends BaseGenerator {
         const jsonContent = jsonGen.generate();
         const machineJson: MachineJSON = JSON.parse(jsonContent.content);
 
-        // Use the Graphviz DOT generator
+        // Build validation context from the machine AST
+        const validationContext = buildValidationContext(this.machine);
+
+        // Use the Graphviz DOT generator with validation context
         return generateGraphvizFromJSON(machineJson, {
-            title: this.machine.title
+            title: this.machine.title,
+            validationContext: validationContext,
+            showValidationWarnings: true,
+            warningMode: 'both', // Show both inline badges and warning notes
+            minSeverity: 'warning' // Show warnings and errors (not info/hint)
         });
     }
 }

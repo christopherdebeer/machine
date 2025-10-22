@@ -47,6 +47,18 @@ export interface DiagramOptions {
 
     /** Custom title override */
     title?: string;
+
+    /** Validation context with warnings to visualize */
+    validationContext?: any; // Import would create circular dependency, use any for now
+
+    /** Show validation warnings in diagram */
+    showValidationWarnings?: boolean;
+
+    /** Warning visualization mode: 'inline' shows in node styling, 'notes' creates note nodes, 'both' does both */
+    warningMode?: 'inline' | 'notes' | 'both' | 'none';
+
+    /** Minimum severity to display (error, warning, info, hint) */
+    minSeverity?: 'error' | 'warning' | 'info' | 'hint';
 }
 
 /**
