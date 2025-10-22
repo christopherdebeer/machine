@@ -1,4 +1,4 @@
-# DyGram Examples
+# Examples
 
 Practical examples organized by use case and domain.
 
@@ -420,38 +420,6 @@ const machine = await extractAstNode('examples/basic/hello.dygram', services);
 const result = generateJSON(machine, 'hello.dygram');
 console.log(result.content);
 ```
-
-## Example Categories
-
-### By Complexity
-
-- **Beginner**: hello.dygram, workflow.dygram, attributes.dygram
-- **Intermediate**: branching.dygram, pipeline.dygram, simple-state-machine.dygram
-- **Advanced**: nesting.dygram, annotations.dygram, multi-step-llm.dygram
-
-### By Use Case
-
-- **Workflows**: Linear, branching, parallel processing
-- **State Machines**: Simple states, stateful workflows
-- **LLM Integration**: Single tasks, multi-step analysis
-- **Data Processing**: ETL, validation, transformation
-
-### By Feature
-
-- **Attributes**: Type annotations, configuration
-- **Annotations**: Metadata, deprecation, criticality
-- **Nesting**: Hierarchical structures
-- **Arrows**: Different relationship types
-- **Notes**: Documentation
-
-## Contributing Examples
-
-To add a new example:
-
-1. Create a `.dygram` file in the appropriate subdirectory
-2. Add code block to this README with path: ` ```dygram examples/path/to/file.dygram`
-3. Run `npm run extract:examples` to extract to example files
-4. Test with: `dygram generate examples/path/to/file.dygram`
 
 ## Next Steps
 

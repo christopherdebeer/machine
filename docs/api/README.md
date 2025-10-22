@@ -1,4 +1,4 @@
-# DyGram API Reference
+# API Reference
 
 Programmatic API for integrating DyGram into your applications.
 
@@ -57,7 +57,7 @@ await executor.execute();
 
 ## Core Modules
 
-### `createMachineServices`
+### createMachineServices
 
 Creates Langium language services for parsing DyGram files.
 

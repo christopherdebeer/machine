@@ -91,10 +91,10 @@ export const Navigation: React.FC = () => {
                 </button>
 
                 <div style={linksContainerStyle} className="nav-links">
-                    <a href="getting-started/" style={linkStyle} className="nav-link">Quick Start</a>
-                    <a href="examples/" style={linkStyle} className="nav-link">Examples</a>
-                    <a href="api/" style={linkStyle} className="nav-link">API</a>
-                    <a href="playground-mobile.html" style={linkStyle} className="nav-link">Playground</a>
+                    <a href="/getting-started/" style={linkStyle} className="nav-link">Quick Start</a>
+                    <a href="/examples/" style={linkStyle} className="nav-link">Examples</a>
+                    <a href="/api/" style={linkStyle} className="nav-link">API</a>
+                    <a href="/playground-mobile.html" style={linkStyle} className="nav-link">Playground</a>
                     <a
                         href="https://github.com/christopherdebeer/machine"
                         target="_blank"
@@ -109,10 +109,10 @@ export const Navigation: React.FC = () => {
             </div>
 
             <div style={mobileLinksStyle} className="mobile-nav-links">
-                <a href="getting-started/" style={linkStyle}>Quick Start</a>
-                <a href="examples/" style={linkStyle}>Examples</a>
-                <a href="api/" style={linkStyle}>API</a>
-                <a href="playground-mobile.html" style={linkStyle}>Playground</a>
+                <a href="/getting-started/" style={linkStyle}>Quick Start</a>
+                <a href="/examples/" style={linkStyle}>Examples</a>
+                <a href="/api/" style={linkStyle}>API</a>
+                <a href="/playground-mobile.html" style={linkStyle}>Playground</a>
                 <a
                     href="https://github.com/christopherdebeer/machine"
                     target="_blank"

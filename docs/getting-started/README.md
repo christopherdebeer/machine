@@ -1,4 +1,4 @@
-# Getting Started with DyGram
+# Getting Started
 
 Get up and running with DyGram in minutes.
 

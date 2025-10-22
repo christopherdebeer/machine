@@ -1,4 +1,4 @@
-# DyGram CLI Reference
+# CLI Reference
 
 Complete reference for the DyGram command-line interface.
 

@@ -1,4 +1,4 @@
-# DyGram Syntax Reference
+# Language Reference
 
 Complete reference for the DyGram language syntax.
 
