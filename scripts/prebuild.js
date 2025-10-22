@@ -156,7 +156,16 @@ async function extractExamples(projectRoot) {
         const fullPath = join(projectRoot, example.path);
         const dir = dirname(fullPath);
         await mkdir(dir, { recursive: true });
-        await writeFile(fullPath, example.content, 'utf-8');
+
+        // Calculate end line number
+        const contentLines = example.content.split('\n').length;
+        const endLine = example.sourceLine + contentLines + 1;
+
+        // Add provenance comment
+        const provenanceComment = `// do not edit, automatically extracted from ${example.sourceFile} lines ${example.sourceLine}-${endLine}.\n`;
+        const contentWithProvenance = provenanceComment + example.content;
+
+        await writeFile(fullPath, contentWithProvenance, 'utf-8');
 
         const dirName = relative(examplesDir, dir);
         byDirectory[dirName] = (byDirectory[dirName] || 0) + 1;
