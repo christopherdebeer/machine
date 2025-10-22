@@ -7,6 +7,7 @@
 
 import { MachineJSON, DiagramOptions, RuntimeContext, RuntimeNodeState, RuntimeEdgeState, SemanticHierarchy } from './types.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
+import { Attribute } from '../generated/ast.js';
 
 /**
  * Helper function to escape DOT special characters
@@ -130,11 +131,11 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
     if (title) htmlLabel += '<tr><td align="center"><font point-size="12"><b>' + escapeHtml(title) + '</b></font></td></tr>';
 
     // Version (if present in attributes)
-    const versionAttr = machineJson.attributes?.find(a => a.name === 'version');
+    const versionAttr : Attribute | undefined = machineJson.attributes?.find(a => a.name === 'version');
     if (versionAttr || machineJson.annotations && machineJson.annotations.length > 0) {
-        const versionValue = typeof versionAttr.value === 'string'
+        const versionValue = typeof versionAttr?.value === 'string'
             ? versionAttr.value.replace(/^["']|["']$/g, '')
-            : String(versionAttr.value);
+            : String(versionAttr?.value);
             // Annotations (if present)
         const annText = machineJson.annotations?.map(ann =>
             ann.value ? '@' + ann.name + '("' + ann.value + '")' : '@' + ann.name
