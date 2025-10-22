@@ -888,7 +888,6 @@ function generateWarningNotes(validationContext: ValidationContext, options?: Di
     };
     const minLevel = minSeverityOrder[options?.minSeverity || 'warning'] ?? 1;
 
-    let noteCount = 0;
     nodeFlags.forEach((flag, nodeName) => {
         const filteredErrors = flag.errors.filter(e => {
             const errorLevel = minSeverityOrder[e.severity] ?? 3;
@@ -916,7 +915,6 @@ function generateWarningNotes(validationContext: ValidationContext, options?: Di
 
             lines.push(`  "${noteId}" [label=<${htmlLabel}>, shape=note, fillcolor="${color}", style=filled, fontsize=9];`);
             lines.push(`  "${noteId}" -> "${nodeName}" [style=dashed, color="#999999", arrowhead=none];`);
-            noteCount++;
         });
     });
 
