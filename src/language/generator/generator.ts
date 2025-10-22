@@ -492,12 +492,14 @@ class JSONGenerator extends BaseGenerator {
                 return edge.segments.flatMap((segment: any) => {
                     const targets = segment.target.map((t: any) => t.ref?.name);
                     const edgeValue = this.serializeEdgeValue(segment.label);
+                    const edgeAnnotations = this.serializeEdgeAnnotations(segment.label);
                     const edges = currentSources.flatMap((source: any) =>
                         targets.map((target: any) => ({
                             source,
                             target,
                             value: edgeValue,
                             attributes: edgeValue,  // Keep for backward compatibility
+                            annotations: edgeAnnotations,  // Add edge annotations
                             arrowType: segment.endType,  // Preserve arrow type
                             sourceMultiplicity: segment.sourceMultiplicity?.replace(/"/g, ''),  // Remove quotes
                             targetMultiplicity: segment.targetMultiplicity?.replace(/"/g, '')   // Remove quotes
@@ -524,6 +526,29 @@ class JSONGenerator extends BaseGenerator {
         };
 
         return collectEdges(this.machine.edges, this.machine.nodes);
+    }
+
+    /**
+     * Serialize edge annotations from EdgeType labels
+     */
+    private serializeEdgeAnnotations(labels?: EdgeType[]): any[] | undefined {
+        if (!labels || labels.length === 0) {
+            return undefined;
+        }
+
+        const annotations: any[] = [];
+        labels.forEach((label) => {
+            if (label.annotations && label.annotations.length > 0) {
+                label.annotations.forEach(ann => {
+                    annotations.push({
+                        name: ann.name,
+                        value: ann.value?.replace(/^"|"$/g, '')
+                    });
+                });
+            }
+        });
+
+        return annotations.length > 0 ? annotations : undefined;
     }
 
     private serializeEdgeValue(labels?: EdgeType[]): Record<string, any> | undefined {

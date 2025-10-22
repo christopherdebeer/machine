@@ -341,7 +341,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     // Generate edges
     if (machineJson.edges && machineJson.edges.length > 0) {
         lines.push('  // Edges');
-        lines.push(generateEdges(machineJson));
+        lines.push(generateEdges(machineJson, styleNodes));
     }
 
     // Generate notes as edge labels
@@ -840,9 +840,77 @@ function findFirstChild(nodes: any[], parentName: string): string | null {
 }
 
 /**
+ * Apply custom styles from style nodes to edges based on annotation matching
+ */
+function applyCustomEdgeStyles(edge: any, styleNodes: any[]): string {
+    let customStyles = '';
+    const edgeAnnotations = edge.annotations || [];
+
+    if (edgeAnnotations.length === 0) {
+        return customStyles;
+    }
+
+    // Find matching style nodes
+    for (const styleNode of styleNodes) {
+        const styleAnnotations = styleNode.annotations || [];
+
+        // Check if any of the edge's annotations match the style node's selector annotation
+        for (const styleAnnotation of styleAnnotations) {
+            const hasMatchingAnnotation = edgeAnnotations.some(
+                (edgeAnn: any) => edgeAnn.name === styleAnnotation.name
+            );
+
+            if (hasMatchingAnnotation) {
+                // Apply all attributes from the style node as graphviz properties
+                const styleAttrs = styleNode.attributes || [];
+                for (const attr of styleAttrs) {
+                    let attrValue = attr.value;
+
+                    // Clean up string values (remove quotes)
+                    if (typeof attrValue === 'string') {
+                        attrValue = attrValue.replace(/^["']|["']$/g, '');
+                    }
+
+                    // Append to custom styles
+                    customStyles += `, ${attr.name}="${attrValue}"`;
+                }
+            }
+        }
+    }
+
+    return customStyles;
+}
+
+/**
+ * Check if edge annotations should be shown in label
+ * Looks for @hideLabel annotation or showAnnotation attribute
+ */
+function shouldShowEdgeAnnotation(edge: any): boolean {
+    const edgeAnnotations = edge.annotations || [];
+
+    // Check for @hideLabel annotation
+    for (const ann of edgeAnnotations) {
+        if (ann.name === 'hideLabel' || ann.name === 'hideAnnotation') {
+            return false;
+        }
+        // Also check for showAnnotation attribute with explicit false value
+        if (ann.name === 'showAnnotation' && ann.value === 'false') {
+            return false;
+        }
+        // Also support direct attribute lookup if it exists
+        if (ann.showAnnotation === false || ann.showAnnotation === 'false') {
+            return false;
+        }
+    }
+
+    // Default is to show annotations
+    return true;
+}
+
+/**
  * Generate edges section with support for compound edges between clusters
  */
-function generateEdges(machineJson: MachineJSON): string {
+function generateEdges(machineJson: MachineJSON, styleNodes: any[] = []): string {
     const lines: string[] = [];
 
     if (!machineJson.edges || machineJson.edges.length === 0) {
@@ -861,6 +929,7 @@ function generateEdges(machineJson: MachineJSON): string {
     machineJson.edges.forEach(edge => {
         const edgeValue = edge.value || {};
         const keys = Object.keys(edgeValue);
+        const showAnnotation = shouldShowEdgeAnnotation(edge);
 
         // Build label from edge value (without multiplicity)
         let label = '';
@@ -873,8 +942,23 @@ function generateEdges(machineJson: MachineJSON): string {
             label = textValue;
         }
 
+        // Add annotation names to label if showAnnotation is true
+        if (showAnnotation && edge.annotations && edge.annotations.length > 0) {
+            const annotationLabels = edge.annotations.map((ann: any) =>
+                ann.value ? `@${ann.name}("${ann.value}")` : `@${ann.name}`
+            ).join(' ');
+            if (label) {
+                label = `${annotationLabels} ${label}`;
+            } else {
+                label = annotationLabels;
+            }
+        }
+
         // Get arrow style based on arrow type
         const arrowStyle = getArrowStyle(edge.arrowType || '->');
+
+        // Apply custom styles from style nodes
+        const customStyles = applyCustomEdgeStyles(edge, styleNodes);
 
         // Build edge attributes array
         const edgeAttrs: string[] = [];
@@ -898,6 +982,12 @@ function generateEdges(machineJson: MachineJSON): string {
 
         edgeAttrs.push('labelOverlay="75%"');
         edgeAttrs.push('labelhref="#srcLineTBD"');
+
+        // Apply custom styles if any
+        if (customStyles) {
+            // Custom styles are already formatted as ", attr1=value1, attr2=value2"
+            // So we can just append them to the edge line directly
+        }
 
         // Handle compound edges for parent-to-parent connections
         const sourceIsParent = parentNodes.has(edge.source);
@@ -930,7 +1020,8 @@ function generateEdges(machineJson: MachineJSON): string {
             }
         }
 
-        const edgeLine = `  "${actualSource}" -> "${actualTarget}" [${edgeAttrs.join(', ')}];`;
+        // Construct edge line with custom styles appended
+        const edgeLine = `  "${actualSource}" -> "${actualTarget}" [${edgeAttrs.join(', ')}${customStyles}];`;
         lines.push(edgeLine);
     });
 
