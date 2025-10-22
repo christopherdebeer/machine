@@ -48,6 +48,9 @@ export interface DiagramOptions {
     /** Custom title override */
     title?: string;
 
+    /** Runtime context for template interpolation */
+    runtimeContext?: RuntimeContext;
+
     /** Validation context with warnings to visualize */
     validationContext?: any; // Import would create circular dependency, use any for now
 

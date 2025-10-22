@@ -8,6 +8,45 @@
 import { MachineJSON, DiagramOptions, RuntimeContext, RuntimeNodeState, RuntimeEdgeState, SemanticHierarchy } from './types.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
 import { ValidationContext, ValidationSeverity } from '../validation-errors.js';
+import { CelEvaluator } from '../cel-evaluator.js';
+
+/**
+ * Interpolate template variables in a string value
+ * Attempts to resolve {{ variable }} patterns using the provided context
+ * Returns original value if interpolation fails or no context is provided
+ */
+function interpolateValue(value: string, context?: RuntimeContext): string {
+    if (!value || typeof value !== 'string') {
+        return value;
+    }
+
+    // Check if the value contains template syntax
+    const hasTemplate = /\{\{[^}]+\}\}/.test(value);
+    if (!hasTemplate) {
+        return value;
+    }
+
+    // If no context provided, mark it as a template
+    if (!context) {
+        // For static diagrams, show that this is a template
+        return value; // Keep original for now, could add [TEMPLATE] indicator
+    }
+
+    // For runtime diagrams, interpolate using CEL evaluator
+    try {
+        const celEvaluator = new CelEvaluator();
+        const celContext = {
+            errorCount: context.errorCount || 0,
+            activeState: context.activeState || '',
+            attributes: Object.fromEntries(context.attributes || new Map())
+        };
+
+        return celEvaluator.resolveTemplate(value, celContext);
+    } catch (error) {
+        console.warn('Failed to interpolate template value:', value, error);
+        return value; // Return original on error
+    }
+}
 
 /**
  * Helper function to escape DOT special characters
@@ -266,9 +305,11 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
     // Description (if present in attributes)
     const descAttr = machineJson.attributes?.find(a => a.name === 'description' || a.name === 'desc');
     if (descAttr) {
-        const descValue = typeof descAttr.value === 'string'
+        let descValue = typeof descAttr.value === 'string'
             ? descAttr.value.replace(/^["']|["']$/g, '')
             : String(descAttr.value);
+        // Interpolate templates if runtime context is available
+        descValue = interpolateValue(descValue, options.runtimeContext);
         htmlLabel += '<tr><td align="center"><font point-size="10"><i>' + escapeHtml(descValue) + '</i></font></td></tr>';
     }
 
@@ -284,6 +325,8 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
             let displayValue = attr.value;
             if (typeof displayValue === 'string') {
                 displayValue = displayValue.replace(/^["']|["']$/g, '');
+                // Interpolate templates if runtime context is available
+                displayValue = interpolateValue(displayValue, options.runtimeContext);
             }
             const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
             htmlLabel += '<tr>';
@@ -435,6 +478,14 @@ export function generateRuntimeDotDiagram(
 
                 let displayValue = formatAttributeValue(attr.value);
 
+                // Interpolate template values in attributes for runtime diagrams
+                if (typeof attr.value === 'string' && context) {
+                    const interpolated = interpolateValue(attr.value, context);
+                    if (interpolated !== attr.value) {
+                        displayValue = formatAttributeValue(interpolated);
+                    }
+                }
+
                 if (options.showRuntimeValues && attr.runtimeValue !== undefined &&
                     attr.runtimeValue !== attr.value) {
                     displayValue = `${displayValue} → ${formatAttributeValue(attr.runtimeValue)}`;
@@ -542,7 +593,7 @@ function getRootNodes(nodes: any[]): any[] {
 /**
  * Generate HTML label for namespace (parent node) showing id, type, annotations, title, description, and attributes
  */
-function generateNamespaceLabel(node: any): string {
+function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext): string {
     let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
     // First row: ID (bold), Type (italic), Annotations (italic)
@@ -579,6 +630,8 @@ function generateNamespaceLabel(node: any): string {
         let descValue = descAttr?.value;
         if (typeof descValue === 'string') {
             descValue = descValue.replace(/^["']|["']$/g, '');
+            // Interpolate templates if runtime context is available
+            descValue = interpolateValue(descValue, runtimeContext);
         }
         if (titleText && titleText !== node.name) {
             htmlLabel += `<tr><td align="left"><b>${ escapeHtml(titleText) }</b>${node.title && descAttr ? ' — ' : ''}<i>${ escapeHtml(String(descValue || '')) }</i></td></tr>`;
@@ -597,6 +650,8 @@ function generateNamespaceLabel(node: any): string {
             let displayValue = attr.value;
             if (typeof displayValue === 'string') {
                 displayValue = displayValue.replace(/^["']|["']$/g, '');
+                // Interpolate templates if runtime context is available
+                displayValue = interpolateValue(displayValue, runtimeContext);
             }
             const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
             htmlLabel += '<tr>';
@@ -636,7 +691,7 @@ function generateSemanticHierarchy(
             lines.push(`${indent}subgraph cluster_${node.name} {`);
 
             // Generate rich HTML label for namespace showing id, type, annotations, title, description, and attributes
-            const namespaceLabel = generateNamespaceLabel(node);
+            const namespaceLabel = generateNamespaceLabel(node, options?.runtimeContext);
             lines.push(`${indent}  label=<${namespaceLabel}>;`);
 
             lines.push(`${indent}  style=filled;`);
@@ -668,6 +723,8 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
     let displayValue: any = node.title || desc?.value;
     if (displayValue && typeof displayValue === 'string') {
         displayValue = displayValue.replace(/^["']|["']$/g, '');
+        // Interpolate templates if runtime context is available
+        displayValue = interpolateValue(displayValue, options?.runtimeContext);
     }
 
     // Build HTML label
@@ -727,6 +784,8 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
             let displayValue = a.value?.value ?? a.value;
             if (typeof displayValue === 'string') {
                 displayValue = displayValue.replace(/^["']|["']$/g, '');
+                // Interpolate templates if runtime context is available
+                displayValue = interpolateValue(displayValue, options?.runtimeContext);
                 // Break long values into multiple lines
                 displayValue = breakLongText(displayValue, 30).join('<br/>');
             }
