@@ -356,7 +356,7 @@ describe('Tool-Based Execution', () => {
     });
 
     describe('Runtime Visualization', () => {
-        it('should generate runtime Mermaid class diagram with runtime state', async () => {
+        it('should throw error when calling deprecated toMermaidRuntime', async () => {
             mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
                 content: [
                     {
@@ -371,18 +371,11 @@ describe('Tool-Based Execution', () => {
 
             await executor.step();
 
-            const mermaid = executor.toMermaidRuntime();
-
-            expect(mermaid).toContain('classDiagram-v2');
-            expect(mermaid).toContain('[RUNTIME]'); // Runtime indicator in title
-            expect(mermaid).toContain('▶️'); // Current node emoji
-            expect(mermaid).toContain('✅'); // Visited node emoji
-            expect(mermaid).toContain('CURRENT'); // Current status text
-            expect(mermaid).toContain('VISITED'); // Visited status text
-            expect(mermaid).toContain('%% Execution Path:'); // Path comment
+            // toMermaidRuntime() should throw since Mermaid support was removed
+            expect(() => executor.toMermaidRuntime()).toThrow('Mermaid support has been removed');
         });
 
-        it('should generate runtime Mermaid class diagram', async () => {
+        it('should throw error when calling deprecated toMermaidRuntimeClass', async () => {
             mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
                 content: [
                     {
@@ -397,16 +390,11 @@ describe('Tool-Based Execution', () => {
 
             await executor.step();
 
-            const mermaid = executor.toMermaidRuntimeClass();
-
-            expect(mermaid).toContain('classDiagram');
-            expect(mermaid).toContain('CURRENT');
-            expect(mermaid).toContain('VISITED');
-            expect(mermaid).toContain('currentNode'); // CSS class
-            expect(mermaid).toContain('visitedNode'); // CSS class
+            // toMermaidRuntimeClass() should throw since Mermaid support was removed
+            expect(() => executor.toMermaidRuntimeClass()).toThrow('Mermaid support has been removed');
         });
 
-        it('should show traversal counts in runtime diagram', async () => {
+        it('should throw error when calling deprecated toMermaidRuntime after multiple steps', async () => {
             // Execute multiple steps
             mockClaudeClient.invokeWithTools
                 .mockResolvedValueOnce({
@@ -430,10 +418,8 @@ describe('Tool-Based Execution', () => {
             await executor.step();
             await executor.step();
 
-            const mermaid = executor.toMermaidRuntime();
-
-            // Should show traversal count
-            expect(mermaid).toMatch(/\[1x\]/); // Edge traversed once
+            // toMermaidRuntime() should throw since Mermaid support was removed
+            expect(() => executor.toMermaidRuntime()).toThrow('Mermaid support has been removed');
         });
     });
 

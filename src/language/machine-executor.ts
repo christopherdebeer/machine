@@ -1018,23 +1018,6 @@ export class MachineExecutor extends BaseExecutor {
 
 
     /**
-     * Convert execution context to diagram runtime context
-     */
-    private toDiagramContext(): DiagramRuntimeContext {
-        return {
-            currentNode: this.context.currentNode,
-            currentTaskNode: this.context.currentTaskNode,
-            activeState: this.context.activeState,
-            errorCount: this.context.errorCount || 0,
-            visitedNodes: this.context.visitedNodes,
-            attributes: this.context.attributes,
-            history: this.context.history,
-            nodeInvocationCounts: this.context.nodeInvocationCounts,
-            stateTransitions: this.context.stateTransitions
-        };
-    }
-
-    /**
      * Generate a Mermaid class diagram showing the current execution state
      * @deprecated Mermaid support has been removed. Use Graphviz instead via the diagram module.
      */
@@ -1048,35 +1031,6 @@ export class MachineExecutor extends BaseExecutor {
      */
     public toMermaidRuntimeOld(): string {
         throw new Error('Mermaid support has been removed. Use Graphviz for diagram generation.');
-    }
-
-    /**
-     * Format attribute values for display
-     */
-    private formatAttributeValue(value: any): string {
-        if (value === null || value === undefined) {
-            return 'null';
-        }
-        
-        if (typeof value === 'string') {
-            // Remove quotes and truncate if too long
-            const cleaned = value.replace(/^["']|["']$/g, '');
-            return cleaned.length > 30 ? cleaned.substring(0, 30) + '...' : cleaned;
-        }
-        
-        if (Array.isArray(value)) {
-            return `[${value.join(', ')}]`;
-        }
-        
-        if (typeof value === 'object') {
-            try {
-                return JSON.stringify(value);
-            } catch (error) {
-                return String(value);
-            }
-        }
-        
-        return String(value);
     }
 
     /**
