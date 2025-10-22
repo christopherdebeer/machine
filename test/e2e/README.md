@@ -2,6 +2,8 @@
 
 This directory contains E2E tests that validate Mermaid diagram rendering in real browser environments using Playwright.
 
+## Table of Contents
+
 ## Purpose
 
 The generative tests in `test/integration/generative.test.ts` validate that DyGram code can be:

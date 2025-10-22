@@ -2,6 +2,8 @@
 
 Complete reference for the DyGram command-line interface.
 
+## Table of Contents
+
 ## Installation
 
 ```bash

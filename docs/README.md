@@ -2,6 +2,8 @@
 
 A lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting.
 
+## Table of Contents
+
 ## Quick Start
 
 - [Installation](getting-started/README.md) - Get DyGram up and running in minutes

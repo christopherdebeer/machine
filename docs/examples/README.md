@@ -2,6 +2,8 @@
 
 Practical examples organized by use case and domain.
 
+## Table of Contents
+
 ## Basic Examples
 
 ### Hello World

@@ -2,6 +2,8 @@
 
 Programmatic API for integrating DyGram into your applications.
 
+## Table of Contents
+
 ## Installation
 
 ```bash

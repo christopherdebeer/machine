@@ -2,6 +2,8 @@
 
 Complete reference for the DyGram language syntax.
 
+## Table of Contents
+
 ## Machine Declaration
 
 Every DyGram file can optionally start with a machine declaration:

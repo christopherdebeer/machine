@@ -4,6 +4,8 @@
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](http://www.christopherdebeer.com/machine/)
 
+## Table of Contents
+
 ## What is DyGram?
 
 DyGram (formerly "Machine", aka "ideo-gram") is a lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting. It bridges the gap between conceptual thinking and structured implementation.
