@@ -1,0 +1,50 @@
+# Getting Started
+
+Everything you need to start using DyGram quickly.
+
+## Quick Links
+
+- **[Installation](installation.md)** - Complete installation guide for all platforms
+- **[Quick Start](../QuickStart.mdx)** - Your first DyGram machine in minutes
+
+## Overview
+
+DyGram is a lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting.
+
+### Installation
+
+Choose your preferred installation method:
+- npm install (recommended)
+- Direct download
+- Global CLI installation
+
+See the [Installation Guide](installation.md) for detailed instructions.
+
+### Your First Machine
+
+Create a simple state machine:
+
+```dygram
+machine "Hello World"
+
+state start;
+state process;
+state end;
+
+start -> process -> end;
+```
+
+Run it:
+```bash
+npx dygram your-file.dygram
+```
+
+For more examples and interactive walkthroughs, see the [Quick Start Guide](../QuickStart.mdx).
+
+## Next Steps
+
+After getting started:
+- Explore the [Language Overview](../guides/language-overview.md)
+- Try the [Syntax Guide](../guides/syntax-guide.md)
+- Browse [Examples](../examples/README.md)
+- Read about [Advanced Features](../guides/advanced-features.md)

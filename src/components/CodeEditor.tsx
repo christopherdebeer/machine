@@ -49,16 +49,16 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
             try {
                 initializingRef.current = true;
-                
+
                 // Mark DOM element as being initialized
                 codeRef.current.setAttribute('data-monaco-initialized', 'true');
-                
+
                 // Import the setup functions
                 const { configureMonacoWorkers } = await import('../setupCommon');
                 const { executeExtended } = await import('../setupExtended');
 
                 await configureMonacoWorkers();
-                
+
                 // Store the wrapper for cleanup
                 wrapperRef.current = await executeExtended(codeRef.current, false, outputRef.current);
             } catch (error) {

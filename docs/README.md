@@ -1,165 +1,156 @@
-# DyGram Documentation
+# DyGram | Thought → System
 
-Welcome to the DyGram documentation! DyGram is a lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting.
+A lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting.
 
-## 🚀 Getting Started
+## Quick Start
 
-New to DyGram? Start here:
+- [Installation](getting-started/README.md) - Get DyGram up and running in minutes
+- [Syntax Guide](syntax/README.md) - Learn the language fundamentals
+- [Try it now](playground-mobile.html) - Interactive playground
 
-- **[Installation](getting-started/installation.md)** - Set up DyGram on your system
-- **[Quick Start](QuickStart.mdx)** - Your first DyGram machine in minutes
-- **[Language Overview](guides/language-overview.md)** - Core concepts and introduction
+## What is DyGram?
 
-## 📚 Documentation Sections
+DyGram starts broad and unstructured but is immediately executable, evolving toward more structured and complex systems through feedback and iteration.
 
-### [Getting Started](getting-started/README.md)
-Installation guides, quick start tutorials, and your first steps with DyGram.
+### Lean Core DSL
 
-### [Guides](guides/README.md)
-Comprehensive guides covering language features, syntax, patterns, and best practices:
-- Language Overview & Syntax Guide
-- Context and Schema Management
-- Advanced Features & Edge Conditions
-- Meta-Programming & Self-Evolving Systems
-- Testing Approaches
-
-### [Reference](reference/README.md)
-Technical reference documentation:
-- Grammar Reference (formal specification)
-- CLI Reference (command-line tools)
-- API Reference (programmatic usage)
-- Events & Validation Errors
-
-### [Integration](integration/README.md)
-Integrating DyGram with editors, tools, and systems:
-- VS Code Extension
-- LLM Client Usage (Claude, Bedrock)
-- Libraries and Packages
-- Build System Integration
-
-### [Architecture](architecture/README.md)
-System architecture and execution model:
-- Rails-Based Architecture
-- Runtime and Evolution
-- Pattern Recognition
-- Cost Optimization
-
-### [Examples](examples/README.md)
-Practical examples demonstrating features and use cases:
-- Advanced Features Examples
-- Context Management
-- Meta-Programming
-- Workflows & Rails Architecture
-- Validation Patterns
-
-### [Resources](resources/README.md)
-Additional resources and community support:
-- FAQ & Troubleshooting
-- Blog & Articles
-- DSPy Comparison
-- Community & Support
-
-## 🎯 Quick Links
-
-### For Beginners
-1. [Install DyGram](getting-started/installation.md)
-2. [Quick Start Guide](QuickStart.mdx)
-3. [Basic Examples](examples/README.md)
-4. [Syntax Guide](guides/syntax-guide.md)
-
-### For Developers
-- [API Reference](Api.mdx)
-- [CLI Reference](reference/cli-reference.md)
-- [VS Code Extension](integration/vscode-extension.md)
-- [LLM Integration](integration/llm-client-usage.md)
-
-### For Advanced Users
-- [Meta-Programming](guides/meta-programming.md)
-- [Rails Architecture](architecture/rails-based-architecture.md)
-- [Advanced Features](guides/advanced-features.md)
-- [Runtime Evolution](RuntimeAndEvolution.mdx)
-
-## 💡 What Makes DyGram Special?
-
-### Rapid Prototyping
-Start with minimal, unstructured representations that are immediately executable. No need for complete specifications upfront.
+Begin with a minimal, intuitive language that captures domain concepts without unnecessary complexity.
 
 ### Iterative Evolution
-Systems naturally evolve from explorative sketches to structured implementations through execution, feedback, and generative prompting.
 
-### Rails-Based Execution
-Your machine definition acts as "rails" guiding a single agent. Automated transitions for deterministic paths, agent decisions for complex branching.
+Refine your model through execution, generative prompting, and continuous feedback loops.
 
-### Cost Optimization
-Tasks automatically evolve from flexible LLM execution to efficient generated code as patterns emerge, reducing costs over time.
+### Structured Emergence
 
-### Meta-Programming
-Agents can inspect and modify machine definitions at runtime, enabling self-evolving systems that adapt to changing requirements.
+Watch your system naturally evolve from explorative sketches to structured implementations as requirements clarify.
 
-## 🔥 Popular Pages
+## Evolution in Action
 
-- [Rails-Based Architecture](architecture/rails-based-architecture.md) - Understand the execution model
-- [Meta-Programming Guide](guides/meta-programming.md) - Build self-evolving systems
-- [Advanced Features](guides/advanced-features.md) - Master sophisticated patterns
-- [Context Management](guides/context-and-schema-guide.md) - Data flow and validation
-- [Examples Collection](examples/README.md) - Learn from practical examples
+### Stage 1: Initial Exploration
 
-## Language Features Overview
+Start with an immediately executable, unstructured representation of your domain.
 
-### Basic Features
-- **Nodes** - Basic building blocks with optional types (task, state, init, context)
-- **Attributes** - Typed and untyped metadata on nodes
-- **Edges** - Transitions with labels, conditions, and multiple arrow styles
-- **Nesting** - Hierarchical structures with unlimited depth
-- **Context** - Shared configuration and state
-- **Unicode Support** - Full internationalization for identifiers and labels
-
-### Advanced Features
-- **Relationship Types** - 7 semantic arrow types (association, dependency, inheritance, composition, aggregation, bidirectional, emphasis)
-- **Multiplicity** - Cardinality expressions (1, *, 0..1, 1..*, ranges)
-- **Annotations** - Semantic metadata (@Abstract, @Singleton, @Async, @Deprecated, @Critical)
-- **Dependency Inference** - Automatic detection from template variables
-- **Generic Types** - Parameterized types (Promise\<T\>, Array\<T\>, Map\<K,V\>)
-- **Documentation Notes** - Inline notes attached to nodes
-- **Type Checking** - Attribute type validation and inference
-- **Graph Validation** - Reachability, cycles, orphans, entry/exit points
-- **Semantic Validation** - Node type rules and annotation compatibility
-
-See [Advanced Features](guides/advanced-features.md) for details.
-
-## Transformation Pipeline
-
-DyGram supports transformations to multiple output formats:
-```
-DyGram source → AST → JSON → Mermaid diagrams
+```dygram
+problem -> solution;
 ```
 
-All transformations are validated for:
-- **Completeness** - No information lost during parsing
-- **Losslessness** - Round-trip transformations preserve semantics
-- **Validity** - Output formats are syntactically correct
+Or add more structure:
 
-## 🤝 Contributing
+```dygram
+machine "Solution Sketch"
 
-We welcome contributions! Whether it's:
-- Reporting bugs
-- Suggesting features
-- Improving documentation
-- Submitting code
+Input problem {
+    query<string>: "TBD";
+};
 
-See the main [README](../README.md) and visit our [GitHub repository](https://github.com/christopherdebeer/machine).
+Task process {
+    prompt: "Given the problem statement {{ problem.query }} identify a plan to achieve a solution.";
+}
 
-## 📝 Documentation for Contributors
+Result solution {
+    value: "TBD";
+};
 
-- [Langium Quickstart](LangiumQuickstart.mdx) - Language implementation guide
-- [React + MDX Setup](ReactMdxSetup.mdx) - Documentation system architecture
+problem -necessitates-> solution;
+```
 
-## Archive
+### Stage 2: Iterative Refinement
 
-Historical phase documentation has been consolidated into the main guides. See [archive/](archive/) for reference.
+Through execution and feedback, add context and structure to your prototype.
+
+```dygram
+machine "Solution Framework"
+
+Concept problem "User Authentication" {
+    domain: "Security";
+    priority<number>: 9;
+    constraints: ["GDPR Compliance", "Low Latency"];
+    stakeholders: ["Security Team", "UX Team"];
+    risks: ["Token Theft", "Session Hijacking"];
+};
+
+Concept solution "Token-based Auth" {
+    status: "Testing";
+    approach: "JWT Implementation";
+    metrics: ["Security", "Performance", "UX"];
+    components: ["JWT Generator", "Token Validator", "Refresh Logic"];
+    tests: ["Penetration Testing", "Load Testing"];
+};
+
+Resource documentation "Auth Flow Diagram" {
+    url: "https://repo.example.com/auth-flow.pdf";
+    access: "Internal";
+};
+
+problem -addresses, confidence: 0.9-> solution;
+solution -documented_by-> documentation;
+```
+
+### Stage 3: Structured System
+
+Evolve into a comprehensive executable model that bridges conceptual and technical domains.
+
+```dygram
+machine "Knowledge Management System"
+
+Concept idea "Neural Interface" {
+    creator: "Research Team";
+    created<Date>: "2025-01-15";
+    priority<number>: 8;
+    domain: "Neuroscience";
+    description: "Direct neural interface for thought-to-text";
+    tags: ["neural", "interface", "breakthrough"];
+};
+
+Implementation implementation "Neural Interface Prototype" {
+    status: "In Progress";
+    owner: "Engineering";
+    deadline<Date>: "2025-03-30";
+    repository: "github.com/org/neural-interface";
+    version<SemanticVersion>: "0.1.0";
+    dependencies: ["tensorflow", "brain-compute-sdk"];
+};
+
+Resource resource1 "Research Paper" {
+    url: "https://example.com/papers/neural-interfaces-2024";
+    format: "PDF";
+    access<AccessLevel>: "Confidential";
+};
+
+idea -inspires, confidence: 0.85-> implementation;
+idea -documented_in-> resource1;
+implementation -references-> resource1;
+```
+
+## Documentation
+
+### [Getting Started](getting-started/README.md)
+Installation, quick start, and your first machine
+
+### [Syntax Reference](syntax/README.md)
+Complete language syntax - nodes, edges, attributes, types
+
+### [CLI Tools](cli/README.md)
+Command-line interface for generation and execution
+
+### [API Reference](api/README.md)
+Programmatic integration and library API
+
+### [Examples](examples/README.md)
+Practical patterns organized by use case
+
+### [Documentation Archive](archived/README.md)
+Previous versions and legacy content
+
+## Playgrounds
+
+- [CodeMirror Playground](playground-mobile.html) - Mobile-friendly editor
+- [Monaco Playground](playground.html) - Desktop IDE experience
+
+## Contributing
+
+Found an issue or want to improve DyGram? Visit our [GitHub repository](https://github.com/christopherdebeer/machine).
 
 ---
 
-**Explore. Execute. Evolve.**
-
-Ready to get started? Head to the [Installation Guide](getting-started/installation.md) or jump into the [Quick Start](QuickStart.mdx)!
+**Exploration → Implementation** - Start sketching your systems today.

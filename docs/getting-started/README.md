@@ -1,50 +1,137 @@
-# Getting Started
+# Getting Started with DyGram
 
-Everything you need to start using DyGram quickly.
+Get up and running with DyGram in minutes.
 
-## Quick Links
+## Installation
 
-- **[Installation](installation.md)** - Complete installation guide for all platforms
-- **[Quick Start](../QuickStart.mdx)** - Your first DyGram machine in minutes
+### Via npm (Recommended)
 
-## Overview
+```bash
+npm install -g dygram
+```
 
-DyGram is a lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting.
+### From Source
 
-### Installation
+```bash
+git clone https://github.com/christopherdebeer/machine
+cd machine
+npm install
+npm run build
+npm link
+```
 
-Choose your preferred installation method:
-- npm install (recommended)
-- Direct download
-- Global CLI installation
+### Verify Installation
 
-See the [Installation Guide](installation.md) for detailed instructions.
+```bash
+dygram --version
+```
 
-### Your First Machine
+## Your First Machine
 
-Create a simple state machine:
+Create a file called `hello.dygram`:
 
-```dygram
+```dygram examples/getting-started/hello.dygram
 machine "Hello World"
 
-state start;
-state process;
-state end;
+Task start {
+    prompt: "Say hello to the world";
+};
 
-start -> process -> end;
+Task end {
+    prompt: "Conclude the greeting";
+};
+
+start -> end;
 ```
 
-Run it:
+Generate output:
+
 ```bash
-npx dygram your-file.dygram
+dygram generate hello.dygram
 ```
 
-For more examples and interactive walkthroughs, see the [Quick Start Guide](../QuickStart.mdx).
+This creates `hello.json` with the machine's graph representation.
+
+## Quick Start: Project Setup
+
+Create a new project:
+
+```bash
+mkdir my-project
+cd my-project
+dygram init
+```
+
+This creates:
+- `machines/` - Your machine definitions
+- `config.json` - Project configuration
+- `.gitignore` - Recommended ignore patterns
+
+## Basic Concepts
+
+### Nodes
+Nodes are the building blocks - states, tasks, or data.
+
+```dygram
+Task process;
+State ready;
+```
+
+### Edges
+Edges define transitions between nodes.
+
+```dygram
+start -> process -> complete;
+```
+
+### Attributes
+Add metadata and configuration to nodes.
+
+```dygram
+Task analyze {
+    model: "claude-3-5-sonnet-20241022";
+    temperature: 0.7;
+};
+```
+
+### Types
+Specify data types for validation.
+
+```dygram
+Input config {
+    port<number>: 3000;
+    host<string>: "localhost";
+};
+```
 
 ## Next Steps
 
-After getting started:
-- Explore the [Language Overview](../guides/language-overview.md)
-- Try the [Syntax Guide](../guides/syntax-guide.md)
-- Browse [Examples](../examples/README.md)
-- Read about [Advanced Features](../guides/advanced-features.md)
+- **[Syntax Guide](../syntax/README.md)** - Learn the complete language syntax
+- **[CLI Reference](../cli/README.md)** - Explore available commands
+- **[Examples](../examples/README.md)** - See practical patterns
+- **[API Reference](../api/README.md)** - Integrate into your applications
+
+## VS Code Extension
+
+Install the DyGram extension for syntax highlighting and validation:
+
+1. Open VS Code
+2. Search for "DyGram" in extensions
+3. Install and reload
+
+Features:
+- Syntax highlighting
+- Real-time validation
+- Code completion
+- Integrated preview
+
+## Getting Help
+
+- **Documentation** - Browse this guide
+- **Examples** - Check the examples directory
+- **GitHub Issues** - Report bugs or request features
+- **Discussions** - Ask questions and share ideas
+
+---
+
+**Next**: [Core Syntax →](../syntax/README.md)

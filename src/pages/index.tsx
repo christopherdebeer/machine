@@ -1,10 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Content from '../../docs/Index.mdx';
+import { PageLayout } from '../components/PageLayout';
+import Content from '../../docs/README.mdx';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
     <React.StrictMode>
-        <Content />
+        <PageLayout title="README" backLink={false}>
+            <Content />
+        </PageLayout>
     </React.StrictMode>
 );
