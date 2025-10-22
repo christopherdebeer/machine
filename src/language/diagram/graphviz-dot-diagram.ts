@@ -1054,7 +1054,39 @@ function generateNotes(notes: any[]): string {
     notes.forEach((note, index) => {
         // Create a visible note node connected to the target
         const noteId = `note_${index}_${note.target}`;
-        const content = breakLongText(note.content, 40);
+
+        // Build the note content
+        let contentParts: string[] = [];
+
+        // Add annotations if present
+        if (note.annotations && note.annotations.length > 0) {
+            const annotationStr = note.annotations
+                .map((ann: any) => ann.value ? `@${ann.name}(${ann.value})` : `@${ann.name}`)
+                .join(' ');
+            contentParts.push(annotationStr);
+        }
+
+        // Add main content
+        if (note.content) {
+            contentParts.push(note.content);
+        }
+
+        // Add attributes if present
+        if (note.attributes && note.attributes.length > 0) {
+            const attrLines = note.attributes.map((attr: any) => {
+                let displayValue = attr.value?.value ?? attr.value;
+                if (typeof displayValue === 'string') {
+                    displayValue = displayValue.replace(/^["']|["']$/g, '');
+                }
+                const typeStr = attr.type ? ` <${attr.type}>` : '';
+                return `${attr.name}${typeStr}: ${displayValue}`;
+            });
+            contentParts.push('---');
+            contentParts.push(...attrLines);
+        }
+
+        const fullContent = contentParts.join('\n');
+        const content = breakLongText(fullContent, 40);
         const htmlLabel = content.map(line => escapeHtml(line)).join('<br/>');
         lines.push(`  "${noteId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
         lines.push(`  "${noteId}" -> "${note.target}" [style=dashed, color="#999999", arrowhead=none];`);

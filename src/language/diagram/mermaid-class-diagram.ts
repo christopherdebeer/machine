@@ -596,7 +596,29 @@ function generateNotes(notes: any[]): string {
     lines.push('  %% Notes');
 
     notes.forEach(note => {
-        const content = note.content.replace(/\\n/g, '<br/>');
+        let content = note.content.replace(/\\n/g, '<br/>');
+
+        // Add annotations to the content
+        if (note.annotations && note.annotations.length > 0) {
+            const annotationStr = note.annotations
+                .map((ann: any) => ann.value ? `@${ann.name}(${ann.value})` : `@${ann.name}`)
+                .join(' ');
+            content = `${annotationStr}: ${content}`;
+        }
+
+        // Add attributes to the content
+        if (note.attributes && note.attributes.length > 0) {
+            const attrLines = note.attributes.map((attr: any) => {
+                let displayValue = attr.value?.value ?? attr.value;
+                if (typeof displayValue === 'string') {
+                    displayValue = displayValue.replace(/^["']|["']$/g, '');
+                }
+                const typeStr = attr.type ? ` <${attr.type}>` : '';
+                return `${attr.name}${typeStr}: ${displayValue}`;
+            });
+            content = `${content}<br/>${attrLines.join('<br/>')}`;
+        }
+
         lines.push(`  note ${note.target} "${content}"`);
     });
 
