@@ -2,7 +2,7 @@
  * Diagram Generation Module
  *
  * This module encapsulates all diagram generation logic for the Machine language.
- * It provides a clean, minimal public interface for generating various diagram types
+ * It provides a clean, minimal public interface for generating Graphviz diagrams
  * from MachineJSON definitions.
  *
  * ## Usage
@@ -45,18 +45,10 @@ export {
     generateRuntimeGraphvizSVG
 } from './graphviz-generator.js';
 
-// Legacy Mermaid API (deprecated)
-export {
-    generateMermaidFromJSON,
-    generateRuntimeMermaid,
-    generateMobileMermaid
-} from './mermaid-generator.js';
-
 // Types for public consumption
 export type {
     MachineJSON,
     DiagramOptions,
-    MermaidOptions,
     RuntimeContext,
     RuntimeNodeState,
     RuntimeEdgeState,
@@ -65,11 +57,6 @@ export type {
 } from './types.js';
 
 // Internal generators (for advanced usage)
-export {
-    generateClassDiagram,
-    generateRuntimeClassDiagram
-} from './mermaid-class-diagram.js';
-
 export {
     generateDotDiagram,
     generateRuntimeDotDiagram

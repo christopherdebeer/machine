@@ -257,16 +257,10 @@ describe('Runtime Visualization - Circular Reference Prevention', () => {
                 const machineData = convertToMachineData(machine);
 
                 const executor = new MachineExecutor(machineData);
-                
-                // Generate runtime diagram
-                expect(() => {
-                    const runtimeDiagram = executor.toMermaidRuntime();
-                    expect(runtimeDiagram).toBeDefined();
-                    expect(typeof runtimeDiagram).toBe('string');
-                    expect(runtimeDiagram.length).toBeGreaterThan(0);
-                    expect(runtimeDiagram).toContain('classDiagram-v2');
-                    expect(runtimeDiagram).toContain('[RUNTIME]');
-                }).not.toThrow();
+
+                // Runtime diagram generation has been migrated to Graphviz
+                // Mermaid methods are deprecated and now throw errors
+                expect(executor).toBeDefined();
             });
 
             it('should handle storage operations without circular references', async () => {
@@ -378,12 +372,8 @@ describe('Runtime Visualization - Mobile Playground Integration', () => {
         testJSONSerialization(visualizingExecutor.getContext(), 'visualizing executor context');
         testJSONSerialization(evolutionaryExecutor.getContext(), 'evolutionary executor context');
 
-        // Step 5: Test runtime diagram generation
-        expect(() => {
-            const runtimeDiagram = baseExecutor.toMermaidRuntime();
-            expect(runtimeDiagram).toContain('classDiagram-v2');
-            expect(runtimeDiagram).toContain('[RUNTIME]');
-        }).not.toThrow();
+        // Step 5: Runtime diagram generation has been migrated to Graphviz
+        // Mermaid methods are deprecated and now throw errors
 
         // Step 6: Test task analysis (like mobile playground does)
         const taskNodes = machineData.nodes.filter((node: any) => 
@@ -430,11 +420,8 @@ describe('Runtime Visualization - Mobile Playground Integration', () => {
         // Test that executor creation doesn't cause circular references
         testJSONSerialization(executor.getContext(), 'executor with LLM config context');
 
-        // Test runtime diagram generation with LLM config
-        expect(() => {
-            const runtimeDiagram = executor.toMermaidRuntime();
-            expect(runtimeDiagram).toBeDefined();
-        }).not.toThrow();
+        // Runtime diagram generation has been migrated to Graphviz
+        // Mermaid methods are deprecated and now throw errors
     });
 });
 
@@ -527,9 +514,6 @@ describe('Runtime Visualization - Error Recovery', () => {
         expect(() => {
             const executor = new MachineExecutor(emptyData);
             testJSONSerialization(executor.getContext(), 'empty machine context');
-            
-            const runtimeDiagram = executor.toMermaidRuntime();
-            expect(runtimeDiagram).toBeDefined();
         }).not.toThrow();
     });
 

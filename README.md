@@ -324,7 +324,7 @@ npm test -- --watch
 - **Desktop Editor**: [Monaco Editor](https://microsoft.github.io/monaco-editor/) - VS Code's editor
 - **Mobile Editor**: [CodeMirror 6](https://codemirror.net/) - Mobile-optimized editor
 - **Build Tool**: [Vite](https://vitejs.dev/) - Fast build tool
-- **Visualization**: [Mermaid](https://mermaid.js.org/) - Diagram generation
+- **Visualization**: [Graphviz](https://graphviz.org/) - Diagram generation
 - **Runtime**: Node.js 18+
 
 ## Why Two Playgrounds?
@@ -364,7 +364,7 @@ Install the DyGram extension for:
 - Syntax highlighting
 - Code completion
 - Real-time validation
-- Mermaid diagram preview
+- Graphviz diagram preview
 
 ## Contributing
 
@@ -401,4 +401,4 @@ See the [documentation index](docs/README.md) for the complete list.
 
 **Note**: Monaco editor is powerful for desktop but not ideal for mobile. We've added CodeMirror 6 for a superior mobile experience while maintaining the Monaco version for desktop users who prefer its advanced features.
 
-*Powered by Langium, Monaco, CodeMirror, and Mermaid*
+*Powered by Langium, Monaco, CodeMirror, and Graphviz*

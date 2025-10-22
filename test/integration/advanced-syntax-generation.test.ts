@@ -3,15 +3,14 @@ import { createMachineServices } from '../../src/language/machine-module.js';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import type { Machine } from '../../src/language/generated/ast.js';
-import { generateJSON, generateMermaid } from '../../src/language/generator/generator.js';
+import { generateJSON } from '../../src/language/generator/generator.js';
 
 const services = createMachineServices(EmptyFileSystem).Machine;
 const parse = parseHelper<Machine>(services);
 
-async function generateMermaidFromModel(model: Machine, filePath: string, options: any) {
+async function generateJSONFromModel(model: Machine, filePath: string, options: any) {
     const json = await generateJSON(model, filePath, options);
-    const mermaid = await generateMermaid(model, filePath, options);
-    return { json: json.content, mermaid: mermaid.content };
+    return { json: json.content };
 }
 
 describe('Note Generation', () => {
@@ -22,7 +21,7 @@ describe('Note Generation', () => {
             note process "Test note"
         `;
         const result = await parse(input);
-        const json = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         expect(json).toBeDefined();
         // JSON should contain notes array
@@ -40,7 +39,7 @@ describe('Note Generation', () => {
             note process "Process documentation"
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         expect(output.mermaid).toContain('note process');
         expect(output.mermaid).toContain('Process documentation');
@@ -55,7 +54,7 @@ describe('Note Generation', () => {
             note second "Second note"
         `;
         const result = await parse(input);
-        const json = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(json.json);
         expect(machineJson.notes).toHaveLength(2);
@@ -69,7 +68,7 @@ describe('Note Generation', () => {
             note invalid "Invalid note"
         `;
         const result = await parse(input);
-        const json = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(json.json);
         // Should only include notes with valid targets
@@ -86,7 +85,7 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const json = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(json.json);
         const processNode = machineJson.nodes.find((n: any) => n.name === 'process');
@@ -101,7 +100,7 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         // Should convert < > to ~ ~
         expect(output.mermaid).toContain('Promise~Result~');
@@ -115,7 +114,7 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const json = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(json.json);
         const processNode = machineJson.nodes.find((n: any) => n.name === 'process');
@@ -130,7 +129,7 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         // Should handle nested conversion
         expect(output.mermaid).toContain('Promise~Array~Record~~');
@@ -144,7 +143,7 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         expect(output.mermaid).toContain('Array~string~');
     });
@@ -157,7 +156,7 @@ describe('Generic Type Generation', () => {
             }
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         expect(output.mermaid).toContain('Map~string, string~');
     });
@@ -175,7 +174,7 @@ describe('Combined Feature Generation', () => {
             note process "Async task returning Promise<Response>"
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         // Check both features in output
         expect(output.mermaid).toContain('Promise~Response~');
@@ -204,7 +203,7 @@ describe('Combined Feature Generation', () => {
             note fetch "Fetches data asynchronously"
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(output.json);
 
@@ -251,7 +250,7 @@ describe('Combined Feature Generation', () => {
             note transform "Transforms Response to Array of Records"
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(output.json);
 
@@ -286,7 +285,7 @@ describe('Mermaid Output Quality', () => {
             note process "Documentation"
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         // Should have classDiagram-v2 declaration
         expect(output.mermaid).toContain('classDiagram-v2');
@@ -303,7 +302,7 @@ describe('Mermaid Output Quality', () => {
             }
         `;
         const result = await parse(input);
-        const output = await generateMermaidFromModel(result.parseResult.value, '', {});
+        const output = await generateJSONFromModel(result.parseResult.value, '', {});
 
         // Should use tilde notation
         expect(output.mermaid).toContain('Promise~Result~');

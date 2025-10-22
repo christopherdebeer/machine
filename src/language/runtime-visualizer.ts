@@ -504,17 +504,10 @@ export class VisualizingMachineExecutor extends MachineExecutor {
     }
 
     /**
-     * Override toMermaidRuntime to use enhanced Graphviz visualization
-     * Note: Despite the method name, this now returns Graphviz DOT format
-     * @deprecated Name is misleading - returns DOT format, not Mermaid
+     * @deprecated Mermaid support has been removed. This method now throws an error.
+     * Use getRuntimeVisualization() with Graphviz instead.
      */
     public override toMermaidRuntime(): string {
-        return this.getRuntimeVisualization({
-            format: 'class',
-            showRuntimeValues: true,
-            showExecutionPath: true,
-            showVisitCounts: true,
-            showCurrentState: true
-        });
+        throw new Error('Mermaid support has been removed. Use getRuntimeVisualization() for Graphviz diagrams.');
     }
 }

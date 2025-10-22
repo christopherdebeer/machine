@@ -5,7 +5,7 @@ import { MachineLanguageMetaData } from '../language/generated/module.js';
 import { createMachineServices } from '../language/machine-module.js';
 import { extractAstNode, extractDocument, extractDestinationAndName } from './cli-util.js';
 import { RailsExecutor, type MachineData } from '../language/rails-executor.js';
-import { generateJSON, generateMermaid, generateHTML, generateDSL, generateGraphviz, FileGenerationResult } from '../language/generator/generator.js';
+import { generateJSON, generateHTML, generateDSL, generateGraphviz, FileGenerationResult } from '../language/generator/generator.js';
 import { NodeFileSystem } from 'langium/node';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
@@ -18,7 +18,7 @@ import { dirname } from 'node:path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-type GenerateFormat = 'json' | 'mermaid' | 'html' | 'dsl' | 'graphviz' | 'dot';
+type GenerateFormat = 'json' | 'html' | 'dsl' | 'graphviz' | 'dot';
 
 interface GenerateOptions {
     destination?: string;
@@ -36,7 +36,7 @@ interface BatchOptions {
     quiet?: boolean;
 }
 
-const VALID_FORMATS: GenerateFormat[] = ['json', 'mermaid', 'html', 'dsl', 'graphviz', 'dot'];
+const VALID_FORMATS: GenerateFormat[] = ['json', 'html', 'dsl', 'graphviz', 'dot'];
 
 function isValidFormat(format: string): format is GenerateFormat {
     return VALID_FORMATS.includes(format as GenerateFormat);
@@ -97,9 +97,6 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
             switch (format) {
                 case 'json':
                     res = generateJSON(model, fileName, opts.destination);
-                    break;
-                case 'mermaid':
-                    res = generateMermaid(model, fileName, opts.destination);
                     break;
                 case 'graphviz':
                 case 'dot':

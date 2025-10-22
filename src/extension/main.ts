@@ -57,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
         const task = await vscode.tasks.executeTask(new vscode.Task(
             { type: 'shell' },
             vscode.TaskScope.Workspace,
-            'generate mermaid output',
+            'generate diagram output',
             'shell',
             new vscode.ShellExecution(`dygram generate --format html ${activeEditor.document.fileName} -d ${path.dirname(activeEditor.document.fileName)}`)
         ));
@@ -76,7 +76,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         // Create and show preview panel
         const panel = vscode.window.createWebviewPanel(
-            'mermaidPreview',
+            'diagramPreview',
             'DyGram Preview',
             vscode.ViewColumn.Beside,
             {
