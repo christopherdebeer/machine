@@ -690,7 +690,19 @@ function breakLongText(text: string, maxLength: number): string[] {
 }
 
 /**
- * Generate edges section
+ * Helper function to find first child node of a parent cluster
+ */
+function findFirstChild(nodes: any[], parentName: string): string | null {
+    for (const node of nodes) {
+        if (node.parent === parentName) {
+            return node.name;
+        }
+    }
+    return null;
+}
+
+/**
+ * Generate edges section with support for compound edges between clusters
  */
 function generateEdges(machineJson: MachineJSON): string {
     const lines: string[] = [];
@@ -707,17 +719,8 @@ function generateEdges(machineJson: MachineJSON): string {
         }
     });
 
-    // Filter out edges between parent nodes, as Graphviz will create duplicate nodes
-    // Parent-to-parent edges remain in JSON but cannot be properly rendered in DOT
-    // without using compound graph features (ltail/lhead)
-    const renderableEdges = machineJson.edges.filter(edge => {
-        const sourceIsParent = parentNodes.has(edge.source);
-        const targetIsParent = parentNodes.has(edge.target);
-        // Only include edges where at least one endpoint is NOT a parent
-        return !(sourceIsParent && targetIsParent);
-    });
-
-    renderableEdges.forEach(edge => {
+    // Process all edges, including parent-to-parent edges using compound edge features
+    machineJson.edges.forEach(edge => {
         const edgeValue = edge.value || {};
         const keys = Object.keys(edgeValue);
 
@@ -737,28 +740,59 @@ function generateEdges(machineJson: MachineJSON): string {
 
         // Build edge attributes array
         const edgeAttrs: string[] = [];
-        
+
         if (label) {
             edgeAttrs.push(`label="${escapeDot(label)}"`);
         }
-        
+
         // Add multiplicity using taillabel and headlabel (proper UML style)
         if (edge.sourceMultiplicity) {
             edgeAttrs.push(`taillabel="${escapeDot(edge.sourceMultiplicity)}"`);
         }
-        
+
         if (edge.targetMultiplicity) {
             edgeAttrs.push(`headlabel="${escapeDot(edge.targetMultiplicity)}"`);
         }
-        
+
         if (arrowStyle) {
             edgeAttrs.push(arrowStyle);
         }
-        
+
         edgeAttrs.push('labelOverlay="75%"');
         edgeAttrs.push('labelhref="#srcLineTBD"');
 
-        const edgeLine = `  "${edge.source}" -> "${edge.target}" [${edgeAttrs.join(', ')}];`;
+        // Handle compound edges for parent-to-parent connections
+        const sourceIsParent = parentNodes.has(edge.source);
+        const targetIsParent = parentNodes.has(edge.target);
+
+        let actualSource = edge.source;
+        let actualTarget = edge.target;
+
+        // For compound edges, connect via child nodes but use ltail/lhead
+        // to make the edge appear to come from/go to the cluster boundary
+        if (sourceIsParent) {
+            const sourceChild = findFirstChild(machineJson.nodes, edge.source);
+            if (sourceChild) {
+                actualSource = sourceChild;
+                edgeAttrs.push(`ltail="cluster_${edge.source}"`);
+            } else {
+                // Skip edges from empty clusters
+                return;
+            }
+        }
+
+        if (targetIsParent) {
+            const targetChild = findFirstChild(machineJson.nodes, edge.target);
+            if (targetChild) {
+                actualTarget = targetChild;
+                edgeAttrs.push(`lhead="cluster_${edge.target}"`);
+            } else {
+                // Skip edges to empty clusters
+                return;
+            }
+        }
+
+        const edgeLine = `  "${actualSource}" -> "${actualTarget}" [${edgeAttrs.join(', ')}];`;
         lines.push(edgeLine);
     });
 
