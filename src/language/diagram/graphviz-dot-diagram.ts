@@ -7,6 +7,7 @@
 
 import { MachineJSON, DiagramOptions, RuntimeContext, RuntimeNodeState, RuntimeEdgeState, SemanticHierarchy } from './types.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
+import { ValidationContext, ValidationSeverity } from '../validation-errors.js';
 
 /**
  * Helper function to escape DOT special characters
@@ -67,7 +68,7 @@ function getNodeShape(node: any, edges?: any[]): string {
 /**
  * Generate node attributes for styling based on type and annotations
  */
-function getNodeStyle(node: any, edges?: any[]): string {
+function getNodeStyle(node: any, edges?: any[], validationContext?: ValidationContext): string {
     const nodeType = NodeTypeChecker.getNodeType(node, edges);
     const annotations = node.annotations || [];
 
@@ -116,7 +117,79 @@ function getNodeStyle(node: any, edges?: any[]): string {
         }
     }
 
+    // Add validation warning styling if validation context is provided
+    if (validationContext) {
+        const nodeFlag = validationContext.getNodeFlag(node.name);
+        if (nodeFlag && nodeFlag.errors.length > 0) {
+            // Find the highest severity error
+            const maxSeverity = getMaxSeverity(nodeFlag.errors);
+
+            switch (maxSeverity) {
+                case ValidationSeverity.ERROR:
+                    // Red bold border for errors
+                    baseStyle += ', penwidth=3, color="#D32F2F"';
+                    break;
+                case ValidationSeverity.WARNING:
+                    // Orange border for warnings
+                    baseStyle += ', penwidth=2, color="#FFA726"';
+                    break;
+                case ValidationSeverity.INFO:
+                    // Blue dashed border for info
+                    baseStyle += ', penwidth=2, color="#42A5F5"';
+                    if (!baseStyle.includes('dashed')) {
+                        baseStyle = baseStyle.replace('style=filled', 'style="filled,dashed"');
+                    }
+                    break;
+                case ValidationSeverity.HINT:
+                    // Light gray dashed border for hints
+                    baseStyle += ', penwidth=1, color="#9E9E9E"';
+                    if (!baseStyle.includes('dashed')) {
+                        baseStyle = baseStyle.replace('style=filled', 'style="filled,dashed"');
+                    }
+                    break;
+            }
+        }
+    }
+
     return baseStyle;
+}
+
+/**
+ * Get the maximum (most severe) severity from a list of validation errors
+ */
+function getMaxSeverity(errors: any[]): ValidationSeverity {
+    const severityOrder = [
+        ValidationSeverity.ERROR,
+        ValidationSeverity.WARNING,
+        ValidationSeverity.INFO,
+        ValidationSeverity.HINT
+    ];
+
+    for (const severity of severityOrder) {
+        if (errors.some(e => e.severity === severity)) {
+            return severity;
+        }
+    }
+
+    return ValidationSeverity.HINT;
+}
+
+/**
+ * Get icon for warning severity
+ */
+function getWarningIcon(severity: ValidationSeverity): string {
+    switch (severity) {
+        case ValidationSeverity.ERROR:
+            return '🔴';
+        case ValidationSeverity.WARNING:
+            return '⚠️';
+        case ValidationSeverity.INFO:
+            return 'ℹ️';
+        case ValidationSeverity.HINT:
+            return '💡';
+        default:
+            return '⚠️';
+    }
 }
 
 /**
@@ -208,9 +281,12 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     const hierarchy = buildSemanticHierarchy(machineJson.nodes);
     const rootNodes = getRootNodes(machineJson.nodes);
 
+    // Extract validation context from options
+    const validationContext = options.validationContext as ValidationContext | undefined;
+
     // Generate nodes organized by semantic/lexical nesting
     lines.push('  // Node definitions with nested namespaces');
-    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1));
+    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, validationContext, options));
     lines.push('');
 
     // Generate edges
@@ -224,6 +300,17 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
         lines.push('');
         lines.push('  // Notes');
         lines.push(generateNotes(machineJson.notes));
+    }
+
+    // Generate validation warning notes if enabled
+    const showNotes = options.warningMode === 'notes' || options.warningMode === 'both';
+    if (validationContext && showNotes && options.showValidationWarnings !== false) {
+        const warningNotesContent = generateWarningNotes(validationContext, options);
+        if (warningNotesContent) {
+            lines.push('');
+            lines.push('  // Validation Warnings');
+            lines.push(warningNotesContent);
+        }
     }
 
     // Generate inferred dependencies
@@ -483,7 +570,9 @@ function generateSemanticHierarchy(
     hierarchy: SemanticHierarchy,
     nodes: any[],
     machineJson: MachineJSON,
-    level = 0
+    level = 0,
+    validationContext?: ValidationContext,
+    options?: DiagramOptions
 ): string {
     const lines: string[] = [];
     const indent = '  '.repeat(level);
@@ -508,12 +597,12 @@ function generateSemanticHierarchy(
 
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);
-            lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1));
+            lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1, validationContext, options));
 
             lines.push(`${indent}}`);
         } else {
             // Leaf node
-            lines.push(generateNodeDefinition(node, edges, indent));
+            lines.push(generateNodeDefinition(node, edges, indent, validationContext, options));
         }
     });
 
@@ -523,7 +612,7 @@ function generateSemanticHierarchy(
 /**
  * Generate a node definition in DOT format with HTML-like labels for multi-line formatting
  */
-function generateNodeDefinition(node: any, edges: any[], indent: string): string {
+function generateNodeDefinition(node: any, edges: any[], indent: string, validationContext?: ValidationContext, options?: DiagramOptions): string {
     const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
                  node.attributes?.find((a: any) => a.name === 'prompt');
     let displayValue: any = node.title || desc?.value;
@@ -547,7 +636,7 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
         firstRowContent += ' <i>&lt;' + escapeHtml(node.type) + '&gt;</i>';
     }
 
-    
+
 
     // Annotations (italic)
     if (node.annotations && node.annotations.length > 0) {
@@ -605,11 +694,61 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
         htmlLabel += '</td></tr>';
     }
 
+    // Add inline validation warnings if enabled
+    const showInline = !options?.warningMode || options.warningMode === 'inline' || options.warningMode === 'both';
+    if (validationContext && showInline && options?.showValidationWarnings !== false) {
+        const nodeFlag = validationContext.getNodeFlag(node.name);
+        if (nodeFlag && nodeFlag.errors.length > 0) {
+            // Filter by minimum severity if specified
+            const minSeverityOrder: Record<string, number> = {
+                'error': 0,
+                'warning': 1,
+                'info': 2,
+                'hint': 3
+            };
+            const minLevel = minSeverityOrder[options?.minSeverity || 'warning'] ?? 1;
+
+            const filteredErrors = nodeFlag.errors.filter(e => {
+                const errorLevel = minSeverityOrder[e.severity] ?? 3;
+                return errorLevel <= minLevel;
+            });
+
+            if (filteredErrors.length > 0) {
+                // Determine background color based on max severity
+                const maxSeverity = getMaxSeverity(filteredErrors);
+                let bgColor = '#FFF4CC'; // warning default
+                if (maxSeverity === ValidationSeverity.ERROR) bgColor = '#FFCCCC';
+                else if (maxSeverity === ValidationSeverity.INFO) bgColor = '#E3F2FD';
+                else if (maxSeverity === ValidationSeverity.HINT) bgColor = '#F5F5F5';
+
+                htmlLabel += `<tr><td align="left" bgcolor="${bgColor}">`;
+
+                // Show warning count badge
+                const icon = getWarningIcon(maxSeverity);
+                htmlLabel += `<font point-size="8"><b>${icon} ${filteredErrors.length} issue${filteredErrors.length > 1 ? 's' : ''}</b><br/>`;
+
+                // Show first 2 warnings inline (to avoid clutter)
+                filteredErrors.slice(0, 2).forEach((error: any) => {
+                    const shortMsg = error.message.length > 50
+                        ? error.message.substring(0, 50) + '...'
+                        : error.message;
+                    htmlLabel += escapeHtml(shortMsg) + '<br/>';
+                });
+
+                if (filteredErrors.length > 2) {
+                    htmlLabel += `<i>... and ${filteredErrors.length - 2} more</i>`;
+                }
+
+                htmlLabel += '</font></td></tr>';
+            }
+        }
+    }
+
     htmlLabel += '</table>';
 
     // Get shape and styling
     const shape = getNodeShape(node, edges);
-    const style = getNodeStyle(node, edges);
+    const style = getNodeStyle(node, edges, validationContext);
 
     return `${indent}"${node.name}" [label=<${htmlLabel}>, shape=${shape}, ${style}];`;
 }
@@ -728,6 +867,57 @@ function generateNotes(notes: any[]): string {
         const htmlLabel = content.map(line => escapeHtml(line)).join('<br/>');
         lines.push(`  "${noteId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
         lines.push(`  "${noteId}" -> "${note.target}" [style=dashed, color="#999999", arrowhead=none];`);
+    });
+
+    return lines.join('\n');
+}
+
+/**
+ * Generate warning notes from validation context
+ */
+function generateWarningNotes(validationContext: ValidationContext, options?: DiagramOptions): string {
+    const lines: string[] = [];
+    const nodeFlags = validationContext.getAllNodeFlags();
+
+    // Filter by minimum severity if specified
+    const minSeverityOrder: Record<string, number> = {
+        'error': 0,
+        'warning': 1,
+        'info': 2,
+        'hint': 3
+    };
+    const minLevel = minSeverityOrder[options?.minSeverity || 'warning'] ?? 1;
+
+    let noteCount = 0;
+    nodeFlags.forEach((flag, nodeName) => {
+        const filteredErrors = flag.errors.filter(e => {
+            const errorLevel = minSeverityOrder[e.severity] ?? 3;
+            return errorLevel <= minLevel;
+        });
+
+        filteredErrors.forEach((error, index) => {
+            const noteId = `warning_${nodeName}_${index}`;
+            const icon = getWarningIcon(error.severity);
+
+            // Build warning content
+            let content = `${icon} ${error.message}`;
+            if (error.suggestion) {
+                content += `\n\nSuggestion: ${error.suggestion}`;
+            }
+
+            const contentLines = breakLongText(content, 40);
+            const htmlLabel = contentLines.map(line => escapeHtml(line)).join('<br/>');
+
+            // Use different colors based on severity
+            let color = '#FFF4CC'; // warning default
+            if (error.severity === ValidationSeverity.ERROR) color = '#FFCCCC';
+            else if (error.severity === ValidationSeverity.INFO) color = '#E3F2FD';
+            else if (error.severity === ValidationSeverity.HINT) color = '#F5F5F5';
+
+            lines.push(`  "${noteId}" [label=<${htmlLabel}>, shape=note, fillcolor="${color}", style=filled, fontsize=9];`);
+            lines.push(`  "${noteId}" -> "${nodeName}" [style=dashed, color="#999999", arrowhead=none];`);
+            noteCount++;
+        });
     });
 
     return lines.join('\n');
