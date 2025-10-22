@@ -66,8 +66,9 @@ function getNodeShape(node: any, edges?: any[]): string {
 
 /**
  * Generate node attributes for styling based on type and annotations
+ * Also applies custom styles from style nodes if applicable
  */
-function getNodeStyle(node: any, edges?: any[]): string {
+function getNodeStyle(node: any, edges?: any[], styleNodes?: any[]): string {
     const nodeType = NodeTypeChecker.getNodeType(node, edges);
     const annotations = node.annotations || [];
 
@@ -116,7 +117,50 @@ function getNodeStyle(node: any, edges?: any[]): string {
         }
     }
 
+    // Apply custom styles from style nodes
+    if (styleNodes && styleNodes.length > 0) {
+        baseStyle = applyCustomStyles(node, styleNodes, baseStyle);
+    }
+
     return baseStyle;
+}
+
+/**
+ * Apply custom styles from style nodes based on annotation matching
+ */
+function applyCustomStyles(node: any, styleNodes: any[], baseStyle: string): string {
+    let finalStyle = baseStyle;
+    const nodeAnnotations = node.annotations || [];
+
+    // Find matching style nodes
+    for (const styleNode of styleNodes) {
+        const styleAnnotations = styleNode.annotations || [];
+
+        // Check if any of the node's annotations match the style node's selector annotation
+        for (const styleAnnotation of styleAnnotations) {
+            const hasMatchingAnnotation = nodeAnnotations.some(
+                (nodeAnn: any) => nodeAnn.name === styleAnnotation.name
+            );
+
+            if (hasMatchingAnnotation) {
+                // Apply all attributes from the style node as graphviz properties
+                const styleAttrs = styleNode.attributes || [];
+                for (const attr of styleAttrs) {
+                    let attrValue = attr.value;
+
+                    // Clean up string values (remove quotes)
+                    if (typeof attrValue === 'string') {
+                        attrValue = attrValue.replace(/^["']|["']$/g, '');
+                    }
+
+                    // Append to style string
+                    finalStyle += `, ${attr.name}="${attrValue}"`;
+                }
+            }
+        }
+    }
+
+    return finalStyle;
 }
 
 /**
@@ -187,6 +231,10 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
 export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOptions = {}): string {
     const lines: string[] = [];
 
+    // Separate style nodes from renderable nodes
+    const styleNodes = machineJson.nodes.filter(n => NodeTypeChecker.isStyleNode(n));
+    const renderableNodes = machineJson.nodes.filter(n => !NodeTypeChecker.isStyleNode(n));
+
     // Header
     lines.push('digraph {');
     lines.push('  // Graph attributes');
@@ -204,13 +252,13 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
 
-    // Build semantic hierarchy based on parent-child relationships
-    const hierarchy = buildSemanticHierarchy(machineJson.nodes);
-    const rootNodes = getRootNodes(machineJson.nodes);
+    // Build semantic hierarchy based on parent-child relationships (using only renderable nodes)
+    const hierarchy = buildSemanticHierarchy(renderableNodes);
+    const rootNodes = getRootNodes(renderableNodes);
 
     // Generate nodes organized by semantic/lexical nesting
     lines.push('  // Node definitions with nested namespaces');
-    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1));
+    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, styleNodes));
     lines.push('');
 
     // Generate edges
@@ -483,7 +531,8 @@ function generateSemanticHierarchy(
     hierarchy: SemanticHierarchy,
     nodes: any[],
     machineJson: MachineJSON,
-    level = 0
+    level = 0,
+    styleNodes: any[] = []
 ): string {
     const lines: string[] = [];
     const indent = '  '.repeat(level);
@@ -508,12 +557,12 @@ function generateSemanticHierarchy(
 
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);
-            lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1));
+            lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1, styleNodes));
 
             lines.push(`${indent}}`);
         } else {
             // Leaf node
-            lines.push(generateNodeDefinition(node, edges, indent));
+            lines.push(generateNodeDefinition(node, edges, indent, styleNodes));
         }
     });
 
@@ -523,7 +572,7 @@ function generateSemanticHierarchy(
 /**
  * Generate a node definition in DOT format with HTML-like labels for multi-line formatting
  */
-function generateNodeDefinition(node: any, edges: any[], indent: string): string {
+function generateNodeDefinition(node: any, edges: any[], indent: string, styleNodes: any[] = []): string {
     const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
                  node.attributes?.find((a: any) => a.name === 'prompt');
     let displayValue: any = node.title || desc?.value;
@@ -609,7 +658,7 @@ function generateNodeDefinition(node: any, edges: any[], indent: string): string
 
     // Get shape and styling
     const shape = getNodeShape(node, edges);
-    const style = getNodeStyle(node, edges);
+    const style = getNodeStyle(node, edges, styleNodes);
 
     return `${indent}"${node.name}" [label=<${htmlLabel}>, shape=${shape}, ${style}];`;
 }
