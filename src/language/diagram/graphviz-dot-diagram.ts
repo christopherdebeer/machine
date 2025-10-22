@@ -7,7 +7,6 @@
 
 import { MachineJSON, DiagramOptions, RuntimeContext, RuntimeNodeState, RuntimeEdgeState, SemanticHierarchy } from './types.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
-import { Attribute } from '../generated/ast.js';
 
 /**
  * Helper function to escape DOT special characters
