@@ -540,6 +540,33 @@ function getRootNodes(nodes: any[]): any[] {
 }
 
 /**
+ * Generate HTML table for attributes
+ * Shared function used by both nodes and notes to ensure consistent rendering
+ */
+function generateAttributesTable(attributes: any[]): string {
+    if (!attributes || attributes.length === 0) {
+        return '';
+    }
+
+    let html = '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
+    attributes.forEach((attr: any) => {
+        let displayValue = attr.value?.value ?? attr.value;
+        if (typeof displayValue === 'string') {
+            displayValue = displayValue.replace(/^["']|["']$/g, '');
+            // Break long values into multiple lines
+            displayValue = breakLongText(displayValue, 30).join('<br/>');
+        }
+        const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
+        html += '<tr>';
+        html += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
+        html += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+        html += '</tr>';
+    });
+    html += '</table>';
+    return html;
+}
+
+/**
  * Generate HTML label for namespace (parent node) showing id, type, annotations, title, description, and attributes
  */
 function generateNamespaceLabel(node: any): string {
@@ -592,19 +619,7 @@ function generateNamespaceLabel(node: any): string {
 
     if (displayAttrs.length > 0) {
         htmlLabel += '<tr><td>';
-        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
-        displayAttrs.forEach((attr: any) => {
-            let displayValue = attr.value;
-            if (typeof displayValue === 'string') {
-                displayValue = displayValue.replace(/^["']|["']$/g, '');
-            }
-            const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
-            htmlLabel += '<tr>';
-            htmlLabel += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
-            htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
-            htmlLabel += '</tr>';
-        });
-        htmlLabel += '</table>';
+        htmlLabel += generateAttributesTable(displayAttrs);
         htmlLabel += '</td></tr>';
     }
 
@@ -721,24 +736,7 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
 
     if (attributes.length > 0) {
         htmlLabel += '<tr><td>';
-        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
-
-        attributes.forEach((a: any) => {
-            let displayValue = a.value?.value ?? a.value;
-            if (typeof displayValue === 'string') {
-                displayValue = displayValue.replace(/^["']|["']$/g, '');
-                // Break long values into multiple lines
-                displayValue = breakLongText(displayValue, 30).join('<br/>');
-            }
-            const typeStr = a.type ? ' : ' + escapeHtml(a.type) : '';
-
-            htmlLabel += '<tr>';
-            htmlLabel += '<td align="left">' + escapeHtml(a.name) + typeStr + '</td>';
-            htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
-            htmlLabel += '</tr>';
-        });
-
-        htmlLabel += '</table>';
+        htmlLabel += generateAttributesTable(attributes);
         htmlLabel += '</td></tr>';
     }
 
@@ -1054,8 +1052,33 @@ function generateNotes(notes: any[]): string {
     notes.forEach((note, index) => {
         // Create a visible note node connected to the target
         const noteId = `note_${index}_${note.target}`;
-        const content = breakLongText(note.content, 40);
-        const htmlLabel = content.map(line => escapeHtml(line)).join('<br/>');
+
+        // Build HTML label similar to nodes
+        let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
+
+        // First row: Annotations (if present)
+        if (note.annotations && note.annotations.length > 0) {
+            const annotationStr = note.annotations
+                .map((ann: any) => ann.value ? `@${ann.name}(${ann.value})` : `@${ann.name}`)
+                .join(' ');
+            htmlLabel += '<tr><td align="left"><i>' + escapeHtml(annotationStr) + '</i></td></tr>';
+        }
+
+        // Second row: Main content
+        if (note.content) {
+            const content = breakLongText(note.content, 40);
+            htmlLabel += '<tr><td align="left">' + content.map(line => escapeHtml(line)).join('<br/>') + '</td></tr>';
+        }
+
+        // Attributes table (using shared function)
+        if (note.attributes && note.attributes.length > 0) {
+            htmlLabel += '<tr><td>';
+            htmlLabel += generateAttributesTable(note.attributes);
+            htmlLabel += '</td></tr>';
+        }
+
+        htmlLabel += '</table>';
+
         lines.push(`  "${noteId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
         lines.push(`  "${noteId}" -> "${note.target}" [style=dashed, color="#999999", arrowhead=none];`);
     });

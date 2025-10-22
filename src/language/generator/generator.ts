@@ -477,7 +477,16 @@ class JSONGenerator extends BaseGenerator {
 
         return this.machine.notes.map(note => ({
             target: note.target.ref?.name || '',
-            content: note.title?.replace(/^"|"$/g, '') || ''
+            content: note.title?.replace(/^"|"$/g, '') || '',
+            annotations: note.annotations?.map((ann: any) => ({
+                name: ann.name,
+                value: ann.value?.replace(/^"|"$/g, '')
+            })) || [],
+            attributes: note.attributes?.map((attr: any) => ({
+                name: attr.name,
+                type: attr.type,
+                value: this.extractPrimitiveValue(attr.value)
+            })) || []
         })).filter(n => n.target); // Filter out notes with invalid targets
     }
 
