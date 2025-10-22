@@ -108,9 +108,49 @@ Task criticalError @Error @Urgent {
 }
 ```
 
+## Edge Styling
+
+Style nodes also work with edge annotations! You can apply custom styles to edges by adding annotations to edge labels.
+
+```dygram
+machine "Edge Styling Example"
+
+// Define style for critical edges
+style criticalEdge @critical {
+    color: "#ff0000";
+    penwidth: 5;
+}
+
+state a;
+state b;
+state c;
+
+// Edge with annotation - visible in label
+a -@critical important-> b;
+
+// Edge with annotation - style only, hidden label
+b -@critical @hideLabel-> c;
+```
+
+**Output**:
+- First edge: Shows "@critical important" label with red, thick line
+- Second edge: Shows no annotation text, only red, thick line styling
+
+### Hiding Edge Annotation Labels
+
+Use `@hideLabel` or `@hideAnnotation` to apply edge styles without showing the annotation text in the edge label:
+
+```dygram
+// Style is applied, but annotation text is hidden
+process -@critical @hideLabel done-> complete;
+```
+
+This generates: `label="done"` (no "@critical" shown) but still applies `color="#ff0000", penwidth="5"` from the style node.
+
 ## Benefits
 
-- **Reusable**: Define styles once, apply to many nodes
+- **Reusable**: Define styles once, apply to many nodes and edges
 - **Declarative**: Separates visual styling from behavior
 - **Type-Safe**: Works with existing annotation system
 - **No Grammar Changes**: Uses existing DyGram syntax
+- **Flexible**: Hide annotation text while keeping visual styles
