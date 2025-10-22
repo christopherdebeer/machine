@@ -2,6 +2,8 @@
 
 Get up and running with DyGram in minutes.
 
+## Table of Contents
+
 ## Installation
 
 ### Via npm (Recommended)
