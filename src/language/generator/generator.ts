@@ -8,11 +8,122 @@ import { DependencyAnalyzer } from '../dependency-analyzer.js';
 import { generateMermaidFromJSON } from '../diagram/index.js';
 import { generateGraphvizFromJSON } from '../diagram/index.js';
 import { TypeHierarchy } from '../diagram/types.js';
+import { TypeChecker } from '../type-checker.js';
+import { GraphValidator } from '../graph-validator.js';
+import { ValidationContext, ValidationSeverity, ValidationCategory, createValidationError } from '../validation-errors.js';
 
 // Common interfaces
 interface GeneratorOptions {
     destination?: string;
     format?: string;
+}
+
+/**
+ * Build a ValidationContext from a Machine AST
+ * This runs all validation checks and collects errors into a ValidationContext
+ * that can be passed to diagram generators for visualization
+ */
+function buildValidationContext(machine: Machine): ValidationContext {
+    const context = new ValidationContext();
+
+    // Run graph validation
+    try {
+        const graphValidator = new GraphValidator(machine);
+        const graphResult = graphValidator.validate();
+
+        // Add unreachable node warnings
+        if (graphResult.unreachableNodes && graphResult.unreachableNodes.length > 0) {
+            graphResult.unreachableNodes.forEach(nodeName => {
+                context.addError(createValidationError(
+                    `Node cannot be reached from entry points`,
+                    {
+                        severity: ValidationSeverity.WARNING,
+                        category: ValidationCategory.GRAPH,
+                        code: 'UNREACHABLE_NODE',
+                        location: { node: nodeName },
+                        suggestion: 'Add an edge from an entry point or init node to this node'
+                    }
+                ));
+            });
+        }
+
+        // Add orphaned node warnings
+        if (graphResult.orphanedNodes && graphResult.orphanedNodes.length > 0) {
+            graphResult.orphanedNodes.forEach(nodeName => {
+                context.addError(createValidationError(
+                    `Node has no incoming or outgoing edges`,
+                    {
+                        severity: ValidationSeverity.WARNING,
+                        category: ValidationCategory.GRAPH,
+                        code: 'ORPHANED_NODE',
+                        location: { node: nodeName },
+                        suggestion: 'Connect this node to the graph or remove it if unused'
+                    }
+                ));
+            });
+        }
+
+        // Add cycle warnings
+        if (graphResult.cycles && graphResult.cycles.length > 0) {
+            graphResult.cycles.forEach((cycle, index) => {
+                const nodesInCycle = cycle.join(' → ');
+                // Add warning to each node in the cycle
+                cycle.forEach(nodeName => {
+                    context.addError(createValidationError(
+                        `Part of cycle: ${nodesInCycle}`,
+                        {
+                            severity: ValidationSeverity.WARNING,
+                            category: ValidationCategory.GRAPH,
+                            code: 'CYCLE_DETECTED',
+                            location: { node: nodeName },
+                            suggestion: 'Review cycle logic to prevent infinite loops'
+                        }
+                    ));
+                });
+            });
+        }
+    } catch (error) {
+        console.warn('Error running graph validation:', error);
+    }
+
+    // Run type checking on all attributes
+    try {
+        const typeChecker = new TypeChecker(machine);
+        const processNode = (node: Node) => {
+            if (node.attributes) {
+                node.attributes.forEach(attr => {
+                    if (attr.type) {
+                        const result = typeChecker.validateAttributeType(attr);
+                        if (!result.valid && result.message) {
+                            context.addError(createValidationError(
+                                result.message,
+                                {
+                                    severity: ValidationSeverity.ERROR,
+                                    category: ValidationCategory.TYPE,
+                                    code: 'TYPE_MISMATCH',
+                                    location: {
+                                        node: node.name,
+                                        property: attr.name
+                                    },
+                                    expected: result.expectedType,
+                                    actual: result.actualType
+                                }
+                            ));
+                        }
+                    }
+                });
+            }
+
+            // Recursively process child nodes
+            node.nodes.forEach(child => processNode(child));
+        };
+
+        machine.nodes.forEach(node => processNode(node));
+    } catch (error) {
+        console.warn('Error running type checking:', error);
+    }
+
+    return context;
 }
 
 export interface FileGenerationResult {
@@ -439,9 +550,16 @@ class GraphvizGenerator extends BaseGenerator {
         const jsonContent = jsonGen.generate();
         const machineJson: MachineJSON = JSON.parse(jsonContent.content);
 
-        // Use the Graphviz DOT generator
+        // Build validation context from the machine AST
+        const validationContext = buildValidationContext(this.machine);
+
+        // Use the Graphviz DOT generator with validation context
         const dotContent = generateGraphvizFromJSON(machineJson, {
-            title: this.machine.title
+            title: this.machine.title,
+            validationContext: validationContext,
+            showValidationWarnings: true,
+            warningMode: 'both', // Show both inline badges and warning notes
+            minSeverity: 'warning' // Show warnings and errors (not info/hint)
         });
 
         return {
@@ -456,9 +574,16 @@ class GraphvizGenerator extends BaseGenerator {
         const jsonContent = jsonGen.generate();
         const machineJson: MachineJSON = JSON.parse(jsonContent.content);
 
-        // Use the Graphviz DOT generator
+        // Build validation context from the machine AST
+        const validationContext = buildValidationContext(this.machine);
+
+        // Use the Graphviz DOT generator with validation context
         return generateGraphvizFromJSON(machineJson, {
-            title: this.machine.title
+            title: this.machine.title,
+            validationContext: validationContext,
+            showValidationWarnings: true,
+            warningMode: 'both', // Show both inline badges and warning notes
+            minSeverity: 'warning' // Show warnings and errors (not info/hint)
         });
     }
 }
