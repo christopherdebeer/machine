@@ -1,4 +1,4 @@
-import { DefaultLinker, LangiumDocument } from 'langium';
+import { AstNodeDescription, AstUtils, DefaultLinker, isLinkingError, LangiumDocument, LinkingError, ReferenceInfo } from 'langium';
 import { Machine, Node, isMachine, } from './generated/ast.js';
 import type { MachineServices } from './machine-module.js';
 
@@ -9,6 +9,34 @@ export class MachineLinker extends DefaultLinker {
     
     constructor(services: MachineServices) {
         super(services);
+    }
+
+    /**
+     * Override getCandidate to suppress linking errors in non-strict mode.
+     * Instead of returning a LinkingError, we create a placeholder node and return its description.
+     * This prevents errors from being generated at the source during the linking phase.
+     */
+    override getCandidate(refInfo: ReferenceInfo): AstNodeDescription | LinkingError {
+        // First try the default resolution
+        const candidate = super.getCandidate(refInfo);
+
+        // If we got a linking error and we're in non-strict mode, create the node instead
+        if (isLinkingError(candidate)) {
+            const machine = AstUtils.getContainerOfType(refInfo.container, isMachine);
+            if (machine && !this.isStrictMode(machine)) {
+                // Create the placeholder node
+                const nodeName = refInfo.reference.$refText;
+                const placeholderNode = this.createPlaceholderNode(machine, nodeName);
+
+                if (placeholderNode) {
+                    // Return a node description for the placeholder instead of an error
+                    // This prevents the LinkingError from being added to diagnostics
+                    return this.createNodeDescription(placeholderNode);
+                }
+            }
+        }
+
+        return candidate;
     }
 
     /**
@@ -134,5 +162,19 @@ export class MachineLinker extends DefaultLinker {
             return undefined;
         };
         return findInNodes(machine.nodes);
+    }
+
+    /**
+     * Create an AstNodeDescription for a node
+     * This is used to return a valid description when we create placeholder nodes
+     */
+    private createNodeDescription(node: Node): AstNodeDescription {
+        return {
+            node,
+            name: node.name,
+            type: 'Node',
+            documentUri: AstUtils.getDocument(node).uri,
+            path: this.astNodeLocator.getAstNodePath(node)
+        };
     }
 }
