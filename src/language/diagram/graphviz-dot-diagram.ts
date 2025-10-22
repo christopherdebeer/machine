@@ -576,11 +576,14 @@ function generateAttributesTable(attributes: any[]): string {
     let html = '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
     attributes.forEach((attr: any) => {
         let displayValue = attr.value?.value ?? attr.value;
+        // Use formatAttributeValueForDisplay to properly handle nested objects and arrays
+        displayValue = formatAttributeValueForDisplay(displayValue);
+
+        // Break long values into multiple lines
         if (typeof displayValue === 'string') {
-            displayValue = displayValue.replace(/^["']|["']$/g, '');
-            // Break long values into multiple lines
             displayValue = breakLongText(displayValue, 30).join('<br/>');
         }
+
         const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
         html += '<tr>';
         html += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
