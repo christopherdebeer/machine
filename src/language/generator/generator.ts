@@ -10,6 +10,7 @@ import { TypeHierarchy } from '../diagram/types.js';
 import { TypeChecker } from '../type-checker.js';
 import { GraphValidator } from '../graph-validator.js';
 import { ValidationContext, ValidationSeverity, ValidationCategory, createValidationError } from '../validation-errors.js';
+import { extractValueFromAST } from '../utils/ast-helpers.js';
 
 // Common interfaces
 interface GeneratorOptions {
@@ -413,7 +414,8 @@ class JSONGenerator extends BaseGenerator {
     private serializeAttributes(node: Node): any[] {
         return node.attributes?.map(attr => {
             // Extract the actual value from the AttributeValue using recursive extraction
-            let value: any = this.extractPrimitiveValue(attr.value);
+            // Use the shared extractValueFromAST helper which handles nested objects/arrays
+            let value: any = extractValueFromAST(attr.value);
 
             // Serialize type (including generic types)
             const typeStr = attr.type ? this.serializeType(attr.type) : undefined;
@@ -429,7 +431,8 @@ class JSONGenerator extends BaseGenerator {
     private serializeMachineAttributes(attributes: any[]): any[] {
         return attributes?.map(attr => {
             // Extract the actual value from the AttributeValue using recursive extraction
-            let value: any = this.extractPrimitiveValue(attr.value);
+            // Use the shared extractValueFromAST helper which handles nested objects/arrays
+            let value: any = extractValueFromAST(attr.value);
 
             // Serialize type (including generic types)
             const typeStr = attr.type ? this.serializeType(attr.type) : undefined;

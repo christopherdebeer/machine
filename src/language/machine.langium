@@ -59,12 +59,27 @@ entry Machine:
     (nodes+=Node<true> | edges+=Edge<true> | notes+=Note | attributes+=Attribute<true>)*
 ;
 
-// Note: Using '=' for single values and '+=' for arrays is intentional.
-// This allows type inference to distinguish between single values and arrays.
-// The Langium warning can be safely ignored here.
+// Recursive AttributeValue supporting primitives, arrays, and nested objects
+// Using explicit properties (primitiveValue, arrayValue, objectValue) to enable
+// proper type inference and avoid union type ambiguities
 AttributeValue:
-    ('[' (value+=(EXTID|STRING|ID|NUMBER) (',' value+=(EXTID|STRING|ID|NUMBER))*)? ']')
-    | value=(EXTID|STRING|ID|NUMBER);
+    ObjectValue | ArrayValue | PrimitiveValue
+;
+
+// Object value: nested attributes enclosed in braces
+ObjectValue:
+    '{' (attributes+=Attribute<false>)* '}'
+;
+
+// Array value: comma-separated AttributeValues enclosed in brackets
+ArrayValue:
+    '[' (values+=AttributeValue (',' values+=AttributeValue)*)? ']'
+;
+
+// Primitive value: string, number, ID, or external ID
+PrimitiveValue:
+    value=(EXTID|STRING|ID|NUMBER)
+;
 
 // Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated, @note)
 Annotation:
@@ -90,7 +105,7 @@ TypeDef:
 ;
 
 Attribute<isRoot>:
-    name=ID ('<' type=TypeDef '>')? (':' value=AttributeValue)? ';'?
+    name=ID ('<' type=TypeDef '>')? (':' value=AttributeValue ';')?
 ;
 
 Node<isRoot>:

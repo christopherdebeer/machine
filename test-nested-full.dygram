@@ -1,0 +1,11 @@
+machine "Nested attributes test"
+foo: {
+  bar: "baz";
+};
+
+node TestNode {
+  prop: true;
+  more: {
+    about: "more is not a child node but rather nested attribute";
+  };
+}

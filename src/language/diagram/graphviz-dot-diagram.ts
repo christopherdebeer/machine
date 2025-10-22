@@ -38,6 +38,34 @@ function escapeHtml(text: string): string {
 }
 
 /**
+ * Format attribute value for display in graphviz labels
+ * Properly handles nested objects and arrays
+ */
+function formatAttributeValueForDisplay(value: any): string {
+    if (value === null || value === undefined) {
+        return 'null';
+    }
+
+    if (typeof value === 'string') {
+        return value.replace(/^["']|["']$/g, '');
+    }
+
+    if (typeof value === 'boolean' || typeof value === 'number') {
+        return String(value);
+    }
+
+    if (Array.isArray(value)) {
+        return JSON.stringify(value);
+    }
+
+    if (typeof value === 'object') {
+        return JSON.stringify(value);
+    }
+
+    return String(value);
+}
+
+/**
  * Get node shape based on type and annotations
  */
 function getNodeShape(node: any, edges?: any[]): string {
@@ -281,14 +309,11 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
         htmlLabel += '<tr><td>';
         htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
         displayAttrs.forEach(attr => {
-            let displayValue = attr.value;
-            if (typeof displayValue === 'string') {
-                displayValue = displayValue.replace(/^["']|["']$/g, '');
-            }
+            const displayValue = formatAttributeValueForDisplay(attr.value);
             const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
             htmlLabel += '<tr>';
             htmlLabel += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
-            htmlLabel += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+            htmlLabel += '<td align="left">' + escapeHtml(displayValue) + '</td>';
             htmlLabel += '</tr>';
         });
         htmlLabel += '</table>';
@@ -551,11 +576,14 @@ function generateAttributesTable(attributes: any[]): string {
     let html = '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
     attributes.forEach((attr: any) => {
         let displayValue = attr.value?.value ?? attr.value;
+        // Use formatAttributeValueForDisplay to properly handle nested objects and arrays
+        displayValue = formatAttributeValueForDisplay(displayValue);
+
+        // Break long values into multiple lines
         if (typeof displayValue === 'string') {
-            displayValue = displayValue.replace(/^["']|["']$/g, '');
-            // Break long values into multiple lines
             displayValue = breakLongText(displayValue, 30).join('<br/>');
         }
+
         const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
         html += '<tr>';
         html += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
