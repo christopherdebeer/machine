@@ -92,7 +92,11 @@ export abstract class BaseExecutor {
     protected celEvaluator: CelEvaluator;
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
-        this.machineData = machineData;
+        // Filter out style nodes from execution (they're metadata only)
+        this.machineData = {
+            ...machineData,
+            nodes: machineData.nodes.filter(n => !NodeTypeChecker.isStyleNode(n))
+        };
 
         // Initialize CEL evaluator
         this.celEvaluator = new CelEvaluator();

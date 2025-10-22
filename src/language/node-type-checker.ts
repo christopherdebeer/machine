@@ -225,6 +225,15 @@ export class NodeTypeChecker {
     }
 
     /**
+     * Check if a node is a style node
+     * Style nodes are non-executable metadata that define visual styling rules
+     * They are identified by explicit type 'style' or 'Style'
+     */
+    static isStyleNode(node: NodeLike | ASTNode): boolean {
+        return node.type?.toLowerCase() === 'style';
+    }
+
+    /**
      * Check if a node requires agent decision
      * A node requires agent decision if:
      * 1. It's a task node with a prompt, OR
