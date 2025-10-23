@@ -327,8 +327,11 @@ export class MachineValidator {
      */
     checkNodeTypeSemantics(machine: Machine, accept: ValidationAcceptor): void {
         const processNode = (node: Node) => {
+            // Normalize type for comparison
+            const nodeType = node.type?.toLowerCase();
+
             // Rule 1: init nodes should have outgoing edges
-            if (node.type === 'init') {
+            if (nodeType === 'init') {
                 const hasOutgoingEdges = machine.edges.some(edge =>
                     edge.source.some(s => s.$refText === node.name || s.ref?.name === node.name)
                 );
@@ -342,7 +345,7 @@ export class MachineValidator {
             }
 
             // Rule 2: context nodes shouldn't have incoming edges (they're configuration)
-            if (node.type === 'context') {
+            if (nodeType === 'context') {
                 const hasIncomingEdges = machine.edges.some(edge =>
                     edge.segments.some(segment =>
                         segment.target.some(t => t.$refText === node.name || t.ref?.name === node.name)
@@ -417,9 +420,11 @@ export class MachineValidator {
 
         node.annotations.forEach(annotation => {
             const annotationName = annotation.name;
+            // Normalize type for comparison
+            const nodeType = node.type?.toLowerCase();
 
             // @Async annotation should only be on task nodes
-            if (annotationName === 'Async' && node.type !== 'task') {
+            if (annotationName === 'Async' && nodeType !== 'task') {
                 accept('warning',
                     `@Async annotation is typically used only on task nodes, but '${node.name}' is of type '${node.type}'.`,
                     { node: annotation, property: 'name' }
@@ -427,7 +432,7 @@ export class MachineValidator {
             }
 
             // @Singleton annotation makes sense for context or service nodes
-            if (annotationName === 'Singleton' && node.type === 'state') {
+            if (annotationName === 'Singleton' && nodeType === 'state') {
                 accept('warning',
                     `@Singleton annotation on state node '${node.name}' may not be meaningful. Consider using it on task or context nodes.`,
                     { node: annotation, property: 'name' }
@@ -435,7 +440,7 @@ export class MachineValidator {
             }
 
             // @Abstract annotation with init nodes doesn't make sense
-            if (annotationName === 'Abstract' && node.type === 'init') {
+            if (annotationName === 'Abstract' && nodeType === 'init') {
                 accept('error',
                     `@Abstract annotation cannot be used on init node '${node.name}'. Init nodes are concrete entry points.`,
                     { node: annotation, property: 'name' }

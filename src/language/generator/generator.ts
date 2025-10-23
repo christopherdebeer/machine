@@ -315,7 +315,7 @@ class JSONGenerator extends BaseGenerator {
         const flattenNode = (node: Node, parentName?: string): any[] => {
             const baseNode: any = {
                 name: node.name,
-                type: node.type,
+                type: node.type?.toLowerCase(),  // Normalize type to lowercase
                 attributes: this.serializeAttributes(node)
             };
 

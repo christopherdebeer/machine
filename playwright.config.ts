@@ -74,7 +74,7 @@ export default defineConfig({
         command: 'npm run dev',
         url: 'http://localhost:5173/machine',
         reuseExistingServer: !process.env.CI,
-        timeout: 10 * 1000, // 2 minutes to start
+        timeout: 120 * 1000, // 2 minutes to start
         stdout: 'pipe',
         stderr: 'pipe',
     },
