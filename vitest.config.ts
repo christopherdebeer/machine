@@ -16,12 +16,20 @@ export default defineConfig({
         extensions: ['.ts', '.js', '.json']
     },
     test: {
-        // coverage: {
-        //     provider: 'v8',
-        //     reporter: ['text', 'html'],
-        //     include: ['src'],
-        //     exclude: ['**/generated'],
-        // },
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'html', 'json-summary', 'json'],
+            reportsDirectory: 'test-output/coverage',
+            include: ['src/**/*.ts'],
+            exclude: [
+                '**/generated/**',
+                '**/node_modules/**',
+                '**/test/**',
+                '**/*.test.ts',
+                '**/*.spec.ts',
+                '**/shims/**',
+            ],
+        },
         deps: {
             interopDefault: true
         },

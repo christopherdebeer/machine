@@ -40,17 +40,20 @@ export default defineConfig({
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
-        // baseURL: 'http://127.0.0.1:3000',
+        baseURL: 'http://127.0.0.1:5173',
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
 
-        /* Screenshot on failure for debugging */
-        screenshot: 'only-on-failure',
+        /* Capture screenshots always (even on passes) */
+        screenshot: 'on',
 
-        /* Video on failure for debugging */
-        video: 'retain-on-failure',
+        /* Capture video always (even on passes) */
+        video: 'on',
     },
+
+    /* Output folder for test artifacts */
+    outputDir: 'test-output/e2e-artifacts',
 
     /* Configure projects for major browsers */
     projects: [
@@ -66,11 +69,13 @@ export default defineConfig({
         },
     ],
 
-    /* Run local dev server before starting the tests (optional) */
-    // webServer: {
-    //     command: 'npm run dev',
-    //     url: 'http://127.0.0.1:5173',
-    //     reuseExistingServer: !process.env.CI,
-    //     timeout: 120 * 1000, // 2 minutes to start
-    // },
+    /* Run local dev server before starting the tests */
+    webServer: {
+        command: 'npm run dev:web',
+        url: 'http://127.0.0.1:5173',
+        reuseExistingServer: !process.env.CI,
+        timeout: 120 * 1000, // 2 minutes to start
+        stdout: 'pipe',
+        stderr: 'pipe',
+    },
 });
