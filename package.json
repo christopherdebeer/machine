@@ -18,7 +18,7 @@
         "clean": "rm -rf ./dist ./test-output ./out",
         "prebuild": "node scripts/prebuild.js && npm run langium:generate",
         "build": "npm run build:all",
-        "build:all": "npm run prebuild && npm run build:extension && npm run build:web",
+        "build:all": "npm run prebuild && npm run build:web",
         "build:extension": "tsc -b tsconfig.src.json && node esbuild.mjs",
         "build:web": "vite build && node scripts/generate-sitemap.js",
         "watch": "npm run prebuild && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild.mjs --watch\"",
