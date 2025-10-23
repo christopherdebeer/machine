@@ -123,7 +123,6 @@ export class OutputPanel {
         this.container.style.cssText = `
             display: flex;
             flex-direction: column;
-            height: 100%;
             overflow: hidden;
         `;
         this.container.appendChild(this.toggleContainer);
