@@ -128,7 +128,7 @@
 
         .section-content {
             flex: 1;
-            overflow: hidden;
+            overflow: auto;
             transition: flex 0.3s ease;
         }
 
@@ -163,6 +163,23 @@
             flex: 0 0 0;
             min-height: 0;
             height: auto;
+        }
+
+        .execution-section {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #1e1e1e;
+            transition: flex 0.3s ease;
+            max-height: 400px;
+        }
+
+        .execution-section.collapsed {
+            flex: 0 0 0;
+            min-height: 0;
+            height: 0;
+            max-height: 0;
         }
 
         #output {
@@ -346,6 +363,20 @@
         select.settings-input {
             cursor: pointer;
         }
+
+        #output-panel-container {
+            overflow: auto;
+            height: 100%;
+        }
+        .output-format-content {
+            overflow: auto;
+        }
+
+        .output-format-content > svg {
+            max-width: 200%;
+            display: block;
+            margin: 0 auto;
+        }
     </style> 
 </head>
 <body>
@@ -405,6 +436,14 @@
             <div class="section-content" id="output-content">
                 <!-- Output Panel with Format Toggles -->
                 <div id="output-panel-container"></div>
+            </div>
+        </div>
+        <div class="section-header" onclick="toggleSection('execution')">
+                <span>Execution</span>
+                <button class="toggle-btn" id="execution-toggle">▼</button>
+            </div>
+        <div class="execution-section">
+            <div class="section-content" id="execution-content">
                 <!-- Execution Controls -->
                 <div id="execution-controls"></div>
             </div>
@@ -428,7 +467,7 @@
             }
 
             // Also toggle collapsed class on parent section for flex behavior
-            if (section === 'editor' || section === 'output') {
+            if (section === 'editor' || section === 'output' || section === 'execution') {
                 const parentSection = content.closest(`.${section}-section`);
                 if (parentSection) {
                     parentSection.classList.toggle('collapsed');
