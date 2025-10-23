@@ -72,16 +72,32 @@ const ContentContainer = styled.div<{ $fitToContainer?: boolean }>`
     background: white;
 
     ${props => props.$fitToContainer && `
-        .dygram-svg > svg {
+        .dygram-svg > svg{
+            max-height: 100%;
+            max-width: 100%;
+        }
+        .dygram-svg {
             max-width: 100%;
             max-height: 100%;
             display: flex;
             align-items: stretch;
             justify-content: space-between;
             align-content: space-between;
+            margin: 0 auto;
         }
     `}
 `;
+
+const SVGWrapper = styled.div`
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+
+    & > svg {
+        margin: 0 auto;
+        display: block;
+    }
+}`
 
 const FitToggleButton = styled.button<{ $active: boolean }>`
     background: ${props => props.$active ? '#0e639c' : 'transparent'};
@@ -268,7 +284,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
         switch (currentFormat) {
             case 'svg':
                 if (outputData.svg) {
-                    return <div className={'dygram-svg'} dangerouslySetInnerHTML={{ __html: outputData.svg }} />;
+                    return <SVGWrapper className={'dygram-svg'} dangerouslySetInnerHTML={{ __html: outputData.svg }} />;
                 }
                 return <EmptyState>No SVG diagram available</EmptyState>;
 
