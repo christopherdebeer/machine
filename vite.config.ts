@@ -23,8 +23,8 @@ function getHtmlEntries() {
             const fullPath = path.join(dir, item.name);
 
             if (item.isDirectory()) {
-                // Skip node_modules, dist, and hidden directories
-                if (item.name === 'node_modules' || item.name === 'dist' || item.name.startsWith('.')) {
+                // Skip node_modules, dist, test-output, and hidden directories
+                if (item.name === 'node_modules' || item.name === 'dist' || item.name === 'test-output' || item.name.startsWith('.')) {
                     continue;
                 }
                 scanDirectory(fullPath, path.join(basePath, item.name));
