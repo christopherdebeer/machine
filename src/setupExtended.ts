@@ -4,7 +4,7 @@ import { RailsExecutor } from './language/rails-executor.js';
 import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './language/diagram-controls.js';
 import { loadSettings, saveSettings } from './language/shared-settings.js';
 import { renderExampleButtons } from './language/shared-examples.js';
-import { ExecutionControls } from './language/playground-execution-controls.js';
+import { ExecutionControlsWrapper } from './components/ExecutionControlsWrapper.js';
 import { OutputPanel } from './language/playground-output-panel.js';
 import { IDimension } from 'vscode/services';
 import { KeyCode, KeyMod } from 'monaco-editor';
@@ -15,7 +15,7 @@ let isExecuting = false;
 let executionStepMode = false;
 
 // Shared components
-let executionControls: ExecutionControls | null = null;
+let executionControls: ExecutionControlsWrapper | null = null;
 let outputPanel: OutputPanel | null = null;
 
 // Extension registration state - ensure we only register once
@@ -180,10 +180,10 @@ function setupSharedComponents(outputEl: HTMLElement): void {
         });
     }
 
-    // Initialize ExecutionControls
+    // Initialize ExecutionControls (React component via wrapper)
     const executionContainer = document.getElementById('execution-controls');
     if (executionContainer) {
-        executionControls = new ExecutionControls({
+        executionControls = new ExecutionControlsWrapper({
             container: executionContainer,
             onExecute: executeMachine,
             onStep: stepMachine,

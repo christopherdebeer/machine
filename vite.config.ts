@@ -129,7 +129,21 @@ export default defineConfig(() => {
                     ]
                 })
             },
-            react(),
+            react({
+                babel: {
+                    plugins: [
+                        [
+                            'babel-plugin-styled-components',
+                            {
+                                displayName: true,
+                                fileName: true,
+                                ssr: false,
+                                meaninglessFileNames: ['index', 'styles'],
+                            }
+                        ]
+                    ]
+                }
+            }),
             viteStaticCopy({
                 targets: getStaticCopyTargets()
             })

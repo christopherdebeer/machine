@@ -1,11 +1,30 @@
 /**
- * Shared Execution Controls Component
+ * Shared Execution Controls Component (DEPRECATED)
+ *
+ * @deprecated This class-based implementation is deprecated.
+ * Please use the React component from src/components/ExecutionControls.tsx instead.
+ * This file is kept for backward compatibility only.
  *
  * Provides unified execution UI for both Monaco and CodeMirror playgrounds
  * Supports: execute, step-by-step, stop, reset
  */
 
 export type ExecutionStatus = 'idle' | 'running' | 'stepping' | 'complete' | 'error';
+
+const styles = `
+button {
+    background: rgb(62, 62, 66);
+    color: rgb(212, 212, 212);
+    border: none;
+    padding: 0.25em 0.6em;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: pre-wrap;
+}
+
+`
 
 export interface ExecutionControlsConfig {
     container: HTMLElement;
@@ -40,6 +59,7 @@ export class ExecutionControls {
         stepCount: 0
     };
 
+    private stylesEl?: HTMLElement;
     private headerEl?: HTMLElement;
     private buttonsEl?: HTMLElement;
     private statusEl?: HTMLElement;
@@ -66,6 +86,9 @@ export class ExecutionControls {
      * Initialize the execution controls UI
      */
     private initialize(): void {
+
+        this.stylesEl = document.createElement('style')
+        this.stylesEl.innerHTML = styles;
         this.container.className = 'execution-panel';
         this.container.style.cssText = `
             display: flex;
@@ -87,15 +110,6 @@ export class ExecutionControls {
             border-bottom: 1px solid #3e3e42;
         `;
 
-        const title = document.createElement('h3');
-        title.textContent = 'Execution';
-        title.style.cssText = `
-            margin: 0;
-            font-size: 14px;
-            font-weight: 600;
-            color: #cccccc;
-        `;
-
         this.buttonsEl = document.createElement('div');
         this.buttonsEl.className = 'execution-buttons';
         this.buttonsEl.style.cssText = `
@@ -114,7 +128,6 @@ export class ExecutionControls {
         this.buttonsEl.appendChild(this.btnStop);
         this.buttonsEl.appendChild(this.btnReset);
 
-        this.headerEl.appendChild(title);
         this.headerEl.appendChild(this.buttonsEl);
 
         // Status display
@@ -163,6 +176,7 @@ export class ExecutionControls {
         // Assemble UI
         this.container.appendChild(this.headerEl);
         this.container.appendChild(this.statusEl);
+        this.container.appendChild(this.stylesEl);
         if (this.logEl) {
             this.container.appendChild(this.logEl);
         }
@@ -176,31 +190,21 @@ export class ExecutionControls {
     private createButton(label: string, onClick: () => void): HTMLButtonElement {
         const button = document.createElement('button');
         button.textContent = label;
-        button.style.cssText = `
-            background: #0e639c;
-            color: white;
-            border: none;
-            padding: ${this.mobile ? '8px 12px' : '6px 12px'};
-            border-radius: 4px;
-            font-size: ${this.mobile ? '14px' : '12px'};
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.2s;
-        `;
+        button.className = 'exec-btn';
 
         button.addEventListener('click', onClick);
 
-        button.addEventListener('mouseenter', () => {
-            if (!button.disabled) {
-                button.style.background = '#1177bb';
-            }
-        });
+        // button.addEventListener('mouseenter', () => {
+        //     if (!button.disabled) {
+        //         button.style.background = '#1177bb';
+        //     }
+        // });
 
-        button.addEventListener('mouseleave', () => {
-            if (!button.disabled) {
-                button.style.background = '#0e639c';
-            }
-        });
+        // button.addEventListener('mouseleave', () => {
+        //     if (!button.disabled) {
+        //         button.style.background = '#0e639c';
+        //     }
+        // });
 
         return button;
     }

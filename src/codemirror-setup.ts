@@ -17,7 +17,7 @@ import { createStorage } from './language/storage.js';
 import { createLangiumExtensions } from './codemirror-langium.js';
 import { loadSettings, saveSettings } from './language/shared-settings.js';
 import { renderExampleButtons } from './language/shared-examples.js';
-import { ExecutionControls } from './language/playground-execution-controls.js';
+import { ExecutionControlsWrapper } from './components/ExecutionControlsWrapper.js';
 import { OutputPanel } from './language/playground-output-panel.js';
 
 // Initialize Langium services for parsing
@@ -109,7 +109,7 @@ let editorView: EditorView | null = null;
 let updateDiagramTimeout: number | null = null;
 
 // Shared components
-let executionControls: ExecutionControls | null = null;
+let executionControls: ExecutionControlsWrapper | null = null;
 let outputPanel: OutputPanel | null = null;
 
 // Current executor
@@ -183,10 +183,10 @@ function setupSharedComponents(): void {
         });
     }
 
-    // Initialize ExecutionControls
+    // Initialize ExecutionControls (React component via wrapper)
     const executionContainer = document.getElementById('execution-controls');
     if (executionContainer) {
-        executionControls = new ExecutionControls({
+        executionControls = new ExecutionControlsWrapper({
             container: executionContainer,
             onExecute: executeFullMachine,
             onStep: stepMachine,
