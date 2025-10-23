@@ -5,7 +5,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ExecutionControls, ExecutionControlsProps, ExecutionControlsRef, ExecutionState } from './ExecutionControls.js';
+import { ExecutionControls, ExecutionControlsProps, ExecutionControlsRef, ExecutionState } from './ExecutionControls';
 
 export interface ExecutionControlsWrapperConfig {
     container: HTMLElement;
