@@ -5,7 +5,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ExecutionControls, ExecutionControlsProps, ExecutionState } from './ExecutionControls';
+import { ExecutionControls, ExecutionControlsProps, ExecutionControlsRef, ExecutionState } from './ExecutionControls';
 
 export interface ExecutionControlsWrapperConfig {
     container: HTMLElement;
@@ -23,11 +23,14 @@ export interface ExecutionControlsWrapperConfig {
  */
 export class ExecutionControlsWrapper {
     private container: HTMLElement;
-    private root!: ReactDOM.Root;
-    private stateRef: React.MutableRefObject<ExecutionState>;
-    private addLogEntryFn: (message: string, type?: 'info' | 'success' | 'warning' | 'error') => void;
-    private clearLogFn: () => void;
+    private root: ReactDOM.Root;
     private props: ExecutionControlsProps;
+    private ref: React.RefObject<ExecutionControlsRef>;
+    private lastKnownState: ExecutionState = { status: 'idle', stepCount: 0 };
+    private pendingStateUpdates: Array<Partial<ExecutionState>> = [];
+    private pendingLogEntries: Array<{ message: string; type: 'info' | 'success' | 'warning' | 'error' }>; 
+    private pendingClearLog = false;
+    private flushScheduled = false;
 
     constructor(config: ExecutionControlsWrapperConfig) {
         this.container = config.container;
@@ -40,134 +43,114 @@ export class ExecutionControlsWrapper {
             showLog: config.showLog
         };
 
-        // Create refs for imperative API
-        this.stateRef = { current: { status: 'idle', stepCount: 0 } };
-        this.addLogEntryFn = () => {};
-        this.clearLogFn = () => {};
+        this.ref = React.createRef<ExecutionControlsRef>();
+        this.pendingLogEntries = [];
 
-        this.render();
+        this.root = ReactDOM.createRoot(this.container);
+        this.root.render(
+            <ExecutionControls
+                ref={this.ref}
+                onExecute={this.props.onExecute}
+                onStep={this.props.onStep}
+                onStop={this.props.onStop}
+                onReset={this.props.onReset}
+                mobile={this.props.mobile}
+                showLog={this.props.showLog}
+            />
+        );
+
+        this.scheduleFlush();
     }
 
-    private render(): void {
-        // Create a wrapper component that exposes imperative methods
-        const WrapperComponent = () => {
-            const [state, setState] = React.useState<ExecutionState>({
-                status: 'idle',
-                stepCount: 0
-            });
-            const [logs, setLogs] = React.useState<Array<{
-                timestamp: string;
-                message: string;
-                type: 'info' | 'success' | 'warning' | 'error';
-            }>>([]);
+    private scheduleFlush(): void {
+        if (this.flushScheduled) {
+            return;
+        }
+        this.flushScheduled = true;
+        Promise.resolve().then(() => {
+            this.flushScheduled = false;
+            this.flushPendingOperations();
+        });
+    }
 
-            // Update refs when state changes
-            React.useEffect(() => {
-                this.stateRef.current = state;
-            }, [state]);
+    private flushPendingOperations(): void {
+        const api = this.ref.current;
 
-            // Expose methods through refs
-            React.useEffect(() => {
-                this.addLogEntryFn = (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
-                    const timestamp = new Date().toLocaleTimeString();
-                    setLogs(prev => [...prev, { timestamp, message, type }]);
-                };
+        if (!api) {
+            this.scheduleFlush();
+            return;
+        }
 
-                this.clearLogFn = () => {
-                    setLogs([]);
-                };
-            }, []);
+        if (this.pendingStateUpdates.length > 0) {
+            for (const update of this.pendingStateUpdates) {
+                api.updateState(update);
+            }
+            this.pendingStateUpdates = [];
+            this.lastKnownState = api.getState();
+        }
 
-            // Create wrapped handlers that update state
-            const wrappedOnExecute = React.useCallback(async () => {
-                setState((prev: ExecutionState) => ({ ...prev, status: 'running', stepCount: 0 }));
-                if (this.props.onExecute) {
-                    try {
-                        await this.props.onExecute();
-                        setState(prev => ({ ...prev, status: 'complete' }));
-                    } catch (error) {
-                        setState(prev => ({ ...prev, status: 'error' }));
-                        throw error;
-                    }
-                }
-            }, []);
+        if (this.pendingClearLog) {
+            api.clearLog();
+            this.pendingClearLog = false;
+        }
 
-            const wrappedOnStep = React.useCallback(async () => {
-                if (state.status === 'idle') {
-                    setState(prev => ({ ...prev, status: 'stepping', stepCount: 0 }));
-                    return;
-                }
-                if (this.props.onStep) {
-                    try {
-                        await this.props.onStep();
-                        setState((prev: ExecutionState) => ({ ...prev, stepCount: prev.stepCount + 1 }));
-                    } catch (error) {
-                        setState((prev: ExecutionState) => ({ ...prev, status: 'error' }));
-                        throw error;
-                    }
-                }
-            }, [state.status]);
-
-            const wrappedOnStop = React.useCallback(() => {
-                setState((prev: ExecutionState) => ({ ...prev, status: 'idle' }));
-                if (this.props.onStop) {
-                    this.props.onStop();
-                }
-            }, []);
-
-            const wrappedOnReset = React.useCallback(() => {
-                setState({ status: 'idle', stepCount: 0, currentNode: undefined });
-                setLogs([]);
-                if (this.props.onReset) {
-                    this.props.onReset();
-                }
-            }, []);
-
-            return (
-                <ExecutionControls
-                    onExecute={wrappedOnExecute}
-                    onStep={wrappedOnStep}
-                    onStop={wrappedOnStop}
-                    onReset={wrappedOnReset}
-                    mobile={this.props.mobile}
-                    showLog={this.props.showLog}
-                />
-            );
-        };
-
-        // Render the component
-        this.root = ReactDOM.createRoot(this.container);
-        this.root.render(<WrapperComponent />);
+        if (this.pendingLogEntries.length > 0) {
+            for (const entry of this.pendingLogEntries) {
+                api.addLogEntry(entry.message, entry.type);
+            }
+            this.pendingLogEntries = [];
+        }
     }
 
     /**
      * Update execution state (for backward compatibility)
      */
     updateState(updates: Partial<ExecutionState>): void {
-        this.stateRef.current = { ...this.stateRef.current, ...updates };
-        // Force re-render by updating the component
-        this.render();
+        this.lastKnownState = { ...this.lastKnownState, ...updates };
+
+        const api = this.ref.current;
+        if (api) {
+            api.updateState(updates);
+            this.lastKnownState = api.getState();
+        } else {
+            this.pendingStateUpdates.push(updates);
+            this.scheduleFlush();
+        }
     }
 
     /**
      * Add log entry (for backward compatibility)
      */
     addLogEntry(message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info'): void {
-        this.addLogEntryFn(message, type);
+        const api = this.ref.current;
+        if (api) {
+            api.addLogEntry(message, type);
+        } else {
+            this.pendingLogEntries.push({ message, type });
+            this.scheduleFlush();
+        }
     }
 
     /**
      * Get current state (for backward compatibility)
      */
     getState(): ExecutionState {
-        return { ...this.stateRef.current };
+        const api = this.ref.current;
+        return api ? api.getState() : { ...this.lastKnownState };
     }
 
     /**
      * Clear log (for backward compatibility)
      */
     clearLog(): void {
-        this.clearLogFn();
+        const api = this.ref.current;
+        if (api) {
+            api.clearLog();
+        } else {
+            this.pendingClearLog = true;
+            this.pendingLogEntries = [];
+            this.scheduleFlush();
+        }
     }
 
     /**
