@@ -75,7 +75,7 @@ export class OutputPanel {
         this.contentContainer = document.createElement('div');
         this.contentContainer.className = 'output-format-content';
         this.contentContainer.style.cssText = `
-    display: flex
+    xdisplay: flex
 ;
     justify-content: center;
     background-color: white;
