@@ -68,7 +68,7 @@ export class OutputPanel {
             padding: 8px 12px;
             background: #2d2d30;
             border-bottom: 1px solid #3e3e42;
-            ${this.mobile ? 'overflow-x: auto; -webkit-overflow-scrolling: touch;' : ''}
+            ${this.mobile ? '-webkit-overflow-scrolling: touch;' : ''}
         `;
 
         // Create content container
