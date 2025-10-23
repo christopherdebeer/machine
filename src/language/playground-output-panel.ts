@@ -75,9 +75,13 @@ export class OutputPanel {
         this.contentContainer = document.createElement('div');
         this.contentContainer.className = 'output-format-content';
         this.contentContainer.style.cssText = `
-            flex: 1;
-            overflow: auto;
-            padding: 16px;
+    display: flex
+;
+    justify-content: center;
+    background-color: white;
+    align-items: center;
+    flex-grow: 1;
+    flex-shrink: 1;
         `;
 
         // Add toggle buttons
@@ -104,6 +108,7 @@ export class OutputPanel {
                 cursor: pointer;
                 white-space: nowrap;
                 transition: background 0.2s;
+                white-space: pre-wrap;
             `;
 
             button.addEventListener('click', () => {
@@ -225,7 +230,7 @@ export class OutputPanel {
                         font-size: 12px;
                         line-height: 1.5;
                         color: #d4d4d4;
-                    "><code>${escapeHtml(this.outputData.dot)}</code></pre>
+                    "><code style="white-space: pre-wrap;">${escapeHtml(this.outputData.dot)}</code></pre>
                 </div>
             `;
         } else {

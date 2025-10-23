@@ -135,8 +135,9 @@ EdgeAnnotation:
 ;
 
 EdgeType:
-    (annotations+=EdgeAnnotation)*
-    value+=EdgeAttribute+;
+    ((annotations+=EdgeAnnotation)*
+    value+=EdgeAttribute+) | ((annotations+=EdgeAnnotation)+
+    value+=EdgeAttribute*);
 
 EdgeSegment:
     (sourceMultiplicity=STRING)?
