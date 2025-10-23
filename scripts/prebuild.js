@@ -614,19 +614,34 @@ async function generateEntries(projectRoot) {
                         pageName = 'index';
                         title = 'DyGram';
                     } else {
-                        pageName = `${parentDir}-index`;
+                        // Preserve directory path for README files
+                        // examples/README.mdx → examples-index
+                        const dirPath = dirname(relativePath);
+                        const pathWithoutDocs = dirPath.replace(/\\/g, '/');
+                        pageName = `${pathWithoutDocs.replace(/\//g, '-')}-index`;
                         title = toTitleCase(parentDir);
                     }
                 } else {
-                    pageName = baseName.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
+                    // Preserve directory path for regular files
+                    // examples/basic.mdx → examples-basic (pageName) + examples/ (dirPath)
+                    const dirPath = dirname(relativePath);
+                    const kebabName = baseName.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
+                    if (dirPath && dirPath !== '.') {
+                        const pathPrefix = dirPath.replace(/\\/g, '/').replace(/\//g, '-');
+                        pageName = `${pathPrefix}-${kebabName}`;
+                    } else {
+                        pageName = kebabName;
+                    }
                     title = toTitleCase(baseName);
                 }
 
+                const dirPath = dirname(relativePath).replace(/\\/g, '/');
                 pages.set(pageName, {
                     htmlFile: `${pageName}.html`,
                     tsxFile: `${pageName}.tsx`,
                     mdxPath: relative(projectRoot, fullPath),
-                    title
+                    title,
+                    dirPath: dirPath === '.' ? '' : dirPath
                 });
             }
         }
@@ -646,11 +661,27 @@ async function generateEntries(projectRoot) {
             htmlFilePath = join(projectRoot, 'index.html');
         } else if (pageName.endsWith('-index')) {
             // Section index: getting-started-index → getting-started/index.html
-            const sectionName = pageName.replace(/-index$/, '');
-            htmlFilePath = join(projectRoot, sectionName, 'index.html');
+            // or examples-index → examples/index.html
+            // Use stored dirPath to avoid parsing issues
+            if (page.dirPath) {
+                htmlFilePath = join(projectRoot, page.dirPath, 'index.html');
+            } else {
+                const sectionPath = pageName.replace(/-index$/, '').replace(/-/g, '/');
+                htmlFilePath = join(projectRoot, sectionPath, 'index.html');
+            }
         } else {
             // Regular page: some-page → some-page/index.html
-            htmlFilePath = join(projectRoot, pageName, 'index.html');
+            // or examples-basic → examples/basic/index.html
+            // Extract just the filename part (after the last hyphen that's part of dir path)
+            const fileName = page.dirPath
+                ? pageName.substring(page.dirPath.replace(/\//g, '-').length + 1)
+                : pageName;
+
+            if (page.dirPath) {
+                htmlFilePath = join(projectRoot, page.dirPath, fileName, 'index.html');
+            } else {
+                htmlFilePath = join(projectRoot, fileName, 'index.html');
+            }
         }
 
         // Calculate relative path to assets from this HTML file

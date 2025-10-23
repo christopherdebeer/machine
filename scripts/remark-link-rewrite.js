@@ -2,11 +2,12 @@ import { visit } from 'unist-util-visit';
 import { basename, dirname, extname } from 'path';
 
 /**
- * Remark plugin to rewrite markdown links to HTML links
+ * Remark plugin to rewrite markdown links to folder-based HTML URLs
  * Transforms:
- *   - [Text](path/to/file.md) -> [Text](file.html)
- *   - [Text](path/to/README.md) -> [Text](dirname-index.html)
- *   - [Text](QuickStart.mdx) -> [Text](quick-start.html)
+ *   - [Text](path/to/file.md) -> [Text](file/)
+ *   - [Text](./file.md) -> [Text](file/)
+ *   - [Text](path/to/README.md) -> [Text](path/to/)
+ *   - [Text](QuickStart.mdx) -> [Text](quick-start/)
  */
 export default function remarkLinkRewrite() {
     return (tree) => {
@@ -29,19 +30,23 @@ export default function remarkLinkRewrite() {
                 return;
             }
 
+            // Extract the path without extension
+            const pathWithoutExt = url.substring(0, url.length - ext.length);
+
             // Extract filename without extension
             let filename = basename(url, ext);
 
-            // Handle README.md links
+            // Handle README.md links - point to the directory
             if (filename === 'README') {
                 const linkDir = dirname(url);
                 if (linkDir === '.' || linkDir === '') {
-                    // Root README → documentation.html
-                    node.url = 'documentation.html';
+                    // Root README → ./
+                    node.url = './';
                 } else {
-                    // Subdirectory README → {dirname}-index.html
-                    const dirName = basename(linkDir);
-                    node.url = `${dirName}-index.html`;
+                    // Subdirectory README → directory/ (with trailing slash)
+                    // Remove ./ prefix if present
+                    const cleanDir = linkDir.replace(/^\.\//, '');
+                    node.url = `${cleanDir}/`;
                 }
                 return;
             }
@@ -52,7 +57,15 @@ export default function remarkLinkRewrite() {
                 .toLowerCase()
                 .replace(/^-/, '');
 
-            node.url = `${kebabName}.html`;
+            // Get directory part if present
+            const dir = dirname(url);
+            if (dir && dir !== '.') {
+                // Remove ./ prefix if present
+                const cleanDir = dir.replace(/^\.\//, '');
+                node.url = `${cleanDir}/${kebabName}/`;
+            } else {
+                node.url = `${kebabName}/`;
+            }
         });
     };
 }
