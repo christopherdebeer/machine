@@ -22,6 +22,7 @@ terminal ID: /[A-Za-z_][A-Za-z0-9_]*/;              // identifiers for node and 
 terminal STR: /"([^"\\]|\\.)*"/;        // double-quoted strings for titles and default values
 terminal MLSTR: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;  // multiline strings
 terminal NUMBER returns number: /[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?/;
+terminal QUESTION: '\?';
 
 terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
 
@@ -56,7 +57,7 @@ entry Machine:
     ('machine' title=STRING (annotations+=Annotation)* (('{'
         (attributes+=Attribute<false>)*
     '}' ';'?) | ';'?))?
-    (nodes+=Node<true> | edges+=Edge<true> | notes+=Note | attributes+=Attribute<true>)*
+    (edges+=Edge<true> | nodes+=Node<true> | notes+=Note | attributes+=Attribute<true>)*
 ;
 
 // Recursive AttributeValue supporting primitives, arrays, and nested objects
@@ -94,28 +95,33 @@ Note:
     'note' target=[Node:QualifiedName]
     (title=STRING)?
     (annotations+=Annotation)*
-    (('{'
+    (('{' 
         (attributes+=Attribute<false>)*
-    '}' ';'?) | ';')
+    '}' ';'?) | ';'?)
 ;
 
 // Type definition that supports generic types (e.g., Promise<Result>, List<Step>)
 TypeDef:
-    base=ID ('<' generics+=TypeDef (',' generics+=TypeDef)* '>')?
+    base=ID ('<' generics+=TypeDef (',' generics+=TypeDef)* '>')? optional?=QUESTION?
 ;
 
 Attribute<isRoot>:
-    name=ID ('<' type=TypeDef '>')? (':' value=AttributeValue ';')?
+    name=ID ('<' type=TypeDef '>')?
+    (
+        ':' value=AttributeValue ';'?
+        | ';'
+    )?
 ;
 
 Node<isRoot>:
     (<isRoot> type=ID)?
+    ('#')?
     name=ID
     (title=STRING)?
     (annotations+=Annotation)*
-    (('{'
-        (nodes+=Node<true> | edges+=Edge<true> | attributes+=Attribute<false>)*
-    '}' ';'?) | ';')
+    (('{' 
+        (edges+=Edge<true> | nodes+=Node<true> | attributes+=Attribute<false>)*
+    '}' ';'?) | ';'?)
 ;
 
 EdgeAttributeValue returns string: EXTID|STRING|ID|NUMBER;
@@ -166,4 +172,4 @@ EdgeSegment:
 
 Edge<isRoot>:
     (<isRoot> (source+=[Node:QualifiedName] (',' source+=[Node:QualifiedName])*)?)
-    segments+=EdgeSegment+ ';';
+    segments+=EdgeSegment+ ';'?;

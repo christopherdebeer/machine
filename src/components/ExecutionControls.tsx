@@ -5,7 +5,7 @@
  * Supports: execute, step-by-step, stop, reset
  */
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useImperativeHandle } from 'react';
 import styled from 'styled-components';
 
 export type ExecutionStatus = 'idle' | 'running' | 'stepping' | 'complete' | 'error';
@@ -123,14 +123,14 @@ const LogTimestamp = styled.span`
 `;
 
 // Main Component
-export const ExecutionControls: React.FC<ExecutionControlsProps> = ({
+export const ExecutionControls = React.forwardRef<ExecutionControlsRef, ExecutionControlsProps>(({
     onExecute,
     onStep,
     onStop,
     onReset,
     mobile = false,
     showLog = true
-}) => {
+}, ref) => {
     const [state, setState] = useState<ExecutionState>({
         status: 'idle',
         stepCount: 0
@@ -154,6 +154,17 @@ export const ExecutionControls: React.FC<ExecutionControlsProps> = ({
     const updateState = useCallback((updates: Partial<ExecutionState>) => {
         setState(prev => ({ ...prev, ...updates }));
     }, []);
+
+    const clearLog = useCallback(() => {
+        setLogs([]);
+    }, []);
+
+    useImperativeHandle(ref, () => ({
+        updateState,
+        addLogEntry,
+        clearLog,
+        getState: () => state
+    }), [updateState, addLogEntry, clearLog, state]);
 
     const handleExecute = useCallback(async () => {
         if (state.status === 'running' || state.status === 'stepping') {
@@ -245,13 +256,13 @@ export const ExecutionControls: React.FC<ExecutionControlsProps> = ({
             stepCount: 0
         });
 
-        setLogs([]);
+        clearLog();
         addLogEntry('Machine reset', 'info');
 
         if (onReset) {
             onReset();
         }
-    }, [handleStop, onReset, addLogEntry, updateState]);
+    }, [handleStop, onReset, addLogEntry, updateState, clearLog]);
 
     const getStatusText = (): string => {
         switch (state.status) {
@@ -351,7 +362,9 @@ export const ExecutionControls: React.FC<ExecutionControlsProps> = ({
             )}
         </Container>
     );
-};
+});
+
+ExecutionControls.displayName = 'ExecutionControls';
 
 // Export imperative API for backward compatibility
 export interface ExecutionControlsRef {

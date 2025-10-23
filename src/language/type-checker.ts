@@ -71,6 +71,10 @@ export class TypeChecker {
             result += '<' + genericStrs.join(', ') + '>';
         }
 
+        if ('optional' in typeDef && typeDef.optional) {
+            result += '?';
+        }
+
         return result;
     }
 
@@ -168,6 +172,9 @@ export class TypeChecker {
                     if (val === 'true' || val === 'false') {
                         return 'boolean';
                     }
+                    if (val === 'null') {
+                        return 'null';
+                    }
                     return 'string';
                 } else if (typeof val === 'number') {
                     return 'number';
@@ -186,6 +193,10 @@ export class TypeChecker {
             // If value property is not set, try to extract from CST
             if ('$cstNode' in value && (value as any).$cstNode) {
                 const cstText = (value as any).$cstNode.text.trim();
+
+                if (cstText === 'null') {
+                    return 'null';
+                }
 
                 // Check if it's a string (quoted)
                 if (cstText.startsWith('"') || cstText.startsWith("'")) {
@@ -348,6 +359,7 @@ export class TypeChecker {
                 // Convert string booleans to actual booleans
                 if (val === 'true') return true;
                 if (val === 'false') return false;
+                if (val === 'null') return null;
 
                 // Convert string numbers to actual numbers
                 if (typeof val === 'string' && /^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(val)) {
@@ -374,6 +386,7 @@ export class TypeChecker {
                 // Parse booleans
                 if (text === 'true') return true;
                 if (text === 'false') return false;
+                if (text === 'null') return null;
 
                 return text;
             }
@@ -414,6 +427,36 @@ export class TypeChecker {
         // Extract the actual value for validation
         const extractedValue = this.extractValue(attr.value);
 
+        if (extractedValue === null) {
+            if (typeInfo.isOptional) {
+                return { valid: true };
+            }
+            const inferredType = 'null';
+            return {
+                valid: false,
+                expectedType: typeStr,
+                actualType: inferredType,
+                message: `Type mismatch: expected ${typeStr}, got ${inferredType}`
+            };
+        }
+
+        const inferTypeSafely = (): string => {
+            try {
+                return this.inferType(attr.value);
+            } catch (error) {
+                if (error instanceof Error && error.message.includes('Unable to infer type for empty array')) {
+                    return typeStr;
+                }
+                throw error;
+            }
+        };
+
+        const formatTypeMismatchMessage = (message?: string, actualType?: string): string => {
+            const inferred = actualType ?? inferTypeSafely();
+            const fallback = `Type mismatch: expected ${typeStr}, got ${inferred}`;
+            return message ? `${fallback}. ${message}` : fallback;
+        };
+
         // Phase 1: Semantic validation using Zod
         // Only for types that have semantic meaning (Date, UUID, URL, etc.)
         if (typeInfo.genericParams && typeInfo.genericParams.length > 0) {
@@ -425,12 +468,12 @@ export class TypeChecker {
             );
 
             if (!zodResult.valid) {
-                const inferredType = this.inferType(attr.value);
+                const inferredType = inferTypeSafely();
                 return {
                     valid: false,
                     expectedType: typeStr,
                     actualType: inferredType,
-                    message: zodResult.message || `Type validation failed for ${typeStr}`
+                    message: formatTypeMismatchMessage(zodResult.message, inferredType)
                 };
             }
         } else if (this.typeRegistry.has(typeInfo.baseType)) {
@@ -438,19 +481,19 @@ export class TypeChecker {
             const zodResult = this.typeRegistry.validate(typeInfo.baseType, extractedValue);
 
             if (!zodResult.valid) {
-                const inferredType = this.inferType(attr.value);
+                const inferredType = inferTypeSafely();
                 return {
                     valid: false,
                     expectedType: typeStr,
                     actualType: inferredType,
-                    message: zodResult.message || `Type validation failed for ${typeStr}`
+                    message: formatTypeMismatchMessage(zodResult.message, inferredType)
                 };
             }
         }
 
         // Phase 2: Structural validation (existing logic)
         // This ensures type compatibility at the structural level
-        const inferredType = this.inferType(attr.value);
+        const inferredType = inferTypeSafely();
         return this.areTypesCompatible(typeStr, inferredType);
     }
 
