@@ -1,0 +1,43 @@
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+node_modules/
+out/
+src/language/generated/
+syntaxes/
+
+*.vsix
+generated
+.DS_Store
+dist/
+test-output/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+.playwright-mcp/
+
+# Generated documentation files
+# Source files are .md in docs/, only Index.mdx is hand-authored
+# Generated .mdx files (from .md sources)
+docs/*
+!docs/*.md
+
+# Examples are extracted from docs/*.md files
+examples/*
+
+# Generated HTML entry files (except hand-authored)
+*.html
+!playground.html
+!playground-mobile.html
+
+# Generated TSX page entries (except hand-authored)
+src/pages/*.tsx
+!src/pages/playground.tsx
+
+# Generated data files
+src/data/doc-hierarchy.json
+src/data/doc-hierarchy.ts
+
