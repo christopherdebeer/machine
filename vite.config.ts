@@ -84,7 +84,7 @@ function getStaticCopyTargets() {
         const testOutputContents = fs.readdirSync(testOutputDir, { withFileTypes: true });
         for (const item of testOutputContents) {
             if (item.isDirectory()) {
-                targets.push({ src: `test-output/${item.name}`, dest: `test-output/${item.name}` });
+                targets.push({ src: `test-output/${item.name}`, dest: `test-output` });
             }
         }
     }
