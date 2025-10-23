@@ -5,7 +5,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ExecutionControls, ExecutionControlsProps, ExecutionControlsRef, ExecutionState } from './ExecutionControls';
+import { ExecutionControls, ExecutionControlsProps, ExecutionControlsRef, ExecutionState } from './ExecutionControls.js';
 
 export interface ExecutionControlsWrapperConfig {
     container: HTMLElement;
@@ -28,7 +28,7 @@ export class ExecutionControlsWrapper {
     private ref: React.RefObject<ExecutionControlsRef>;
     private lastKnownState: ExecutionState = { status: 'idle', stepCount: 0 };
     private pendingStateUpdates: Array<Partial<ExecutionState>> = [];
-    private pendingLogEntries: Array<{ message: string; type: 'info' | 'success' | 'warning' | 'error' }>; 
+    private pendingLogEntries: Array<{ message: string; type: 'info' | 'success' | 'warning' | 'error' }>;
     private pendingClearLog = false;
     private flushScheduled = false;
 
