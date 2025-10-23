@@ -37,19 +37,20 @@ const Container = styled.div`
 
 const ToggleContainer = styled.div`
     display: flex;
-    gap: 8px;
-    padding: 8px 12px;
+    gap: 0.3em;
+    padding: 0.3em 0.6em;;
     background: #2d2d30;
     border-bottom: 1px solid #3e3e42;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    flex-wrap: wrap;
 `;
 
 const ToggleButton = styled.button<{ $active: boolean }>`
     background: ${props => props.$active ? '#0e639c' : '#3e3e42'};
     color: ${props => props.$active ? '#ffffff' : '#d4d4d4'};
     border: none;
-    padding: 6px 12px;
+    padding: 0.3em 0.4em;
     border-radius: 4px;
     font-size: 12px;
     cursor: pointer;
@@ -80,9 +81,7 @@ const ContentContainer = styled.div<{ $fitToContainer?: boolean }>`
             max-width: 100%;
             max-height: 100%;
             display: flex;
-            align-items: stretch;
-            justify-content: space-between;
-            align-content: space-between;
+            align-items: center;
             margin: 0 auto;
         }
     `}

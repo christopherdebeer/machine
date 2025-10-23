@@ -16,7 +16,14 @@ interface ExampleButtonsProps {
 const Container = styled.div`
     display: flex;
     gap: 0.3em;
+    font-size: 0.6em;
     flex-wrap: wrap;
+
+    & > span {
+        display: inline-flex
+;
+    align-items: center;
+    }
 `;
 
 const Button = styled.button`
@@ -25,7 +32,7 @@ const Button = styled.button`
     border: none;
     padding: 0.4em 0.8em;
     border-radius: 4px;
-    font-size: 0.7em;
+    font-size: 1em;
     white-space: nowrap;
     cursor: pointer;
     transition: background 0.2s;
@@ -89,7 +96,7 @@ export const ExampleButtons: React.FC<ExampleButtonsProps> = ({
         // Show category overview
         if (!selectedCategory) {
             return (
-                <Container>
+                <Container> <span>Examples: </span>
                     {Object.entries(categories).map(([category, categoryExamples]) => (
                         <Button
                             key={category}
@@ -111,7 +118,7 @@ export const ExampleButtons: React.FC<ExampleButtonsProps> = ({
                     className="back-btn"
                     onClick={() => setSelectedCategory(null)}
                 >
-                    ← Back to Categories
+                    ← Back to Example categories
                 </Button>
                 {categoryExamples.map((example) => (
                     <Button

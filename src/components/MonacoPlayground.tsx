@@ -170,7 +170,8 @@ const OutputContainer = styled.div`
 
 const ExecutionSection = styled.div`
     flex: 0 0 auto;
-    max-height: 400px;
+    height: auto;
+    flex-grow: 1;
     overflow: hidden;
 `;
 

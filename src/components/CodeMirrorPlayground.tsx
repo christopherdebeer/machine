@@ -26,6 +26,9 @@ import { parseHelper } from 'langium/test';
 import { Machine } from '../language/generated/ast';
 import { generateGraphviz, generateJSON } from '../language/generator/generator';
 import { render as renderGraphviz } from '../language/diagram-controls';
+import { RailsExecutor } from '../language/rails-executor';
+import { RuntimeVisualizer } from '../language/runtime-visualizer';
+import type { MachineData } from '../language/base-executor';
 
 // Styled Components
 const Container = styled.div`
@@ -263,17 +266,19 @@ const OutputSection = styled.div<{ $collapsed?: boolean }>`
     transition: flex 0.3s ease;
     min-height: ${props => props.$collapsed ? '0' : 'auto'};
     height: ${props => props.$collapsed ? 'auto' : 'auto'};
+    flex-grow: 1;
 `;
 
 const ExecutionSection = styled.div<{ $collapsed?: boolean }>`
-    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     background: #1e1e1e;
     transition: flex 0.3s ease;
-    max-height: ${props => props.$collapsed ? '0' : '400px'};
+    xmax-height: ${props => props.$collapsed ? '0' : '400px'};
     height: ${props => props.$collapsed ? '0' : 'auto'};
+    flex-grow: 1;
+    flex-shrink: 1;
 `;
 
 // Main Component
@@ -287,6 +292,9 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [outputCollapsed, setOutputCollapsed] = useState(false);
     const [executionCollapsed, setExecutionCollapsed] = useState(false);
     const [outputData, setOutputData] = useState<OutputData>({});
+    const [executor, setExecutor] = useState<RailsExecutor | null>(null);
+    const [isExecuting, setIsExecuting] = useState(false);
+    const [currentMachineData, setCurrentMachineData] = useState<MachineData | null>(null);
 
     // Initialize editor
     useEffect(() => {
@@ -416,13 +424,9 @@ start -> end;`;
         }
     }, []);
 
-    // Handle run
-    const handleRun = useCallback(() => {
-        if (editorViewRef.current) {
-            const code = editorViewRef.current.state.doc.toString();
-            console.log('Run code:', code);
-            // Implementation will use RailsExecutor
-        }
+    // Handle run (same as execute)
+    const handleRun = useCallback(async () => {
+        await handleExecute();
     }, []);
 
     // Handle example loading
@@ -438,24 +442,144 @@ start -> end;`;
         }
     }, []);
 
+    // Helper to convert Machine AST to MachineData
+    const convertToMachineData = useCallback((machine: Machine): MachineData => {
+        return {
+            title: machine.title || 'Untitled',
+            nodes: machine.nodes.map(node => ({
+                name: node.name,
+                type: node.type || 'State',
+                parent: node.$container && node.$container.$type === 'Node' ? (node.$container as any).name : undefined,
+                attributes: node.attributes.map(attr => ({
+                    name: attr.name,
+                    type: attr.type?.base || 'string',
+                    value: attr.value ? String(attr.value) : ''
+                }))
+            })),
+            edges: machine.edges.flatMap(edge => 
+                edge.segments.flatMap(segment => 
+                    segment.target.map(targetRef => ({
+                        source: edge.source[0]?.ref?.name || '',
+                        target: targetRef.ref?.name || '',
+                        label: segment.label.length > 0 ? segment.label[0].value.map(v => v.text || '').join(' ') : undefined,
+                        type: segment.endType
+                    }))
+                )
+            )
+        };
+    }, []);
+
+    // Helper to update visualization with runtime state
+    const updateRuntimeVisualization = useCallback(async (exec: RailsExecutor) => {
+        try {
+            const visualizer = new RuntimeVisualizer(exec);
+            const runtimeDot = visualizer.generateRuntimeVisualization({
+                showCurrentState: true,
+                showVisitCounts: true,
+                showExecutionPath: true,
+                showRuntimeValues: true,
+                mobileOptimized: true
+            });
+
+            // Render runtime SVG
+            const tempDiv = window.document.createElement('div');
+            await renderGraphviz(runtimeDot, tempDiv, `runtime-${Date.now()}`);
+
+            // Update output with runtime visualization
+            setOutputData(prev => ({
+                ...prev,
+                svg: tempDiv.innerHTML,
+                dot: runtimeDot
+            }));
+        } catch (error) {
+            console.error('Error updating runtime visualization:', error);
+        }
+    }, []);
+
     // Execution handlers
     const handleExecute = useCallback(async () => {
-        console.log('Execute machine');
-        // Implementation will use RailsExecutor
-    }, []);
+        if (isExecuting) {
+            console.warn('Execution already in progress');
+            return;
+        }
+
+        if (!outputData.machine || !settings.apiKey) {
+            console.error('No machine parsed or API key missing');
+            return;
+        }
+
+        try {
+            setIsExecuting(true);
+
+            // Convert AST to MachineData
+            const machineData = convertToMachineData(outputData.machine);
+            setCurrentMachineData(machineData);
+
+            // Create executor
+            const exec = await RailsExecutor.create(machineData, {
+                llm: {
+                    provider: 'anthropic',
+                    apiKey: settings.apiKey,
+                    modelId: settings.model
+                }
+            });
+
+            setExecutor(exec);
+
+            // Execute machine
+            console.log('Starting execution...');
+            await exec.execute();
+
+            // Update visualization with final state
+            await updateRuntimeVisualization(exec);
+
+            console.log('Execution complete');
+        } catch (error) {
+            console.error('Execution error:', error);
+        } finally {
+            setIsExecuting(false);
+        }
+    }, [isExecuting, outputData.machine, settings, convertToMachineData, updateRuntimeVisualization]);
 
     const handleStep = useCallback(async () => {
-        console.log('Step machine');
-        // Implementation will use RailsExecutor
-    }, []);
+        if (!outputData.machine || !settings.apiKey) {
+            console.error('No machine parsed or API key missing');
+            return;
+        }
 
-    const handleStop = useCallback(() => {
-        console.log('Stop machine');
-    }, []);
+        try {
+            let exec = executor;
 
-    const handleReset = useCallback(() => {
-        console.log('Reset machine');
-    }, []);
+            // Create executor if not exists (first step)
+            if (!exec) {
+                const machineData = convertToMachineData(outputData.machine);
+                setCurrentMachineData(machineData);
+
+                exec = await RailsExecutor.create(machineData, {
+                    llm: {
+                        provider: 'anthropic',
+                        apiKey: settings.apiKey,
+                        modelId: settings.model
+                    }
+                });
+
+                setExecutor(exec);
+            }
+
+            // Execute one step
+            console.log('Executing step...');
+            const continued = await exec.step();
+
+            // Update visualization
+            await updateRuntimeVisualization(exec);
+
+            if (!continued) {
+                console.log('Machine execution complete');
+            }
+        } catch (error) {
+            console.error('Step error:', error);
+        }
+    }, [executor, outputData.machine, settings, convertToMachineData, updateRuntimeVisualization]);
 
     // Handle document changes with debouncing
     const updateTimeoutRef = useRef<number | null>(null);
@@ -513,6 +637,47 @@ start -> end;`;
             }
         }, 500); // 500ms debounce
     }, []);
+
+    const handleStop = useCallback(() => {
+        console.log('Stopping execution');
+        setIsExecuting(false);
+        // Executor will be preserved for inspection
+    }, []);
+
+    const handleReset = useCallback(async () => {
+        console.log('Resetting machine');
+        setExecutor(null);
+        setIsExecuting(false);
+        setCurrentMachineData(null);
+
+        // Re-render static diagram
+        if (editorViewRef.current && outputData.machine) {
+            try {
+                // Generate static Graphviz DOT diagram
+                const graphvizResult = generateGraphviz(outputData.machine, 'playground.machine', undefined);
+                const dotCode = graphvizResult.content;
+
+                // Generate JSON representation
+                const jsonResult = generateJSON(outputData.machine);
+                const jsonData = jsonResult.content;
+
+                // Render SVG in a temporary div
+                const tempDiv = window.document.createElement('div');
+                await renderGraphviz(dotCode, tempDiv, `${Math.floor(Math.random() * 1000000000)}`);
+
+                // Update output data with static visualization
+                setOutputData({
+                    svg: tempDiv.innerHTML,
+                    dot: dotCode,
+                    json: jsonData,
+                    machine: outputData.machine,
+                    ast: outputData.machine
+                });
+            } catch (error) {
+                console.error('Error resetting to static diagram:', error);
+            }
+        }
+    }, [outputData.machine]);
 
     return (
         <Container>
@@ -605,7 +770,7 @@ start -> end;`;
                         onStep={handleStep}
                         onStop={handleStop}
                         onReset={handleReset}
-                        mobile={true}
+                        mobile={false}
                         showLog={true}
                     />
                 </SectionContent>

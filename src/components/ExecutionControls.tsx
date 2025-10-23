@@ -38,20 +38,22 @@ const Container = styled.div<{ $mobile?: boolean }>`
     background: #252526;
     border-top: 1px solid #3e3e42;
     ${props => props.$mobile ? 'max-height: 300px;' : ''}
+    height: 100%;
 `;
 
 const Header = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
+    padding: 0.3em 0.6em;
     background: #2d2d30;
     border-bottom: 1px solid #3e3e42;
 `;
 
 const ButtonGroup = styled.div`
     display: flex;
-    gap: 8px;
+    gap: 0.3em;
+    flex-wrap: wrap;
 `;
 
 const Button = styled.button<{ disabled?: boolean }>`
