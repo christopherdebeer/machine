@@ -1,6 +1,0 @@
-machine "Basic attributes"
-key: "value";
-
-node "title..." {
-  title: "should override 'title...'";
-}
