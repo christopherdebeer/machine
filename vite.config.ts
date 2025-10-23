@@ -23,8 +23,8 @@ function getHtmlEntries() {
             const fullPath = path.join(dir, item.name);
 
             if (item.isDirectory()) {
-                // Skip node_modules, dist, and hidden directories
-                if (item.name === 'node_modules' || item.name === 'dist' || item.name.startsWith('.')) {
+                // Skip node_modules, dist, test-output, and hidden directories
+                if (item.name === 'node_modules' || item.name === 'dist' || item.name === 'test-output' || item.name.startsWith('.')) {
                     continue;
                 }
                 scanDirectory(fullPath, path.join(basePath, item.name));
@@ -50,6 +50,7 @@ function getHtmlEntries() {
  * Get static copy targets, including test-output if it exists
  */
 function getStaticCopyTargets() {
+    
     const targets = [
         { src: 'static/styles.css', dest: 'static' },
         { src: 'static/styles/*', dest: 'static/styles' },
@@ -73,8 +74,22 @@ function getStaticCopyTargets() {
     // Only include test-output if it exists
     const testOutputDir = path.join(__dirname, 'test-output');
     if (fs.existsSync(testOutputDir)) {
-        targets.push({ src: 'test-output/**/*', dest: 'test-output' });
+        // Copy the index.html file specifically if it exists
+        const indexPath = path.join(testOutputDir, 'index.html');
+        if (fs.existsSync(indexPath)) {
+            targets.push({ src: 'test-output/index.html', dest: 'test-output' });
+        }
+        
+        // Copy subdirectories individually to maintain structure
+        const testOutputContents = fs.readdirSync(testOutputDir, { withFileTypes: true });
+        for (const item of testOutputContents) {
+            if (item.isDirectory()) {
+                targets.push({ src: `test-output/${item.name}`, dest: `test-output/${item.name}` });
+            }
+        }
     }
+
+    console.log(targets)
 
     return targets;
 }
