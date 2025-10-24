@@ -22,8 +22,7 @@ playwright/.cache/
 # Generated documentation files
 # Source files are .md in docs/, only Index.mdx is hand-authored
 # Generated .mdx files (from .md sources)
-docs/*
-!docs/*.md
+docs/**/*.mdx
 
 # Examples are extracted from docs/*.md files
 examples/*

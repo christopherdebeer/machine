@@ -96,24 +96,9 @@ export async function render(code: string, containerOveride?: Element, id?: stri
             throw new Error('Diagram container not found');
         }
 
-        // // Encode SVG as data URI and render in an img element
-        // const dataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-
-        // // Create img element with proper styling for responsive display
-        // const img = document.createElement('img');
-        // img.src = dataUri;
-        // img.alt = 'Machine diagram';
-        // img.style.height = 'auto';
-        // img.style.maxWidth = '100%';
-        // img.style.objectFit = 'contain';
-        // img.style.display = 'block';
-        
-        // // Clear container and add the image
-        // container.innerHTML = '';
-        // container.appendChild(img);
         container.innerHTML = svg;
 
-        console.log('[Playground] ✓ Diagram rendered successfully as data URI');
+        console.log('[Playground] ✓ Diagram rendered successfully as SVG');
     } catch (error) {
         console.error('[Playground] Error rendering diagram:', error);
         const container = containerOveride || document.querySelector('#diagram');

@@ -426,12 +426,13 @@ export class MachineValidator {
             // @Async annotation should only be on task nodes
             if (annotationName === 'Async' && nodeType !== 'task') {
                 accept('warning',
-                    `@Async annotation is typically used only on task nodes, but '${node.name}' is of type '${node.type}'.`,
+                    `@Async annotation is typically used only on task nodes, but '${node.name}' is of type '${node.type || 'untyped'}'.`,
                     { node: annotation, property: 'name' }
                 );
             }
 
             // @Singleton annotation makes sense for context or service nodes
+            // Skip warning for untyped nodes (undefined type)
             if (annotationName === 'Singleton' && nodeType === 'state') {
                 accept('warning',
                     `@Singleton annotation on state node '${node.name}' may not be meaningful. Consider using it on task or context nodes.`,

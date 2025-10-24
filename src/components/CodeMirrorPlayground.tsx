@@ -38,7 +38,7 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import { ExecutionControls } from "./ExecutionControls";
 import { ExampleButtons } from "./ExampleButtons";
 import { loadSettings, saveSettings } from "../language/shared-settings";
-import { OutputPanel, OutputData } from "./OutputPanel";
+import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
 import { createLangiumExtensions } from "../codemirror-langium";
 import { createMachineServices } from "../language/machine-module";
 import { EmptyFileSystem } from "langium";
@@ -52,6 +52,161 @@ import { render as renderGraphviz } from "../language/diagram-controls";
 import { RailsExecutor } from "../language/rails-executor";
 import { RuntimeVisualizer } from "../language/runtime-visualizer";
 import type { MachineData } from "../language/base-executor";
+import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples";
+
+// Types
+type SectionSize = 'small' | 'medium' | 'big';
+
+// URL hash parameter helpers
+interface HashParams {
+  example?: string;
+  content?: string;
+  sections?: string;
+}
+
+interface SectionStates {
+  settingsCollapsed: boolean;
+  editorCollapsed: boolean;
+  outputCollapsed: boolean;
+  executionCollapsed: boolean;
+  editorSize: SectionSize;
+  outputSize: SectionSize;
+  executionSize: SectionSize;
+  outputFormat: OutputFormat;
+  fitToContainer: boolean;
+}
+
+// Base64 URL-safe encoding/decoding helpers
+function base64UrlEncode(str: string): string {
+  // Convert string to base64
+  const base64 = btoa(unescape(encodeURIComponent(str)));
+  // Make it URL-safe by replacing +/= with -_~
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '~');
+}
+
+function base64UrlDecode(str: string): string {
+  try {
+    // Convert URL-safe base64 back to standard base64
+    const base64 = str.replace(/-/g, '+').replace(/_/g, '/').replace(/~/g, '=');
+    // Decode base64 to string
+    return decodeURIComponent(escape(atob(base64)));
+  } catch (error) {
+    console.error('Failed to decode base64 content:', error);
+    return '';
+  }
+}
+
+// Section state encoding/decoding helpers
+function encodeSectionStates(states: SectionStates): string {
+  // Create a compact representation using single characters
+  // Format: [s][e][o][x][eSize][oSize][xSize][format][fit]
+  // s = settings collapsed (0/1)
+  // e = editor collapsed (0/1) 
+  // o = output collapsed (0/1)
+  // x = execution collapsed (0/1)
+  // eSize = editor size (s/m/b for small/medium/big)
+  // oSize = output size (s/m/b)
+  // xSize = execution size (s/m/b)
+  // format = output format (0=svg, 1=png, 2=dot, 3=json, 4=ast, 5=cst)
+  // fit = fit to container (0/1)
+  
+  const sizeMap: Record<SectionSize, string> = { small: 's', medium: 'm', big: 'b' };
+  const formatMap: Record<OutputFormat, string> = { 
+    svg: '0', png: '1', dot: '2', json: '3', ast: '4', cst: '5' 
+  };
+  
+  return [
+    states.settingsCollapsed ? '1' : '0',
+    states.editorCollapsed ? '1' : '0', 
+    states.outputCollapsed ? '1' : '0',
+    states.executionCollapsed ? '1' : '0',
+    sizeMap[states.editorSize],
+    sizeMap[states.outputSize],
+    sizeMap[states.executionSize],
+    formatMap[states.outputFormat],
+    states.fitToContainer ? '1' : '0'
+  ].join('');
+}
+
+function decodeSectionStates(encoded: string): Partial<SectionStates> {
+  if (!encoded || encoded.length !== 9) {
+    return {}; // Return empty object for invalid input
+  }
+  
+  const sizeMap: Record<string, SectionSize> = { s: 'small', m: 'medium', b: 'big' };
+  const formatMap: Record<string, OutputFormat> = { 
+    '0': 'svg', '1': 'png', '2': 'dot', '3': 'json', '4': 'ast', '5': 'cst' 
+  };
+  
+  try {
+    return {
+      settingsCollapsed: encoded[0] === '1',
+      editorCollapsed: encoded[1] === '1',
+      outputCollapsed: encoded[2] === '1', 
+      executionCollapsed: encoded[3] === '1',
+      editorSize: sizeMap[encoded[4]] || 'medium',
+      outputSize: sizeMap[encoded[5]] || 'medium',
+      executionSize: sizeMap[encoded[6]] || 'medium',
+      outputFormat: formatMap[encoded[7]] || 'svg',
+      fitToContainer: encoded[8] === '1'
+    };
+  } catch (error) {
+    console.error('Failed to decode section states:', error);
+    return {};
+  }
+}
+
+function parseHashParams(): HashParams {
+  const hash = window.location.hash.slice(1); // Remove '#'
+  const params: HashParams = {};
+  
+  if (!hash) return params;
+  
+  const pairs = hash.split('&');
+  for (const pair of pairs) {
+    const [key, value] = pair.split('=');
+    if (key === 'example') {
+      params.example = decodeURIComponent(value);
+    } else if (key === 'content') {
+      params.content = base64UrlDecode(value);
+    } else if (key === 'sections') {
+      params.sections = decodeURIComponent(value);
+    }
+  }
+  
+  return params;
+}
+
+function updateHashParams(params: HashParams): void {
+  const parts: string[] = [];
+  
+  if (params.example) {
+    parts.push(`example=${encodeURIComponent(params.example)}`);
+  }
+  if (params.content) {
+    parts.push(`content=${base64UrlEncode(params.content)}`);
+  }
+  if (params.sections) {
+    parts.push(`sections=${encodeURIComponent(params.sections)}`);
+  }
+  
+  const newHash = parts.length > 0 ? `#${parts.join('&')}` : '';
+  
+  // Update hash without triggering page reload
+  if (window.location.hash !== newHash) {
+    window.history.replaceState(null, '', newHash || window.location.pathname);
+  }
+}
+
+// Helper function to get flex-basis for section size
+const getSectionFlexBasis = (collapsed: boolean, size: SectionSize): string => {
+    if (collapsed) return '0';
+    switch (size) {
+        case 'small': return '20%';
+        case 'medium': return '50%';
+        case 'big': return '80%';
+    }
+};
 
 // Styled Components
 const Container = styled.div`
@@ -86,51 +241,20 @@ const HeaderTitle = styled.div`
   }
 `;
 
-const HeaderActions = styled.div`
-  display: flex;
-  gap: 8px;
-`;
-
-const Button = styled.button`
-  background: #0e639c;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.2s;
-
-  &:active {
-    background: #1177bb;
-  }
-
-  &.secondary {
-    background: #3e3e42;
-
-    &:active {
-      background: #505053;
-    }
-  }
-`;
-
-const SectionHeader = styled.div<{ $collapsed?: boolean; $sideways?: boolean }>`
-  background: #2d2d30;
-  padding: 0.25em 0.6em;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #cccccc;
-  border-bottom: 1px solid #3e3e42;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-  flex: 0 0 auto;
+const SectionHeader = styled.div<{ $collapsed?: boolean, $sideways?: boolean }>`
+    background: #2d2d30;
+    padding: 0.25em 0.6em;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #cccccc;
+    border-bottom: 1px solid #3e3e42;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
 
   &:hover {
     background: #333336;
@@ -153,6 +277,38 @@ const ToggleBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const SizeControls = styled.div`
+    display: flex;
+    gap: 4px;
+    margin-left: 8px;
+`;
+
+const SizeBtn = styled.button<{ $active?: boolean }>`
+    background: ${props => props.$active ? '#0e639c' : 'transparent'};
+    border: 1px solid ${props => props.$active ? '#0e639c' : '#505053'};
+    color: ${props => props.$active ? '#ffffff' : '#cccccc'};
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    min-width: 24px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: ${props => props.$active ? '#0e639c' : '#3e3e42'};
+        border-color: #0e639c;
+    }
+
+
+`;
+
+const HeaderControls = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 4px;
 `;
 
 const SettingsPanel = styled.div<{ $collapsed?: boolean }>`
@@ -213,41 +369,46 @@ const SettingsSelect = styled.select`
 `;
 
 const ExamplesContainer = styled.div`
-  background: #252526;
-  padding: 0.4em;
-  display: flex;
-  gap: 0.3em;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  min-height: 44px;
-  flex-wrap: wrap;
+    background: #252526;
+    padding: 0.4em;
+    display: flex;
+    gap: 0.3em;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    min-height: 44px;
+    flex-wrap: wrap;
+    width: 100%;
 `;
 
-const MainContainer = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-height: 0;
+const MainContainer = styled.div<{ $collapsed?: boolean }>`
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    flex-basis: ${props => props.$collapsed ? '0' : '100%'};
+    overflow: hidden;
 
-  @media (min-width: 768px) {
-    flex-direction: row;
-  }
+    @media (min-width: 768px) {
+        flex-direction: ${props => props.$collapsed ? 'column' : 'row'};
+    }
 `;
 
-const EditorSection = styled.div<{ $collapsed?: boolean }>`
-  flex: ${(props) => (props.$collapsed ? "0 0 auto" : "1 1 0")};
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: flex 0.3s ease;
-  height: ${(props) => (props.$collapsed ? "0" : "auto")};
-  min-height: 0;
-
-  @media (min-width: 768px) {
-    border-right: 1px solid #3e3e42;
-  }
+// Generic Section component (DRY)
+const Section = styled.div<{ $collapsed?: boolean; $size?: SectionSize; $borderRight?: boolean }>`
+    flex: ${props => props.$collapsed ? '0 0 0' : '1'};
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #1e1e1e;
+    transition: flex 0.3s ease;
+    height: ${props => props.$collapsed ? '0' : 'auto'};
+    flex-basis: ${props => getSectionFlexBasis(props.$collapsed || false, props.$size || 'medium')};
+    
+    @media (min-width: 768px) {
+        ${props => props.$borderRight && 'border-right: 1px solid #3e3e42;'}
+    }
 `;
+
+const EditorSection = Section;
 
 const SectionContent = styled.div<{ $collapsed?: boolean }>`
   flex: ${(props) => (props.$collapsed ? "0 0 auto" : "1 1 0")};
@@ -295,59 +456,113 @@ const EditorContainer = styled.div`
   }
 `;
 
-const OutputSection = styled.div<{ $collapsed?: boolean }>`
-  flex: ${(props) => (props.$collapsed ? "0 0 auto" : "1 1 0")};
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #1e1e1e;
-  transition: flex 0.3s ease;
-  min-height: 0;
-  height: ${(props) => (props.$collapsed ? "0" : "auto")};
-  flex-grow: 1;
-`;
+const OutputSection = Section;
 
-const ExecutionSection = styled.div<{ $collapsed?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #1e1e1e;
-  transition: flex 0.3s ease;
-  max-height: ${(props) => (props.$collapsed ? "0" : "400px")};
-  height: ${(props) => (props.$collapsed ? "0" : "auto")};
-  flex: ${(props) => (props.$collapsed ? "0 0 auto" : "1 1 auto")};
-  min-height: 0;
-`;
+const ExecutionSection = Section;
 
 // Main Component
 export const CodeMirrorPlayground: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const editorViewRef = useRef<EditorView | null>(null);
 
-  const [settings, setSettings] = useState(() => loadSettings());
-  const [settingsCollapsed, setSettingsCollapsed] = useState(false);
-  const [editorCollapsed, setEditorCollapsed] = useState(false);
-  const [outputCollapsed, setOutputCollapsed] = useState(false);
-  const [executionCollapsed, setExecutionCollapsed] = useState(false);
-  const [outputData, setOutputData] = useState<OutputData>({});
-  const [executor, setExecutor] = useState<RailsExecutor | null>(null);
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [currentMachineData, setCurrentMachineData] =
-    useState<MachineData | null>(null);
+    const [settings, setSettings] = useState(() => loadSettings());
+    const [settingsCollapsed, setSettingsCollapsed] = useState(false);
+    const [editorCollapsed, setEditorCollapsed] = useState(false);
+    const [outputCollapsed, setOutputCollapsed] = useState(false);
+    const [executionCollapsed, setExecutionCollapsed] = useState(false);
+    const [editorSize, setEditorSize] = useState<SectionSize>('medium');
+    const [outputSize, setOutputSize] = useState<SectionSize>('medium');
+    const [executionSize, setExecutionSize] = useState<SectionSize>('medium');
+    const [outputData, setOutputData] = useState<OutputData>({});
+    const [executor, setExecutor] = useState<RailsExecutor | null>(null);
+    const [isExecuting, setIsExecuting] = useState(false);
+    const [currentMachineData, setCurrentMachineData] = useState<MachineData | null>(null);
+    const [selectedExample, setSelectedExample] = useState<Example | null>(null);
+    const [isDirty, setIsDirty] = useState(false);
+    const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
+    const [fitToContainer, setFitToContainer] = useState(true);
 
   // Initialize editor
   useEffect(() => {
     if (!editorRef.current) return;
 
-    const defaultCode = `machine "Hello World"
+    // Determine initial content from URL hash or default
+    const hashParams = parseHashParams();
+    let initialCode = '';
+    let initialExample: Example | null = null;
 
-state start;
-state end;
+    // Priority 1: URL hash with custom content
+    if (hashParams.content) {
+      initialCode = hashParams.content;
+      // Try to match with an example if also specified
+      if (hashParams.example) {
+        const example = getExampleByKey(hashParams.example);
+        if (example) {
+          initialExample = example;
+        }
+      }
+    }
+    // Priority 2: URL hash with example parameter (no custom content)
+    else if (hashParams.example) {
+      const example = getExampleByKey(hashParams.example);
+      if (example) {
+        initialExample = example;
+        initialCode = example.content;
+      }
+    }
 
-start -> end;`;
+    // Priority 3: Default example
+    if (!initialCode) {
+      const defaultExample = getDefaultExample();
+      initialExample = defaultExample;
+      initialCode = defaultExample.content;
+    }
+
+    // Restore section states from URL hash
+    if (hashParams.sections) {
+      const sectionStates = decodeSectionStates(hashParams.sections);
+      if (sectionStates.settingsCollapsed !== undefined) {
+        setSettingsCollapsed(sectionStates.settingsCollapsed);
+      }
+      if (sectionStates.editorCollapsed !== undefined) {
+        setEditorCollapsed(sectionStates.editorCollapsed);
+      }
+      if (sectionStates.outputCollapsed !== undefined) {
+        setOutputCollapsed(sectionStates.outputCollapsed);
+      }
+      if (sectionStates.executionCollapsed !== undefined) {
+        setExecutionCollapsed(sectionStates.executionCollapsed);
+      }
+      if (sectionStates.editorSize !== undefined) {
+        setEditorSize(sectionStates.editorSize);
+      }
+      if (sectionStates.outputSize !== undefined) {
+        setOutputSize(sectionStates.outputSize);
+      }
+      if (sectionStates.executionSize !== undefined) {
+        setExecutionSize(sectionStates.executionSize);
+      }
+      if (sectionStates.outputFormat !== undefined) {
+        setOutputFormat(sectionStates.outputFormat);
+      }
+      if (sectionStates.fitToContainer !== undefined) {
+        setFitToContainer(sectionStates.fitToContainer);
+      }
+    }
+
+    // Set initial state
+    setSelectedExample(initialExample);
+    setIsDirty(!!hashParams.content);
+
+    // Update URL hash to reflect initial state (only if not already set)
+    if (!window.location.hash && initialExample) {
+      updateHashParams({
+        example: initialExample.name.toLowerCase().replace(/\s+/g, '-'),
+      });
+    }
 
     const startState = EditorState.create({
-      doc: defaultCode,
+      doc: initialCode,
       extensions: [
         lineNumbers(),
         highlightActiveLineGutter(),
@@ -399,6 +614,21 @@ start -> end;`;
         if (transaction.docChanged) {
           const code = view.state.doc.toString();
           handleDocumentChange(code);
+          
+          // Mark as dirty and update URL hash with content
+          setIsDirty(true);
+          
+          // Update URL hash with encoded content
+          if (selectedExample) {
+            updateHashParams({
+              example: selectedExample.name.toLowerCase().replace(/\s+/g, '-'),
+              content: code,
+            });
+          } else {
+            updateHashParams({
+              content: code,
+            });
+          }
         }
       },
     });
@@ -406,12 +636,39 @@ start -> end;`;
     editorViewRef.current = view;
 
     // Trigger initial render
-    handleDocumentChange(defaultCode);
+    handleDocumentChange(initialCode);
 
     return () => {
       view.destroy();
     };
   }, []);
+
+  // Update URL hash when section states change
+  useEffect(() => {
+    const currentSectionStates: SectionStates = {
+      settingsCollapsed,
+      editorCollapsed,
+      outputCollapsed,
+      executionCollapsed,
+      editorSize,
+      outputSize,
+      executionSize,
+      outputFormat,
+      fitToContainer
+    };
+
+    // Get current hash params
+    const hashParams = parseHashParams();
+    
+    // Encode current section states
+    const encodedSections = encodeSectionStates(currentSectionStates);
+    
+    // Update hash params with new section states
+    updateHashParams({
+      ...hashParams,
+      sections: encodedSections
+    });
+  }, [settingsCollapsed, editorCollapsed, outputCollapsed, executionCollapsed, editorSize, outputSize, executionSize, outputFormat, fitToContainer]);
 
   // Handle settings changes
   const handleModelChange = useCallback(
@@ -455,17 +712,23 @@ start -> end;`;
     setExecutionCollapsed((prev) => !prev);
   }, []);
 
-  // Handle downloads
-  const handleDownloadSVG = useCallback(() => {
-    if (window.downloadSVG) {
-      window.downloadSVG();
-    }
-  }, []);
 
-  const handleDownloadPNG = useCallback(() => {
-    if (window.downloadPNG) {
-      window.downloadPNG();
-    }
+    // Handle size changes
+    const handleEditorSizeChange = useCallback((size: SectionSize) => {
+        setEditorSize(size);
+    }, []);
+
+    const handleOutputSizeChange = useCallback((size: SectionSize) => {
+        setOutputSize(size);
+    }, []);
+
+    const handleExecutionSizeChange = useCallback((size: SectionSize) => {
+        setExecutionSize(size);
+    }, []);
+
+  // Handle output format change
+  const handleOutputFormatChange = useCallback((format: OutputFormat) => {
+    setOutputFormat(format);
   }, []);
 
   // Handle run (same as execute)
@@ -474,7 +737,7 @@ start -> end;`;
   }, []);
 
   // Handle example loading
-  const handleLoadExample = useCallback((content: string) => {
+  const handleLoadExample = useCallback((content: string, example: Example) => {
     if (editorViewRef.current) {
       editorViewRef.current.dispatch({
         changes: {
@@ -482,6 +745,15 @@ start -> end;`;
           to: editorViewRef.current.state.doc.length,
           insert: content,
         },
+      });
+      
+      // Update state
+      setSelectedExample(example);
+      setIsDirty(false);
+      
+      // Update URL hash (without content since it's a clean example)
+      updateHashParams({
+        example: example.name.toLowerCase().replace(/\s+/g, '-'),
       });
     }
   }, []);
@@ -536,10 +808,14 @@ start -> end;`;
         const tempDiv = window.document.createElement("div");
         await renderGraphviz(runtimeDot, tempDiv, `runtime-${Date.now()}`);
 
+        // Generate PNG from SVG
+        const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
+
         // Update output with runtime visualization
         setOutputData((prev) => ({
           ...prev,
           svg: tempDiv.innerHTML,
+          png: pngDataUrl,
           dot: runtimeDot,
         }));
       } catch (error) {
@@ -700,9 +976,13 @@ start -> end;`;
           `${Math.floor(Math.random() * 1000000000)}`
         );
 
+        // Generate PNG from SVG
+        const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
+
         // Update output data state
         setOutputData({
           svg: tempDiv.innerHTML,
+          png: pngDataUrl,
           dot: dotCode,
           json: jsonData,
           machine: model,
@@ -749,9 +1029,13 @@ start -> end;`;
           `${Math.floor(Math.random() * 1000000000)}`
         );
 
+        // Generate PNG from SVG
+        const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
+
         // Update output data with static visualization
         setOutputData({
           svg: tempDiv.innerHTML,
+          png: pngDataUrl,
           dot: dotCode,
           json: jsonData,
           machine: outputData.machine,
@@ -763,101 +1047,211 @@ start -> end;`;
     }
   }, [outputData.machine]);
 
-  return (
-    <Container>
-      <Header>
-        <HeaderTitle>
-          <a href="./">DyGram</a>
-        </HeaderTitle>
-        <HeaderActions>
-          <Button className="secondary" onClick={handleDownloadSVG}>
-            SVG
-          </Button>
-          <Button className="secondary" onClick={handleDownloadPNG}>
-            PNG
-          </Button>
-          <Button onClick={handleRun}>Run</Button>
-        </HeaderActions>
-      </Header>
 
-      <SectionHeader onClick={toggleSettings}>
-        <span>Settings</span>
-        <ToggleBtn>{settingsCollapsed ? "▶" : "▼"}</ToggleBtn>
-      </SectionHeader>
-      <SettingsPanel $collapsed={settingsCollapsed}>
-        <SettingsGroup>
-          <label htmlFor="model-select">Model:</label>
-          <SettingsSelect
-            id="model-select"
-            value={settings.model}
-            onChange={handleModelChange}
-          >
-            <option value="claude-sonnet-4-5-20250929">
-              claude-sonnet-4-5-20250929
-            </option>
-            <option value="claude-sonnet-4-20250514">
-              claude-sonnet-4-20250514
-            </option>
-            <option value="claude-3-7-sonnet-latest">
-              claude-3-7-sonnet-latest
-            </option>
-            <option value="claude-3-5-haiku-latest">
-              claude-3-5-haiku-latest
-            </option>
-          </SettingsSelect>
-        </SettingsGroup>
-        <SettingsGroup>
-          <label htmlFor="api-key-input">API Key:</label>
-          <SettingsInput
-            type="password"
-            id="api-key-input"
-            placeholder="Anthropic API key..."
-            value={settings.apiKey}
-            onChange={handleApiKeyChange}
-          />
-        </SettingsGroup>
-        <ExamplesContainer>
-          <ExampleButtons
-            onLoadExample={handleLoadExample}
-            categoryView={true}
-          />
-        </ExamplesContainer>
-      </SettingsPanel>
+    const generatePngFromSvg = useCallback(async (svgContent: string): Promise<string | undefined> => {
+        if (!svgContent) {
+            return undefined;
+        }
 
-      <MainContainer>
-        <SectionHeader onClick={toggleEditor} $sideways={true}>
-          <span>Editor</span>
-          <ToggleBtn>{editorCollapsed ? "▶" : "▼"}</ToggleBtn>
-        </SectionHeader>
-        <SectionContent $collapsed={editorCollapsed}>
-          <EditorContainer ref={editorRef} />
-        </SectionContent>
+        try {
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
 
-        <SectionHeader onClick={toggleOutput} $sideways={true}>
-          <span>Output</span>
-          <ToggleBtn>{outputCollapsed ? "▶" : "▼"}</ToggleBtn>
-        </SectionHeader>
+            try {
+                const dataUrl = await new Promise<string>((resolve, reject) => {
+                    const image = new Image();
 
-        <SectionContent $collapsed={outputCollapsed}>
-          <OutputPanel defaultFormat="svg" mobile={true} data={outputData} />
-        </SectionContent>
-      </MainContainer>
+                    image.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
 
-      <SectionHeader onClick={toggleExecution}>
-        <span>Execution</span>
-        <ToggleBtn>{executionCollapsed ? "▶" : "▼"}</ToggleBtn>
-      </SectionHeader>
+                        if (!context) {
+                            reject(new Error('Unable to obtain 2D canvas context'));
+                            return;
+                        }
 
-      <SectionContent $collapsed={executionCollapsed}>
-        <ExecutionControls
-          onExecute={handleExecute}
-          onStep={handleStep}
-          onStop={handleStop}
-          onReset={handleReset}
-          mobile={false}
-          showLog={true}
-        />
-      </SectionContent>
-    </Container>
-  );
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        context.drawImage(image, 0, 0);
+                        resolve(canvas.toDataURL('image/png'));
+                    };
+
+                    image.onerror = () => {
+                        reject(new Error('Unable to load SVG for PNG conversion'));
+                    };
+
+                    image.src = url;
+                });
+
+                return dataUrl;
+            } finally {
+                URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error('Failed to generate PNG preview from SVG:', error);
+            return undefined;
+        }
+    }, []);
+
+
+    return (
+        <Container>
+            <Header>
+                <HeaderTitle>
+                    <a href="./">DyGram</a>
+                </HeaderTitle>
+            </Header>
+
+            <SectionHeader onClick={toggleSettings}>
+                <span>Settings</span>
+                <ToggleBtn>{settingsCollapsed ? '▶' : '▼'}</ToggleBtn>
+            </SectionHeader>
+            <SettingsPanel $collapsed={settingsCollapsed}>
+                <SettingsGroup>
+                    <label htmlFor="model-select">Model:</label>
+                    <SettingsSelect
+                        id="model-select"
+                        value={settings.model}
+                        onChange={handleModelChange}
+                    >
+                        <option value="claude-sonnet-4-5-20250929">claude-sonnet-4-5-20250929</option>
+                        <option value="claude-sonnet-4-20250514">claude-sonnet-4-20250514</option>
+                        <option value="claude-3-7-sonnet-latest">claude-3-7-sonnet-latest</option>
+                        <option value="claude-3-5-haiku-latest">claude-3-5-haiku-latest</option>
+                    </SettingsSelect>
+                </SettingsGroup>
+                <SettingsGroup>
+                    <label htmlFor="api-key-input">API Key:</label>
+                    <SettingsInput
+                        type="password"
+                        id="api-key-input"
+                        placeholder="Anthropic API key..."
+                        value={settings.apiKey}
+                        onChange={handleApiKeyChange}
+                    />
+                </SettingsGroup>
+                <ExamplesContainer>
+                    <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />
+                </ExamplesContainer>
+            </SettingsPanel>
+
+            <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
+                <SectionHeader onClick={toggleEditor} $sideways={outputCollapsed && editorCollapsed ? false : true}>
+                    <span>Editor</span>
+                    <HeaderControls>
+                        {!editorCollapsed && (
+                            <SizeControls>
+                                <SizeBtn 
+                                    $active={editorSize === 'small'} 
+                                    onClick={(e) => { e.stopPropagation(); handleEditorSizeChange('small'); }}
+                                >
+                                    S
+                                </SizeBtn>
+                                <SizeBtn 
+                                    $active={editorSize === 'medium'} 
+                                    onClick={(e) => { e.stopPropagation(); handleEditorSizeChange('medium'); }}
+                                >
+                                    M
+                                </SizeBtn>
+                                <SizeBtn 
+                                    $active={editorSize === 'big'} 
+                                    onClick={(e) => { e.stopPropagation(); handleEditorSizeChange('big'); }}
+                                >
+                                    B
+                                </SizeBtn>
+                            </SizeControls>
+                        )}
+                        <ToggleBtn>{editorCollapsed ? '▶' : '▼'}</ToggleBtn>
+                    </HeaderControls>
+                </SectionHeader>
+                <EditorSection $collapsed={editorCollapsed} $size={editorSize} $borderRight>
+                    <SectionContent $collapsed={editorCollapsed}>
+                        <EditorContainer ref={editorRef} />
+                    </SectionContent>
+                </EditorSection>
+
+                <SectionHeader onClick={toggleOutput} $sideways={outputCollapsed && editorCollapsed ? false : true}>
+                    <span>Output</span>
+                    <HeaderControls>
+                        {!outputCollapsed && (
+                            <SizeControls>
+                                <SizeBtn 
+                                    $active={outputSize === 'small'} 
+                                    onClick={(e) => { e.stopPropagation(); handleOutputSizeChange('small'); }}
+                                >
+                                    S
+                                </SizeBtn>
+                                <SizeBtn 
+                                    $active={outputSize === 'medium'} 
+                                    onClick={(e) => { e.stopPropagation(); handleOutputSizeChange('medium'); }}
+                                >
+                                    M
+                                </SizeBtn>
+                                <SizeBtn 
+                                    $active={outputSize === 'big'} 
+                                    onClick={(e) => { e.stopPropagation(); handleOutputSizeChange('big'); }}
+                                >
+                                    L
+                                </SizeBtn>
+                            </SizeControls>
+                        )}
+                        <ToggleBtn>{outputCollapsed ? '▶' : '▼'}</ToggleBtn>
+                    </HeaderControls>
+                </SectionHeader>
+                <OutputSection $collapsed={outputCollapsed} $size={outputSize}>
+                    
+                    <SectionContent $collapsed={outputCollapsed}>
+                        <OutputPanel 
+                            defaultFormat={outputFormat}
+                            mobile={true}
+                            data={outputData}
+                            onFormatChange={handleOutputFormatChange}
+                        />
+                    </SectionContent>
+                </OutputSection>
+            </MainContainer>
+
+            <SectionHeader onClick={toggleExecution}>
+                <span>Execution</span>
+                <HeaderControls>
+                    {!executionCollapsed && (
+                        <SizeControls>
+                            <SizeBtn 
+                                $active={executionSize === 'small'} 
+                                onClick={(e) => { e.stopPropagation(); handleExecutionSizeChange('small'); }}
+                            >
+                                S
+                            </SizeBtn>
+                            <SizeBtn 
+                                $active={executionSize === 'medium'} 
+                                onClick={(e) => { e.stopPropagation(); handleExecutionSizeChange('medium'); }}
+                            >
+                                M
+                            </SizeBtn>
+                            <SizeBtn 
+                                $active={executionSize === 'big'} 
+                                onClick={(e) => { e.stopPropagation(); handleExecutionSizeChange('big'); }}
+                            >
+                                L
+                            </SizeBtn>
+                        </SizeControls>
+                    )}
+                    <ToggleBtn>{executionCollapsed ? '▶' : '▼'}</ToggleBtn>
+                </HeaderControls>
+            </SectionHeader>
+            <ExecutionSection $collapsed={executionCollapsed} $size={executionSize}>
+                
+                <SectionContent $collapsed={executionCollapsed}>
+                    <ExecutionControls
+                        onExecute={handleExecute}
+                        onStep={handleStep}
+                        onStop={handleStop}
+                        onReset={handleReset}
+                        mobile={false}
+                        showLog={true}
+                    />
+                </SectionContent>
+            </ExecutionSection>
+        </Container>
+    );
 };
