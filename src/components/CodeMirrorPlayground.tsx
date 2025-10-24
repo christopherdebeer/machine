@@ -212,7 +212,7 @@ const MainContainer = styled.div`
 `;
 
 const EditorSection = styled.div<{ $collapsed?: boolean }>`
-    flex: ${props => props.$collapsed ? '0 0 auto' : '1 1 0'};
+    flex: ${props => props.$collapsed ? '0 0 0' : '1 1 0'};
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -226,7 +226,7 @@ const EditorSection = styled.div<{ $collapsed?: boolean }>`
 `;
 
 const SectionContent = styled.div<{ $collapsed?: boolean }>`
-    flex: ${props => props.$collapsed ? '0 0 auto' : '1 1 0'};
+    flex: ${props => props.$collapsed ? '0 0 0' : '1 1 0'};
     overflow: ${props => props.$collapsed ? 'hidden' : 'auto'};
     transition: flex 0.3s ease;
     min-height: 0;
@@ -269,7 +269,7 @@ const EditorContainer = styled.div`
 `;
 
 const OutputSection = styled.div<{ $collapsed?: boolean }>`
-    flex: ${props => props.$collapsed ? '0 0 auto' : '1 1 0'};
+    flex: ${props => props.$collapsed ? '0 0 0' : '1 1 0'};
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -288,8 +288,13 @@ const ExecutionSection = styled.div<{ $collapsed?: boolean }>`
     transition: flex 0.3s ease;
     max-height: ${props => props.$collapsed ? '0' : '400px'};
     height: ${props => props.$collapsed ? '0' : 'auto'};
-    flex: ${props => props.$collapsed ? '0 0 auto' : '1 1 auto'};
+    flex: ${props => props.$collapsed ? '0 0 0' : '1 1 auto'};
     min-height: 0;
+`;
+
+const ExecutionContainer = styled.div`
+    display: flex;
+    flex-direction: column;
 `;
 
 // Main Component
@@ -769,23 +774,24 @@ start -> end;`;
                 </OutputSection>
             </MainContainer>
 
-            <SectionHeader onClick={toggleExecution}>
+            <ExecutionContainer>
+                <SectionHeader onClick={toggleExecution}>
                     <span>Execution</span>
                     <ToggleBtn>{executionCollapsed ? '▶' : '▼'}</ToggleBtn>
                 </SectionHeader>
-            <ExecutionSection $collapsed={executionCollapsed}>
-                
-                <SectionContent $collapsed={executionCollapsed}>
-                    <ExecutionControls
-                        onExecute={handleExecute}
-                        onStep={handleStep}
-                        onStop={handleStop}
-                        onReset={handleReset}
-                        mobile={false}
-                        showLog={true}
-                    />
-                </SectionContent>
-            </ExecutionSection>
+                <ExecutionSection $collapsed={executionCollapsed}>
+                    <SectionContent $collapsed={executionCollapsed}>
+                        <ExecutionControls
+                            onExecute={handleExecute}
+                            onStep={handleStep}
+                            onStop={handleStop}
+                            onReset={handleReset}
+                            mobile={false}
+                            showLog={true}
+                        />
+                    </SectionContent>
+                </ExecutionSection>
+            </ExecutionContainer>
         </Container>
     );
 };
