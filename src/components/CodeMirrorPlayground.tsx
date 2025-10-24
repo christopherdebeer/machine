@@ -30,6 +30,19 @@ import { RailsExecutor } from '../language/rails-executor';
 import { RuntimeVisualizer } from '../language/runtime-visualizer';
 import type { MachineData } from '../language/base-executor';
 
+// Types
+type SectionSize = 'small' | 'medium' | 'big';
+
+// Helper function to get flex-basis for section size
+const getSectionFlexBasis = (collapsed: boolean, size: SectionSize): string => {
+    if (collapsed) return '0';
+    switch (size) {
+        case 'small': return '20%';
+        case 'medium': return '50%';
+        case 'big': return '80%';
+    }
+};
+
 // Styled Components
 const Container = styled.div`
     display: flex;
@@ -98,6 +111,38 @@ const ToggleBtn = styled.button`
     display: flex;
     align-items: center;
     justify-content: center;
+`;
+
+const SizeControls = styled.div`
+    display: flex;
+    gap: 4px;
+    margin-left: 8px;
+`;
+
+const SizeBtn = styled.button<{ $active?: boolean }>`
+    background: ${props => props.$active ? '#0e639c' : 'transparent'};
+    border: 1px solid ${props => props.$active ? '#0e639c' : '#505053'};
+    color: ${props => props.$active ? '#ffffff' : '#cccccc'};
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    min-width: 24px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: ${props => props.$active ? '#0e639c' : '#3e3e42'};
+        border-color: #0e639c;
+    }
+
+
+`;
+
+const HeaderControls = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 4px;
 `;
 
 const SettingsPanel = styled.div<{ $collapsed?: boolean }>`
@@ -181,18 +226,23 @@ const MainContainer = styled.div<{ $collapsed?: boolean }>`
     }
 `;
 
-const EditorSection = styled.div<{ $collapsed?: boolean }>`
+// Generic Section component (DRY)
+const Section = styled.div<{ $collapsed?: boolean; $size?: SectionSize; $borderRight?: boolean }>`
     flex: ${props => props.$collapsed ? '0 0 0' : '1'};
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: #1e1e1e;
     transition: flex 0.3s ease;
     height: ${props => props.$collapsed ? '0' : 'auto'};
-    flex-basis: ${props => props.$collapsed ? '0' : '100%'};
+    flex-basis: ${props => getSectionFlexBasis(props.$collapsed || false, props.$size || 'medium')};
+    
     @media (min-width: 768px) {
-        border-right: 1px solid #3e3e42;
+        ${props => props.$borderRight && 'border-right: 1px solid #3e3e42;'}
     }
 `;
+
+const EditorSection = Section;
 
 const SectionContent = styled.div<{ $collapsed?: boolean }>`
     flex: ${props => props.$collapsed ? '0' : '1'};
@@ -229,31 +279,9 @@ const EditorContainer = styled.div`
     }
 `;
 
-const OutputSection = styled.div<{ $collapsed?: boolean }>`
-    flex: ${props => props.$collapsed ? '0 0 0' : '1'};
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: #1e1e1e;
-    transition: flex 0.3s ease;
-    min-height: ${props => props.$collapsed ? '0' : 'auto'};
-    height: ${props => props.$collapsed ? 'auto' : 'auto'};
-    flex-grow: 1;
-    flex-basis: ${props => props.$collapsed ? '0' : '100%'};
-`;
+const OutputSection = Section;
 
-const ExecutionSection = styled.div<{ $collapsed?: boolean }>`
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: #1e1e1e;
-    transition: flex 0.3s ease;
-    xmax-height: ${props => props.$collapsed ? '0' : '400px'};
-    height: ${props => props.$collapsed ? '0' : 'auto'};
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: ${props => props.$collapsed ? '0' : '100%'};
-`;
+const ExecutionSection = Section;
 
 // Main Component
 export const CodeMirrorPlayground: React.FC = () => {
@@ -265,6 +293,9 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [editorCollapsed, setEditorCollapsed] = useState(false);
     const [outputCollapsed, setOutputCollapsed] = useState(false);
     const [executionCollapsed, setExecutionCollapsed] = useState(false);
+    const [editorSize, setEditorSize] = useState<SectionSize>('medium');
+    const [outputSize, setOutputSize] = useState<SectionSize>('medium');
+    const [executionSize, setExecutionSize] = useState<SectionSize>('medium');
     const [outputData, setOutputData] = useState<OutputData>({});
     const [executor, setExecutor] = useState<RailsExecutor | null>(null);
     const [isExecuting, setIsExecuting] = useState(false);
@@ -383,6 +414,19 @@ start -> end;`;
 
     const toggleExecution = useCallback(() => {
         setExecutionCollapsed(prev => !prev);
+    }, []);
+
+    // Handle size changes
+    const handleEditorSizeChange = useCallback((size: SectionSize) => {
+        setEditorSize(size);
+    }, []);
+
+    const handleOutputSizeChange = useCallback((size: SectionSize) => {
+        setOutputSize(size);
+    }, []);
+
+    const handleExecutionSizeChange = useCallback((size: SectionSize) => {
+        setExecutionSize(size);
     }, []);
 
     const generatePngFromSvg = useCallback(async (svgContent: string): Promise<string | undefined> => {
@@ -736,19 +780,67 @@ start -> end;`;
             <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
                 <SectionHeader onClick={toggleEditor} $sideways={outputCollapsed && editorCollapsed ? false : true}>
                     <span>Editor</span>
-                    <ToggleBtn>{editorCollapsed ? '▶' : '▼'}</ToggleBtn>
+                    <HeaderControls>
+                        {!editorCollapsed && (
+                            <SizeControls>
+                                <SizeBtn 
+                                    $active={editorSize === 'small'} 
+                                    onClick={(e) => { e.stopPropagation(); handleEditorSizeChange('small'); }}
+                                >
+                                    S
+                                </SizeBtn>
+                                <SizeBtn 
+                                    $active={editorSize === 'medium'} 
+                                    onClick={(e) => { e.stopPropagation(); handleEditorSizeChange('medium'); }}
+                                >
+                                    M
+                                </SizeBtn>
+                                <SizeBtn 
+                                    $active={editorSize === 'big'} 
+                                    onClick={(e) => { e.stopPropagation(); handleEditorSizeChange('big'); }}
+                                >
+                                    B
+                                </SizeBtn>
+                            </SizeControls>
+                        )}
+                        <ToggleBtn>{editorCollapsed ? '▶' : '▼'}</ToggleBtn>
+                    </HeaderControls>
                 </SectionHeader>
-                <EditorSection $collapsed={editorCollapsed}>
+                <EditorSection $collapsed={editorCollapsed} $size={editorSize} $borderRight>
                     <SectionContent $collapsed={editorCollapsed}>
                         <EditorContainer ref={editorRef} />
                     </SectionContent>
                 </EditorSection>
 
                 <SectionHeader onClick={toggleOutput} $sideways={outputCollapsed && editorCollapsed ? false : true}>
-                        <span>Output</span>
+                    <span>Output</span>
+                    <HeaderControls>
+                        {!outputCollapsed && (
+                            <SizeControls>
+                                <SizeBtn 
+                                    $active={outputSize === 'small'} 
+                                    onClick={(e) => { e.stopPropagation(); handleOutputSizeChange('small'); }}
+                                >
+                                    S
+                                </SizeBtn>
+                                <SizeBtn 
+                                    $active={outputSize === 'medium'} 
+                                    onClick={(e) => { e.stopPropagation(); handleOutputSizeChange('medium'); }}
+                                >
+                                    M
+                                </SizeBtn>
+                                <SizeBtn 
+                                    $active={outputSize === 'big'} 
+                                    onClick={(e) => { e.stopPropagation(); handleOutputSizeChange('big'); }}
+                                >
+                                    L
+                                </SizeBtn>
+                            </SizeControls>
+                        )}
                         <ToggleBtn>{outputCollapsed ? '▶' : '▼'}</ToggleBtn>
-                    </SectionHeader>
-                <OutputSection $collapsed={outputCollapsed}>
+                    </HeaderControls>
+                </SectionHeader>
+                <OutputSection $collapsed={outputCollapsed} $size={outputSize}>
                     
                     <SectionContent $collapsed={outputCollapsed}>
                         <OutputPanel 
@@ -761,10 +853,34 @@ start -> end;`;
             </MainContainer>
 
             <SectionHeader onClick={toggleExecution}>
-                    <span>Execution</span>
+                <span>Execution</span>
+                <HeaderControls>
+                    {!executionCollapsed && (
+                        <SizeControls>
+                            <SizeBtn 
+                                $active={executionSize === 'small'} 
+                                onClick={(e) => { e.stopPropagation(); handleExecutionSizeChange('small'); }}
+                            >
+                                S
+                            </SizeBtn>
+                            <SizeBtn 
+                                $active={executionSize === 'medium'} 
+                                onClick={(e) => { e.stopPropagation(); handleExecutionSizeChange('medium'); }}
+                            >
+                                M
+                            </SizeBtn>
+                            <SizeBtn 
+                                $active={executionSize === 'big'} 
+                                onClick={(e) => { e.stopPropagation(); handleExecutionSizeChange('big'); }}
+                            >
+                                L
+                            </SizeBtn>
+                        </SizeControls>
+                    )}
                     <ToggleBtn>{executionCollapsed ? '▶' : '▼'}</ToggleBtn>
-                </SectionHeader>
-            <ExecutionSection $collapsed={executionCollapsed}>
+                </HeaderControls>
+            </SectionHeader>
+            <ExecutionSection $collapsed={executionCollapsed} $size={executionSize}>
                 
                 <SectionContent $collapsed={executionCollapsed}>
                     <ExecutionControls
