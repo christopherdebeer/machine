@@ -346,7 +346,7 @@ function applyCustomStyles(node: any, styleNodes: any[], baseStyle: string): str
 /**
  * Generate HTML label for machine root showing title, description, version, and attributes
  */
-function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions): string {
+function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions, wrappingConfig: TextWrappingConfig): string {
     let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
     // Title (bold, larger font)
@@ -387,20 +387,8 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
 
     if (displayAttrs.length > 0) {
         htmlLabel += '<tr><td>';
-        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
-        displayAttrs.forEach(attr => {
-            let displayValue = formatAttributeValueForDisplay(attr.value);
-            // Interpolate templates if runtime context is available
-            if (typeof attr.value === 'string') {
-                displayValue = interpolateValue(attr.value, options.runtimeContext);
-            }
-            const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
-            htmlLabel += '<tr>';
-            htmlLabel += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
-            htmlLabel += '<td align="left">' + escapeHtml(displayValue) + '</td>';
-            htmlLabel += '</tr>';
-        });
-        htmlLabel += '</table>';
+        // Use shared generateAttributesTable function for consistency
+        htmlLabel += generateAttributesTable(displayAttrs, options.runtimeContext);
         htmlLabel += '</td></tr>';
     }
 
@@ -409,10 +397,52 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions)
 }
 
 /**
+ * Text wrapping configuration with defaults
+ */
+interface TextWrappingConfig {
+    maxEdgeLabelLength: number;
+    maxMultiplicityLength: number;
+    maxAttributeKeyLength: number;
+    maxAttributeValueLength: number;
+    maxNodeTitleLength: number;
+    maxNoteContentLength: number;
+}
+
+/**
+ * Get text wrapping configuration from machine attributes or use defaults
+ */
+function getTextWrappingConfig(machineJson: MachineJSON): TextWrappingConfig {
+    const attrs = machineJson.attributes || [];
+    
+    const getAttrValue = (name: string, defaultValue: number): number => {
+        const attr = attrs.find(a => a.name === name);
+        if (attr?.value !== undefined) {
+            const value = typeof attr.value === 'string' 
+                ? parseInt(attr.value.replace(/^["']|["']$/g, ''), 10)
+                : Number(attr.value);
+            return isNaN(value) ? defaultValue : value;
+        }
+        return defaultValue;
+    };
+
+    return {
+        maxEdgeLabelLength: getAttrValue('maxEdgeLabelLength', 40),
+        maxMultiplicityLength: getAttrValue('maxMultiplicityLength', 20),
+        maxAttributeKeyLength: getAttrValue('maxAttributeKeyLength', 25),
+        maxAttributeValueLength: getAttrValue('maxAttributeValueLength', 30),
+        maxNodeTitleLength: getAttrValue('maxNodeTitleLength', 40),
+        maxNoteContentLength: getAttrValue('maxNoteContentLength', 40),
+    };
+}
+
+/**
  * Generate a static DOT diagram from MachineJSON
  */
 export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOptions = {}): string {
     const lines: string[] = [];
+
+    // Get text wrapping configuration from machine attributes
+    const wrappingConfig = getTextWrappingConfig(machineJson);
 
     // Separate style nodes from renderable nodes
     const styleNodes = machineJson.nodes.filter(n => NodeTypeChecker.isStyleNode(n));
@@ -423,7 +453,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push('  // Graph attributes');
 
     // Generate machine label with title, description, version, and attributes
-    const machineLabel = generateMachineLabel(machineJson, options);
+    const machineLabel = generateMachineLabel(machineJson, options, wrappingConfig);
     lines.push('  label=<' + machineLabel + '>;');
     lines.push('  labelloc="t";');
     lines.push('  fontsize=10;');
@@ -444,13 +474,13 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
 
     // Generate nodes organized by semantic/lexical nesting
     lines.push('  // Node definitions with nested namespaces');
-    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, styleNodes, validationContext, options));
+    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, styleNodes, validationContext, options, wrappingConfig));
     lines.push('');
 
     // Generate edges
     if (machineJson.edges && machineJson.edges.length > 0) {
         lines.push('  // Edges');
-        lines.push(generateEdges(machineJson, styleNodes));
+        lines.push(generateEdges(machineJson, styleNodes, wrappingConfig));
     }
 
     // Generate notes as edge labels
@@ -660,12 +690,12 @@ function getRootNodes(nodes: any[]): any[] {
  * Generate HTML table for attributes
  * Shared function used by both nodes and notes to ensure consistent rendering
  */
-function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeContext): string {
+function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeContext, wrappingConfig?: TextWrappingConfig): string {
     if (!attributes || attributes.length === 0) {
         return '';
     }
 
-    let html = '<table border="0" cellborder="1" cellspacing="0" cellpadding="2">';
+    let html = '<table border="0" cellborder="1" cellspacing="0" cellpadding="2" align="left">';
     attributes.forEach((attr: any) => {
         let displayValue = attr.value?.value ?? attr.value;
         // Use formatAttributeValueForDisplay to properly handle nested objects and arrays
@@ -676,28 +706,32 @@ function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeCont
             displayValue = interpolateValue(displayValue, runtimeContext);
         }
 
+        // Use wrappingConfig values or defaults
+        const maxValueLength = wrappingConfig?.maxAttributeValueLength ?? 30;
+        const maxKeyLength = wrappingConfig?.maxAttributeKeyLength ?? 25;
+
         // Break long values into multiple lines - escape BEFORE joining with <br/>
         // Preserve existing line breaks for multiline strings and formatted JSON
         if (typeof displayValue === 'string') {
-            const lines = breakLongText(displayValue, 30, { preserveLineBreaks: true });
-            displayValue = lines.map(line => escapeHtml(line)).join('<br/>');
+            const lines = breakLongText(displayValue, maxValueLength, { preserveLineBreaks: true });
+            displayValue = lines.map(line => escapeHtml(line)).join('<br align="left"/>');
         } else {
             displayValue = escapeHtml(String(displayValue));
         }
 
         // Break long attribute names into multiple lines - escape BEFORE joining with <br/>
         let attrName = attr.name;
-        if (attrName && attrName.length > 25) {
-            const lines = breakLongText(attrName, 25);
-            attrName = lines.map(line => escapeHtml(line)).join('<br/>');
+        if (attrName && attrName.length > maxKeyLength) {
+            const lines = breakLongText(attrName, maxKeyLength);
+            attrName = lines.map(line => escapeHtml(line)).join('<br align="left"/>');
         } else {
             attrName = escapeHtml(attrName);
         }
 
         const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
         html += '<tr>';
-        html += '<td align="left">' + attrName + typeStr + '</td>';
-        html += '<td align="left">' + displayValue + '</td>';
+        html += '<td align="left" balign="left">' + attrName + typeStr + '</td>';
+        html += '<td align="left" balign="left">' + displayValue + '</td>';
         html += '</tr>';
     });
     html += '</table>';
@@ -777,7 +811,8 @@ function generateSemanticHierarchy(
     level = 0,
     styleNodes: any[] = [],
     validationContext?: ValidationContext,
-    options?: DiagramOptions
+    options?: DiagramOptions,
+    wrappingConfig?: TextWrappingConfig
 ): string {
     const lines: string[] = [];
     const indent = '  '.repeat(level);
@@ -802,7 +837,7 @@ function generateSemanticHierarchy(
 
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);
-            lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1, styleNodes, validationContext, options));
+            lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1, styleNodes, validationContext, options, wrappingConfig));
 
             lines.push(`${indent}}`);
         } else {
@@ -1094,7 +1129,7 @@ function shouldShowEdgeAnnotation(edge: any): boolean {
 /**
  * Generate edges section with support for compound edges between clusters
  */
-function generateEdges(machineJson: MachineJSON, styleNodes: any[] = []): string {
+function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappingConfig?: TextWrappingConfig): string {
     const lines: string[] = [];
 
     if (!machineJson.edges || machineJson.edges.length === 0) {
@@ -1138,9 +1173,13 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = []): string
             }
         }
 
+        // Use wrappingConfig values or defaults
+        const maxEdgeLabelLength = wrappingConfig?.maxEdgeLabelLength ?? 40;
+        const maxMultiplicityLength = wrappingConfig?.maxMultiplicityLength ?? 20;
+
         // Apply text wrapping to edge label
         if (label) {
-            const wrappedLines = breakLongText(label, 40);
+            const wrappedLines = breakLongText(label, maxEdgeLabelLength);
             label = wrappedLines.join('\\n');
         }
 
@@ -1159,12 +1198,12 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = []): string
 
         // Add multiplicity using taillabel and headlabel (proper UML style) with wrapping
         if (edge.sourceMultiplicity) {
-            const wrappedMultiplicity = breakLongText(edge.sourceMultiplicity, 20).join('\\n');
+            const wrappedMultiplicity = breakLongText(edge.sourceMultiplicity, maxMultiplicityLength).join('\\n');
             edgeAttrs.push(`taillabel="${escapeDot(wrappedMultiplicity)}"`);
         }
 
         if (edge.targetMultiplicity) {
-            const wrappedMultiplicity = breakLongText(edge.targetMultiplicity, 20).join('\\n');
+            const wrappedMultiplicity = breakLongText(edge.targetMultiplicity, maxMultiplicityLength).join('\\n');
             edgeAttrs.push(`headlabel="${escapeDot(wrappedMultiplicity)}"`);
         }
 

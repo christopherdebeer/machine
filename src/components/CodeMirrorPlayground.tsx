@@ -61,6 +61,17 @@ type SectionSize = 'small' | 'medium' | 'big';
 interface HashParams {
   example?: string;
   content?: string;
+  sections?: string;
+}
+
+interface SectionStates {
+  settingsCollapsed: boolean;
+  editorCollapsed: boolean;
+  outputCollapsed: boolean;
+  executionCollapsed: boolean;
+  editorSize: SectionSize;
+  outputSize: SectionSize;
+  executionSize: SectionSize;
 }
 
 // Base64 URL-safe encoding/decoding helpers
@@ -83,6 +94,54 @@ function base64UrlDecode(str: string): string {
   }
 }
 
+// Section state encoding/decoding helpers
+function encodeSectionStates(states: SectionStates): string {
+  // Create a compact representation using single characters
+  // Format: [s][e][o][x][eSize][oSize][xSize]
+  // s = settings collapsed (0/1)
+  // e = editor collapsed (0/1) 
+  // o = output collapsed (0/1)
+  // x = execution collapsed (0/1)
+  // eSize = editor size (s/m/b for small/medium/big)
+  // oSize = output size (s/m/b)
+  // xSize = execution size (s/m/b)
+  
+  const sizeMap: Record<SectionSize, string> = { small: 's', medium: 'm', big: 'b' };
+  
+  return [
+    states.settingsCollapsed ? '1' : '0',
+    states.editorCollapsed ? '1' : '0', 
+    states.outputCollapsed ? '1' : '0',
+    states.executionCollapsed ? '1' : '0',
+    sizeMap[states.editorSize],
+    sizeMap[states.outputSize],
+    sizeMap[states.executionSize]
+  ].join('');
+}
+
+function decodeSectionStates(encoded: string): Partial<SectionStates> {
+  if (!encoded || encoded.length !== 7) {
+    return {}; // Return empty object for invalid input
+  }
+  
+  const sizeMap: Record<string, SectionSize> = { s: 'small', m: 'medium', b: 'big' };
+  
+  try {
+    return {
+      settingsCollapsed: encoded[0] === '1',
+      editorCollapsed: encoded[1] === '1',
+      outputCollapsed: encoded[2] === '1', 
+      executionCollapsed: encoded[3] === '1',
+      editorSize: sizeMap[encoded[4]] || 'medium',
+      outputSize: sizeMap[encoded[5]] || 'medium',
+      executionSize: sizeMap[encoded[6]] || 'medium'
+    };
+  } catch (error) {
+    console.error('Failed to decode section states:', error);
+    return {};
+  }
+}
+
 function parseHashParams(): HashParams {
   const hash = window.location.hash.slice(1); // Remove '#'
   const params: HashParams = {};
@@ -96,6 +155,8 @@ function parseHashParams(): HashParams {
       params.example = decodeURIComponent(value);
     } else if (key === 'content') {
       params.content = base64UrlDecode(value);
+    } else if (key === 'sections') {
+      params.sections = decodeURIComponent(value);
     }
   }
   
@@ -110,6 +171,9 @@ function updateHashParams(params: HashParams): void {
   }
   if (params.content) {
     parts.push(`content=${base64UrlEncode(params.content)}`);
+  }
+  if (params.sections) {
+    parts.push(`sections=${encodeURIComponent(params.sections)}`);
   }
   
   const newHash = parts.length > 0 ? `#${parts.join('&')}` : '';
@@ -438,6 +502,32 @@ export const CodeMirrorPlayground: React.FC = () => {
       initialCode = defaultExample.content;
     }
 
+    // Restore section states from URL hash
+    if (hashParams.sections) {
+      const sectionStates = decodeSectionStates(hashParams.sections);
+      if (sectionStates.settingsCollapsed !== undefined) {
+        setSettingsCollapsed(sectionStates.settingsCollapsed);
+      }
+      if (sectionStates.editorCollapsed !== undefined) {
+        setEditorCollapsed(sectionStates.editorCollapsed);
+      }
+      if (sectionStates.outputCollapsed !== undefined) {
+        setOutputCollapsed(sectionStates.outputCollapsed);
+      }
+      if (sectionStates.executionCollapsed !== undefined) {
+        setExecutionCollapsed(sectionStates.executionCollapsed);
+      }
+      if (sectionStates.editorSize !== undefined) {
+        setEditorSize(sectionStates.editorSize);
+      }
+      if (sectionStates.outputSize !== undefined) {
+        setOutputSize(sectionStates.outputSize);
+      }
+      if (sectionStates.executionSize !== undefined) {
+        setExecutionSize(sectionStates.executionSize);
+      }
+    }
+
     // Set initial state
     setSelectedExample(initialExample);
     setIsDirty(!!hashParams.content);
@@ -530,6 +620,31 @@ export const CodeMirrorPlayground: React.FC = () => {
       view.destroy();
     };
   }, []);
+
+  // Update URL hash when section states change
+  useEffect(() => {
+    const currentSectionStates: SectionStates = {
+      settingsCollapsed,
+      editorCollapsed,
+      outputCollapsed,
+      executionCollapsed,
+      editorSize,
+      outputSize,
+      executionSize
+    };
+
+    // Get current hash params
+    const hashParams = parseHashParams();
+    
+    // Encode current section states
+    const encodedSections = encodeSectionStates(currentSectionStates);
+    
+    // Update hash params with new section states
+    updateHashParams({
+      ...hashParams,
+      sections: encodedSections
+    });
+  }, [settingsCollapsed, editorCollapsed, outputCollapsed, executionCollapsed, editorSize, outputSize, executionSize]);
 
   // Handle settings changes
   const handleModelChange = useCallback(

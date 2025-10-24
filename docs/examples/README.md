@@ -105,10 +105,12 @@ Explore specific topics in depth:
 - **[State Machines](./state-machines.md)** - State transitions and stateful workflows
 
 ### Integration & Advanced
+- **[Attributes & Types](./attributes-and-types.md)** - Schemas, linked nodes, and type hierarchies
 - **[LLM Integration](./llm-integration.md)** - Working with language models and prompts
 - **[Advanced Features](./advanced-features.md)** - Nesting, generics, annotations, arrows, and notes
 - **[Styling & Validation](./styling-and-validation.md)** - StrictMode, warning visualization, diagram controls
-- **[Attributes & Types](./attributes-and-types.md)** - Schemas, linked nodes, and type hierarchies
+- **[Text Wrapping](./text-wrapping-configuration.md)** - Text wrapping configuration
+
 
 ### Domain-Specific
 - **[Domain Examples](./domain-examples.md)** - API workflows, ETL pipelines, testing
