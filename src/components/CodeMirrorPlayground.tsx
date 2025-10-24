@@ -106,6 +106,7 @@ const SectionHeader = styled.div<{ $collapsed?: boolean, $sideways?: boolean }>`
     align-items: center;
     cursor: pointer;
     user-select: none;
+    flex: 0 0 auto;
 
     &:hover {
         background: #333336;
@@ -203,6 +204,7 @@ const MainContainer = styled.div`
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-height: 0;
 
     @media (min-width: 768px) {
         flex-direction: row;
@@ -210,12 +212,13 @@ const MainContainer = styled.div`
 `;
 
 const EditorSection = styled.div<{ $collapsed?: boolean }>`
-    flex: ${props => props.$collapsed ? '0 0 0' : '1'};
+    flex: ${props => props.$collapsed ? '0 0 auto' : '1 1 0'};
     display: flex;
     flex-direction: column;
     overflow: hidden;
     transition: flex 0.3s ease;
     height: ${props => props.$collapsed ? '0' : 'auto'};
+    min-height: 0;
 
     @media (min-width: 768px) {
         border-right: 1px solid #3e3e42;
@@ -223,14 +226,22 @@ const EditorSection = styled.div<{ $collapsed?: boolean }>`
 `;
 
 const SectionContent = styled.div<{ $collapsed?: boolean }>`
-    flex: ${props => props.$collapsed ? '0' : '1'};
-    overflow: auto;
+    flex: ${props => props.$collapsed ? '0 0 auto' : '1 1 0'};
+    overflow: ${props => props.$collapsed ? 'hidden' : 'auto'};
     transition: flex 0.3s ease;
-    min-height: ${props => props.$collapsed ? '0' : 'auto'};
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    > * {
+        flex: 1 1 0;
+        min-height: 0;
+    }
 `;
 
 const EditorContainer = styled.div`
-    height: 100%;
+    flex: 1 1 0;
+    min-height: 0;
     overflow: auto;
 
     .cm-editor {
@@ -258,14 +269,14 @@ const EditorContainer = styled.div`
 `;
 
 const OutputSection = styled.div<{ $collapsed?: boolean }>`
-    flex: ${props => props.$collapsed ? '0 0 0' : '1'};
+    flex: ${props => props.$collapsed ? '0 0 auto' : '1 1 0'};
     display: flex;
     flex-direction: column;
     overflow: hidden;
     background: #1e1e1e;
     transition: flex 0.3s ease;
-    min-height: ${props => props.$collapsed ? '0' : 'auto'};
-    height: ${props => props.$collapsed ? 'auto' : 'auto'};
+    min-height: 0;
+    height: ${props => props.$collapsed ? '0' : 'auto'};
     flex-grow: 1;
 `;
 
@@ -275,10 +286,10 @@ const ExecutionSection = styled.div<{ $collapsed?: boolean }>`
     overflow: hidden;
     background: #1e1e1e;
     transition: flex 0.3s ease;
-    xmax-height: ${props => props.$collapsed ? '0' : '400px'};
+    max-height: ${props => props.$collapsed ? '0' : '400px'};
     height: ${props => props.$collapsed ? '0' : 'auto'};
-    flex-grow: 1;
-    flex-shrink: 1;
+    flex: ${props => props.$collapsed ? '0 0 auto' : '1 1 auto'};
+    min-height: 0;
 `;
 
 // Main Component
