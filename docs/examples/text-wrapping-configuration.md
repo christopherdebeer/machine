@@ -48,8 +48,7 @@ Source and target multiplicity labels are wrapped:
 machine "MultiplicityExample"
 maxMultiplicityLength: 15
 
-nodeA -> nodeB [sourceMultiplicity="0..many items", targetMultiplicity="1..single item"]
-}
+nodeA "0..many items" -> "1..single item" nodeB;
 ```
 
 ### Attribute Keys and Values

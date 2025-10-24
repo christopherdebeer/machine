@@ -26,6 +26,10 @@ export interface Edge {
     annotations?: Array<{ name: string; value?: string }>;  // Edge annotations
     style?: EdgeStyle;  // Custom styling for the edge
     roleName?: string;  // Role name for bidirectional relationships
+    sourceAttribute?: string;  // Attribute name to anchor at the source node
+    targetAttribute?: string;  // Attribute name to anchor at the target node
+    sourcePort?: string;  // Explicit port/handle name at the source node
+    targetPort?: string;  // Explicit port/handle name at the target node
 }
 
 export interface EdgeStyle {

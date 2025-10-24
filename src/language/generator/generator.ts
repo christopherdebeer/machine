@@ -513,7 +513,11 @@ class JSONGenerator extends BaseGenerator {
                             annotations: edgeAnnotations,  // Add edge annotations
                             arrowType: segment.endType,  // Preserve arrow type
                             sourceMultiplicity: segment.sourceMultiplicity?.replace(/"/g, ''),  // Remove quotes
-                            targetMultiplicity: segment.targetMultiplicity?.replace(/"/g, '')   // Remove quotes
+                            targetMultiplicity: segment.targetMultiplicity?.replace(/"/g, ''),   // Remove quotes
+                            sourceAttribute: edgeValue?.sourceAttribute,
+                            targetAttribute: edgeValue?.targetAttribute,
+                            sourcePort: edgeValue?.sourcePort,
+                            targetPort: edgeValue?.targetPort
                         })).filter((e: any) => e.source && e.target)
                     );
                     currentSources = targets; // Update sources for next segment
@@ -928,7 +932,8 @@ ${indent}}`);
 
             // Construct label from JSON properties, prioritizing non-text properties
             const textValue = edgeValue.text;
-            const otherProps = keys.filter(k => k !== 'text');
+            const metadataKeys = ['sourceAttribute', 'targetAttribute', 'sourcePort', 'targetPort'];
+            const otherProps = keys.filter(k => k !== 'text' && !metadataKeys.includes(k));
 
             let labelJSON = '';
 

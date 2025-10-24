@@ -177,6 +177,55 @@ Process vertical @Direction("TB") {
 };
 ```
 
+## Attribute Ports and Cluster Anchors
+
+Graphviz diagrams now expose deterministic ports for every attribute row. Use `sourceAttribute` / `targetAttribute` when defining an edge to connect directly to the value cell of an attribute:
+
+```dygram
+machine "Attribute Anchors"
+
+Context api {
+    endpoint: "https://api.example.com";
+    token<string>;
+};
+
+Task call_api "Invoke API" {
+    operation: "GET";
+};
+
+api -> call_api [
+    text: "uses",
+    sourceAttribute: endpoint,
+    targetAttribute: operation
+];
+```
+
+- Attribute names are sanitized into stable port IDs (spaces and symbols become `_`).
+- Duplicate attribute names receive an automatic index suffix (e.g., `config__value_1`).
+- For manual control, `sourcePort` / `targetPort` can reference the generated port name (e.g., `sourcePort: endpoint__value`).
+
+Edges attached to namespace parents (clusters) now terminate at an invisible anchor aligned with the namespace header instead of jumping to the first child node. You can explicitly connect to the cluster boundary by setting `sourcePort: "cluster"` or `targetPort: "cluster"`.
+
+## Rank Hints for Layout
+
+Use the `@rank` annotation (or a `rank` attribute) to group nodes horizontally or pin them to the top/bottom of the diagram:
+
+```dygram
+machine "Ranked Layout"
+
+Task start @rank("header");
+Task plan @rank("same:planning");
+Task review @rank("same:planning");
+Task archive @rank("footer");
+
+start -> plan -> review -> archive;
+```
+
+- `@rank("header")`, `@rank("top")`, or `@rank("min")` place nodes in the top rank.
+- `@rank("footer")`, `@rank("bottom")`, or `@rank("max")` place nodes in the bottom rank.
+- `@rank("same:groupName")` (aliases: `group:` / `align:`) keeps all members of the group aligned on the same level.
+- For parent namespaces, the annotation targets the namespace anchor so the entire cluster honors the rank.
+
 ## Runtime Visualization Options
 
 Configure runtime execution visualization:

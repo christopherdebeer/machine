@@ -99,10 +99,10 @@ export class NodeTypeChecker {
             return 'context';
         }
 
-        // // 4. Graph structure: no incoming edges + has outgoing edges → init
-        // if (edges && this.hasInitGraphStructure(node.name, edges)) {
-        //     return 'init';
-        // }
+        // 4. Graph structure: no incoming edges + has outgoing edges → init
+        if (edges && this.hasInitGraphStructure(node.name, edges)) {
+            return 'init';
+        }
 
         // // 4. Graph structure: no outgoing edges + has incoming edges → end
         // if (edges && !this.hasOutgoingGraphStructure(node.name, edges)) {
