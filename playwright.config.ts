@@ -71,7 +71,14 @@ export default defineConfig({
 
     /* Run local dev server before starting the tests */
     webServer: {
-        command: 'npm run dev',
+        // Use the lightweight Vite dev server for Playwright.
+        // The default `npm run dev` script also starts long-running TypeScript
+        // watch tasks that require ESM-specific file extensions. Those watch
+        // builds fail under the NodeNext module resolution used in CI, causing
+        // the web server to exit before Playwright can run. The e2e tests only
+        // need the web playground, which is fully served by the Vite dev
+        // server after the `prebuild` step has generated static assets.
+        command: 'npm run dev:web',
         url: 'http://localhost:5173/machine',
         reuseExistingServer: !process.env.CI,
         timeout: 120 * 1000, // 2 minutes to start
