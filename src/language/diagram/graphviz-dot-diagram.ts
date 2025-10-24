@@ -129,7 +129,12 @@ function getNodeShape(node: any, edges?: any[]): string {
         return 'egg';
     }
 
-    return (nodeType && shapeMap[nodeType]) || 'box';
+    // Handle undefined type (untyped nodes) - use plain box
+    if (!nodeType) {
+        return 'box';
+    }
+
+    return shapeMap[nodeType] || 'box';
 }
 
 /**

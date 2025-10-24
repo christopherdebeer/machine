@@ -205,19 +205,28 @@ describe('Optional Type Inference', () => {
         });
     });
 
-    describe('State Inference (Default)', () => {
-        it('should infer state as default for simple nodes', () => {
+    describe('Untyped Nodes', () => {
+        it('should return undefined for nodes without type or inference patterns', () => {
             const node: NodeLike = { name: 'ready', attributes: [] };
-            expect(NodeTypeChecker.inferType(node)).toBe('state');
-            expect(NodeTypeChecker.isState(node)).toBe(true);
+            expect(NodeTypeChecker.inferType(node)).toBeUndefined();
+            expect(NodeTypeChecker.isState(node)).toBe(false);
         });
 
-        it('should infer state for control flow nodes', () => {
+        it('should return undefined for simple nodes without attributes', () => {
             const node: NodeLike = {
                 name: 'waiting',
                 attributes: []
             };
-            expect(NodeTypeChecker.inferType(node)).toBe('state');
+            expect(NodeTypeChecker.inferType(node)).toBeUndefined();
+        });
+
+        it('should handle untyped nodes in type checking methods', () => {
+            const node: NodeLike = { name: 'generic', attributes: [] };
+            expect(NodeTypeChecker.isState(node)).toBe(false);
+            expect(NodeTypeChecker.isTask(node)).toBe(false);
+            expect(NodeTypeChecker.isContext(node)).toBe(false);
+            expect(NodeTypeChecker.isInit(node)).toBe(false);
+            expect(NodeTypeChecker.isTool(node)).toBe(false);
         });
     });
 
@@ -380,7 +389,7 @@ describe('Optional Type Inference', () => {
                 type: 'state',
                 attributes: []
             };
-            const inferredState: NodeLike = {
+            const untypedNode: NodeLike = {
                 name: 'waiting',
                 attributes: []
             };
@@ -388,8 +397,9 @@ describe('Optional Type Inference', () => {
             expect(NodeTypeChecker.isTask(explicitTask)).toBe(true);
             expect(NodeTypeChecker.isTask(inferredTask)).toBe(true);
             expect(NodeTypeChecker.isState(explicitState)).toBe(true);
-            // Node with no type and no attributes should infer as state (default)
-            expect(NodeTypeChecker.isState(inferredState)).toBe(true);
+            // Node with no type and no attributes returns undefined (untyped)
+            expect(NodeTypeChecker.getNodeType(untypedNode)).toBeUndefined();
+            expect(NodeTypeChecker.isState(untypedNode)).toBe(false);
         });
     });
 });

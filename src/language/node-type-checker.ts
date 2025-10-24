@@ -109,9 +109,9 @@ export class NodeTypeChecker {
             return 'end';
         }
 
-        // 5. Default: state (control flow node)
-        // This is the fallback for any node that doesn't match other patterns
-        return 'state';
+        // 5. No type can be inferred - return undefined
+        // Untyped nodes are first-class citizens and should be handled explicitly by consumers
+        return undefined;
     }
 
     /**
