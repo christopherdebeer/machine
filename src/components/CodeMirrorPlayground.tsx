@@ -62,36 +62,6 @@ const HeaderTitle = styled.div`
     }
 `;
 
-const HeaderActions = styled.div`
-    display: flex;
-    gap: 8px;
-`;
-
-const Button = styled.button`
-    background: #0e639c;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.2s;
-
-    &:active {
-        background: #1177bb;
-    }
-
-    &.secondary {
-        background: #3e3e42;
-
-        &:active {
-            background: #505053;
-        }
-    }
-`;
-
 const SectionHeader = styled.div<{ $collapsed?: boolean, $sideways?: boolean }>`
     background: #2d2d30;
     padding: 0.25em 0.6em;
@@ -411,22 +381,49 @@ start -> end;`;
         setExecutionCollapsed(prev => !prev);
     }, []);
 
-    // Handle downloads
-    const handleDownloadSVG = useCallback(() => {
-        if (window.downloadSVG) {
-            window.downloadSVG();
+    const generatePngFromSvg = useCallback(async (svgContent: string): Promise<string | undefined> => {
+        if (!svgContent) {
+            return undefined;
         }
-    }, []);
 
-    const handleDownloadPNG = useCallback(() => {
-        if (window.downloadPNG) {
-            window.downloadPNG();
+        try {
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+
+            try {
+                const dataUrl = await new Promise<string>((resolve, reject) => {
+                    const image = new Image();
+
+                    image.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+
+                        if (!context) {
+                            reject(new Error('Unable to obtain 2D canvas context'));
+                            return;
+                        }
+
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        context.drawImage(image, 0, 0);
+                        resolve(canvas.toDataURL('image/png'));
+                    };
+
+                    image.onerror = () => {
+                        reject(new Error('Unable to load SVG for PNG conversion'));
+                    };
+
+                    image.src = url;
+                });
+
+                return dataUrl;
+            } finally {
+                URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error('Failed to generate PNG preview from SVG:', error);
+            return undefined;
         }
-    }, []);
-
-    // Handle run (same as execute)
-    const handleRun = useCallback(async () => {
-        await handleExecute();
     }, []);
 
     // Handle example loading
@@ -486,15 +483,19 @@ start -> end;`;
             await renderGraphviz(runtimeDot, tempDiv, `runtime-${Date.now()}`);
 
             // Update output with runtime visualization
+            const svgMarkup = tempDiv.innerHTML;
+            const pngData = await generatePngFromSvg(svgMarkup);
+
             setOutputData(prev => ({
                 ...prev,
-                svg: tempDiv.innerHTML,
+                svg: svgMarkup,
+                png: pngData,
                 dot: runtimeDot
             }));
         } catch (error) {
             console.error('Error updating runtime visualization:', error);
         }
-    }, []);
+    }, [generatePngFromSvg]);
 
     // Execution handlers
     const handleExecute = useCallback(async () => {
@@ -625,8 +626,12 @@ start -> end;`;
                 await renderGraphviz(dotCode, tempDiv, `${Math.floor(Math.random() * 1000000000)}`);
 
                 // Update output data state
+                const svgMarkup = tempDiv.innerHTML;
+                const pngData = await generatePngFromSvg(svgMarkup);
+
                 setOutputData({
-                    svg: tempDiv.innerHTML,
+                    svg: svgMarkup,
+                    png: pngData,
                     dot: dotCode,
                     json: jsonData,
                     machine: model,
@@ -636,7 +641,7 @@ start -> end;`;
                 console.error('Error updating diagram:', error);
             }
         }, 500); // 500ms debounce
-    }, []);
+    }, [generatePngFromSvg]);
 
     const handleStop = useCallback(() => {
         console.log('Stopping execution');
@@ -666,8 +671,12 @@ start -> end;`;
                 await renderGraphviz(dotCode, tempDiv, `${Math.floor(Math.random() * 1000000000)}`);
 
                 // Update output data with static visualization
+                const svgMarkup = tempDiv.innerHTML;
+                const pngData = await generatePngFromSvg(svgMarkup);
+
                 setOutputData({
-                    svg: tempDiv.innerHTML,
+                    svg: svgMarkup,
+                    png: pngData,
                     dot: dotCode,
                     json: jsonData,
                     machine: outputData.machine,
@@ -677,7 +686,7 @@ start -> end;`;
                 console.error('Error resetting to static diagram:', error);
             }
         }
-    }, [outputData.machine]);
+    }, [generatePngFromSvg, outputData.machine]);
 
     return (
         <Container>
@@ -685,17 +694,6 @@ start -> end;`;
                 <HeaderTitle>
                     <a href="./">DyGram</a>
                 </HeaderTitle>
-                <HeaderActions>
-                    <Button className="secondary" onClick={handleDownloadSVG}>
-                        SVG
-                    </Button>
-                    <Button className="secondary" onClick={handleDownloadPNG}>
-                        PNG
-                    </Button>
-                    <Button onClick={handleRun}>
-                        Run
-                    </Button>
-                </HeaderActions>
             </Header>
 
             <SectionHeader onClick={toggleSettings}>

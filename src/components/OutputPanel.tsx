@@ -5,14 +5,15 @@
  * Supports: SVG diagram, DOT source, JSON, AST, CST
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { Machine } from '../language/generated/ast';
 
-export type OutputFormat = 'svg' | 'dot' | 'json' | 'ast' | 'cst';
+export type OutputFormat = 'svg' | 'png' | 'dot' | 'json' | 'ast' | 'cst';
 
 export interface OutputData {
     svg?: string;
+    png?: string;
     dot?: string;
     json?: string;
     ast?: any;
@@ -64,6 +65,13 @@ const ToggleButton = styled.button<{ $active: boolean }>`
     }
 `;
 
+const ActionsGroup = styled.div`
+    display: flex;
+    gap: 0.3em;
+    margin-left: auto;
+    align-items: center;
+`;
+
 const ContentContainer = styled.div<{ $fitToContainer?: boolean }>`
     flex: 1;
     overflow: auto;
@@ -98,7 +106,7 @@ const SVGWrapper = styled.div`
     }
 }`
 
-const FitToggleButton = styled.button<{ $active: boolean }>`
+const ActionButton = styled.button<{ $active?: boolean }>`
     background: ${props => props.$active ? '#0e639c' : 'transparent'};
     color: ${props => props.$active ? '#ffffff' : '#cccccc'};
     border: 1px solid ${props => props.$active ? '#0e639c' : '#3e3e42'};
@@ -110,12 +118,23 @@ const FitToggleButton = styled.button<{ $active: boolean }>`
     transition: all 0.2s;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
-    margin-left: auto;
 
     &:hover {
         background: ${props => props.$active ? '#1177bb' : '#3e3e42'};
         border-color: ${props => props.$active ? '#1177bb' : '#505053'};
     }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+`;
+
+const PNGImage = styled.img`
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
 `;
 
 const CodeBlock = styled.div`
@@ -232,6 +251,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
     const [currentFormat, setCurrentFormat] = useState<OutputFormat>(defaultFormat);
     const [outputData, setOutputData] = useState<OutputData>(data || {});
     const [fitToContainer, setFitToContainer] = useState(true);
+    const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
     // Update internal state when data prop changes
     useEffect(() => {
@@ -247,6 +267,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
 
     const formats: Array<{ format: OutputFormat; label: string; title: string }> = [
         { format: 'svg', label: 'SVG', title: 'Rendered diagram' },
+        { format: 'png', label: 'PNG', title: 'Rasterized diagram' },
         { format: 'dot', label: 'DOT', title: 'Graphviz DOT source' },
         { format: 'json', label: 'JSON', title: 'Machine JSON representation' },
         { format: 'ast', label: 'AST', title: 'Abstract Syntax Tree' },
@@ -286,6 +307,16 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
                     return <SVGWrapper className={'dygram-svg'} dangerouslySetInnerHTML={{ __html: outputData.svg }} />;
                 }
                 return <EmptyState>No SVG diagram available</EmptyState>;
+
+            case 'png':
+                if (outputData.png) {
+                    return (
+                        <SVGWrapper>
+                            <PNGImage src={outputData.png} alt="Machine diagram PNG" />
+                        </SVGWrapper>
+                    );
+                }
+                return <EmptyState>No PNG image available</EmptyState>;
 
             case 'dot':
                 if (outputData.dot) {
@@ -373,6 +404,100 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
         }
     };
 
+    const copyableContent = useMemo(() => {
+        switch (currentFormat) {
+            case 'svg':
+                return outputData.svg ?? null;
+            case 'png':
+                return outputData.png ?? null;
+            case 'dot':
+                return outputData.dot ?? null;
+            case 'json':
+                if (!outputData.json) return null;
+                try {
+                    const parsed = typeof outputData.json === 'string'
+                        ? JSON.parse(outputData.json)
+                        : outputData.json;
+                    return JSON.stringify(parsed, null, 2);
+                } catch {
+                    return typeof outputData.json === 'string'
+                        ? outputData.json
+                        : JSON.stringify(outputData.json, null, 2);
+                }
+            case 'ast':
+                if (outputData.ast || outputData.machine) {
+                    try {
+                        const simplified = simplifyAST(outputData.ast || outputData.machine);
+                        return JSON.stringify(simplified, null, 2);
+                    } catch (error) {
+                        return `Error serializing AST: ${error instanceof Error ? error.message : String(error)}`;
+                    }
+                }
+                return null;
+            case 'cst':
+                if (outputData.cst) {
+                    try {
+                        const simplified = simplifyCST(outputData.cst);
+                        return JSON.stringify(simplified, null, 2);
+                    } catch (error) {
+                        return `Error serializing CST: ${error instanceof Error ? error.message : String(error)}`;
+                    }
+                }
+                return null;
+            default:
+                return null;
+        }
+    }, [currentFormat, outputData]);
+
+    useEffect(() => {
+        if (copyStatus === 'idle') {
+            return;
+        }
+
+        const timeout = window.setTimeout(() => {
+            setCopyStatus('idle');
+        }, 2000);
+
+        return () => {
+            window.clearTimeout(timeout);
+        };
+    }, [copyStatus]);
+
+    const handleCopy = useCallback(async () => {
+        if (!copyableContent) {
+            console.warn(`No content available to copy for format: ${currentFormat}`);
+            return;
+        }
+
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(copyableContent);
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = copyableContent;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+
+            setCopyStatus('copied');
+        } catch (error) {
+            console.error('Failed to copy output content:', error);
+            setCopyStatus('error');
+        }
+    }, [copyableContent, currentFormat]);
+
+    const copyButtonLabel = copyStatus === 'copied' ? 'Copied' : copyStatus === 'error' ? 'Retry Copy' : 'Copy';
+    const copyButtonTitle = copyStatus === 'copied'
+        ? 'Output copied to clipboard'
+        : copyStatus === 'error'
+            ? 'Copy failed, try again'
+            : 'Copy output to clipboard';
+
     return (
         <Container>
             <ToggleContainer>
@@ -386,15 +511,24 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
                         {label}
                     </ToggleButton>
                 ))}
-                {currentFormat === 'svg' && (
-                    <FitToggleButton
-                        $active={fitToContainer}
-                        onClick={toggleFitToContainer}
-                        title="Fit diagram to container"
+                <ActionsGroup>
+                    <ActionButton
+                        onClick={handleCopy}
+                        disabled={!copyableContent}
+                        title={copyButtonTitle}
                     >
-                        Fit
-                    </FitToggleButton>
-                )}
+                        {copyButtonLabel}
+                    </ActionButton>
+                    {currentFormat === 'svg' && (
+                        <ActionButton
+                            $active={fitToContainer}
+                            onClick={toggleFitToContainer}
+                            title="Fit diagram to container"
+                        >
+                            Fit
+                        </ActionButton>
+                    )}
+                </ActionsGroup>
             </ToggleContainer>
             <ContentContainer $fitToContainer={fitToContainer}>
                 {renderContent()}
