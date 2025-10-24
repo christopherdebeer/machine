@@ -3,7 +3,7 @@
  * This module provides LSP features (diagnostics, semantic highlighting) for CodeMirror
  */
 
-import { EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpdate, gutter, GutterMarker } from '@codemirror/view';
+import { EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpdate, gutter, GutterMarker, showTooltip, Tooltip } from '@codemirror/view';
 import { StateField, StateEffect, Range, RangeSet } from '@codemirror/state';
 import { linter, Diagnostic as CMDiagnostic } from '@codemirror/lint';
 import { createMachineServices } from './language/machine-module.js';
@@ -87,104 +87,117 @@ function convertSeverity(severity: number | undefined): 'error' | 'warning' | 'i
 }
 
 /**
- * Create a tooltip element for showing diagnostic messages
+ * State effect for showing/hiding diagnostic tooltips
  */
-function createDiagnosticTooltip(messages: string[]): HTMLElement {
-    const tooltip = document.createElement('div');
-    tooltip.className = 'cm-diagnostic-tooltip';
-    tooltip.style.cssText = `
-        position: fixed;
-        background: #2d2d30;
-        border: 1px solid #3e3e42;
-        border-radius: 4px;
-        padding: 8px 12px;
-        max-width: 400px;
-        z-index: 1000;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        pointer-events: none;
-    `;
-
-    messages.forEach(msg => {
-        const line = document.createElement('div');
-        line.style.cssText = 'margin: 4px 0; font-size: 12px; line-height: 1.4;';
-        line.textContent = msg;
-        tooltip.appendChild(line);
-    });
-
-    return tooltip;
-}
+const showDiagnosticTooltipEffect = StateEffect.define<{ pos: number; lineNumber: number } | null>();
 
 /**
- * Position tooltip near the target element
+ * State field to track active tooltip position
  */
-function positionTooltip(tooltip: HTMLElement, targetElement: HTMLElement) {
-    const rect = targetElement.getBoundingClientRect();
-    const tooltipRect = tooltip.getBoundingClientRect();
+const tooltipState = StateField.define<{ pos: number; lineNumber: number } | null>({
+    create: () => null,
+    update(state, tr) {
+        for (const effect of tr.effects) {
+            if (effect.is(showDiagnosticTooltipEffect)) {
+                return effect.value;
+            }
+        }
+        return state;
+    },
+    provide: field => showTooltip.compute([field, diagnosticsState], state => {
+        const tooltipInfo = state.field(field);
+        if (!tooltipInfo) return null;
 
-    // Position to the right of the marker, or left if not enough space
-    let left = rect.right + 8;
-    if (left + tooltipRect.width > window.innerWidth) {
-        left = rect.left - tooltipRect.width - 8;
-    }
+        const diagState = state.field(diagnosticsState, false);
+        if (!diagState) return null;
 
-    // Center vertically with the marker
-    let top = rect.top + (rect.height / 2) - (tooltipRect.height / 2);
+        // Get diagnostics for the line
+        const lineDiagnostics = diagState.diagnostics.filter(d => {
+            const diagLine = state.doc.lineAt(d.from);
+            return diagLine.number === tooltipInfo.lineNumber;
+        });
 
-    // Keep within viewport
-    if (top < 8) top = 8;
-    if (top + tooltipRect.height > window.innerHeight - 8) {
-        top = window.innerHeight - tooltipRect.height - 8;
-    }
+        if (lineDiagnostics.length === 0) return null;
 
-    tooltip.style.left = `${left}px`;
-    tooltip.style.top = `${top}px`;
-}
+        // Create tooltip
+        return {
+            pos: tooltipInfo.pos,
+            above: true,
+            strictSide: false,
+            arrow: true,
+            create: () => {
+                const dom = document.createElement('div');
+                dom.className = 'cm-diagnostic-tooltip';
+                
+                lineDiagnostics.forEach(d => {
+                    const line = document.createElement('div');
+                    line.className = `cm-diagnostic-tooltip-line cm-diagnostic-tooltip-${d.severity}`;
+                    line.textContent = `${d.severity.toUpperCase()}: ${d.message}`;
+                    dom.appendChild(line);
+                });
 
-// Track active tooltip to remove it when needed
-let activeTooltip: HTMLElement | null = null;
+                return { dom };
+            }
+        } as Tooltip;
+    })
+});
+
+// Track tooltip timeout for auto-hide on mobile
+let tooltipTimeout: number | null = null;
 
 /**
  * Show diagnostic tooltip for a line
  */
-function showDiagnosticTooltip(view: EditorView, lineBlock: any, targetElement: HTMLElement) {
-    // Remove any existing tooltip
-    if (activeTooltip) {
-        activeTooltip.remove();
-        activeTooltip = null;
+function showDiagnosticTooltip(view: EditorView, lineBlock: any) {
+    // Clear any existing timeout
+    if (tooltipTimeout !== null) {
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = null;
     }
 
-    // lineBlock has properties: from, to, text, number
     // Get the line info from the document
     const lineInfo = view.state.doc.lineAt(lineBlock.from);
-    const state = view.state.field(diagnosticsState, false);
-    if (!state) return;
+    
+    // Toggle tooltip - if already showing for this line, hide it
+    const currentTooltip = view.state.field(tooltipState, false);
+    if (currentTooltip && currentTooltip.lineNumber === lineInfo.number) {
+        view.dispatch({
+            effects: showDiagnosticTooltipEffect.of(null)
+        });
+        return;
+    }
 
-    const lineDiagnostics = state.diagnostics.filter(d => {
-        const diagLine = view.state.doc.lineAt(d.from);
-        return diagLine.number === lineInfo.number;
+    // Show tooltip for this line
+    view.dispatch({
+        effects: showDiagnosticTooltipEffect.of({
+            pos: lineBlock.from,
+            lineNumber: lineInfo.number
+        })
     });
 
-    if (lineDiagnostics.length > 0) {
-        const messages = lineDiagnostics
-            .map(d => `${d.severity.toUpperCase()}: ${d.message}`);
-
-        const tooltip = createDiagnosticTooltip(messages);
-        document.body.appendChild(tooltip);
-        activeTooltip = tooltip;
-
-        // Position after adding to DOM so we can measure it
-        requestAnimationFrame(() => {
-            positionTooltip(tooltip, targetElement);
-        });
-
-        // Auto-hide after 5 seconds for mobile
-        setTimeout(() => {
-            if (activeTooltip === tooltip) {
-                tooltip.remove();
-                activeTooltip = null;
-            }
+    // Auto-hide after 5 seconds on mobile
+    if ('ontouchstart' in window) {
+        tooltipTimeout = window.setTimeout(() => {
+            view.dispatch({
+                effects: showDiagnosticTooltipEffect.of(null)
+            });
+            tooltipTimeout = null;
         }, 5000);
     }
+}
+
+/**
+ * Hide diagnostic tooltip
+ */
+function hideDiagnosticTooltip(view: EditorView) {
+    if (tooltipTimeout !== null) {
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = null;
+    }
+    
+    view.dispatch({
+        effects: showDiagnosticTooltipEffect.of(null)
+    });
 }
 
 /**
@@ -230,34 +243,23 @@ const diagnosticGutter = gutter({
     },
     initialSpacer: () => new DiagnosticMarker('error'),
     domEventHandlers: {
-        mouseenter(view, line, event) {
-            const marker = event.target as HTMLElement;
+        mouseenter(view, line) {
             // Only show tooltip on hover if not on mobile
             if (!('ontouchstart' in window)) {
-                showDiagnosticTooltip(view, line, marker);
+                showDiagnosticTooltip(view, line);
             }
             return false;
         },
-        mouseleave() {
+        mouseleave(view) {
             // Remove tooltip on mouse leave for desktop
-            if (activeTooltip && !('ontouchstart' in window)) {
-                activeTooltip.remove();
-                activeTooltip = null;
+            if (!('ontouchstart' in window)) {
+                hideDiagnosticTooltip(view);
             }
             return false;
         },
-        click(view, line, event) {
+        click(view, line) {
             // Handle click/tap for both desktop and mobile
-            const marker = event.target as HTMLElement;
-
-            // Toggle tooltip on click
-            if (activeTooltip) {
-                activeTooltip.remove();
-                activeTooltip = null;
-            } else {
-                showDiagnosticTooltip(view, line, marker);
-            }
-
+            showDiagnosticTooltip(view, line);
             return true; // Prevent default to avoid text selection
         }
     }
@@ -418,11 +420,29 @@ export const semanticHighlightTheme = EditorView.baseTheme({
         color: '#d4d4d4'
     },
     // Diagnostic tooltip styling
-    '.cm-diagnostic-tooltip': {
+    '.cm-tooltip.cm-diagnostic-tooltip': {
+        background: '#2d2d30',
+        border: '1px solid #3e3e42',
+        borderRadius: '4px',
+        padding: '8px 12px',
+        maxWidth: '400px',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         fontSize: '12px',
         lineHeight: '1.4',
         color: '#d4d4d4'
+    },
+    '.cm-diagnostic-tooltip-line': {
+        margin: '4px 0'
+    },
+    '.cm-diagnostic-tooltip-error': {
+        color: '#f48771'
+    },
+    '.cm-diagnostic-tooltip-warning': {
+        color: '#cca700'
+    },
+    '.cm-diagnostic-tooltip-info': {
+        color: '#75beff'
     },
 
     // Inline lint decorations (underlines in the editor)
@@ -572,6 +592,7 @@ export const semanticHighlighting = ViewPlugin.fromClass(class {
 export function createLangiumExtensions() {
     return [
         diagnosticsState,
+        tooltipState,
         diagnosticGutter,
         createLangumLinter(),
         semanticHighlighting,
