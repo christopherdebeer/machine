@@ -38,7 +38,7 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import { ExecutionControls } from "./ExecutionControls";
 import { ExampleButtons } from "./ExampleButtons";
 import { loadSettings, saveSettings } from "../language/shared-settings";
-import { OutputPanel, OutputData } from "./OutputPanel";
+import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
 import { createLangiumExtensions } from "../codemirror-langium";
 import { createMachineServices } from "../language/machine-module";
 import { EmptyFileSystem } from "langium";
@@ -72,6 +72,8 @@ interface SectionStates {
   editorSize: SectionSize;
   outputSize: SectionSize;
   executionSize: SectionSize;
+  outputFormat: OutputFormat;
+  fitToContainer: boolean;
 }
 
 // Base64 URL-safe encoding/decoding helpers
@@ -97,7 +99,7 @@ function base64UrlDecode(str: string): string {
 // Section state encoding/decoding helpers
 function encodeSectionStates(states: SectionStates): string {
   // Create a compact representation using single characters
-  // Format: [s][e][o][x][eSize][oSize][xSize]
+  // Format: [s][e][o][x][eSize][oSize][xSize][format][fit]
   // s = settings collapsed (0/1)
   // e = editor collapsed (0/1) 
   // o = output collapsed (0/1)
@@ -105,8 +107,13 @@ function encodeSectionStates(states: SectionStates): string {
   // eSize = editor size (s/m/b for small/medium/big)
   // oSize = output size (s/m/b)
   // xSize = execution size (s/m/b)
+  // format = output format (0=svg, 1=png, 2=dot, 3=json, 4=ast, 5=cst)
+  // fit = fit to container (0/1)
   
   const sizeMap: Record<SectionSize, string> = { small: 's', medium: 'm', big: 'b' };
+  const formatMap: Record<OutputFormat, string> = { 
+    svg: '0', png: '1', dot: '2', json: '3', ast: '4', cst: '5' 
+  };
   
   return [
     states.settingsCollapsed ? '1' : '0',
@@ -115,16 +122,21 @@ function encodeSectionStates(states: SectionStates): string {
     states.executionCollapsed ? '1' : '0',
     sizeMap[states.editorSize],
     sizeMap[states.outputSize],
-    sizeMap[states.executionSize]
+    sizeMap[states.executionSize],
+    formatMap[states.outputFormat],
+    states.fitToContainer ? '1' : '0'
   ].join('');
 }
 
 function decodeSectionStates(encoded: string): Partial<SectionStates> {
-  if (!encoded || encoded.length !== 7) {
+  if (!encoded || encoded.length !== 9) {
     return {}; // Return empty object for invalid input
   }
   
   const sizeMap: Record<string, SectionSize> = { s: 'small', m: 'medium', b: 'big' };
+  const formatMap: Record<string, OutputFormat> = { 
+    '0': 'svg', '1': 'png', '2': 'dot', '3': 'json', '4': 'ast', '5': 'cst' 
+  };
   
   try {
     return {
@@ -134,7 +146,9 @@ function decodeSectionStates(encoded: string): Partial<SectionStates> {
       executionCollapsed: encoded[3] === '1',
       editorSize: sizeMap[encoded[4]] || 'medium',
       outputSize: sizeMap[encoded[5]] || 'medium',
-      executionSize: sizeMap[encoded[6]] || 'medium'
+      executionSize: sizeMap[encoded[6]] || 'medium',
+      outputFormat: formatMap[encoded[7]] || 'svg',
+      fitToContainer: encoded[8] === '1'
     };
   } catch (error) {
     console.error('Failed to decode section states:', error);
@@ -465,6 +479,8 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [currentMachineData, setCurrentMachineData] = useState<MachineData | null>(null);
     const [selectedExample, setSelectedExample] = useState<Example | null>(null);
     const [isDirty, setIsDirty] = useState(false);
+    const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
+    const [fitToContainer, setFitToContainer] = useState(true);
 
   // Initialize editor
   useEffect(() => {
@@ -525,6 +541,12 @@ export const CodeMirrorPlayground: React.FC = () => {
       }
       if (sectionStates.executionSize !== undefined) {
         setExecutionSize(sectionStates.executionSize);
+      }
+      if (sectionStates.outputFormat !== undefined) {
+        setOutputFormat(sectionStates.outputFormat);
+      }
+      if (sectionStates.fitToContainer !== undefined) {
+        setFitToContainer(sectionStates.fitToContainer);
       }
     }
 
@@ -630,7 +652,9 @@ export const CodeMirrorPlayground: React.FC = () => {
       executionCollapsed,
       editorSize,
       outputSize,
-      executionSize
+      executionSize,
+      outputFormat,
+      fitToContainer
     };
 
     // Get current hash params
@@ -644,7 +668,7 @@ export const CodeMirrorPlayground: React.FC = () => {
       ...hashParams,
       sections: encodedSections
     });
-  }, [settingsCollapsed, editorCollapsed, outputCollapsed, executionCollapsed, editorSize, outputSize, executionSize]);
+  }, [settingsCollapsed, editorCollapsed, outputCollapsed, executionCollapsed, editorSize, outputSize, executionSize, outputFormat, fitToContainer]);
 
   // Handle settings changes
   const handleModelChange = useCallback(
@@ -702,6 +726,10 @@ export const CodeMirrorPlayground: React.FC = () => {
         setExecutionSize(size);
     }, []);
 
+  // Handle output format change
+  const handleOutputFormatChange = useCallback((format: OutputFormat) => {
+    setOutputFormat(format);
+  }, []);
 
   // Handle run (same as execute)
   const handleRun = useCallback(async () => {
@@ -1174,9 +1202,10 @@ export const CodeMirrorPlayground: React.FC = () => {
                     
                     <SectionContent $collapsed={outputCollapsed}>
                         <OutputPanel 
-                            defaultFormat="svg"
+                            defaultFormat={outputFormat}
                             mobile={true}
                             data={outputData}
+                            onFormatChange={handleOutputFormatChange}
                         />
                     </SectionContent>
                 </OutputSection>
