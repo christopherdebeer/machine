@@ -279,6 +279,9 @@ export function createLangumLinter() {
             // Parse the document using Langium
             const document = await parse(code);
 
+            // Explicitly trigger validation - returns array of diagnostics directly
+            const validationDiagnostics = await services.Machine.validation.DocumentValidator.validateDocument(document);
+
             // Convert parser errors to diagnostics
             if (document.parseResult.parserErrors.length > 0) {
                 for (const error of document.parseResult.parserErrors) {
@@ -324,15 +327,15 @@ export function createLangumLinter() {
                     diagnostics.push({
                         from: Math.max(0, from),
                         to: Math.min(view.state.doc.length, Math.max(from + 1, to)),
-                        severity: 'error',
+                        severity: 'error' as const,
                         message: error.message
                     });
                 }
             }
 
-            // Get validation diagnostics
-            if (document.diagnostics) {
-                for (const diag of document.diagnostics) {
+            // Get validation diagnostics from the validation result
+            if (validationDiagnostics && validationDiagnostics.length > 0) {
+                for (const diag of validationDiagnostics) {
                     if (diag.range) {
                         // Convert line/character positions to absolute offsets
                         const fromLine = view.state.doc.line(diag.range.start.line + 1);
