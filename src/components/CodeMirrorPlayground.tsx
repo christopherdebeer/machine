@@ -52,9 +52,73 @@ import { render as renderGraphviz } from "../language/diagram-controls";
 import { RailsExecutor } from "../language/rails-executor";
 import { RuntimeVisualizer } from "../language/runtime-visualizer";
 import type { MachineData } from "../language/base-executor";
+import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples";
 
 // Types
 type SectionSize = 'small' | 'medium' | 'big';
+
+// URL hash parameter helpers
+interface HashParams {
+  example?: string;
+  content?: string;
+}
+
+// Base64 URL-safe encoding/decoding helpers
+function base64UrlEncode(str: string): string {
+  // Convert string to base64
+  const base64 = btoa(unescape(encodeURIComponent(str)));
+  // Make it URL-safe by replacing +/= with -_~
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '~');
+}
+
+function base64UrlDecode(str: string): string {
+  try {
+    // Convert URL-safe base64 back to standard base64
+    const base64 = str.replace(/-/g, '+').replace(/_/g, '/').replace(/~/g, '=');
+    // Decode base64 to string
+    return decodeURIComponent(escape(atob(base64)));
+  } catch (error) {
+    console.error('Failed to decode base64 content:', error);
+    return '';
+  }
+}
+
+function parseHashParams(): HashParams {
+  const hash = window.location.hash.slice(1); // Remove '#'
+  const params: HashParams = {};
+  
+  if (!hash) return params;
+  
+  const pairs = hash.split('&');
+  for (const pair of pairs) {
+    const [key, value] = pair.split('=');
+    if (key === 'example') {
+      params.example = decodeURIComponent(value);
+    } else if (key === 'content') {
+      params.content = base64UrlDecode(value);
+    }
+  }
+  
+  return params;
+}
+
+function updateHashParams(params: HashParams): void {
+  const parts: string[] = [];
+  
+  if (params.example) {
+    parts.push(`example=${encodeURIComponent(params.example)}`);
+  }
+  if (params.content) {
+    parts.push(`content=${base64UrlEncode(params.content)}`);
+  }
+  
+  const newHash = parts.length > 0 ? `#${parts.join('&')}` : '';
+  
+  // Update hash without triggering page reload
+  if (window.location.hash !== newHash) {
+    window.history.replaceState(null, '', newHash || window.location.pathname);
+  }
+}
 
 // Helper function to get flex-basis for section size
 const getSectionFlexBasis = (collapsed: boolean, size: SectionSize): string => {
@@ -335,20 +399,58 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [executor, setExecutor] = useState<RailsExecutor | null>(null);
     const [isExecuting, setIsExecuting] = useState(false);
     const [currentMachineData, setCurrentMachineData] = useState<MachineData | null>(null);
+    const [selectedExample, setSelectedExample] = useState<Example | null>(null);
+    const [isDirty, setIsDirty] = useState(false);
 
   // Initialize editor
   useEffect(() => {
     if (!editorRef.current) return;
 
-    const defaultCode = `machine "Hello World"
+    // Determine initial content from URL hash or default
+    const hashParams = parseHashParams();
+    let initialCode = '';
+    let initialExample: Example | null = null;
 
-state start;
-state end;
+    // Priority 1: URL hash with custom content
+    if (hashParams.content) {
+      initialCode = hashParams.content;
+      // Try to match with an example if also specified
+      if (hashParams.example) {
+        const example = getExampleByKey(hashParams.example);
+        if (example) {
+          initialExample = example;
+        }
+      }
+    }
+    // Priority 2: URL hash with example parameter (no custom content)
+    else if (hashParams.example) {
+      const example = getExampleByKey(hashParams.example);
+      if (example) {
+        initialExample = example;
+        initialCode = example.content;
+      }
+    }
 
-start -> end;`;
+    // Priority 3: Default example
+    if (!initialCode) {
+      const defaultExample = getDefaultExample();
+      initialExample = defaultExample;
+      initialCode = defaultExample.content;
+    }
+
+    // Set initial state
+    setSelectedExample(initialExample);
+    setIsDirty(!!hashParams.content);
+
+    // Update URL hash to reflect initial state (only if not already set)
+    if (!window.location.hash && initialExample) {
+      updateHashParams({
+        example: initialExample.name.toLowerCase().replace(/\s+/g, '-'),
+      });
+    }
 
     const startState = EditorState.create({
-      doc: defaultCode,
+      doc: initialCode,
       extensions: [
         lineNumbers(),
         highlightActiveLineGutter(),
@@ -400,6 +502,21 @@ start -> end;`;
         if (transaction.docChanged) {
           const code = view.state.doc.toString();
           handleDocumentChange(code);
+          
+          // Mark as dirty and update URL hash with content
+          setIsDirty(true);
+          
+          // Update URL hash with encoded content
+          if (selectedExample) {
+            updateHashParams({
+              example: selectedExample.name.toLowerCase().replace(/\s+/g, '-'),
+              content: code,
+            });
+          } else {
+            updateHashParams({
+              content: code,
+            });
+          }
         }
       },
     });
@@ -407,7 +524,7 @@ start -> end;`;
     editorViewRef.current = view;
 
     // Trigger initial render
-    handleDocumentChange(defaultCode);
+    handleDocumentChange(initialCode);
 
     return () => {
       view.destroy();
@@ -477,7 +594,7 @@ start -> end;`;
   }, []);
 
   // Handle example loading
-  const handleLoadExample = useCallback((content: string) => {
+  const handleLoadExample = useCallback((content: string, example: Example) => {
     if (editorViewRef.current) {
       editorViewRef.current.dispatch({
         changes: {
@@ -485,6 +602,15 @@ start -> end;`;
           to: editorViewRef.current.state.doc.length,
           insert: content,
         },
+      });
+      
+      // Update state
+      setSelectedExample(example);
+      setIsDirty(false);
+      
+      // Update URL hash (without content since it's a clean example)
+      updateHashParams({
+        example: example.name.toLowerCase().replace(/\s+/g, '-'),
       });
     }
   }, []);
