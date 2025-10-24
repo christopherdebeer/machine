@@ -665,10 +665,14 @@ export const CodeMirrorPlayground: React.FC = () => {
         const tempDiv = window.document.createElement("div");
         await renderGraphviz(runtimeDot, tempDiv, `runtime-${Date.now()}`);
 
+        // Generate PNG from SVG
+        const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
+
         // Update output with runtime visualization
         setOutputData((prev) => ({
           ...prev,
           svg: tempDiv.innerHTML,
+          png: pngDataUrl,
           dot: runtimeDot,
         }));
       } catch (error) {
@@ -829,9 +833,13 @@ export const CodeMirrorPlayground: React.FC = () => {
           `${Math.floor(Math.random() * 1000000000)}`
         );
 
+        // Generate PNG from SVG
+        const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
+
         // Update output data state
         setOutputData({
           svg: tempDiv.innerHTML,
+          png: pngDataUrl,
           dot: dotCode,
           json: jsonData,
           machine: model,
@@ -878,9 +886,13 @@ export const CodeMirrorPlayground: React.FC = () => {
           `${Math.floor(Math.random() * 1000000000)}`
         );
 
+        // Generate PNG from SVG
+        const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
+
         // Update output data with static visualization
         setOutputData({
           svg: tempDiv.innerHTML,
+          png: pngDataUrl,
           dot: dotCode,
           json: jsonData,
           machine: outputData.machine,
