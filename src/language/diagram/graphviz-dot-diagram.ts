@@ -77,8 +77,28 @@ function escapeHtml(text: string): string {
 }
 
 /**
+ * Check if a string is valid JSON
+ */
+function isJsonString(str: string): boolean {
+    if (typeof str !== 'string') return false;
+    
+    // Quick check for JSON-like structure
+    const trimmed = str.trim();
+    if (!(trimmed.startsWith('{') || trimmed.startsWith('['))) {
+        return false;
+    }
+    
+    try {
+        const parsed = JSON.parse(str);
+        return typeof parsed === 'object';
+    } catch {
+        return false;
+    }
+}
+
+/**
  * Format attribute value for display in graphviz labels
- * Properly handles nested objects and arrays
+ * Properly handles nested objects, arrays, JSON strings, and multiline strings
  */
 function formatAttributeValueForDisplay(value: any): string {
     if (value === null || value === undefined) {
@@ -86,7 +106,21 @@ function formatAttributeValueForDisplay(value: any): string {
     }
 
     if (typeof value === 'string') {
-        return value.replace(/^["']|["']$/g, '');
+        const cleaned = value.replace(/^["']|["']$/g, '');
+        
+        // Check if it's a JSON string and format it
+        if (isJsonString(cleaned)) {
+            try {
+                const parsed = JSON.parse(cleaned);
+                return JSON.stringify(parsed, null, 2);
+            } catch {
+                // If parsing fails, return as-is
+                return cleaned;
+            }
+        }
+        
+        // Return the cleaned string (multiline strings will be handled by breakLongText with preserveLineBreaks)
+        return cleaned;
     }
 
     if (typeof value === 'boolean' || typeof value === 'number') {
@@ -94,11 +128,11 @@ function formatAttributeValueForDisplay(value: any): string {
     }
 
     if (Array.isArray(value)) {
-        return JSON.stringify(value);
+        return JSON.stringify(value, null, 2);
     }
 
     if (typeof value === 'object') {
-        return JSON.stringify(value);
+        return JSON.stringify(value, null, 2);
     }
 
     return String(value);
@@ -642,15 +676,28 @@ function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeCont
             displayValue = interpolateValue(displayValue, runtimeContext);
         }
 
-        // Break long values into multiple lines
+        // Break long values into multiple lines - escape BEFORE joining with <br/>
+        // Preserve existing line breaks for multiline strings and formatted JSON
         if (typeof displayValue === 'string') {
-            displayValue = breakLongText(displayValue, 30).join('<br/>');
+            const lines = breakLongText(displayValue, 30, { preserveLineBreaks: true });
+            displayValue = lines.map(line => escapeHtml(line)).join('<br/>');
+        } else {
+            displayValue = escapeHtml(String(displayValue));
+        }
+
+        // Break long attribute names into multiple lines - escape BEFORE joining with <br/>
+        let attrName = attr.name;
+        if (attrName && attrName.length > 25) {
+            const lines = breakLongText(attrName, 25);
+            attrName = lines.map(line => escapeHtml(line)).join('<br/>');
+        } else {
+            attrName = escapeHtml(attrName);
         }
 
         const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
         html += '<tr>';
-        html += '<td align="left">' + escapeHtml(attr.name) + typeStr + '</td>';
-        html += '<td align="left">' + escapeHtml(String(displayValue)) + '</td>';
+        html += '<td align="left">' + attrName + typeStr + '</td>';
+        html += '<td align="left">' + displayValue + '</td>';
         html += '</tr>';
     });
     html += '</table>';
@@ -896,18 +943,62 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
 
 /**
  * Break long text into multiple lines at word boundaries
+ * @param text - Text to break into lines
+ * @param maxLength - Maximum length per line
+ * @param options - Optional configuration
+ * @param options.preserveLineBreaks - If true, preserves existing \n line breaks (default: false)
+ * @param options.forceBreak - If true, forces breaks in long unbroken strings (default: true)
  */
-function breakLongText(text: string, maxLength: number): string[] {
+function breakLongText(text: string, maxLength: number, options?: {
+    preserveLineBreaks?: boolean;
+    forceBreak?: boolean;
+}): string[] {
     if (!text || text.length <= maxLength) {
         return [text || ''];
     }
 
+    const preserveLineBreaks = options?.preserveLineBreaks ?? false;
+    const forceBreak = options?.forceBreak ?? true;
+
+    // If preserving line breaks, split on \n first and process each segment
+    if (preserveLineBreaks && text.includes('\n')) {
+        const segments = text.split('\n');
+        const result: string[] = [];
+        
+        for (const segment of segments) {
+            if (segment.length <= maxLength) {
+                result.push(segment);
+            } else {
+                // Process long segments with word wrapping
+                result.push(...breakLongText(segment, maxLength, { preserveLineBreaks: false, forceBreak }));
+            }
+        }
+        
+        return result.length > 0 ? result : [text];
+    }
+
+    // Word-boundary wrapping
     const words = text.split(' ');
     const lines: string[] = [];
     let currentLine = '';
 
     for (const word of words) {
-        if (currentLine.length + word.length + 1 <= maxLength) {
+        // Check if word itself is too long
+        if (word.length > maxLength && forceBreak) {
+            // Flush current line if any
+            if (currentLine) {
+                lines.push(currentLine);
+                currentLine = '';
+            }
+            
+            // Force-break the long word
+            let remaining = word;
+            while (remaining.length > maxLength) {
+                lines.push(remaining.substring(0, maxLength));
+                remaining = remaining.substring(maxLength);
+            }
+            currentLine = remaining;
+        } else if (currentLine.length + word.length + 1 <= maxLength) {
             currentLine += (currentLine ? ' ' : '') + word;
         } else {
             if (currentLine) lines.push(currentLine);
@@ -1047,6 +1138,12 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = []): string
             }
         }
 
+        // Apply text wrapping to edge label
+        if (label) {
+            const wrappedLines = breakLongText(label, 40);
+            label = wrappedLines.join('\\n');
+        }
+
         // Get arrow style based on arrow type
         const arrowStyle = getArrowStyle(edge.arrowType || '->');
 
@@ -1060,13 +1157,15 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = []): string
             edgeAttrs.push(`label="${escapeDot(label)}"`);
         }
 
-        // Add multiplicity using taillabel and headlabel (proper UML style)
+        // Add multiplicity using taillabel and headlabel (proper UML style) with wrapping
         if (edge.sourceMultiplicity) {
-            edgeAttrs.push(`taillabel="${escapeDot(edge.sourceMultiplicity)}"`);
+            const wrappedMultiplicity = breakLongText(edge.sourceMultiplicity, 20).join('\\n');
+            edgeAttrs.push(`taillabel="${escapeDot(wrappedMultiplicity)}"`);
         }
 
         if (edge.targetMultiplicity) {
-            edgeAttrs.push(`headlabel="${escapeDot(edge.targetMultiplicity)}"`);
+            const wrappedMultiplicity = breakLongText(edge.targetMultiplicity, 20).join('\\n');
+            edgeAttrs.push(`headlabel="${escapeDot(wrappedMultiplicity)}"`);
         }
 
         if (arrowStyle) {
