@@ -166,16 +166,18 @@ const ExamplesContainer = styled.div`
     -webkit-overflow-scrolling: touch;
     min-height: 44px;
     flex-wrap: wrap;
+    width: 100%;
 `;
 
-const MainContainer = styled.div`
+const MainContainer = styled.div<{ $collapsed?: boolean }>`
     flex: 1;
     display: flex;
     flex-direction: column;
+    flex-basis: ${props => props.$collapsed ? '0' : '100%'};
     overflow: hidden;
 
     @media (min-width: 768px) {
-        flex-direction: row;
+        flex-direction: ${props => props.$collapsed ? 'column' : 'row'};
     }
 `;
 
@@ -186,7 +188,7 @@ const EditorSection = styled.div<{ $collapsed?: boolean }>`
     overflow: hidden;
     transition: flex 0.3s ease;
     height: ${props => props.$collapsed ? '0' : 'auto'};
-
+    flex-basis: ${props => props.$collapsed ? '0' : '100%'};
     @media (min-width: 768px) {
         border-right: 1px solid #3e3e42;
     }
@@ -237,6 +239,7 @@ const OutputSection = styled.div<{ $collapsed?: boolean }>`
     min-height: ${props => props.$collapsed ? '0' : 'auto'};
     height: ${props => props.$collapsed ? 'auto' : 'auto'};
     flex-grow: 1;
+    flex-basis: ${props => props.$collapsed ? '0' : '100%'};
 `;
 
 const ExecutionSection = styled.div<{ $collapsed?: boolean }>`
@@ -249,6 +252,7 @@ const ExecutionSection = styled.div<{ $collapsed?: boolean }>`
     height: ${props => props.$collapsed ? '0' : 'auto'};
     flex-grow: 1;
     flex-shrink: 1;
+    flex-basis: ${props => props.$collapsed ? '0' : '100%'};
 `;
 
 // Main Component
@@ -729,8 +733,8 @@ start -> end;`;
                 </ExamplesContainer>
             </SettingsPanel>
 
-            <MainContainer>
-                <SectionHeader onClick={toggleEditor} $sideways={true}>
+            <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
+                <SectionHeader onClick={toggleEditor} $sideways={outputCollapsed && editorCollapsed ? false : true}>
                     <span>Editor</span>
                     <ToggleBtn>{editorCollapsed ? '▶' : '▼'}</ToggleBtn>
                 </SectionHeader>
@@ -740,7 +744,7 @@ start -> end;`;
                     </SectionContent>
                 </EditorSection>
 
-                <SectionHeader onClick={toggleOutput} $sideways={true}>
+                <SectionHeader onClick={toggleOutput} $sideways={outputCollapsed && editorCollapsed ? false : true}>
                         <span>Output</span>
                         <ToggleBtn>{outputCollapsed ? '▶' : '▼'}</ToggleBtn>
                     </SectionHeader>
