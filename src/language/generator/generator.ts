@@ -660,32 +660,33 @@ class JSONGenerator extends BaseGenerator {
 
     private resolveEdgeReference(reference: any, aliasMap: Map<string, NodeAliasInfo>): ResolvedReference {
         const refText: string | undefined = reference?.$refText;
-        if (refText) {
-            const resolvedFromText = this.resolveReferencePath(refText, aliasMap);
+        const sanitizedRefText = refText?.trim().replace(/;$/, '') || undefined;
+
+        if (reference?.ref) {
+            if (sanitizedRefText) {
+                const resolvedForNode = this.resolveReferencePath(sanitizedRefText, aliasMap);
+                if (resolvedForNode?.node === reference.ref) {
+                    return resolvedForNode;
+                }
+            }
+
+            const attributePath = this.extractAttributePathForNode(sanitizedRefText, reference.ref);
+            return {
+                node: reference.ref,
+                nodeName: reference.ref.name,
+                attributePath
+            };
+        }
+
+        if (sanitizedRefText) {
+            const resolvedFromText = this.resolveReferencePath(sanitizedRefText, aliasMap);
             if (resolvedFromText) {
                 return resolvedFromText;
             }
         }
 
-        if (reference?.ref) {
-            const resolvedFromName = this.resolveReferencePath(reference.ref.name, aliasMap);
-            if (resolvedFromName) {
-                return resolvedFromName;
-            }
-
-            const qualified = this.getQualifiedNameFromNode(reference.ref);
-            if (qualified) {
-                const resolvedQualified = this.resolveReferencePath(qualified, aliasMap);
-                if (resolvedQualified) {
-                    return resolvedQualified;
-                }
-            }
-
-            return { node: reference.ref, nodeName: reference.ref.name };
-        }
-
-        if (refText) {
-            const parts = refText.split('.');
+        if (sanitizedRefText) {
+            const parts = sanitizedRefText.split('.');
             return {
                 nodeName: parts[0] ?? '',
                 attributePath: parts.slice(1).join('.') || undefined
@@ -730,6 +731,28 @@ class JSONGenerator extends BaseGenerator {
         }
 
         return parts.join('.');
+    }
+
+    private extractAttributePathForNode(refText: string | undefined, node: Node): string | undefined {
+        if (!refText) {
+            return undefined;
+        }
+
+        const qualified = this.getQualifiedNameFromNode(node);
+        const candidates = [qualified, node.name].filter((candidate): candidate is string => !!candidate);
+
+        for (const candidate of candidates) {
+            if (refText === candidate) {
+                return undefined;
+            }
+
+            if (refText.startsWith(`${candidate}.`)) {
+                const attributePath = refText.slice(candidate.length + 1);
+                return attributePath.length > 0 ? attributePath : undefined;
+            }
+        }
+
+        return undefined;
     }
 
     private extractNodeReferencesFromValue(value: AttributeValue | undefined, aliasMap: Map<string, NodeAliasInfo>): ResolvedReference[] {
