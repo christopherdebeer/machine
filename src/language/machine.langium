@@ -79,7 +79,11 @@ ArrayValue:
 
 // Primitive value: string, number, ID, or external ID
 PrimitiveValue:
-    value=(EXTID|STRING|ID|NUMBER)
+    value=(EXTID|STRING|QualifiedIdentifier|ID|NUMBER)
+;
+
+QualifiedIdentifier returns string:
+    ID '.' ID ('.' ID)*
 ;
 
 // Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated, @note)

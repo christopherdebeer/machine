@@ -4,6 +4,7 @@
  */
 
 import type { Machine, Node, Attribute } from './generated/ast.js';
+import { resolveQualifiedPath, isPotentialQualifiedReference } from './utils/reference-utils.js';
 
 export interface InferredDependency {
     source: string;
@@ -170,6 +171,8 @@ export class DependencyAnalyzer {
 
         if (!attr.value) return dependencies;
 
+        dependencies.push(...this.analyzeDirectAttributeReference(attr, nodeName));
+
         // Convert attribute value to string for analysis
         let valueStr: string = '';
 
@@ -213,6 +216,73 @@ export class DependencyAnalyzer {
         }
 
         return dependencies;
+    }
+
+    private analyzeDirectAttributeReference(attr: Attribute, nodeName: string): InferredDependency[] {
+        const dependencies: InferredDependency[] = [];
+        const rawValue = this.getAttributeRawValue(attr);
+
+        if (!rawValue) {
+            return dependencies;
+        }
+
+        const trimmed = rawValue.trim();
+        if (!trimmed || trimmed.startsWith('"') || trimmed.startsWith("'")) {
+            return dependencies;
+        }
+
+        if (!isPotentialQualifiedReference(trimmed)) {
+            return dependencies;
+        }
+
+        const resolution = resolveQualifiedPath(this.machine, trimmed);
+        const targetNode = resolution.node;
+
+        if (!targetNode || targetNode.name === nodeName) {
+            return dependencies;
+        }
+
+        const attributeSuffix = resolution.attribute ? `.${resolution.attribute}` : '';
+
+        dependencies.push({
+            source: nodeName,
+            target: targetNode.name,
+            reason: `references ${attr.name}${attributeSuffix}`,
+            path: trimmed
+        });
+
+        return dependencies;
+    }
+
+    private getAttributeRawValue(attr: Attribute): string | undefined {
+        const value = attr.value as any;
+        if (!value) {
+            return undefined;
+        }
+
+        if (typeof value === 'string') {
+            return value;
+        }
+
+        if (value.$cstNode && typeof value.$cstNode.text === 'string') {
+            return value.$cstNode.text;
+        }
+
+        if (value.$type === 'PrimitiveValue') {
+            const primitive = value as any;
+            if (typeof primitive.value === 'string') {
+                return primitive.value;
+            }
+            if (primitive.value && primitive.value.$cstNode && typeof primitive.value.$cstNode.text === 'string') {
+                return primitive.value.$cstNode.text;
+            }
+        }
+
+        if (typeof value.value === 'string') {
+            return value.value;
+        }
+
+        return undefined;
     }
 
     /**

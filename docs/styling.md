@@ -73,6 +73,47 @@ processing -> completePayment;
 completePayment -> done;
 ```
 
+## Advanced Example: Refined Styling, Ports, and Layout
+
+The following example combines reusable style metadata, nested namespaces, and
+attribute-level ports. Style nodes remain metadata only—they never appear in the
+rendered diagram—but any node or edge annotated with the matching selector will
+inherit the declared Graphviz attributes.
+
+```dygram
+machine "Refined styling, ports, and layout"
+description: "my machine description"
+type: "example"
+
+parent {
+    spouse: "Alice";
+    child1 @highlight {
+        age: 38;
+        grandchild {
+            age: 7;
+        }
+    }
+    child2 @highlight {
+        likes: apples; // node IDs can be used as attribute values
+    }
+}
+
+apples;
+
+// Style metadata only – applies to any node or edge annotated with @highlight
+style highlightStyle @highlight {
+    color: red;
+    rank: "group:one"; // supports rank aliases such as group:/align:/same:
+    shape: "star";
+}
+
+parent.spouse -"begets..."-> parent.child1;
+child1 -@highlight @style("color: yellow; gradientangle: 90")-> child2;
+
+// Inferred edge from attribute reference
+child2.likes -likes-> apples;
+```
+
 ## How It Works
 
 1. **Define Style Nodes**: Create style nodes with the `style` keyword, a name, and a selector annotation

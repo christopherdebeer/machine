@@ -5,6 +5,7 @@ import { createMachineServices } from '../../src/language/machine-module.js';
 import { Machine } from '../../src/language/generated/ast.js';
 import { generateJSON } from '../../src/language/generator/generator.js';
 import { MachineJSON } from '../../src/language/machine-module.js';
+import { generateGraphvizFromJSON } from '../../src/language/diagram/index.js';
 
 const services = createMachineServices(EmptyFileSystem);
 const parse = parseHelper<Machine>(services.Machine);
@@ -101,6 +102,50 @@ describe('Relationship type generation', () => {
         expect(json.edges[1].arrowType).toBe('*-->');
         expect(json.edges[2].arrowType).toBe('-->');
         expect(json.edges[3].arrowType).toBe('<-->');
+    });
+});
+
+describe('Attribute endpoint serialization', () => {
+    test('edges honor attribute-qualified endpoints in JSON and DOT output', async () => {
+        const document = await parse(`
+            machine "Attribute Endpoint Example"
+
+            parent {
+                spouse: "Alice";
+                child1 @highlight {
+                    age: 38;
+                }
+                child2 {
+                    likes: apples;
+                }
+            }
+
+            apples;
+
+            style highlightStyle @highlight {
+                color: red;
+            }
+
+            parent.spouse -"begets..."-> parent.child1;
+            child2.likes -likes-> apples;
+        `);
+
+        const machine = document.parseResult.value;
+        const result = generateJSON(machine, 'attribute-example.dygram', undefined);
+        const json: MachineJSON = JSON.parse(result.content);
+
+        const spouseEdge = json.edges.find(edge => edge.source === 'parent' && edge.target === 'child1');
+        expect(spouseEdge?.sourceAttribute).toBe('spouse');
+        expect(spouseEdge?.value?.sourceAttribute).toBe('spouse');
+
+        const likesEdge = json.edges.find(edge => edge.source === 'child2' && edge.target === 'apples');
+        expect(likesEdge?.sourceAttribute).toBe('likes');
+        expect(likesEdge?.value?.sourceAttribute).toBe('likes');
+        expect(likesEdge?.value?.text).toBe('likes');
+
+        const dot = generateGraphvizFromJSON(json);
+        expect(dot).toContain('"parent":"spouse__value" -> "child1"');
+        expect(dot).toContain('"child2":"likes__value" -> "apples"');
     });
 });
 

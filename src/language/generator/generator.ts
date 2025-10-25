@@ -11,11 +11,18 @@ import { TypeChecker } from '../type-checker.js';
 import { GraphValidator } from '../graph-validator.js';
 import { ValidationContext, ValidationSeverity, ValidationCategory, createValidationError } from '../validation-errors.js';
 import { extractValueFromAST } from '../utils/ast-helpers.js';
+import { splitQualifiedPath, resolveQualifiedPath } from '../utils/reference-utils.js';
 
 // Common interfaces
 interface GeneratorOptions {
     destination?: string;
     format?: string;
+}
+
+interface EdgeEndpointInfo {
+    name?: string;
+    attribute?: string;
+    raw?: string;
 }
 
 /**
@@ -493,44 +500,55 @@ class JSONGenerator extends BaseGenerator {
     }
 
     private serializeEdges(): any[] {
-        // Recursively collect edges from all nodes
         const collectEdges = (edges: any[], nodes: Node[]): any[] => {
-            // Add edges at current level
             const currentEdges = edges.flatMap((edge: any) => {
-                const sources = edge.source.map((s: any) => s.ref?.name);
-                let currentSources = sources;
+                const sourceInfos = edge.source.map((s: any) => this.extractEndpointInfo(s));
+                let currentSources = sourceInfos;
 
                 return edge.segments.flatMap((segment: any) => {
-                    const targets = segment.target.map((t: any) => t.ref?.name);
-                    const edgeValue = this.serializeEdgeValue(segment.label);
+                    const targetInfos = segment.target.map((t: any) => this.extractEndpointInfo(t));
+                    const baseEdgeValue = this.serializeEdgeValue(segment.label);
                     const edgeAnnotations = this.serializeEdgeAnnotations(segment.label);
-                    const edges = currentSources.flatMap((source: any) =>
-                        targets.map((target: any) => ({
-                            source,
-                            target,
-                            value: edgeValue,
-                            attributes: edgeValue,  // Keep for backward compatibility
-                            annotations: edgeAnnotations,  // Add edge annotations
-                            arrowType: segment.endType,  // Preserve arrow type
-                            sourceMultiplicity: segment.sourceMultiplicity?.replace(/"/g, ''),  // Remove quotes
-                            targetMultiplicity: segment.targetMultiplicity?.replace(/"/g, ''),   // Remove quotes
-                            sourceAttribute: edgeValue?.sourceAttribute,
-                            targetAttribute: edgeValue?.targetAttribute,
-                            sourcePort: edgeValue?.sourcePort,
-                            targetPort: edgeValue?.targetPort
-                        })).filter((e: any) => e.source && e.target)
+
+                    const edgesForSegment = currentSources.flatMap((sourceInfo: EdgeEndpointInfo) =>
+                        targetInfos.map((targetInfo: EdgeEndpointInfo) => {
+                            const edgeValue: Record<string, any> = baseEdgeValue ? { ...baseEdgeValue } : {};
+
+                            if (sourceInfo.attribute && !edgeValue.sourceAttribute) {
+                                edgeValue.sourceAttribute = sourceInfo.attribute;
+                            }
+                            if (targetInfo.attribute && !edgeValue.targetAttribute) {
+                                edgeValue.targetAttribute = targetInfo.attribute;
+                            }
+
+                            const serializedEdge = {
+                                source: sourceInfo.name,
+                                target: targetInfo.name,
+                                value: edgeValue,
+                                attributes: edgeValue,
+                                annotations: edgeAnnotations ? [...edgeAnnotations] : undefined,
+                                arrowType: segment.endType,
+                                sourceMultiplicity: segment.sourceMultiplicity?.replace(/"/g, ''),
+                                targetMultiplicity: segment.targetMultiplicity?.replace(/"/g, ''),
+                                sourceAttribute: edgeValue.sourceAttribute,
+                                targetAttribute: edgeValue.targetAttribute,
+                                sourcePort: edgeValue.sourcePort,
+                                targetPort: edgeValue.targetPort
+                            };
+
+                            return serializedEdge;
+                        }).filter((edgeResult: any) => edgeResult.source && edgeResult.target)
                     );
-                    currentSources = targets; // Update sources for next segment
-                    return edges;
+
+                    currentSources = targetInfos;
+                    return edgesForSegment;
                 });
             });
 
-            // Recursively collect edges from child nodes
             const childEdges = nodes.flatMap(node => {
                 if (node.edges && node.edges.length > 0) {
                     return collectEdges(node.edges, node.nodes || []);
                 }
-                // Still recurse into child nodes even if current node has no edges
                 if (node.nodes && node.nodes.length > 0) {
                     return collectEdges([], node.nodes);
                 }
@@ -541,6 +559,99 @@ class JSONGenerator extends BaseGenerator {
         };
 
         return collectEdges(this.machine.edges, this.machine.nodes);
+    }
+
+    private extractEndpointInfo(reference: any): EdgeEndpointInfo {
+        if (!reference) {
+            return {};
+        }
+
+        const rawText = this.getReferenceText(reference);
+        const explicitName = reference.ref?.name as string | undefined;
+        const explicitAttribute = (reference as any).__attributeName as string | undefined;
+
+        const resolved = rawText ? resolveQualifiedPath(this.machine, rawText) : { node: undefined, attribute: undefined };
+        const resolvedNodeName = resolved.node?.name;
+        const resolvedAttribute = resolved.attribute;
+
+        const inferredAttribute = explicitAttribute
+            ?? resolvedAttribute
+            ?? this.inferAttributeFromReference(rawText, explicitName, resolvedNodeName);
+        const inferredName = this.inferNodeNameFromReference(rawText, inferredAttribute, explicitName, resolvedNodeName);
+
+        return {
+            name: inferredName,
+            attribute: inferredAttribute,
+            raw: rawText
+        };
+    }
+
+    private getReferenceText(reference: any): string | undefined {
+        if (!reference) {
+            return undefined;
+        }
+
+        if (typeof reference.$refText === 'string') {
+            return reference.$refText;
+        }
+
+        if (reference.$cstNode && typeof reference.$cstNode.text === 'string') {
+            return reference.$cstNode.text;
+        }
+
+        if (reference.$node && reference.$node.text) {
+            return reference.$node.text;
+        }
+
+        return undefined;
+    }
+
+    private inferAttributeFromReference(raw: string | undefined, explicitName?: string, resolvedNodeName?: string): string | undefined {
+        if (!raw) {
+            return undefined;
+        }
+
+        const segments = splitQualifiedPath(raw);
+        if (segments.length <= 1) {
+            return undefined;
+        }
+
+        const candidate = segments[segments.length - 1];
+        const nodeName = resolvedNodeName ?? explicitName;
+
+        if (!nodeName) {
+            return candidate;
+        }
+
+        if (candidate === nodeName) {
+            return candidate;
+        }
+
+        return candidate;
+    }
+
+    private inferNodeNameFromReference(raw: string | undefined, attribute?: string, explicitName?: string, resolvedNodeName?: string): string | undefined {
+        if (!raw) {
+            return undefined;
+        }
+
+        const segments = splitQualifiedPath(raw);
+        if (segments.length === 0) {
+            return undefined;
+        }
+
+        if (attribute && segments.length >= 2) {
+            const last = segments[segments.length - 1];
+            if (last === attribute) {
+                return resolvedNodeName ?? segments[segments.length - 2];
+            }
+        }
+
+        if (resolvedNodeName) {
+            return resolvedNodeName;
+        }
+
+        return explicitName ?? segments[segments.length - 1];
     }
 
     /**

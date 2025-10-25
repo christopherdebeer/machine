@@ -91,6 +91,49 @@ describe('Linking tests', () => {
         expect(edge.source[0].ref?.name).toBe('State1');
         expect(edge.segments[0].target[0].ref?.name).toBe('State2');
     });
+
+    test('attribute-qualified references resolve to parent nodes with metadata', async () => {
+        document = await parse(`
+            machine "Attribute Edge Test"
+
+            parent {
+                spouse: "Alice";
+                child1 {
+                    age: 7;
+                }
+            }
+
+            parent.spouse -> parent.child1;
+            parent.child1.age -> parent.spouse;
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
+        expect(machine.nodes.some(node => node.name === 'spouse')).toBe(false);
+
+        expect(machine.edges).toHaveLength(2);
+
+        const firstEdge = machine.edges[0];
+        const firstSource = firstEdge.source[0] as any;
+        expect(firstSource.ref?.name).toBe('parent');
+        expect(firstSource.__attributeName).toBe('spouse');
+        const firstTarget = firstEdge.segments[0].target[0] as any;
+        expect(firstTarget.ref?.name).toBe('child1');
+        expect(firstTarget.__attributeName).toBeUndefined();
+
+        const secondEdge = machine.edges[1];
+        const secondSource = secondEdge.source[0] as any;
+        expect(secondSource.ref?.name).toBe('child1');
+        expect(secondSource.__attributeName).toBe('age');
+        const secondTarget = secondEdge.segments[0].target[0] as any;
+        expect(secondTarget.ref?.name).toBe('parent');
+        expect(secondTarget.__attributeName).toBe('spouse');
+    });
 });
 
 function checkDocumentValid(document: LangiumDocument): string | undefined {

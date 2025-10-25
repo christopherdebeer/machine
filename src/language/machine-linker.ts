@@ -1,5 +1,6 @@
 import { AstNodeDescription, AstUtils, DefaultLinker, isLinkingError, LangiumDocument, LinkingError, ReferenceInfo } from 'langium';
 import { Machine, Node, isMachine, } from './generated/ast.js';
+import { resolveQualifiedPath, splitQualifiedPath, findNodeBySegments } from './utils/reference-utils.js';
 import type { MachineServices } from './machine-module.js';
 
 /**
@@ -24,6 +25,10 @@ export class MachineLinker extends DefaultLinker {
         if (isLinkingError(candidate)) {
             const machine = AstUtils.getContainerOfType(refInfo.container, isMachine);
             if (machine && !this.isStrictMode(machine)) {
+                const attributeCandidate = this.tryResolveAttributeReference(refInfo, machine);
+                if (attributeCandidate) {
+                    return attributeCandidate;
+                }
                 // Create the placeholder node (handle both simple and qualified names)
                 const nodeName = refInfo.reference.$refText;
                 let placeholderNode: Node | undefined;
@@ -108,6 +113,9 @@ export class MachineLinker extends DefaultLinker {
         // Create placeholder nodes for missing references
         for (const refText of referencedNodes) {
             if (!existingNodes.has(refText)) {
+                if (this.isAttributeReference(machine, refText)) {
+                    continue;
+                }
                 // Handle qualified names (e.g., "workflow.start")
                 if (refText.includes('.')) {
                     this.createNestedPlaceholderNode(machine, refText);
@@ -290,4 +298,49 @@ export class MachineLinker extends DefaultLinker {
             path: this.astNodeLocator.getAstNodePath(node)
         };
     }
+
+    private tryResolveAttributeReference(refInfo: ReferenceInfo, machine: Machine): AstNodeDescription | undefined {
+        const refText = refInfo.reference.$refText;
+        if (!refText) {
+            return undefined;
+        }
+
+        const resolution = resolveQualifiedPath(machine, refText);
+        if (!resolution.node || !resolution.attribute) {
+            return undefined;
+        }
+
+        this.recordAttributeReference(refInfo.reference, resolution.attribute);
+        return this.createNodeDescription(resolution.node);
+    }
+
+    private recordAttributeReference(reference: any, attributeName: string): void {
+        if (reference && attributeName) {
+            (reference as any).__attributeName = attributeName;
+        }
+    }
+
+    private isAttributeReference(machine: Machine, refText: string): boolean {
+        const segments = splitQualifiedPath(refText);
+        if (segments.length < 2) {
+            return false;
+        }
+
+        const attributeName = segments[segments.length - 1];
+        const nodeSegments = segments.slice(0, -1);
+        let targetNode = findNodeBySegments(machine, nodeSegments);
+
+        if (!targetNode && nodeSegments.length > 0) {
+            const fallbackName = nodeSegments[nodeSegments.length - 1];
+            targetNode = this.findNodeByName(machine, fallbackName);
+        }
+
+        if (!targetNode) {
+            return false;
+        }
+
+        const hasAttribute = targetNode.attributes?.some(attr => attr.name === attributeName) ?? false;
+        return hasAttribute;
+    }
+
 }

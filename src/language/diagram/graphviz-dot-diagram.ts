@@ -1455,8 +1455,13 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         let sourcePortName: string | undefined;
         let targetPortName: string | undefined;
 
-        const useSourceClusterAnchor = sourceIsParent || ((sourcePortHandle === 'cluster' || sourcePortHandle === 'header') && parentNodes.has(edge.source));
-        const useTargetClusterAnchor = targetIsParent || ((targetPortHandle === 'cluster' || targetPortHandle === 'header') && parentNodes.has(edge.target));
+        const hasExplicitSourceAttribute = Boolean(sourceAttributeHandle);
+        const hasExplicitTargetAttribute = Boolean(targetAttributeHandle);
+
+        const useSourceClusterAnchor = (sourceIsParent && !hasExplicitSourceAttribute && !sourcePortHandle)
+            || ((sourcePortHandle === 'cluster' || sourcePortHandle === 'header') && parentNodes.has(edge.source));
+        const useTargetClusterAnchor = (targetIsParent && !hasExplicitTargetAttribute && !targetPortHandle)
+            || ((targetPortHandle === 'cluster' || targetPortHandle === 'header') && parentNodes.has(edge.target));
 
         if (useSourceClusterAnchor) {
             actualSource = getClusterAnchorName(edge.source);
