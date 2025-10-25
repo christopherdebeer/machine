@@ -161,13 +161,67 @@ const diagnostics = document.diagnostics ?? [];
 ```typescript
 import { GraphValidator } from 'dygram/validator';
 
-const validator = new GraphValidator();
-const issues = validator.validate(machine);
+const validator = new GraphValidator(machine);
+const result = validator.validate();
 
 // Check for specific issues
-const unreachableNodes = issues.filter(i => i.type === 'unreachable');
-const cycles = issues.filter(i => i.type === 'cycle');
+console.log('Unreachable nodes:', result.unreachableNodes);
+console.log('Orphaned nodes:', result.orphanedNodes);
+console.log('Cycles:', result.cycles);
 ```
+
+### Validation Context
+
+The `ValidationContext` collects validation errors and warnings that can be visualized in diagrams:
+
+```typescript
+import { ValidationContext, ValidationSeverity, ValidationCategory } from 'dygram';
+
+// Create context
+const context = new ValidationContext();
+
+// Add errors
+context.addError({
+    message: 'Node cannot be reached',
+    severity: ValidationSeverity.WARNING,
+    category: ValidationCategory.GRAPH,
+    code: 'UNREACHABLE_NODE',
+    location: { node: 'taskName' }
+});
+
+// Get errors by severity
+const warnings = context.getErrors(ValidationSeverity.WARNING);
+const errors = context.getErrors(ValidationSeverity.ERROR);
+
+// Pass to diagram generator for visualization
+const dot = generateGraphvizFromJSON(machineJson, {
+    validationContext: context,
+    showValidationWarnings: true,
+    warningMode: 'both', // 'inline', 'notes', 'both', 'none'
+    minSeverity: 'warning'
+});
+```
+
+**Validation Options**:
+- `showValidationWarnings`: Enable/disable warning visualization
+- `warningMode`: How to display warnings
+  - `'inline'`: Style nodes with warning colors
+  - `'notes'`: Create separate note nodes
+  - `'both'`: Both inline styling and notes
+  - `'none'`: No visualization
+- `minSeverity`: Minimum severity to display (`'error'`, `'warning'`, `'info'`, `'hint'`)
+
+**Severity Levels**:
+- `ValidationSeverity.ERROR`: Critical errors
+- `ValidationSeverity.WARNING`: Non-critical issues
+- `ValidationSeverity.INFO`: Informational messages
+- `ValidationSeverity.HINT`: Suggestions
+
+**Category Types**:
+- `ValidationCategory.GRAPH`: Graph structure issues
+- `ValidationCategory.TYPE`: Type checking errors
+- `ValidationCategory.SYNTAX`: Syntax problems
+- `ValidationCategory.SEMANTIC`: Semantic errors
 
 ## Generation
 

@@ -138,44 +138,38 @@ const showAll: DiagramOptions = {
 
 ## Diagram Direction Control
 
-Control graph layout direction:
+Control graph layout direction using `@style` annotations:
 
-### Default Top-to-Bottom
+### Machine-Level Direction
 
 ```dygram
-machine "Top to Bottom"
+// Left-to-right layout
+machine "Horizontal Flow" @style(rankdir: LR)
 
 Task a "A";
 Task b "B";
 Task c "C";
 
 a -> b -> c;
-
-// Renders vertically by default (TB - Top to Bottom)
 ```
 
-### Overriding Direction
-
-Currently, the default direction is `TB` (top-to-bottom), set in `graphviz-dot-diagram.ts:393` and `467`.
-
-**Note**: Direct override of `rankdir` in nested subgraphs is not yet exposed as a DSL feature. This is a documented gap - see below.
-
-### Programmatic Direction (Future)
-
-Planned support for direction attributes:
+### Supported Directions
 
 ```dygram
-machine "Custom Direction"
+// Top-to-bottom (default)
+machine "Vertical" @style(rankdir: TB)
 
-// Future syntax (not yet implemented):
-Process horizontal @Direction("LR") {
-    Task a -> Task b -> Task c;
-};
+// Left-to-right
+machine "Horizontal" @style(rankdir: LR)
 
-Process vertical @Direction("TB") {
-    Task d -> Task e -> Task f;
-};
+// Right-to-left
+machine "RTL" @style(rankdir: RL)
+
+// Bottom-to-top
+machine "Bottom Up" @style(rankdir: BT)
 ```
+
+**Note**: Direction control applies to the entire diagram. For nested subgraphs, all use the machine-level direction setting.
 
 ## Attribute Ports and Cluster Anchors
 
@@ -291,7 +285,7 @@ With runtime visualization:
 
 ## Edge Styling
 
-Custom edge styling with annotations:
+Custom edge styling with `@style` annotations:
 
 ```dygram
 machine "Styled Edges"
@@ -301,35 +295,37 @@ Task critical "Critical Path";
 Task optional "Optional";
 Task end "End";
 
-// Critical path in red
-start -@style("color: red; stroke-width: 4px")-> critical;
+// Critical path in red with thick line
+start -@style(color: red; penwidth: 4;)-> critical;
 
 // Optional path in gray, dashed
-start -@style("color: gray; stroke-dasharray: 5,5")-> optional;
+start -@style(color: gray; style: dashed;)-> optional;
 
 // Normal path
 critical -> end;
 optional -> end;
 ```
 
-Edge styling properties:
-- `color`: Edge color
-- `stroke-width`: Line thickness
-- `stroke-dasharray`: Dashed lines (e.g., `5,5`)
-- Standard CSS/SVG styling properties
+**Edge styling properties** (Graphviz attributes):
+- `color`: Edge color (e.g., "red", "#ff0000")
+- `penwidth`: Line thickness (numeric)
+- `style`: Line style ("solid", "dashed", "dotted", "bold")
+- `arrowhead`: Arrow head style ("normal", "box", "diamond", "none")
+- `arrowtail`: Arrow tail style
+- `arrowsize`: Arrow size multiplier
+
+See the [Graphviz documentation](https://graphviz.org/doc/info/attrs.html) for all available edge attributes.
 
 ## Validation Context Integration
 
-Using validation context in diagrams:
+For programmatic validation API usage, see **[API Reference - Validation](../api/README.md#validation-context)**.
+
+**Quick example** for visualization:
 
 ```typescript
-import { ValidationContext } from 'dygram';
+import { generateGraphvizFromJSON } from 'dygram';
 
-const validationContext = new ValidationContext();
-// ... validation occurs, warnings/errors collected ...
-
-const options: DiagramOptions = {
-    validationContext: validationContext,
+const options = {
     showValidationWarnings: true,
     warningMode: 'both',
     minSeverity: 'warning'
@@ -338,44 +334,18 @@ const options: DiagramOptions = {
 const dot = generateGraphvizFromJSON(machineJson, options);
 ```
 
-## Documented Gaps
+## Styling Features
 
-### 1. Nested Diagram Direction Override
+For comprehensive styling documentation, see:
+- **[Styling Guide](../styling.md)** - Complete guide to all three styling mechanisms
+- **[Graphviz Attributes](https://graphviz.org/doc/info/attrs.html)** - Full attribute reference
 
-**Current State**: All subgraphs use the parent's `rankdir` (currently hardcoded to `TB`).
+### Quick Reference
 
-**Desired Feature**:
-```dygram
-machine "Mixed Directions"
-
-Process vertical @Direction("TB") {
-    Task a -> Task b -> Task c;
-};
-
-Process horizontal @Direction("LR") {
-    Task x -> Task y -> Task z;
-};
-```
-
-**Implementation Need**: Add support for direction attributes/annotations on `Process` nodes that override the subgraph `rankdir` in Graphviz generation.
-
-### 2. Node Styling Annotations
-
-**Current State**: Limited styling via edge annotations only.
-
-**Desired Feature**:
-```dygram
-Task important @Style("fillcolor: yellow; shape: box") {
-    prompt: "Important task";
-};
-```
-
-### 3. Global Styling Themes
-
-**Desired Feature**: Machine-level styling presets
-```dygram
-machine "Themed" @Theme("dark") @Palette("colorblind-safe")
-```
+**Three Styling Mechanisms**:
+1. `@style(attr: value;)` - Inline annotations on machines, nodes, and edges
+2. `style: { attr: value; }` - Style attributes within nodes
+3. `style name @selector { attr: value; }` - Reusable style definitions
 
 ## Next Steps
 
