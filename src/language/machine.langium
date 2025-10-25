@@ -82,9 +82,21 @@ PrimitiveValue:
     value=(EXTID|STRING|ID|NUMBER)
 ;
 
-// Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated, @note)
+// Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated, @note, @style(color: red;))
+// Supports both string values and attribute-style parameters
 Annotation:
-    '@' name=ID ('(' value=STRING ')')?
+    '@' name=ID ('(' (value=STRING | attributes=AnnotationAttributes) ')')?
+;
+
+// Attribute-style parameters for annotations (e.g., @style(color: red; penwidth: 3;))
+// Similar to EdgeAttribute but for annotations
+AnnotationAttributes:
+    params+=AnnotationParam (';' params+=AnnotationParam)* ';'?
+;
+
+AnnotationParam:
+    name=ID ':' value=EdgeAttributeValue
+    | name=ID
 ;
 
 // Note attached to a node for documentation
@@ -135,9 +147,10 @@ EdgeAttribute:
     | (text=EdgeAttributeValue)
 ;
 
-// Edge styling annotation (e.g., @style("color: red; stroke-width: 4px"))
+// Edge styling annotation (e.g., @style("color: red; stroke-width: 4px") or @style(color: red; penwidth: 3;))
+// Supports both string values and attribute-style parameters
 EdgeAnnotation:
-    '@' name=ID ('(' value=STRING ')')?
+    '@' name=ID ('(' (value=STRING | attributes=AnnotationAttributes) ')')?
 ;
 
 EdgeType:

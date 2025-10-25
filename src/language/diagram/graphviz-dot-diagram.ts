@@ -330,9 +330,45 @@ function getNodeStyle(node: any, edges?: any[], styleNodes?: any[], validationCo
         }
     }
 
+    // Apply @style annotations directly (inline styles)
+    annotations.forEach((ann: any) => {
+        if (ann.name === 'style') {
+            // Check if annotation has attribute-style parameters
+            if (ann.attributes) {
+                // Apply each attribute as a graphviz property
+                Object.keys(ann.attributes).forEach(key => {
+                    const value = ann.attributes[key];
+                    baseStyle += `, ${key}="${value}"`;
+                });
+            } else if (ann.value) {
+                // Parse string value for inline styles (e.g., @style("color: red; penwidth: 3;"))
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                styleAttrs.forEach((attr: string) => {
+                    const [key, ...valueParts] = attr.split(':');
+                    if (key && valueParts.length > 0) {
+                        const value = valueParts.join(':').trim();
+                        baseStyle += `, ${key.trim()}="${value}"`;
+                    }
+                });
+            }
+        }
+    });
+
     // Apply custom styles from style nodes
     if (styleNodes && styleNodes.length > 0) {
         baseStyle = applyCustomStyles(node, styleNodes, baseStyle);
+    }
+
+    // Apply style attribute (e.g., style: { color: blue; })
+    const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
+    if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
+        // If style attribute is an object, apply each property
+        Object.keys(styleAttr.value).forEach(key => {
+            const value = styleAttr.value[key];
+            if (value !== undefined && value !== null) {
+                baseStyle += `, ${key}="${value}"`;
+            }
+        });
     }
 
     // Add validation warning styling if validation context is provided
@@ -680,6 +716,33 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
     lines.push('  pad=0.25;');
+
+    // Apply machine-level @style annotations to graph attributes
+    if (machineJson.annotations) {
+        machineJson.annotations.forEach((ann: any) => {
+            if (ann.name === 'style') {
+                // Check if annotation has attribute-style parameters
+                if (ann.attributes) {
+                    // Apply each attribute as a graphviz graph property
+                    Object.keys(ann.attributes).forEach(key => {
+                        const value = ann.attributes[key];
+                        lines.push(`  ${key}="${value}";`);
+                    });
+                } else if (ann.value) {
+                    // Parse string value for inline styles
+                    const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                    styleAttrs.forEach((attr: string) => {
+                        const [key, ...valueParts] = attr.split(':');
+                        if (key && valueParts.length > 0) {
+                            const value = valueParts.join(':').trim();
+                            lines.push(`  ${key.trim()}="${value}";`);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
     lines.push('  node [fontname="Arial", fontsize=10];');  // Removed default shape=record to allow per-node shapes
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
@@ -917,12 +980,14 @@ function getRootNodes(nodes: any[]): any[] {
  * Shared function used by both nodes and notes to ensure consistent rendering
  */
 function getNodeDisplayAttributes(node: any): any[] {
-    return node.attributes?.filter((a: any) => a.name !== 'desc' && a.name !== 'prompt') || [];
+    return node.attributes?.filter((a: any) =>
+        a.name !== 'desc' && a.name !== 'prompt' && a.name !== 'style'
+    ) || [];
 }
 
 function getNamespaceDisplayAttributes(node: any): any[] {
     return node.attributes?.filter((a: any) =>
-        a.name !== 'description' && a.name !== 'desc' && a.name !== 'prompt'
+        a.name !== 'description' && a.name !== 'desc' && a.name !== 'prompt' && a.name !== 'style'
     ) || [];
 }
 
@@ -989,9 +1054,12 @@ function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext, wrap
         firstRow += ' <i>&lt;' + escapeHtml(node.type) + '&gt;</i>';
     }
 
-    // Annotations (excluding @note)
+    // Annotations (excluding @note and @style)
+    // @style is applied visually, @note is displayed separately
     if (node.annotations && node.annotations.length > 0) {
-        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
+        const displayAnnotations = node.annotations.filter((ann: any) =>
+            ann.name !== 'note' && ann.name !== 'style'
+        );
         if (displayAnnotations.length > 0) {
             firstRow += ' <i>';
             displayAnnotations.forEach((ann: any, idx: number) => {
@@ -1120,8 +1188,11 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
     }
 
     // Annotations (italic)
+    // Filter out @style and @note annotations - @style is applied visually, @note is displayed separately
     if (node.annotations && node.annotations.length > 0) {
-        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
+        const displayAnnotations = node.annotations.filter((ann: any) =>
+            ann.name !== 'note' && ann.name !== 'style'
+        );
         if (displayAnnotations.length > 0) {
             firstRowContent += ' <i>';
             displayAnnotations.forEach((ann: any, idx: number) => {
@@ -1303,6 +1374,30 @@ function applyCustomEdgeStyles(edge: any, styleNodes: any[]): string {
         return customStyles;
     }
 
+    // Apply @style annotations directly (inline styles on edges)
+    edgeAnnotations.forEach((ann: any) => {
+        if (ann.name === 'style') {
+            // Check if annotation has attribute-style parameters
+            if (ann.attributes) {
+                // Apply each attribute as a graphviz property
+                Object.keys(ann.attributes).forEach(key => {
+                    const value = ann.attributes[key];
+                    customStyles += `, ${key}="${value}"`;
+                });
+            } else if (ann.value) {
+                // Parse string value for inline styles (e.g., @style("color: red; penwidth: 3;"))
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                styleAttrs.forEach((attr: string) => {
+                    const [key, ...valueParts] = attr.split(':');
+                    if (key && valueParts.length > 0) {
+                        const value = valueParts.join(':').trim();
+                        customStyles += `, ${key.trim()}="${value}"`;
+                    }
+                });
+            }
+        }
+    });
+
     // Find matching style nodes
     for (const styleNode of styleNodes) {
         const styleAnnotations = styleNode.annotations || [];
@@ -1401,14 +1496,18 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         }
 
         // Add annotation names to label if showAnnotation is true
+        // Filter out @style annotations as they are applied visually, not displayed
         if (showAnnotation && edge.annotations && edge.annotations.length > 0) {
-            const annotationLabels = edge.annotations.map((ann: any) =>
-                ann.value ? `@${ann.name}("${ann.value}")` : `@${ann.name}`
-            ).join(' ');
-            if (label) {
-                label = `${annotationLabels} ${label}`;
-            } else {
-                label = annotationLabels;
+            const displayAnnotations = edge.annotations.filter((ann: any) => ann.name !== 'style');
+            if (displayAnnotations.length > 0) {
+                const annotationLabels = displayAnnotations.map((ann: any) =>
+                    ann.value ? `@${ann.name}("${ann.value}")` : `@${ann.name}`
+                ).join(' ');
+                if (label) {
+                    label = `${annotationLabels} ${label}`;
+                } else {
+                    label = annotationLabels;
+                }
             }
         }
 
