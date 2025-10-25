@@ -77,6 +77,120 @@ function escapeHtml(text: string): string {
 }
 
 /**
+ * Format a DOT attribute value, adding quotes only when required
+ */
+function formatDotAttributeValue(value: string): string {
+    const strValue = String(value);
+    if (strValue.length === 0) {
+        return '""';
+    }
+    const needsQuotes = /[^A-Za-z0-9_.-]/.test(strValue);
+    const escaped = strValue
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"');
+    return needsQuotes ? `"${escaped}"` : escaped;
+}
+
+/**
+ * Convert a Map of DOT attributes to a formatted attribute string
+ */
+function attributeMapToString(attributes: Map<string, string>): string {
+    return Array.from(attributes.entries())
+        .map(([key, value]) => `${key}=${formatDotAttributeValue(value)}`)
+        .join(', ');
+}
+
+/**
+ * Parse a @Style annotation payload into Graphviz attribute key/value pairs
+ */
+function parseStyleAnnotationValue(value?: string): Record<string, string> {
+    if (!value) {
+        return {};
+    }
+
+    const result: Record<string, string> = {};
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return result;
+    }
+
+    if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+        try {
+            const parsed = JSON.parse(trimmed);
+            if (Array.isArray(parsed)) {
+                if (parsed.length > 0) {
+                    result['style'] = parsed.map(item => String(item)).join(',');
+                }
+            } else if (typeof parsed === 'object' && parsed !== null) {
+                Object.entries(parsed).forEach(([key, val]) => {
+                    result[key] = String(val);
+                });
+            }
+            return result;
+        } catch {
+            // Fall back to manual parsing if JSON parsing fails
+        }
+    }
+
+    const normalized = trimmed.replace(/;/g, ',');
+    const segments = normalized
+        .split(',')
+        .map(segment => segment.trim())
+        .filter(segment => segment.length > 0);
+
+    const styleTokens: string[] = [];
+
+    for (const segment of segments) {
+        const namedMatch = segment.match(/^([A-Za-z0-9_\-]+)\s*[:=]\s*(.+)$/);
+        if (namedMatch) {
+            let attrValue = namedMatch[2].trim();
+            if ((attrValue.startsWith('"') && attrValue.endsWith('"')) || (attrValue.startsWith('\'') && attrValue.endsWith('\''))) {
+                attrValue = attrValue.slice(1, -1);
+            }
+            result[namedMatch[1]] = attrValue;
+            continue;
+        }
+
+        const flagMatch = segment.match(/^([A-Za-z0-9_\-]+)$/);
+        if (flagMatch) {
+            styleTokens.push(flagMatch[1]);
+            continue;
+        }
+
+        styleTokens.push(segment);
+    }
+
+    if (styleTokens.length > 0) {
+        const existing = result['style'] ? result['style'].split(',').map(token => token.trim()).filter(Boolean) : [];
+        const tokenSet = new Set([...existing, ...styleTokens]);
+        result['style'] = Array.from(tokenSet).join(',');
+    }
+
+    return result;
+}
+
+/**
+ * Extract inline style attributes from annotations, supporting multiple @Style entries
+ */
+function extractInlineStyleAttributes(annotations?: Array<{ name?: string; value?: string }>): Record<string, string> {
+    if (!annotations || annotations.length === 0) {
+        return {};
+    }
+
+    return annotations.reduce<Record<string, string>>((acc, annotation) => {
+        if (!annotation?.name || annotation.name.toLowerCase() !== 'style') {
+            return acc;
+        }
+
+        const parsed = parseStyleAnnotationValue(annotation.value);
+        Object.entries(parsed).forEach(([key, val]) => {
+            acc[key] = val;
+        });
+        return acc;
+    }, {});
+}
+
+/**
  * Check if a string is valid JSON
  */
 function isJsonString(str: string): boolean {
@@ -179,92 +293,100 @@ function getNodeStyle(node: any, edges?: any[], styleNodes?: any[], validationCo
     const nodeType = NodeTypeChecker.getNodeType(node, edges);
     const annotations = node.annotations || [];
 
-    // Check for special annotations
     const hasDeprecated = annotations.some((a: any) => a.name === 'Deprecated');
     const hasCritical = annotations.some((a: any) => a.name === 'Critical');
     const hasSingleton = annotations.some((a: any) => a.name === 'Singleton');
     const hasAbstract = annotations.some((a: any) => a.name === 'Abstract');
 
-    if (!nodeType && annotations.length === 0) {
-        return 'fillcolor="#FFFFFF", style=filled, color="#000000"';
-    }
+    const styleAttributes = new Map<string, string>();
 
-    const styles: Record<string, string> = {
-        task: 'fillcolor="#E3F2FD", style=filled, color="#1976D2"',
-        state: 'fillcolor="#F3E5F5", style=filled, color="#7B1FA2"',
-        context: 'fillcolor="#E8F5E9", style=filled, color="#388E3C"',
-        tool: 'fillcolor="#FFF9C4", style=filled, color="#F57F17"',
-        init: 'fillcolor="#FFF3E0", style=filled, color="#F57C00"',
+    const setAttribute = (name: string, value: string) => {
+        styleAttributes.set(name, value);
     };
 
-    let baseStyle = (nodeType && styles[nodeType]) || 'fillcolor="#FFFFFF", style=filled, color="#000000"';
+    const appendStyleToken = (token: string) => {
+        if (!token) return;
+        const existing = styleAttributes.get('style');
+        const tokens = existing ? existing.split(',').map(t => t.trim()).filter(Boolean) : [];
+        if (!tokens.includes(token)) {
+            tokens.push(token);
+        }
+        styleAttributes.set('style', tokens.join(','));
+    };
 
-    // Modify style based on annotations
+    const defaultStyles: Record<string, { fillcolor: string; color: string }> = {
+        task: { fillcolor: '#E3F2FD', color: '#1976D2' },
+        state: { fillcolor: '#F3E5F5', color: '#7B1FA2' },
+        context: { fillcolor: '#E8F5E9', color: '#388E3C' },
+        tool: { fillcolor: '#FFF9C4', color: '#F57F17' },
+        init: { fillcolor: '#FFF3E0', color: '#F57C00' }
+    };
+
+    const defaults = nodeType ? defaultStyles[nodeType] : undefined;
+    if (defaults) {
+        setAttribute('fillcolor', defaults.fillcolor);
+        setAttribute('color', defaults.color);
+    } else {
+        setAttribute('fillcolor', '#FFFFFF');
+        setAttribute('color', '#000000');
+    }
+    appendStyleToken('filled');
+
     if (hasDeprecated) {
-        // Deprecated: use dashed border and gray out
-        baseStyle = baseStyle.replace('style=filled', 'style="filled,dashed"');
-        baseStyle += ', fontcolor="#999999"';
+        appendStyleToken('dashed');
+        setAttribute('fontcolor', '#999999');
     }
 
     if (hasCritical) {
-        // Critical: use bold border and red accent
-        // baseStyle = baseStyle.replace(/color="[^"]*"/, 'color="#ffadad"');
-        baseStyle += ', penwidth=3';
+        setAttribute('penwidth', '3');
     }
 
     if (hasSingleton) {
-        // Singleton: use double border
-        baseStyle += ', peripheries=2';
+        setAttribute('peripheries', '2');
     }
 
     if (hasAbstract) {
-        // Abstract: use dashed style if not already set
-        if (!baseStyle.includes('dashed')) {
-            baseStyle = baseStyle.replace('style=filled', 'style="filled,dashed"');
-        }
+        appendStyleToken('dashed');
     }
 
-    // Apply custom styles from style nodes
     if (styleNodes && styleNodes.length > 0) {
-        baseStyle = applyCustomStyles(node, styleNodes, baseStyle);
+        applyCustomStyles(node, styleNodes, styleAttributes);
     }
 
-    // Add validation warning styling if validation context is provided
-    // This is applied last to ensure warnings are visible
+    const inlineStyles = extractInlineStyleAttributes(annotations);
+    Object.entries(inlineStyles).forEach(([key, value]) => {
+        styleAttributes.set(key, value);
+    });
+
     if (validationContext) {
         const nodeFlag = validationContext.getNodeFlag(node.name);
         if (nodeFlag && nodeFlag.errors.length > 0) {
-            // Find the highest severity error
             const maxSeverity = getMaxSeverity(nodeFlag.errors);
 
             switch (maxSeverity) {
                 case ValidationSeverity.ERROR:
-                    // Red bold border for errors
-                    baseStyle += ', penwidth=3, color="#D32F2F"';
+                    setAttribute('penwidth', '3');
+                    setAttribute('color', '#D32F2F');
                     break;
                 case ValidationSeverity.WARNING:
-                    // Orange border for warnings
-                    baseStyle += ', penwidth=2, color="#FFA726"';
+                    setAttribute('penwidth', '2');
+                    setAttribute('color', '#FFA726');
                     break;
                 case ValidationSeverity.INFO:
-                    // Blue dashed border for info
-                    baseStyle += ', penwidth=2, color="#42A5F5"';
-                    if (!baseStyle.includes('dashed')) {
-                        baseStyle = baseStyle.replace('style=filled', 'style="filled,dashed"');
-                    }
+                    setAttribute('penwidth', '2');
+                    setAttribute('color', '#42A5F5');
+                    appendStyleToken('dashed');
                     break;
                 case ValidationSeverity.HINT:
-                    // Light gray dashed border for hints
-                    baseStyle += ', penwidth=1, color="#9E9E9E"';
-                    if (!baseStyle.includes('dashed')) {
-                        baseStyle = baseStyle.replace('style=filled', 'style="filled,dashed"');
-                    }
+                    setAttribute('penwidth', '1');
+                    setAttribute('color', '#9E9E9E');
+                    appendStyleToken('dashed');
                     break;
             }
         }
     }
 
-    return baseStyle;
+    return attributeMapToString(styleAttributes);
 }
 
 /**
@@ -308,39 +430,37 @@ function getWarningIcon(severity: ValidationSeverity): string {
 /**
  * Apply custom styles from style nodes based on annotation matching
  */
-function applyCustomStyles(node: any, styleNodes: any[], baseStyle: string): string {
-    let finalStyle = baseStyle;
+function applyCustomStyles(node: any, styleNodes: any[], attributes: Map<string, string>): void {
     const nodeAnnotations = node.annotations || [];
 
-    // Find matching style nodes
     for (const styleNode of styleNodes) {
         const styleAnnotations = styleNode.annotations || [];
 
-        // Check if any of the node's annotations match the style node's selector annotation
         for (const styleAnnotation of styleAnnotations) {
             const hasMatchingAnnotation = nodeAnnotations.some(
                 (nodeAnn: any) => nodeAnn.name === styleAnnotation.name
             );
 
-            if (hasMatchingAnnotation) {
-                // Apply all attributes from the style node as graphviz properties
-                const styleAttrs = styleNode.attributes || [];
-                for (const attr of styleAttrs) {
-                    let attrValue = attr.value;
+            if (!hasMatchingAnnotation) {
+                continue;
+            }
 
-                    // Clean up string values (remove quotes)
-                    if (typeof attrValue === 'string') {
-                        attrValue = attrValue.replace(/^["']|["']$/g, '');
-                    }
+            const styleAttrs = styleNode.attributes || [];
+            for (const attr of styleAttrs) {
+                let attrValue = attr.value;
 
-                    // Append to style string
-                    finalStyle += `, ${attr.name}="${attrValue}"`;
+                if (typeof attrValue === 'string') {
+                    attrValue = attrValue.replace(/^["']|["']$/g, '');
+                }
+
+                if (attrValue === undefined || attrValue === null || attrValue === '') {
+                    attributes.set(attr.name, 'true');
+                } else {
+                    attributes.set(attr.name, String(attrValue));
                 }
             }
         }
     }
-
-    return finalStyle;
 }
 
 /**
@@ -753,7 +873,7 @@ function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext): str
 
     // Annotations (excluding @note)
     if (node.annotations && node.annotations.length > 0) {
-        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
+        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note' && ann.name?.toLowerCase() !== 'style');
         if (displayAnnotations.length > 0) {
             firstRow += ' <i>';
             displayAnnotations.forEach((ann: any, idx: number) => {
@@ -880,7 +1000,7 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
 
     // Annotations (italic)
     if (node.annotations && node.annotations.length > 0) {
-        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
+        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note' && ann.name?.toLowerCase() !== 'style');
         if (displayAnnotations.length > 0) {
             firstRowContent += ' <i>';
             displayAnnotations.forEach((ann: any, idx: number) => {
@@ -1061,43 +1181,44 @@ function findFirstChild(nodes: any[], parentName: string): string | null {
 /**
  * Apply custom styles from style nodes to edges based on annotation matching
  */
-function applyCustomEdgeStyles(edge: any, styleNodes: any[]): string {
-    let customStyles = '';
+function applyCustomEdgeStyles(edge: any, styleNodes: any[]): Record<string, string> {
+    const styles: Record<string, string> = {};
     const edgeAnnotations = edge.annotations || [];
 
     if (edgeAnnotations.length === 0) {
-        return customStyles;
+        return styles;
     }
 
-    // Find matching style nodes
     for (const styleNode of styleNodes) {
         const styleAnnotations = styleNode.annotations || [];
 
-        // Check if any of the edge's annotations match the style node's selector annotation
         for (const styleAnnotation of styleAnnotations) {
             const hasMatchingAnnotation = edgeAnnotations.some(
                 (edgeAnn: any) => edgeAnn.name === styleAnnotation.name
             );
 
-            if (hasMatchingAnnotation) {
-                // Apply all attributes from the style node as graphviz properties
-                const styleAttrs = styleNode.attributes || [];
-                for (const attr of styleAttrs) {
-                    let attrValue = attr.value;
+            if (!hasMatchingAnnotation) {
+                continue;
+            }
 
-                    // Clean up string values (remove quotes)
-                    if (typeof attrValue === 'string') {
-                        attrValue = attrValue.replace(/^["']|["']$/g, '');
-                    }
+            const styleAttrs = styleNode.attributes || [];
+            for (const attr of styleAttrs) {
+                let attrValue = attr.value;
 
-                    // Append to custom styles
-                    customStyles += `, ${attr.name}="${attrValue}"`;
+                if (typeof attrValue === 'string') {
+                    attrValue = attrValue.replace(/^["']|["']$/g, '');
+                }
+
+                if (attrValue === undefined || attrValue === null || attrValue === '') {
+                    styles[attr.name] = 'true';
+                } else {
+                    styles[attr.name] = String(attrValue);
                 }
             }
         }
     }
 
-    return customStyles;
+    return styles;
 }
 
 /**
@@ -1163,13 +1284,16 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
 
         // Add annotation names to label if showAnnotation is true
         if (showAnnotation && edge.annotations && edge.annotations.length > 0) {
-            const annotationLabels = edge.annotations.map((ann: any) =>
-                ann.value ? `@${ann.name}("${ann.value}")` : `@${ann.name}`
-            ).join(' ');
-            if (label) {
-                label = `${annotationLabels} ${label}`;
-            } else {
-                label = annotationLabels;
+            const annotationLabels = edge.annotations
+                .filter((ann: any) => ann.name?.toLowerCase() !== 'style')
+                .map((ann: any) => ann.value ? `@${ann.name}("${ann.value}")` : `@${ann.name}`)
+                .join(' ');
+            if (annotationLabels) {
+                if (label) {
+                    label = `${annotationLabels} ${label}`;
+                } else {
+                    label = annotationLabels;
+                }
             }
         }
 
@@ -1188,6 +1312,7 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
 
         // Apply custom styles from style nodes
         const customStyles = applyCustomEdgeStyles(edge, styleNodes);
+        const inlineEdgeStyles = extractInlineStyleAttributes(edge.annotations);
 
         // Build edge attributes array
         const edgeAttrs: string[] = [];
@@ -1214,11 +1339,14 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         edgeAttrs.push('labelOverlay="75%"');
         edgeAttrs.push('labelhref="#srcLineTBD"');
 
-        // Apply custom styles if any
-        if (customStyles) {
-            // Custom styles are already formatted as ", attr1=value1, attr2=value2"
-            // So we can just append them to the edge line directly
-        }
+        const mergedStyles: Record<string, string> = { ...customStyles };
+        Object.entries(inlineEdgeStyles).forEach(([key, value]) => {
+            mergedStyles[key] = value;
+        });
+
+        Object.entries(mergedStyles).forEach(([key, value]) => {
+            edgeAttrs.push(`${key}=${formatDotAttributeValue(value)}`);
+        });
 
         // Handle compound edges for parent-to-parent connections
         const sourceIsParent = parentNodes.has(edge.source);
@@ -1252,7 +1380,7 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         }
 
         // Construct edge line with custom styles appended
-        const edgeLine = `  "${actualSource}" -> "${actualTarget}" [${edgeAttrs.join(', ')}${customStyles}];`;
+        const edgeLine = `  "${actualSource}" -> "${actualTarget}" [${edgeAttrs.join(', ')}];`;
         lines.push(edgeLine);
     });
 
