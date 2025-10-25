@@ -73,6 +73,52 @@ processing -> completePayment;
 completePayment -> done;
 ```
 
+## Advanced Example: Refined Styling, Ports, and Layout
+
+The following example combines reusable style metadata, nested namespaces, and
+attribute-level ports. Style nodes remain metadata only—they never appear in the
+rendered diagram—but any node or edge annotated with the matching selector will
+inherit the declared Graphviz attributes.
+
+```dygram
+machine "Refined styling, ports, and layout"
+description: "my machine description"
+type: "example"
+
+parent {
+    spouse: "Alice";
+    child1 @highlight {
+        age: 38;
+        grandchild {
+            age: 7;
+        }
+    }
+    child2 @highlight {
+        likes: apples; // node IDs automatically create attribute-sourced edges
+    }
+}
+
+apples;
+
+// Style metadata only – applies to any node or edge annotated with @highlight
+style highlightStyle @highlight {
+    color: red;
+    rank: "group:one"; // supports rank aliases such as group:/align:/same:
+    shape: "star";
+}
+
+parent.spouse -"begets..."-> parent.child1;
+child1 -@highlight @style("color: yellow; gradientangle: 90")-> child2;
+```
+
+In this example, the qualified edge `parent.spouse -> parent.child1` anchors the
+connection to the `spouse` attribute port on the `parent` node, while the
+attribute assignment `likes: apples;` automatically creates an inferred edge
+from `child2` to the `apples` node. Attribute references can drill into
+qualified paths (for example `orders.primary.status`) and the serializer will
+attach the edge to the matching attribute cell on both the source and target
+nodes.
+
 ## How It Works
 
 1. **Define Style Nodes**: Create style nodes with the `style` keyword, a name, and a selector annotation

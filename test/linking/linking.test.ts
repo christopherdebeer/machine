@@ -91,6 +91,34 @@ describe('Linking tests', () => {
         expect(edge.source[0].ref?.name).toBe('State1');
         expect(edge.segments[0].target[0].ref?.name).toBe('State2');
     });
+
+    test('linking of attribute-qualified node references', async () => {
+        document = await parse(`
+            machine "Test Machine"
+
+            parent {
+                spouse: "Alice";
+                child;
+            }
+
+            parent.spouse -> parent.child;
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
+        expect(machine.edges).toHaveLength(1);
+
+        const edge = machine.edges[0];
+        expect(edge.source[0].ref?.name).toBe('parent');
+        expect(edge.source[0].$refText).toBe('parent.spouse');
+        expect(edge.segments[0].target[0].ref?.name).toBe('child');
+        expect(edge.segments[0].target[0].$refText).toBe('parent.child');
+    });
 });
 
 function checkDocumentValid(document: LangiumDocument): string | undefined {
