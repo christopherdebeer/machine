@@ -980,12 +980,14 @@ function getRootNodes(nodes: any[]): any[] {
  * Shared function used by both nodes and notes to ensure consistent rendering
  */
 function getNodeDisplayAttributes(node: any): any[] {
-    return node.attributes?.filter((a: any) => a.name !== 'desc' && a.name !== 'prompt') || [];
+    return node.attributes?.filter((a: any) =>
+        a.name !== 'desc' && a.name !== 'prompt' && a.name !== 'style'
+    ) || [];
 }
 
 function getNamespaceDisplayAttributes(node: any): any[] {
     return node.attributes?.filter((a: any) =>
-        a.name !== 'description' && a.name !== 'desc' && a.name !== 'prompt'
+        a.name !== 'description' && a.name !== 'desc' && a.name !== 'prompt' && a.name !== 'style'
     ) || [];
 }
 
@@ -1052,9 +1054,12 @@ function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext, wrap
         firstRow += ' <i>&lt;' + escapeHtml(node.type) + '&gt;</i>';
     }
 
-    // Annotations (excluding @note)
+    // Annotations (excluding @note and @style)
+    // @style is applied visually, @note is displayed separately
     if (node.annotations && node.annotations.length > 0) {
-        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
+        const displayAnnotations = node.annotations.filter((ann: any) =>
+            ann.name !== 'note' && ann.name !== 'style'
+        );
         if (displayAnnotations.length > 0) {
             firstRow += ' <i>';
             displayAnnotations.forEach((ann: any, idx: number) => {
@@ -1183,8 +1188,11 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
     }
 
     // Annotations (italic)
+    // Filter out @style and @note annotations - @style is applied visually, @note is displayed separately
     if (node.annotations && node.annotations.length > 0) {
-        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
+        const displayAnnotations = node.annotations.filter((ann: any) =>
+            ann.name !== 'note' && ann.name !== 'style'
+        );
         if (displayAnnotations.length > 0) {
             firstRowContent += ' <i>';
             displayAnnotations.forEach((ann: any, idx: number) => {
@@ -1488,14 +1496,18 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         }
 
         // Add annotation names to label if showAnnotation is true
+        // Filter out @style annotations as they are applied visually, not displayed
         if (showAnnotation && edge.annotations && edge.annotations.length > 0) {
-            const annotationLabels = edge.annotations.map((ann: any) =>
-                ann.value ? `@${ann.name}("${ann.value}")` : `@${ann.name}`
-            ).join(' ');
-            if (label) {
-                label = `${annotationLabels} ${label}`;
-            } else {
-                label = annotationLabels;
+            const displayAnnotations = edge.annotations.filter((ann: any) => ann.name !== 'style');
+            if (displayAnnotations.length > 0) {
+                const annotationLabels = displayAnnotations.map((ann: any) =>
+                    ann.value ? `@${ann.name}("${ann.value}")` : `@${ann.name}`
+                ).join(' ');
+                if (label) {
+                    label = `${annotationLabels} ${label}`;
+                } else {
+                    label = annotationLabels;
+                }
             }
         }
 
