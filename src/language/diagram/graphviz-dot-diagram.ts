@@ -76,6 +76,112 @@ function escapeHtml(text: string): string {
         .replace(/"/g, '&quot;');
 }
 
+const EDGE_METADATA_KEYS = new Set([
+    'sourceAttribute',
+    'targetAttribute',
+    'sourcePort',
+    'targetPort',
+    'sourceHandle',
+    'targetHandle',
+]);
+
+type AttributeColumn = 'key' | 'value';
+
+interface AttributePortEntry {
+    attr: any;
+    base: string;
+    occurrence: number;
+    keyPort: string;
+    valuePort: string;
+}
+
+function sanitizePortId(raw: string): string {
+    if (!raw) {
+        return '';
+    }
+
+    return raw
+        .replace(/^["']|["']$/g, '')
+        .trim()
+        .replace(/[^a-zA-Z0-9_]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+}
+
+function buildAttributePortName(base: string, column: AttributeColumn, occurrence: number): string {
+    const suffix = column === 'key' ? 'key' : 'value';
+    const occurrenceSuffix = occurrence > 0 ? `_${occurrence}` : '';
+    return `${base || 'attribute'}__${suffix}${occurrenceSuffix}`;
+}
+
+function normalizeHandleValue(value: any): string | undefined {
+    if (value === undefined || value === null) {
+        return undefined;
+    }
+
+    const str = typeof value === 'string' ? value : String(value);
+    return str.replace(/^["']|["']$/g, '').trim();
+}
+
+function computeAttributePortEntries(attributes: any[]): AttributePortEntry[] {
+    const occurrences = new Map<string, number>();
+    return attributes.map((attr, index) => {
+        let base = sanitizePortId(attr?.name ?? '') || `attribute_${index}`;
+        const occurrence = occurrences.get(base) ?? 0;
+        occurrences.set(base, occurrence + 1);
+
+        return {
+            attr,
+            base,
+            occurrence,
+            keyPort: buildAttributePortName(base, 'key', occurrence),
+            valuePort: buildAttributePortName(base, 'value', occurrence),
+        };
+    });
+}
+
+function findAttributePort(attributes: any[], attributeName: string, column: AttributeColumn): string | undefined {
+    if (!attributeName) {
+        return undefined;
+    }
+
+    const candidates = new Set<string>();
+    const cleanedName = attributeName.replace(/^["']|["']$/g, '').trim();
+    if (cleanedName) {
+        candidates.add(cleanedName);
+        candidates.add(sanitizePortId(cleanedName));
+
+        const dotIndex = cleanedName.indexOf('.');
+        if (dotIndex > 0) {
+            const prefix = cleanedName.substring(0, dotIndex);
+            if (prefix) {
+                candidates.add(prefix);
+                candidates.add(sanitizePortId(prefix));
+            }
+        }
+    }
+
+    const entries = computeAttributePortEntries(attributes);
+
+    for (const entry of entries) {
+        const attrName = entry.attr?.name ?? '';
+        const sanitizedName = sanitizePortId(attrName);
+
+        if (candidates.has(attrName) || candidates.has(sanitizedName)) {
+            return column === 'key' ? entry.keyPort : entry.valuePort;
+        }
+    }
+
+    return undefined;
+}
+
+function buildEndpointIdentifier(nodeName: string, port?: string): string {
+    const escapedNode = nodeName.replace(/"/g, '\\"');
+    if (port) {
+        return `"${escapedNode}":"${port}"`;
+    }
+    return `"${escapedNode}"`;
+}
+
 /**
  * Check if a string is valid JSON
  */
@@ -435,6 +541,119 @@ function getTextWrappingConfig(machineJson: MachineJSON): TextWrappingConfig {
     };
 }
 
+interface RankCollections {
+    min: Set<string>;
+    max: Set<string>;
+    same: Map<string, Set<string>>;
+}
+
+function extractRankHint(node: any): string | undefined {
+    const rankAnnotation = node.annotations?.find((ann: any) => ann.name === 'rank');
+    if (rankAnnotation) {
+        const value = rankAnnotation.value ?? '';
+        const normalized = normalizeHandleValue(value);
+        if (normalized) {
+            return normalized;
+        }
+    }
+
+    const rankAttribute = node.attributes?.find((attr: any) => attr.name === 'rank');
+    if (rankAttribute) {
+        const rawValue = rankAttribute.value?.value ?? rankAttribute.value;
+        if (rawValue !== undefined && rawValue !== null) {
+            if (typeof rawValue === 'string') {
+                const normalized = normalizeHandleValue(rawValue);
+                if (normalized) {
+                    return normalized;
+                }
+            } else {
+                return String(rawValue);
+            }
+        }
+    }
+
+    return undefined;
+}
+
+function resolveRankTarget(node: any): string {
+    if (Array.isArray(node.nodes) && node.nodes.length > 0) {
+        return getClusterAnchorName(node.name);
+    }
+    return node.name;
+}
+
+function collectRankCollections(nodes: any[]): RankCollections {
+    const result: RankCollections = {
+        min: new Set<string>(),
+        max: new Set<string>(),
+        same: new Map<string, Set<string>>()
+    };
+
+    nodes.forEach(node => {
+        const hint = extractRankHint(node);
+        if (!hint) {
+            return;
+        }
+
+        const trimmed = hint.trim();
+        if (!trimmed) {
+            return;
+        }
+
+        const normalized = trimmed.toLowerCase();
+        const target = resolveRankTarget(node);
+
+        if (['min', 'top', 'header', 'source'].includes(normalized)) {
+            result.min.add(target);
+            return;
+        }
+
+        if (['max', 'bottom', 'footer', 'sink'].includes(normalized)) {
+            result.max.add(target);
+            return;
+        }
+
+        const sameMatch = trimmed.match(/^(?:same|group|align)[:=](.+)$/i);
+        const groupName = sameMatch ? sameMatch[1] : trimmed;
+        const sanitizedGroup = sanitizePortId(groupName);
+        if (!sanitizedGroup) {
+            return;
+        }
+
+        const groupSet = result.same.get(sanitizedGroup) ?? new Set<string>();
+        groupSet.add(target);
+        result.same.set(sanitizedGroup, groupSet);
+    });
+
+    return result;
+}
+
+function renderRankStatements(nodes: any[]): string {
+    const collections = collectRankCollections(nodes);
+    const lines: string[] = [];
+
+    const formatGroup = (rank: string, members: Set<string>, comment?: string) => {
+        if (members.size === 0) {
+            return;
+        }
+        const nodesList = Array.from(members).map(name => buildEndpointIdentifier(name)).join('; ');
+        if (comment) {
+            lines.push(`  // ${comment}`);
+        }
+        lines.push(`  { rank=${rank}; ${nodesList}; }`);
+    };
+
+    formatGroup('min', collections.min, 'Rank: top/header nodes');
+    formatGroup('max', collections.max, 'Rank: bottom/footer nodes');
+
+    collections.same.forEach((members, groupName) => {
+        const comment = groupName ? `Rank group ${groupName}` : undefined;
+        formatGroup('same', members, comment);
+    });
+
+    return lines.join('\n');
+}
+
 /**
  * Generate a static DOT diagram from MachineJSON
  */
@@ -477,6 +696,13 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, styleNodes, validationContext, options, wrappingConfig));
     lines.push('');
 
+    const rankStatements = renderRankStatements(renderableNodes);
+    if (rankStatements) {
+        lines.push('  // Rank directives');
+        lines.push(rankStatements);
+        lines.push('');
+    }
+
     // Generate edges
     if (machineJson.edges && machineJson.edges.length > 0) {
         lines.push('  // Edges');
@@ -487,7 +713,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     if (machineJson.notes && machineJson.notes.length > 0) {
         lines.push('');
         lines.push('  // Notes');
-        lines.push(generateNotes(machineJson.notes));
+        lines.push(generateNotes(machineJson.notes, wrappingConfig));
     }
 
     // Generate validation warning notes if enabled
@@ -690,13 +916,25 @@ function getRootNodes(nodes: any[]): any[] {
  * Generate HTML table for attributes
  * Shared function used by both nodes and notes to ensure consistent rendering
  */
+function getNodeDisplayAttributes(node: any): any[] {
+    return node.attributes?.filter((a: any) => a.name !== 'desc' && a.name !== 'prompt') || [];
+}
+
+function getNamespaceDisplayAttributes(node: any): any[] {
+    return node.attributes?.filter((a: any) =>
+        a.name !== 'description' && a.name !== 'desc' && a.name !== 'prompt'
+    ) || [];
+}
+
 function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeContext, wrappingConfig?: TextWrappingConfig): string {
     if (!attributes || attributes.length === 0) {
         return '';
     }
 
     let html = '<table border="0" cellborder="1" cellspacing="0" cellpadding="2" align="left">';
-    attributes.forEach((attr: any) => {
+    const entries = computeAttributePortEntries(attributes);
+
+    entries.forEach(({ attr, keyPort, valuePort }) => {
         let displayValue = attr.value?.value ?? attr.value;
         // Use formatAttributeValueForDisplay to properly handle nested objects and arrays
         displayValue = formatAttributeValueForDisplay(displayValue);
@@ -730,8 +968,8 @@ function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeCont
 
         const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
         html += '<tr>';
-        html += '<td align="left" balign="left">' + attrName + typeStr + '</td>';
-        html += '<td align="left" balign="left">' + displayValue + '</td>';
+        html += `<td port="${keyPort}" align="left" balign="left">${attrName}${typeStr}</td>`;
+        html += `<td port="${valuePort}" align="left" balign="left">${displayValue}</td>`;
         html += '</tr>';
     });
     html += '</table>';
@@ -741,7 +979,7 @@ function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeCont
 /**
  * Generate HTML label for namespace (parent node) showing id, type, annotations, title, description, and attributes
  */
-function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext): string {
+function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext, wrappingConfig?: TextWrappingConfig): string {
     let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
     // First row: ID (bold), Type (italic), Annotations (italic)
@@ -768,7 +1006,7 @@ function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext): str
         }
     }
 
-    htmlLabel += '<tr><td align="left">' + firstRow + '</td></tr>';
+    htmlLabel += '<tr><td align="left" port="cluster_header">' + firstRow + '</td></tr>';
 
     // Title (if different from ID)
     // Description
@@ -787,13 +1025,11 @@ function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext): str
     }
 
     // Attributes table (excluding description/desc/prompt)
-    const displayAttrs = node.attributes?.filter((a: any) =>
-        a.name !== 'description' && a.name !== 'desc' && a.name !== 'prompt'
-    ) || [];
+    const displayAttrs = getNamespaceDisplayAttributes(node);
 
     if (displayAttrs.length > 0) {
         htmlLabel += '<tr><td>';
-        htmlLabel += generateAttributesTable(displayAttrs, runtimeContext);
+        htmlLabel += generateAttributesTable(displayAttrs, runtimeContext, wrappingConfig);
         htmlLabel += '</td></tr>';
     }
 
@@ -825,14 +1061,19 @@ function generateSemanticHierarchy(
             // Node has children - create a cluster subgraph with enhanced label
             lines.push(`${indent}subgraph cluster_${node.name} {`);
 
-            // Generate rich HTML label for namespace showing id, type, annotations, title, description, and attributes
-            const namespaceLabel = generateNamespaceLabel(node, options?.runtimeContext);
-            lines.push(`${indent}  label=<${namespaceLabel}>;`);
+            lines.push(`${indent}  label="";`);
 
             lines.push(`${indent}  style=filled;`);
             lines.push(`${indent}  fontsize=10;`);
             lines.push(`${indent}  fillcolor="#FFFFFF";`);
             lines.push(`${indent}  color="#999999";`);
+
+            // Render a namespace node to host attribute ports within the cluster
+            const namespaceLabel = generateNamespaceLabel(node, options?.runtimeContext, wrappingConfig);
+            lines.push(`${indent}  "${node.name}" [label=<${namespaceLabel}>, shape=plain, margin=0];`);
+
+            const anchorName = getClusterAnchorName(node.name);
+            lines.push(`${indent}  "${anchorName}" [shape=point, width=0.01, height=0.01, label="", style=invis, fixedsize=true];`);
             lines.push('');
 
             // Recursively generate children
@@ -842,7 +1083,7 @@ function generateSemanticHierarchy(
             lines.push(`${indent}}`);
         } else {
             // Leaf node
-            lines.push(generateNodeDefinition(node, edges, indent, styleNodes, validationContext, options));
+            lines.push(generateNodeDefinition(node, edges, indent, styleNodes, validationContext, options, wrappingConfig));
         }
     });
 
@@ -852,7 +1093,7 @@ function generateSemanticHierarchy(
 /**
  * Generate a node definition in DOT format with HTML-like labels for multi-line formatting
  */
-function generateNodeDefinition(node: any, edges: any[], indent: string, styleNodes: any[] = [], validationContext?: ValidationContext, options?: DiagramOptions): string {
+function generateNodeDefinition(node: any, edges: any[], indent: string, styleNodes: any[] = [], validationContext?: ValidationContext, options?: DiagramOptions, wrappingConfig?: TextWrappingConfig): string {
     const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
                  node.attributes?.find((a: any) => a.name === 'prompt');
     let displayValue: any = node.title || desc?.value;
@@ -907,13 +1148,11 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
     }
 
     // Attributes table
-    const attributes = node.attributes?.filter((a: any) =>
-        a.name !== 'desc' && a.name !== 'prompt'
-    ) || [];
+    const attributes = getNodeDisplayAttributes(node);
 
     if (attributes.length > 0) {
         htmlLabel += '<tr><td>';
-        htmlLabel += generateAttributesTable(attributes, options?.runtimeContext);
+        htmlLabel += generateAttributesTable(attributes, options?.runtimeContext, wrappingConfig);
         htmlLabel += '</td></tr>';
     }
 
@@ -1047,15 +1286,10 @@ function breakLongText(text: string, maxLength: number, options?: {
 }
 
 /**
- * Helper function to find first child node of a parent cluster
+ * Helper function to compute the invisible anchor node name for a cluster
  */
-function findFirstChild(nodes: any[], parentName: string): string | null {
-    for (const node of nodes) {
-        if (node.parent === parentName) {
-            return node.name;
-        }
-    }
-    return null;
+function getClusterAnchorName(clusterName: string): string {
+    return `${clusterName}__cluster_anchor`;
 }
 
 /**
@@ -1136,6 +1370,11 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         return '';
     }
 
+    const nodeLookup = new Map<string, any>();
+    machineJson.nodes.forEach(node => {
+        nodeLookup.set(node.name, node);
+    });
+
     // Build a set of parent nodes (nodes that have children)
     const parentNodes = new Set<string>();
     machineJson.nodes.forEach(node => {
@@ -1153,7 +1392,7 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         // Build label from edge value (without multiplicity)
         let label = '';
         const textValue = edgeValue.text;
-        const otherProps = keys.filter(k => k !== 'text');
+        const otherProps = keys.filter(k => k !== 'text' && !EDGE_METADATA_KEYS.has(k));
 
         if (otherProps.length > 0) {
             label = otherProps.map(key => `${key}=${edgeValue[key]}`).join(', ');
@@ -1220,39 +1459,68 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
             // So we can just append them to the edge line directly
         }
 
-        // Handle compound edges for parent-to-parent connections
+        // Handle compound edges for parent clusters and resolve explicit ports
         const sourceIsParent = parentNodes.has(edge.source);
         const targetIsParent = parentNodes.has(edge.target);
 
+        const sourcePortHandle = normalizeHandleValue(edge.sourcePort ?? edgeValue.sourcePort);
+        const targetPortHandle = normalizeHandleValue(edge.targetPort ?? edgeValue.targetPort);
+        const sourceAttributeHandle = normalizeHandleValue(edge.sourceAttribute ?? edgeValue.sourceAttribute);
+        const targetAttributeHandle = normalizeHandleValue(edge.targetAttribute ?? edgeValue.targetAttribute);
+
+        const hasExplicitSourcePort = !!(sourcePortHandle && sourcePortHandle !== 'cluster' && sourcePortHandle !== 'header');
+        const hasExplicitTargetPort = !!(targetPortHandle && targetPortHandle !== 'cluster' && targetPortHandle !== 'header');
+        const wantsSourceAttributePort = !!sourceAttributeHandle;
+        const wantsTargetAttributePort = !!targetAttributeHandle;
+
         let actualSource = edge.source;
         let actualTarget = edge.target;
+        let sourcePortName: string | undefined;
+        let targetPortName: string | undefined;
 
-        // For compound edges, connect via child nodes but use ltail/lhead
-        // to make the edge appear to come from/go to the cluster boundary
-        if (sourceIsParent) {
-            const sourceChild = findFirstChild(machineJson.nodes, edge.source);
-            if (sourceChild) {
-                actualSource = sourceChild;
-                edgeAttrs.push(`ltail="cluster_${edge.source}"`);
-            } else {
-                // Skip edges from empty clusters
-                return;
+        const useSourceClusterAnchor = !hasExplicitSourcePort && !wantsSourceAttributePort && (sourceIsParent || ((sourcePortHandle === 'cluster' || sourcePortHandle === 'header') && parentNodes.has(edge.source)));
+        const useTargetClusterAnchor = !hasExplicitTargetPort && !wantsTargetAttributePort && (targetIsParent || ((targetPortHandle === 'cluster' || targetPortHandle === 'header') && parentNodes.has(edge.target)));
+
+        if (useSourceClusterAnchor) {
+            actualSource = getClusterAnchorName(edge.source);
+            edgeAttrs.push(`ltail="cluster_${edge.source}"`);
+        }
+
+        if (useTargetClusterAnchor) {
+            actualTarget = getClusterAnchorName(edge.target);
+            edgeAttrs.push(`lhead="cluster_${edge.target}"`);
+        }
+
+        if (!useSourceClusterAnchor) {
+            if (hasExplicitSourcePort) {
+                sourcePortName = sourcePortHandle;
+            } else if (sourceAttributeHandle) {
+                const sourceNode = nodeLookup.get(edge.source);
+                const attributes = sourceNode ? getNodeDisplayAttributes(sourceNode) : [];
+                const resolvedPort = findAttributePort(attributes, sourceAttributeHandle, 'value');
+                if (resolvedPort) {
+                    sourcePortName = resolvedPort;
+                }
             }
         }
 
-        if (targetIsParent) {
-            const targetChild = findFirstChild(machineJson.nodes, edge.target);
-            if (targetChild) {
-                actualTarget = targetChild;
-                edgeAttrs.push(`lhead="cluster_${edge.target}"`);
-            } else {
-                // Skip edges to empty clusters
-                return;
+        if (!useTargetClusterAnchor) {
+            if (hasExplicitTargetPort) {
+                targetPortName = targetPortHandle;
+            } else if (targetAttributeHandle) {
+                const targetNode = nodeLookup.get(edge.target);
+                const attributes = targetNode ? getNodeDisplayAttributes(targetNode) : [];
+                const resolvedPort = findAttributePort(attributes, targetAttributeHandle, 'value');
+                if (resolvedPort) {
+                    targetPortName = resolvedPort;
+                }
             }
         }
 
         // Construct edge line with custom styles appended
-        const edgeLine = `  "${actualSource}" -> "${actualTarget}" [${edgeAttrs.join(', ')}${customStyles}];`;
+        const sourceEndpoint = buildEndpointIdentifier(actualSource, sourcePortName);
+        const targetEndpoint = buildEndpointIdentifier(actualTarget, targetPortName);
+        const edgeLine = `  ${sourceEndpoint} -> ${targetEndpoint} [${edgeAttrs.join(', ')}${customStyles}];`;
         lines.push(edgeLine);
     });
 
@@ -1278,7 +1546,7 @@ function getArrowStyle(arrowType: string): string {
 /**
  * Generate notes section
  */
-function generateNotes(notes: any[]): string {
+function generateNotes(notes: any[], wrappingConfig?: TextWrappingConfig): string {
     if (!notes || notes.length === 0) return '';
 
     const lines: string[] = [];
@@ -1306,7 +1574,7 @@ function generateNotes(notes: any[]): string {
         // Attributes table (using shared function)
         if (note.attributes && note.attributes.length > 0) {
             htmlLabel += '<tr><td>';
-            htmlLabel += generateAttributesTable(note.attributes);
+            htmlLabel += generateAttributesTable(note.attributes, undefined, wrappingConfig);
             htmlLabel += '</td></tr>';
         }
 

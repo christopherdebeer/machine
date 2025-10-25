@@ -1,4 +1,5 @@
-import type { EdgeType, Machine, Node } from '../generated/ast.js';
+import type { Attribute, AttributeValue, EdgeType, Machine, Node, PrimitiveValue } from '../generated/ast.js';
+import { isArrayValue, isNode, isObjectValue, isPrimitiveValue } from '../generated/ast.js';
 import { expandToNode, joinToNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -16,6 +17,17 @@ import { extractValueFromAST } from '../utils/ast-helpers.js';
 interface GeneratorOptions {
     destination?: string;
     format?: string;
+}
+
+interface NodeAliasInfo {
+    node: Node;
+    qualifiedName: string;
+}
+
+interface ResolvedReference {
+    node?: Node;
+    nodeName: string;
+    attributePath?: string;
 }
 
 /**
@@ -493,50 +505,342 @@ class JSONGenerator extends BaseGenerator {
     }
 
     private serializeEdges(): any[] {
-        // Recursively collect edges from all nodes
-        const collectEdges = (edges: any[], nodes: Node[]): any[] => {
-            // Add edges at current level
-            const currentEdges = edges.flatMap((edge: any) => {
-                const sources = edge.source.map((s: any) => s.ref?.name);
-                let currentSources = sources;
+        const aliasMap = this.buildNodeAliasMap();
+        const explicitEdges = this.collectExplicitEdges(aliasMap);
+        const attributeEdges = this.generateAttributeEdges(aliasMap, explicitEdges);
+        return [...explicitEdges, ...attributeEdges];
+    }
 
-                return edge.segments.flatMap((segment: any) => {
-                    const targets = segment.target.map((t: any) => t.ref?.name);
+    private collectExplicitEdges(aliasMap: Map<string, NodeAliasInfo>): any[] {
+        const traverse = (edges: any[] = [], nodes: Node[] = []): any[] => {
+            const currentEdges = edges.flatMap(edge => {
+                const sourceRefs = edge.source.map((ref: any) => this.resolveEdgeReference(ref, aliasMap));
+                if (sourceRefs.length === 0) {
+                    return [];
+                }
+
+                let activeSources = sourceRefs;
+                const segmentEdges: any[] = [];
+
+                edge.segments.forEach((segment: any) => {
+                    const targetRefs = segment.target.map((ref: any) => this.resolveEdgeReference(ref, aliasMap));
+                    if (targetRefs.length === 0) {
+                        activeSources = targetRefs;
+                        return;
+                    }
+
                     const edgeValue = this.serializeEdgeValue(segment.label);
                     const edgeAnnotations = this.serializeEdgeAnnotations(segment.label);
-                    const edges = currentSources.flatMap((source: any) =>
-                        targets.map((target: any) => ({
-                            source,
-                            target,
-                            value: edgeValue,
-                            attributes: edgeValue,  // Keep for backward compatibility
-                            annotations: edgeAnnotations,  // Add edge annotations
-                            arrowType: segment.endType,  // Preserve arrow type
-                            sourceMultiplicity: segment.sourceMultiplicity?.replace(/"/g, ''),  // Remove quotes
-                            targetMultiplicity: segment.targetMultiplicity?.replace(/"/g, '')   // Remove quotes
-                        })).filter((e: any) => e.source && e.target)
-                    );
-                    currentSources = targets; // Update sources for next segment
-                    return edges;
+                    const arrowType = segment.endType;
+                    const sourceMultiplicity = segment.sourceMultiplicity?.replace(/"/g, '');
+                    const targetMultiplicity = segment.targetMultiplicity?.replace(/"/g, '');
+
+                    activeSources.forEach(sourceRef => {
+                        targetRefs.forEach(targetRef => {
+                            const baseValue = edgeValue ? { ...edgeValue } : undefined;
+                            let valueWithMetadata = baseValue;
+
+                            if (sourceRef.attributePath) {
+                                valueWithMetadata = { ...(valueWithMetadata ?? {}), sourceAttribute: sourceRef.attributePath };
+                            }
+
+                            if (targetRef.attributePath) {
+                                valueWithMetadata = { ...(valueWithMetadata ?? {}), targetAttribute: targetRef.attributePath };
+                            }
+
+                            const record: any = {
+                                source: sourceRef.nodeName,
+                                target: targetRef.nodeName,
+                                annotations: edgeAnnotations,
+                                arrowType,
+                                sourceMultiplicity,
+                                targetMultiplicity
+                            };
+
+                            if (sourceRef.attributePath) {
+                                record.sourceAttribute = sourceRef.attributePath;
+                            }
+
+                            if (targetRef.attributePath) {
+                                record.targetAttribute = targetRef.attributePath;
+                            }
+
+                            if (valueWithMetadata && Object.keys(valueWithMetadata).length > 0) {
+                                record.value = valueWithMetadata;
+                                record.attributes = valueWithMetadata;
+                            }
+
+                            segmentEdges.push(record);
+                        });
+                    });
+
+                    activeSources = targetRefs;
                 });
+
+                return segmentEdges;
             });
 
-            // Recursively collect edges from child nodes
-            const childEdges = nodes.flatMap(node => {
-                if (node.edges && node.edges.length > 0) {
-                    return collectEdges(node.edges, node.nodes || []);
-                }
-                // Still recurse into child nodes even if current node has no edges
-                if (node.nodes && node.nodes.length > 0) {
-                    return collectEdges([], node.nodes);
-                }
-                return [];
-            });
+            const childEdges = nodes.flatMap(node => traverse(node.edges ?? [], node.nodes ?? []));
 
             return [...currentEdges, ...childEdges];
         };
 
-        return collectEdges(this.machine.edges, this.machine.nodes);
+        return traverse(this.machine.edges ?? [], this.machine.nodes ?? []);
+    }
+
+    private generateAttributeEdges(aliasMap: Map<string, NodeAliasInfo>, explicitEdges: any[]): any[] {
+        const attributeEdges: any[] = [];
+        const explicitKeys = new Set(explicitEdges.map(edge => this.buildEdgeKey(edge)));
+
+        const primitiveTypes = new Set(['string', 'number', 'boolean', 'float', 'double', 'integer', 'int', 'decimal']);
+
+        const visitNode = (node: Node) => {
+            if ((node.type ?? '').toLowerCase() === 'style') {
+                node.nodes?.forEach(visitNode);
+                return;
+            }
+
+            (node.attributes ?? []).forEach((attr: Attribute) => {
+                const attrTypeValue = typeof attr.type === 'string' ? attr.type : attr.type?.base;
+                const attrType = attrTypeValue?.toLowerCase();
+                if (attrType && primitiveTypes.has(attrType)) {
+                    return;
+                }
+
+                if (!attr.value) {
+                    return;
+                }
+
+                const references = this.extractNodeReferencesFromValue(attr.value, aliasMap);
+                references.forEach(ref => {
+                    if (!ref.nodeName) {
+                        return;
+                    }
+
+                    const value: Record<string, any> = { text: attr.name, sourceAttribute: attr.name };
+                    if (ref.attributePath) {
+                        value.targetAttribute = ref.attributePath;
+                    }
+
+                    const edgeRecord: any = {
+                        source: node.name,
+                        target: ref.nodeName,
+                        value,
+                        attributes: value,
+                        annotations: [],
+                        arrowType: '->',
+                        sourceAttribute: attr.name
+                    };
+
+                    if (ref.attributePath) {
+                        edgeRecord.targetAttribute = ref.attributePath;
+                    }
+
+                    const key = this.buildEdgeKey(edgeRecord);
+                    if (!explicitKeys.has(key)) {
+                        attributeEdges.push(edgeRecord);
+                    }
+                });
+            });
+
+            node.nodes?.forEach(visitNode);
+        };
+
+        this.machine.nodes.forEach(visitNode);
+        return attributeEdges;
+    }
+
+    private buildEdgeKey(edge: any): string {
+        const text = edge?.value?.text ?? '';
+        const srcAttr = edge?.sourceAttribute ?? edge?.value?.sourceAttribute ?? '';
+        const tgtAttr = edge?.targetAttribute ?? edge?.value?.targetAttribute ?? '';
+        const arrow = edge?.arrowType ?? '';
+        return [edge?.source ?? '', edge?.target ?? '', text, srcAttr, tgtAttr, arrow].join('|');
+    }
+
+    private resolveEdgeReference(reference: any, aliasMap: Map<string, NodeAliasInfo>): ResolvedReference {
+        const refText: string | undefined = reference?.$refText;
+        const sanitizedRefText = refText?.trim().replace(/;$/, '') || undefined;
+
+        if (reference?.ref) {
+            if (sanitizedRefText) {
+                const resolvedForNode = this.resolveReferencePath(sanitizedRefText, aliasMap);
+                if (resolvedForNode?.node === reference.ref) {
+                    return resolvedForNode;
+                }
+            }
+
+            const attributePath = this.extractAttributePathForNode(sanitizedRefText, reference.ref);
+            return {
+                node: reference.ref,
+                nodeName: reference.ref.name,
+                attributePath
+            };
+        }
+
+        if (sanitizedRefText) {
+            const resolvedFromText = this.resolveReferencePath(sanitizedRefText, aliasMap);
+            if (resolvedFromText) {
+                return resolvedFromText;
+            }
+        }
+
+        if (sanitizedRefText) {
+            const parts = sanitizedRefText.split('.');
+            return {
+                nodeName: parts[0] ?? '',
+                attributePath: parts.slice(1).join('.') || undefined
+            };
+        }
+
+        return { nodeName: '' };
+    }
+
+    private buildNodeAliasMap(): Map<string, NodeAliasInfo> {
+        const aliasMap = new Map<string, NodeAliasInfo>();
+
+        const addNode = (node: Node, parentQualified?: string) => {
+            const qualifiedName = parentQualified ? `${parentQualified}.${node.name}` : node.name;
+            const aliases = new Set<string>();
+            aliases.add(node.name);
+            aliases.add(qualifiedName);
+
+            aliases.forEach(alias => {
+                if (!aliasMap.has(alias)) {
+                    aliasMap.set(alias, { node, qualifiedName });
+                }
+            });
+
+            node.nodes?.forEach(child => addNode(child, qualifiedName));
+        };
+
+        this.machine.nodes.forEach(node => addNode(node));
+        return aliasMap;
+    }
+
+    private getQualifiedNameFromNode(node: Node): string | undefined {
+        const parts: string[] = [node.name];
+        let current: any = node.$container;
+        while (current && isNode(current)) {
+            parts.unshift(current.name);
+            current = current.$container;
+        }
+
+        if (parts.length <= 1) {
+            return undefined;
+        }
+
+        return parts.join('.');
+    }
+
+    private extractAttributePathForNode(refText: string | undefined, node: Node): string | undefined {
+        if (!refText) {
+            return undefined;
+        }
+
+        const qualified = this.getQualifiedNameFromNode(node);
+        const candidates = [qualified, node.name].filter((candidate): candidate is string => !!candidate);
+
+        for (const candidate of candidates) {
+            if (refText === candidate) {
+                return undefined;
+            }
+
+            if (refText.startsWith(`${candidate}.`)) {
+                const attributePath = refText.slice(candidate.length + 1);
+                return attributePath.length > 0 ? attributePath : undefined;
+            }
+        }
+
+        return undefined;
+    }
+
+    private extractNodeReferencesFromValue(value: AttributeValue | undefined, aliasMap: Map<string, NodeAliasInfo>): ResolvedReference[] {
+        if (!value) {
+            return [];
+        }
+
+        if (isPrimitiveValue(value)) {
+            const raw = this.getRawPrimitiveText(value);
+            if (!raw || !this.isPotentialReferenceToken(raw)) {
+                return [];
+            }
+
+            const resolved = this.resolveReferencePath(raw, aliasMap);
+            return resolved ? [resolved] : [];
+        }
+
+        if (isArrayValue(value)) {
+            return value.values.flatMap(entry => this.extractNodeReferencesFromValue(entry, aliasMap));
+        }
+
+        if (isObjectValue(value)) {
+            return value.attributes.flatMap(attr => this.extractNodeReferencesFromValue(attr.value, aliasMap));
+        }
+
+        return [];
+    }
+
+    private getRawPrimitiveText(value: PrimitiveValue): string | undefined {
+        const cstText = value.$cstNode?.text;
+        if (typeof cstText === 'string') {
+            return cstText.trim();
+        }
+
+        const rawValue = value.value;
+        if (rawValue === undefined || rawValue === null) {
+            return undefined;
+        }
+
+        return String(rawValue).trim();
+    }
+
+    private isPotentialReferenceToken(raw: string): boolean {
+        const trimmed = raw.trim().replace(/;$/, '');
+        if (!trimmed) {
+            return false;
+        }
+
+        if (/^["'`]/.test(trimmed)) {
+            return false;
+        }
+
+        if (trimmed.startsWith('#')) {
+            return false;
+        }
+
+        if (trimmed.includes(' ')) {
+            return false;
+        }
+
+        return !/[^A-Za-z0-9_.]/.test(trimmed);
+    }
+
+    private resolveReferencePath(refText: string, aliasMap: Map<string, NodeAliasInfo>): ResolvedReference | undefined {
+        if (!refText) {
+            return undefined;
+        }
+
+        const sanitized = refText.trim().replace(/;$/, '');
+        if (!sanitized) {
+            return undefined;
+        }
+
+        const parts = sanitized.split('.');
+        for (let i = parts.length; i > 0; i--) {
+            const candidate = parts.slice(0, i).join('.');
+            const info = aliasMap.get(candidate);
+            if (info) {
+                const attributePath = parts.slice(i).join('.');
+                return {
+                    node: info.node,
+                    nodeName: info.node.name,
+                    attributePath: attributePath.length > 0 ? attributePath : undefined
+                };
+            }
+        }
+
+        return undefined;
     }
 
     /**
@@ -928,7 +1232,8 @@ ${indent}}`);
 
             // Construct label from JSON properties, prioritizing non-text properties
             const textValue = edgeValue.text;
-            const otherProps = keys.filter(k => k !== 'text');
+            const metadataKeys = ['sourceAttribute', 'targetAttribute', 'sourcePort', 'targetPort'];
+            const otherProps = keys.filter(k => k !== 'text' && !metadataKeys.includes(k));
 
             let labelJSON = '';
 
