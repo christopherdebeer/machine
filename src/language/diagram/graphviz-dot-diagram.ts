@@ -76,6 +76,155 @@ function escapeHtml(text: string): string {
         .replace(/"/g, '&quot;');
 }
 
+type StyleAttributePair = { name: string; value: string };
+
+function parseStyleAttributeString(styleValue: string): StyleAttributePair[] {
+    if (!styleValue) return [];
+
+    const segments = styleValue.split(';');
+    const attributes: StyleAttributePair[] = [];
+
+    segments.forEach(segment => {
+        const part = segment.trim();
+        if (!part) return;
+
+        let separatorIndex = part.indexOf(':');
+        if (separatorIndex === -1) {
+            separatorIndex = part.indexOf('=');
+        }
+
+        if (separatorIndex === -1) {
+            return;
+        }
+
+        const name = part.slice(0, separatorIndex).trim();
+        let value = part.slice(separatorIndex + 1).trim();
+
+        if (!name || !value) {
+            return;
+        }
+
+        value = value.replace(/^["']|["']$/g, '');
+
+        attributes.push({ name, value });
+    });
+
+    return attributes;
+}
+
+function extractInlineStyleAttributes(annotations?: any[]): StyleAttributePair[] {
+    if (!annotations || annotations.length === 0) {
+        return [];
+    }
+
+    const collected: StyleAttributePair[] = [];
+
+    annotations.forEach(annotation => {
+        if (!annotation || typeof annotation.name !== 'string') return;
+        if (annotation.name.toLowerCase() !== 'style') return;
+
+        if (Array.isArray(annotation.attributes) && annotation.attributes.length > 0) {
+            annotation.attributes.forEach((attr: any) => {
+                if (!attr || !attr.name) return;
+                let value = attr.value ?? attr.text;
+                if (value === undefined || value === null) return;
+                if (typeof value !== 'string') {
+                    value = String(value);
+                }
+                value = value.replace(/^["']|["']$/g, '');
+                collected.push({ name: attr.name, value });
+            });
+        } else if (typeof annotation.value === 'string') {
+            collected.push(...parseStyleAttributeString(annotation.value));
+        }
+    });
+
+    return collected;
+}
+
+function formatInlineStyleAttributes(annotations?: any[]): string {
+    const inlineAttrs = extractInlineStyleAttributes(annotations);
+    if (inlineAttrs.length === 0) {
+        return '';
+    }
+
+    return inlineAttrs
+        .map(attr => `, ${attr.name}="${escapeDot(String(attr.value))}"`)
+        .join('');
+}
+
+type EscapeFunction = (text: string) => string;
+
+function formatAnnotationForDisplay(annotation: any, escapeFn: EscapeFunction): string | null {
+    if (!annotation || !annotation.name) {
+        return null;
+    }
+
+    if (typeof annotation.name === 'string' && annotation.name.toLowerCase() === 'style') {
+        return null;
+    }
+
+    let result = '@' + escapeFn(String(annotation.name));
+
+    if (annotation.value !== undefined && annotation.value !== null && annotation.value !== '') {
+        const value = escapeFn(String(annotation.value));
+        result += `("${value}")`;
+        return result;
+    }
+
+    const attributeStrings = Array.isArray(annotation.attributes)
+        ? annotation.attributes
+            .map((attr: any) => formatAnnotationAttribute(attr, escapeFn))
+            .filter((part: string | null): part is string => Boolean(part))
+        : [];
+
+    if (attributeStrings.length > 0) {
+        result += `(${attributeStrings.join(', ')})`;
+    }
+
+    return result;
+}
+
+function formatAnnotationAttribute(attribute: any, escapeFn: EscapeFunction): string | null {
+    if (!attribute) {
+        return null;
+    }
+
+    const name = attribute.name ? escapeFn(String(attribute.name)) : '';
+
+    if (Array.isArray(attribute.params) && attribute.params.length > 0) {
+        const params = attribute.params
+            .map((param: any) => formatAnnotationAttributeValue(param, escapeFn))
+            .filter(Boolean);
+        if (params.length === 0) {
+            return name || null;
+        }
+        const paramsStr = params.join(', ');
+        return name ? `${name}=[${paramsStr}]` : `[${paramsStr}]`;
+    }
+
+    if (attribute.value === undefined && attribute.text === undefined) {
+        return name || null;
+    }
+
+    const rawValue = attribute.value ?? attribute.text;
+    if (rawValue === undefined || rawValue === null || rawValue === '') {
+        return name || null;
+    }
+
+    const valueStr = formatAnnotationAttributeValue(rawValue, escapeFn);
+    return name ? `${name}=${valueStr}` : valueStr;
+}
+
+function formatAnnotationAttributeValue(value: any, escapeFn: EscapeFunction): string {
+    if (typeof value === 'number') {
+        return value.toString();
+    }
+
+    const stringValue = escapeFn(String(value));
+    return `"${stringValue}"`;
+}
+
 /**
  * Check if a string is valid JSON
  */
@@ -227,6 +376,12 @@ function getNodeStyle(node: any, edges?: any[], styleNodes?: any[], validationCo
     // Apply custom styles from style nodes
     if (styleNodes && styleNodes.length > 0) {
         baseStyle = applyCustomStyles(node, styleNodes, baseStyle);
+    }
+
+    // Apply inline @Style annotations
+    const inlineNodeStyles = formatInlineStyleAttributes(node.annotations);
+    if (inlineNodeStyles) {
+        baseStyle += inlineNodeStyles;
     }
 
     // Add validation warning styling if validation context is provided
@@ -880,18 +1035,13 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
 
     // Annotations (italic)
     if (node.annotations && node.annotations.length > 0) {
-        const displayAnnotations = node.annotations.filter((ann: any) => ann.name !== 'note');
-        if (displayAnnotations.length > 0) {
-            firstRowContent += ' <i>';
-            displayAnnotations.forEach((ann: any, idx: number) => {
-                if (idx > 0) firstRowContent += ' ';
-                if (ann.value) {
-                    firstRowContent += '@' + escapeHtml(ann.name) + '("' + escapeHtml(ann.value) + '")';
-                } else {
-                    firstRowContent += '@' + escapeHtml(ann.name);
-                }
-            });
-            firstRowContent += '</i>';
+        const annotationStrings = node.annotations
+            .filter((ann: any) => ann.name && ann.name.toLowerCase() !== 'note')
+            .map((ann: any) => formatAnnotationForDisplay(ann, escapeHtml))
+            .filter((ann: string | null): ann is string => Boolean(ann));
+
+        if (annotationStrings.length > 0) {
+            firstRowContent += ' <i>' + annotationStrings.join(' ') + '</i>';
         }
     }
 
@@ -1163,13 +1313,16 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
 
         // Add annotation names to label if showAnnotation is true
         if (showAnnotation && edge.annotations && edge.annotations.length > 0) {
-            const annotationLabels = edge.annotations.map((ann: any) =>
-                ann.value ? `@${ann.name}("${ann.value}")` : `@${ann.name}`
-            ).join(' ');
-            if (label) {
-                label = `${annotationLabels} ${label}`;
-            } else {
-                label = annotationLabels;
+            const annotationLabels = edge.annotations
+                .map((ann: any) => formatAnnotationForDisplay(ann, escapeDot))
+                .filter((ann: string | null): ann is string => Boolean(ann))
+                .join(' ');
+            if (annotationLabels) {
+                if (label) {
+                    label = `${annotationLabels} ${label}`;
+                } else {
+                    label = annotationLabels;
+                }
             }
         }
 
@@ -1188,6 +1341,7 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
 
         // Apply custom styles from style nodes
         const customStyles = applyCustomEdgeStyles(edge, styleNodes);
+        const inlineEdgeStyles = formatInlineStyleAttributes(edge.annotations);
 
         // Build edge attributes array
         const edgeAttrs: string[] = [];
@@ -1252,7 +1406,7 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         }
 
         // Construct edge line with custom styles appended
-        const edgeLine = `  "${actualSource}" -> "${actualTarget}" [${edgeAttrs.join(', ')}${customStyles}];`;
+        const edgeLine = `  "${actualSource}" -> "${actualTarget}" [${edgeAttrs.join(', ')}${customStyles}${inlineEdgeStyles}];`;
         lines.push(edgeLine);
     });
 

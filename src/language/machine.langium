@@ -84,7 +84,15 @@ PrimitiveValue:
 
 // Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated, @note)
 Annotation:
-    '@' name=ID ('(' value=STRING ')')?
+    '@' name=ID (
+        '('
+            (
+                value=STRING
+                |
+                (arguments+=EdgeAttribute (',' arguments+=EdgeAttribute)*)?
+            )
+        ')'
+    )?
 ;
 
 // Note attached to a node for documentation

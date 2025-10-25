@@ -1,4 +1,4 @@
-import type { EdgeType, Machine, Node } from '../generated/ast.js';
+import type { Annotation, EdgeAttribute, EdgeType, Machine, Node } from '../generated/ast.js';
 import { expandToNode, joinToNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -288,10 +288,7 @@ class JSONGenerator extends BaseGenerator {
             title: this.machine.title,
             attributes: this.machine.attributes ? this.serializeMachineAttributes(this.machine.attributes) : undefined,
             annotations: this.machine.annotations && this.machine.annotations.length > 0
-                ? this.machine.annotations.map(ann => ({
-                    name: ann.name,
-                    value: ann.value?.replace(/^"|"$/g, '')
-                }))
+                ? this.machine.annotations.map(ann => this.serializeAnnotation(ann))
                 : undefined,
             nodes: this.serializeNodes(),
             edges: this.serializeEdges(),
@@ -326,10 +323,7 @@ class JSONGenerator extends BaseGenerator {
 
             // Add annotations if present
             if (node.annotations && node.annotations.length > 0) {
-                baseNode.annotations = node.annotations.map(ann => ({
-                    name: ann.name,
-                    value: ann.value?.replace(/^"|"$/g, '')  // Remove quotes from string values
-                }));
+                baseNode.annotations = node.annotations.map(ann => this.serializeAnnotation(ann));
             }
 
             // Add title if present
@@ -445,6 +439,69 @@ class JSONGenerator extends BaseGenerator {
         }) || [];
     }
 
+    private serializeAnnotation(annotation: Annotation): any {
+        const serialized: any = {
+            name: annotation.name
+        };
+
+        if (annotation.value !== undefined && annotation.value !== null) {
+            serialized.value = annotation.value.replace(/^"|"$/g, '');
+        }
+
+        const attributes = this.serializeAnnotationArguments(annotation.arguments);
+        if (attributes.length > 0) {
+            serialized.attributes = attributes;
+        }
+
+        return serialized;
+    }
+
+    private serializeAnnotationArguments(args: EdgeAttribute[] | undefined): any[] {
+        if (!args || args.length === 0) {
+            return [];
+        }
+
+        return args.map(attr => {
+            const result: any = {};
+
+            if (attr.name) {
+                result.name = attr.name;
+            }
+
+            if (attr.value !== undefined && attr.value !== null) {
+                result.value = this.normalizeAnnotationValue(attr.value);
+            } else if (attr.text !== undefined && attr.text !== null) {
+                result.value = this.normalizeAnnotationValue(attr.text);
+            }
+
+            if (attr.params && attr.params.length > 0) {
+                result.params = attr.params
+                    .map(param => this.normalizeAnnotationValue(param))
+                    .filter((param): param is string | number => param !== undefined && param !== null && param !== '');
+            }
+
+            return result;
+        }).filter(item => Object.keys(item).length > 0);
+    }
+
+    private normalizeAnnotationValue(value: any): any {
+        let resolved = value;
+
+        if (resolved && typeof resolved === 'object') {
+            if ('$cstNode' in resolved && resolved.$cstNode?.text !== undefined) {
+                resolved = resolved.$cstNode.text;
+            } else if ('value' in resolved) {
+                resolved = (resolved as any).value;
+            }
+        }
+
+        if (typeof resolved === 'string') {
+            return resolved.replace(/^["']|["']$/g, '');
+        }
+
+        return resolved;
+    }
+
     /**
      * Serialize a TypeDef to string format, handling generic types
      * e.g., Promise<Result> → "Promise<Result>"
@@ -480,10 +537,7 @@ class JSONGenerator extends BaseGenerator {
         return this.machine.notes.map(note => ({
             target: note.target.ref?.name || '',
             content: note.title?.replace(/^"|"$/g, '') || '',
-            annotations: note.annotations?.map((ann: any) => ({
-                name: ann.name,
-                value: ann.value?.replace(/^"|"$/g, '')
-            })) || [],
+            annotations: note.annotations?.map((ann: Annotation) => this.serializeAnnotation(ann)) || [],
             attributes: note.attributes?.map((attr: any) => ({
                 name: attr.name,
                 type: attr.type,
@@ -551,10 +605,7 @@ class JSONGenerator extends BaseGenerator {
         labels.forEach((label) => {
             if (label.annotations && label.annotations.length > 0) {
                 label.annotations.forEach(ann => {
-                    annotations.push({
-                        name: ann.name,
-                        value: ann.value?.replace(/^"|"$/g, '')
-                    });
+                    annotations.push(this.serializeAnnotation(ann));
                 });
             }
         });
