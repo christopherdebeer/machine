@@ -1,0 +1,169 @@
+{
+  "json": {
+    "title": "Automated Transitions Demo",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "metrics",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "errorCount",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "processingTime",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "quality",
+            "type": "number",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "name": "idle",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "initializing",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "ready",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "error",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "process",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process the data and update metrics"
+          }
+        ]
+      },
+      {
+        "name": "handleError",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Diagnose and handle the error"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "idle",
+        "target": "initializing",
+        "arrowType": "->"
+      },
+      {
+        "source": "initializing",
+        "target": "ready",
+        "arrowType": "->"
+      },
+      {
+        "source": "ready",
+        "target": "process",
+        "arrowType": "->"
+      },
+      {
+        "source": "process",
+        "target": "metrics",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "process",
+        "target": "metrics",
+        "arrowType": "->",
+        "value": {
+          "text": "writes"
+        },
+        "attributes": {
+          "text": "writes"
+        }
+      },
+      {
+        "source": "process",
+        "target": "handleError",
+        "arrowType": "->"
+      },
+      {
+        "source": "process",
+        "target": "complete",
+        "arrowType": "->"
+      },
+      {
+        "source": "handleError",
+        "target": "metrics",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "handleError",
+        "target": "metrics",
+        "arrowType": "->",
+        "value": {
+          "text": "writes"
+        },
+        "attributes": {
+          "text": "writes"
+        }
+      },
+      {
+        "source": "handleError",
+        "target": "process",
+        "arrowType": "->"
+      },
+      {
+        "source": "handleError",
+        "target": "error",
+        "arrowType": "->"
+      },
+      {
+        "source": "error",
+        "target": "idle",
+        "arrowType": "->"
+      },
+      {
+        "source": "complete",
+        "target": "idle",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Automated Transitions Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"metrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>metrics</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"errorCount__key\" align=\"left\" balign=\"left\">errorCount : number</td><td port=\"errorCount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"processingTime__key\" align=\"left\" balign=\"left\">processingTime : number</td><td port=\"processingTime__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"quality__key\" align=\"left\" balign=\"left\">quality : number</td><td port=\"quality__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"idle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idle</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"initializing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>initializing</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ready\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ready</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"error\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>error</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process the data and update metrics</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"handleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleError</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Diagnose and handle the error</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"idle\" -> \"initializing\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"initializing\" -> \"ready\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ready\" -> \"process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"metrics\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"metrics\" [label=\"writes\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"handleError\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleError\" -> \"metrics\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleError\" -> \"metrics\" [label=\"writes\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleError\" -> \"process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleError\" -> \"error\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"error\" -> \"idle\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"complete\" -> \"idle\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "9f09e3529911729089acb3cdf844197c73a5b2bae9211cc75da559b771f40fa4"
+}

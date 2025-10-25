@@ -1,0 +1,90 @@
+{
+  "json": {
+    "title": "Self-Healing Pipeline",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "metrics",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "errorCount",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "successRate",
+            "type": "number",
+            "value": 1
+          },
+          {
+            "name": "totalRequests",
+            "type": "number",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "name": "monitor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Monitor the metrics context. If errorCount > 3 or successRate < 0.7, use get_machine_definition to inspect the current structure, then use update_definition to add retry logic and error handler nodes. Add a 'retryHandler' Task node and 'errorRecovery' State node with edges: processing -> retryHandler -> errorRecovery -> processing."
+          }
+        ]
+      },
+      {
+        "name": "processing",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Main processing state"
+          }
+        ]
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Pipeline completed successfully"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "monitor",
+        "target": "metrics",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "monitor",
+        "target": "processing",
+        "arrowType": "->"
+      },
+      {
+        "source": "processing",
+        "target": "complete",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Self-Healing Pipeline</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"metrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>metrics</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"errorCount__key\" align=\"left\" balign=\"left\">errorCount : number</td><td port=\"errorCount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"successRate__key\" align=\"left\" balign=\"left\">successRate : number</td><td port=\"successRate__value\" align=\"left\" balign=\"left\">1</td></tr><tr><td port=\"totalRequests__key\" align=\"left\" balign=\"left\">totalRequests : number</td><td port=\"totalRequests__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"monitor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>monitor</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Monitor the metrics context. If<br/>errorCount &gt; 3 or successRate &lt; 0.7, use<br/>get_machine_definition to inspect the<br/>current structure, then use<br/>update_definition to add retry logic and<br/>error handler nodes. Add a<br/>'retryHandler' Task node and<br/>'errorRecovery' State node with edges:<br/>processing -&gt; retryHandler -&gt;<br/>errorRecovery -&gt; processing.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Main processing state</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Pipeline completed successfully</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"monitor\" -> \"metrics\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"monitor\" -> \"processing\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processing\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "96ad8b74bc2b2c0ac67efd4c63ce2f1976d6cae9b813cb28179d41e391caa823"
+}

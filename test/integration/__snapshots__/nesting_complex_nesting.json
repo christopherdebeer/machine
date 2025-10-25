@@ -1,0 +1,67 @@
+{
+  "json": {
+    "title": "Complex Nesting Test",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "root",
+        "attributes": []
+      },
+      {
+        "name": "level1a",
+        "attributes": [],
+        "parent": "root"
+      },
+      {
+        "name": "level2a",
+        "attributes": [],
+        "parent": "level1a"
+      },
+      {
+        "name": "level3a",
+        "attributes": [],
+        "parent": "level2a"
+      },
+      {
+        "name": "level3b",
+        "attributes": [],
+        "parent": "level2a"
+      },
+      {
+        "name": "level4",
+        "attributes": [],
+        "parent": "level3b"
+      },
+      {
+        "name": "level2b",
+        "attributes": [],
+        "parent": "level1a"
+      },
+      {
+        "name": "level1b",
+        "attributes": [],
+        "parent": "root"
+      },
+      {
+        "name": "level2c",
+        "attributes": [],
+        "parent": "level1b"
+      },
+      {
+        "name": "level2d",
+        "attributes": [],
+        "parent": "level1b"
+      },
+      {
+        "name": "level3c",
+        "attributes": [],
+        "parent": "level2d"
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complex Nesting Test</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_root {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"root\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>root</b></td></tr></table>>, shape=plain, margin=0];\n    \"root__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    subgraph cluster_level1a {\n      label=\"\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      \"level1a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>level1a</b></td></tr></table>>, shape=plain, margin=0];\n      \"level1a__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      subgraph cluster_level2a {\n        label=\"\";\n        style=filled;\n        fontsize=10;\n        fillcolor=\"#FFFFFF\";\n        color=\"#999999\";\n        \"level2a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>level2a</b></td></tr></table>>, shape=plain, margin=0];\n        \"level2a__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n        \"level3a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>level3a</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n        subgraph cluster_level3b {\n          label=\"\";\n          style=filled;\n          fontsize=10;\n          fillcolor=\"#FFFFFF\";\n          color=\"#999999\";\n          \"level3b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>level3b</b></td></tr></table>>, shape=plain, margin=0];\n          \"level3b__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n          \"level4\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>level4</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n        }\n      }\n      \"level2b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>level2b</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    }\n    subgraph cluster_level1b {\n      label=\"\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      \"level1b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>level1b</b></td></tr></table>>, shape=plain, margin=0];\n      \"level1b__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"level2c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>level2c</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n      subgraph cluster_level2d {\n        label=\"\";\n        style=filled;\n        fontsize=10;\n        fillcolor=\"#FFFFFF\";\n        color=\"#999999\";\n        \"level2d\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>level2d</b></td></tr></table>>, shape=plain, margin=0];\n        \"level2d__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n        \"level3c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>level3c</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n      }\n    }\n  }\n\n}",
+  "svgHash": "dc54df8b4b7e3d0e28c1c9d4cff673773eaadca84f8cc5aa107f6e6e8a1a941d"
+}

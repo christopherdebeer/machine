@@ -1,0 +1,58 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "my_tool",
+        "type": "tool",
+        "attributes": [
+          {
+            "name": "description",
+            "value": "Does something useful"
+          }
+        ]
+      },
+      {
+        "name": "calculator",
+        "type": "tool",
+        "attributes": [
+          {
+            "name": "description",
+            "value": "Performs calculations"
+          },
+          {
+            "name": "input_schema",
+            "value": "{\"type\": \"object\", \"properties\": {\"expression\": {\"type\": \"string\"}}}"
+          },
+          {
+            "name": "output_schema",
+            "value": "{\"type\": \"object\", \"properties\": {\"result\": {\"type\": \"number\"}}}"
+          }
+        ]
+      },
+      {
+        "name": "formatter",
+        "type": "tool",
+        "attributes": [
+          {
+            "name": "description",
+            "value": "Format text"
+          },
+          {
+            "name": "input_schema",
+            "value": "{\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}}}"
+          },
+          {
+            "name": "code",
+            "value": "return { formatted: input.text.toUpperCase() };"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"my_tool\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>my_tool</b> <i>&lt;tool&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"description__key\" align=\"left\" balign=\"left\">description</td><td port=\"description__value\" align=\"left\" balign=\"left\">Does something useful</td></tr></table></td></tr></table>>, shape=component, fillcolor=\"#FFF9C4\", style=filled, color=\"#F57F17\"];\n  \"calculator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>calculator</b> <i>&lt;tool&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"description__key\" align=\"left\" balign=\"left\">description</td><td port=\"description__value\" align=\"left\" balign=\"left\">Performs calculations</td></tr><tr><td port=\"input_schema__key\" align=\"left\" balign=\"left\">input_schema</td><td port=\"input_schema__value\" align=\"left\" balign=\"left\">{<br align=\"left\"/>  &quot;type&quot;: &quot;object&quot;,<br align=\"left\"/>  &quot;properties&quot;: {<br align=\"left\"/>    &quot;expression&quot;: {<br align=\"left\"/>      &quot;type&quot;: &quot;string&quot;<br align=\"left\"/>    }<br align=\"left\"/>  }<br align=\"left\"/>}</td></tr><tr><td port=\"output_schema__key\" align=\"left\" balign=\"left\">output_schema</td><td port=\"output_schema__value\" align=\"left\" balign=\"left\">{<br align=\"left\"/>  &quot;type&quot;: &quot;object&quot;,<br align=\"left\"/>  &quot;properties&quot;: {<br align=\"left\"/>    &quot;result&quot;: {<br align=\"left\"/>      &quot;type&quot;: &quot;number&quot;<br align=\"left\"/>    }<br align=\"left\"/>  }<br align=\"left\"/>}</td></tr></table></td></tr></table>>, shape=component, fillcolor=\"#FFF9C4\", style=filled, color=\"#F57F17\"];\n  \"formatter\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>formatter</b> <i>&lt;tool&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"description__key\" align=\"left\" balign=\"left\">description</td><td port=\"description__value\" align=\"left\" balign=\"left\">Format text</td></tr><tr><td port=\"input_schema__key\" align=\"left\" balign=\"left\">input_schema</td><td port=\"input_schema__value\" align=\"left\" balign=\"left\">{<br align=\"left\"/>  &quot;type&quot;: &quot;object&quot;,<br align=\"left\"/>  &quot;properties&quot;: {<br align=\"left\"/>    &quot;text&quot;: {<br align=\"left\"/>      &quot;type&quot;: &quot;string&quot;<br align=\"left\"/>    }<br align=\"left\"/>  }<br align=\"left\"/>}</td></tr><tr><td port=\"code__key\" align=\"left\" balign=\"left\">code</td><td port=\"code__value\" align=\"left\" balign=\"left\">return { formatted:<br align=\"left\"/>input.text.toUpperCase() };</td></tr></table></td></tr></table>>, shape=component, fillcolor=\"#FFF9C4\", style=filled, color=\"#F57F17\"];\n\n}",
+  "svgHash": "ed9e614257d0eab4256b5c7997004ebcda418c13a9d4db110e82a0c0d40678aa"
+}

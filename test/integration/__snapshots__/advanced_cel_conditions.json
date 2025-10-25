@@ -1,0 +1,936 @@
+{
+  "json": {
+    "title": "CEL Condition Examples",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "counter",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "count",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "maxCount",
+            "type": "number",
+            "value": 10
+          },
+          {
+            "name": "minCount",
+            "type": "number",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "name": "start",
+        "type": "state",
+        "attributes": [],
+        "title": "Start"
+      },
+      {
+        "name": "increment",
+        "type": "task",
+        "attributes": [],
+        "title": "Increment Counter"
+      },
+      {
+        "name": "decrement",
+        "type": "task",
+        "attributes": [],
+        "title": "Decrement Counter"
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [],
+        "title": "Complete"
+      },
+      {
+        "name": "userState",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "status",
+            "type": "string",
+            "value": "pending"
+          },
+          {
+            "name": "role",
+            "type": "string",
+            "value": "user"
+          }
+        ]
+      },
+      {
+        "name": "validateUser",
+        "type": "task",
+        "attributes": [],
+        "title": "Validate User"
+      },
+      {
+        "name": "processing",
+        "type": "state",
+        "attributes": [],
+        "title": "Processing"
+      },
+      {
+        "name": "admin",
+        "type": "state",
+        "attributes": [],
+        "title": "Admin Flow"
+      },
+      {
+        "name": "user",
+        "type": "state",
+        "attributes": [],
+        "title": "User Flow"
+      },
+      {
+        "name": "rejected",
+        "type": "state",
+        "attributes": [],
+        "title": "Rejected"
+      },
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "debug",
+            "type": "boolean",
+            "value": false
+          },
+          {
+            "name": "production",
+            "type": "boolean",
+            "value": true
+          },
+          {
+            "name": "enableFeatureX",
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      },
+      {
+        "name": "checkEnvironment",
+        "type": "task",
+        "attributes": [],
+        "title": "Check Environment"
+      },
+      {
+        "name": "debugMode",
+        "type": "state",
+        "attributes": [],
+        "title": "Debug Mode"
+      },
+      {
+        "name": "productionMode",
+        "type": "state",
+        "attributes": [],
+        "title": "Production Mode"
+      },
+      {
+        "name": "featureEnabled",
+        "type": "state",
+        "attributes": [],
+        "title": "Feature Enabled"
+      },
+      {
+        "name": "riskyOperation",
+        "type": "task",
+        "attributes": [],
+        "title": "Risky Operation"
+      },
+      {
+        "name": "errorHandler",
+        "type": "task",
+        "attributes": [],
+        "title": "Error Handler"
+      },
+      {
+        "name": "retry",
+        "type": "task",
+        "attributes": [],
+        "title": "Retry Logic"
+      },
+      {
+        "name": "errorState",
+        "type": "state",
+        "attributes": [],
+        "title": "Error State"
+      },
+      {
+        "name": "success",
+        "type": "state",
+        "attributes": [],
+        "title": "Success"
+      },
+      {
+        "name": "retryConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "maxRetries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "currentRetries",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "circuitState",
+            "type": "string",
+            "value": "CLOSED"
+          },
+          {
+            "name": "timeoutMs",
+            "type": "number",
+            "value": 5000
+          }
+        ]
+      },
+      {
+        "name": "apiCall",
+        "type": "task",
+        "attributes": [],
+        "title": "API Call"
+      },
+      {
+        "name": "retryHandler",
+        "type": "task",
+        "attributes": [],
+        "title": "Retry Handler"
+      },
+      {
+        "name": "circuitOpen",
+        "type": "state",
+        "attributes": [],
+        "title": "Circuit Open"
+      },
+      {
+        "name": "failed",
+        "type": "state",
+        "attributes": [],
+        "title": "Failed"
+      },
+      {
+        "name": "userData",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "name",
+            "type": "string",
+            "value": "john"
+          },
+          {
+            "name": "age",
+            "type": "number",
+            "value": 25
+          },
+          {
+            "name": "verified",
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      },
+      {
+        "name": "processUser",
+        "type": "task",
+        "attributes": [],
+        "title": "Process User"
+      },
+      {
+        "name": "adult",
+        "type": "state",
+        "attributes": [],
+        "title": "Adult User"
+      },
+      {
+        "name": "minor",
+        "type": "state",
+        "attributes": [],
+        "title": "Minor User"
+      },
+      {
+        "name": "verified",
+        "type": "state",
+        "attributes": [],
+        "title": "Verified User"
+      },
+      {
+        "name": "system",
+        "type": "context",
+        "attributes": []
+      },
+      {
+        "name": "database",
+        "attributes": [
+          {
+            "name": "connected",
+            "type": "boolean",
+            "value": true
+          },
+          {
+            "name": "latency",
+            "type": "number",
+            "value": 50
+          }
+        ],
+        "parent": "system"
+      },
+      {
+        "name": "cache",
+        "attributes": [
+          {
+            "name": "enabled",
+            "type": "boolean",
+            "value": true
+          },
+          {
+            "name": "hitRate",
+            "type": "number",
+            "value": 85
+          }
+        ],
+        "parent": "system"
+      },
+      {
+        "name": "systemCheck",
+        "type": "task",
+        "attributes": [],
+        "title": "System Check"
+      },
+      {
+        "name": "healthy",
+        "type": "state",
+        "attributes": [],
+        "title": "System Healthy"
+      },
+      {
+        "name": "degraded",
+        "type": "state",
+        "attributes": [],
+        "title": "System Degraded"
+      },
+      {
+        "name": "circuitBreaker",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "failureCount",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "threshold",
+            "type": "number",
+            "value": 5
+          },
+          {
+            "name": "state",
+            "type": "string",
+            "value": "CLOSED"
+          },
+          {
+            "name": "lastFailureTime",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 30000
+          }
+        ]
+      },
+      {
+        "name": "protectedOperation",
+        "type": "task",
+        "attributes": [],
+        "title": "Protected Operation"
+      },
+      {
+        "name": "circuitBreakerOpen",
+        "type": "state",
+        "attributes": [],
+        "title": "Circuit Breaker Open"
+      },
+      {
+        "name": "waitForTimeout",
+        "type": "task",
+        "attributes": [],
+        "title": "Wait for Timeout"
+      },
+      {
+        "name": "halfOpen",
+        "type": "state",
+        "attributes": [],
+        "title": "Half Open"
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "increment",
+        "arrowType": "->"
+      },
+      {
+        "source": "increment",
+        "target": "increment",
+        "arrowType": "->",
+        "value": {
+          "if": "(count < maxCount)"
+        },
+        "attributes": {
+          "if": "(count < maxCount)"
+        }
+      },
+      {
+        "source": "increment",
+        "target": "complete",
+        "arrowType": "->",
+        "value": {
+          "if": "(count >= maxCount)"
+        },
+        "attributes": {
+          "if": "(count >= maxCount)"
+        }
+      },
+      {
+        "source": "decrement",
+        "target": "decrement",
+        "arrowType": "->",
+        "value": {
+          "if": "(count > minCount)"
+        },
+        "attributes": {
+          "if": "(count > minCount)"
+        }
+      },
+      {
+        "source": "decrement",
+        "target": "start",
+        "arrowType": "->",
+        "value": {
+          "if": "(count <= minCount)"
+        },
+        "attributes": {
+          "if": "(count <= minCount)"
+        }
+      },
+      {
+        "source": "start",
+        "target": "validateUser",
+        "arrowType": "->"
+      },
+      {
+        "source": "validateUser",
+        "target": "processing",
+        "arrowType": "->",
+        "value": {
+          "if": "(status == \"approved\")"
+        },
+        "attributes": {
+          "if": "(status == \"approved\")"
+        }
+      },
+      {
+        "source": "validateUser",
+        "target": "rejected",
+        "arrowType": "->",
+        "value": {
+          "if": "(status == \"rejected\")"
+        },
+        "attributes": {
+          "if": "(status == \"rejected\")"
+        }
+      },
+      {
+        "source": "validateUser",
+        "target": "admin",
+        "arrowType": "->",
+        "value": {
+          "if": "(status == \"approved\" && role == \"admin\")"
+        },
+        "attributes": {
+          "if": "(status == \"approved\" && role == \"admin\")"
+        }
+      },
+      {
+        "source": "validateUser",
+        "target": "user",
+        "arrowType": "->",
+        "value": {
+          "if": "(status == \"approved\" && role == \"user\")"
+        },
+        "attributes": {
+          "if": "(status == \"approved\" && role == \"user\")"
+        }
+      },
+      {
+        "source": "start",
+        "target": "checkEnvironment",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkEnvironment",
+        "target": "debugMode",
+        "arrowType": "->",
+        "value": {
+          "if": "(debug == true)"
+        },
+        "attributes": {
+          "if": "(debug == true)"
+        }
+      },
+      {
+        "source": "checkEnvironment",
+        "target": "productionMode",
+        "arrowType": "->",
+        "value": {
+          "if": "(production == true)"
+        },
+        "attributes": {
+          "if": "(production == true)"
+        }
+      },
+      {
+        "source": "checkEnvironment",
+        "target": "featureEnabled",
+        "arrowType": "->",
+        "value": {
+          "if": "(debug == true || enableFeatureX == true)"
+        },
+        "attributes": {
+          "if": "(debug == true || enableFeatureX == true)"
+        }
+      },
+      {
+        "source": "checkEnvironment",
+        "target": "debugMode",
+        "arrowType": "->",
+        "value": {
+          "unless": "(production == true)"
+        },
+        "attributes": {
+          "unless": "(production == true)"
+        }
+      },
+      {
+        "source": "riskyOperation",
+        "target": "success",
+        "arrowType": "->"
+      },
+      {
+        "source": "riskyOperation",
+        "target": "errorHandler",
+        "arrowType": "->",
+        "value": {
+          "if": "(errorCount > 0)"
+        },
+        "attributes": {
+          "if": "(errorCount > 0)"
+        }
+      },
+      {
+        "source": "errorHandler",
+        "target": "retry",
+        "arrowType": "->",
+        "value": {
+          "if": "(errorCount < 3)"
+        },
+        "attributes": {
+          "if": "(errorCount < 3)"
+        }
+      },
+      {
+        "source": "errorHandler",
+        "target": "errorState",
+        "arrowType": "->",
+        "value": {
+          "if": "(errorCount >= 3)"
+        },
+        "attributes": {
+          "if": "(errorCount >= 3)"
+        }
+      },
+      {
+        "source": "start",
+        "target": "apiCall",
+        "arrowType": "->"
+      },
+      {
+        "source": "apiCall",
+        "target": "retryHandler",
+        "arrowType": "->",
+        "value": {
+          "if": "(currentRetries < maxRetries && circuitState == \"CLOSED\" && errorCount < 5)"
+        },
+        "attributes": {
+          "if": "(currentRetries < maxRetries && circuitState == \"CLOSED\" && errorCount < 5)"
+        }
+      },
+      {
+        "source": "apiCall",
+        "target": "failed",
+        "arrowType": "->",
+        "value": {
+          "if": "(currentRetries >= maxRetries || errorCount >= 5)"
+        },
+        "attributes": {
+          "if": "(currentRetries >= maxRetries || errorCount >= 5)"
+        }
+      },
+      {
+        "source": "apiCall",
+        "target": "circuitOpen",
+        "arrowType": "->",
+        "value": {
+          "if": "(circuitState == \"OPEN\")"
+        },
+        "attributes": {
+          "if": "(circuitState == \"OPEN\")"
+        }
+      },
+      {
+        "source": "retryHandler",
+        "target": "apiCall",
+        "arrowType": "->",
+        "value": {
+          "if": "((currentRetries < maxRetries) && (circuitState == \"CLOSED\"))"
+        },
+        "attributes": {
+          "if": "((currentRetries < maxRetries) && (circuitState == \"CLOSED\"))"
+        }
+      },
+      {
+        "source": "retryHandler",
+        "target": "failed",
+        "arrowType": "->",
+        "value": {
+          "if": "((errorCount > 3) || (currentRetries >= maxRetries))"
+        },
+        "attributes": {
+          "if": "((errorCount > 3) || (currentRetries >= maxRetries))"
+        }
+      },
+      {
+        "source": "start",
+        "target": "processUser",
+        "arrowType": "->"
+      },
+      {
+        "source": "processUser",
+        "target": "adult",
+        "arrowType": "->",
+        "value": {
+          "if": "({{ userData.age }} >= 18)"
+        },
+        "attributes": {
+          "if": "({{ userData.age }} >= 18)"
+        }
+      },
+      {
+        "source": "processUser",
+        "target": "minor",
+        "arrowType": "->",
+        "value": {
+          "if": "({{ userData.age }} < 18)"
+        },
+        "attributes": {
+          "if": "({{ userData.age }} < 18)"
+        }
+      },
+      {
+        "source": "processUser",
+        "target": "verified",
+        "arrowType": "->",
+        "value": {
+          "if": "({{ userData.verified }} == true)"
+        },
+        "attributes": {
+          "if": "({{ userData.verified }} == true)"
+        }
+      },
+      {
+        "source": "processUser",
+        "target": "verified",
+        "arrowType": "->",
+        "value": {
+          "if": "({{ userData.age }} >= 18 && {{ userData.verified }} == true)"
+        },
+        "attributes": {
+          "if": "({{ userData.age }} >= 18 && {{ userData.verified }} == true)"
+        }
+      },
+      {
+        "source": "start",
+        "target": "systemCheck",
+        "arrowType": "->"
+      },
+      {
+        "source": "systemCheck",
+        "target": "healthy",
+        "arrowType": "->",
+        "value": {
+          "if": "(database.connected == true && database.latency < 100)"
+        },
+        "attributes": {
+          "if": "(database.connected == true && database.latency < 100)"
+        }
+      },
+      {
+        "source": "systemCheck",
+        "target": "healthy",
+        "arrowType": "->",
+        "value": {
+          "if": "(cache.enabled == true && cache.hitRate > 80)"
+        },
+        "attributes": {
+          "if": "(cache.enabled == true && cache.hitRate > 80)"
+        }
+      },
+      {
+        "source": "systemCheck",
+        "target": "degraded",
+        "arrowType": "->",
+        "value": {
+          "if": "(database.latency >= 100 || cache.hitRate <= 80)"
+        },
+        "attributes": {
+          "if": "(database.latency >= 100 || cache.hitRate <= 80)"
+        }
+      },
+      {
+        "source": "start",
+        "target": "protectedOperation",
+        "arrowType": "->"
+      },
+      {
+        "source": "protectedOperation",
+        "target": "success",
+        "arrowType": "->",
+        "value": {
+          "if": "(failureCount < threshold && circuitBreaker.state == \"CLOSED\")"
+        },
+        "attributes": {
+          "if": "(failureCount < threshold && circuitBreaker.state == \"CLOSED\")"
+        }
+      },
+      {
+        "source": "protectedOperation",
+        "target": "circuitBreakerOpen",
+        "arrowType": "->",
+        "value": {
+          "if": "(failureCount >= threshold)"
+        },
+        "attributes": {
+          "if": "(failureCount >= threshold)"
+        }
+      },
+      {
+        "source": "circuitBreakerOpen",
+        "target": "waitForTimeout",
+        "arrowType": "->"
+      },
+      {
+        "source": "waitForTimeout",
+        "target": "protectedOperation",
+        "arrowType": "->",
+        "value": {
+          "if": "(circuitBreaker.state == \"HALF_OPEN\")"
+        },
+        "attributes": {
+          "if": "(circuitBreaker.state == \"HALF_OPEN\")"
+        }
+      }
+    ],
+    "notes": [
+      {
+        "target": "validateUser",
+        "content": "CEL (Common Expression Language) provides safe, sandboxed expression evaluation.\nNo access to JavaScript globals or functions - secure by design.",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "apiCall",
+        "content": "Operators:\n- Equality: == (not ===)\n- Inequality: != (not !==)\n- Comparison: <, >, <=, >=\n- Logical: &&, ||, !\n- Parentheses: () for grouping",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "checkEnvironment",
+        "content": "Best practices:\n1. Keep conditions simple and readable\n2. Use parentheses for clarity\n3. Leverage context nodes for configuration\n4. Test edge cases thoroughly",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "increment",
+        "target": "counter",
+        "reason": "condition references count",
+        "path": "(count < maxCount)"
+      },
+      {
+        "source": "increment",
+        "target": "counter",
+        "reason": "condition references count",
+        "path": "(count >= maxCount)"
+      },
+      {
+        "source": "decrement",
+        "target": "counter",
+        "reason": "condition references count",
+        "path": "(count > minCount)"
+      },
+      {
+        "source": "decrement",
+        "target": "counter",
+        "reason": "condition references count",
+        "path": "(count <= minCount)"
+      },
+      {
+        "source": "validateUser",
+        "target": "userState",
+        "reason": "condition references status",
+        "path": "(status == "
+      },
+      {
+        "source": "checkEnvironment",
+        "target": "config",
+        "reason": "condition references debug",
+        "path": "(debug == true)"
+      },
+      {
+        "source": "checkEnvironment",
+        "target": "config",
+        "reason": "condition references production",
+        "path": "(production == true)"
+      },
+      {
+        "source": "checkEnvironment",
+        "target": "config",
+        "reason": "condition references debug",
+        "path": "(debug == true || enableFeatureX == true)"
+      },
+      {
+        "source": "apiCall",
+        "target": "retryConfig",
+        "reason": "condition references currentRetries",
+        "path": "(currentRetries < maxRetries && circuitState == "
+      },
+      {
+        "source": "apiCall",
+        "target": "retryConfig",
+        "reason": "condition references currentRetries",
+        "path": "(currentRetries >= maxRetries || errorCount >= 5)"
+      },
+      {
+        "source": "apiCall",
+        "target": "retryConfig",
+        "reason": "condition references circuitState",
+        "path": "(circuitState == "
+      },
+      {
+        "source": "retryHandler",
+        "target": "retryConfig",
+        "reason": "condition references currentRetries",
+        "path": "((currentRetries < maxRetries) && (circuitState == "
+      },
+      {
+        "source": "retryHandler",
+        "target": "retryConfig",
+        "reason": "condition references currentRetries",
+        "path": "((errorCount > 3) || (currentRetries >= maxRetries))"
+      },
+      {
+        "source": "processUser",
+        "target": "userData",
+        "reason": "condition references userData",
+        "path": "({{ userData.age }} >= 18)"
+      },
+      {
+        "source": "processUser",
+        "target": "userData",
+        "reason": "condition references userData",
+        "path": "({{ userData.age }} < 18)"
+      },
+      {
+        "source": "processUser",
+        "target": "userData",
+        "reason": "condition references userData",
+        "path": "({{ userData.verified }} == true)"
+      },
+      {
+        "source": "processUser",
+        "target": "verified",
+        "reason": "condition references verified",
+        "path": "({{ userData.verified }} == true)"
+      },
+      {
+        "source": "processUser",
+        "target": "userData",
+        "reason": "condition references userData",
+        "path": "({{ userData.age }} >= 18 && {{ userData.verified }} == true)"
+      },
+      {
+        "source": "processUser",
+        "target": "verified",
+        "reason": "condition references verified",
+        "path": "({{ userData.age }} >= 18 && {{ userData.verified }} == true)"
+      },
+      {
+        "source": "systemCheck",
+        "target": "database",
+        "reason": "condition references database",
+        "path": "(database.connected == true && database.latency < 100)"
+      },
+      {
+        "source": "systemCheck",
+        "target": "cache",
+        "reason": "condition references cache",
+        "path": "(cache.enabled == true && cache.hitRate > 80)"
+      },
+      {
+        "source": "systemCheck",
+        "target": "database",
+        "reason": "condition references database",
+        "path": "(database.latency >= 100 || cache.hitRate <= 80)"
+      },
+      {
+        "source": "systemCheck",
+        "target": "cache",
+        "reason": "condition references cache",
+        "path": "(database.latency >= 100 || cache.hitRate <= 80)"
+      },
+      {
+        "source": "protectedOperation",
+        "target": "circuitBreaker",
+        "reason": "condition references failureCount",
+        "path": "(failureCount < threshold && circuitBreaker.state == "
+      },
+      {
+        "source": "protectedOperation",
+        "target": "circuitBreaker",
+        "reason": "condition references failureCount",
+        "path": "(failureCount >= threshold)"
+      },
+      {
+        "source": "waitForTimeout",
+        "target": "circuitBreaker",
+        "reason": "condition references circuitBreaker",
+        "path": "(circuitBreaker.state == "
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>CEL Condition Examples</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"counter\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>counter</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count : number</td><td port=\"count__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"maxCount__key\" align=\"left\" balign=\"left\">maxCount : number</td><td port=\"maxCount__value\" align=\"left\" balign=\"left\">10</td></tr><tr><td port=\"minCount__key\" align=\"left\" balign=\"left\">minCount : number</td><td port=\"minCount__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"increment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>increment</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Increment Counter</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"decrement\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>decrement</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Decrement Counter</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complete</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"userState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userState</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"status__key\" align=\"left\" balign=\"left\">status : string</td><td port=\"status__value\" align=\"left\" balign=\"left\">pending</td></tr><tr><td port=\"role__key\" align=\"left\" balign=\"left\">role : string</td><td port=\"role__value\" align=\"left\" balign=\"left\">user</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"validateUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateUser</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate User</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"admin\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>admin</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Admin Flow</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"user\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>user</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User Flow</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"rejected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>rejected</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Rejected</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"debug__key\" align=\"left\" balign=\"left\">debug : boolean</td><td port=\"debug__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"production__key\" align=\"left\" balign=\"left\">production : boolean</td><td port=\"production__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"enableFeatureX__key\" align=\"left\" balign=\"left\">enableFeatureX : boolean</td><td port=\"enableFeatureX__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"checkEnvironment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkEnvironment</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check Environment</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"debugMode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>debugMode</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Debug Mode</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"productionMode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>productionMode</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Production Mode</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"featureEnabled\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>featureEnabled</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Feature Enabled</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"riskyOperation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>riskyOperation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Risky Operation</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"errorHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>errorHandler</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Error Handler</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"retry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>retry</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Retry Logic</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"errorState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>errorState</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Error State</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>success</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Success</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"retryConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>retryConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : number</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"currentRetries__key\" align=\"left\" balign=\"left\">currentRetries : number</td><td port=\"currentRetries__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"circuitState__key\" align=\"left\" balign=\"left\">circuitState : string</td><td port=\"circuitState__value\" align=\"left\" balign=\"left\">CLOSED</td></tr><tr><td port=\"timeoutMs__key\" align=\"left\" balign=\"left\">timeoutMs : number</td><td port=\"timeoutMs__value\" align=\"left\" balign=\"left\">5000</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"apiCall\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiCall</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">API Call</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"retryHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>retryHandler</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Retry Handler</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"circuitOpen\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>circuitOpen</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Circuit Open</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>failed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Failed</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"userData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userData</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"name__key\" align=\"left\" balign=\"left\">name : string</td><td port=\"name__value\" align=\"left\" balign=\"left\">john</td></tr><tr><td port=\"age__key\" align=\"left\" balign=\"left\">age : number</td><td port=\"age__value\" align=\"left\" balign=\"left\">25</td></tr><tr><td port=\"verified__key\" align=\"left\" balign=\"left\">verified : boolean</td><td port=\"verified__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"processUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processUser</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process User</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"adult\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>adult</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Adult User</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"minor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>minor</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Minor User</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"verified\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>verified</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Verified User</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  subgraph cluster_system {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"system\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>system</b> <i>&lt;context&gt;</i></td></tr></table>>, shape=plain, margin=0];\n    \"system__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"database\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>database</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"connected__key\" align=\"left\" balign=\"left\">connected : boolean</td><td port=\"connected__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"latency__key\" align=\"left\" balign=\"left\">latency : number</td><td port=\"latency__value\" align=\"left\" balign=\"left\">50</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"cache\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cache</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"enabled__key\" align=\"left\" balign=\"left\">enabled : boolean</td><td port=\"enabled__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"hitRate__key\" align=\"left\" balign=\"left\">hitRate : number</td><td port=\"hitRate__value\" align=\"left\" balign=\"left\">85</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  }\n  \"systemCheck\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>systemCheck</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">System Check</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"healthy\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>healthy</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">System Healthy</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"degraded\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>degraded</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">System Degraded</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"circuitBreaker\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>circuitBreaker</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"failureCount__key\" align=\"left\" balign=\"left\">failureCount : number</td><td port=\"failureCount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"threshold__key\" align=\"left\" balign=\"left\">threshold : number</td><td port=\"threshold__value\" align=\"left\" balign=\"left\">5</td></tr><tr><td port=\"state__key\" align=\"left\" balign=\"left\">state : string</td><td port=\"state__value\" align=\"left\" balign=\"left\">CLOSED</td></tr><tr><td port=\"lastFailureTime__key\" align=\"left\" balign=\"left\">lastFailureTime : number</td><td port=\"lastFailureTime__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">30000</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"protectedOperation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>protectedOperation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Protected Operation</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"circuitBreakerOpen\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>circuitBreakerOpen</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Circuit Breaker Open</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"waitForTimeout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>waitForTimeout</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Wait for Timeout</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"halfOpen\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>halfOpen</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Half Open</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"start\" -> \"increment\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"increment\" -> \"increment\" [label=\"if=(count < maxCount)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"increment\" -> \"complete\" [label=\"if=(count >= maxCount)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"decrement\" -> \"decrement\" [label=\"if=(count > minCount)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"decrement\" -> \"start\" [label=\"if=(count <= minCount)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"validateUser\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateUser\" -> \"processing\" [label=\"if=(status == \\\"approved\\\")\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateUser\" -> \"rejected\" [label=\"if=(status == \\\"rejected\\\")\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateUser\" -> \"admin\" [label=\"if=(status == \\\"approved\\\" && role ==\\\\n\\\"admin\\\")\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateUser\" -> \"user\" [label=\"if=(status == \\\"approved\\\" && role ==\\\\n\\\"user\\\")\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"checkEnvironment\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkEnvironment\" -> \"debugMode\" [label=\"if=(debug == true)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkEnvironment\" -> \"productionMode\" [label=\"if=(production == true)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkEnvironment\" -> \"featureEnabled\" [label=\"if=(debug == true \\|\\| enableFeatureX ==\\\\ntrue)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkEnvironment\" -> \"debugMode\" [label=\"unless=(production == true)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"riskyOperation\" -> \"success\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"riskyOperation\" -> \"errorHandler\" [label=\"if=(errorCount > 0)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"errorHandler\" -> \"retry\" [label=\"if=(errorCount < 3)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"errorHandler\" -> \"errorState\" [label=\"if=(errorCount >= 3)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"apiCall\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"apiCall\" -> \"retryHandler\" [label=\"if=(currentRetries < maxRetries &&\\\\ncircuitState == \\\"CLOSED\\\" && errorCount <\\\\n5)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"apiCall\" -> \"failed\" [label=\"if=(currentRetries >= maxRetries \\|\\|\\\\nerrorCount >= 5)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"apiCall\" -> \"circuitOpen\" [label=\"if=(circuitState == \\\"OPEN\\\")\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"retryHandler\" -> \"apiCall\" [label=\"if=((currentRetries < maxRetries) &&\\\\n(circuitState == \\\"CLOSED\\\"))\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"retryHandler\" -> \"failed\" [label=\"if=((errorCount > 3) \\|\\| (currentRetries\\\\n>= maxRetries))\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"processUser\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processUser\" -> \"adult\" [label=\"if=(\\{\\{ userData.age \\}\\} >= 18)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processUser\" -> \"minor\" [label=\"if=(\\{\\{ userData.age \\}\\} < 18)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processUser\" -> \"verified\" [label=\"if=(\\{\\{ userData.verified \\}\\} == true)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processUser\" -> \"verified\" [label=\"if=(\\{\\{ userData.age \\}\\} >= 18 && \\{\\{\\\\nuserData.verified \\}\\} == true)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"systemCheck\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"systemCheck\" -> \"healthy\" [label=\"if=(database.connected == true &&\\\\ndatabase.latency < 100)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"systemCheck\" -> \"healthy\" [label=\"if=(cache.enabled == true &&\\\\ncache.hitRate > 80)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"systemCheck\" -> \"degraded\" [label=\"if=(database.latency >= 100 \\|\\|\\\\ncache.hitRate <= 80)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"protectedOperation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"protectedOperation\" -> \"success\" [label=\"if=(failureCount < threshold &&\\\\ncircuitBreaker.state == \\\"CLOSED\\\")\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"protectedOperation\" -> \"circuitBreakerOpen\" [label=\"if=(failureCount >= threshold)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"circuitBreakerOpen\" -> \"waitForTimeout\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"waitForTimeout\" -> \"protectedOperation\" [label=\"if=(circuitBreaker.state == \\\"HALF_OPEN\\\")\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_validateUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">CEL (Common Expression Language)<br/>provides safe, sandboxed expression<br/>evaluation.\nNo access to JavaScript<br/>globals or functions - secure by design.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_validateUser\" -> \"validateUser\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_apiCall\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Operators:\n- Equality: == (not ===)\n-<br/>Inequality: != (not !==)\n- Comparison:<br/>&lt;, &gt;, &lt;=, &gt;=\n- Logical: &amp;&amp;, ||, !\n-<br/>Parentheses: () for grouping</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_apiCall\" -> \"apiCall\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_2_checkEnvironment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Best practices:\n1. Keep conditions<br/>simple and readable\n2. Use parentheses<br/>for clarity\n3. Leverage context nodes<br/>for configuration\n4. Test edge cases<br/>thoroughly</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_2_checkEnvironment\" -> \"checkEnvironment\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Inferred Dependencies\n  \"increment\" -> \"counter\" [label=\"condition references count\", style=dashed, color=blue];\n  \"increment\" -> \"counter\" [label=\"condition references count\", style=dashed, color=blue];\n  \"decrement\" -> \"counter\" [label=\"condition references count\", style=dashed, color=blue];\n  \"decrement\" -> \"counter\" [label=\"condition references count\", style=dashed, color=blue];\n  \"validateUser\" -> \"userState\" [label=\"condition references status\", style=dashed, color=blue];\n  \"checkEnvironment\" -> \"config\" [label=\"condition references debug\", style=dashed, color=blue];\n  \"checkEnvironment\" -> \"config\" [label=\"condition references production\", style=dashed, color=blue];\n  \"checkEnvironment\" -> \"config\" [label=\"condition references debug\", style=dashed, color=blue];\n  \"apiCall\" -> \"retryConfig\" [label=\"condition references currentRetries\", style=dashed, color=blue];\n  \"apiCall\" -> \"retryConfig\" [label=\"condition references currentRetries\", style=dashed, color=blue];\n  \"apiCall\" -> \"retryConfig\" [label=\"condition references circuitState\", style=dashed, color=blue];\n  \"retryHandler\" -> \"retryConfig\" [label=\"condition references currentRetries\", style=dashed, color=blue];\n  \"retryHandler\" -> \"retryConfig\" [label=\"condition references currentRetries\", style=dashed, color=blue];\n  \"processUser\" -> \"userData\" [label=\"condition references userData\", style=dashed, color=blue];\n  \"processUser\" -> \"userData\" [label=\"condition references userData\", style=dashed, color=blue];\n  \"processUser\" -> \"userData\" [label=\"condition references userData\", style=dashed, color=blue];\n  \"processUser\" -> \"verified\" [label=\"condition references verified\", style=dashed, color=blue];\n  \"processUser\" -> \"userData\" [label=\"condition references userData\", style=dashed, color=blue];\n  \"processUser\" -> \"verified\" [label=\"condition references verified\", style=dashed, color=blue];\n  \"systemCheck\" -> \"database\" [label=\"condition references database\", style=dashed, color=blue];\n  \"systemCheck\" -> \"cache\" [label=\"condition references cache\", style=dashed, color=blue];\n  \"systemCheck\" -> \"database\" [label=\"condition references database\", style=dashed, color=blue];\n  \"systemCheck\" -> \"cache\" [label=\"condition references cache\", style=dashed, color=blue];\n  \"protectedOperation\" -> \"circuitBreaker\" [label=\"condition references failureCount\", style=dashed, color=blue];\n  \"protectedOperation\" -> \"circuitBreaker\" [label=\"condition references failureCount\", style=dashed, color=blue];\n  \"waitForTimeout\" -> \"circuitBreaker\" [label=\"condition references circuitBreaker\", style=dashed, color=blue];\n}",
+  "svgHash": "b10cc2fc9f47c4868de5c1bc81e56fb693023b268d5900930f6a02c4bb3149d2"
+}

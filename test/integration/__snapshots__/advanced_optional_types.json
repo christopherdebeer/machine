@@ -1,0 +1,486 @@
+{
+  "json": {
+    "title": "Optional Types and Null Handling",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "userProfile",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "userId",
+            "type": "string",
+            "value": "user123"
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "value": "user@example.com"
+          },
+          {
+            "name": "phoneNumber",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "avatar",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "bio",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "preferredLanguage",
+            "type": "string",
+            "value": "en"
+          }
+        ],
+        "title": "User Profile"
+      },
+      {
+        "name": "optionalConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "debugMode",
+            "type": "boolean",
+            "value": "null"
+          },
+          {
+            "name": "customTheme",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "apiEndpoint",
+            "type": "string",
+            "value": "https://api.example.com"
+          }
+        ],
+        "title": "Optional Configuration"
+      },
+      {
+        "name": "appInit",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Initialize app with config: {{optionalConfig.apiEndpoint}}"
+          }
+        ],
+        "title": "Application Initialization"
+      },
+      {
+        "name": "dataProcessor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process with timeout: {{config.timeout}} or use default"
+          }
+        ],
+        "title": "Data Processor"
+      },
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": "null"
+          },
+          {
+            "name": "maxRetries",
+            "type": "number",
+            "value": 3
+          }
+        ]
+      },
+      {
+        "name": "Order",
+        "type": "task",
+        "attributes": [],
+        "title": "Order"
+      },
+      {
+        "name": "Discount",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "code",
+            "type": "string",
+            "value": "SAVE10"
+          },
+          {
+            "name": "percentage",
+            "type": "number",
+            "value": 10
+          }
+        ],
+        "title": "Discount"
+      },
+      {
+        "name": "apiResponse",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "statusCode",
+            "type": "number",
+            "value": 200
+          },
+          {
+            "name": "timestamp",
+            "type": "number",
+            "value": 1633024800
+          },
+          {
+            "name": "data",
+            "type": "object",
+            "value": "null"
+          },
+          {
+            "name": "errorCode",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "errorMessage",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "stackTrace",
+            "type": "string",
+            "value": "null"
+          }
+        ],
+        "title": "API Response"
+      },
+      {
+        "name": "asyncOperation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "result",
+            "type": "Promise<string>",
+            "value": "null"
+          },
+          {
+            "name": "error",
+            "type": "Promise<Error>",
+            "value": "null"
+          }
+        ],
+        "title": "Async Operation"
+      },
+      {
+        "name": "start",
+        "type": "init",
+        "attributes": [],
+        "title": "Start"
+      },
+      {
+        "name": "fetchUserData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "userData",
+            "type": "object",
+            "value": "null"
+          }
+        ],
+        "title": "Fetch User Data"
+      },
+      {
+        "name": "dataPresent",
+        "type": "state",
+        "attributes": [],
+        "title": "Data Present"
+      },
+      {
+        "name": "dataAbsent",
+        "type": "state",
+        "attributes": [],
+        "title": "Data Absent"
+      },
+      {
+        "name": "useDefaultData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "defaultData",
+            "type": "object",
+            "value": "{}"
+          }
+        ],
+        "title": "Use Default Data"
+      },
+      {
+        "name": "processData",
+        "type": "task",
+        "attributes": [],
+        "title": "Process Data"
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [],
+        "title": "Complete"
+      },
+      {
+        "name": "searchResults",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "items",
+            "type": "Array<string>",
+            "value": "null"
+          },
+          {
+            "name": "totalCount",
+            "type": "number",
+            "value": "null"
+          },
+          {
+            "name": "searchTerm",
+            "type": "string",
+            "value": "example"
+          },
+          {
+            "name": "executionTime",
+            "type": "number",
+            "value": 0
+          }
+        ],
+        "title": "Search Results"
+      },
+      {
+        "name": "inferredOptionals",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "maybeString",
+            "value": "null"
+          },
+          {
+            "name": "maybeNumber",
+            "value": "null"
+          },
+          {
+            "name": "maybeBoolean",
+            "value": "null"
+          }
+        ],
+        "title": "Inferred Optionals"
+      },
+      {
+        "name": "formValidation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "username",
+            "type": "string",
+            "value": ""
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "value": ""
+          },
+          {
+            "name": "middleName",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "suffix",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "isValid",
+            "type": "boolean",
+            "value": false
+          },
+          {
+            "name": "errors",
+            "type": "Array<string>",
+            "value": []
+          }
+        ],
+        "title": "Form Validation"
+      },
+      {
+        "name": "cacheable",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "cacheKey",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "cachedValue",
+            "type": "object",
+            "value": "null"
+          },
+          {
+            "name": "cacheExpiry",
+            "type": "number",
+            "value": "null"
+          }
+        ],
+        "title": "Cacheable Task"
+      },
+      {
+        "name": "userPreferences",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "theme",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "fontSize",
+            "type": "number",
+            "value": "null"
+          },
+          {
+            "name": "notifications",
+            "type": "boolean",
+            "value": "null"
+          }
+        ]
+      },
+      {
+        "name": "applyPreferences",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Apply theme {{userPreferences.theme}} if set, otherwise use default"
+          }
+        ],
+        "title": "Apply Preferences"
+      }
+    ],
+    "edges": [
+      {
+        "source": "appInit",
+        "target": "optionalConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "dataProcessor",
+        "target": "config",
+        "arrowType": "-->"
+      },
+      {
+        "source": "Order",
+        "target": "Discount",
+        "arrowType": "->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "0..1"
+      },
+      {
+        "source": "start",
+        "target": "fetchUserData",
+        "arrowType": "->"
+      },
+      {
+        "source": "fetchUserData",
+        "target": "dataPresent",
+        "arrowType": "->",
+        "value": {
+          "text": "data != null"
+        },
+        "attributes": {
+          "text": "data != null"
+        }
+      },
+      {
+        "source": "fetchUserData",
+        "target": "dataAbsent",
+        "arrowType": "->",
+        "value": {
+          "text": "data == null"
+        },
+        "attributes": {
+          "text": "data == null"
+        }
+      },
+      {
+        "source": "dataPresent",
+        "target": "processData",
+        "arrowType": "->"
+      },
+      {
+        "source": "dataAbsent",
+        "target": "useDefaultData",
+        "arrowType": "->"
+      },
+      {
+        "source": "useDefaultData",
+        "target": "processData",
+        "arrowType": "->"
+      },
+      {
+        "source": "processData",
+        "target": "complete",
+        "arrowType": "->"
+      },
+      {
+        "source": "applyPreferences",
+        "target": "userPreferences",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [
+      {
+        "target": "userProfile",
+        "content": "Optional types use ? suffix.\nThey can be null or have a value.\nType checker validates both cases.",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "fetchUserData",
+        "content": "When working with optional data:\n1. Always check for null before using\n2. Provide fallback/default values\n3. Handle both present and absent cases\n4. Document when null is expected",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "formValidation",
+        "content": "Required vs Optional guidelines:\n- Required: Must always have a valid value\n- Optional: May be null, needs null checks\n- Use optionals for: partial data, user input, API responses\n- Avoid optionals for: core business logic, critical paths",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "appInit",
+        "target": "optionalConfig",
+        "reason": "reads prompt",
+        "path": "optionalConfig.apiEndpoint"
+      },
+      {
+        "source": "dataProcessor",
+        "target": "config",
+        "reason": "reads prompt",
+        "path": "config.timeout"
+      },
+      {
+        "source": "applyPreferences",
+        "target": "userPreferences",
+        "reason": "reads prompt",
+        "path": "userPreferences.theme"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Optional Types and Null Handling</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"userProfile\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userProfile</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">User Profile</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"userId__key\" align=\"left\" balign=\"left\">userId : string</td><td port=\"userId__value\" align=\"left\" balign=\"left\">user123</td></tr><tr><td port=\"email__key\" align=\"left\" balign=\"left\">email : string</td><td port=\"email__value\" align=\"left\" balign=\"left\">user@example.com</td></tr><tr><td port=\"phoneNumber__key\" align=\"left\" balign=\"left\">phoneNumber : string</td><td port=\"phoneNumber__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"avatar__key\" align=\"left\" balign=\"left\">avatar : string</td><td port=\"avatar__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"bio__key\" align=\"left\" balign=\"left\">bio : string</td><td port=\"bio__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"preferredLanguage__key\" align=\"left\" balign=\"left\">preferredLanguage : string</td><td port=\"preferredLanguage__value\" align=\"left\" balign=\"left\">en</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"optionalConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>optionalConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td align=\"left\">Optional Configuration</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"debugMode__key\" align=\"left\" balign=\"left\">debugMode : boolean</td><td port=\"debugMode__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"customTheme__key\" align=\"left\" balign=\"left\">customTheme : string</td><td port=\"customTheme__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"apiEndpoint__key\" align=\"left\" balign=\"left\">apiEndpoint : string</td><td port=\"apiEndpoint__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"appInit\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>appInit</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Application Initialization</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"dataProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataProcessor</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data Processor</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : number</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"Order\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Order</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Discount\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Discount</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"code__key\" align=\"left\" balign=\"left\">code : string</td><td port=\"code__value\" align=\"left\" balign=\"left\">SAVE10</td></tr><tr><td port=\"percentage__key\" align=\"left\" balign=\"left\">percentage : number</td><td port=\"percentage__value\" align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"apiResponse\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiResponse</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">API Response</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"statusCode__key\" align=\"left\" balign=\"left\">statusCode : number</td><td port=\"statusCode__value\" align=\"left\" balign=\"left\">200</td></tr><tr><td port=\"timestamp__key\" align=\"left\" balign=\"left\">timestamp : number</td><td port=\"timestamp__value\" align=\"left\" balign=\"left\">1633024800</td></tr><tr><td port=\"data__key\" align=\"left\" balign=\"left\">data : object</td><td port=\"data__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"errorCode__key\" align=\"left\" balign=\"left\">errorCode : string</td><td port=\"errorCode__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"errorMessage__key\" align=\"left\" balign=\"left\">errorMessage : string</td><td port=\"errorMessage__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"stackTrace__key\" align=\"left\" balign=\"left\">stackTrace : string</td><td port=\"stackTrace__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"asyncOperation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>asyncOperation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Async Operation</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"result__key\" align=\"left\" balign=\"left\">result : Promise&lt;string&gt;</td><td port=\"result__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"error__key\" align=\"left\" balign=\"left\">error : Promise&lt;Error&gt;</td><td port=\"error__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"fetchUserData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchUserData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Fetch User Data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"userData__key\" align=\"left\" balign=\"left\">userData : object</td><td port=\"userData__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"dataPresent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataPresent</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Data Present</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"dataAbsent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataAbsent</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Data Absent</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"useDefaultData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>useDefaultData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Use Default Data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"defaultData__key\" align=\"left\" balign=\"left\">defaultData : object</td><td port=\"defaultData__value\" align=\"left\" balign=\"left\">{}</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected object, got string<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n  \"processData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process Data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complete</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"searchResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>searchResults</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Search Results</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"items__key\" align=\"left\" balign=\"left\">items : Array&lt;string&gt;</td><td port=\"items__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"totalCount__key\" align=\"left\" balign=\"left\">totalCount : number</td><td port=\"totalCount__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"searchTerm__key\" align=\"left\" balign=\"left\">searchTerm : string</td><td port=\"searchTerm__value\" align=\"left\" balign=\"left\">example</td></tr><tr><td port=\"executionTime__key\" align=\"left\" balign=\"left\">executionTime : number</td><td port=\"executionTime__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"inferredOptionals\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>inferredOptionals</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Inferred Optionals</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maybeString__key\" align=\"left\" balign=\"left\">maybeString</td><td port=\"maybeString__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"maybeNumber__key\" align=\"left\" balign=\"left\">maybeNumber</td><td port=\"maybeNumber__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"maybeBoolean__key\" align=\"left\" balign=\"left\">maybeBoolean</td><td port=\"maybeBoolean__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"formValidation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>formValidation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Form Validation</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"username__key\" align=\"left\" balign=\"left\">username : string</td><td port=\"username__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"email__key\" align=\"left\" balign=\"left\">email : string</td><td port=\"email__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"middleName__key\" align=\"left\" balign=\"left\">middleName : string</td><td port=\"middleName__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"suffix__key\" align=\"left\" balign=\"left\">suffix : string</td><td port=\"suffix__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"isValid__key\" align=\"left\" balign=\"left\">isValid : boolean</td><td port=\"isValid__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"errors__key\" align=\"left\" balign=\"left\">errors : Array&lt;string&gt;</td><td port=\"errors__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected Array&lt;string&gt;, got Array&lt;s...<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n  \"cacheable\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cacheable</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Cacheable Task</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"cacheKey__key\" align=\"left\" balign=\"left\">cacheKey : string</td><td port=\"cacheKey__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"cachedValue__key\" align=\"left\" balign=\"left\">cachedValue : object</td><td port=\"cachedValue__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"cacheExpiry__key\" align=\"left\" balign=\"left\">cacheExpiry : number</td><td port=\"cacheExpiry__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"userPreferences\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userPreferences</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"theme__key\" align=\"left\" balign=\"left\">theme : string</td><td port=\"theme__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"fontSize__key\" align=\"left\" balign=\"left\">fontSize : number</td><td port=\"fontSize__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"notifications__key\" align=\"left\" balign=\"left\">notifications : boolean</td><td port=\"notifications__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"applyPreferences\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>applyPreferences</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Apply Preferences</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"appInit\" -> \"optionalConfig\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"dataProcessor\" -> \"config\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Order\" -> \"Discount\" [taillabel=\"1\", headlabel=\"0..1\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"fetchUserData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"fetchUserData\" -> \"dataPresent\" [label=\"data != null\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"fetchUserData\" -> \"dataAbsent\" [label=\"data == null\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"dataPresent\" -> \"processData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"dataAbsent\" -> \"useDefaultData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"useDefaultData\" -> \"processData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processData\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"applyPreferences\" -> \"userPreferences\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_userProfile\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Optional types use ? suffix.\nThey can be<br/>null or have a value.\nType checker<br/>validates both cases.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_userProfile\" -> \"userProfile\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_fetchUserData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">When working with optional data:\n1.<br/>Always check for null before using\n2.<br/>Provide fallback/default values\n3.<br/>Handle both present and absent cases\n4.<br/>Document when null is expected</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_fetchUserData\" -> \"fetchUserData\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_2_formValidation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Required vs Optional guidelines:\n-<br/>Required: Must always have a valid<br/>value\n- Optional: May be null, needs<br/>null checks\n- Use optionals for: partial<br/>data, user input, API responses\n- Avoid<br/>optionals for: core business logic,<br/>critical paths</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_2_formValidation\" -> \"formValidation\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Validation Warnings\n  \"warning_useDefaultData_0\" [label=<🔴 Type mismatch: expected object, got<br/>string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_useDefaultData_0\" -> \"useDefaultData\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_formValidation_0\" [label=<🔴 Type mismatch: expected<br/>Array&lt;string&gt;, got Array&lt;string&gt;.<br/>Expected array, received string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_formValidation_0\" -> \"formValidation\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Inferred Dependencies\n  \"appInit\" -> \"optionalConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"dataProcessor\" -> \"config\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"applyPreferences\" -> \"userPreferences\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "eff7428e4bbf420e294e168187dddc41193503a0c914b9b0fe81e2f117a7e22d"
+}

@@ -1,0 +1,128 @@
+{
+  "json": {
+    "title": "User Onboarding Workflow",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "registration",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "User fills registration form"
+          },
+          {
+            "name": "status",
+            "value": "active"
+          }
+        ]
+      },
+      {
+        "name": "email_verification",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Email verification pending"
+          },
+          {
+            "name": "timeout",
+            "type": "Integer",
+            "value": 3600
+          }
+        ]
+      },
+      {
+        "name": "profile_setup",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "User customizes profile"
+          }
+        ]
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Onboarding complete"
+          }
+        ]
+      },
+      {
+        "name": "abandoned",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "User abandoned the process"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "registration",
+        "target": "email_verification",
+        "arrowType": "->",
+        "value": {
+          "text": "submit"
+        },
+        "attributes": {
+          "text": "submit"
+        }
+      },
+      {
+        "source": "email_verification",
+        "target": "profile_setup",
+        "arrowType": "->",
+        "value": {
+          "text": "verified"
+        },
+        "attributes": {
+          "text": "verified"
+        }
+      },
+      {
+        "source": "profile_setup",
+        "target": "complete",
+        "arrowType": "->",
+        "value": {
+          "text": "completed"
+        },
+        "attributes": {
+          "text": "completed"
+        }
+      },
+      {
+        "source": "email_verification",
+        "target": "abandoned",
+        "arrowType": "->",
+        "value": {
+          "text": "timeout"
+        },
+        "attributes": {
+          "text": "timeout"
+        }
+      },
+      {
+        "source": "registration",
+        "target": "abandoned",
+        "arrowType": "->",
+        "value": {
+          "text": "cancel"
+        },
+        "attributes": {
+          "text": "cancel"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>User Onboarding Workflow</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"registration\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>registration</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User fills registration form</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"status__key\" align=\"left\" balign=\"left\">status</td><td port=\"status__value\" align=\"left\" balign=\"left\">active</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"email_verification\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>email_verification</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Email verification pending</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Integer</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">3600</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"profile_setup\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>profile_setup</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User customizes profile</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Onboarding complete</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"abandoned\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>abandoned</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User abandoned the process</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"registration\" -> \"email_verification\" [label=\"submit\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"email_verification\" -> \"profile_setup\" [label=\"verified\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"profile_setup\" -> \"complete\" [label=\"completed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"email_verification\" -> \"abandoned\" [label=\"timeout\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"registration\" -> \"abandoned\" [label=\"cancel\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "3af0e5a003e11e00c8c14aea378768a69d6d0836b131237b9f301a027713f559"
+}

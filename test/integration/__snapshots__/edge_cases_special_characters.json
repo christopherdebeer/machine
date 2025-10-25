@@ -1,0 +1,57 @@
+{
+  "json": {
+    "title": "Special Characters Test 🚀",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "node_with_underscores",
+        "attributes": []
+      },
+      {
+        "name": "nodeWithSpaces",
+        "attributes": []
+      },
+      {
+        "name": "node123",
+        "attributes": []
+      },
+      {
+        "name": "_privateNode",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "node_with_underscores",
+        "target": "nodeWithSpaces",
+        "arrowType": "->"
+      },
+      {
+        "source": "nodeWithSpaces",
+        "target": "node123",
+        "arrowType": "->",
+        "value": {
+          "text": "transition: with-dashes"
+        },
+        "attributes": {
+          "text": "transition: with-dashes"
+        }
+      },
+      {
+        "source": "node123",
+        "target": "_privateNode",
+        "arrowType": "->",
+        "value": {
+          "text": "emoji: 🎉"
+        },
+        "attributes": {
+          "text": "emoji: 🎉"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Special Characters Test 🚀</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"node_with_underscores\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>node_with_underscores</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"nodeWithSpaces\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>nodeWithSpaces</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"node123\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>node123</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"_privateNode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>_privateNode</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"node_with_underscores\" -> \"nodeWithSpaces\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"nodeWithSpaces\" -> \"node123\" [label=\"transition: with-dashes\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"node123\" -> \"_privateNode\" [label=\"emoji: 🎉\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "25b52f0d7fed36817e18cd52e20b35895dc98db507995bedb9062e6e44c2d0c1"
+}
