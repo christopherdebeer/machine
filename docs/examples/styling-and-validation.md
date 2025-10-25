@@ -312,14 +312,28 @@ Process horizontal @Direction("LR") {
 
 ### 2. Node Styling Annotations
 
-**Current State**: Limited styling via edge annotations only.
+**Status**: ✅ **IMPLEMENTED**
 
-**Desired Feature**:
+Inline style annotations are now supported for both nodes and edges using the `@Style` annotation:
+
 ```dygram
+// String syntax
 Task important @Style("fillcolor: yellow; shape: box") {
     prompt: "Important task";
 };
+
+// Attribute syntax (NEW)
+Task critical @Style(fillcolor: red, color: white, penwidth: 3) {
+    prompt: "Critical task";
+};
+
+// Edge inline styling
+Task start;
+Task end;
+start -@Style(color: blue, penwidth: 4)-> end;
 ```
+
+See [Custom Styling](../styling.md#inline-style-annotations) for full documentation.
 
 ### 3. Global Styling Themes
 

@@ -147,10 +147,86 @@ process -@critical @hideLabel done-> complete;
 
 This generates: `label="done"` (no "@critical" shown) but still applies `color="#ff0000", penwidth="5"` from the style node.
 
+## Inline Style Annotations
+
+In addition to reusable style nodes, you can apply styles directly to individual nodes and edges using the `@Style` annotation with attribute arguments:
+
+### Node Inline Styling
+
+```dygram
+machine "Inline Style Example"
+
+// Using attribute syntax (comma-separated key: value pairs)
+Task important @Style(fillcolor: yellow, color: red, penwidth: 3) {
+    prompt: "Critical task with inline styling";
+}
+
+// Using string syntax (semicolon-separated CSS-like)
+Task warning @Style("fillcolor: orange; shape: diamond");
+
+// Combining inline styles with other annotations
+State active @Active @Style(fillcolor: lightgreen, shape: box);
+```
+
+### Edge Inline Styling
+
+```dygram
+machine "Edge Inline Styling"
+
+Task start;
+Task end;
+
+// Attribute syntax for edges
+start -@Style(color: red, penwidth: 4)-> end;
+
+// String syntax for edges
+start -@Style("color: blue; style: dashed") important-> end;
+```
+
+### Syntax Options
+
+The `@Style` annotation supports two formats:
+
+1. **Attribute Syntax**: `@Style(key1: value1, key2: value2)`
+   - Comma-separated key-value pairs
+   - No quotes needed for simple values
+   - Example: `@Style(color: red, fillcolor: yellow)`
+
+2. **String Syntax**: `@Style("key1: value1; key2: value2")`
+   - Semicolon-separated key-value pairs
+   - Wrapped in quotes
+   - Example: `@Style("color: red; fillcolor: yellow")`
+
+### Inline vs. Style Nodes
+
+- **Inline styles**: Best for one-off styling or quick prototypes
+- **Style nodes**: Best for reusable styles applied to multiple elements
+
+You can combine both approaches:
+
+```dygram
+// Reusable style for multiple nodes
+style errorStyle @Error {
+    color: "#ff0000";
+    penwidth: 3;
+}
+
+Task task1 @Error;  // Uses errorStyle
+Task task2 @Style(fillcolor: yellow);  // One-off inline style
+Task task3 @Error @Style(shape: star);  // Both: errorStyle + inline override
+```
+
+### Important Notes
+
+- **@Style annotations are hidden**: Unlike other annotations, `@Style` doesn't appear in node or edge labels
+- **Graphviz attributes**: All Graphviz DOT attributes are supported (see [Graphviz documentation](https://graphviz.org/doc/info/attrs.html))
+- **Style merging**: When combining style nodes and inline styles, inline styles are applied last and can override style node attributes
+
 ## Benefits
 
-- **Reusable**: Define styles once, apply to many nodes and edges
+- **Reusable**: Define styles once, apply to many nodes and edges (style nodes)
+- **Flexible**: Quick one-off styling without creating style nodes (inline styles)
 - **Declarative**: Separates visual styling from behavior
 - **Type-Safe**: Works with existing annotation system
-- **No Grammar Changes**: Uses existing DyGram syntax
-- **Flexible**: Hide annotation text while keeping visual styles
+- **Clean Labels**: @Style annotations don't clutter visual output
+- **Powerful**: Support for all Graphviz attributes
