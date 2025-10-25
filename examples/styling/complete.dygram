@@ -1,0 +1,33 @@
+machine "foo" @style(rankdir: LR)
+init a {
+  b{
+    c @x {
+      prop: val;
+    }
+    d {
+      style: {
+        color: blue;
+      }
+      link: f;
+      e{
+        f @x;
+      }
+    }
+  }
+}
+
+one @style(color: green;){
+  two {
+    style: {
+      shape: circle;
+    }
+    three;
+  }
+}
+
+b -@style(color: red; penwidth: 3;)-> two;
+
+style test @x {
+  xrank: min;
+  color: yellow;
+}

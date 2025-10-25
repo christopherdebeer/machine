@@ -330,9 +330,45 @@ function getNodeStyle(node: any, edges?: any[], styleNodes?: any[], validationCo
         }
     }
 
+    // Apply @style annotations directly (inline styles)
+    annotations.forEach((ann: any) => {
+        if (ann.name === 'style') {
+            // Check if annotation has attribute-style parameters
+            if (ann.attributes) {
+                // Apply each attribute as a graphviz property
+                Object.keys(ann.attributes).forEach(key => {
+                    const value = ann.attributes[key];
+                    baseStyle += `, ${key}="${value}"`;
+                });
+            } else if (ann.value) {
+                // Parse string value for inline styles (e.g., @style("color: red; penwidth: 3;"))
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                styleAttrs.forEach((attr: string) => {
+                    const [key, ...valueParts] = attr.split(':');
+                    if (key && valueParts.length > 0) {
+                        const value = valueParts.join(':').trim();
+                        baseStyle += `, ${key.trim()}="${value}"`;
+                    }
+                });
+            }
+        }
+    });
+
     // Apply custom styles from style nodes
     if (styleNodes && styleNodes.length > 0) {
         baseStyle = applyCustomStyles(node, styleNodes, baseStyle);
+    }
+
+    // Apply style attribute (e.g., style: { color: blue; })
+    const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
+    if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
+        // If style attribute is an object, apply each property
+        Object.keys(styleAttr.value).forEach(key => {
+            const value = styleAttr.value[key];
+            if (value !== undefined && value !== null) {
+                baseStyle += `, ${key}="${value}"`;
+            }
+        });
     }
 
     // Add validation warning styling if validation context is provided
@@ -680,6 +716,33 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push('  compound=true;');
     lines.push('  rankdir=TB;');
     lines.push('  pad=0.25;');
+
+    // Apply machine-level @style annotations to graph attributes
+    if (machineJson.annotations) {
+        machineJson.annotations.forEach((ann: any) => {
+            if (ann.name === 'style') {
+                // Check if annotation has attribute-style parameters
+                if (ann.attributes) {
+                    // Apply each attribute as a graphviz graph property
+                    Object.keys(ann.attributes).forEach(key => {
+                        const value = ann.attributes[key];
+                        lines.push(`  ${key}="${value}";`);
+                    });
+                } else if (ann.value) {
+                    // Parse string value for inline styles
+                    const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                    styleAttrs.forEach((attr: string) => {
+                        const [key, ...valueParts] = attr.split(':');
+                        if (key && valueParts.length > 0) {
+                            const value = valueParts.join(':').trim();
+                            lines.push(`  ${key.trim()}="${value}";`);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
     lines.push('  node [fontname="Arial", fontsize=10];');  // Removed default shape=record to allow per-node shapes
     lines.push('  edge [fontname="Arial", fontsize=9];');
     lines.push('');
@@ -1302,6 +1365,30 @@ function applyCustomEdgeStyles(edge: any, styleNodes: any[]): string {
     if (edgeAnnotations.length === 0) {
         return customStyles;
     }
+
+    // Apply @style annotations directly (inline styles on edges)
+    edgeAnnotations.forEach((ann: any) => {
+        if (ann.name === 'style') {
+            // Check if annotation has attribute-style parameters
+            if (ann.attributes) {
+                // Apply each attribute as a graphviz property
+                Object.keys(ann.attributes).forEach(key => {
+                    const value = ann.attributes[key];
+                    customStyles += `, ${key}="${value}"`;
+                });
+            } else if (ann.value) {
+                // Parse string value for inline styles (e.g., @style("color: red; penwidth: 3;"))
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                styleAttrs.forEach((attr: string) => {
+                    const [key, ...valueParts] = attr.split(':');
+                    if (key && valueParts.length > 0) {
+                        const value = valueParts.join(':').trim();
+                        customStyles += `, ${key.trim()}="${value}"`;
+                    }
+                });
+            }
+        }
+    });
 
     // Find matching style nodes
     for (const styleNode of styleNodes) {
