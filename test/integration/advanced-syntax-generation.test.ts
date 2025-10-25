@@ -3,7 +3,7 @@ import { createMachineServices } from '../../src/language/machine-module.js';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import type { Machine } from '../../src/language/generated/ast.js';
-import { generateJSON } from '../../src/language/generator/generator.js';
+import { generateJSON, generateGraphviz } from '../../src/language/generator/generator.js';
 
 const services = createMachineServices(EmptyFileSystem).Machine;
 const parse = parseHelper<Machine>(services);
@@ -273,6 +273,48 @@ describe('Combined Feature Generation', () => {
 
         // Notes
         expect(machineJson.notes).toHaveLength(3);
+    });
+});
+
+describe('Attribute reference edges', () => {
+    it('should expose attribute-qualified edges and inferred attribute links', async () => {
+        const input = `
+            machine "Refined"
+
+            parent {
+                spouse: "Alice";
+                child1 {
+                    age: 38;
+                }
+                child2 {
+                    likes: apples;
+                }
+            }
+
+            apples;
+
+            parent.spouse -> parent.child1;
+        `;
+
+        const result = await parse(input);
+        const json = await generateJSONFromModel(result.parseResult.value, '', {});
+        const machineJson = JSON.parse(json.json);
+
+        expect(machineJson.edges).toHaveLength(2);
+
+        const portEdge = machineJson.edges.find((edge: any) => edge.source === 'parent' && edge.target === 'child1');
+        expect(portEdge).toBeDefined();
+        expect(portEdge?.sourceAttribute).toBe('spouse');
+        expect(portEdge?.value?.sourceAttribute).toBe('spouse');
+
+        const inferredEdge = machineJson.edges.find((edge: any) => edge.source === 'child2' && edge.target === 'apples');
+        expect(inferredEdge).toBeDefined();
+        expect(inferredEdge?.value?.text).toBe('likes');
+        expect(inferredEdge?.sourceAttribute).toBe('likes');
+
+        const graphviz = generateGraphviz(result.parseResult.value, '', undefined);
+        expect(graphviz.content).toContain('"parent":"spouse__value" -> "child1"');
+        expect(graphviz.content).toContain('"child2":"likes__value" -> "apples"');
     });
 });
 

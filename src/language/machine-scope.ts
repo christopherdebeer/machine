@@ -16,18 +16,28 @@ export class MachineScopeProvider extends DefaultScopeProvider {
                 // Get all nodes in the machine, including nested ones
                 const allNodes = this.getAllNodes(machine);
                 const descriptions: AstNodeDescription[] = [];
+                const seenNames = new Set<string>();
 
-                // Create descriptions for simple names (backward compatible)
                 allNodes.forEach(node => {
-                    descriptions.push(this.descriptions.createDescription(node, node.name));
-                });
+                    const aliases = this.getNodeAliases(node);
+                    const attributeNames = (node.attributes ?? []).map(attr => attr.name).filter(Boolean);
 
-                // Create descriptions for qualified names (parent.child, parent.child.grandchild, etc.)
-                allNodes.forEach(node => {
-                    const qualifiedName = this.getQualifiedName(node);
-                    if (qualifiedName && qualifiedName !== node.name) {
-                        descriptions.push(this.descriptions.createDescription(node, qualifiedName));
-                    }
+                    aliases.forEach(alias => {
+                        if (!seenNames.has(alias)) {
+                            descriptions.push(this.descriptions.createDescription(node, alias));
+                            seenNames.add(alias);
+                        }
+
+                        if (attributeNames.length > 0) {
+                            attributeNames.forEach(attrName => {
+                                const attributeAlias = `${alias}.${attrName}`;
+                                if (!seenNames.has(attributeAlias)) {
+                                    descriptions.push(this.descriptions.createDescription(node, attributeAlias));
+                                    seenNames.add(attributeAlias);
+                                }
+                            });
+                        }
+                    });
                 });
 
                 return this.createScope(stream(descriptions));
@@ -91,5 +101,15 @@ export class MachineScopeProvider extends DefaultScopeProvider {
         }
 
         return parts.join('.');
+    }
+
+    private getNodeAliases(node: Node): string[] {
+        const aliases = new Set<string>();
+        aliases.add(node.name);
+        const qualifiedName = this.getQualifiedName(node);
+        if (qualifiedName) {
+            aliases.add(qualifiedName);
+        }
+        return Array.from(aliases);
     }
 }

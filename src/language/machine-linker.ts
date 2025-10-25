@@ -71,15 +71,31 @@ export class MachineLinker extends DefaultLinker {
      */
     private autoCreateMissingNodes(machine: Machine): void {
         const existingNodes = new Set<string>();
+        const nodeAttributes = new Map<string, Set<string>>();
 
         // Collect all existing node names (both simple and qualified)
         const collectNodeNames = (nodes: Node[], prefix: string = '') => {
             for (const node of nodes) {
                 existingNodes.add(node.name);
-                // Also add qualified name if nested
                 if (prefix) {
                     existingNodes.add(`${prefix}.${node.name}`);
                 }
+
+                const qualifiedName = prefix ? `${prefix}.${node.name}` : node.name;
+                const attributeNames = (node.attributes ?? []).map(attr => attr.name);
+
+                if (!nodeAttributes.has(qualifiedName)) {
+                    nodeAttributes.set(qualifiedName, new Set());
+                }
+                const qualifiedSet = nodeAttributes.get(qualifiedName)!;
+                attributeNames.forEach(name => qualifiedSet.add(name));
+
+                if (!nodeAttributes.has(node.name)) {
+                    nodeAttributes.set(node.name, new Set());
+                }
+                const simpleSet = nodeAttributes.get(node.name)!;
+                attributeNames.forEach(name => simpleSet.add(name));
+
                 collectNodeNames(node.nodes, prefix ? `${prefix}.${node.name}` : node.name);
             }
         };
@@ -88,14 +104,12 @@ export class MachineLinker extends DefaultLinker {
         // Collect all referenced node names from edges
         const referencedNodes = new Set<string>();
         for (const edge of machine.edges) {
-            // Collect source references
             for (const source of edge.source) {
                 if (source.$refText) {
                     referencedNodes.add(source.$refText);
                 }
             }
 
-            // Collect target references
             for (const segment of edge.segments) {
                 for (const target of segment.target) {
                     if (target.$refText) {
@@ -105,18 +119,39 @@ export class MachineLinker extends DefaultLinker {
             }
         }
 
-        // Create placeholder nodes for missing references
         for (const refText of referencedNodes) {
-            if (!existingNodes.has(refText)) {
-                // Handle qualified names (e.g., "workflow.start")
-                if (refText.includes('.')) {
-                    this.createNestedPlaceholderNode(machine, refText);
-                } else {
-                    // Simple name - create at root level
-                    this.createPlaceholderNode(machine, refText);
-                }
+            if (existingNodes.has(refText)) {
+                continue;
+            }
+
+            if (this.isAttributeReference(refText, nodeAttributes)) {
+                continue;
+            }
+
+            if (refText.includes('.')) {
+                this.createNestedPlaceholderNode(machine, refText);
+            } else {
+                this.createPlaceholderNode(machine, refText);
             }
         }
+    }
+
+    private isAttributeReference(refText: string, nodeAttributes: Map<string, Set<string>>): boolean {
+        if (!refText.includes('.')) {
+            return false;
+        }
+
+        const parts = refText.split('.');
+        for (let i = parts.length - 1; i > 0; i--) {
+            const nodePath = parts.slice(0, i).join('.');
+            const attributeName = parts[i];
+            const attributeSet = nodeAttributes.get(nodePath) ?? nodeAttributes.get(parts[i - 1]);
+            if (attributeSet && attributeSet.has(attributeName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

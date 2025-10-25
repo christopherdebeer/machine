@@ -144,14 +144,29 @@ function findAttributePort(attributes: any[], attributeName: string, column: Att
         return undefined;
     }
 
-    const normalizedTarget = sanitizePortId(attributeName);
+    const candidates = new Set<string>();
+    const cleanedName = attributeName.replace(/^["']|["']$/g, '').trim();
+    if (cleanedName) {
+        candidates.add(cleanedName);
+        candidates.add(sanitizePortId(cleanedName));
+
+        const dotIndex = cleanedName.indexOf('.');
+        if (dotIndex > 0) {
+            const prefix = cleanedName.substring(0, dotIndex);
+            if (prefix) {
+                candidates.add(prefix);
+                candidates.add(sanitizePortId(prefix));
+            }
+        }
+    }
+
     const entries = computeAttributePortEntries(attributes);
 
     for (const entry of entries) {
         const attrName = entry.attr?.name ?? '';
         const sanitizedName = sanitizePortId(attrName);
 
-        if (attrName === attributeName || sanitizedName === normalizedTarget) {
+        if (candidates.has(attrName) || candidates.has(sanitizedName)) {
             return column === 'key' ? entry.keyPort : entry.valuePort;
         }
     }
@@ -1046,14 +1061,17 @@ function generateSemanticHierarchy(
             // Node has children - create a cluster subgraph with enhanced label
             lines.push(`${indent}subgraph cluster_${node.name} {`);
 
-            // Generate rich HTML label for namespace showing id, type, annotations, title, description, and attributes
-            const namespaceLabel = generateNamespaceLabel(node, options?.runtimeContext, wrappingConfig);
-            lines.push(`${indent}  label=<${namespaceLabel}>;`);
+            lines.push(`${indent}  label="";`);
 
             lines.push(`${indent}  style=filled;`);
             lines.push(`${indent}  fontsize=10;`);
             lines.push(`${indent}  fillcolor="#FFFFFF";`);
             lines.push(`${indent}  color="#999999";`);
+
+            // Render a namespace node to host attribute ports within the cluster
+            const namespaceLabel = generateNamespaceLabel(node, options?.runtimeContext, wrappingConfig);
+            lines.push(`${indent}  "${node.name}" [label=<${namespaceLabel}>, shape=plain, margin=0];`);
+
             const anchorName = getClusterAnchorName(node.name);
             lines.push(`${indent}  "${anchorName}" [shape=point, width=0.01, height=0.01, label="", style=invis, fixedsize=true];`);
             lines.push('');
@@ -1450,13 +1468,18 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         const sourceAttributeHandle = normalizeHandleValue(edge.sourceAttribute ?? edgeValue.sourceAttribute);
         const targetAttributeHandle = normalizeHandleValue(edge.targetAttribute ?? edgeValue.targetAttribute);
 
+        const hasExplicitSourcePort = !!(sourcePortHandle && sourcePortHandle !== 'cluster' && sourcePortHandle !== 'header');
+        const hasExplicitTargetPort = !!(targetPortHandle && targetPortHandle !== 'cluster' && targetPortHandle !== 'header');
+        const wantsSourceAttributePort = !!sourceAttributeHandle;
+        const wantsTargetAttributePort = !!targetAttributeHandle;
+
         let actualSource = edge.source;
         let actualTarget = edge.target;
         let sourcePortName: string | undefined;
         let targetPortName: string | undefined;
 
-        const useSourceClusterAnchor = sourceIsParent || ((sourcePortHandle === 'cluster' || sourcePortHandle === 'header') && parentNodes.has(edge.source));
-        const useTargetClusterAnchor = targetIsParent || ((targetPortHandle === 'cluster' || targetPortHandle === 'header') && parentNodes.has(edge.target));
+        const useSourceClusterAnchor = !hasExplicitSourcePort && !wantsSourceAttributePort && (sourceIsParent || ((sourcePortHandle === 'cluster' || sourcePortHandle === 'header') && parentNodes.has(edge.source)));
+        const useTargetClusterAnchor = !hasExplicitTargetPort && !wantsTargetAttributePort && (targetIsParent || ((targetPortHandle === 'cluster' || targetPortHandle === 'header') && parentNodes.has(edge.target)));
 
         if (useSourceClusterAnchor) {
             actualSource = getClusterAnchorName(edge.source);
@@ -1469,7 +1492,7 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         }
 
         if (!useSourceClusterAnchor) {
-            if (sourcePortHandle && sourcePortHandle !== 'cluster' && sourcePortHandle !== 'header') {
+            if (hasExplicitSourcePort) {
                 sourcePortName = sourcePortHandle;
             } else if (sourceAttributeHandle) {
                 const sourceNode = nodeLookup.get(edge.source);
@@ -1482,7 +1505,7 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         }
 
         if (!useTargetClusterAnchor) {
-            if (targetPortHandle && targetPortHandle !== 'cluster' && targetPortHandle !== 'header') {
+            if (hasExplicitTargetPort) {
                 targetPortName = targetPortHandle;
             } else if (targetAttributeHandle) {
                 const targetNode = nodeLookup.get(edge.target);
