@@ -513,24 +513,41 @@ class JSONGenerator extends BaseGenerator {
     }
 
     /**
-     * Serialize notes attached to nodes
-     * Notes now have target reference, optional title, annotations, and attributes
+     * Serialize notes from nodes
+     * Notes are now regular nodes with type="note"
      */
     private serializeNotes(): any[] {
-        if (!this.machine.notes || this.machine.notes.length === 0) {
-            return [];
-        }
+        const notes: any[] = [];
 
-        return this.machine.notes.map(note => ({
-            target: note.target.ref?.name || '',
-            content: note.title?.replace(/^"|"$/g, '') || '',
-            annotations: note.annotations?.map((ann: any) => serializeAnnotation(ann)) || [],
-            attributes: note.attributes?.map((attr: any) => ({
-                name: attr.name,
-                type: attr.type,
-                value: this.extractPrimitiveValue(attr.value)
-            })) || []
-        })).filter(n => n.target); // Filter out notes with invalid targets
+        const collectNotes = (nodeList: Node[]) => {
+            nodeList.forEach(node => {
+                // Check if this is a note node (type === "note")
+                if (node.type === 'note') {
+                    // Extract target from attributes
+                    const targetAttr = node.attributes?.find(attr => attr.name === 'target');
+                    const target = targetAttr ? this.extractPrimitiveValue(targetAttr.value) : '';
+
+                    notes.push({
+                        target: target,
+                        content: node.title?.replace(/^"|"$/g, '') || '',
+                        annotations: node.annotations?.map((ann: any) => serializeAnnotation(ann)) || [],
+                        attributes: node.attributes?.filter(attr => attr.name !== 'target').map((attr: any) => ({
+                            name: attr.name,
+                            type: attr.type,
+                            value: this.extractPrimitiveValue(attr.value)
+                        })) || []
+                    });
+                }
+
+                // Recursively check child nodes
+                if (node.nodes && node.nodes.length > 0) {
+                    collectNotes(node.nodes);
+                }
+            });
+        };
+
+        collectNotes(this.machine.nodes);
+        return notes.filter(n => n.target); // Filter out notes without targets
     }
 
     private serializeEdges(): any[] {

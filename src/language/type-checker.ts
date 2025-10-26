@@ -3,7 +3,8 @@
  * Validates type annotations, infers types, and checks compatibility
  */
 
-import type { Machine, Node, Attribute, AttributeValue } from './generated/ast.js';
+import type { Machine, Node, Attribute, AttributeValue, ArrayValue, ObjectValue, PrimitiveValue } from './generated/ast.js';
+import { isArrayValue, isObjectValue, isPrimitiveValue } from './generated/ast.js';
 import {
     ValidationContext,
     ValidationSeverity,
@@ -157,9 +158,62 @@ export class TypeChecker {
             return 'undefined';
         }
 
-        // Handle AST node values
+        // Handle AST node values using type guards
         if (typeof value === 'object' && value !== null) {
-            // Check if value property exists and is populated
+            // Check for ArrayValue using type guard
+            if (isArrayValue(value)) {
+                const arrayVal = value as ArrayValue;
+                if (arrayVal.values.length === 0) {
+                    throw new Error('Unable to infer type for empty array');
+                }
+                // Recursively infer the type of the first element
+                const elementType = this.inferType(arrayVal.values[0]);
+                // Check if all elements have the same type
+                const allSameType = arrayVal.values.every(v => this.inferType(v) === elementType);
+                if (!allSameType) {
+                    // If mixed types, return Array<any>
+                    return 'Array<any>';
+                }
+                return `Array<${elementType}>`;
+            }
+
+            // Check for ObjectValue using type guard
+            if (isObjectValue(value)) {
+                const objVal = value as ObjectValue;
+                if (objVal.attributes.length === 0) {
+                    return 'Object';
+                }
+                // For now, return Record<string, any>
+                // Future enhancement: infer specific object shape
+                return 'Record<string, any>';
+            }
+
+            // Check for PrimitiveValue using type guard
+            if (isPrimitiveValue(value)) {
+                const primVal = value as PrimitiveValue;
+                const val = primVal.value;
+
+                if (typeof val === 'string') {
+                    // Check if the string is actually a number (Langium NUMBER terminal returns string)
+                    if (/^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(val)) {
+                        return 'number';
+                    }
+                    // Check if it's a boolean string
+                    if (val === 'true' || val === 'false') {
+                        return 'boolean';
+                    }
+                    if (val === 'null') {
+                        return 'null';
+                    }
+                    return 'string';
+                } else if (typeof val === 'number') {
+                    return 'number';
+                } else if (typeof val === 'boolean') {
+                    return 'boolean';
+                }
+            }
+
+            // Fallback: Check if value property exists and is populated
             if ('value' in value && (value as any).value !== undefined) {
                 const val = (value as any).value;
 
@@ -213,16 +267,9 @@ export class TypeChecker {
                     return 'boolean';
                 }
 
-                // Check if it's an array
-                if (cstText.startsWith('[') && cstText.endsWith(']')) {
-                    // Check if it's an empty array
-                    const trimmed = cstText.substring(1, cstText.length - 1).trim();
-                    if (trimmed === '') {
-                        throw new Error('Unable to infer type for empty array');
-                    }
-                    // For arrays, we'd need more sophisticated parsing
-                    // For now, return Array<any>
-                    return 'Array<any>';
+                // Check if it's an object (this shouldn't happen with proper AST parsing)
+                if (cstText.startsWith('{') && cstText.endsWith('}')) {
+                    return 'Object';
                 }
 
                 // Otherwise, assume it's a reference or identifier

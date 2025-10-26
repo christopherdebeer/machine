@@ -57,7 +57,7 @@ entry Machine:
     ('machine' title=STRING (annotations+=Annotation)* (('{'
         (attributes+=Attribute<false>)*
     '}' ';'?) | ';'?))?
-    (edges+=Edge<true> | nodes+=Node<true> | notes+=Note | attributes+=Attribute<true>)*
+    (edges+=Edge<true> | nodes+=Node<true> | attributes+=Attribute<true>)*
 ;
 
 // Recursive AttributeValue supporting primitives, arrays, and nested objects
@@ -99,18 +99,9 @@ AnnotationParam:
     | name=ID
 ;
 
-// Note attached to a node for documentation
-// The identifier after 'note' is the TARGET node, not the note's ID
-// This allows: note targetNode "content";
-// And also: note targetNode "Title" @Critical { with: 'attributes'; }
-Note:
-    'note' target=[Node:QualifiedName]
-    (title=STRING)?
-    (annotations+=Annotation)*
-    (('{' 
-        (attributes+=Attribute<false>)*
-    '}' ';'?) | ';'?)
-;
+// Note: The 'note' keyword is now treated as a regular node type
+// Example: note MyNote "Documentation content" { target: "SomeNode"; };
+// The node type 'note' is handled specially in the generator/validator
 
 // Type definition that supports generic types (e.g., Promise<Result>, List<Step>)
 TypeDef:

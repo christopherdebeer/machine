@@ -20,17 +20,22 @@ machine "Test"
 
 node1;
 
-note node1 "This is a note node1";
+note MyNote "This is a note about node1" {
+    target: "node1";
+};
         `;
 
         const document = await parse(text);
         expect(document.parseResult.lexerErrors).toHaveLength(0);
         expect(document.parseResult.parserErrors).toHaveLength(0);
-        
+
         const machine = document.parseResult.value;
-        expect(machine.notes).toHaveLength(1);
-        expect(machine.notes[0].target.$refText).toBe('node1');
-        expect(machine.notes[0].title).toBe('This is a note node1');
+        const noteNode = machine.nodes.find(n => n.type === 'note');
+        expect(noteNode).toBeDefined();
+        expect(noteNode?.name).toBe('MyNote');
+        expect(noteNode?.title).toBe('"This is a note about node1"');
+        const targetAttr = noteNode?.attributes?.find(a => a.name === 'target');
+        expect(targetAttr).toBeDefined();
     });
 
     test('should parse note with annotations', async () => {
@@ -39,17 +44,20 @@ machine "Test"
 
 node1;
 
-note node1 "Title" @Critical;
+note MyNote "Title" @Critical {
+    target: "node1";
+};
         `;
 
         const document = await parse(text);
         expect(document.parseResult.lexerErrors).toHaveLength(0);
         expect(document.parseResult.parserErrors).toHaveLength(0);
-        
+
         const machine = document.parseResult.value;
-        expect(machine.notes).toHaveLength(1);
-        expect(machine.notes[0].annotations).toHaveLength(1);
-        expect(machine.notes[0].annotations[0].name).toBe('Critical');
+        const noteNode = machine.nodes.find(n => n.type === 'note');
+        expect(noteNode).toBeDefined();
+        expect(noteNode?.annotations).toHaveLength(1);
+        expect(noteNode?.annotations?.[0].name).toBe('Critical');
     });
 
     test('should parse note with attributes', async () => {
@@ -58,7 +66,8 @@ machine "Test"
 
 node1;
 
-note node1 "Title" @Critical {
+note MyNote "Title" @Critical {
+    target: "node1";
     priority: "high";
     category: "documentation";
 }
@@ -67,12 +76,15 @@ note node1 "Title" @Critical {
         const document = await parse(text);
         expect(document.parseResult.lexerErrors).toHaveLength(0);
         expect(document.parseResult.parserErrors).toHaveLength(0);
-        
+
         const machine = document.parseResult.value;
-        expect(machine.notes).toHaveLength(1);
-        expect(machine.notes[0].attributes).toHaveLength(2);
-        expect(machine.notes[0].attributes[0].name).toBe('priority');
-        expect(machine.notes[0].attributes[1].name).toBe('category');
+        const noteNode = machine.nodes.find(n => n.type === 'note');
+        expect(noteNode).toBeDefined();
+        expect(noteNode?.attributes?.length).toBeGreaterThanOrEqual(3);
+        const priorityAttr = noteNode?.attributes?.find(a => a.name === 'priority');
+        const categoryAttr = noteNode?.attributes?.find(a => a.name === 'category');
+        expect(priorityAttr).toBeDefined();
+        expect(categoryAttr).toBeDefined();
     });
 
     test('should validate note target in strict mode', async () => {
@@ -81,17 +93,22 @@ machine "Test" @StrictMode
 
 node1;
 
-note node1 "Valid note";
-note nonexistent "Invalid note - target does not exist";
+note ValidNote "Valid note" {
+    target: "node1";
+};
+
+note InvalidNote "Invalid note - target does not exist" {
+    target: "nonexistent";
+};
         `;
 
         const document = await parse(text);
         expect(document.parseResult.lexerErrors).toHaveLength(0);
         expect(document.parseResult.parserErrors).toHaveLength(0);
-        
+
         // Check that validation errors are present for undefined target
         const diagnostics = document.diagnostics || [];
-        const noteErrors = diagnostics.filter(d => 
+        const noteErrors = diagnostics.filter(d =>
             d.message.includes('Note references undefined node')
         );
         expect(noteErrors.length).toBeGreaterThan(0);
