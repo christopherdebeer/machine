@@ -85,7 +85,7 @@ async function extractExamples(projectRoot) {
         for (const entry of entries) {
             const fullPath = join(dir, entry.name);
             if (entry.isDirectory()) {
-                if (entry.name !== 'node_modules' && entry.name !== '.git') {
+                if (entry.name !== 'node_modules' && entry.name !== '.git' && entry.name !== 'archived') {
                     files.push(...await scanMarkdownFiles(fullPath));
                 }
             } else if (entry.name.endsWith('.md') || entry.name.endsWith('.mdx')) {
