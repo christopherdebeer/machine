@@ -93,35 +93,185 @@ solution -documented_by-> documentation;
 Evolve into a comprehensive executable model that bridges conceptual and technical domains.
 
 ```dygram
-machine "Knowledge Management System"
+machine "DyGram: Dynamic State Machine DSL" @Version("0.3.7")
 
-Concept idea "Neural Interface" {
-    creator: "Research Team";
-    created<Date>: "2025-01-15";
-    priority<number>: 8;
-    domain: "Neuroscience";
-    description: "Direct neural interface for thought-to-text";
-    tags: ["neural", "interface", "breakthrough"];
-};
+// ═══════════════════════════════════════════════════════════
+// CONFIGURATION & FOUNDATION
+// ═══════════════════════════════════════════════════════════
 
-Implementation implementation "Neural Interface Prototype" {
-    status: "In Progress";
-    owner: "Engineering";
-    deadline<Date>: "2025-03-30";
-    repository: "github.com/org/neural-interface";
-    version<SemanticVersion>: "0.1.0";
-    dependencies: ["tensorflow", "brain-compute-sdk"];
-};
+context config @Singleton {
+    language<string>: "DyGram";
+    framework<string>: "Langium";
+    version<string>: "0.3.7";
+    editors<Array<string>>: ["Monaco", "CodeMirror"];
+}
 
-Resource resource1 "Research Paper" {
-    url: "https://example.com/papers/neural-interfaces-2024";
-    format: "PDF";
-    access<AccessLevel>: "Confidential";
-};
+// ═══════════════════════════════════════════════════════════
+// CORE ARCHITECTURE PIPELINE
+// ═══════════════════════════════════════════════════════════
 
-idea -inspires, confidence: 0.85-> implementation;
-idea -documented_in-> resource1;
-implementation -references-> resource1;
+State SourceCode "User's .dygram file" @Entry;
+
+Task Parse "Parse via Langium" @Critical {
+    input<string>: "{{ SourceCode }}";
+    output<AST>: "Abstract Syntax Tree";
+}
+
+Task Validate "Validate graph structure" {
+    checks<Array<string>>: ["cycles", "references", "types"];
+}
+
+Task Transform "Build semantic model" {
+    phase<string>: "type-checking";
+}
+
+Process Generate "Generate outputs" @Async {
+    formats<Array<string>>: ["json", "html", "dot", "dsl"];
+}
+
+Task Execute "Rails-based execution" @Meta {
+    prompt: "Ride the machine rails with automated + agent-driven transitions";
+    model<string>: "claude-3-5-sonnet";
+}
+
+Result Visualization "Interactive diagram" {
+    renderer<string>: "Graphviz";
+}
+
+Result Runtime "Executing system" {
+    agent<string>: "Claude";
+}
+
+// ═══════════════════════════════════════════════════════════
+// PIPELINE FLOW (demonstrating arrow types)
+// ═══════════════════════════════════════════════════════════
+
+// Standard transitions
+SourceCode -> Parse -> Validate -> Transform;
+
+// Parallel branching
+Transform -> Generate, Execute;
+
+// Results
+Generate => Visualization;
+Execute => Runtime;
+
+// ═══════════════════════════════════════════════════════════
+// LANGUAGE FEATURES (nested semantic structure)
+// ═══════════════════════════════════════════════════════════
+
+Concept Language "DyGram Language System" {
+
+    Concept Grammar @Abstract {
+        terminals<number>: 15;
+        rules<number>: 25;
+    }
+
+    Concept NodeTypes "15+ node types" {
+        Task taskType "Generative LLM tasks";
+        State stateType "Workflow states";
+        Input inputType "Entry points";
+        Output outputType "Exit points";
+        Context contextType "Shared data";
+        Resource resourceType "External resources";
+        Process processType "Sub-processes";
+        Concept conceptType "Domain concepts";
+        Implementation implType "Implementations";
+    }
+
+    Concept ArrowSemantics "7 arrow types" {
+        basic: "->";      // Basic flow
+        double: "-->";    // Dependency
+        fat: "=>";        // Strong causation
+        inherit: "<|--";  // Inheritance
+        compose: "*-->";  // Composition
+        aggregate: "o-->"; // Aggregation
+        bidirectional: "<-->"; // Bidirectional
+    }
+
+    Concept TypeSystem {
+        primitives<Array<string>>: ["string", "number", "boolean"];
+        generics<Array<string>>: ["Array", "Map", "Promise", "Result"];
+        specialized<Array<string>>: ["Date", "UUID", "URL", "Duration"];
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXECUTION MODEL (demonstrating rails pattern)
+// ═══════════════════════════════════════════════════════════
+
+Concept ExecutionModel "Rails-Based Execution" {
+
+    State deterministic "Automated Transition" {
+        speed<string>: "instant";
+        llm<boolean>: false;
+    }
+
+    State intelligent "Agent Decision" {
+        reasoning<boolean>: true;
+        llm<boolean>: true;
+    }
+
+    Task metaProgramming @Meta {
+        prompt: "Agent constructs tools dynamically";
+        capability<string>: "self-modification";
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// TECHNOLOGY STACK
+// ═══════════════════════════════════════════════════════════
+
+Implementation Stack "Technology Stack" {
+    langium<string>: "Language Framework";
+    monaco<string>: "Desktop Editor";
+    codemirror<string>: "Mobile Editor";
+    vite<string>: "Build Tool";
+    graphviz<string>: "Visualization";
+    anthropic<string>: "LLM Runtime";
+}
+
+// ═══════════════════════════════════════════════════════════
+// RELATIONSHIPS (demonstrating relationship semantics)
+// ═══════════════════════════════════════════════════════════
+
+// Core pipeline reads configuration
+Parse -reads-> config;
+Generate -reads-> config;
+Execute -reads-> config;
+
+// Language composition relationships
+Language *--> Language.Grammar;          // Grammar is part of Language
+Language *--> Language.NodeTypes;        // NodeTypes are part of Language
+Language *--> Language.ArrowSemantics;   // ArrowSemantics are part of Language
+Language *--> Language.TypeSystem;       // TypeSystem is part of Language
+
+// Inheritance relationships
+Language.NodeTypes.taskType <|-- Execute;  // Execute is a Task
+Language.NodeTypes.stateType <|-- SourceCode; // SourceCode is a State
+
+// Implementation drives concepts
+Stack -implements-> Language;
+Stack -implements-> ExecutionModel;
+
+// Execution model relationships with multiplicity
+ExecutionModel "1" *--> "1" ExecutionModel.deterministic;
+ExecutionModel "1" *--> "1" ExecutionModel.intelligent;
+ExecutionModel "1" o--> "0..*" ExecutionModel.metaProgramming;
+
+// Bidirectional dependencies
+Runtime <--> Execute;
+Visualization <--> Generate;
+
+// ═══════════════════════════════════════════════════════════
+// DOCUMENTATION
+// ═══════════════════════════════════════════════════════════
+
+note Language "DyGram is a DSL for dynamic state machines that bridges conceptual thinking and structured implementation. It features rails-based execution where deterministic paths execute instantly while complex decisions leverage Claude's reasoning.";
+
+note Execute @Critical "The Execute task demonstrates meta-programming: agents ride machine rails, make intelligent decisions at branching points, and can construct tools dynamically during execution.";
+
+note config "Configuration context is inherited by all tasks through semantic nesting - no explicit edges needed. This showcases DyGram's automatic context propagation.";
 ```
 
 ## Documentation
