@@ -269,7 +269,7 @@ Visualization <--> Generate;
 
 note Language "DyGram is a DSL for dynamic state machines that bridges conceptual thinking and structured implementation. It features rails-based execution where deterministic paths execute instantly while complex decisions leverage Claude's reasoning.";
 
-note Execute @Critical "The Execute task demonstrates meta-programming: agents ride machine rails, make intelligent decisions at branching points, and can construct tools dynamically during execution.";
+note Execute "The Execute task demonstrates meta-programming: agents ride machine rails, make intelligent decisions at branching points, and can construct tools dynamically during execution." @Critical;
 
 note config "Configuration context is inherited by all tasks through semantic nesting - no explicit edges needed. This showcases DyGram's automatic context propagation.";
 ```
