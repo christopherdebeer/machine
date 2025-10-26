@@ -24,7 +24,7 @@ const coverageReportExists = fs.existsSync(path.join(outputDir, 'coverage', 'ind
 const e2eArtifactsExist = fs.existsSync(path.join(outputDir, 'e2e-artifacts'));
 const vitestReportExists = fs.existsSync(path.join(outputDir, 'vitest', 'junit.xml'));
 const generativeReportExists = fs.existsSync(path.join(outputDir, 'generative', 'index.html'));
-const comprehensiveGenerativeReportExists = fs.existsSync(path.join(outputDir, 'comprehensive-generative', 'REPORT.md'));
+const comprehensiveGenerativeReportExists = fs.existsSync(path.join(outputDir, 'comprehensive-generative', 'index.html'));
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -237,7 +237,7 @@ const html = `<!DOCTYPE html>
                 <p>Transformation pipeline validation tests ensuring DyGram source code correctly transforms to AST, JSON, and Graphviz formats.</p>
                 <ul>
                     <li>🌐 ${generativeReportExists ? '<a href="generative/index.html">Generative Test Report (27 tests)</a>' : '<span class="unavailable">Generative Test Report</span>'} ${generativeReportExists ? '<span class="status available">✓</span>' : '<span class="status unavailable">Not Generated</span>'}</li>
-                    <li>📄 ${comprehensiveGenerativeReportExists ? '<a href="comprehensive-generative/REPORT.md">Comprehensive Report (97 tests)</a>' : '<span class="unavailable">Comprehensive Report</span>'} ${comprehensiveGenerativeReportExists ? '<span class="status available">✓</span>' : '<span class="status unavailable">Not Generated</span>'}</li>
+                    <li>🌐 ${comprehensiveGenerativeReportExists ? '<a href="comprehensive-generative/index.html">Comprehensive Report (97 tests)</a>' : '<span class="unavailable">Comprehensive Report</span>'} ${comprehensiveGenerativeReportExists ? '<span class="status available">✓</span>' : '<span class="status unavailable">Not Generated</span>'}</li>
                 </ul>
             </div>
         </div>
