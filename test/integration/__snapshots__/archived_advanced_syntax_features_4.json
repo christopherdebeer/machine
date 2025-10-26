@@ -1,0 +1,88 @@
+{
+  "json": {
+    "title": "Generic Types Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "endpoints",
+            "type": "Map<string, string>",
+            "value": [
+              "api",
+              "https://api.example.com"
+            ]
+          },
+          {
+            "name": "headers",
+            "type": "Array<string>",
+            "value": [
+              "Authorization",
+              "Bearer token"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "fetchData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "response",
+            "type": "Promise<Response>",
+            "value": "pending"
+          },
+          {
+            "name": "retries",
+            "type": "number",
+            "value": 3
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ]
+      },
+      {
+        "name": "processData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "input",
+            "type": "Array<Record>",
+            "value": []
+          },
+          {
+            "name": "output",
+            "type": "Promise<Array<TransformedRecord>>",
+            "value": "pending"
+          }
+        ]
+      },
+      {
+        "name": "result",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "data",
+            "type": "Optional<Array<Record>>",
+            "value": "none"
+          },
+          {
+            "name": "error",
+            "type": "Optional<Error>",
+            "value": "none"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Generic Types Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"endpoints__key\" align=\"left\" balign=\"left\">endpoints : Map&lt;string, string&gt;</td><td port=\"endpoints__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;api&quot;,<br align=\"left\"/>  &quot;https://api.example.com&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"headers__key\" align=\"left\" balign=\"left\">headers : Array&lt;string&gt;</td><td port=\"headers__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;Authorization&quot;,<br align=\"left\"/>  &quot;Bearer token&quot;<br align=\"left\"/>]</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 2 issues</b><br/>Type mismatch: expected Map&lt;string, string&gt;, got A...<br/>Type mismatch: expected Array&lt;string&gt;, got Array&lt;a...<br/></font></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", penwidth=3, color=\"#D32F2F\"];\n  \"fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchData</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"response__key\" align=\"left\" balign=\"left\">response : Promise&lt;Response&gt;</td><td port=\"response__value\" align=\"left\" balign=\"left\">pending</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : number</td><td port=\"retries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected Promise&lt;Response&gt;, got str...<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n  \"processData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processData</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input : Array&lt;Record&gt;</td><td port=\"input__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"output__key\" align=\"left\" balign=\"left\">output : Promise&lt;Array&lt;TransformedRecord&gt;&gt;</td><td port=\"output__value\" align=\"left\" balign=\"left\">pending</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 2 issues</b><br/>Type mismatch: expected Array&lt;Record&gt;, got Array&lt;R...<br/>Type mismatch: expected Promise&lt;Array&lt;TransformedR...<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n  \"result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>result</b> <i>&lt;state&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"data__key\" align=\"left\" balign=\"left\">data : Optional&lt;Array&lt;Record&gt;&gt;</td><td port=\"data__value\" align=\"left\" balign=\"left\">none</td></tr><tr><td port=\"error__key\" align=\"left\" balign=\"left\">error : Optional&lt;Error&gt;</td><td port=\"error__value\" align=\"left\" balign=\"left\">none</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 2 issues</b><br/>Type mismatch: expected Optional&lt;Array&lt;Record&gt;&gt;, g...<br/>Type mismatch: expected Optional&lt;Error&gt;, got strin...<br/></font></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", penwidth=3, color=\"#D32F2F\"];\n\n\n  // Validation Warnings\n  \"warning_config_0\" [label=<🔴 Type mismatch: expected Map&lt;string,<br/>string&gt;, got Array&lt;any&gt;. Expected<br/>object, received string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_config_0\" -> \"config\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_config_1\" [label=<🔴 Type mismatch: expected<br/>Array&lt;string&gt;, got Array&lt;any&gt;. Expected<br/>array, received string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_config_1\" -> \"config\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_fetchData_0\" [label=<🔴 Type mismatch: expected<br/>Promise&lt;Response&gt;, got string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_fetchData_0\" -> \"fetchData\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_processData_0\" [label=<🔴 Type mismatch: expected<br/>Array&lt;Record&gt;, got Array&lt;Record&gt;.<br/>Expected array, received string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_processData_0\" -> \"processData\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_processData_1\" [label=<🔴 Type mismatch: expected<br/>Promise&lt;Array&lt;TransformedRecord&gt;&gt;, got<br/>string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_processData_1\" -> \"processData\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_result_0\" [label=<🔴 Type mismatch: expected<br/>Optional&lt;Array&lt;Record&gt;&gt;, got string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_result_0\" -> \"result\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_result_1\" [label=<🔴 Type mismatch: expected<br/>Optional&lt;Error&gt;, got string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_result_1\" -> \"result\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "20622e3d04ae79a0e0278a4972587bf287af01f68698642b90496f3e57a6200f"
+}

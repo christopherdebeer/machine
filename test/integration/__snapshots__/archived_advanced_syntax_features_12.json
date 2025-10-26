@@ -1,0 +1,70 @@
+{
+  "json": {
+    "title": "User API",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "fetchUser",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "id",
+            "type": "number",
+            "value": 1
+          },
+          {
+            "name": "result",
+            "type": "Promise<User>",
+            "value": "pending"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ]
+      },
+      {
+        "name": "processUser",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "data",
+            "type": "Optional<User>",
+            "value": "none"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "fetchUser",
+        "target": "processUser",
+        "arrowType": "->",
+        "value": {
+          "on": "success"
+        },
+        "attributes": {
+          "on": "success"
+        }
+      }
+    ],
+    "notes": [
+      {
+        "target": "fetchUser",
+        "content": "Fetches user data from the API. Returns Promise<User> which resolves to the user object.",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "processUser",
+        "content": "Processes the fetched user data. Validates schema and updates local state.",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>User API</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"fetchUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchUser</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"id__key\" align=\"left\" balign=\"left\">id : number</td><td port=\"id__value\" align=\"left\" balign=\"left\">1</td></tr><tr><td port=\"result__key\" align=\"left\" balign=\"left\">result : Promise&lt;User&gt;</td><td port=\"result__value\" align=\"left\" balign=\"left\">pending</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected Promise&lt;User&gt;, got string<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n  \"processUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processUser</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"data__key\" align=\"left\" balign=\"left\">data : Optional&lt;User&gt;</td><td port=\"data__value\" align=\"left\" balign=\"left\">none</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected Optional&lt;User&gt;, got string<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n\n  // Edges\n  \"fetchUser\" -> \"processUser\" [label=\"on=success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_fetchUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Fetches user data from the API. Returns<br/>Promise&lt;User&gt; which resolves to the user<br/>object.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_fetchUser\" -> \"fetchUser\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_processUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Processes the fetched user data.<br/>Validates schema and updates local<br/>state.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_processUser\" -> \"processUser\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Validation Warnings\n  \"warning_fetchUser_0\" [label=<🔴 Type mismatch: expected<br/>Promise&lt;User&gt;, got string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_fetchUser_0\" -> \"fetchUser\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_processUser_0\" [label=<🔴 Type mismatch: expected<br/>Optional&lt;User&gt;, got string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_processUser_0\" -> \"processUser\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "31c46bf17587fb90a65a878ecda31a1cfc2abfcb83f40f70ae4e5d8818a61e05"
+}

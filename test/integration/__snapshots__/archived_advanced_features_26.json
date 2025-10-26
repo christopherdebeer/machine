@@ -1,0 +1,44 @@
+{
+  "json": {
+    "title": "Cycle Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "a",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "b",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "c",
+        "type": "task",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "a",
+        "target": "b",
+        "arrowType": "->"
+      },
+      {
+        "source": "b",
+        "target": "c",
+        "arrowType": "->"
+      },
+      {
+        "source": "c",
+        "target": "a",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Cycle Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>c</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"a\" -> \"b\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"b\" -> \"c\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"c\" -> \"a\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "53b43f0075e23aa1b4a6eb73ff10f16fb81698a349533ef3a06133194c258f5a"
+}

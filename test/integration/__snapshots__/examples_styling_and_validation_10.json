@@ -1,0 +1,89 @@
+{
+  "json": {
+    "title": "Runtime Demo",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "state",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "counter",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "status",
+            "value": "running"
+          }
+        ]
+      },
+      {
+        "name": "increment",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Increment counter: {{ state.counter }}"
+          }
+        ]
+      },
+      {
+        "name": "check",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Check if counter >= 5"
+          }
+        ]
+      },
+      {
+        "name": "done",
+        "type": "state",
+        "attributes": [],
+        "title": "Done"
+      }
+    ],
+    "edges": [
+      {
+        "source": "increment",
+        "target": "check",
+        "arrowType": "->"
+      },
+      {
+        "source": "check",
+        "target": "increment",
+        "arrowType": "->",
+        "value": {
+          "text": "counter < 5"
+        },
+        "attributes": {
+          "text": "counter < 5"
+        }
+      },
+      {
+        "source": "check",
+        "target": "done",
+        "arrowType": "->",
+        "value": {
+          "text": "counter >= 5"
+        },
+        "attributes": {
+          "text": "counter >= 5"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "increment",
+        "target": "state",
+        "reason": "reads prompt",
+        "path": "state.counter"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Runtime Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"state\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>state</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"counter__key\" align=\"left\" balign=\"left\">counter : number</td><td port=\"counter__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"status__key\" align=\"left\" balign=\"left\">status</td><td port=\"status__value\" align=\"left\" balign=\"left\">running</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"increment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>increment</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Increment counter: {{ state.counter }}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"check\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>check</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check if counter &gt;= 5</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"done\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>done</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Done</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"increment\" -> \"check\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"check\" -> \"increment\" [label=\"counter < 5\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"check\" -> \"done\" [label=\"counter >= 5\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"increment\" -> \"state\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "6ad5a408a77ab214991e6bd7512b76510484367d9e4f1d25060b3bf56ef6f0a0"
+}

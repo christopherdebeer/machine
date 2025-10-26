@@ -1,0 +1,95 @@
+{
+  "json": {
+    "title": "Dynamic Reporting",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "userData",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "firstName",
+            "type": "string",
+            "value": "John"
+          },
+          {
+            "name": "lastName",
+            "type": "string",
+            "value": "Doe"
+          },
+          {
+            "name": "tasksCompleted",
+            "type": "number",
+            "value": 8
+          },
+          {
+            "name": "totalTasks",
+            "type": "number",
+            "value": 10
+          }
+        ]
+      },
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "priority",
+            "type": "string",
+            "value": "high"
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 5000
+          }
+        ]
+      },
+      {
+        "name": "generateReport",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Generate a report for {{userData.firstName + \" \" + userData.lastName}}.\n\nProgress: {{userData.tasksCompleted}} / {{userData.totalTasks}} tasks completed.\nPriority: {{config.priority}}\nTimeout: {{config.timeout / 1000}} seconds\n\n{{userData.tasksCompleted == userData.totalTasks ? \"All tasks completed!\" : \"Tasks in progress...\"}}"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "userData",
+        "target": "generateReport",
+        "arrowType": "-->"
+      },
+      {
+        "source": "config",
+        "target": "generateReport",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "generateReport",
+        "target": "userData",
+        "reason": "reads prompt",
+        "path": "userData.tasksCompleted"
+      },
+      {
+        "source": "generateReport",
+        "target": "userData",
+        "reason": "reads prompt",
+        "path": "userData.totalTasks"
+      },
+      {
+        "source": "generateReport",
+        "target": "config",
+        "reason": "reads prompt",
+        "path": "config.priority"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Dynamic Reporting</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"userData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userData</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"firstName__key\" align=\"left\" balign=\"left\">firstName : string</td><td port=\"firstName__value\" align=\"left\" balign=\"left\">John</td></tr><tr><td port=\"lastName__key\" align=\"left\" balign=\"left\">lastName : string</td><td port=\"lastName__value\" align=\"left\" balign=\"left\">Doe</td></tr><tr><td port=\"tasksCompleted__key\" align=\"left\" balign=\"left\">tasksCompleted : number</td><td port=\"tasksCompleted__value\" align=\"left\" balign=\"left\">8</td></tr><tr><td port=\"totalTasks__key\" align=\"left\" balign=\"left\">totalTasks : number</td><td port=\"totalTasks__value\" align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority : string</td><td port=\"priority__value\" align=\"left\" balign=\"left\">high</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">5000</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"generateReport\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generateReport</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate a report for<br/>{{userData.firstName + &quot; &quot; +<br/>userData.lastName}}.\n\nProgress:<br/>{{userData.tasksCompleted}} /<br/>{{userData.totalTasks}} tasks<br/>completed.\nPriority:<br/>{{config.priority}}\nTimeout:<br/>{{config.timeout / 1000}}<br/>seconds\n\n{{userData.tasksCompleted ==<br/>userData.totalTasks ? &quot;All tasks<br/>completed!&quot; : &quot;Tasks in progress...&quot;}}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"userData\" -> \"generateReport\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"config\" -> \"generateReport\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"generateReport\" -> \"userData\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"generateReport\" -> \"userData\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"generateReport\" -> \"config\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "ca9b3ae6af856d13e7e5b6442b8bd914a2c8d33b86ed44b042cb69553579dae7"
+}

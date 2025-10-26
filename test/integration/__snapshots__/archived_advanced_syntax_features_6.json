@@ -1,0 +1,91 @@
+{
+  "json": {
+    "title": "Styled Edges Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "process",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "status",
+            "type": "string",
+            "value": "running"
+          }
+        ]
+      },
+      {
+        "name": "success",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "message",
+            "type": "string",
+            "value": "Complete"
+          }
+        ]
+      },
+      {
+        "name": "error",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "message",
+            "type": "string",
+            "value": "Failed"
+          }
+        ]
+      },
+      {
+        "name": "retry",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "attempts",
+            "type": "number",
+            "value": 0
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "process",
+        "target": "success",
+        "arrowType": "->",
+        "value": {
+          "on": "success"
+        },
+        "attributes": {
+          "on": "success"
+        }
+      },
+      {
+        "source": "process",
+        "target": "error",
+        "arrowType": "->",
+        "value": {
+          "on": "error"
+        },
+        "attributes": {
+          "on": "error"
+        }
+      },
+      {
+        "source": "process",
+        "target": "retry",
+        "arrowType": "->",
+        "value": {
+          "timeout": "5000"
+        },
+        "attributes": {
+          "timeout": "5000"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Styled Edges Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"status__key\" align=\"left\" balign=\"left\">status : string</td><td port=\"status__value\" align=\"left\" balign=\"left\">running</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>success</b> <i>&lt;state&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"message__key\" align=\"left\" balign=\"left\">message : string</td><td port=\"message__value\" align=\"left\" balign=\"left\">Complete</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"error\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>error</b> <i>&lt;state&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"message__key\" align=\"left\" balign=\"left\">message : string</td><td port=\"message__value\" align=\"left\" balign=\"left\">Failed</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"retry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>retry</b> <i>&lt;state&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"attempts__key\" align=\"left\" balign=\"left\">attempts : number</td><td port=\"attempts__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"process\" -> \"success\" [label=\"on=success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"error\" [label=\"on=error\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"retry\" [label=\"timeout=5000\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "1139183f4f77f26ed521d6723f79517db06384fe18a93a4d4daa7e60ea76f976"
+}

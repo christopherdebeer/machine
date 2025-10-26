@@ -1,0 +1,27 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "asyncOperation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Long-running operation"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"asyncOperation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>asyncOperation</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Long-running operation</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "9294c300fb0117ad361df338259bf4b558ba27e6e4cc44925dc639936f9420fb"
+}

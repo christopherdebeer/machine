@@ -1,0 +1,68 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "target",
+        "attributes": []
+      },
+      {
+        "name": "context",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "target",
+        "arrowType": "-->"
+      },
+      {
+        "source": "start",
+        "target": "context",
+        "arrowType": "->",
+        "value": {
+          "text": "stores"
+        },
+        "attributes": {
+          "text": "stores"
+        }
+      },
+      {
+        "source": "start",
+        "target": "target",
+        "arrowType": "->",
+        "value": {
+          "text": "optional"
+        },
+        "attributes": {
+          "text": "optional"
+        }
+      },
+      {
+        "source": "start",
+        "target": "target",
+        "arrowType": "->",
+        "value": {
+          "text": "loop"
+        },
+        "attributes": {
+          "text": "loop"
+        }
+      },
+      {
+        "source": "start",
+        "target": "target",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"target\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>target</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"context\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>context</b></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"start\" -> \"target\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"context\" [label=\"stores\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"target\" [label=\"optional\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"target\" [label=\"loop\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"target\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "b118722805ce0f33cab53b226ca494b08bf8d83d5e09d1038cfe1c5740bbcba9"
+}

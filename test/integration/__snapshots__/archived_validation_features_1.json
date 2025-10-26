@@ -1,0 +1,39 @@
+{
+  "json": {
+    "title": "Type Checking Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "myTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "count",
+            "type": "number",
+            "value": 42
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "value": "test"
+          },
+          {
+            "name": "flag",
+            "type": "boolean",
+            "value": true
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "value": "not a number"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Type Checking Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"myTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>myTask</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count : number</td><td port=\"count__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"name__key\" align=\"left\" balign=\"left\">name : string</td><td port=\"name__value\" align=\"left\" balign=\"left\">test</td></tr><tr><td port=\"flag__key\" align=\"left\" balign=\"left\">flag : boolean</td><td port=\"flag__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"value__key\" align=\"left\" balign=\"left\">value : number</td><td port=\"value__value\" align=\"left\" balign=\"left\">not a number</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected number, got string. Expect...<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n\n\n  // Validation Warnings\n  \"warning_myTask_0\" [label=<🔴 Type mismatch: expected number, got<br/>string. Expected number, received string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_myTask_0\" -> \"myTask\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "36060a248f3d930f6af89f41b38c57797e18fd15a0f6a0992f4c60c0e9fdd722"
+}

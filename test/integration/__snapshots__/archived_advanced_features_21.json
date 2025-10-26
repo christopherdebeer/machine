@@ -1,0 +1,30 @@
+{
+  "json": {
+    "title": "Documented System",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "authenticate",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Verify user credentials"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [
+      {
+        "target": "authenticate",
+        "content": "This task validates credentials against the identity provider.\nUses JWT tokens for session management.",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Documented System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"authenticate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Verify user credentials</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Notes\n  \"note_0_authenticate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">This task validates credentials against<br/>the identity provider.\nUses JWT tokens<br/>for session management.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_authenticate\" -> \"authenticate\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "38ed032aca66c7f5476ac2256e1abcd1664b8e1378bce4b7037ab3f73ba2ea3d"
+}
