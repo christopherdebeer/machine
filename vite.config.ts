@@ -50,26 +50,23 @@ function getHtmlEntries() {
  * Get static copy targets, including test-output if it exists
  */
 function getStaticCopyTargets() {
-    
+
     const targets = [
         { src: 'static/styles.css', dest: 'static' },
         { src: 'static/styles/*', dest: 'static/styles' },
-        { src: 'examples/attributes', dest: 'examples' },
-        { src: 'examples/basic', dest: 'examples' },
-        { src: 'examples/complex', dest: 'examples' },
-        { src: 'examples/edge-cases', dest: 'examples' },
-        { src: 'examples/edges', dest: 'examples' },
-        { src: 'examples/nesting', dest: 'examples' },
-        { src: 'examples/advanced', dest: 'examples' },
-        { src: 'examples/documentation', dest: 'examples' },
-        { src: 'examples/validation', dest: 'examples' },
-        { src: 'examples/context', dest: 'examples' },
-        { src: 'examples/stress', dest: 'examples' },
-        { src: 'examples/workflows', dest: 'examples' },
-        { src: 'examples/meta-programming', dest: 'examples' },
-        { src: 'examples/rails', dest: 'examples' },
-        { src: 'examples/model-configuration', dest: 'examples' },
     ];
+
+    // Dynamically scan examples directory and include all subdirectories
+    const examplesDir = path.join(__dirname, 'examples');
+    if (fs.existsSync(examplesDir)) {
+        const exampleContents = fs.readdirSync(examplesDir, { withFileTypes: true });
+        for (const item of exampleContents) {
+            // Only include directories, not files like index.html
+            if (item.isDirectory()) {
+                targets.push({ src: `examples/${item.name}`, dest: 'examples' });
+            }
+        }
+    }
 
     // Only include test-output if it exists
     const testOutputDir = path.join(__dirname, 'test-output');
@@ -79,7 +76,7 @@ function getStaticCopyTargets() {
         if (fs.existsSync(indexPath)) {
             targets.push({ src: 'test-output/index.html', dest: 'test-output' });
         }
-        
+
         // Copy subdirectories individually to maintain structure
         const testOutputContents = fs.readdirSync(testOutputDir, { withFileTypes: true });
         for (const item of testOutputContents) {
