@@ -61,11 +61,30 @@ interface ValidationResult {
 class SnapshotManager {
     private snapshotDir: string;
     private updateSnapshots: boolean;
+    private selectiveUpdate: boolean;
+    private allowedFiles: Set<string> | null;
 
     constructor() {
         this.snapshotDir = path.join(process.cwd(), 'test', 'integration', '__snapshots__');
         // Check for UPDATE_SNAPSHOTS environment variable
         this.updateSnapshots = process.env.UPDATE_SNAPSHOTS === 'true';
+
+        // Check for selective update mode
+        this.selectiveUpdate = process.env.SELECTIVE_SNAPSHOT_UPDATE === 'true';
+        this.allowedFiles = null;
+
+        if (this.selectiveUpdate && process.env.SNAPSHOT_UPDATE_CONFIG) {
+            try {
+                const configPath = process.env.SNAPSHOT_UPDATE_CONFIG;
+                if (fs.existsSync(configPath)) {
+                    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+                    this.allowedFiles = new Set(config.files || []);
+                    console.log(`📋 Selective update mode: ${this.allowedFiles.size} file(s) allowed`);
+                }
+            } catch (e) {
+                console.warn(`Failed to load selective update config: ${e}`);
+            }
+        }
 
         if (!fs.existsSync(this.snapshotDir)) {
             fs.mkdirSync(this.snapshotDir, { recursive: true });
@@ -114,6 +133,21 @@ class SnapshotManager {
     }
 
     /**
+     * Check if a snapshot file is allowed for update in selective mode
+     */
+    private isAllowedForUpdate(testName: string, category: string): boolean {
+        if (!this.selectiveUpdate || !this.allowedFiles) {
+            return true; // Not in selective mode, allow all
+        }
+
+        const sanitizedCategory = category.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const sanitizedName = testName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const baseName = `${sanitizedCategory}_${sanitizedName}`;
+
+        return this.allowedFiles.has(baseName);
+    }
+
+    /**
      * Compare current outputs against snapshot and return differences
      */
     compareWithSnapshot(
@@ -126,8 +160,11 @@ class SnapshotManager {
         const differences: string[] = [];
         const snapshot = this.loadSnapshot(testName, category);
 
+        // Determine if we should update this specific snapshot
+        const shouldUpdate = this.updateSnapshots && this.isAllowedForUpdate(testName, category);
+
         if (!snapshot) {
-            if (this.updateSnapshots) {
+            if (shouldUpdate) {
                 // Create new snapshot
                 this.saveSnapshot(testName, category, {
                     json: jsonOutput,
@@ -159,8 +196,8 @@ class SnapshotManager {
             differences.push('SVG output differs from snapshot');
         }
 
-        // Update snapshot if requested
-        if (differences.length > 0 && this.updateSnapshots) {
+        // Update snapshot if requested and allowed
+        if (differences.length > 0 && shouldUpdate) {
             this.saveSnapshot(testName, category, {
                 json: jsonOutput,
                 graphviz: graphvizOutput,
