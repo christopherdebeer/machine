@@ -439,11 +439,11 @@ class ValidationReporter {
             details.classList.toggle('active');
         }
         function showTab(testId, tabName) {
-            const tabs = document.querySelectorAll(\`#details-\${testId} .tab\`);
-            const contents = document.querySelectorAll(\`#details-\${testId} .tab-content\`);
+            const tabs = document.querySelectorAll(\`#\${testId} .tab\`);
+            const contents = document.querySelectorAll(\`#\${testId} .tab-content\`);
             tabs.forEach(tab => tab.classList.remove('active'));
             contents.forEach(content => content.classList.remove('active'));
-            document.querySelector(\`#details-\${testId} .tab[data-tab="\${tabName}"]\`).classList.add('active');
+            document.querySelector(\`#\${testId} .tab[data-tab="\${tabName}"]\`).classList.add('active');
             document.getElementById(\`\${testId}-\${tabName}\`).classList.add('active');
         }
     </script>
