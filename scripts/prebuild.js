@@ -114,13 +114,16 @@ async function extractExamples(projectRoot) {
             if (line.startsWith('```')) {
                 if (!inCodeblock) {
                     const matchWithPath = line.match(/^```(dygram|mach|machine)\s+(.+\.(dygram|mach))$/);
-                    const matchWithoutPath = line.match(/^```(dygram|mach|machine)\s*$/);
+                    const matchWithoutPath = line.match(/^```(dygram|mach|machine)\s*(.*)$/);
+
+                    // Check for !no-extract marker
+                    const hasNoExtractMarker = matchWithoutPath && matchWithoutPath[2].includes('!no-extract');
 
                     if (matchWithPath) {
                         inCodeblock = true;
                         codeblockPath = matchWithPath[2].trim();
                         codeblockContent = [];
-                    } else if (matchWithoutPath) {
+                    } else if (matchWithoutPath && !hasNoExtractMarker) {
                         inCodeblock = true;
                         // Generate filename from source file path
                         const sourceParts = sourceFile.replace(/^docs\//, '').replace(/\.(md|mdx)$/, '').split('/');
@@ -135,6 +138,11 @@ async function extractExamples(projectRoot) {
                             sourceLine: lineNumber,
                             generatedPath: codeblockPath
                         });
+                    } else if (hasNoExtractMarker) {
+                        // Mark as in codeblock but don't extract
+                        inCodeblock = true;
+                        codeblockPath = null;
+                        codeblockContent = [];
                     }
                 } else {
                     if (codeblockPath) {
@@ -507,6 +515,13 @@ async function transformMarkdownToMdx(projectRoot) {
                         inCodeBlock = true;
                         codeBlockLang = match[1];
                         codeBlockContent = [];
+                        // Check if this block has !no-extract marker (should be treated as regular code block for display)
+                        const hasNoExtract = match[2] && match[2].includes('!no-extract');
+                        if (hasNoExtract) {
+                            // Don't transform to CodeEditor, just display as syntax-highlighted code
+                            codeBlockLang = null;
+                            output.push('```' + match[1]);
+                        }
                     } else {
                         // Non-dygram code block, pass through
                         output.push(line);

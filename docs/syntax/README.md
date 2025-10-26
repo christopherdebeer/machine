@@ -8,19 +8,19 @@ Complete reference for the DyGram language syntax.
 
 Every DyGram file can optionally start with a machine declaration:
 
-```dygram
+```dygram !no-extract
 machine "My Machine"
 ```
 
 With annotations:
 
-```dygram
+```dygram !no-extract
 machine "Production System" @Critical @Version("2.0")
 ```
 
 With machine-level attributes:
 
-```dygram
+```dygram !no-extract
 machine "API Service" {
     version: "1.0.0";
     environment: "production";
@@ -33,13 +33,13 @@ Nodes are the fundamental building blocks of a machine.
 
 ### Basic Syntax
 
-```dygram
+```dygram !no-extract
 nodeName;
 ```
 
 ### With Optional Type
 
-```dygram
+```dygram !no-extract
 Task process;
 State ready;
 Input data;
@@ -50,13 +50,13 @@ Common node types: `Task`, `State`, `Input`, `Output`, `Context`, `Resource`, `C
 
 ### With Title
 
-```dygram
+```dygram !no-extract
 Task process "Process the data";
 ```
 
 ### With Attributes
 
-```dygram
+```dygram !no-extract
 Task analyze {
     model: "claude-3-5-sonnet-20241022";
     temperature: 0.7;
@@ -66,14 +66,14 @@ Task analyze {
 
 ### With Annotations
 
-```dygram
+```dygram !no-extract
 Task critical @Critical @Async;
 Resource legacy @Deprecated("Use newResource instead");
 ```
 
 ### Nested Nodes
 
-```dygram
+```dygram !no-extract
 Process workflow {
     Task start "Initialize";
     Task validate "Validate input";
@@ -89,19 +89,19 @@ Edges define relationships and transitions between nodes.
 
 ### Basic Edges
 
-```dygram
+```dygram !no-extract
 start -> end;
 ```
 
 ### Multiple Targets
 
-```dygram
+```dygram !no-extract
 start -> task1, task2, task3;
 ```
 
 ### Chain Syntax
 
-```dygram
+```dygram !no-extract
 start -> process -> validate -> complete;
 ```
 
@@ -109,7 +109,7 @@ start -> process -> validate -> complete;
 
 DyGram supports multiple arrow types for semantic relationships:
 
-```dygram
+```dygram !no-extract
 // Single arrow (default transition)
 a -> b;
 
@@ -134,7 +134,7 @@ a <--> b;
 
 ### Edge Labels
 
-```dygram
+```dygram !no-extract
 a -label-> b;
 a --label--> b;
 a =label=> b;
@@ -142,20 +142,20 @@ a =label=> b;
 
 ### Edge Attributes
 
-```dygram
+```dygram !no-extract
 a -condition: true, priority: 1-> b;
 ```
 
 ### Multiplicity
 
-```dygram
+```dygram !no-extract
 User "1" --> "*" Post;
 Order "1" --> "1..*" LineItem;
 ```
 
 ### Edge Annotations
 
-```dygram
+```dygram !no-extract
 a -@style("color: red; stroke-width: 3px")-> b;
 ```
 
@@ -165,7 +165,7 @@ Attributes add metadata and configuration to nodes.
 
 ### Basic Attributes
 
-```dygram
+```dygram !no-extract
 name: "value";
 count: 42;
 enabled: true;
@@ -173,7 +173,7 @@ enabled: true;
 
 ### Typed Attributes
 
-```dygram
+```dygram !no-extract
 port<number>: 3000;
 host<string>: "localhost";
 timeout<Duration>: "30s";
@@ -181,7 +181,7 @@ timeout<Duration>: "30s";
 
 ### Generic Types
 
-```dygram
+```dygram !no-extract
 results<Array<string>>: ["a", "b", "c"];
 data<Map<string, number>>: #dataMap;
 promise<Promise<Result>>: #pending;
@@ -189,14 +189,14 @@ promise<Promise<Result>>: #pending;
 
 ### Array Values
 
-```dygram
+```dygram !no-extract
 tags: ["api", "production", "critical"];
 ports: [8080, 8081, 8082];
 ```
 
 ### External References
 
-```dygram
+```dygram !no-extract
 config: #globalConfig;
 handler: #processHandler;
 ```
@@ -224,7 +224,7 @@ DyGram supports type annotations for validation using Zod-powered runtime type c
 - `Float` - Floating-point numbers (alias for `number`)
 
 **Example:**
-```dygram
+```dygram !no-extract
 task myTask {
   id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
   createdAt<Date>: "2025-10-22T13:30:00Z";
@@ -239,7 +239,7 @@ task myTask {
 
 Generic types support parameterized validation:
 
-```dygram
+```dygram !no-extract
 Array<T>        # Array of type T (e.g., Array<Date>)
 List<T>         # Alias for Array<T>
 Map<K, V>       # Map with keys of type K and values of type V
@@ -248,7 +248,7 @@ Result<T, E>    # Result type (structural only)
 ```
 
 **Example with validated generics:**
-```dygram
+```dygram !no-extract
 task myTask {
   # Array elements are validated as Dates
   dates<Array<Date>>: ["2025-10-22T13:30:00Z", "2025-10-23T14:00:00Z"];
@@ -278,7 +278,7 @@ registry.register('SemVer', z.string().regex(/^\d+\.\d+\.\d+$/));
 
 Then use them in your DyGram files:
 
-```dygram
+```dygram !no-extract
 user {
   email<Email>: "user@example.com";
   version<SemVer>: "1.2.3";
@@ -291,7 +291,7 @@ Annotations add semantic metadata to nodes and edges.
 
 ### Node Annotations
 
-```dygram
+```dygram !no-extract
 @Abstract
 @Singleton
 @Async
@@ -302,7 +302,7 @@ Annotations add semantic metadata to nodes and edges.
 
 With values:
 
-```dygram
+```dygram !no-extract
 @Version("2.0")
 @Author("John Doe")
 @Since("2024-01-15")
@@ -311,13 +311,13 @@ With values:
 
 Multiple annotations:
 
-```dygram
+```dygram !no-extract
 Task important @Critical @Async @Version("1.0");
 ```
 
 ### Edge Annotations
 
-```dygram
+```dygram !no-extract
 start -@style("color: blue")-> end;
 a -@weight(5)-> b;
 ```
@@ -326,7 +326,7 @@ a -@weight(5)-> b;
 
 Notes attach documentation to nodes:
 
-```dygram
+```dygram !no-extract
 Task process;
 
 note process "This task handles data processing";
@@ -334,7 +334,7 @@ note process "This task handles data processing";
 
 With title and attributes:
 
-```dygram
+```dygram !no-extract
 note process "Processing Details" @Critical {
     complexity: "O(n)";
     author: "Team A";
@@ -345,14 +345,14 @@ note process "Processing Details" @Critical {
 
 ### Single-line Comments
 
-```dygram
+```dygram !no-extract
 // This is a comment
 Task process; // inline comment
 ```
 
 ### Multi-line Comments
 
-```dygram
+```dygram !no-extract
 /*
  * This is a multi-line comment
  * explaining complex logic
@@ -364,7 +364,7 @@ Task analyze;
 
 Identifiers must start with a letter or underscore, followed by letters, digits, or underscores:
 
-```dygram
+```dygram !no-extract
 validName
 _private
 user123
@@ -375,7 +375,7 @@ handle_event
 
 Reference nested nodes using dot notation:
 
-```dygram
+```dygram !no-extract
 workflow.start -> workflow.process;
 parent.child.grandchild;
 ```
@@ -384,13 +384,13 @@ parent.child.grandchild;
 
 ### Double-quoted Strings
 
-```dygram
+```dygram !no-extract
 title: "Hello World";
 ```
 
 ### Multi-line Strings
 
-```dygram
+```dygram !no-extract
 prompt: "This is a long prompt
 that spans multiple lines
 and preserves formatting";
@@ -398,7 +398,7 @@ and preserves formatting";
 
 ## Numbers
 
-```dygram
+```dygram !no-extract
 count: 42;
 price: 19.99;
 scientific: 1.5e10;

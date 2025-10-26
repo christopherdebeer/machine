@@ -29,12 +29,28 @@ const testOutputDir = path.join(projectRoot, 'test-output', 'comprehensive-gener
 
 // Parse command line arguments
 const args = process.argv.slice(2);
+
+// Helper function to get flag value (supports both --flag=value and --flag value)
+function getFlagValue(flagName) {
+    const eqIndex = args.findIndex(a => a.startsWith(`--${flagName}=`));
+    if (eqIndex !== -1) {
+        return args[eqIndex].split('=')[1];
+    }
+
+    const flagIndex = args.findIndex(a => a === `--${flagName}`);
+    if (flagIndex !== -1 && flagIndex + 1 < args.length && !args[flagIndex + 1].startsWith('--')) {
+        return args[flagIndex + 1];
+    }
+
+    return null;
+}
+
 const flags = {
     list: args.includes('--list'),
     all: args.includes('--all'),
     review: args.includes('--review'),
-    pattern: args.find(a => a.startsWith('--pattern'))?.split('=')[1] || null,
-    file: args.find(a => a.startsWith('--file'))?.split('=')[1] || null,
+    pattern: getFlagValue('pattern'),
+    file: getFlagValue('file'),
     help: args.includes('--help') || args.includes('-h')
 };
 
