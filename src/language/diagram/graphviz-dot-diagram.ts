@@ -49,6 +49,29 @@ function interpolateValue(value: string, context?: RuntimeContext): string {
 }
 
 /**
+ * Map CSS property names to Graphviz DOT property names
+ * This allows users to use familiar CSS properties that get converted to Graphviz equivalents
+ */
+function mapCssPropertyToGraphviz(cssProperty: string): string {
+    const propertyMap: Record<string, string> = {
+        'stroke-width': 'penwidth',
+        'stroke': 'color',
+        'fill': 'fillcolor',
+        'font-family': 'fontname',
+        'font-size': 'fontsize',
+        'font-weight': 'fontweight',
+        'text-align': 'labeljust',
+        'background-color': 'fillcolor',
+        'border-color': 'color',
+        'border-width': 'penwidth',
+        'opacity': 'alpha'
+    };
+
+    const normalized = cssProperty.toLowerCase().trim();
+    return propertyMap[normalized] || cssProperty;
+}
+
+/**
  * Helper function to escape DOT special characters
  */
 function escapeDot(text: string): string {
@@ -341,13 +364,15 @@ function getNodeStyle(node: any, edges?: any[], styleNodes?: any[], validationCo
                     baseStyle += `, ${key}="${value}"`;
                 });
             } else if (ann.value) {
-                // Parse string value for inline styles (e.g., @style("color: red; penwidth: 3;"))
+                // Parse string value for inline styles (e.g., @style("color: red; stroke-width: 3px;"))
                 const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
                 styleAttrs.forEach((attr: string) => {
                     const [key, ...valueParts] = attr.split(':');
                     if (key && valueParts.length > 0) {
                         const value = valueParts.join(':').trim();
-                        baseStyle += `, ${key.trim()}="${value}"`;
+                        // Map CSS properties to Graphviz equivalents
+                        const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                        baseStyle += `, ${graphvizKey}="${value}"`;
                     }
                 });
             }
@@ -1385,13 +1410,15 @@ function applyCustomEdgeStyles(edge: any, styleNodes: any[]): string {
                     customStyles += `, ${key}="${value}"`;
                 });
             } else if (ann.value) {
-                // Parse string value for inline styles (e.g., @style("color: red; penwidth: 3;"))
+                // Parse string value for inline styles (e.g., @style("color: red; stroke-width: 3px;"))
                 const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
                 styleAttrs.forEach((attr: string) => {
                     const [key, ...valueParts] = attr.split(':');
                     if (key && valueParts.length > 0) {
                         const value = valueParts.join(':').trim();
-                        customStyles += `, ${key.trim()}="${value}"`;
+                        // Map CSS properties to Graphviz equivalents
+                        const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                        customStyles += `, ${graphvizKey}="${value}"`;
                     }
                 });
             }
