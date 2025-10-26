@@ -351,10 +351,314 @@ class ValidationReporter {
         return report;
     }
 
+    generateHtmlReport(): string {
+        const total = this.results.length;
+        const passed = this.results.filter(r => r.passed).length;
+        const failed = total - passed;
+        const successRate = ((passed / total) * 100).toFixed(2);
+
+        const allParseErrors = this.results.flatMap(r => r.parseErrors);
+        const allTransformErrors = this.results.flatMap(r => r.transformErrors);
+        const allCompletenessIssues = this.results.flatMap(r => r.completenessIssues);
+        const allLosslessnessIssues = this.results.flatMap(r => r.losslessnessIssues);
+        const allGraphvizParseErrors = this.results.flatMap(r => r.graphvizParseErrors);
+        const allSvgRenderErrors = this.results.flatMap(r => r.svgRenderErrors);
+        const allSnapshotMismatches = this.results.flatMap(r => r.snapshotMismatches);
+
+        // Group by category
+        const byCategory: Record<string, { total: number; passed: number }> = {};
+        this.results.forEach(r => {
+            if (!byCategory[r.category]) {
+                byCategory[r.category] = { total: 0, passed: 0 };
+            }
+            byCategory[r.category].total++;
+            if (r.passed) byCategory[r.category].passed++;
+        });
+
+        let html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Generative Test Report - DyGram</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; padding: 2rem; }
+        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; }
+        h1 { color: #667eea; margin-bottom: 0.5rem; }
+        .subtitle { color: #666; margin-bottom: 2rem; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { padding: 1.5rem; border-radius: 6px; text-align: center; }
+        .stat-card.total { background: #e3f2fd; }
+        .stat-card.passed { background: #e8f5e9; }
+        .stat-card.failed { background: #ffebee; }
+        .stat-value { font-size: 2.5rem; font-weight: bold; }
+        .stat-label { color: #666; font-size: 0.875rem; margin-top: 0.5rem; }
+        .issues { margin-bottom: 2rem; }
+        .issue-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+        .issue-card { padding: 1rem; border-radius: 4px; background: #f9f9f9; border-left: 4px solid #667eea; }
+        .issue-count { font-size: 1.5rem; font-weight: bold; color: #667eea; }
+        .issue-label { font-size: 0.875rem; color: #666; }
+        .category-section { margin-bottom: 2rem; }
+        .category-header { background: #f9f9f9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; }
+        .category-stats { display: flex; gap: 1rem; align-items: center; }
+        .category-bar { flex: 1; height: 20px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+        .category-bar-fill { height: 100%; background: linear-gradient(to right, #4caf50, #8bc34a); transition: width 0.3s; }
+        .test-list { margin-top: 1rem; }
+        .test-item { border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 1rem; overflow: hidden; }
+        .test-header { padding: 1rem; background: #fafafa; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .test-header:hover { background: #f5f5f5; }
+        .test-name { font-weight: 600; }
+        .test-status { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; font-weight: 600; }
+        .test-status.passed { background: #4caf50; color: white; }
+        .test-status.failed { background: #f44336; color: white; }
+        .test-status.snapshot-mismatch { background: #ff9800; color: white; }
+        .test-details { padding: 1.5rem; display: none; background: white; border-top: 1px solid #e0e0e0; }
+        .test-details.active { display: block; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 2px solid #e0e0e0; }
+        .tab { padding: 0.5rem 1rem; cursor: pointer; background: none; border: none; font-size: 0.875rem; font-weight: 600; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .tab:hover { color: #667eea; }
+        .tab.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .code-block { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 1rem; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.875rem; margin: 0.5rem 0; }
+        .error-section { margin-top: 1rem; }
+        .error-section h4 { color: #d32f2f; margin-bottom: 0.5rem; }
+        .warning-section h4 { color: #f57c00; margin-bottom: 0.5rem; }
+        .error-list { list-style: none; padding-left: 1rem; }
+        .error-list li { padding: 0.25rem 0; color: #666; }
+        .error-list li:before { content: "⚠ "; color: #d32f2f; }
+        .warning-list li:before { content: "⚠ "; color: #f57c00; }
+        .svg-container { border: 1px solid #e0e0e0; border-radius: 4px; padding: 1rem; background: white; margin: 0.5rem 0; overflow-x: auto; }
+        .svg-container svg { max-width: 100%; height: auto; }
+        .snapshot-badge { display: inline-block; padding: 0.25rem 0.5rem; background: #ff9800; color: white; font-size: 0.75rem; border-radius: 4px; margin-left: 0.5rem; }
+    </style>
+    <script>
+        function toggleDetails(id) {
+            const details = document.getElementById(id);
+            details.classList.toggle('active');
+        }
+        function showTab(testId, tabName) {
+            const tabs = document.querySelectorAll(\`#details-\${testId} .tab\`);
+            const contents = document.querySelectorAll(\`#details-\${testId} .tab-content\`);
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            document.querySelector(\`#details-\${testId} .tab[data-tab="\${tabName}"]\`).classList.add('active');
+            document.getElementById(\`\${testId}-\${tabName}\`).classList.add('active');
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Comprehensive Generative Test Report</h1>
+        <p class="subtitle">Complete DyGram transformation pipeline validation with snapshot testing</p>
+
+        <div class="summary">
+            <div class="stat-card total">
+                <div class="stat-value">${total}</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat-card passed">
+                <div class="stat-value">${passed}</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat-card failed">
+                <div class="stat-value">${failed}</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-value">${successRate}%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+
+        <div class="issues">
+            <h2>Issue Summary</h2>
+            <div class="issue-grid">
+                <div class="issue-card">
+                    <div class="issue-count">${allParseErrors.length}</div>
+                    <div class="issue-label">Parse Errors</div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-count">${allTransformErrors.length}</div>
+                    <div class="issue-label">Transform Errors</div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-count">${allCompletenessIssues.length}</div>
+                    <div class="issue-label">Completeness Issues</div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-count">${allLosslessnessIssues.length}</div>
+                    <div class="issue-label">Losslessness Issues</div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-count">${allGraphvizParseErrors.length}</div>
+                    <div class="issue-label">Graphviz Errors</div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-count">${allSvgRenderErrors.length}</div>
+                    <div class="issue-label">SVG Errors</div>
+                </div>
+                <div class="issue-card" style="border-left-color: #ff9800;">
+                    <div class="issue-count" style="color: #ff9800;">${allSnapshotMismatches.length}</div>
+                    <div class="issue-label">Snapshot Mismatches</div>
+                </div>
+            </div>
+        </div>
+
+        <h2>Results by Category</h2>`;
+
+        // Category sections
+        Object.keys(byCategory).sort().forEach(category => {
+            const { total: catTotal, passed: catPassed } = byCategory[category];
+            const rate = ((catPassed / catTotal) * 100).toFixed(1);
+            const categoryResults = this.results.filter(r => r.category === category);
+
+            html += `
+        <div class="category-section">
+            <div class="category-header">
+                <h3>${category}</h3>
+                <div class="category-stats">
+                    <span>${catPassed}/${catTotal} passed (${rate}%)</span>
+                    <div class="category-bar">
+                        <div class="category-bar-fill" style="width: ${rate}%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="test-list">`;
+
+            categoryResults.forEach((result, index) => {
+                const fileName = result.testName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const detailsId = `details-${category}-${index}`;
+                const hasSnapshotMismatch = result.snapshotMismatches.length > 0;
+                const statusClass = !result.passed ? 'failed' : hasSnapshotMismatch ? 'snapshot-mismatch' : 'passed';
+                const statusText = !result.passed ? 'FAILED' : hasSnapshotMismatch ? 'PASSED' : 'PASSED';
+
+                html += `
+                <div class="test-item">
+                    <div class="test-header" onclick="toggleDetails('${detailsId}')">
+                        <span class="test-name">${result.testName}${hasSnapshotMismatch && result.passed ? '<span class="snapshot-badge">SNAPSHOT INFO</span>' : ''}</span>
+                        <span class="test-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="test-details" id="${detailsId}">
+                        <div class="tabs">
+                            <button class="tab active" data-tab="source" onclick="showTab('${detailsId}', 'source')">Source</button>
+                            <button class="tab" data-tab="json" onclick="showTab('${detailsId}', 'json')">JSON</button>
+                            <button class="tab" data-tab="dot" onclick="showTab('${detailsId}', 'dot')">Graphviz DOT</button>
+                            <button class="tab" data-tab="svg" onclick="showTab('${detailsId}', 'svg')">SVG</button>
+                            ${!result.passed || hasSnapshotMismatch ? '<button class="tab" data-tab="issues" onclick="showTab(\'' + detailsId + '\', \'issues\')">Issues</button>' : ''}
+                        </div>
+
+                        <div class="tab-content active" id="${detailsId}-source">
+                            <h4>Source Code</h4>
+                            <div class="code-block">${this.escapeHtml(result.source)}</div>
+                        </div>
+
+                        <div class="tab-content" id="${detailsId}-json">
+                            <h4>JSON Output</h4>
+                            ${result.jsonOutput ? `<div class="code-block">${this.escapeHtml(JSON.stringify(result.jsonOutput, null, 2))}</div>` : '<p>No JSON output available</p>'}
+                        </div>
+
+                        <div class="tab-content" id="${detailsId}-dot">
+                            <h4>Graphviz DOT Output</h4>
+                            ${result.graphvizOutput ? `<div class="code-block">${this.escapeHtml(result.graphvizOutput)}</div>` : '<p>No DOT output available</p>'}
+                        </div>
+
+                        <div class="tab-content" id="${detailsId}-svg">
+                            <h4>SVG Rendering</h4>
+                            ${result.svgOutput ? `<div class="svg-container">${result.svgOutput}</div>` : '<p>No SVG output available</p>'}
+                        </div>`;
+
+                if (!result.passed || hasSnapshotMismatch) {
+                    html += `
+                        <div class="tab-content" id="${detailsId}-issues">`;
+
+                    if (result.parseErrors.length > 0) {
+                        html += `<div class="error-section">
+                            <h4>Parse Errors</h4>
+                            <ul class="error-list">${result.parseErrors.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
+                        </div>`;
+                    }
+                    if (result.transformErrors.length > 0) {
+                        html += `<div class="error-section">
+                            <h4>Transform Errors</h4>
+                            <ul class="error-list">${result.transformErrors.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
+                        </div>`;
+                    }
+                    if (result.completenessIssues.length > 0) {
+                        html += `<div class="error-section">
+                            <h4>Completeness Issues</h4>
+                            <ul class="error-list">${result.completenessIssues.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
+                        </div>`;
+                    }
+                    if (result.losslessnessIssues.length > 0) {
+                        html += `<div class="error-section">
+                            <h4>Losslessness Issues</h4>
+                            <ul class="error-list">${result.losslessnessIssues.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
+                        </div>`;
+                    }
+                    if (result.graphvizParseErrors.length > 0) {
+                        html += `<div class="error-section">
+                            <h4>Graphviz Parse Errors</h4>
+                            <ul class="error-list">${result.graphvizParseErrors.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
+                        </div>`;
+                    }
+                    if (result.svgRenderErrors.length > 0) {
+                        html += `<div class="error-section">
+                            <h4>SVG Render Errors</h4>
+                            <ul class="error-list">${result.svgRenderErrors.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
+                        </div>`;
+                    }
+                    if (result.snapshotMismatches.length > 0) {
+                        const isInfoOnly = result.passed;
+                        html += `<div class="${isInfoOnly ? 'warning-section' : 'error-section'}">
+                            <h4>Snapshot ${isInfoOnly ? 'Information' : 'Mismatches'}</h4>
+                            <ul class="error-list ${isInfoOnly ? 'warning-list' : ''}">${result.snapshotMismatches.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
+                        </div>`;
+                    }
+
+                    html += `</div>`;
+                }
+
+                html += `
+                        <p style="margin-top: 1rem;"><a href="${category}/${fileName}.md" target="_blank">View Markdown Report →</a></p>
+                    </div>
+                </div>`;
+            });
+
+            html += `
+            </div>
+        </div>`;
+        });
+
+        html += `
+    </div>
+</body>
+</html>`;
+
+        return html;
+    }
+
+    private escapeHtml(text: string): string {
+        const map: Record<string, string> = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
     writeReport(): void {
         const report = this.generateReport();
+        const htmlReport = this.generateHtmlReport();
+
         fs.writeFileSync(path.join(this.outputDir, 'REPORT.md'), report);
+        fs.writeFileSync(path.join(this.outputDir, 'index.html'), htmlReport);
+
         console.log(`\n📊 Comprehensive test report written to: ${path.join(this.outputDir, 'REPORT.md')}`);
+        console.log(`🌐 HTML report available at: ${path.join(this.outputDir, 'index.html')}`);
         console.log(`📁 Individual test outputs: ${this.outputDir}\n`);
     }
 }
@@ -524,16 +828,17 @@ describe('Comprehensive Generative Integration Tests', () => {
                         result.svgOutput
                     );
 
-                    // Only fail if there are actual differences (not just creation/update messages)
+                    // Only fail if there are actual differences AND we're not in update mode
                     const actualDifferences = snapshotDifferences.filter(
                         d => !d.includes('snapshot created') && !d.includes('Snapshot updated')
                     );
 
-                    if (actualDifferences.length > 0) {
+                    if (actualDifferences.length > 0 && !snapshotManager.shouldUpdateSnapshots()) {
+                        // Real mismatches that should fail the test
                         result.snapshotMismatches = snapshotDifferences;
                         result.passed = false;
                     } else if (snapshotDifferences.length > 0) {
-                        // Just informational messages
+                        // Just informational messages (creation/update messages)
                         result.snapshotMismatches = snapshotDifferences;
                     }
                 } catch (e) {
