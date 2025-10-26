@@ -383,57 +383,104 @@ class ValidationReporter {
     <title>Comprehensive Generative Test Report - DyGram</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; padding: 2rem; }
-        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; }
-        h1 { color: #667eea; margin-bottom: 0.5rem; }
-        .subtitle { color: #666; margin-bottom: 2rem; }
-        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-        .stat-card { padding: 1.5rem; border-radius: 6px; text-align: center; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; padding: 1rem; }
+        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 1rem; }
+        h1 { color: #667eea; margin-bottom: 0.25rem; font-size: 1.75rem; }
+        .subtitle { color: #666; margin-bottom: 1rem; font-size: 0.875rem; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+        .stat-card { padding: 1rem; border-radius: 6px; text-align: center; }
         .stat-card.total { background: #e3f2fd; }
         .stat-card.passed { background: #e8f5e9; }
         .stat-card.failed { background: #ffebee; }
-        .stat-value { font-size: 2.5rem; font-weight: bold; }
-        .stat-label { color: #666; font-size: 0.875rem; margin-top: 0.5rem; }
-        .issues { margin-bottom: 2rem; }
-        .issue-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
-        .issue-card { padding: 1rem; border-radius: 4px; background: #f9f9f9; border-left: 4px solid #667eea; }
-        .issue-count { font-size: 1.5rem; font-weight: bold; color: #667eea; }
-        .issue-label { font-size: 0.875rem; color: #666; }
-        .category-section { margin-bottom: 2rem; }
-        .category-header { background: #f9f9f9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; }
-        .category-stats { display: flex; gap: 1rem; align-items: center; }
-        .category-bar { flex: 1; height: 20px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+        .stat-value { font-size: 2rem; font-weight: bold; }
+        .stat-label { color: #666; font-size: 0.75rem; margin-top: 0.25rem; }
+        .issues { margin-bottom: 1.5rem; }
+        .issue-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; }
+        .issue-card { padding: 0.75rem; border-radius: 4px; background: #f9f9f9; border-left: 4px solid #667eea; }
+        .issue-count { font-size: 1.25rem; font-weight: bold; color: #667eea; }
+        .issue-label { font-size: 0.75rem; color: #666; }
+        .category-section { margin-bottom: 1.5rem; }
+        .category-header { background: #f9f9f9; padding: 0.75rem; border-radius: 4px; cursor: pointer; user-select: none; }
+        .category-header:hover { background: #f0f0f0; }
+        .category-header h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; }
+        .category-toggle { display: inline-block; transition: transform 0.2s; }
+        .category-toggle.collapsed { transform: rotate(-90deg); }
+        .category-stats { display: flex; gap: 0.75rem; align-items: center; margin-top: 0.5rem; font-size: 0.875rem; }
+        .category-bar { flex: 1; height: 16px; background: #e0e0e0; border-radius: 8px; overflow: hidden; }
         .category-bar-fill { height: 100%; background: linear-gradient(to right, #4caf50, #8bc34a); transition: width 0.3s; }
-        .test-list { margin-top: 1rem; }
-        .test-item { border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 1rem; overflow: hidden; }
-        .test-header { padding: 1rem; background: #fafafa; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .test-list { margin-top: 0.75rem; display: none; }
+        .test-list.expanded { display: block; }
+        .test-item { border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 0.75rem; overflow: hidden; }
+        .test-header { padding: 0.75rem; background: #fafafa; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 0.5rem; flex-wrap: wrap; }
         .test-header:hover { background: #f5f5f5; }
-        .test-name { font-weight: 600; }
-        .test-status { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; font-weight: 600; }
+        .test-name { font-weight: 600; font-size: 0.9rem; word-break: break-word; }
+        .test-status { padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
         .test-status.passed { background: #4caf50; color: white; }
         .test-status.failed { background: #f44336; color: white; }
         .test-status.snapshot-mismatch { background: #ff9800; color: white; }
-        .test-details { padding: 1.5rem; display: none; background: white; border-top: 1px solid #e0e0e0; }
+        .test-details { padding: 1rem; display: none; background: white; border-top: 1px solid #e0e0e0; }
         .test-details.active { display: block; }
-        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 2px solid #e0e0e0; }
-        .tab { padding: 0.5rem 1rem; cursor: pointer; background: none; border: none; font-size: 0.875rem; font-weight: 600; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .tabs { display: flex; gap: 0.25rem; margin-bottom: 0.75rem; border-bottom: 2px solid #e0e0e0; flex-wrap: wrap; }
+        .tab { padding: 0.5rem 0.75rem; cursor: pointer; background: none; border: none; font-size: 0.8rem; font-weight: 600; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; }
         .tab:hover { color: #667eea; }
         .tab.active { color: #667eea; border-bottom-color: #667eea; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .code-block { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 1rem; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.875rem; margin: 0.5rem 0; }
-        .error-section { margin-top: 1rem; }
-        .error-section h4 { color: #d32f2f; margin-bottom: 0.5rem; }
-        .warning-section h4 { color: #f57c00; margin-bottom: 0.5rem; }
-        .error-list { list-style: none; padding-left: 1rem; }
-        .error-list li { padding: 0.25rem 0; color: #666; }
+        .tab-content h4 { font-size: 1rem; margin-bottom: 0.5rem; }
+        .code-block { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 0.75rem; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.8rem; margin: 0.5rem 0; white-space: pre-wrap; word-break: break-word; }
+        .error-section { margin-top: 0.75rem; }
+        .error-section h4 { color: #d32f2f; margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .warning-section h4 { color: #f57c00; margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .error-list { list-style: none; padding-left: 0.75rem; }
+        .error-list li { padding: 0.25rem 0; color: #666; font-size: 0.85rem; }
         .error-list li:before { content: "⚠ "; color: #d32f2f; }
         .warning-list li:before { content: "⚠ "; color: #f57c00; }
-        .svg-container { border: 1px solid #e0e0e0; border-radius: 4px; padding: 1rem; background: white; margin: 0.5rem 0; overflow-x: auto; }
+        .svg-container { border: 1px solid #e0e0e0; border-radius: 4px; padding: 0.75rem; background: white; margin: 0.5rem 0; overflow-x: auto; }
         .svg-container svg { max-width: 100%; height: auto; }
-        .snapshot-badge { display: inline-block; padding: 0.25rem 0.5rem; background: #ff9800; color: white; font-size: 0.75rem; border-radius: 4px; margin-left: 0.5rem; }
+        .snapshot-badge { display: inline-block; padding: 0.25rem 0.5rem; background: #ff9800; color: white; font-size: 0.7rem; border-radius: 4px; margin-left: 0.5rem; }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            body { padding: 0.5rem; }
+            .container { padding: 0.75rem; border-radius: 4px; }
+            h1 { font-size: 1.5rem; }
+            .subtitle { font-size: 0.8rem; }
+            .summary { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+            .stat-card { padding: 0.75rem; }
+            .stat-value { font-size: 1.5rem; }
+            .stat-label { font-size: 0.7rem; }
+            .issue-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+            .issue-card { padding: 0.5rem; }
+            .issue-count { font-size: 1.1rem; }
+            .issue-label { font-size: 0.7rem; }
+            .category-header { padding: 0.5rem; }
+            .category-header h3 { font-size: 1rem; }
+            .category-stats { font-size: 0.8rem; gap: 0.5rem; }
+            .test-header { padding: 0.5rem; }
+            .test-name { font-size: 0.85rem; }
+            .test-status { font-size: 0.7rem; padding: 0.2rem 0.4rem; }
+            .test-details { padding: 0.75rem; }
+            .tabs { gap: 0.15rem; }
+            .tab { padding: 0.4rem 0.5rem; font-size: 0.75rem; }
+            .code-block { padding: 0.5rem; font-size: 0.75rem; }
+            .snapshot-badge { font-size: 0.65rem; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.25rem; }
+            .summary { grid-template-columns: 1fr; }
+            .issue-grid { grid-template-columns: 1fr; }
+            .category-bar { height: 12px; }
+            .test-name { font-size: 0.8rem; }
+        }
     </style>
     <script>
+        function toggleCategory(categoryId) {
+            const testList = document.getElementById(categoryId);
+            const toggle = document.getElementById(categoryId + '-toggle');
+            testList.classList.toggle('expanded');
+            toggle.classList.toggle('collapsed');
+        }
         function toggleDetails(id) {
             const details = document.getElementById(id);
             details.classList.toggle('active');
@@ -509,15 +556,16 @@ class ValidationReporter {
         <h2>Results by Category</h2>`;
 
         // Category sections
-        Object.keys(byCategory).sort().forEach(category => {
+        Object.keys(byCategory).sort().forEach((category, categoryIndex) => {
             const { total: catTotal, passed: catPassed } = byCategory[category];
             const rate = ((catPassed / catTotal) * 100).toFixed(1);
             const categoryResults = this.results.filter(r => r.category === category);
+            const categoryId = `category-${categoryIndex}`;
 
             html += `
         <div class="category-section">
-            <div class="category-header">
-                <h3>${category}</h3>
+            <div class="category-header" onclick="toggleCategory('${categoryId}')">
+                <h3><span class="category-toggle collapsed" id="${categoryId}-toggle">▼</span> ${category}</h3>
                 <div class="category-stats">
                     <span>${catPassed}/${catTotal} passed (${rate}%)</span>
                     <div class="category-bar">
@@ -525,7 +573,7 @@ class ValidationReporter {
                     </div>
                 </div>
             </div>
-            <div class="test-list">`;
+            <div class="test-list" id="${categoryId}">`;
 
             categoryResults.forEach((result, index) => {
                 const fileName = result.testName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
