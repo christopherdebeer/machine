@@ -12,7 +12,7 @@ All three mechanisms use Graphviz DOT attributes and can be used together in the
 
 Apply styles directly to nodes, edges, or the machine itself using `@style` annotations with inline attributes:
 
-```dygram
+```dygram examples/styling/style-annotations.dygram
 machine "Example" @style(rankdir: LR)
 
 // Node with inline style
@@ -34,7 +34,7 @@ a -@style(color: red; penwidth: 5;)-> b;
 
 Define styles as object-valued attributes within nodes:
 
-```dygram
+```dygram examples/styling/style-attribute.dygram
 Task process {
     style: {
         color: blue;
@@ -55,7 +55,7 @@ Create reusable style definitions that apply to nodes based on annotation select
 
 ### Syntax
 
-```dygram
+```dygram !no-extract
 style <name> @<selector> {
     <graphviz-attribute>: <value>;
     ...
@@ -68,7 +68,7 @@ style <name> @<selector> {
 
 ## Example
 
-```dygram
+```dygram examples/styling/custom-styling.dygram
 machine "Custom Styling Example"
 
 // Define style nodes with annotation selectors
@@ -126,7 +126,7 @@ completePayment -> done;
 
 The following example demonstrates all three styling mechanisms working together:
 
-```dygram
+```dygram examples/styling/complete-demo.dygram
 machine "Complete Styling Demo" @style(rankdir: LR)
 
 // Mechanism 3: Style nodes with selectors
@@ -167,7 +167,7 @@ attribute-level ports. Style nodes remain metadata only—they never appear in t
 rendered diagram—but any node or edge annotated with the matching selector will
 inherit the declared Graphviz attributes.
 
-```dygram
+```dygram examples/styling/refined-ports.dygram
 machine "Refined styling, ports, and layout"
 description: "my machine description"
 type: "example"
@@ -245,7 +245,7 @@ Style nodes support any graphviz DOT attribute:
 
 A node can have multiple annotations, and each matching style will be applied:
 
-```dygram
+```dygram examples/styling/multiple-styles.dygram
 style errorStyle @Error {
     color: "#ff0000";
 }
@@ -263,7 +263,7 @@ Task criticalError @Error @Urgent {
 
 Style nodes also work with edge annotations! You can apply custom styles to edges by adding annotations to edge labels.
 
-```dygram
+```dygram examples/styling/edge-styling.dygram
 machine "Edge Styling Example"
 
 // Define style for critical edges
@@ -291,7 +291,7 @@ b -@critical @hideLabel-> c;
 
 Use `@hideLabel` or `@hideAnnotation` to apply edge styles without showing the annotation text in the edge label:
 
-```dygram
+```dygram examples/styling/hide-labels.dygram
 // Style is applied, but annotation text is hidden
 process -@critical @hideLabel done-> complete;
 ```
@@ -302,7 +302,7 @@ This generates: `label="done"` (no "@critical" shown) but still applies `color="
 
 Use `@style` annotations at the machine level to control diagram layout:
 
-```dygram
+```dygram examples/styling/layout-control.dygram
 // Left-to-right layout
 machine "Horizontal Flow" @style(rankdir: LR)
 
@@ -318,7 +318,7 @@ machine "Bottom Up" @style(rankdir: BT)
 
 You can also control node grouping and alignment:
 
-```dygram
+```dygram examples/styling/aligned-layout.dygram
 machine "Aligned Layout"
 
 Task start @style(rank: min;) "Start";
