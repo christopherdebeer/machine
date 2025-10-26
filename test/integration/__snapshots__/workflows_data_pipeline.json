@@ -1,0 +1,852 @@
+{
+  "json": {
+    "title": "Data Pipeline ETL Workflow",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "pipelineConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "batchSize",
+            "type": "number",
+            "value": 1000
+          },
+          {
+            "name": "maxRetries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 300000
+          },
+          {
+            "name": "parallelism",
+            "type": "number",
+            "value": 4
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      },
+      {
+        "name": "dataSourceConfig",
+        "type": "context",
+        "attributes": []
+      },
+      {
+        "name": "source",
+        "attributes": [
+          {
+            "name": "type",
+            "type": "string",
+            "value": "database"
+          },
+          {
+            "name": "connectionString",
+            "type": "string",
+            "value": "postgresql://localhost:5432/source_db"
+          },
+          {
+            "name": "query",
+            "type": "string",
+            "value": "SELECT * FROM transactions WHERE created_at > {{lastRunTime}}"
+          }
+        ],
+        "parent": "dataSourceConfig"
+      },
+      {
+        "name": "destination",
+        "attributes": [
+          {
+            "name": "type",
+            "type": "string",
+            "value": "data_warehouse"
+          },
+          {
+            "name": "connectionString",
+            "type": "string",
+            "value": "postgresql://localhost:5432/warehouse_db"
+          },
+          {
+            "name": "table",
+            "type": "string",
+            "value": "fact_transactions"
+          }
+        ],
+        "parent": "dataSourceConfig"
+      },
+      {
+        "name": "start",
+        "type": "init",
+        "attributes": [],
+        "title": "Pipeline Start"
+      },
+      {
+        "name": "ready",
+        "type": "state",
+        "attributes": [],
+        "title": "Ready to Process"
+      },
+      {
+        "name": "processing",
+        "type": "state",
+        "attributes": [],
+        "title": "Processing Data"
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [],
+        "title": "Pipeline Complete"
+      },
+      {
+        "name": "failed",
+        "type": "state",
+        "attributes": [],
+        "title": "Pipeline Failed"
+      },
+      {
+        "name": "validateConnections",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate source and destination connections"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ],
+        "title": "Validate Connections"
+      },
+      {
+        "name": "extractData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Extract data from source: {{dataSourceConfig.source.query}}"
+          },
+          {
+            "name": "recordsExtracted",
+            "type": "number",
+            "value": 0
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Extract Data"
+      },
+      {
+        "name": "checkExtractQuality",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate extracted data meets quality thresholds"
+          },
+          {
+            "name": "qualityScore",
+            "type": "number",
+            "value": 0
+          }
+        ],
+        "title": "Check Extract Quality"
+      },
+      {
+        "name": "cleanData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Remove duplicates, handle nulls, standardize formats"
+          }
+        ],
+        "title": "Clean Data"
+      },
+      {
+        "name": "validateSchema",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Ensure data matches target schema"
+          }
+        ],
+        "title": "Validate Schema"
+      },
+      {
+        "name": "enrichData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Add derived columns and lookup values"
+          }
+        ],
+        "title": "Enrich Data"
+      },
+      {
+        "name": "aggregateData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Calculate summary metrics and aggregations"
+          }
+        ],
+        "title": "Aggregate Data"
+      },
+      {
+        "name": "transformData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Apply business logic transformations"
+          },
+          {
+            "name": "recordsTransformed",
+            "type": "number",
+            "value": 0
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Transform Data"
+      },
+      {
+        "name": "prepareLoad",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Prepare data for loading into warehouse"
+          }
+        ],
+        "title": "Prepare Load"
+      },
+      {
+        "name": "loadData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Load transformed data to {{dataSourceConfig.destination.table}}"
+          },
+          {
+            "name": "recordsLoaded",
+            "type": "number",
+            "value": 0
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          },
+          {
+            "name": "Critical"
+          }
+        ],
+        "title": "Load Data"
+      },
+      {
+        "name": "verifyLoad",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Verify data loaded correctly"
+          }
+        ],
+        "title": "Verify Load"
+      },
+      {
+        "name": "updateMetadata",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Update pipeline metadata and lineage"
+          }
+        ],
+        "title": "Update Metadata"
+      },
+      {
+        "name": "handleExtractError",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Log extract error and determine retry strategy"
+          }
+        ],
+        "title": "Handle Extract Error"
+      },
+      {
+        "name": "handleTransformError",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Log transform error and salvage partial results"
+          }
+        ],
+        "title": "Handle Transform Error"
+      },
+      {
+        "name": "handleLoadError",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Rollback partial loads and log error"
+          }
+        ],
+        "title": "Handle Load Error"
+      },
+      {
+        "name": "recordMetrics",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Record pipeline execution metrics"
+          }
+        ],
+        "title": "Record Metrics"
+      },
+      {
+        "name": "sendAlerts",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Send alerts for pipeline failures or quality issues"
+          }
+        ],
+        "title": "Send Alerts"
+      },
+      {
+        "name": "checkCompleteness",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Verify no data loss during pipeline"
+          },
+          {
+            "name": "completeness",
+            "type": "number",
+            "value": 0
+          }
+        ],
+        "title": "Check Completeness"
+      },
+      {
+        "name": "checkAccuracy",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Verify data accuracy and consistency"
+          },
+          {
+            "name": "accuracy",
+            "type": "number",
+            "value": 0
+          }
+        ],
+        "title": "Check Accuracy"
+      },
+      {
+        "name": "checkConsistency",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Verify referential integrity and business rules"
+          }
+        ],
+        "title": "Check Consistency"
+      },
+      {
+        "name": "cleanupTempData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Remove temporary files and staging data"
+          }
+        ],
+        "title": "Cleanup Temporary Data"
+      },
+      {
+        "name": "archiveData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Archive processed source data"
+          }
+        ],
+        "title": "Archive Source Data"
+      },
+      {
+        "name": "batchProcessor1",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Batch Processor 1"
+      },
+      {
+        "name": "batchProcessor2",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Batch Processor 2"
+      },
+      {
+        "name": "batchProcessor3",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Batch Processor 3"
+      },
+      {
+        "name": "batchProcessor4",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Batch Processor 4"
+      },
+      {
+        "name": "mergeResults",
+        "type": "task",
+        "attributes": [],
+        "title": "Merge Results"
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "validateConnections",
+        "arrowType": "->"
+      },
+      {
+        "source": "validateConnections",
+        "target": "ready",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "validateConnections",
+        "target": "failed",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "ready",
+        "target": "extractData",
+        "arrowType": "->"
+      },
+      {
+        "source": "extractData",
+        "target": "checkExtractQuality",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkExtractQuality",
+        "target": "processing",
+        "arrowType": "->",
+        "value": {
+          "text": "quality > 95%"
+        },
+        "attributes": {
+          "text": "quality > 95%"
+        }
+      },
+      {
+        "source": "checkExtractQuality",
+        "target": "handleExtractError",
+        "arrowType": "->",
+        "value": {
+          "text": "quality <= 95%"
+        },
+        "attributes": {
+          "text": "quality <= 95%"
+        }
+      },
+      {
+        "source": "processing",
+        "target": "cleanData",
+        "arrowType": "->"
+      },
+      {
+        "source": "cleanData",
+        "target": "validateSchema",
+        "arrowType": "->"
+      },
+      {
+        "source": "validateSchema",
+        "target": "enrichData",
+        "arrowType": "->",
+        "value": {
+          "text": "valid"
+        },
+        "attributes": {
+          "text": "valid"
+        }
+      },
+      {
+        "source": "validateSchema",
+        "target": "handleTransformError",
+        "arrowType": "->",
+        "value": {
+          "text": "invalid"
+        },
+        "attributes": {
+          "text": "invalid"
+        }
+      },
+      {
+        "source": "enrichData",
+        "target": "aggregateData",
+        "arrowType": "->"
+      },
+      {
+        "source": "aggregateData",
+        "target": "transformData",
+        "arrowType": "->"
+      },
+      {
+        "source": "transformData",
+        "target": "prepareLoad",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "transformData",
+        "target": "handleTransformError",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "prepareLoad",
+        "target": "loadData",
+        "arrowType": "->"
+      },
+      {
+        "source": "loadData",
+        "target": "verifyLoad",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "loadData",
+        "target": "handleLoadError",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "verifyLoad",
+        "target": "checkCompleteness",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkCompleteness",
+        "target": "checkAccuracy",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkAccuracy",
+        "target": "checkConsistency",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkConsistency",
+        "target": "updateMetadata",
+        "arrowType": "->",
+        "value": {
+          "text": "all checks passed"
+        },
+        "attributes": {
+          "text": "all checks passed"
+        }
+      },
+      {
+        "source": "checkConsistency",
+        "target": "handleLoadError",
+        "arrowType": "->",
+        "value": {
+          "text": "checks failed"
+        },
+        "attributes": {
+          "text": "checks failed"
+        }
+      },
+      {
+        "source": "updateMetadata",
+        "target": "recordMetrics",
+        "arrowType": "->"
+      },
+      {
+        "source": "recordMetrics",
+        "target": "cleanupTempData",
+        "arrowType": "->"
+      },
+      {
+        "source": "cleanupTempData",
+        "target": "archiveData",
+        "arrowType": "->"
+      },
+      {
+        "source": "archiveData",
+        "target": "complete",
+        "arrowType": "->"
+      },
+      {
+        "source": "handleExtractError",
+        "target": "extractData",
+        "arrowType": "->",
+        "value": {
+          "text": "retry < maxRetries"
+        },
+        "attributes": {
+          "text": "retry < maxRetries"
+        }
+      },
+      {
+        "source": "handleExtractError",
+        "target": "sendAlerts",
+        "arrowType": "->",
+        "value": {
+          "text": "retry >= maxRetries"
+        },
+        "attributes": {
+          "text": "retry >= maxRetries"
+        }
+      },
+      {
+        "source": "handleTransformError",
+        "target": "transformData",
+        "arrowType": "->",
+        "value": {
+          "text": "retry < maxRetries"
+        },
+        "attributes": {
+          "text": "retry < maxRetries"
+        }
+      },
+      {
+        "source": "handleTransformError",
+        "target": "sendAlerts",
+        "arrowType": "->",
+        "value": {
+          "text": "retry >= maxRetries"
+        },
+        "attributes": {
+          "text": "retry >= maxRetries"
+        }
+      },
+      {
+        "source": "handleLoadError",
+        "target": "sendAlerts",
+        "arrowType": "->"
+      },
+      {
+        "source": "sendAlerts",
+        "target": "failed",
+        "arrowType": "->"
+      },
+      {
+        "source": "validateConnections",
+        "target": "pipelineConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "validateConnections",
+        "target": "dataSourceConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "extractData",
+        "target": "pipelineConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "extractData",
+        "target": "dataSourceConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "transformData",
+        "target": "pipelineConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "loadData",
+        "target": "pipelineConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "loadData",
+        "target": "dataSourceConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "transformData",
+        "target": "batchProcessor1",
+        "arrowType": "*-->"
+      },
+      {
+        "source": "transformData",
+        "target": "batchProcessor2",
+        "arrowType": "*-->"
+      },
+      {
+        "source": "transformData",
+        "target": "batchProcessor3",
+        "arrowType": "*-->"
+      },
+      {
+        "source": "transformData",
+        "target": "batchProcessor4",
+        "arrowType": "*-->"
+      },
+      {
+        "source": "batchProcessor1",
+        "target": "mergeResults",
+        "arrowType": "->"
+      },
+      {
+        "source": "batchProcessor2",
+        "target": "mergeResults",
+        "arrowType": "->"
+      },
+      {
+        "source": "batchProcessor3",
+        "target": "mergeResults",
+        "arrowType": "->"
+      },
+      {
+        "source": "batchProcessor4",
+        "target": "mergeResults",
+        "arrowType": "->"
+      },
+      {
+        "source": "mergeResults",
+        "target": "prepareLoad",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [
+      {
+        "target": "extractData",
+        "content": "Extract Phase:\n- Pull data from source system\n- Handle incremental vs full loads\n- Validate data quality at source\n- Track extraction metrics",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "transformData",
+        "content": "Transform Phase:\n- Clean and standardize data\n- Apply business rules\n- Enrich with reference data\n- Calculate derived values\n- Parallel processing for performance",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "loadData",
+        "content": "Load Phase:\n- Prepare staging tables\n- Bulk insert for performance\n- Handle conflicts (upsert/merge)\n- Verify data integrity\n- Update metadata/lineage",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "checkExtractQuality",
+        "content": "Data Quality Checks:\n- Completeness: No missing records\n- Accuracy: Values within expected ranges\n- Consistency: Referential integrity maintained\n- Timeliness: Data is current\n- Uniqueness: No duplicates",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "recordMetrics",
+        "content": "Pipeline Metrics:\n- Execution time\n- Records processed\n- Data quality scores\n- Error rates\n- Resource utilization\n- Success/failure status",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "extractData",
+        "target": "dataSourceConfig",
+        "reason": "reads prompt",
+        "path": "dataSourceConfig.source.query"
+      },
+      {
+        "source": "loadData",
+        "target": "dataSourceConfig",
+        "reason": "reads prompt",
+        "path": "dataSourceConfig.destination.table"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Pipeline ETL Workflow</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"pipelineConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pipelineConfig</b> <i>&lt;context&gt;</i> <i>@Singleton</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"batchSize__key\" align=\"left\" balign=\"left\">batchSize : number</td><td port=\"batchSize__value\" align=\"left\" balign=\"left\">1000</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : number</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">300000</td></tr><tr><td port=\"parallelism__key\" align=\"left\" balign=\"left\">parallelism : number</td><td port=\"parallelism__value\" align=\"left\" balign=\"left\">4</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", peripheries=2];\n  subgraph cluster_dataSourceConfig {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"dataSourceConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>dataSourceConfig</b> <i>&lt;context&gt;</i></td></tr></table>>, shape=plain, margin=0];\n    \"dataSourceConfig__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"source\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>source</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"type__key\" align=\"left\" balign=\"left\">type : string</td><td port=\"type__value\" align=\"left\" balign=\"left\">database</td></tr><tr><td port=\"connectionString__key\" align=\"left\" balign=\"left\">connectionString : string</td><td port=\"connectionString__value\" align=\"left\" balign=\"left\">postgresql://localhost:5432/so<br align=\"left\"/>urce_db</td></tr><tr><td port=\"query__key\" align=\"left\" balign=\"left\">query : string</td><td port=\"query__value\" align=\"left\" balign=\"left\">SELECT * FROM transactions<br align=\"left\"/>WHERE created_at &gt;<br align=\"left\"/>{{lastRunTime}}</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"destination\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>destination</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"type__key\" align=\"left\" balign=\"left\">type : string</td><td port=\"type__value\" align=\"left\" balign=\"left\">data_warehouse</td></tr><tr><td port=\"connectionString__key\" align=\"left\" balign=\"left\">connectionString : string</td><td port=\"connectionString__value\" align=\"left\" balign=\"left\">postgresql://localhost:5432/wa<br align=\"left\"/>rehouse_db</td></tr><tr><td port=\"table__key\" align=\"left\" balign=\"left\">table : string</td><td port=\"table__value\" align=\"left\" balign=\"left\">fact_transactions</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  }\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Pipeline Start</td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"ready\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ready</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Ready to Process</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing Data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Pipeline Complete</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>failed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Pipeline Failed</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"validateConnections\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateConnections</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Validate Connections</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"extractData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extractData</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Extract Data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"recordsExtracted__key\" align=\"left\" balign=\"left\">recordsExtracted : number</td><td port=\"recordsExtracted__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"checkExtractQuality\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkExtractQuality</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check Extract Quality</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"qualityScore__key\" align=\"left\" balign=\"left\">qualityScore : number</td><td port=\"qualityScore__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"cleanData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cleanData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Clean Data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validateSchema\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateSchema</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate Schema</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"enrichData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>enrichData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Enrich Data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"aggregateData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>aggregateData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Aggregate Data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"transformData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transformData</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Transform Data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"recordsTransformed__key\" align=\"left\" balign=\"left\">recordsTransformed : number</td><td port=\"recordsTransformed__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"prepareLoad\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prepareLoad</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Prepare Load</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"loadData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>loadData</b> <i>&lt;task&gt;</i> <i>@Async @Critical</i></td></tr><tr><td align=\"left\">Load Data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"recordsLoaded__key\" align=\"left\" balign=\"left\">recordsLoaded : number</td><td port=\"recordsLoaded__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"verifyLoad\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>verifyLoad</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Verify Load</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"updateMetadata\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>updateMetadata</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Update Metadata</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"handleExtractError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleExtractError</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Handle Extract Error</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"handleTransformError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleTransformError</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Handle Transform Error</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"handleLoadError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleLoadError</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Handle Load Error</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"recordMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>recordMetrics</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Record Metrics</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"sendAlerts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>sendAlerts</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Send Alerts</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"checkCompleteness\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkCompleteness</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check Completeness</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"completeness__key\" align=\"left\" balign=\"left\">completeness : number</td><td port=\"completeness__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"checkAccuracy\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkAccuracy</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check Accuracy</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"accuracy__key\" align=\"left\" balign=\"left\">accuracy : number</td><td port=\"accuracy__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"checkConsistency\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkConsistency</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check Consistency</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"cleanupTempData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cleanupTempData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Cleanup Temporary Data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"archiveData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>archiveData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Archive Source Data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"batchProcessor1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>batchProcessor1</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Batch Processor 1</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"batchProcessor2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>batchProcessor2</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Batch Processor 2</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"batchProcessor3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>batchProcessor3</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Batch Processor 3</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"batchProcessor4\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>batchProcessor4</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Batch Processor 4</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"mergeResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>mergeResults</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Merge Results</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"start\" -> \"validateConnections\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateConnections\" -> \"ready\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateConnections\" -> \"failed\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ready\" -> \"extractData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"extractData\" -> \"checkExtractQuality\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkExtractQuality\" -> \"processing\" [label=\"quality > 95%\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkExtractQuality\" -> \"handleExtractError\" [label=\"quality <= 95%\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processing\" -> \"cleanData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"cleanData\" -> \"validateSchema\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateSchema\" -> \"enrichData\" [label=\"valid\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateSchema\" -> \"handleTransformError\" [label=\"invalid\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"enrichData\" -> \"aggregateData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"aggregateData\" -> \"transformData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transformData\" -> \"prepareLoad\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transformData\" -> \"handleTransformError\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"prepareLoad\" -> \"loadData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"loadData\" -> \"verifyLoad\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"loadData\" -> \"handleLoadError\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"verifyLoad\" -> \"checkCompleteness\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkCompleteness\" -> \"checkAccuracy\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkAccuracy\" -> \"checkConsistency\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkConsistency\" -> \"updateMetadata\" [label=\"all checks passed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkConsistency\" -> \"handleLoadError\" [label=\"checks failed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"updateMetadata\" -> \"recordMetrics\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"recordMetrics\" -> \"cleanupTempData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"cleanupTempData\" -> \"archiveData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"archiveData\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleExtractError\" -> \"extractData\" [label=\"retry < maxRetries\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleExtractError\" -> \"sendAlerts\" [label=\"retry >= maxRetries\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleTransformError\" -> \"transformData\" [label=\"retry < maxRetries\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleTransformError\" -> \"sendAlerts\" [label=\"retry >= maxRetries\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleLoadError\" -> \"sendAlerts\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"sendAlerts\" -> \"failed\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateConnections\" -> \"pipelineConfig\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateConnections\" -> \"dataSourceConfig__cluster_anchor\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", lhead=\"cluster_dataSourceConfig\"];\n  \"extractData\" -> \"pipelineConfig\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"extractData\" -> \"dataSourceConfig__cluster_anchor\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", lhead=\"cluster_dataSourceConfig\"];\n  \"transformData\" -> \"pipelineConfig\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"loadData\" -> \"pipelineConfig\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"loadData\" -> \"dataSourceConfig__cluster_anchor\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", lhead=\"cluster_dataSourceConfig\"];\n  \"transformData\" -> \"batchProcessor1\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transformData\" -> \"batchProcessor2\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transformData\" -> \"batchProcessor3\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transformData\" -> \"batchProcessor4\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"batchProcessor1\" -> \"mergeResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"batchProcessor2\" -> \"mergeResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"batchProcessor3\" -> \"mergeResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"batchProcessor4\" -> \"mergeResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"mergeResults\" -> \"prepareLoad\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_extractData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Extract Phase:\n- Pull data from source<br/>system\n- Handle incremental vs full<br/>loads\n- Validate data quality at<br/>source\n- Track extraction metrics</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_extractData\" -> \"extractData\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_transformData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Transform Phase:\n- Clean and standardize<br/>data\n- Apply business rules\n- Enrich<br/>with reference data\n- Calculate derived<br/>values\n- Parallel processing for<br/>performance</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_transformData\" -> \"transformData\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_2_loadData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Load Phase:\n- Prepare staging tables\n-<br/>Bulk insert for performance\n- Handle<br/>conflicts (upsert/merge)\n- Verify data<br/>integrity\n- Update metadata/lineage</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_2_loadData\" -> \"loadData\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_3_checkExtractQuality\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Data Quality Checks:\n- Completeness: No<br/>missing records\n- Accuracy: Values<br/>within expected ranges\n- Consistency:<br/>Referential integrity maintained\n-<br/>Timeliness: Data is current\n-<br/>Uniqueness: No duplicates</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_3_checkExtractQuality\" -> \"checkExtractQuality\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_4_recordMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Pipeline Metrics:\n- Execution time\n-<br/>Records processed\n- Data quality<br/>scores\n- Error rates\n- Resource<br/>utilization\n- Success/failure status</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_4_recordMetrics\" -> \"recordMetrics\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Inferred Dependencies\n  \"extractData\" -> \"dataSourceConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"loadData\" -> \"dataSourceConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "37e0fb9459ec963b26afd875d5744d89fc5d4a86f71b6247d65cc82d0d7bf0c0"
+}

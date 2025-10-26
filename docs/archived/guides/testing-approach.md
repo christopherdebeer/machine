@@ -175,16 +175,56 @@ Current test coverage:
 - **100% success rate** after bug fixes
 - **Validates:** Parsing, JSON generation, Mermaid generation, completeness, losslessness
 
-## Running Tests
+## Snapshot Testing
 
+In addition to structural validation, the test suite now includes **snapshot testing** to detect unintended changes in output generation.
+
+### How Snapshot Testing Works
+
+Snapshots capture the expected outputs (JSON, Graphviz DOT, and SVG) for each test example:
+
+1. **Baseline Creation**: Initial snapshots are created when tests first run
+2. **Comparison**: Subsequent test runs compare current outputs against stored snapshots
+3. **Failure on Mismatch**: Tests fail if outputs differ from snapshots
+4. **Intentional Updates**: Snapshots can be updated when changes are intentional
+
+### Running Tests
+
+**Normal Mode (Snapshot Comparison):**
 ```bash
 npm test
 ```
+Tests fail if outputs differ from snapshots. This is the default CI/CD mode.
+
+**Update Mode (Create/Update Snapshots):**
+```bash
+UPDATE_SNAPSHOTS=true npm test
+```
+Creates new snapshots or updates existing ones when differences are detected.
+
+### When to Update Snapshots
+
+Update snapshots in these situations:
+- **Intentional generator changes**: You've improved the JSON/Graphviz generator
+- **New examples**: You've added new examples to the documentation
+- **Fixed bugs**: You've fixed a bug and the corrected output is now expected
+- **Library updates**: You've updated dependencies and verified new outputs are correct
+
+### Snapshot Update Workflow
+
+1. Make your changes to the generator or examples
+2. Run tests to see what changed: `npm test`
+3. Review detailed output in `test-output/comprehensive-generative/`
+4. If changes are intentional, update snapshots: `UPDATE_SNAPSHOTS=true npm test`
+5. Commit both code changes and updated snapshots
+
+See `test/integration/__snapshots__/README.md` for detailed snapshot testing documentation.
 
 Test output includes:
 - Real-time validation results
-- Generated artifacts in `test-output/generative/`
+- Generated artifacts in `test-output/generative/` and `test-output/comprehensive-generative/`
 - Comprehensive report with statistics
+- Snapshot comparison results
 
 ## Adding New Tests
 

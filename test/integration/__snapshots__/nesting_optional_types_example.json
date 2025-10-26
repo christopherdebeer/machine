@@ -1,0 +1,326 @@
+{
+  "json": {
+    "title": "Optional Types Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "explicitTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Analyze the data"
+          }
+        ]
+      },
+      {
+        "name": "inferredTask",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Transform the results"
+          }
+        ]
+      },
+      {
+        "name": "apiConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "url",
+            "value": "https://api.example.com"
+          },
+          {
+            "name": "timeout",
+            "value": 5000
+          }
+        ]
+      },
+      {
+        "name": "appConfig",
+        "attributes": [
+          {
+            "name": "apiKey",
+            "value": "xxx"
+          },
+          {
+            "name": "retries",
+            "value": 3
+          }
+        ]
+      },
+      {
+        "name": "settings",
+        "attributes": [
+          {
+            "name": "theme",
+            "value": "dark"
+          },
+          {
+            "name": "language",
+            "value": "en"
+          }
+        ]
+      },
+      {
+        "name": "explicitReady",
+        "type": "state",
+        "attributes": [],
+        "title": "Ready State"
+      },
+      {
+        "name": "waiting",
+        "attributes": [],
+        "title": "Waiting"
+      },
+      {
+        "name": "processing",
+        "attributes": [],
+        "title": "Processing"
+      },
+      {
+        "name": "explicitCalculator",
+        "type": "tool",
+        "attributes": [
+          {
+            "name": "input",
+            "value": "{ x: number, y: number }"
+          },
+          {
+            "name": "output",
+            "value": "{ result: number }"
+          }
+        ]
+      },
+      {
+        "name": "formatter",
+        "attributes": [
+          {
+            "name": "input",
+            "value": "{ data: string }"
+          },
+          {
+            "name": "output",
+            "value": "{ formatted: string }"
+          }
+        ]
+      },
+      {
+        "name": "start",
+        "type": "init",
+        "attributes": [],
+        "title": "Entry Point"
+      },
+      {
+        "name": "Pipeline",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "validateExplicit",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate input"
+          }
+        ],
+        "parent": "Pipeline"
+      },
+      {
+        "name": "validate",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate input"
+          }
+        ],
+        "parent": "Pipeline"
+      },
+      {
+        "name": "transform",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Transform data"
+          }
+        ],
+        "parent": "Pipeline"
+      },
+      {
+        "name": "intermediate",
+        "attributes": [],
+        "parent": "Pipeline",
+        "title": "Processing"
+      },
+      {
+        "name": "store",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Store results"
+          }
+        ],
+        "parent": "Pipeline"
+      },
+      {
+        "name": "globalConfig",
+        "attributes": [
+          {
+            "name": "environment",
+            "value": "production"
+          }
+        ]
+      },
+      {
+        "name": "DataPipeline",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "extract",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Extract data from {{ globalConfig.environment }}"
+          }
+        ],
+        "parent": "DataPipeline"
+      },
+      {
+        "name": "processData",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process extracted data"
+          }
+        ],
+        "parent": "DataPipeline"
+      },
+      {
+        "name": "userData",
+        "type": "state",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "DataPipeline",
+        "target": "globalConfig",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "start",
+        "target": "explicitTask",
+        "arrowType": "->"
+      },
+      {
+        "source": "explicitTask",
+        "target": "inferredTask",
+        "arrowType": "->"
+      },
+      {
+        "source": "inferredTask",
+        "target": "Pipeline",
+        "arrowType": "->"
+      },
+      {
+        "source": "Pipeline",
+        "target": "waiting",
+        "arrowType": "->"
+      },
+      {
+        "source": "waiting",
+        "target": "processing",
+        "arrowType": "->"
+      },
+      {
+        "source": "validate",
+        "target": "transform",
+        "arrowType": "->"
+      },
+      {
+        "source": "transform",
+        "target": "intermediate",
+        "arrowType": "->"
+      },
+      {
+        "source": "intermediate",
+        "target": "store",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [
+      {
+        "target": "explicitTask",
+        "content": "Traditional explicit task type",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "inferredTask",
+        "content": "Type inferred from 'prompt' attribute - same behavior as explicit task",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "apiConfig",
+        "content": "Explicit context type",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "appConfig",
+        "content": "Type inferred from name containing 'config'",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "settings",
+        "content": "Type inferred from having only data attributes",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "explicitReady",
+        "content": "Explicit state type",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "waiting",
+        "content": "Type inferred as state (default for simple nodes)",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "explicitCalculator",
+        "content": "Explicit tool type",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "formatter",
+        "content": "Type inferred from input/output schema attributes",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "extract",
+        "target": "globalConfig",
+        "reason": "reads prompt",
+        "path": "globalConfig.environment"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Optional Types Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"explicitTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>explicitTask</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze the data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"inferredTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>inferredTask</b></td></tr><tr><td align=\"left\">Transform the results</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"apiConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"url__key\" align=\"left\" balign=\"left\">url</td><td port=\"url__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">5000</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"appConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>appConfig</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiKey__key\" align=\"left\" balign=\"left\">apiKey</td><td port=\"apiKey__value\" align=\"left\" balign=\"left\">xxx</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries</td><td port=\"retries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"settings\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>settings</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"theme__key\" align=\"left\" balign=\"left\">theme</td><td port=\"theme__value\" align=\"left\" balign=\"left\">dark</td></tr><tr><td port=\"language__key\" align=\"left\" balign=\"left\">language</td><td port=\"language__value\" align=\"left\" balign=\"left\">en</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"explicitReady\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>explicitReady</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Ready State</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"waiting\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>waiting</b></td></tr><tr><td align=\"left\">Waiting</td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b></td></tr><tr><td align=\"left\">Processing</td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"explicitCalculator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>explicitCalculator</b> <i>&lt;tool&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input</td><td port=\"input__value\" align=\"left\" balign=\"left\">{ x: number, y: number }</td></tr><tr><td port=\"output__key\" align=\"left\" balign=\"left\">output</td><td port=\"output__value\" align=\"left\" balign=\"left\">{ result: number }</td></tr></table></td></tr></table>>, shape=component, fillcolor=\"#FFF9C4\", style=filled, color=\"#F57F17\"];\n  \"formatter\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>formatter</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input</td><td port=\"input__value\" align=\"left\" balign=\"left\">{ data: string }</td></tr><tr><td port=\"output__key\" align=\"left\" balign=\"left\">output</td><td port=\"output__value\" align=\"left\" balign=\"left\">{ formatted: string }</td></tr></table></td></tr></table>>, shape=component, fillcolor=\"#FFF9C4\", style=filled, color=\"#F57F17\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Entry Point</td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  subgraph cluster_Pipeline {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Pipeline\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>Pipeline</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=plain, margin=0];\n    \"Pipeline__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"validateExplicit\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateExplicit</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate input</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b></td></tr><tr><td align=\"left\">Validate input</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transform</b></td></tr><tr><td align=\"left\">Transform data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"intermediate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>intermediate</b></td></tr><tr><td align=\"left\">Processing</td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"store\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>store</b></td></tr><tr><td align=\"left\">Store results</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"globalConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>globalConfig</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">production</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  subgraph cluster_DataPipeline {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"DataPipeline\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>DataPipeline</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=plain, margin=0];\n    \"DataPipeline__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"extract\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extract</b></td></tr><tr><td align=\"left\">Extract data from {{<br/>globalConfig.environment }}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"processData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processData</b></td></tr><tr><td align=\"left\">Process extracted data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"userData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userData</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"DataPipeline__cluster_anchor\" -> \"globalConfig\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_DataPipeline\"];\n  \"start\" -> \"explicitTask\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"explicitTask\" -> \"inferredTask\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"inferredTask\" -> \"Pipeline__cluster_anchor\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", lhead=\"cluster_Pipeline\"];\n  \"Pipeline__cluster_anchor\" -> \"waiting\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Pipeline\"];\n  \"waiting\" -> \"processing\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validate\" -> \"transform\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transform\" -> \"intermediate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"intermediate\" -> \"store\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_explicitTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Traditional explicit task type</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_explicitTask\" -> \"explicitTask\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_inferredTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Type inferred from 'prompt' attribute -<br/>same behavior as explicit task</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_inferredTask\" -> \"inferredTask\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_2_apiConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Explicit context type</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_2_apiConfig\" -> \"apiConfig\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_3_appConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Type inferred from name containing<br/>'config'</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_3_appConfig\" -> \"appConfig\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_4_settings\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Type inferred from having only data<br/>attributes</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_4_settings\" -> \"settings\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_5_explicitReady\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Explicit state type</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_5_explicitReady\" -> \"explicitReady\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_6_waiting\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Type inferred as state (default for<br/>simple nodes)</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_6_waiting\" -> \"waiting\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_7_explicitCalculator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Explicit tool type</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_7_explicitCalculator\" -> \"explicitCalculator\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_8_formatter\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Type inferred from input/output schema<br/>attributes</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_8_formatter\" -> \"formatter\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Inferred Dependencies\n  \"extract\" -> \"globalConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "c3bd13d506e5c8f4b6c30cab1685d96cf01437517723f2bf64fe9098b2444f4d"
+}

@@ -102,20 +102,39 @@ async function extractExamples(projectRoot) {
     function extractFromMarkdown(content, sourceFile) {
         const lines = content.split('\n');
         const examples = [];
+        const unnamedBlocks = [];
         let inCodeblock = false;
         let codeblockPath = null;
         let codeblockContent = [];
         let lineNumber = 0;
+        let unnamedBlockIndex = 0;
 
         for (const line of lines) {
             lineNumber++;
             if (line.startsWith('```')) {
                 if (!inCodeblock) {
-                    const match = line.match(/^```(dygram|mach|machine)\s+(.+\.(dygram|mach))$/);
-                    if (match) {
+                    const matchWithPath = line.match(/^```(dygram|mach|machine)\s+(.+\.(dygram|mach))$/);
+                    const matchWithoutPath = line.match(/^```(dygram|mach|machine)\s*$/);
+
+                    if (matchWithPath) {
                         inCodeblock = true;
-                        codeblockPath = match[2].trim();
+                        codeblockPath = matchWithPath[2].trim();
                         codeblockContent = [];
+                    } else if (matchWithoutPath) {
+                        inCodeblock = true;
+                        // Generate filename from source file path
+                        const sourceParts = sourceFile.replace(/^docs\//, '').replace(/\.(md|mdx)$/, '').split('/');
+                        const category = sourceParts.length > 1 ? sourceParts[0] : 'uncategorised';
+                        const baseName = sourceParts[sourceParts.length - 1].toLowerCase().replace(/readme$/i, 'example');
+                        unnamedBlockIndex++;
+                        const filename = `${baseName}-${unnamedBlockIndex}.dygram`;
+                        codeblockPath = `examples/${category}/${filename}`;
+                        codeblockContent = [];
+                        unnamedBlocks.push({
+                            sourceFile,
+                            sourceLine: lineNumber,
+                            generatedPath: codeblockPath
+                        });
                     }
                 } else {
                     if (codeblockPath) {
@@ -123,7 +142,8 @@ async function extractExamples(projectRoot) {
                             path: codeblockPath,
                             content: codeblockContent.join('\n'),
                             sourceFile: sourceFile,
-                            sourceLine: lineNumber - codeblockContent.length - 1
+                            sourceLine: lineNumber - codeblockContent.length - 1,
+                            isUnnamed: unnamedBlocks.some(b => b.generatedPath === codeblockPath)
                         });
                     }
                     inCodeblock = false;
@@ -134,18 +154,32 @@ async function extractExamples(projectRoot) {
                 codeblockContent.push(line);
             }
         }
-        return examples;
+        return { examples, unnamedBlocks };
     }
 
     // Process all markdown files
     const allExamples = [];
+    const allUnnamedBlocks = [];
     for (const mdFile of markdownFiles) {
         const content = await readFile(mdFile, 'utf-8');
-        const examples = extractFromMarkdown(content, relative(projectRoot, mdFile));
+        const { examples, unnamedBlocks } = extractFromMarkdown(content, relative(projectRoot, mdFile));
         allExamples.push(...examples);
+        allUnnamedBlocks.push(...unnamedBlocks);
     }
 
     log(`Extracted ${allExamples.length} examples from documentation`, 'success');
+
+    // Report unnamed blocks
+    if (allUnnamedBlocks.length > 0) {
+        log(`Found ${allUnnamedBlocks.length} unnamed code block(s)`, 'warn');
+        logSubsection('Unnamed code blocks (consider adding explicit filenames)');
+        for (const block of allUnnamedBlocks) {
+            log(`  ${block.sourceFile}:${block.sourceLine} → auto-generated as ${block.generatedPath}`, 'warn');
+        }
+        log(`\nTo fix: Add filename after language identifier, e.g.:`, 'info');
+        log(`  \`\`\`dygram examples/category/filename.dygram`, 'info');
+        console.log(''); // Empty line for readability
+    }
 
     // Write examples to disk
     logSubsection('Writing example files');

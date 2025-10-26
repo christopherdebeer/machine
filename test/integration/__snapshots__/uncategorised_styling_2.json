@@ -1,0 +1,179 @@
+{
+  "json": {
+    "title": "Custom Styling Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "criticalStyle",
+        "type": "style",
+        "attributes": [
+          {
+            "name": "fillcolor",
+            "value": "#ffcccc"
+          },
+          {
+            "name": "penwidth",
+            "value": 3
+          },
+          {
+            "name": "color",
+            "value": "#cc0000"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "warningStyle",
+        "type": "style",
+        "attributes": [
+          {
+            "name": "fillcolor",
+            "value": "#ffffcc"
+          },
+          {
+            "name": "penwidth",
+            "value": 2
+          },
+          {
+            "name": "color",
+            "value": "#cccc00"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Warning"
+          }
+        ]
+      },
+      {
+        "name": "successStyle",
+        "type": "style",
+        "attributes": [
+          {
+            "name": "fillcolor",
+            "value": "#ccffcc"
+          },
+          {
+            "name": "penwidth",
+            "value": 2
+          },
+          {
+            "name": "color",
+            "value": "#00cc00"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Success"
+          }
+        ]
+      },
+      {
+        "name": "start",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Initialize the payment processing system"
+          }
+        ],
+        "title": "Initialize system"
+      },
+      {
+        "name": "validatePayment",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate payment details with strict checks"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ],
+        "title": "Validate Payment"
+      },
+      {
+        "name": "checkBalance",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Check if account has sufficient balance"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Warning"
+          }
+        ],
+        "title": "Check Balance"
+      },
+      {
+        "name": "processing",
+        "type": "state",
+        "attributes": [],
+        "title": "Processing payment"
+      },
+      {
+        "name": "completePayment",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Finalize the payment transaction"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Success"
+          }
+        ],
+        "title": "Complete Payment"
+      },
+      {
+        "name": "done",
+        "type": "state",
+        "attributes": [],
+        "title": "Transaction complete"
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "validatePayment",
+        "arrowType": "->"
+      },
+      {
+        "source": "validatePayment",
+        "target": "checkBalance",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkBalance",
+        "target": "processing",
+        "arrowType": "->"
+      },
+      {
+        "source": "processing",
+        "target": "completePayment",
+        "arrowType": "->"
+      },
+      {
+        "source": "completePayment",
+        "target": "done",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Custom Styling Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Initialize system</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validatePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validatePayment</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Validate Payment</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, fillcolor=\"#ffcccc\", penwidth=\"3\", color=\"#cc0000\"];\n  \"checkBalance\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkBalance</b> <i>&lt;task&gt;</i> <i>@Warning</i></td></tr><tr><td align=\"left\">Check Balance</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", fillcolor=\"#ffffcc\", penwidth=\"2\", color=\"#cccc00\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing payment</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"completePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>completePayment</b> <i>&lt;task&gt;</i> <i>@Success</i></td></tr><tr><td align=\"left\">Complete Payment</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", fillcolor=\"#ccffcc\", penwidth=\"2\", color=\"#00cc00\"];\n  \"done\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>done</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Transaction complete</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"start\" -> \"validatePayment\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validatePayment\" -> \"checkBalance\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkBalance\" -> \"processing\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processing\" -> \"completePayment\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"completePayment\" -> \"done\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "b6adbed39239b67885ce2be45ae812a7f39e3caf02f8044d594b5b09bfb3dfd3"
+}

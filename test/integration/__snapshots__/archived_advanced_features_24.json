@@ -1,0 +1,38 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "inferred",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "autoString",
+            "value": "hello"
+          },
+          {
+            "name": "autoNumber",
+            "value": 42
+          },
+          {
+            "name": "autoBool",
+            "value": true
+          },
+          {
+            "name": "autoArray",
+            "value": [
+              1,
+              2,
+              3
+            ]
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"inferred\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>inferred</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"autoString__key\" align=\"left\" balign=\"left\">autoString</td><td port=\"autoString__value\" align=\"left\" balign=\"left\">hello</td></tr><tr><td port=\"autoNumber__key\" align=\"left\" balign=\"left\">autoNumber</td><td port=\"autoNumber__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"autoBool__key\" align=\"left\" balign=\"left\">autoBool</td><td port=\"autoBool__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"autoArray__key\" align=\"left\" balign=\"left\">autoArray</td><td port=\"autoArray__value\" align=\"left\" balign=\"left\">[\n  1,\n  2,\n  3\n]</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "4699c26abc5dd79d33e7ad709f7d1fea8b5b9b051cdb9b8728f8b65ab911ff42"
+}

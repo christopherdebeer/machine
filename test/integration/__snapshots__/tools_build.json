@@ -1,0 +1,42 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "builder",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Find Tool nodes using get_tool_nodes, then build them using build_tool_from_node"
+          }
+        ]
+      },
+      {
+        "name": "my_tool",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "builder",
+        "target": "my_tool",
+        "arrowType": "->",
+        "value": {
+          "text": "uses"
+        },
+        "attributes": {
+          "text": "uses"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"builder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>builder</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Find Tool nodes using get_tool_nodes,<br/>then build them using<br/>build_tool_from_node</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"my_tool\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>my_tool</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"builder\" -> \"my_tool\" [label=\"uses\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "cc1f2de88834e2f6eb785fcce23c04c972f0cb8a3e9fc155958951067357dac6"
+}

@@ -1,0 +1,33 @@
+{
+  "json": {
+    "title": "Async Annotation Validation",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "myState",
+        "type": "state",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ]
+      },
+      {
+        "name": "myTask",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Async Annotation Validation</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"myState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>myState</b> <i>&lt;state&gt;</i> <i>@Async</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"myTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>myTask</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "f6d2b4e77e36ba178b5fa54cb0f0f6b9238dc6567d21d93af6a2a2a135c18bbe"
+}

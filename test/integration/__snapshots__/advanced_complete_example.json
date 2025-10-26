@@ -1,0 +1,460 @@
+{
+  "json": {
+    "title": "Complete Phase 2 Feature Showcase",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "systemConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "apiBaseUrl",
+            "type": "string",
+            "value": "https://api.example.com"
+          },
+          {
+            "name": "apiKey",
+            "type": "string",
+            "value": "secret-key-123"
+          },
+          {
+            "name": "maxRetries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 5000
+          },
+          {
+            "name": "environment",
+            "type": "string",
+            "value": "production"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      },
+      {
+        "name": "databaseConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "host",
+            "type": "string",
+            "value": "db.example.com"
+          },
+          {
+            "name": "port",
+            "type": "number",
+            "value": 5432
+          },
+          {
+            "name": "database",
+            "type": "string",
+            "value": "myapp_prod"
+          },
+          {
+            "name": "maxConnections",
+            "type": "number",
+            "value": 100
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      },
+      {
+        "name": "BaseTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Base task for all operations"
+          },
+          {
+            "name": "version",
+            "type": "string",
+            "value": "2.0.0"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Abstract"
+          }
+        ]
+      },
+      {
+        "name": "BaseValidator",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Base validator for data validation"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Abstract"
+          },
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "HTTPTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Make HTTP request to {{ systemConfig.apiBaseUrl }} with timeout {{ systemConfig.timeout }}"
+          },
+          {
+            "name": "method",
+            "type": "string",
+            "value": "GET"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ]
+      },
+      {
+        "name": "DatabaseTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Connect to {{ databaseConfig.database }} at {{ databaseConfig.host }}:{{ databaseConfig.port }}"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          },
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "JSONValidator",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Validates JSON data format"
+          },
+          {
+            "name": "schema",
+            "type": "string",
+            "value": "schema.json"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      },
+      {
+        "name": "DataValidator",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Validates business rules"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "fetchData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Fetch data using {{ HTTPTask.prompt }}"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ]
+      },
+      {
+        "name": "validateData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate fetched data with {{ JSONValidator.desc }}"
+          }
+        ]
+      },
+      {
+        "name": "transformData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Transform validated data for storage"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "storeData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Store data using {{ DatabaseTask.prompt }}"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          },
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "notifySuccess",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Send success notification (env: {{ systemConfig.environment }})"
+          }
+        ]
+      },
+      {
+        "name": "errorHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Handles errors and retries"
+          },
+          {
+            "name": "maxRetries",
+            "value": 3
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "Success",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Operation completed successfully"
+          }
+        ]
+      },
+      {
+        "name": "Failed",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Operation failed after retries"
+          }
+        ]
+      },
+      {
+        "name": "legacyProcessor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Old data processor"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Deprecated",
+            "value": "Use transformData instead - removed in v3.0"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "BaseTask",
+        "target": "HTTPTask",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "BaseTask",
+        "target": "DatabaseTask",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "BaseValidator",
+        "target": "JSONValidator",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "BaseValidator",
+        "target": "DataValidator",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "fetchData",
+        "target": "validateData",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "*"
+      },
+      {
+        "source": "validateData",
+        "target": "transformData",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "transformData",
+        "target": "storeData",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "storeData",
+        "target": "Success",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "0..1"
+      },
+      {
+        "source": "storeData",
+        "target": "Failed",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "0..1"
+      },
+      {
+        "source": "Success",
+        "target": "notifySuccess",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "Failed",
+        "target": "errorHandler",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "errorHandler",
+        "target": "fetchData",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "0..1"
+      },
+      {
+        "source": "JSONValidator",
+        "target": "validateData",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "*"
+      },
+      {
+        "source": "DataValidator",
+        "target": "validateData",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "*"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "HTTPTask",
+        "target": "systemConfig",
+        "reason": "reads prompt",
+        "path": "systemConfig.apiBaseUrl"
+      },
+      {
+        "source": "HTTPTask",
+        "target": "systemConfig",
+        "reason": "reads prompt",
+        "path": "systemConfig.timeout"
+      },
+      {
+        "source": "DatabaseTask",
+        "target": "databaseConfig",
+        "reason": "reads prompt",
+        "path": "databaseConfig.database"
+      },
+      {
+        "source": "DatabaseTask",
+        "target": "databaseConfig",
+        "reason": "reads prompt",
+        "path": "databaseConfig.host"
+      },
+      {
+        "source": "DatabaseTask",
+        "target": "databaseConfig",
+        "reason": "reads prompt",
+        "path": "databaseConfig.port"
+      },
+      {
+        "source": "fetchData",
+        "target": "HTTPTask",
+        "reason": "reads prompt",
+        "path": "HTTPTask.prompt"
+      },
+      {
+        "source": "validateData",
+        "target": "JSONValidator",
+        "reason": "reads prompt",
+        "path": "JSONValidator.desc"
+      },
+      {
+        "source": "storeData",
+        "target": "DatabaseTask",
+        "reason": "reads prompt",
+        "path": "DatabaseTask.prompt"
+      },
+      {
+        "source": "notifySuccess",
+        "target": "systemConfig",
+        "reason": "reads prompt",
+        "path": "systemConfig.environment"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complete Phase 2 Feature Showcase</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"systemConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>systemConfig</b> <i>&lt;context&gt;</i> <i>@Singleton</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiBaseUrl__key\" align=\"left\" balign=\"left\">apiBaseUrl : string</td><td port=\"apiBaseUrl__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"apiKey__key\" align=\"left\" balign=\"left\">apiKey : string</td><td port=\"apiKey__value\" align=\"left\" balign=\"left\">secret-key-123</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : number</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">5000</td></tr><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment : string</td><td port=\"environment__value\" align=\"left\" balign=\"left\">production</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", peripheries=2];\n  \"databaseConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>databaseConfig</b> <i>&lt;context&gt;</i> <i>@Singleton</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"host__key\" align=\"left\" balign=\"left\">host : string</td><td port=\"host__value\" align=\"left\" balign=\"left\">db.example.com</td></tr><tr><td port=\"port__key\" align=\"left\" balign=\"left\">port : number</td><td port=\"port__value\" align=\"left\" balign=\"left\">5432</td></tr><tr><td port=\"database__key\" align=\"left\" balign=\"left\">database : string</td><td port=\"database__value\" align=\"left\" balign=\"left\">myapp_prod</td></tr><tr><td port=\"maxConnections__key\" align=\"left\" balign=\"left\">maxConnections : number</td><td port=\"maxConnections__value\" align=\"left\" balign=\"left\">100</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", peripheries=2];\n  \"BaseTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>BaseTask</b> <i>&lt;task&gt;</i> <i>@Abstract</i></td></tr><tr><td align=\"left\">Base task for all operations</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version : string</td><td port=\"version__value\" align=\"left\" balign=\"left\">2.0.0</td></tr></table></td></tr></table>>, shape=egg, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\"];\n  \"BaseValidator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>BaseValidator</b> <i>&lt;task&gt;</i> <i>@Abstract @Critical</i></td></tr><tr><td align=\"left\">Base validator for data validation</td></tr></table>>, shape=egg, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\", penwidth=3];\n  \"HTTPTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HTTPTask</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Make HTTP request to {{<br/>systemConfig.apiBaseUrl }} with timeout<br/>{{ systemConfig.timeout }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"method__key\" align=\"left\" balign=\"left\">method : string</td><td port=\"method__value\" align=\"left\" balign=\"left\">GET</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"DatabaseTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DatabaseTask</b> <i>&lt;task&gt;</i> <i>@Async @Critical</i></td></tr><tr><td align=\"left\">Connect to {{ databaseConfig.database }}<br/>at {{ databaseConfig.host }}:{{<br/>databaseConfig.port }}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"JSONValidator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>JSONValidator</b> <i>&lt;task&gt;</i> <i>@Singleton</i></td></tr><tr><td align=\"left\">Validates JSON data format</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema : string</td><td port=\"schema__value\" align=\"left\" balign=\"left\">schema.json</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", peripheries=2];\n  \"DataValidator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DataValidator</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Validates business rules</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchData</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Fetch data using {{ HTTPTask.prompt }}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validateData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate fetched data with {{<br/>JSONValidator.desc }}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"transformData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transformData</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Transform validated data for storage</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"storeData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>storeData</b> <i>&lt;task&gt;</i> <i>@Async @Critical</i></td></tr><tr><td align=\"left\">Store data using {{ DatabaseTask.prompt<br/>}}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"notifySuccess\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>notifySuccess</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Send success notification (env: {{<br/>systemConfig.environment }})</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"errorHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>errorHandler</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Handles errors and retries</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"Success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Success</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Operation completed successfully</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Failed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Operation failed after retries</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"legacyProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>legacyProcessor</b> <i>&lt;task&gt;</i> <i>@Deprecated(\"Use transformData instead - removed in v3.0\")</i></td></tr><tr><td align=\"left\">Old data processor</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\", fontcolor=\"#999999\"];\n\n  // Edges\n  \"BaseTask\" -> \"HTTPTask\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"BaseTask\" -> \"DatabaseTask\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"BaseValidator\" -> \"JSONValidator\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"BaseValidator\" -> \"DataValidator\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"fetchData\" -> \"validateData\" [taillabel=\"1\", headlabel=\"*\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateData\" -> \"transformData\" [taillabel=\"1\", headlabel=\"1\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transformData\" -> \"storeData\" [taillabel=\"1\", headlabel=\"1\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"storeData\" -> \"Success\" [taillabel=\"1\", headlabel=\"0..1\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"storeData\" -> \"Failed\" [taillabel=\"1\", headlabel=\"0..1\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Success\" -> \"notifySuccess\" [taillabel=\"1\", headlabel=\"1\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Failed\" -> \"errorHandler\" [taillabel=\"1\", headlabel=\"1\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"errorHandler\" -> \"fetchData\" [taillabel=\"1\", headlabel=\"0..1\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"JSONValidator\" -> \"validateData\" [taillabel=\"1\", headlabel=\"*\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"DataValidator\" -> \"validateData\" [taillabel=\"1\", headlabel=\"*\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"HTTPTask\" -> \"systemConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"HTTPTask\" -> \"systemConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"DatabaseTask\" -> \"databaseConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"DatabaseTask\" -> \"databaseConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"DatabaseTask\" -> \"databaseConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"fetchData\" -> \"HTTPTask\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"validateData\" -> \"JSONValidator\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"storeData\" -> \"DatabaseTask\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"notifySuccess\" -> \"systemConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "6a55acbb41e74a7373b856fcd4477480d1be4f6387d301436b263bceac055042"
+}

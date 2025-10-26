@@ -1,0 +1,838 @@
+{
+  "json": {
+    "title": "Error Handling Patterns",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "type": "init",
+        "attributes": [],
+        "title": "Start Process"
+      },
+      {
+        "name": "mainTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute main business logic"
+          }
+        ],
+        "title": "Main Task"
+      },
+      {
+        "name": "error",
+        "type": "state",
+        "attributes": [],
+        "title": "Error State"
+      },
+      {
+        "name": "errorHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Handle and log error"
+          }
+        ],
+        "title": "Error Handler"
+      },
+      {
+        "name": "cleanup",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Cleanup resources"
+          }
+        ],
+        "title": "Cleanup"
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [],
+        "title": "Complete"
+      },
+      {
+        "name": "retryConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "maxRetries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "baseDelay",
+            "type": "number",
+            "value": 1000
+          },
+          {
+            "name": "maxDelay",
+            "type": "number",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "name": "apiCall",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Call external API"
+          },
+          {
+            "name": "retryCount",
+            "type": "number",
+            "value": 0
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "API Call"
+      },
+      {
+        "name": "retryHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Calculate backoff and retry"
+          }
+        ],
+        "title": "Retry Handler"
+      },
+      {
+        "name": "maxRetriesReached",
+        "type": "state",
+        "attributes": [],
+        "title": "Max Retries Reached"
+      },
+      {
+        "name": "circuitBreakerState",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "state",
+            "type": "string",
+            "value": "CLOSED"
+          },
+          {
+            "name": "failureCount",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "threshold",
+            "type": "number",
+            "value": 5
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 30000
+          }
+        ]
+      },
+      {
+        "name": "protectedCall",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Call with circuit breaker protection"
+          }
+        ],
+        "title": "Protected Call"
+      },
+      {
+        "name": "circuitOpen",
+        "type": "state",
+        "attributes": [],
+        "title": "Circuit Open"
+      },
+      {
+        "name": "waitForTimeout",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Wait before attempting to close circuit"
+          }
+        ],
+        "title": "Wait for Timeout"
+      },
+      {
+        "name": "halfOpen",
+        "type": "state",
+        "attributes": [],
+        "title": "Half Open"
+      },
+      {
+        "name": "primaryService",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Call primary service"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ],
+        "title": "Primary Service"
+      },
+      {
+        "name": "secondaryService",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Call secondary/fallback service"
+          }
+        ],
+        "title": "Secondary Service"
+      },
+      {
+        "name": "cacheService",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Return cached data"
+          }
+        ],
+        "title": "Cache Service"
+      },
+      {
+        "name": "defaultResponse",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Return default/safe response"
+          }
+        ],
+        "title": "Default Response"
+      },
+      {
+        "name": "longRunningTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 5000
+          },
+          {
+            "name": "prompt",
+            "value": "Execute long operation"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Long Running Task"
+      },
+      {
+        "name": "timeout",
+        "type": "state",
+        "attributes": [],
+        "title": "Timeout Occurred"
+      },
+      {
+        "name": "timeoutHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Handle timeout gracefully"
+          }
+        ],
+        "title": "Timeout Handler"
+      },
+      {
+        "name": "cancelTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Cancel running operation"
+          }
+        ],
+        "title": "Cancel Task"
+      },
+      {
+        "name": "beginTransaction",
+        "type": "task",
+        "attributes": [],
+        "title": "Begin Transaction"
+      },
+      {
+        "name": "step1",
+        "type": "task",
+        "attributes": [],
+        "title": "Execute Step 1"
+      },
+      {
+        "name": "step2",
+        "type": "task",
+        "attributes": [],
+        "title": "Execute Step 2"
+      },
+      {
+        "name": "step3",
+        "type": "task",
+        "attributes": [],
+        "title": "Execute Step 3"
+      },
+      {
+        "name": "commitTransaction",
+        "type": "task",
+        "attributes": [],
+        "title": "Commit Transaction"
+      },
+      {
+        "name": "compensateStep3",
+        "type": "task",
+        "attributes": [],
+        "title": "Compensate Step 3"
+      },
+      {
+        "name": "compensateStep2",
+        "type": "task",
+        "attributes": [],
+        "title": "Compensate Step 2"
+      },
+      {
+        "name": "compensateStep1",
+        "type": "task",
+        "attributes": [],
+        "title": "Compensate Step 1"
+      },
+      {
+        "name": "rollbackTransaction",
+        "type": "task",
+        "attributes": [],
+        "title": "Rollback Transaction"
+      },
+      {
+        "name": "messageProcessor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process message from queue"
+          }
+        ],
+        "title": "Message Processor"
+      },
+      {
+        "name": "deadLetterQueue",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Move failed message to DLQ"
+          }
+        ],
+        "title": "Dead Letter Queue"
+      },
+      {
+        "name": "alerting",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Send alert for DLQ message"
+          }
+        ],
+        "title": "Alerting Service"
+      },
+      {
+        "name": "validateInput",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate incoming data"
+          }
+        ],
+        "title": "Validate Input"
+      },
+      {
+        "name": "validationError",
+        "type": "state",
+        "attributes": [],
+        "title": "Validation Error"
+      },
+      {
+        "name": "formatValidationError",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Format user-friendly error message"
+          }
+        ],
+        "title": "Format Validation Error"
+      },
+      {
+        "name": "logValidationError",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Log validation error details"
+          }
+        ],
+        "title": "Log Validation Error"
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "mainTask",
+        "arrowType": "->"
+      },
+      {
+        "source": "mainTask",
+        "target": "cleanup",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "mainTask",
+        "target": "error",
+        "arrowType": "->",
+        "value": {
+          "text": "error"
+        },
+        "attributes": {
+          "text": "error"
+        }
+      },
+      {
+        "source": "error",
+        "target": "errorHandler",
+        "arrowType": "->"
+      },
+      {
+        "source": "errorHandler",
+        "target": "cleanup",
+        "arrowType": "->"
+      },
+      {
+        "source": "cleanup",
+        "target": "complete",
+        "arrowType": "->"
+      },
+      {
+        "source": "apiCall",
+        "target": "retryHandler",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "retryHandler",
+        "target": "apiCall",
+        "arrowType": "->",
+        "value": {
+          "text": "retries < maxRetries"
+        },
+        "attributes": {
+          "text": "retries < maxRetries"
+        }
+      },
+      {
+        "source": "retryHandler",
+        "target": "maxRetriesReached",
+        "arrowType": "->",
+        "value": {
+          "text": "retries >= maxRetries"
+        },
+        "attributes": {
+          "text": "retries >= maxRetries"
+        }
+      },
+      {
+        "source": "apiCall",
+        "target": "retryConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "retryHandler",
+        "target": "retryConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "protectedCall",
+        "target": "cleanup",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "protectedCall",
+        "target": "protectedCall",
+        "arrowType": "->",
+        "value": {
+          "text": "failure && count < threshold"
+        },
+        "attributes": {
+          "text": "failure && count < threshold"
+        }
+      },
+      {
+        "source": "protectedCall",
+        "target": "circuitOpen",
+        "arrowType": "->",
+        "value": {
+          "text": "failure && count >= threshold"
+        },
+        "attributes": {
+          "text": "failure && count >= threshold"
+        }
+      },
+      {
+        "source": "circuitOpen",
+        "target": "waitForTimeout",
+        "arrowType": "->"
+      },
+      {
+        "source": "waitForTimeout",
+        "target": "halfOpen",
+        "arrowType": "->",
+        "value": {
+          "text": "timeout expired"
+        },
+        "attributes": {
+          "text": "timeout expired"
+        }
+      },
+      {
+        "source": "halfOpen",
+        "target": "protectedCall",
+        "arrowType": "->",
+        "value": {
+          "text": "probe success"
+        },
+        "attributes": {
+          "text": "probe success"
+        }
+      },
+      {
+        "source": "halfOpen",
+        "target": "circuitOpen",
+        "arrowType": "->",
+        "value": {
+          "text": "probe failure"
+        },
+        "attributes": {
+          "text": "probe failure"
+        }
+      },
+      {
+        "source": "primaryService",
+        "target": "complete",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "primaryService",
+        "target": "secondaryService",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "secondaryService",
+        "target": "complete",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "secondaryService",
+        "target": "cacheService",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "cacheService",
+        "target": "complete",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "cacheService",
+        "target": "defaultResponse",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "defaultResponse",
+        "target": "complete",
+        "arrowType": "->"
+      },
+      {
+        "source": "longRunningTask",
+        "target": "complete",
+        "arrowType": "->",
+        "value": {
+          "text": "completed"
+        },
+        "attributes": {
+          "text": "completed"
+        }
+      },
+      {
+        "source": "longRunningTask",
+        "target": "timeout",
+        "arrowType": "->",
+        "value": {
+          "text": "timeout"
+        },
+        "attributes": {
+          "text": "timeout"
+        }
+      },
+      {
+        "source": "timeout",
+        "target": "timeoutHandler",
+        "arrowType": "->"
+      },
+      {
+        "source": "timeoutHandler",
+        "target": "cancelTask",
+        "arrowType": "->"
+      },
+      {
+        "source": "cancelTask",
+        "target": "complete",
+        "arrowType": "->"
+      },
+      {
+        "source": "beginTransaction",
+        "target": "step1",
+        "arrowType": "->"
+      },
+      {
+        "source": "step1",
+        "target": "step2",
+        "arrowType": "->"
+      },
+      {
+        "source": "step2",
+        "target": "step3",
+        "arrowType": "->"
+      },
+      {
+        "source": "step3",
+        "target": "commitTransaction",
+        "arrowType": "->"
+      },
+      {
+        "source": "commitTransaction",
+        "target": "complete",
+        "arrowType": "->"
+      },
+      {
+        "source": "step3",
+        "target": "compensateStep3",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "compensateStep3",
+        "target": "compensateStep2",
+        "arrowType": "->"
+      },
+      {
+        "source": "step2",
+        "target": "compensateStep2",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "compensateStep2",
+        "target": "compensateStep1",
+        "arrowType": "->"
+      },
+      {
+        "source": "step1",
+        "target": "compensateStep1",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "compensateStep1",
+        "target": "rollbackTransaction",
+        "arrowType": "->"
+      },
+      {
+        "source": "rollbackTransaction",
+        "target": "error",
+        "arrowType": "->"
+      },
+      {
+        "source": "messageProcessor",
+        "target": "complete",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "messageProcessor",
+        "target": "deadLetterQueue",
+        "arrowType": "->",
+        "value": {
+          "text": "permanent failure"
+        },
+        "attributes": {
+          "text": "permanent failure"
+        }
+      },
+      {
+        "source": "deadLetterQueue",
+        "target": "alerting",
+        "arrowType": "->"
+      },
+      {
+        "source": "alerting",
+        "target": "complete",
+        "arrowType": "->"
+      },
+      {
+        "source": "validateInput",
+        "target": "mainTask",
+        "arrowType": "->",
+        "value": {
+          "text": "valid"
+        },
+        "attributes": {
+          "text": "valid"
+        }
+      },
+      {
+        "source": "validateInput",
+        "target": "validationError",
+        "arrowType": "->",
+        "value": {
+          "text": "invalid"
+        },
+        "attributes": {
+          "text": "invalid"
+        }
+      },
+      {
+        "source": "validationError",
+        "target": "formatValidationError",
+        "arrowType": "->"
+      },
+      {
+        "source": "validationError",
+        "target": "logValidationError",
+        "arrowType": "->"
+      },
+      {
+        "source": "formatValidationError",
+        "target": "complete",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [
+      {
+        "target": "errorHandler",
+        "content": "Error handlers should:\n1. Log error details with context\n2. Update metrics/monitoring\n3. Determine if error is recoverable\n4. Take appropriate action (retry, fallback, or fail)",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "retryHandler",
+        "content": "Retry logic should:\n1. Implement exponential backoff\n2. Add jitter to prevent thundering herd\n3. Respect max retry limits\n4. Consider idempotency",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "protectedCall",
+        "content": "Circuit breaker states:\n- CLOSED: Normal operation, requests pass through\n- OPEN: Too many failures, requests rejected immediately\n- HALF_OPEN: Testing if service recovered",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Error Handling Patterns</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Start Process</td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"mainTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>mainTask</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Main Task</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"error\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>error</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Error State</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"errorHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>errorHandler</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Error Handler</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"cleanup\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cleanup</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Cleanup</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complete</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"retryConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>retryConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : number</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"baseDelay__key\" align=\"left\" balign=\"left\">baseDelay : number</td><td port=\"baseDelay__value\" align=\"left\" balign=\"left\">1000</td></tr><tr><td port=\"maxDelay__key\" align=\"left\" balign=\"left\">maxDelay : number</td><td port=\"maxDelay__value\" align=\"left\" balign=\"left\">10000</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"apiCall\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiCall</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">API Call</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"retryCount__key\" align=\"left\" balign=\"left\">retryCount : number</td><td port=\"retryCount__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"retryHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>retryHandler</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Retry Handler</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"maxRetriesReached\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>maxRetriesReached</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Max Retries Reached</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"circuitBreakerState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>circuitBreakerState</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"state__key\" align=\"left\" balign=\"left\">state : string</td><td port=\"state__value\" align=\"left\" balign=\"left\">CLOSED</td></tr><tr><td port=\"failureCount__key\" align=\"left\" balign=\"left\">failureCount : number</td><td port=\"failureCount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"threshold__key\" align=\"left\" balign=\"left\">threshold : number</td><td port=\"threshold__value\" align=\"left\" balign=\"left\">5</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">30000</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"protectedCall\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>protectedCall</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Protected Call</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"circuitOpen\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>circuitOpen</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Circuit Open</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"waitForTimeout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>waitForTimeout</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Wait for Timeout</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"halfOpen\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>halfOpen</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Half Open</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"primaryService\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>primaryService</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Primary Service</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"secondaryService\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>secondaryService</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Secondary Service</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"cacheService\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cacheService</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Cache Service</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"defaultResponse\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>defaultResponse</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Default Response</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"longRunningTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>longRunningTask</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Long Running Task</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">5000</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"timeout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>timeout</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Timeout Occurred</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"timeoutHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>timeoutHandler</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Timeout Handler</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"cancelTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cancelTask</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Cancel Task</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"beginTransaction\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>beginTransaction</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Begin Transaction</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"step1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step1</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Execute Step 1</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"step2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step2</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Execute Step 2</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"step3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step3</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Execute Step 3</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"commitTransaction\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>commitTransaction</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Commit Transaction</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"compensateStep3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>compensateStep3</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Compensate Step 3</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"compensateStep2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>compensateStep2</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Compensate Step 2</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"compensateStep1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>compensateStep1</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Compensate Step 1</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"rollbackTransaction\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>rollbackTransaction</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Rollback Transaction</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"messageProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>messageProcessor</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Message Processor</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"deadLetterQueue\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>deadLetterQueue</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Dead Letter Queue</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"alerting\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>alerting</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Alerting Service</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validateInput\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateInput</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate Input</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validationError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validationError</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validation Error</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"formatValidationError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>formatValidationError</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Format Validation Error</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"logValidationError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>logValidationError</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Log Validation Error</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"start\" -> \"mainTask\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"mainTask\" -> \"cleanup\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"mainTask\" -> \"error\" [label=\"error\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"error\" -> \"errorHandler\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"errorHandler\" -> \"cleanup\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"cleanup\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"apiCall\" -> \"retryHandler\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"retryHandler\" -> \"apiCall\" [label=\"retries < maxRetries\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"retryHandler\" -> \"maxRetriesReached\" [label=\"retries >= maxRetries\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"apiCall\" -> \"retryConfig\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"retryHandler\" -> \"retryConfig\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"protectedCall\" -> \"cleanup\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"protectedCall\" -> \"protectedCall\" [label=\"failure && count < threshold\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"protectedCall\" -> \"circuitOpen\" [label=\"failure && count >= threshold\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"circuitOpen\" -> \"waitForTimeout\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"waitForTimeout\" -> \"halfOpen\" [label=\"timeout expired\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"halfOpen\" -> \"protectedCall\" [label=\"probe success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"halfOpen\" -> \"circuitOpen\" [label=\"probe failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"primaryService\" -> \"complete\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"primaryService\" -> \"secondaryService\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"secondaryService\" -> \"complete\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"secondaryService\" -> \"cacheService\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"cacheService\" -> \"complete\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"cacheService\" -> \"defaultResponse\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"defaultResponse\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"longRunningTask\" -> \"complete\" [label=\"completed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"longRunningTask\" -> \"timeout\" [label=\"timeout\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"timeout\" -> \"timeoutHandler\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"timeoutHandler\" -> \"cancelTask\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"cancelTask\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"beginTransaction\" -> \"step1\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"step1\" -> \"step2\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"step2\" -> \"step3\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"step3\" -> \"commitTransaction\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"commitTransaction\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"step3\" -> \"compensateStep3\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"compensateStep3\" -> \"compensateStep2\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"step2\" -> \"compensateStep2\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"compensateStep2\" -> \"compensateStep1\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"step1\" -> \"compensateStep1\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"compensateStep1\" -> \"rollbackTransaction\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"rollbackTransaction\" -> \"error\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"messageProcessor\" -> \"complete\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"messageProcessor\" -> \"deadLetterQueue\" [label=\"permanent failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"deadLetterQueue\" -> \"alerting\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"alerting\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateInput\" -> \"mainTask\" [label=\"valid\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateInput\" -> \"validationError\" [label=\"invalid\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validationError\" -> \"formatValidationError\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validationError\" -> \"logValidationError\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"formatValidationError\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_errorHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Error handlers should:\n1. Log error<br/>details with context\n2. Update<br/>metrics/monitoring\n3. Determine if error<br/>is recoverable\n4. Take appropriate<br/>action (retry, fallback, or fail)</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_errorHandler\" -> \"errorHandler\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_retryHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Retry logic should:\n1. Implement<br/>exponential backoff\n2. Add jitter to<br/>prevent thundering herd\n3. Respect max<br/>retry limits\n4. Consider idempotency</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_retryHandler\" -> \"retryHandler\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_2_protectedCall\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Circuit breaker states:\n- CLOSED: Normal<br/>operation, requests pass through\n- OPEN:<br/>Too many failures, requests rejected<br/>immediately\n- HALF_OPEN: Testing if<br/>service recovered</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_2_protectedCall\" -> \"protectedCall\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "d811f623fd619706269d31f6f4bd8681fe63a710c2007151a2999a2ac6a04c4e"
+}

@@ -1,0 +1,124 @@
+{
+  "json": {
+    "title": "Dynamic Tool Construction Demo",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "input",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "text",
+            "type": "string",
+            "value": "Sample text for analysis"
+          },
+          {
+            "name": "language",
+            "type": "string",
+            "value": "en"
+          }
+        ]
+      },
+      {
+        "name": "output",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "results",
+            "type": "string",
+            "value": "{}"
+          }
+        ]
+      },
+      {
+        "name": "toolRegistry",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "customTools",
+            "type": "string",
+            "value": "[]"
+          }
+        ]
+      },
+      {
+        "name": "idle",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "analyze",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Analyze the input text. If no analysis tool exists, construct one using construct_tool."
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "idle",
+        "target": "analyze",
+        "arrowType": "->"
+      },
+      {
+        "source": "analyze",
+        "target": "input",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "analyze",
+        "target": "output",
+        "arrowType": "->",
+        "value": {
+          "text": "writes"
+        },
+        "attributes": {
+          "text": "writes"
+        }
+      },
+      {
+        "source": "analyze",
+        "target": "toolRegistry",
+        "arrowType": "->",
+        "value": {
+          "text": "writes"
+        },
+        "attributes": {
+          "text": "writes"
+        }
+      },
+      {
+        "source": "analyze",
+        "target": "complete",
+        "arrowType": "->"
+      },
+      {
+        "source": "complete",
+        "target": "idle",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Dynamic Tool Construction Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"input\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>input</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"text__key\" align=\"left\" balign=\"left\">text : string</td><td port=\"text__value\" align=\"left\" balign=\"left\">Sample text for analysis</td></tr><tr><td port=\"language__key\" align=\"left\" balign=\"left\">language : string</td><td port=\"language__value\" align=\"left\" balign=\"left\">en</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"output\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>output</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"results__key\" align=\"left\" balign=\"left\">results : string</td><td port=\"results__value\" align=\"left\" balign=\"left\">{}</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"toolRegistry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>toolRegistry</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"customTools__key\" align=\"left\" balign=\"left\">customTools : string</td><td port=\"customTools__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"idle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idle</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze the input text. If no analysis<br/>tool exists, construct one using<br/>construct_tool.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"idle\" -> \"analyze\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyze\" -> \"input\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyze\" -> \"output\" [label=\"writes\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyze\" -> \"toolRegistry\" [label=\"writes\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyze\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"complete\" -> \"idle\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "de6c631850910cb48f7c01b5a741415b9ec65d8508d6065ecd5271e2c297c3ba"
+}

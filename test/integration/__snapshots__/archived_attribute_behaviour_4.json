@@ -1,0 +1,34 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "DataPipeline",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "pipelineState",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "recordsProcessed",
+            "value": 0
+          }
+        ],
+        "parent": "DataPipeline"
+      },
+      {
+        "name": "validate",
+        "type": "task",
+        "attributes": [],
+        "parent": "DataPipeline"
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_DataPipeline {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"DataPipeline\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>DataPipeline</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=plain, margin=0];\n    \"DataPipeline__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"pipelineState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pipelineState</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"recordsProcessed__key\" align=\"left\" balign=\"left\">recordsProcessed</td><td port=\"recordsProcessed__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n\n}",
+  "svgHash": "db9be6de8300f1f69992216471b0f5eb470187dd78654633fa5fd525b9087d7a"
+}

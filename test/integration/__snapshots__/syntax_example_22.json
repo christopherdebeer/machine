@@ -1,0 +1,20 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "config",
+        "value": "#globalConfig"
+      },
+      {
+        "name": "handler",
+        "value": "#processHandler"
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"config__key\" align=\"left\" balign=\"left\">config</td><td port=\"config__value\" align=\"left\" balign=\"left\">#globalConfig</td></tr><tr><td port=\"handler__key\" align=\"left\" balign=\"left\">handler</td><td port=\"handler__value\" align=\"left\" balign=\"left\">#processHandler</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "04cbbc65d2b50081bf54140d6cda1b6a2045d3dfdf8019e48e3e20fd09186afe"
+}

@@ -1,0 +1,60 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "source",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "style",
+            "value": "stroke: red; stroke-width: 4px"
+          }
+        ]
+      },
+      {
+        "name": "target",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "source",
+        "target": "target",
+        "arrowType": "->",
+        "value": {
+          "on": "error"
+        },
+        "attributes": {
+          "on": "error"
+        }
+      },
+      {
+        "source": "source",
+        "target": "target",
+        "arrowType": "->",
+        "value": {
+          "on": "success"
+        },
+        "attributes": {
+          "on": "success"
+        }
+      },
+      {
+        "source": "source",
+        "target": "target",
+        "arrowType": "->",
+        "value": {
+          "timeout": "5000"
+        },
+        "attributes": {
+          "timeout": "5000"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"source\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>source</b> <i>@style(\"stroke: red; stroke-width: 4px\")</i></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"target\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>target</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"source\" -> \"target\" [label=\"on=error\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"source\" -> \"target\" [label=\"on=success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"source\" -> \"target\" [label=\"timeout=5000\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "1804ceadf071581138d3658a226516181b9400735388118e6a3f12c9c3d05652"
+}

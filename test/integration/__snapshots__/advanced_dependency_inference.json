@@ -1,0 +1,266 @@
+{
+  "json": {
+    "title": "Dependency Inference Examples",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "apiConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "baseUrl",
+            "type": "string",
+            "value": "https://api.example.com"
+          },
+          {
+            "name": "apiKey",
+            "type": "string",
+            "value": "secret123"
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 5000
+          },
+          {
+            "name": "retries",
+            "type": "number",
+            "value": 3
+          }
+        ]
+      },
+      {
+        "name": "dbConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "host",
+            "type": "string",
+            "value": "localhost"
+          },
+          {
+            "name": "port",
+            "type": "number",
+            "value": 5432
+          },
+          {
+            "name": "database",
+            "type": "string",
+            "value": "myapp"
+          }
+        ]
+      },
+      {
+        "name": "fetchUserData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Fetch user data from {{ apiConfig.baseUrl }}/users with API key {{ apiConfig.apiKey }}"
+          },
+          {
+            "name": "timeout",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "name": "saveUserData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Save user data to {{ dbConfig.database }} at {{ dbConfig.host }}:{{ dbConfig.port }}"
+          }
+        ]
+      },
+      {
+        "name": "processUserData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process the data fetched by {{ fetchUserData.prompt }} and prepare for {{ saveUserData.prompt }}"
+          }
+        ]
+      },
+      {
+        "name": "emailConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "smtpHost",
+            "type": "string",
+            "value": "smtp.example.com"
+          },
+          {
+            "name": "smtpPort",
+            "type": "number",
+            "value": 587
+          },
+          {
+            "name": "fromEmail",
+            "type": "string",
+            "value": "noreply@example.com"
+          }
+        ]
+      },
+      {
+        "name": "sendNotification",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Send email notification from {{ emailConfig.fromEmail }} via {{ emailConfig.smtpHost }}:{{ emailConfig.smtpPort }}"
+          }
+        ]
+      },
+      {
+        "name": "appConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "appName",
+            "type": "string",
+            "value": "MyApp"
+          },
+          {
+            "name": "version",
+            "type": "string",
+            "value": "1.0.0"
+          },
+          {
+            "name": "environment",
+            "type": "string",
+            "value": "production"
+          }
+        ]
+      },
+      {
+        "name": "logOperation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Log operation in {{ appConfig.appName }} v{{ appConfig.version }} ({{ appConfig.environment }})"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "fetchUserData",
+        "target": "processUserData",
+        "arrowType": "->"
+      },
+      {
+        "source": "processUserData",
+        "target": "saveUserData",
+        "arrowType": "->"
+      },
+      {
+        "source": "processUserData",
+        "target": "sendNotification",
+        "arrowType": "->"
+      },
+      {
+        "source": "fetchUserData",
+        "target": "logOperation",
+        "arrowType": "->"
+      },
+      {
+        "source": "processUserData",
+        "target": "logOperation",
+        "arrowType": "->"
+      },
+      {
+        "source": "saveUserData",
+        "target": "logOperation",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "fetchUserData",
+        "target": "apiConfig",
+        "reason": "reads prompt",
+        "path": "apiConfig.baseUrl"
+      },
+      {
+        "source": "fetchUserData",
+        "target": "apiConfig",
+        "reason": "reads prompt",
+        "path": "apiConfig.apiKey"
+      },
+      {
+        "source": "saveUserData",
+        "target": "dbConfig",
+        "reason": "reads prompt",
+        "path": "dbConfig.database"
+      },
+      {
+        "source": "saveUserData",
+        "target": "dbConfig",
+        "reason": "reads prompt",
+        "path": "dbConfig.host"
+      },
+      {
+        "source": "saveUserData",
+        "target": "dbConfig",
+        "reason": "reads prompt",
+        "path": "dbConfig.port"
+      },
+      {
+        "source": "processUserData",
+        "target": "fetchUserData",
+        "reason": "reads prompt",
+        "path": "fetchUserData.prompt"
+      },
+      {
+        "source": "processUserData",
+        "target": "saveUserData",
+        "reason": "reads prompt",
+        "path": "saveUserData.prompt"
+      },
+      {
+        "source": "sendNotification",
+        "target": "emailConfig",
+        "reason": "reads prompt",
+        "path": "emailConfig.fromEmail"
+      },
+      {
+        "source": "sendNotification",
+        "target": "emailConfig",
+        "reason": "reads prompt",
+        "path": "emailConfig.smtpHost"
+      },
+      {
+        "source": "sendNotification",
+        "target": "emailConfig",
+        "reason": "reads prompt",
+        "path": "emailConfig.smtpPort"
+      },
+      {
+        "source": "logOperation",
+        "target": "appConfig",
+        "reason": "reads prompt",
+        "path": "appConfig.appName"
+      },
+      {
+        "source": "logOperation",
+        "target": "appConfig",
+        "reason": "reads prompt",
+        "path": "appConfig.version"
+      },
+      {
+        "source": "logOperation",
+        "target": "appConfig",
+        "reason": "reads prompt",
+        "path": "appConfig.environment"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Dependency Inference Examples</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"apiConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"baseUrl__key\" align=\"left\" balign=\"left\">baseUrl : string</td><td port=\"baseUrl__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"apiKey__key\" align=\"left\" balign=\"left\">apiKey : string</td><td port=\"apiKey__value\" align=\"left\" balign=\"left\">secret123</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">5000</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : number</td><td port=\"retries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"dbConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dbConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"host__key\" align=\"left\" balign=\"left\">host : string</td><td port=\"host__value\" align=\"left\" balign=\"left\">localhost</td></tr><tr><td port=\"port__key\" align=\"left\" balign=\"left\">port : number</td><td port=\"port__value\" align=\"left\" balign=\"left\">5432</td></tr><tr><td port=\"database__key\" align=\"left\" balign=\"left\">database : string</td><td port=\"database__value\" align=\"left\" balign=\"left\">myapp</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"fetchUserData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchUserData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Fetch user data from {{<br/>apiConfig.baseUrl }}/users with API key<br/>{{ apiConfig.apiKey }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">10000</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"saveUserData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>saveUserData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Save user data to {{ dbConfig.database<br/>}} at {{ dbConfig.host }}:{{<br/>dbConfig.port }}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processUserData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processUserData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process the data fetched by {{<br/>fetchUserData.prompt }} and prepare for<br/>{{ saveUserData.prompt }}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"emailConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>emailConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"smtpHost__key\" align=\"left\" balign=\"left\">smtpHost : string</td><td port=\"smtpHost__value\" align=\"left\" balign=\"left\">smtp.example.com</td></tr><tr><td port=\"smtpPort__key\" align=\"left\" balign=\"left\">smtpPort : number</td><td port=\"smtpPort__value\" align=\"left\" balign=\"left\">587</td></tr><tr><td port=\"fromEmail__key\" align=\"left\" balign=\"left\">fromEmail : string</td><td port=\"fromEmail__value\" align=\"left\" balign=\"left\">noreply@example.com</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"sendNotification\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>sendNotification</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Send email notification from {{<br/>emailConfig.fromEmail }} via {{<br/>emailConfig.smtpHost }}:{{<br/>emailConfig.smtpPort }}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"appConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>appConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"appName__key\" align=\"left\" balign=\"left\">appName : string</td><td port=\"appName__value\" align=\"left\" balign=\"left\">MyApp</td></tr><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version : string</td><td port=\"version__value\" align=\"left\" balign=\"left\">1.0.0</td></tr><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment : string</td><td port=\"environment__value\" align=\"left\" balign=\"left\">production</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"logOperation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>logOperation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Log operation in {{ appConfig.appName }}<br/>v{{ appConfig.version }} ({{<br/>appConfig.environment }})</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"fetchUserData\" -> \"processUserData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processUserData\" -> \"saveUserData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processUserData\" -> \"sendNotification\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"fetchUserData\" -> \"logOperation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processUserData\" -> \"logOperation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"saveUserData\" -> \"logOperation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"fetchUserData\" -> \"apiConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"fetchUserData\" -> \"apiConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"saveUserData\" -> \"dbConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"saveUserData\" -> \"dbConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"saveUserData\" -> \"dbConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"processUserData\" -> \"fetchUserData\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"processUserData\" -> \"saveUserData\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"sendNotification\" -> \"emailConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"sendNotification\" -> \"emailConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"sendNotification\" -> \"emailConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"logOperation\" -> \"appConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"logOperation\" -> \"appConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"logOperation\" -> \"appConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "8d806446b833b3f7d466e6df774a30e7a886b08b070190b581efb7c2ec5966a7"
+}

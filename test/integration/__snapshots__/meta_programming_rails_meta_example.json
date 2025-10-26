@@ -1,0 +1,100 @@
+{
+  "json": {
+    "title": "Rails-Based Meta-Programming",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "system",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "version",
+            "type": "string",
+            "value": "1.0.0"
+          },
+          {
+            "name": "features",
+            "type": "string",
+            "value": "basic"
+          }
+        ]
+      },
+      {
+        "name": "analyzer",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Analyze the system context using get_context_value. Get the current machine definition with get_machine_definition. If features='basic', evolve the machine to add advanced features: add 'authentication' Task, 'authorization' Task, and 'audit' State nodes. Use update_definition with a clear reason for the modification."
+          }
+        ]
+      },
+      {
+        "name": "init",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "System initialization"
+          }
+        ]
+      },
+      {
+        "name": "process",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute main processing logic"
+          }
+        ]
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Execution complete"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "init",
+        "target": "analyzer",
+        "arrowType": "->"
+      },
+      {
+        "source": "analyzer",
+        "target": "system",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "analyzer",
+        "target": "process",
+        "arrowType": "->"
+      },
+      {
+        "source": "process",
+        "target": "complete",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Rails-Based Meta-Programming</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"system\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>system</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version : string</td><td port=\"version__value\" align=\"left\" balign=\"left\">1.0.0</td></tr><tr><td port=\"features__key\" align=\"left\" balign=\"left\">features : string</td><td port=\"features__value\" align=\"left\" balign=\"left\">basic</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"analyzer\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyzer</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze the system context using<br/>get_context_value. Get the current<br/>machine definition with<br/>get_machine_definition. If<br/>features='basic', evolve the machine to<br/>add advanced features: add<br/>'authentication' Task, 'authorization'<br/>Task, and 'audit' State nodes. Use<br/>update_definition with a clear reason<br/>for the modification.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"init\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>init</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">System initialization</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Execute main processing logic</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Execution complete</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"init\" -> \"analyzer\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyzer\" -> \"system\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyzer\" -> \"process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "ca6ba2f37c85e996425e1a6e24e7835fa8d8a3bae6ebfe921ef783dc83f3e3a2"
+}

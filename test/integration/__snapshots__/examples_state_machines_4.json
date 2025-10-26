@@ -1,0 +1,119 @@
+{
+  "json": {
+    "title": "Smart Thermostat",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "idle",
+        "type": "state",
+        "attributes": [],
+        "title": "Idle"
+      },
+      {
+        "name": "heating",
+        "type": "state",
+        "attributes": [],
+        "title": "Heating"
+      },
+      {
+        "name": "cooling",
+        "type": "state",
+        "attributes": [],
+        "title": "Cooling"
+      },
+      {
+        "name": "checkTemp",
+        "type": "task",
+        "attributes": [],
+        "title": "Check temperature"
+      },
+      {
+        "name": "heatOn",
+        "type": "task",
+        "attributes": [],
+        "title": "Turn heater on"
+      },
+      {
+        "name": "coolOn",
+        "type": "task",
+        "attributes": [],
+        "title": "Turn AC on"
+      },
+      {
+        "name": "turnOff",
+        "type": "task",
+        "attributes": [],
+        "title": "Turn off"
+      }
+    ],
+    "edges": [
+      {
+        "source": "idle",
+        "target": "checkTemp",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkTemp",
+        "target": "heatOn",
+        "arrowType": "->",
+        "value": {
+          "text": "temp < 68"
+        },
+        "attributes": {
+          "text": "temp < 68"
+        }
+      },
+      {
+        "source": "heatOn",
+        "target": "heating",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkTemp",
+        "target": "coolOn",
+        "arrowType": "->",
+        "value": {
+          "text": "temp > 72"
+        },
+        "attributes": {
+          "text": "temp > 72"
+        }
+      },
+      {
+        "source": "coolOn",
+        "target": "cooling",
+        "arrowType": "->"
+      },
+      {
+        "source": "heating",
+        "target": "checkTemp",
+        "arrowType": "->"
+      },
+      {
+        "source": "cooling",
+        "target": "checkTemp",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkTemp",
+        "target": "turnOff",
+        "arrowType": "->",
+        "value": {
+          "text": "68 <= temp <= 72"
+        },
+        "attributes": {
+          "text": "68 <= temp <= 72"
+        }
+      },
+      {
+        "source": "turnOff",
+        "target": "idle",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Smart Thermostat</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"idle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idle</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Idle</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"heating\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>heating</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Heating</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"cooling\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cooling</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Cooling</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"checkTemp\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkTemp</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check temperature</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"heatOn\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>heatOn</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Turn heater on</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"coolOn\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>coolOn</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Turn AC on</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"turnOff\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>turnOff</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Turn off</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"idle\" -> \"checkTemp\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkTemp\" -> \"heatOn\" [label=\"temp < 68\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"heatOn\" -> \"heating\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkTemp\" -> \"coolOn\" [label=\"temp > 72\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"coolOn\" -> \"cooling\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"heating\" -> \"checkTemp\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"cooling\" -> \"checkTemp\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkTemp\" -> \"turnOff\" [label=\"68 <= temp <= 72\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"turnOff\" -> \"idle\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "75ee8cd5167c7c396a19f788c72dcd01a1bf6f7c4d1f28e5a6c6213cf56533a6"
+}

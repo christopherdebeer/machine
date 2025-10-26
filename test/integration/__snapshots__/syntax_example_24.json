@@ -1,0 +1,148 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "Array",
+        "type": "T"
+      },
+      {
+        "name": "Array",
+        "type": "Date"
+      },
+      {
+        "name": "List",
+        "type": "T"
+      },
+      {
+        "name": "Promise",
+        "type": "T"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "Array",
+        "attributes": []
+      },
+      {
+        "name": "type",
+        "type": "of",
+        "attributes": []
+      },
+      {
+        "name": "T",
+        "attributes": []
+      },
+      {
+        "name": "e",
+        "attributes": []
+      },
+      {
+        "name": "g",
+        "attributes": []
+      },
+      {
+        "name": "Alias",
+        "attributes": []
+      },
+      {
+        "name": "Array",
+        "type": "for",
+        "attributes": []
+      },
+      {
+        "name": "T",
+        "attributes": []
+      },
+      {
+        "name": "Map",
+        "attributes": []
+      },
+      {
+        "name": "K",
+        "attributes": []
+      },
+      {
+        "name": "V",
+        "attributes": []
+      },
+      {
+        "name": "Map",
+        "attributes": []
+      },
+      {
+        "name": "keys",
+        "type": "with",
+        "attributes": []
+      },
+      {
+        "name": "type",
+        "type": "of",
+        "attributes": []
+      },
+      {
+        "name": "and",
+        "type": "k",
+        "attributes": []
+      },
+      {
+        "name": "of",
+        "type": "values",
+        "attributes": []
+      },
+      {
+        "name": "V",
+        "type": "type",
+        "attributes": []
+      },
+      {
+        "name": "Promise",
+        "attributes": []
+      },
+      {
+        "name": "to",
+        "type": "resolving",
+        "attributes": []
+      },
+      {
+        "name": "T",
+        "type": "type",
+        "attributes": []
+      },
+      {
+        "name": "only",
+        "type": "structural",
+        "attributes": []
+      },
+      {
+        "name": "Result",
+        "attributes": []
+      },
+      {
+        "name": "T",
+        "attributes": []
+      },
+      {
+        "name": "E",
+        "attributes": []
+      },
+      {
+        "name": "Result",
+        "attributes": []
+      },
+      {
+        "name": "type",
+        "attributes": []
+      },
+      {
+        "name": "only",
+        "type": "structural",
+        "attributes": []
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"Array__key\" align=\"left\" balign=\"left\">Array : T</td><td port=\"Array__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"Array__key_1\" align=\"left\" balign=\"left\">Array : Date</td><td port=\"Array__value_1\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"List__key\" align=\"left\" balign=\"left\">List : T</td><td port=\"List__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"Promise__key\" align=\"left\" balign=\"left\">Promise : T</td><td port=\"Promise__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Array\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Array</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"type\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>type</b> <i>&lt;of&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"T\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>T</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"e\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>e</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"g\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>g</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Alias\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Alias</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Array\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Array</b> <i>&lt;for&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"T\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>T</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Map\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Map</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"K\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>K</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"V\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>V</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Map\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Map</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"keys\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>keys</b> <i>&lt;with&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"type\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>type</b> <i>&lt;of&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"and\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>and</b> <i>&lt;k&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"of\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>of</b> <i>&lt;values&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"V\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>V</b> <i>&lt;type&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Promise\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Promise</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"to\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>to</b> <i>&lt;resolving&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"T\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>T</b> <i>&lt;type&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"only\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>only</b> <i>&lt;structural&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Result</b></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"T\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>T</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"E\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>E</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Result</b></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"type\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>type</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"only\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>only</b> <i>&lt;structural&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
+  "svgHash": "602e3acac1a3890a9c5cf6be9b86d108490e30c852e152abb93bee936d419f1c"
+}
