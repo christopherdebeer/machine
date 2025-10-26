@@ -4,6 +4,7 @@ import type { MachineServices } from './machine-module.js';
 import { TypeChecker } from './type-checker.js';
 import { GraphValidator } from './graph-validator.js';
 import { DependencyAnalyzer } from './dependency-analyzer.js';
+import { extractValueFromAST } from './utils/ast-helpers.js';
 
 /**
  * Registry for validation checks.
@@ -141,13 +142,28 @@ export class MachineValidator {
         }
 
         // Check all note target references (only in strict mode)
-        if (machine.notes) {
-            for (const note of machine.notes) {
-                if (note.target && !stateNames.has(note.target.$refText)) {
-                    accept('error', `Note references undefined node: ${note.target.$refText}`, { node: note, property: 'target' });
+        // Notes are now regular nodes with type="note"
+        const validateNoteTargets = (nodes: Node[]) => {
+            nodes.forEach(node => {
+                if (node.type === 'note') {
+                    // Check if note has a target attribute
+                    const targetAttr = node.attributes?.find(attr => attr.name === 'target');
+                    if (targetAttr && targetAttr.value) {
+                        // Extract the target value
+                        const targetValue = extractValueFromAST(targetAttr.value);
+                        if (targetValue && typeof targetValue === 'string' && !stateNames.has(targetValue)) {
+                            accept('error', `Note references undefined node: ${targetValue}`, { node, property: 'attributes' });
+                        }
+                    }
                 }
-            }
-        }
+                // Recursively check child nodes
+                if (node.nodes && node.nodes.length > 0) {
+                    validateNoteTargets(node.nodes);
+                }
+            });
+        };
+
+        validateNoteTargets(machine.nodes);
     }
 
     /**
