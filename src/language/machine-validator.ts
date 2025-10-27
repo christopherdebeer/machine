@@ -58,9 +58,9 @@ export class MachineValidator {
     checkDuplicateStates(machine: Machine, accept: ValidationAcceptor): void {
         const stateNames = new Map<string, Node>();
         const processNode = (node: Node) => {
-            if (stateNames.has(node.name)) {
+            if (stateNames.has(node.name) && node.type !== 'note') {
                 accept('error', `Duplicate state name: ${node.name}`, { node: node });
-                accept('error', 'First declaration of state', { node: stateNames.get(node.name)! });
+                accept('error', `First declaration of duplicate state ${node.name}`, { node: stateNames.get(node.name)! });
             } else {
                 stateNames.set(node.name, node);
             }

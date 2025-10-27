@@ -234,7 +234,7 @@ class ValidationReporter {
     private results: ValidationResult[] = [];
     private outputDir = path.join(process.cwd(), 'test-output', 'comprehensive-generative');
     // Playground base URL - can be configured via environment variable
-    private playgroundUrl = process.env.PLAYGROUND_URL || 'https://christopherdebeer.github.io/machine/';
+    private playgroundUrl = (process.env.VITE_BASE_URL || '/machine/') + 'playground-mobile.html';
 
     constructor() {
         if (!fs.existsSync(this.outputDir)) {
@@ -248,7 +248,7 @@ class ValidationReporter {
     private generatePlaygroundLink(source: string): string {
         // Encode the source code to base64 for URL safety
         const encoded = Buffer.from(source).toString('base64');
-        return `${this.playgroundUrl}#code=${encodeURIComponent(encoded)}`;
+        return `${this.playgroundUrl}#content=${encodeURIComponent(encoded)}`;
     }
 
     addResult(result: ValidationResult): void {
