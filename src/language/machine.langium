@@ -100,7 +100,7 @@ AnnotationParam:
 ;
 
 // Note: The 'note' keyword is now treated as a regular node type
-// Example: note MyNote "Documentation content" { target: "SomeNode"; };
+// Example: note targetNodeId "Documentation content";
 // The node type 'note' is handled specially in the generator/validator
 
 // Type definition that supports generic types (e.g., Promise<Result>, List<Step>)

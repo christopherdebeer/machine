@@ -20,9 +20,7 @@ machine "Test"
 
 node1;
 
-note MyNote "This is a note about node1" {
-    target: "node1";
-};
+note node1 "This is a note about node1";
         `;
 
         const document = await parse(text);
@@ -32,7 +30,7 @@ note MyNote "This is a note about node1" {
         const machine = document.parseResult.value;
         const noteNode = machine.nodes.find(n => n.type === 'note');
         expect(noteNode).toBeDefined();
-        expect(noteNode?.name).toBe('MyNote');
+        expect(noteNode?.name).toContain('node1');
         expect(noteNode?.title).toBe('"This is a note about node1"');
         const targetAttr = noteNode?.attributes?.find(a => a.name === 'target');
         expect(targetAttr).toBeDefined();
@@ -44,9 +42,7 @@ machine "Test"
 
 node1;
 
-note MyNote "Title" @Critical {
-    target: "node1";
-};
+note node1 "Title" @Critical;
         `;
 
         const document = await parse(text);
@@ -66,8 +62,7 @@ machine "Test"
 
 node1;
 
-note MyNote "Title" @Critical {
-    target: "node1";
+note node1 "Title" @Critical {
     priority: "high";
     category: "documentation";
 }
@@ -93,13 +88,9 @@ machine "Test" @StrictMode
 
 node1;
 
-note ValidNote "Valid note" {
-    target: "node1";
-};
+note node1 "Valid note";
 
-note InvalidNote "Invalid note - target does not exist" {
-    target: "nonexistent";
-};
+note nonexistent "Invalid note - target does not exist";
         `;
 
         const document = await parse(text);

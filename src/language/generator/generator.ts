@@ -342,7 +342,6 @@ class JSONGenerator extends BaseGenerator {
                 : undefined,
             nodes: this.serializeNodes(),
             edges: this.serializeEdges(),
-            notes: this.serializeNotes(),
             inferredDependencies: inferredDeps.map(dep => ({
                 source: dep.source,
                 target: dep.target,
@@ -358,10 +357,29 @@ class JSONGenerator extends BaseGenerator {
     }
 
     private serializeNodes(): any[] {
+        // Track note counters for each target node
+        const noteCounters = new Map<string, number>();
+        
         // Flatten and transform nodes recursively
         const flattenNode = (node: Node, parentName?: string): any[] => {
+            let nodeName = node.name;
+            
+            // For note nodes, generate a unique name
+            if ((node.type ?? '').toLowerCase() === 'note') {
+                const targetName = node.name;
+                const counter = (noteCounters.get(targetName) || 0) + 1;
+                noteCounters.set(targetName, counter);
+                nodeName = `${targetName}_note_${counter}`;
+                
+                // Store the mapping for edge generation
+                if (!this.noteNameMap) {
+                    this.noteNameMap = new Map();
+                }
+                this.noteNameMap.set(node, nodeName);
+            }
+            
             const baseNode: any = {
-                name: node.name,
+                name: nodeName,
                 type: node.type?.toLowerCase(),  // Normalize type to lowercase
                 attributes: this.serializeAttributes(node)
             };
@@ -391,6 +409,9 @@ class JSONGenerator extends BaseGenerator {
 
         return this.machine.nodes.flatMap(node => flattenNode(node));
     }
+    
+    // Map to store note node to unique name mapping
+    private noteNameMap?: Map<Node, string>;
 
     /**
      * Recursively extract primitive value from AST nodes
@@ -554,7 +575,55 @@ class JSONGenerator extends BaseGenerator {
         const aliasMap = this.buildNodeAliasMap();
         const explicitEdges = this.collectExplicitEdges(aliasMap);
         const attributeEdges = this.generateAttributeEdges(aliasMap, explicitEdges);
-        return [...explicitEdges, ...attributeEdges];
+        const noteEdges = this.generateNoteEdges(aliasMap, [...explicitEdges, ...attributeEdges]);
+        return [...explicitEdges, ...attributeEdges, ...noteEdges];
+    }
+
+    /**
+     * Generate inferred edges from note nodes to their target nodes
+     * For a note like "note node1 'text'", we extract the target from the target attribute
+     * The note will be renamed to node1_note_N to avoid conflicts
+     * Creates dashed edges (-->) to visually distinguish note edges from regular edges
+     */
+    private generateNoteEdges(aliasMap: Map<string, NodeAliasInfo>, existingEdges: any[]): any[] {
+        const noteEdges: any[] = [];
+        const existingKeys = new Set(existingEdges.map(edge => this.buildEdgeKey(edge)));
+
+        const visitNode = (node: Node) => {
+            // Check if this is a note node
+            if ((node.type ?? '').toLowerCase() === 'note') {
+                // Extract target from the target attribute (created by the linker)
+                const targetAttr = node.attributes?.find(attr => attr.name === 'target');
+                const targetNodeName = targetAttr ? this.extractPrimitiveValue(targetAttr.value) : node.name;
+                
+                // Verify the target node exists in the alias map
+                const targetInfo = aliasMap.get(targetNodeName);
+                if (targetInfo) {
+                    // Get the unique note name from the mapping
+                    const noteUniqueName = this.noteNameMap?.get(node) || node.name;
+                    
+                    const edgeRecord: any = {
+                        source: noteUniqueName, // Use the unique note name
+                        target: targetNodeName,
+                        value: { text: 'note' },
+                        attributes: { text: 'note' },
+                        annotations: [],
+                        arrowType: '-->' // Use dashed arrow for note edges
+                    };
+
+                    const key = this.buildEdgeKey(edgeRecord);
+                    if (!existingKeys.has(key)) {
+                        noteEdges.push(edgeRecord);
+                    }
+                }
+            }
+
+            // Recursively visit child nodes
+            node.nodes?.forEach(visitNode);
+        };
+
+        this.machine.nodes.forEach(visitNode);
+        return noteEdges;
     }
 
     private collectExplicitEdges(aliasMap: Map<string, NodeAliasInfo>): any[] {
@@ -581,8 +650,8 @@ class JSONGenerator extends BaseGenerator {
                     const sourceMultiplicity = segment.sourceMultiplicity?.replace(/"/g, '');
                     const targetMultiplicity = segment.targetMultiplicity?.replace(/"/g, '');
 
-                    activeSources.forEach(sourceRef => {
-                        targetRefs.forEach(targetRef => {
+                    activeSources.forEach((sourceRef: ResolvedReference) => {
+                        targetRefs.forEach((targetRef: ResolvedReference) => {
                             const baseValue = edgeValue ? { ...edgeValue } : undefined;
                             let valueWithMetadata = baseValue;
 
@@ -711,7 +780,7 @@ class JSONGenerator extends BaseGenerator {
         if (reference?.ref) {
             if (sanitizedRefText) {
                 const resolvedForNode = this.resolveReferencePath(sanitizedRefText, aliasMap);
-                if (resolvedForNode?.node === reference.ref) {
+                if (resolvedForNode && resolvedForNode.node === reference.ref) {
                     return resolvedForNode;
                 }
             }
@@ -1874,13 +1943,6 @@ export function generateDSL(machineJson: MachineJSON): string {
             lines.push(generateEdgeDSL(edge));
         });
         lines.push('');
-    }
-
-    // Generate notes
-    if (machineJson.notes && machineJson.notes.length > 0) {
-        machineJson.notes.forEach(note => {
-            lines.push(`note ${note.target} ${quoteString(note.content)};`);
-        });
     }
 
     return lines.join('\n').trim() + '\n';

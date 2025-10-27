@@ -56,6 +56,9 @@ export class MachineLinker extends DefaultLinker {
         if (isMachine(machine)) {
             const isStrict = this.isStrictMode(machine);
             
+            // Process note nodes to add target attributes
+            this.processNoteNodes(machine);
+            
             // Only auto-create if not in strict mode
             if (!isStrict) {
                 this.autoCreateMissingNodes(machine);
@@ -310,6 +313,61 @@ export class MachineLinker extends DefaultLinker {
         }
 
         return undefined;
+    }
+
+    /**
+     * Process note nodes to automatically add target attributes
+     * For note syntax like "note node1 'content'", this creates a target attribute with value "node1"
+     */
+    private processNoteNodes(machine: Machine): void {
+        const processNodes = (nodes: Node[]) => {
+            nodes.forEach(node => {
+                if (node.type === 'note') {
+                    // Check if target attribute already exists
+                    const hasTargetAttr = node.attributes?.some(attr => attr.name === 'target');
+                    
+                    if (!hasTargetAttr) {
+                        // Initialize attributes array if it doesn't exist
+                        if (!node.attributes) {
+                            node.attributes = [];
+                        }
+
+                        // Create the primitive value for the target
+                        const primitiveValue = {
+                            $type: 'PrimitiveValue' as const,
+                            $container: undefined as any, // Will be set after creation
+                            $containerProperty: 'value' as const,
+                            $containerIndex: undefined,
+                            value: node.name
+                        };
+
+                        // Create target attribute from the node's name
+                        const targetAttribute = {
+                            $type: 'Attribute' as const,
+                            $container: node,
+                            $containerProperty: 'attributes' as const,
+                            $containerIndex: node.attributes.length,
+                            name: 'target',
+                            type: undefined,
+                            value: primitiveValue
+                        };
+
+                        // Set the container reference for the primitive value
+                        primitiveValue.$container = targetAttribute;
+
+                        // Add the target attribute
+                        node.attributes.push(targetAttribute);
+                    }
+                }
+
+                // Recursively process child nodes
+                if (node.nodes && node.nodes.length > 0) {
+                    processNodes(node.nodes);
+                }
+            });
+        };
+
+        processNodes(machine.nodes);
     }
 
     /**

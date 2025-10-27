@@ -86,7 +86,6 @@ import type {
     Edge,
     Attribute,
     Annotation,
-    Note
 } from 'dygram/ast';
 ```
 
@@ -99,11 +98,10 @@ interface Machine {
     attributes: Attribute[];
     nodes: Node[];
     edges: Edge[];
-    notes: Note[];
 }
 
 interface Node {
-    type?: string;  // e.g., "Task", "State"
+    type?: string;  // e.g., "task", "state", "note", "style", ...
     name: string;
     title?: string;
     annotations: Annotation[];
