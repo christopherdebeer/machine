@@ -13,8 +13,7 @@
  * Purpose: Enable Layer 2 (Dygram-in-Dygram) machines to run
  */
 
-import { MachineData, MachineExecutionContext } from './base-executor.js';
-import { NodeTypeChecker } from './node-type-checker.js';
+import { MachineData } from './base-executor.js';
 
 /**
  * Minimal execution context for bootstrap

@@ -8,8 +8,15 @@
  * to Layer 2 (Dygram-in-Dygram) machines.
  */
 
-import { BootstrapToolFunction, BootstrapTool, BootstrapContext } from './bootstrap-executor.js';
+import { BootstrapTool, BootstrapContext } from './bootstrap-executor.js';
 import { MachineData } from './base-executor.js';
+import { createMachineServices } from './machine-module.js';
+import { extractAstNode } from '../cli/cli-util.js';
+import { NodeFileSystem } from 'langium/node';
+import { Machine } from './generated/ast.js';
+import { GraphValidator } from './graph-validator.js';
+import { generateJSON, generateGraphviz } from './generator/generator.js';
+import { RailsExecutor, MachineExecutorConfig } from './rails-executor.js';
 
 /**
  * Core bootstrap tools registry
@@ -19,75 +26,150 @@ export class BootstrapTools {
      * parse_dygram: Parse Dygram source code to AST
      *
      * Input: { code: string, filepath?: string }
-     * Output: { ast: MachineData, errors: string[] }
+     * Output: { machine: Machine, errors: string[] }
      */
     static parse_dygram: BootstrapTool = {
         name: 'parse_dygram',
         description: 'Parse Dygram source code to AST',
         implementation: async (input: { code: string; filepath?: string }, context: BootstrapContext) => {
-            // This would call the actual parser from main.ts
-            // For now, this is a placeholder that shows the interface
-            throw new Error('parse_dygram requires integration with src/language/main.ts:parseDocument');
+            try {
+                const services = createMachineServices(NodeFileSystem).Machine;
+
+                // Parse the code using Langium's document builder
+                const filePath = input.filepath || '<memory>';
+                const machine = await extractAstNode<Machine>(filePath, services);
+
+                return {
+                    machine,
+                    errors: []
+                };
+            } catch (error) {
+                return {
+                    machine: null,
+                    errors: [error instanceof Error ? error.message : String(error)]
+                };
+            }
         }
     };
 
     /**
      * validate_machine: Validate machine structure, types, and detect cycles
      *
-     * Input: { machine: MachineData }
-     * Output: { valid: boolean, errors: string[] }
+     * Input: { machine: Machine }
+     * Output: { valid: boolean, errors: string[], warnings: string[] }
      */
     static validate_machine: BootstrapTool = {
         name: 'validate_machine',
         description: 'Validate machine structure, types, and detect cycles',
-        implementation: async (input: { machine: MachineData }, context: BootstrapContext) => {
-            // This would call graph-validator.ts
-            throw new Error('validate_machine requires integration with src/language/graph-validator.ts');
+        implementation: async (input: { machine: Machine }, context: BootstrapContext) => {
+            try {
+                const validator = new GraphValidator(input.machine);
+                const result = validator.validate();
+
+                const errors: string[] = [];
+                const warnings: string[] = [];
+
+                // Collect validation issues
+                if (result.unreachableNodes && result.unreachableNodes.length > 0) {
+                    warnings.push(`Unreachable nodes: ${result.unreachableNodes.join(', ')}`);
+                }
+
+                if (result.orphanedNodes && result.orphanedNodes.length > 0) {
+                    warnings.push(`Orphaned nodes: ${result.orphanedNodes.join(', ')}`);
+                }
+
+                if (result.cycles && result.cycles.length > 0) {
+                    warnings.push(`Detected ${result.cycles.length} cycle(s)`);
+                }
+
+                if (result.missingEntryPoints) {
+                    errors.push('No entry points found');
+                }
+
+                return {
+                    valid: result.valid,
+                    errors,
+                    warnings: result.warnings || warnings
+                };
+            } catch (error) {
+                return {
+                    valid: false,
+                    errors: [error instanceof Error ? error.message : String(error)],
+                    warnings: []
+                };
+            }
         }
     };
 
     /**
      * generate_json: Generate JSON representation of machine
      *
-     * Input: { machine: MachineData, destination?: string }
+     * Input: { machine: Machine, destination?: string }
      * Output: { json: string, filepath?: string }
      */
     static generate_json: BootstrapTool = {
         name: 'generate_json',
         description: 'Generate JSON representation of machine',
-        implementation: async (input: { machine: MachineData; destination?: string }, context: BootstrapContext) => {
-            // This would call generator/generator.ts:generateJSON
-            throw new Error('generate_json requires integration with src/language/generator/generator.ts');
+        implementation: async (input: { machine: Machine; destination?: string }, context: BootstrapContext) => {
+            try {
+                const result = generateJSON(input.machine, '', input.destination);
+                return {
+                    json: result.content,
+                    filepath: result.filePath
+                };
+            } catch (error) {
+                throw new Error(`generate_json failed: ${error instanceof Error ? error.message : String(error)}`);
+            }
         }
     };
 
     /**
      * generate_graphviz: Generate Graphviz DOT visualization
      *
-     * Input: { machine: MachineData, destination?: string }
+     * Input: { machine: Machine, destination?: string }
      * Output: { dot: string, filepath?: string }
      */
     static generate_graphviz: BootstrapTool = {
         name: 'generate_graphviz',
         description: 'Generate Graphviz DOT visualization',
-        implementation: async (input: { machine: MachineData; destination?: string }, context: BootstrapContext) => {
-            // This would call diagram/graphviz-generator.ts
-            throw new Error('generate_graphviz requires integration with src/language/diagram/graphviz-generator.ts');
+        implementation: async (input: { machine: Machine; destination?: string }, context: BootstrapContext) => {
+            try {
+                const result = generateGraphviz(input.machine, '', input.destination);
+                return {
+                    dot: result.content,
+                    filepath: result.filePath
+                };
+            } catch (error) {
+                throw new Error(`generate_graphviz failed: ${error instanceof Error ? error.message : String(error)}`);
+            }
         }
     };
 
     /**
      * execute_machine: Execute a machine using rails pattern
      *
-     * Input: { machineData: MachineData, config?: any }
+     * Input: { machineData: MachineData, config?: MachineExecutorConfig }
      * Output: { result: any, history: any[] }
      */
     static execute_machine: BootstrapTool = {
         name: 'execute_machine',
         description: 'Execute a machine using rails pattern',
-        implementation: async (input: { machineData: MachineData; config?: any }, context: BootstrapContext) => {
-            // This would call rails-executor.ts:RailsExecutor
-            throw new Error('execute_machine requires integration with src/language/rails-executor.ts');
+        implementation: async (input: { machineData: MachineData; config?: MachineExecutorConfig }, context: BootstrapContext) => {
+            try {
+                const executor = new RailsExecutor(input.machineData, input.config || {});
+                const result = await executor.execute();
+                return {
+                    result: {
+                        currentNode: result.currentNode,
+                        errorCount: result.errorCount,
+                        visitedNodes: Array.from(result.visitedNodes),
+                        attributes: Object.fromEntries(result.attributes)
+                    },
+                    history: result.history || []
+                };
+            } catch (error) {
+                throw new Error(`execute_machine failed: ${error instanceof Error ? error.message : String(error)}`);
+            }
         }
     };
 
@@ -101,38 +183,41 @@ export class BootstrapTools {
         name: 'construct_tool',
         description: 'Dynamically construct a new tool',
         implementation: async (input: any, context: BootstrapContext) => {
-            // This would call meta-tool-manager.ts:constructTool
-            throw new Error('construct_tool requires integration with src/language/meta-tool-manager.ts');
+            // Meta-tools require MetaToolManager instance with execution context
+            // This is a placeholder that would need a full executor context
+            throw new Error('construct_tool requires MetaToolManager instance - use within full executor context');
         }
     };
 
     /**
      * get_machine_definition: Get current machine definition
      *
-     * Input: { machine_name?: string }
-     * Output: { definition: MachineData }
+     * Input: { format?: 'json' | 'dsl' | 'both' }
+     * Output: { definition: MachineData | string, format: string }
      */
     static get_machine_definition: BootstrapTool = {
         name: 'get_machine_definition',
         description: 'Get current machine definition',
-        implementation: async (input: { machine_name?: string }, context: BootstrapContext) => {
-            // This would call meta-tool-manager.ts:getMachineDefinition
-            throw new Error('get_machine_definition requires integration with src/language/meta-tool-manager.ts');
+        implementation: async (input: { format?: 'json' | 'dsl' | 'both' }, context: BootstrapContext) => {
+            // Meta-tools require MetaToolManager instance with execution context
+            // This is a placeholder that would need a full executor context
+            throw new Error('get_machine_definition requires MetaToolManager instance - use within full executor context');
         }
     };
 
     /**
      * update_definition: Update machine definition
      *
-     * Input: { machine_name: string, updates: any }
-     * Output: { success: boolean, new_version: string }
+     * Input: { machine: MachineData, reason: string }
+     * Output: { success: boolean, message: string }
      */
     static update_definition: BootstrapTool = {
         name: 'update_definition',
         description: 'Update machine definition',
-        implementation: async (input: { machine_name: string; updates: any }, context: BootstrapContext) => {
-            // This would call meta-tool-manager.ts:updateDefinition
-            throw new Error('update_definition requires integration with src/language/meta-tool-manager.ts');
+        implementation: async (input: { machine: MachineData; reason: string }, context: BootstrapContext) => {
+            // Meta-tools require MetaToolManager instance with execution context
+            // This is a placeholder that would need a full executor context
+            throw new Error('update_definition requires MetaToolManager instance - use within full executor context');
         }
     };
 
