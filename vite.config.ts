@@ -103,16 +103,7 @@ export default defineConfig(() => {
                 output: {
                     // Use 'es' format for workers to support code-splitting
                     format: 'es'
-                },
-                external: [
-                    // Externalize Node.js built-ins
-                    'node:assert',
-                    'node:worker_threads',
-                    // Externalize Langium Node.js-specific modules
-                    'langium/node',
-                    // Externalize CLI utilities
-                    /^.*\/cli\/cli-util\.js$/
-                ]
+                }
             },
             outDir: 'dist'
         },
@@ -160,9 +151,13 @@ export default defineConfig(() => {
                 'node:fs/promises': path.resolve(__dirname, 'src/shims/node-fs-promises.ts'),
                 'node:fs': path.resolve(__dirname, 'src/shims/node-fs.ts'),
                 'node:path': path.resolve(__dirname, 'src/shims/node-path.ts'),
+                'node:assert': path.resolve(__dirname, 'src/shims/node-assert.ts'),
+                'node:worker_threads': path.resolve(__dirname, 'src/shims/node-worker-threads.ts'),
                 'fs/promises': path.resolve(__dirname, 'src/shims/node-fs-promises.ts'),
                 'fs': path.resolve(__dirname, 'src/shims/node-fs.ts'),
-                'path': path.resolve(__dirname, 'src/shims/node-path.ts')
+                'path': path.resolve(__dirname, 'src/shims/node-path.ts'),
+                'assert': path.resolve(__dirname, 'src/shims/node-assert.ts'),
+                'worker_threads': path.resolve(__dirname, 'src/shims/node-worker-threads.ts')
             }
         },
         optimizeDeps: {
