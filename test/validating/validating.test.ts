@@ -92,6 +92,35 @@ describe('Validating', () => {
             d.message.includes('Reference to undefined state: NonExistentState')
         )).toBe(true);
     });
+
+    test('check note references do not trigger duplicate state errors', async () => {
+        document = await parse(`
+            machine "Test Machine"
+
+            Task fetchData {
+                model: "claude-3-5-sonnet-20241022";
+            };
+
+            Note fetchData "Fetches data from external API" {
+                complexity: "O(1)";
+            };
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        // Should NOT have duplicate state name errors
+        expect(document.diagnostics?.some(d =>
+            d.message.includes('Duplicate state name: fetchData')
+        )).toBe(false);
+
+        // Should have no errors (warnings about unreachable/orphaned nodes are OK)
+        const errorDiagnostics = document.diagnostics?.filter(d => d.severity === 1) || [];
+        expect(errorDiagnostics.length).toBe(0);
+    });
 });
 
 function checkDocumentValid(document: LangiumDocument): string | undefined {
