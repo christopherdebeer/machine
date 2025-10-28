@@ -10,7 +10,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Playground Basic Validations', () => {
     test.beforeEach(async ({ page }) => {
         // Navigate to the playground before each test
-        await page.goto('/playground.html');
+        await page.goto('playground.html');
     });
 
     test('should load playground page successfully', async ({ page }) => {
@@ -124,7 +124,7 @@ test.describe('Playground Basic Validations', () => {
 
 test.describe('Playground Mobile Version', () => {
     test('should load mobile playground page', async ({ page }) => {
-        await page.goto('/playground-mobile.html');
+        await page.goto('playground-mobile.html');
 
         // Check that the page title is correct
         await expect(page).toHaveTitle(/DyGram/i);
@@ -135,7 +135,7 @@ test.describe('Playground Mobile Version', () => {
     });
 
     test('should display Monaco editor on mobile', async ({ page }) => {
-        await page.goto('/playground-mobile.html');
+        await page.goto('playground-mobile.html');
 
         // Wait for Monaco editor to be initialized
         const editor = page.locator('.monaco-editor');
@@ -164,7 +164,7 @@ test.describe('Playground Error Handling', () => {
             }
         });
 
-        await page.goto('/playground.html');
+        await page.goto('playground.html');
 
         // Wait for page to fully load
         await page.waitForLoadState('networkidle');
