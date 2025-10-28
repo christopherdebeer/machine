@@ -1,0 +1,410 @@
+machine "Dygram Self-Hosting Architecture" @Version("1.0")
+
+// ═══════════════════════════════════════════════════════════
+// LAYER 1: MINIMAL BOOTSTRAP CORE (TypeScript)
+// ═══════════════════════════════════════════════════════════
+
+Context BootstrapCore "Layer 1: TypeScript Bootstrap" @Critical {
+    description: "Minimal ~500 line TypeScript core";
+    language: "TypeScript";
+    size: "~500 lines";
+}
+
+// Core bootstrap functions
+Tool loadMachine {
+    description: "Load and validate machine from source";
+    input_schema: {
+        source<string>: "Dygram source code";
+    };
+    output_schema: {
+        machineData<MachineData>: "Loaded machine";
+    };
+    implementation: "bootstrap-core.ts";
+}
+
+Tool executeNode {
+    description: "Execute a single node (primitive operation)";
+    implementation: "bootstrap-core.ts";
+}
+
+Tool followEdge {
+    description: "Follow edge to next node";
+    implementation: "bootstrap-core.ts";
+}
+
+Tool invokeTool {
+    description: "Invoke registered tool by name";
+    implementation: "bootstrap-core.ts";
+}
+
+Tool registerTool {
+    description: "Register tool implementation";
+    implementation: "bootstrap-core.ts";
+}
+
+// Existing code-tasks as tools
+Tool parse_dygram {
+    description: "Parse Dygram source to AST";
+    implementation: "src/language/main.ts";
+}
+
+Tool validate_machine {
+    description: "Validate machine structure";
+    implementation: "src/language/graph-validator.ts";
+}
+
+Tool generate_json {
+    description: "Generate JSON output";
+    implementation: "src/language/generator/generator.ts";
+}
+
+Tool generate_graphviz {
+    description: "Generate Graphviz DOT";
+    implementation: "src/language/diagram/graphviz-generator.ts";
+}
+
+Tool execute_rails {
+    description: "Execute machine with rails pattern";
+    implementation: "src/language/rails-executor.ts";
+}
+
+Tool construct_tool {
+    description: "Construct new tool dynamically";
+    implementation: "src/language/meta-tool-manager.ts";
+}
+
+Tool get_machine_definition {
+    description: "Get current machine definition";
+    implementation: "src/language/meta-tool-manager.ts";
+}
+
+Tool update_definition {
+    description: "Update machine definition";
+    implementation: "src/language/meta-tool-manager.ts";
+}
+
+// ═══════════════════════════════════════════════════════════
+// LAYER 2: DYGRAM-IN-DYGRAM (Self-Describing)
+// ═══════════════════════════════════════════════════════════
+
+Concept Layer2 "Layer 2: Dygram-in-Dygram" @Abstract {
+    description: "Core system components as machines";
+    definedIn: "Dygram DSL";
+}
+
+// 2.1 Parser Machine
+Process ParserMachine "Dygram Parser" {
+    description: "Parse Dygram source to AST";
+    version: "1.0";
+
+    Input source {
+        code<string>: "";
+        filepath<string>: "";
+    }
+
+    Task tokenize {
+        description: "Tokenize source code";
+        meta: true;
+    }
+
+    Task buildAST {
+        description: "Build abstract syntax tree";
+        uses: "parse_dygram";
+    }
+
+    Task validateSyntax {
+        description: "Validate syntax correctness";
+        uses: "validate_machine";
+    }
+
+    Result ast {
+        machine<Machine>: null;
+        errors<Array<string>>: [];
+    }
+}
+
+// 2.2 Generator Machine
+Process GeneratorMachine "Dygram Generator" {
+    description: "Generate outputs from AST";
+    version: "1.0";
+
+    Input machineAST {
+        ast<Machine>: null;
+        format<string>: "json";
+    }
+
+    Task validateStructure {
+        uses: "validate_machine";
+    }
+
+    Task routeFormat {
+        description: "Route to appropriate generator";
+        meta: true;
+    }
+
+    Task generateJSON {
+        uses: "generate_json";
+    }
+
+    Task generateGraphviz {
+        uses: "generate_graphviz";
+    }
+
+    Result output {
+        content<string>: "";
+        format<string>: "";
+    }
+}
+
+// 2.3 Runtime Machine
+Process RuntimeMachine "Dygram Runtime Executor" {
+    description: "Execute machines with rails pattern";
+    version: "1.0";
+
+    Context config {
+        maxSteps<number>: 1000;
+        maxNodeInvocations<number>: 100;
+    }
+
+    Input targetMachine {
+        machineData<MachineData>: null;
+    }
+
+    Context executionContext {
+        currentNode<string>: "";
+        visitedNodes<Array<string>>: [];
+        history<Array<any>>: [];
+    }
+
+    Task initializeExecution {
+        description: "Setup execution context";
+    }
+
+    Task evaluateNode {
+        description: "Evaluate current node";
+        meta: true;
+    }
+
+    Task determineNextNode {
+        description: "Find next node (automated or agent)";
+        uses: "execute_rails";
+    }
+
+    Task checkLimits {
+        description: "Verify limits not exceeded";
+    }
+
+    Result executionResult {
+        success<boolean>: false;
+        output<any>: null;
+        history<Array<any>>: [];
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// LAYER 3: SELF-IMPROVING DYGRAM (Meta-System)
+// ═══════════════════════════════════════════════════════════
+
+Concept Layer3 "Layer 3: Self-Improvement" @Meta {
+    description: "System that can improve itself";
+    capability: "Self-modification";
+}
+
+Process MetaSystem "Self-Improvement System" @Meta {
+    description: "Analyze and improve Dygram itself";
+
+    Context systemState {
+        parserVersion<string>: "1.0";
+        generatorVersion<string>: "1.0";
+        runtimeVersion<string>: "1.0";
+    }
+
+    Task inspectSystem {
+        description: "Analyze current implementation";
+        uses: "get_machine_definition";
+    }
+
+    Task identifyImprovements {
+        description: "Find optimization opportunities";
+        meta: true;
+    }
+
+    Task proposeChanges {
+        description: "Design improvements";
+    }
+
+    Task validateProposal {
+        description: "Verify changes maintain correctness";
+        uses: "validate_machine";
+    }
+
+    Task applyChanges {
+        description: "Update system machines";
+        uses: "update_definition";
+        meta: true;
+    }
+
+    Task testChanges {
+        description: "Execute test suite";
+        uses: "execute_rails";
+    }
+
+    Result improvements {
+        applied<boolean>: false;
+        changes<Array<string>>: [];
+        newVersion<string>: "";
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// COMPLETE SELF-HOSTING WORKFLOW
+// ═══════════════════════════════════════════════════════════
+
+Process CompilationPipeline "Full Dygram Pipeline" @SelfHosted {
+    description: "Complete self-hosted workflow";
+
+    Input dygramSource {
+        code<string>: "";
+    }
+
+    Task parsePhase {
+        description: "Parse using Layer 2 Parser";
+        machineRef: "ParserMachine";
+    }
+
+    Task generatePhase {
+        description: "Generate using Layer 2 Generator";
+        machineRef: "GeneratorMachine";
+    }
+
+    Task executePhase {
+        description: "Execute using Layer 2 Runtime";
+        machineRef: "RuntimeMachine";
+    }
+
+    Task improvePhase {
+        description: "Improve using Layer 3 Meta-System";
+        machineRef: "MetaSystem";
+    }
+
+    Result finalOutput {
+        success<boolean>: false;
+        outputs<Array<any>>: [];
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// RELATIONSHIPS & DEPENDENCIES
+// ═══════════════════════════════════════════════════════════
+
+// Bootstrap provides foundation
+BootstrapCore *--> loadMachine;
+BootstrapCore *--> executeNode;
+BootstrapCore *--> followEdge;
+BootstrapCore *--> invokeTool;
+BootstrapCore *--> registerTool;
+
+// Tools part of bootstrap
+BootstrapCore o--> parse_dygram;
+BootstrapCore o--> validate_machine;
+BootstrapCore o--> generate_json;
+BootstrapCore o--> generate_graphviz;
+BootstrapCore o--> execute_rails;
+BootstrapCore o--> construct_tool;
+BootstrapCore o--> get_machine_definition;
+BootstrapCore o--> update_definition;
+
+// Layer 2 contains machines
+Layer2 *--> ParserMachine;
+Layer2 *--> GeneratorMachine;
+Layer2 *--> RuntimeMachine;
+
+// Layer 2 uses Layer 1 tools
+ParserMachine -reads-> BootstrapCore;
+GeneratorMachine -reads-> BootstrapCore;
+RuntimeMachine -reads-> BootstrapCore;
+
+// Parser uses tools
+ParserMachine.buildAST --> parse_dygram;
+ParserMachine.validateSyntax --> validate_machine;
+
+// Generator uses tools
+GeneratorMachine.validateStructure --> validate_machine;
+GeneratorMachine.generateJSON --> generate_json;
+GeneratorMachine.generateGraphviz --> generate_graphviz;
+
+// Runtime uses tools
+RuntimeMachine.determineNextNode --> execute_rails;
+
+// Layer 3 contains meta-system
+Layer3 *--> MetaSystem;
+
+// Meta-system uses Layer 1 meta-tools
+MetaSystem -reads-> BootstrapCore;
+MetaSystem.inspectSystem --> get_machine_definition;
+MetaSystem.validateProposal --> validate_machine;
+MetaSystem.applyChanges --> update_definition;
+MetaSystem.testChanges --> execute_rails;
+
+// Compilation pipeline uses all layers
+CompilationPipeline -reads-> Layer2;
+CompilationPipeline -reads-> Layer3;
+CompilationPipeline.parsePhase --> ParserMachine;
+CompilationPipeline.generatePhase --> GeneratorMachine;
+CompilationPipeline.executePhase --> RuntimeMachine;
+CompilationPipeline.improvePhase --> MetaSystem;
+
+// Layer dependencies
+Layer2 --> BootstrapCore;  // Layer 2 depends on Layer 1
+Layer3 --> Layer2;  // Layer 3 depends on Layer 2
+CompilationPipeline --> Layer3;  // Pipeline uses all layers
+
+// Execution flow
+CompilationPipeline.dygramSource -> CompilationPipeline.parsePhase;
+CompilationPipeline.parsePhase -> CompilationPipeline.generatePhase;
+CompilationPipeline.generatePhase -> CompilationPipeline.executePhase;
+CompilationPipeline.executePhase -> CompilationPipeline.improvePhase;
+CompilationPipeline.improvePhase -> CompilationPipeline.finalOutput;
+
+// Parser flow
+ParserMachine.source -> ParserMachine.tokenize;
+ParserMachine.tokenize -> ParserMachine.buildAST;
+ParserMachine.buildAST -> ParserMachine.validateSyntax;
+ParserMachine.validateSyntax -> ParserMachine.ast;
+
+// Generator flow
+GeneratorMachine.machineAST -> GeneratorMachine.validateStructure;
+GeneratorMachine.validateStructure -> GeneratorMachine.routeFormat;
+GeneratorMachine.routeFormat -> GeneratorMachine.generateJSON, GeneratorMachine.generateGraphviz;
+GeneratorMachine.generateJSON -> GeneratorMachine.output;
+GeneratorMachine.generateGraphviz -> GeneratorMachine.output;
+
+// Runtime flow
+RuntimeMachine.targetMachine -> RuntimeMachine.initializeExecution;
+RuntimeMachine.initializeExecution -> RuntimeMachine.evaluateNode;
+RuntimeMachine.evaluateNode -> RuntimeMachine.determineNextNode;
+RuntimeMachine.determineNextNode -> RuntimeMachine.checkLimits;
+RuntimeMachine.checkLimits -> RuntimeMachine.evaluateNode, RuntimeMachine.executionResult;
+
+// Meta-system flow (self-improvement cycle)
+MetaSystem.inspectSystem -> MetaSystem.identifyImprovements;
+MetaSystem.identifyImprovements -> MetaSystem.proposeChanges;
+MetaSystem.proposeChanges -> MetaSystem.validateProposal;
+MetaSystem.validateProposal -> MetaSystem.applyChanges;
+MetaSystem.applyChanges -> MetaSystem.testChanges;
+MetaSystem.testChanges -> MetaSystem.improvements;
+MetaSystem.testChanges -> MetaSystem.inspectSystem;  // Loop for continuous improvement
+
+// ═══════════════════════════════════════════════════════════
+// DOCUMENTATION
+// ═══════════════════════════════════════════════════════════
+
+note BootstrapCore "Layer 1 is the minimal TypeScript core (~500 lines) that provides primitive operations for loading, executing, and managing machines. It cannot be removed - it's the foundation.";
+
+note Layer2 "Layer 2 implements the Dygram system (Parser, Generator, Runtime) as Dygram machines themselves. These machines use Layer 1 primitives but are defined in the Dygram DSL.";
+
+note Layer3 "Layer 3 is the self-improvement meta-system that can analyze, propose changes to, and modify the Layer 2 machines. This enables Dygram to evolve itself through execution.";
+
+note CompilationPipeline "This demonstrates the complete self-hosted workflow: parse source using Parser machine, generate outputs using Generator machine, execute using Runtime machine, and optionally improve the system using Meta-System.";
+
+note MetaSystem @Critical "The self-improvement cycle is continuous: inspect → identify → propose → validate → apply → test → inspect. This creates a system that can evolve itself over time.";

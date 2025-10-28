@@ -1,0 +1,48 @@
+// Layer 2: Dygram Generator Machine
+// This machine defines the generation pipeline for multiple output formats
+machine "Dygram Generator" @Version("1.0") @SelfHosted
+
+// Input: Machine AST and desired output format
+Input machineAST {
+    machine<Machine>: null;
+    format<string>: "json";
+}
+
+// Validation before generation
+Task validateStructure {
+    description: "Validate machine structure before generation";
+    uses: "validate_machine";
+}
+
+// Format-specific generation tasks
+Task generateJSON {
+    description: "Generate JSON representation";
+    uses: "generate_json";
+}
+
+Task generateGraphviz {
+    description: "Generate Graphviz DOT diagram";
+    uses: "generate_graphviz";
+}
+
+// Agent decision point for format selection
+Task selectFormat {
+    prompt: "Determine which output format(s) to generate based on user request";
+}
+
+// Output: Generated content
+Result output {
+    content<string>: "";
+    format<string>: "";
+    filepath<string>: "";
+}
+
+// Pipeline with conditional branching
+machineAST -> validateStructure -> selectFormat;
+
+// Conditional paths based on format selection
+selectFormat -> generateJSON, generateGraphviz;
+
+// Both paths lead to output
+generateJSON -> output;
+generateGraphviz -> output;

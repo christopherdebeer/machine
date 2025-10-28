@@ -1,0 +1,35 @@
+machine "Hello Bootstrap" @Version("1.0")
+
+// This is a minimal example demonstrating the bootstrap approach
+// It uses core tools to parse, validate, and execute a simple workflow
+
+Context config {
+    message<string>: "Hello from Bootstrap Layer 1!";
+}
+
+// Task that demonstrates tool invocation
+Task validateSystem {
+    description: "Validate this machine using bootstrap tools";
+    uses: "validate_machine";
+}
+
+Task generateOutput {
+    description: "Generate JSON output";
+    uses: "generate_json";
+}
+
+Result output {
+    success<boolean>: true;
+    message<string>: "";
+}
+
+// Simple linear flow
+config -> validateSystem;
+validateSystem -> generateOutput;
+generateOutput -> output;
+
+note config "This machine demonstrates Layer 1 bootstrap execution. The bootstrap executor can load, validate, and execute this machine using only primitive operations and registered tools.";
+
+note validateSystem "Uses the validate_machine tool from bootstrap-tools.ts, which wraps the existing graph-validator.ts implementation.";
+
+note generateOutput "Uses the generate_json tool to produce output, demonstrating how existing code-tasks become Tool nodes in the bootstrap architecture.";

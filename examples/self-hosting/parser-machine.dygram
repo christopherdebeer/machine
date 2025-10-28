@@ -1,0 +1,32 @@
+// Layer 2: Dygram Parser Machine
+// This machine defines the parsing pipeline for Dygram source code
+machine "Dygram Parser" @Version("1.0") @SelfHosted
+
+// Input: Source code to parse
+Input source {
+    code<string>: "";
+    filepath<string>: "";
+}
+
+// Core parsing task - uses Layer 1 bootstrap tool
+Task parse {
+    description: "Parse Dygram source code using Langium parser";
+    uses: "parse_dygram";
+}
+
+// Validation task - ensures parsed AST is well-formed
+Task validateSyntax {
+    description: "Validate parsed machine structure";
+    uses: "validate_machine";
+}
+
+// Output: Parsed machine with validation results
+Result ast {
+    machine<Machine>: null;
+    errors<Array<string>>: [];
+    warnings<Array<string>>: [];
+    valid<boolean>: false;
+}
+
+// Pipeline: source -> parse -> validate -> result
+source -> parse -> validateSyntax -> ast;
