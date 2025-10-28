@@ -1,15 +1,17 @@
 /**
  * CodeMirror integration with Langium Language Server
- * This module provides LSP features (diagnostics, semantic highlighting) for CodeMirror
+ * This module provides LSP features (diagnostics, semantic highlighting, completions) for CodeMirror
  */
 
 import { EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpdate, gutter, GutterMarker, showTooltip, Tooltip } from '@codemirror/view';
 import { StateField, StateEffect, Range, RangeSet } from '@codemirror/state';
 import { linter, Diagnostic as CMDiagnostic } from '@codemirror/lint';
+import { autocompletion, type CompletionContext, type CompletionResult, type Completion } from '@codemirror/autocomplete';
 import { createMachineServices } from './language/machine-module.js';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import { Machine } from './language/generated/ast.js';
+import type { CompletionList, CompletionItemKind } from 'vscode-languageserver-protocol';
 
 // Initialize Langium services for parsing
 const services = createMachineServices(EmptyFileSystem);
@@ -587,6 +589,116 @@ export const semanticHighlighting = ViewPlugin.fromClass(class {
 });
 
 /**
+ * Map Langium CompletionItemKind to CodeMirror completion type
+ */
+function mapCompletionItemKind(kind: CompletionItemKind | undefined): string {
+    // CompletionItemKind enum from LSP protocol
+    switch (kind) {
+        case 1: return 'text';
+        case 2: return 'method';
+        case 3: return 'function';
+        case 4: return 'constructor';
+        case 5: return 'variable';
+        case 6: return 'class';
+        case 7: return 'interface';
+        case 8: return 'module';
+        case 9: return 'property';
+        case 10: return 'enum';
+        case 14: return 'keyword';
+        case 15: return 'constant';
+        case 17: return 'type';
+        default: return 'text';
+    }
+}
+
+/**
+ * Create a completion source that uses Langium's CompletionProvider
+ */
+async function langiumCompletionSource(context: CompletionContext): Promise<CompletionResult | null> {
+    const { state, pos, explicit } = context;
+
+    // Get the text and cursor position
+    const text = state.doc.toString();
+
+    // Convert offset to line/character position
+    const line = state.doc.lineAt(pos);
+    const lineNumber = line.number - 1; // 0-based line number
+    const character = pos - line.from; // Character offset in line
+
+    try {
+        // Parse the document
+        const document = await parse(text);
+
+        // Get completion items from Langium's CompletionProvider
+        const completionProvider = services.Machine.lsp.CompletionProvider;
+        if (!completionProvider) {
+            return null;
+        }
+
+        // Create LSP-compatible completion params
+        const completionParams = {
+            textDocument: {
+                uri: 'inmemory://playground.dygram'
+            },
+            position: {
+                line: lineNumber,
+                character: character
+            },
+            context: {
+                triggerKind: explicit ? 1 : 2, // 1 = Invoked, 2 = TriggerCharacter
+            }
+        };
+
+        // Get completions from Langium
+        const completionList = await completionProvider.getCompletion(document, completionParams);
+
+        if (!completionList || !completionList.items || completionList.items.length === 0) {
+            return null;
+        }
+
+        // Find the word boundary for replacement
+        const wordMatch = context.matchBefore(/\w*/);
+        const from = wordMatch ? wordMatch.from : pos;
+
+        // Convert Langium completions to CodeMirror format
+        const options: Completion[] = completionList.items.map((item) => {
+            const completion: Completion = {
+                label: item.label,
+                type: mapCompletionItemKind(item.kind),
+                apply: item.insertText || item.label,
+                detail: item.detail,
+                info: item.documentation ?
+                    (typeof item.documentation === 'string' ? item.documentation : item.documentation.value)
+                    : undefined,
+                boost: item.sortText ? -parseInt(item.sortText, 10) : 0
+            };
+            return completion;
+        });
+
+        return {
+            from,
+            options,
+            validFor: /^\w*$/
+        };
+    } catch (error) {
+        console.error('Error getting completions:', error);
+        return null;
+    }
+}
+
+/**
+ * Create the Langium autocompletion extension
+ */
+export function createLangiumCompletion() {
+    return autocompletion({
+        override: [langiumCompletionSource],
+        activateOnTyping: true,
+        maxRenderedOptions: 20,
+        defaultKeymap: true
+    });
+}
+
+/**
  * Create all extensions needed for Langium LSP integration
  */
 export function createLangiumExtensions() {
@@ -595,6 +707,7 @@ export function createLangiumExtensions() {
         tooltipState,
         diagnosticGutter,
         createLangumLinter(),
+        createLangiumCompletion(),
         semanticHighlighting,
         semanticHighlightTheme
     ];
