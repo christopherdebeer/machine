@@ -7,7 +7,6 @@
 
 import { RailsExecutor, MachineExecutorConfig, MachineData, MachineMutation } from './rails-executor.js';
 import { BootstrapExecutor, createBootstrapExecutor } from './bootstrap-executor.js';
-import { BootstrapTools } from './bootstrap-tools.js';
 import { generateJSON } from './generator/generator.js';
 import { MetaToolManager } from './meta-tool-manager.js';
 import { ToolRegistry } from './tool-registry.js';
@@ -51,6 +50,10 @@ export async function createExecutor(
         console.log('   - Meta-tools available but without full agent backing');
         console.log('   - Simplified execution model');
         console.log('   To use production executor, remove --use-bootstrap flag\n');
+
+        // Dynamically import bootstrap tools (Node.js only)
+        // This prevents Node.js dependencies from being bundled for browser
+        const { BootstrapTools } = await import('./bootstrap-tools.js');
 
         // Create bootstrap executor with machine data
         const bootstrapExecutor = new BootstrapExecutor(

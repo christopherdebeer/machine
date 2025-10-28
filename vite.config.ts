@@ -103,7 +103,16 @@ export default defineConfig(() => {
                 output: {
                     // Use 'es' format for workers to support code-splitting
                     format: 'es'
-                }
+                },
+                external: [
+                    // Externalize Node.js built-ins
+                    'node:assert',
+                    'node:worker_threads',
+                    // Externalize Langium Node.js-specific modules
+                    'langium/node',
+                    // Externalize CLI utilities
+                    /^.*\/cli\/cli-util\.js$/
+                ]
             },
             outDir: 'dist'
         },

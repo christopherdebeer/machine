@@ -17,10 +17,17 @@ export const basename = (p: string, ext?: string): string => {
     }
     return name;
 };
+export const extname = (p: string): string => {
+    const parts = p.split('/');
+    const filename = parts[parts.length - 1] || '';
+    const dotIndex = filename.lastIndexOf('.');
+    return dotIndex > 0 ? filename.slice(dotIndex) : '';
+};
 
 export default {
     join,
     resolve,
     dirname,
-    basename
+    basename,
+    extname
 };
