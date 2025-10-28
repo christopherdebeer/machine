@@ -342,6 +342,7 @@ class JSONGenerator extends BaseGenerator {
                 : undefined,
             nodes: this.serializeNodes(),
             edges: this.serializeEdges(),
+            notes: this.serializeNotes(),
             inferredDependencies: inferredDeps.map(dep => ({
                 source: dep.source,
                 target: dep.target,
@@ -357,17 +358,14 @@ class JSONGenerator extends BaseGenerator {
     }
 
     private serializeNodes(): any[] {
-        // Track note counters for each target node
-        const noteCounters = new Map<string, number>();
-        
-        // Flatten and transform nodes recursively
+        // Flatten and transform nodes recursively, excluding note nodes
         const flattenNode = (node: Node, parentName?: string): any[] => {
-            // Skip note nodes - they're serialized separately in serializeNotes()
-            if (node.type?.toLowerCase() === 'note') {
-                // Still process child nodes of notes
-                const childNodes = node.nodes?.flatMap(child =>
-                    flattenNode(child, parentName)
-                ) || [];
+            // Skip note nodes - they will be processed separately in serializeNotes()
+            if ((node.type ?? '').toLowerCase() === 'note') {
+                // Still process child nodes if any
+                const childNodes = node.nodes.flatMap(child =>
+                    flattenNode(child, node.name)
+                );
                 return childNodes;
             }
 

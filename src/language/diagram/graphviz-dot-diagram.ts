@@ -1016,6 +1016,12 @@ function getNamespaceDisplayAttributes(node: any): any[] {
     ) || [];
 }
 
+function getNoteDisplayAttributes(note: any): any[] {
+    return note.attributes?.filter((a: any) =>
+        a.name !== 'target' && a.name !== 'desc' && a.name !== 'prompt' && a.name !== 'style'
+    ) || [];
+}
+
 function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeContext, wrappingConfig?: TextWrappingConfig): string {
     if (!attributes || attributes.length === 0) {
         return '';
@@ -1698,9 +1704,10 @@ function generateNotes(notes: any[], wrappingConfig?: TextWrappingConfig): strin
         }
 
         // Attributes table (using shared function)
-        if (note.attributes && note.attributes.length > 0) {
+        const displayAttrs = getNoteDisplayAttributes(note);
+        if (displayAttrs.length > 0) {
             htmlLabel += '<tr><td>';
-            htmlLabel += generateAttributesTable(note.attributes, undefined, wrappingConfig);
+            htmlLabel += generateAttributesTable(displayAttrs, undefined, wrappingConfig);
             htmlLabel += '</td></tr>';
         }
 
