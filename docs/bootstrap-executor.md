@@ -14,17 +14,20 @@ The Bootstrap Executor is an **experimental** alternative to the production Rail
 - ✓ Simple node type execution (Task, Input, Context, Result, State)
 - ✓ Tool registration and invocation
 - ✓ 5 core tools integrated (parse, validate, generate_json, generate_graphviz, execute)
+- ✓ 3 meta-tools integrated (construct_tool, get_machine_definition, update_definition)
+- ✓ Machine loading from Dygram source (loadMachine)
+- ✓ Machine introspection and self-modification
+- ✓ MetaToolManager integration
+- ✓ Mutation tracking via MetaToolManager
 - ✓ Basic edge following
 - ✓ Execution history tracking
 
 ### What's Missing
 - ✗ Agent SDK integration (no LLM calls)
-- ✗ Meta-tools (construct_tool, get_machine_definition, update_definition)
-- ✗ Advanced condition evaluation
-- ✗ Machine self-modification callbacks
-- ✗ Mutation tracking
-- ✗ Complex edge conditions (CEL expressions)
+- ✗ Advanced condition evaluation (CEL expressions)
+- ✗ Complex edge conditions
 - ✗ Rails pattern features (automatic vs agent-controlled transitions)
+- ✗ Agent-backed tool execution (construct_tool creates placeholders)
 
 ## Usage
 
@@ -137,7 +140,7 @@ interface MachineExecutorConfig {
 |---------|---------------|-------------------|
 | **Size** | ~3000+ lines | ~460 lines |
 | **Agent SDK** | ✓ Full integration | ✗ Not supported |
-| **Meta-tools** | ✓ Supported | ✗ Placeholders only |
+| **Meta-tools** | ✓ Supported | ✓ Supported (Phase A) |
 | **Tool Registry** | ✓ Dynamic registry | ✓ Basic registry |
 | **Conditions** | ✓ CEL evaluation | ✗ Not implemented |
 | **Self-modification** | ✓ Supported | ✗ Not supported |
@@ -147,24 +150,22 @@ interface MachineExecutorConfig {
 
 ## Development Roadmap
 
-### Phase 1: Core (Complete ✓)
+### Phase 0: Hybrid Approach (Complete ✓)
+- [x] Add useBootstrap flag to config
+- [x] Create executor factory
+- [x] CLI flag support
+- [x] Documentation
+
+### Phase A: Bootstrap Core (Complete ✓)
+- [x] Implement loadMachine() with parse/validate/convert
+- [x] Integrate MetaToolManager
+- [x] Implement construct_tool
+- [x] Implement get_machine_definition
+- [x] Implement update_definition
 - [x] Basic execution loop
 - [x] Tool registration
-- [x] Core tools integration
-- [x] CLI flag support
-- [x] Executor factory
-
-### Phase 2: loadMachine (To Do)
-- [ ] Implement parse_dygram call
-- [ ] Implement validate_machine call
-- [ ] Convert AST → MachineData
-- [ ] Error handling
-
-### Phase 3: Meta-Tools (To Do)
-- [ ] Integrate MetaToolManager
-- [ ] Implement construct_tool
-- [ ] Implement get_machine_definition
-- [ ] Implement update_definition
+- [x] Core tools integration (5 tools)
+- [x] Meta-tools integration (3 tools)
 
 ### Phase 4: Advanced Execution (To Do)
 - [ ] Condition evaluation (CEL)
