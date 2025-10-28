@@ -53,6 +53,7 @@ import { RailsExecutor } from "../language/rails-executor";
 import { RuntimeVisualizer } from "../language/runtime-visualizer";
 import type { MachineData } from "../language/base-executor";
 import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples";
+import { createExecutor, type UnifiedExecutor } from "../language/executor-factory";
 
 // Types
 type SectionSize = 'small' | 'medium' | 'big';
@@ -368,6 +369,31 @@ const SettingsSelect = styled.select`
   }
 `;
 
+const SettingsCheckbox = styled.input`
+  cursor: pointer;
+  accent-color: #0e639c;
+`;
+
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #cccccc;
+  cursor: pointer;
+  white-space: nowrap;
+
+  .experimental-badge {
+    background: #f97316;
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+`;
+
 const ExamplesContainer = styled.div`
     background: #252526;
     padding: 0.4em;
@@ -474,7 +500,7 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [outputSize, setOutputSize] = useState<SectionSize>('medium');
     const [executionSize, setExecutionSize] = useState<SectionSize>('medium');
     const [outputData, setOutputData] = useState<OutputData>({});
-    const [executor, setExecutor] = useState<RailsExecutor | null>(null);
+    const [executor, setExecutor] = useState<UnifiedExecutor | null>(null);
     const [isExecuting, setIsExecuting] = useState(false);
     const [currentMachineData, setCurrentMachineData] = useState<MachineData | null>(null);
     const [selectedExample, setSelectedExample] = useState<Example | null>(null);
@@ -676,7 +702,7 @@ export const CodeMirrorPlayground: React.FC = () => {
       const newModel = e.target.value;
       setSettings((prev) => {
         const updated = { ...prev, model: newModel };
-        saveSettings(updated.model, updated.apiKey);
+        saveSettings(updated.model, updated.apiKey, updated.provider, updated.useBootstrap);
         return updated;
       });
     },
@@ -688,9 +714,25 @@ export const CodeMirrorPlayground: React.FC = () => {
       const newApiKey = e.target.value;
       setSettings((prev) => {
         const updated = { ...prev, apiKey: newApiKey };
-        saveSettings(updated.model, updated.apiKey);
+        saveSettings(updated.model, updated.apiKey, updated.provider, updated.useBootstrap);
         return updated;
       });
+    },
+    []
+  );
+
+  const handleBootstrapToggle = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newUseBootstrap = e.target.checked;
+      setSettings((prev) => {
+        const updated = { ...prev, useBootstrap: newUseBootstrap };
+        saveSettings(updated.model, updated.apiKey, updated.provider, updated.useBootstrap);
+        return updated;
+      });
+
+      // Reset executor when switching modes
+      setExecutor(null);
+      setIsExecuting(false);
     },
     []
   );
@@ -793,8 +835,14 @@ export const CodeMirrorPlayground: React.FC = () => {
 
   // Helper to update visualization with runtime state
   const updateRuntimeVisualization = useCallback(
-    async (exec: RailsExecutor) => {
+    async (exec: UnifiedExecutor) => {
       try {
+        // RuntimeVisualizer only works with RailsExecutor
+        if (!(exec instanceof RailsExecutor)) {
+          console.log('Runtime visualization not available for bootstrap executor');
+          return;
+        }
+
         const visualizer = new RuntimeVisualizer(exec);
         const runtimeDot = visualizer.generateRuntimeVisualization({
           showCurrentState: true,
@@ -844,8 +892,10 @@ export const CodeMirrorPlayground: React.FC = () => {
       const machineData = convertToMachineData(outputData.machine);
       setCurrentMachineData(machineData);
 
-      // Create executor
-      const exec = await RailsExecutor.create(machineData, {
+      // Create executor using factory
+      console.log(`Creating executor (bootstrap: ${settings.useBootstrap})...`);
+      const exec = await createExecutor(machineData, {
+        useBootstrap: settings.useBootstrap,
         llm: {
           provider: "anthropic",
           apiKey: settings.apiKey,
@@ -890,7 +940,9 @@ export const CodeMirrorPlayground: React.FC = () => {
         const machineData = convertToMachineData(outputData.machine);
         setCurrentMachineData(machineData);
 
-        exec = await RailsExecutor.create(machineData, {
+        console.log(`Creating executor (bootstrap: ${settings.useBootstrap})...`);
+        exec = await createExecutor(machineData, {
+          useBootstrap: settings.useBootstrap,
           llm: {
             provider: "anthropic",
             apiKey: settings.apiKey,
@@ -901,15 +953,19 @@ export const CodeMirrorPlayground: React.FC = () => {
         setExecutor(exec);
       }
 
-      // Execute one step
-      console.log("Executing step...");
-      const continued = await exec.step();
+      // Execute one step (only RailsExecutor supports step-by-step)
+      if (exec instanceof RailsExecutor) {
+        console.log("Executing step...");
+        const continued = await exec.step();
 
-      // Update visualization
-      await updateRuntimeVisualization(exec);
+        // Update visualization
+        await updateRuntimeVisualization(exec);
 
-      if (!continued) {
-        console.log("Machine execution complete");
+        if (!continued) {
+          console.log("Machine execution complete");
+        }
+      } else {
+        console.warn("Step execution not supported by bootstrap executor");
       }
     } catch (error) {
       console.error("Step error:", error);
@@ -1129,6 +1185,18 @@ export const CodeMirrorPlayground: React.FC = () => {
                         value={settings.apiKey}
                         onChange={handleApiKeyChange}
                     />
+                </SettingsGroup>
+                <SettingsGroup>
+                    <CheckboxLabel htmlFor="bootstrap-checkbox">
+                        <SettingsCheckbox
+                            type="checkbox"
+                            id="bootstrap-checkbox"
+                            checked={settings.useBootstrap}
+                            onChange={handleBootstrapToggle}
+                        />
+                        Bootstrap Executor
+                        <span className="experimental-badge">Experimental</span>
+                    </CheckboxLabel>
                 </SettingsGroup>
                 <ExamplesContainer>
                     <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />

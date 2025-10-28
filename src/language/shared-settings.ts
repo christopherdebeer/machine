@@ -7,7 +7,8 @@
 const STORAGE_KEYS = {
     MODEL: 'dygram_selected_model',
     API_KEY: 'dygram_api_key',
-    PROVIDER: 'dygram_provider' // 'anthropic' or 'bedrock'
+    PROVIDER: 'dygram_provider', // 'anthropic' or 'bedrock'
+    USE_BOOTSTRAP: 'dygram_use_bootstrap' // experimental bootstrap executor
 } as const;
 
 export type Provider = 'anthropic' | 'bedrock';
@@ -16,6 +17,7 @@ export interface PlaygroundSettings {
     model: string;
     apiKey: string;
     provider: Provider;
+    useBootstrap: boolean;
 }
 
 /**
@@ -96,6 +98,7 @@ export function loadSettings(): PlaygroundSettings {
     const apiKey = getApiKey();
     const savedModel = localStorage.getItem(STORAGE_KEYS.MODEL);
     const savedProvider = (localStorage.getItem(STORAGE_KEYS.PROVIDER) || 'anthropic') as Provider;
+    const useBootstrap = localStorage.getItem(STORAGE_KEYS.USE_BOOTSTRAP) === 'true';
 
     // If no saved model, use default for saved provider
     let model = savedModel || DEFAULT_MODELS[savedProvider];
@@ -109,20 +112,25 @@ export function loadSettings(): PlaygroundSettings {
     return {
         model,
         apiKey,
-        provider: savedProvider
+        provider: savedProvider,
+        useBootstrap
     };
 }
 
 /**
  * Save settings to localStorage
  */
-export function saveSettings(model: string, apiKey: string, provider?: Provider): void {
+export function saveSettings(model: string, apiKey: string, provider?: Provider, useBootstrap?: boolean): void {
     // Auto-detect provider from model if not explicitly provided
     const detectedProvider = provider || detectProvider(model);
 
     localStorage.setItem(STORAGE_KEYS.MODEL, model);
     localStorage.setItem(STORAGE_KEYS.API_KEY, apiKey);
     localStorage.setItem(STORAGE_KEYS.PROVIDER, detectedProvider);
+
+    if (useBootstrap !== undefined) {
+        localStorage.setItem(STORAGE_KEYS.USE_BOOTSTRAP, String(useBootstrap));
+    }
 }
 
 /**
