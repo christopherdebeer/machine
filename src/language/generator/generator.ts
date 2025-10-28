@@ -659,6 +659,12 @@ class JSONGenerator extends BaseGenerator {
                 return;
             }
 
+            // Skip note nodes - they're handled by generateNotes() function
+            if ((node.type ?? '').toLowerCase() === 'note') {
+                node.nodes?.forEach(visitNode);
+                return;
+            }
+
             (node.attributes ?? []).forEach((attr: Attribute) => {
                 const attrTypeValue = typeof attr.type === 'string' ? attr.type : attr.type?.base;
                 const attrType = attrTypeValue?.toLowerCase();
