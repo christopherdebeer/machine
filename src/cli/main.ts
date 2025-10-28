@@ -249,7 +249,7 @@ export const parseAndValidate = async (fileName: string, opts?: { verbose?: bool
  * @param fileName Program to execute
  * @param opts Execution options
  */
-export const executeAction = async (fileName: string, opts: { destination?: string; model?: string; verbose?: boolean; quiet?: boolean }): Promise<void> => {
+export const executeAction = async (fileName: string, opts: { destination?: string; model?: string; verbose?: boolean; quiet?: boolean; useBootstrap?: boolean }): Promise<void> => {
     setupLogger(opts);
 
     // retrieve the services for our language
@@ -310,11 +310,12 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
             maxTurns: 50,
             persistHistory: true,
             historyPath: opts.destination ? path.join(opts.destination, 'execution-history.json') : './execution-history.json'
-        }
+        },
+        useBootstrap: opts.useBootstrap || false
     };
 
-    // Check if API key is available
-    if (!process.env.ANTHROPIC_API_KEY) {
+    // Check if API key is available (skip for bootstrap mode)
+    if (!process.env.ANTHROPIC_API_KEY && !opts.useBootstrap) {
         logger.warn('\n⚠️  Warning: ANTHROPIC_API_KEY environment variable not set.');
         logger.info(chalk.gray('   Set it with: export ANTHROPIC_API_KEY=your_api_key_here'));
         logger.info(chalk.gray('   Note: Execution will use placeholder agent responses (Agent SDK integration pending).\n'));
@@ -322,23 +323,26 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
 
     logger.debug('Starting execution...');
 
-    // Execute the machine with Rails-Based Architecture
-    const executor = await RailsExecutor.create(machineData, config);
+    // Execute the machine with Rails-Based Architecture or Bootstrap Executor
+    const { createExecutor } = await import('../language/executor-factory.js');
+    const executor = await createExecutor(machineData, config);
 
-    // Set up callback to save updated machine definition when agent modifies it
+    // Set up callback to save updated machine definition when agent modifies it (Rails executor only)
     let machineWasUpdated = false;
-    executor.setMachineUpdateCallback(async (dsl: string) => {
-        machineWasUpdated = true;
-        const data = extractDestinationAndName(fileName, opts.destination);
+    if (executor.setMachineUpdateCallback) {
+        executor.setMachineUpdateCallback(async (dsl: string) => {
+            machineWasUpdated = true;
+            const data = extractDestinationAndName(fileName, opts.destination);
 
-        // Save updated DSL to a new file with suffix
-        const updatedFileName = `${data.name}-updated.machine`;
-        const updatedPath = path.join(data.destination, updatedFileName);
+            // Save updated DSL to a new file with suffix
+            const updatedFileName = `${data.name}-updated.machine`;
+            const updatedPath = path.join(data.destination, updatedFileName);
 
-        await fs.writeFile(updatedPath, dsl, 'utf-8');
-        console.log(chalk.magenta(`\n🔄 Machine definition updated by agent!`));
-        console.log(chalk.gray(`   Updated DSL saved to: ${updatedPath}`));
-    });
+            await fs.writeFile(updatedPath, dsl, 'utf-8');
+            console.log(chalk.magenta(`\n🔄 Machine definition updated by agent!`));
+            console.log(chalk.gray(`   Updated DSL saved to: ${updatedPath}`));
+        });
+    }
 
     const executionResult = await executor.execute();
 
@@ -365,8 +369,8 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
         }
     });
 
-    // Show mutations if machine was updated
-    if (machineWasUpdated) {
+    // Show mutations if machine was updated (Rails executor only)
+    if (machineWasUpdated && executor.getMutations) {
         const mutations = executor.getMutations();
         const machineUpdateMutations = mutations.filter(m =>
             m.data?.mutationType === 'machine_updated'
@@ -521,6 +525,7 @@ function initializeCLI(): Promise<void> {
                     .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
                     .option('-d, --destination <dir>', 'destination directory for execution results')
                     .option('-m, --model <model>', 'model ID to use (e.g., claude-3-5-haiku-20241022, claude-3-5-sonnet-20241022)')
+                    .option('--use-bootstrap', '[EXPERIMENTAL] use bootstrap executor instead of rails executor')
                     .option('-v, --verbose', 'verbose output')
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .description('executes a machine program')

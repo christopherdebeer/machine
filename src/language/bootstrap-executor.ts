@@ -96,11 +96,18 @@ export interface BootstrapCore {
  */
 export class BootstrapExecutor implements BootstrapCore {
     private tools: Map<string, BootstrapToolFunction> = new Map();
-    private machineData: MachineData | null = null;
+    protected machineData: MachineData;
     private context: BootstrapContext;
+    private maxSteps: number = 1000;
+    private maxNodeInvocations: number = 100;
 
-    constructor() {
+    constructor(machineData?: MachineData, config?: { maxSteps?: number; maxNodeInvocations?: number }) {
+        this.machineData = machineData || { title: '', nodes: [], edges: [] };
         this.context = this.createInitialContext();
+        if (config) {
+            this.maxSteps = config.maxSteps ?? 1000;
+            this.maxNodeInvocations = config.maxNodeInvocations ?? 100;
+        }
     }
 
     /**
@@ -363,6 +370,95 @@ export class BootstrapExecutor implements BootstrapCore {
      */
     resetContext(): void {
         this.context = this.createInitialContext();
+    }
+
+    /**
+     * Execute the machine (full execution loop)
+     * This makes BootstrapExecutor compatible with RailsExecutor interface
+     */
+    async execute(): Promise<{
+        currentNode: string;
+        errorCount: number;
+        visitedNodes: Set<string>;
+        attributes: Map<string, any>;
+        history: Array<{
+            from: string;
+            to: string;
+            transition: string;
+            timestamp: string;
+            output?: string;
+        }>;
+    }> {
+        console.log(`\n🚀 [Bootstrap] Starting execution: ${this.machineData.title}`);
+
+        // Find start node
+        const startNode = this.machineData.nodes.find(n => n.name.toLowerCase() === 'start')
+            || this.machineData.nodes[0];
+
+        if (!startNode) {
+            throw new Error('No start node found');
+        }
+
+        this.context.currentNode = startNode.name;
+        let stepCount = 0;
+        let errorCount = 0;
+
+        // Execution loop
+        while (stepCount < this.maxSteps) {
+            const nodeName = this.context.currentNode;
+
+            // Check node invocation limit
+            const invocations = this.context.nodeInvocationCounts.get(nodeName) || 0;
+            if (invocations >= this.maxNodeInvocations) {
+                console.log(`⚠️ Max invocations (${this.maxNodeInvocations}) reached for node: ${nodeName}`);
+                break;
+            }
+
+            // Execute current node
+            const result = await this.executeNode(nodeName, this.machineData, this.context);
+
+            if (!result.success) {
+                errorCount++;
+                console.log(`❌ Error at node ${nodeName}: ${result.error}`);
+            }
+
+            // Find next transitions
+            const transitions = this.findTransitions(nodeName, this.machineData);
+
+            if (transitions.length === 0) {
+                console.log(`✓ Execution completed at terminal node: ${nodeName}`);
+                break;
+            }
+
+            // For now, take first available transition (simplified - no conditions yet)
+            const nextNode = transitions[0];
+
+            // Follow edge
+            await this.followEdge(nodeName, nextNode, this.machineData, this.context);
+
+            stepCount++;
+        }
+
+        if (stepCount >= this.maxSteps) {
+            console.log(`⚠️ Max steps (${this.maxSteps}) reached`);
+        }
+
+        // Convert history format to match RailsExecutor
+        const formattedHistory = this.context.history.map(h => ({
+            from: h.from,
+            to: h.to,
+            transition: 'auto', // Bootstrap doesn't track transition types yet
+            timestamp: h.timestamp,
+            output: undefined
+        }));
+
+        return {
+            currentNode: this.context.currentNode,
+            errorCount,
+            visitedNodes: new Set(this.context.visitedNodes),
+            attributes: this.context.attributes,
+            history: formattedHistory
+        };
     }
 }
 

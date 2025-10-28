@@ -77,6 +77,8 @@ export interface MachineExecutorConfig {
     agentSDK?: any;
     // Execution limits for safety and cycle detection
     limits?: ExecutionLimits;
+    // Experimental: Use bootstrap executor instead of RailsExecutor
+    useBootstrap?: boolean;
 }
 
 /**
