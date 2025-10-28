@@ -1,0 +1,104 @@
+// Layer 3: Dygram Self-Improvement Meta-System
+// This machine can inspect, analyze, and improve the Dygram system itself
+machine "Dygram Self-Improvement System" @Version("1.0") @Meta @SelfHosted
+
+// System state context
+Context systemState {
+    parserVersion<string>: "1.0";
+    generatorVersion<string>: "1.0";
+    runtimeVersion<string>: "1.0";
+    availableTools<Array<string>>: [];
+    lastImprovementDate<string>: "";
+}
+
+// Input: Target system component to analyze
+Input targetComponent {
+    component<string>: "all";
+    goal<string>: "optimize";
+}
+
+// Meta-capabilities for system introspection
+Task inspectSystem {
+    description: "Analyze current Dygram implementation";
+    prompt: "Examine the current implementation of the specified component (parser, generator, runtime, or all)";
+    uses: "get_machine_definition";
+}
+
+Task identifyImprovements {
+    description: "Find optimization opportunities";
+    prompt: "Analyze the component and identify potential improvements in performance, correctness, or maintainability";
+    meta: true;
+}
+
+Task proposeChanges {
+    description: "Design specific improvements";
+    prompt: "Design concrete changes to improve the system based on identified opportunities";
+}
+
+Task validateProposal {
+    description: "Verify proposed changes maintain correctness";
+    prompt: "Validate that the proposed changes will not break existing functionality and will achieve the intended improvements";
+}
+
+Task simulateChanges {
+    description: "Test changes in safe environment";
+    prompt: "Simulate the proposed changes to verify they work as expected";
+}
+
+Task applyChanges {
+    description: "Apply improvements to system";
+    prompt: "Apply the validated changes to the system";
+    uses: "update_definition";
+    meta: true;
+}
+
+Task testChanges {
+    description: "Execute test suite on modified system";
+    prompt: "Run comprehensive tests on the modified system to ensure correctness";
+}
+
+Task rollbackIfNeeded {
+    description: "Revert changes if tests fail";
+    prompt: "If tests fail, rollback to the previous working version";
+}
+
+// Decision states
+State changesValidated {
+    description: "Proposed changes passed validation";
+}
+
+State testsPassed {
+    description: "Tests passed after applying changes";
+}
+
+State testsFailed {
+    description: "Tests failed after applying changes";
+}
+
+// Output: Improvement results
+Result improvementResult {
+    success<boolean>: false;
+    changesApplied<boolean>: false;
+    improvements<Array<string>>: [];
+    testResults<string>: "";
+    rollbackPerformed<boolean>: false;
+}
+
+// Self-improvement cycle
+targetComponent -> inspectSystem -> identifyImprovements;
+identifyImprovements -> proposeChanges -> validateProposal;
+
+// Conditional: only apply if validated
+validateProposal -> changesValidated, improvementResult;
+
+// Apply changes and test
+changesValidated -> simulateChanges -> applyChanges -> testChanges;
+
+// Test results determine outcome
+testChanges -> testsPassed, testsFailed;
+
+// Success path
+testsPassed -> improvementResult;
+
+// Failure path - rollback
+testsFailed -> rollbackIfNeeded -> improvementResult;

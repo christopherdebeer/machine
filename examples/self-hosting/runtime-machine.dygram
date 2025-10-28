@@ -1,0 +1,94 @@
+// Layer 2: Dygram Runtime Executor Machine
+// This machine defines the execution model for Dygram machines
+machine "Dygram Runtime Executor" @Version("1.0") @SelfHosted
+
+// Configuration context
+Context config {
+    maxSteps<number>: 1000;
+    maxNodeInvocations<number>: 100;
+    llmModel<string>: "claude-3-5-sonnet-20241022";
+}
+
+// Input: Machine to execute
+Input targetMachine {
+    machineData<MachineData>: null;
+    entryNode<string>: "";
+}
+
+// Execution context - tracks runtime state
+Context executionContext {
+    currentNode<string>: "";
+    visitedNodes<Array<string>>: [];
+    nodeInvocationCounts<Map<string, number>>: {};
+    history<Array<any>>: [];
+}
+
+// Initialization task
+Task initializeExecution {
+    description: "Setup execution context and validate machine";
+    prompt: "Initialize the execution environment and validate that the target machine is well-formed";
+}
+
+// Main execution loop tasks
+Task evaluateNode {
+    description: "Evaluate current node";
+    prompt: "Evaluate the current node and determine what action to take";
+}
+
+Task checkTransitions {
+    description: "Find available transitions";
+    prompt: "Identify all valid transitions from the current node";
+}
+
+Task determineNextNode {
+    description: "Decide next node to visit";
+    prompt: "Based on available transitions and current state, decide which node to visit next";
+}
+
+Task executeNode {
+    description: "Execute the current node";
+    uses: "execute_machine";
+}
+
+Task updateContext {
+    description: "Update execution context with results";
+    prompt: "Update the execution context with results from the current node";
+}
+
+Task checkLimits {
+    description: "Verify execution limits";
+    prompt: "Check if execution limits (maxSteps, maxNodeInvocations) have been exceeded";
+}
+
+// Terminal states
+State completed {
+    description: "Execution completed successfully";
+}
+
+State failed {
+    description: "Execution failed";
+}
+
+// Output: Execution result
+Result executionResult {
+    success<boolean>: false;
+    finalNode<string>: "";
+    output<any>: null;
+    history<Array<any>>: [];
+    visitedNodes<Array<string>>: [];
+}
+
+// Main execution flow
+targetMachine -> initializeExecution;
+initializeExecution -> evaluateNode;
+
+// Execution cycle (can loop)
+evaluateNode -> checkTransitions -> determineNextNode -> executeNode;
+executeNode -> updateContext -> checkLimits;
+
+// Loop back or terminate
+checkLimits -> evaluateNode, completed, failed;
+
+// Terminal states produce results
+completed -> executionResult;
+failed -> executionResult;

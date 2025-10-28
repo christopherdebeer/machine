@@ -1,0 +1,123 @@
+// Complete Self-Hosting Workflow
+// This machine demonstrates the full Dygram self-hosting system
+// It can parse, validate, generate, execute, and improve Dygram machines
+machine "Dygram Complete Self-Hosting Workflow" @Version("1.0") @SelfHosted
+
+// Input: Dygram source code to process
+Input dygramSource {
+    code<string>: "";
+    filepath<string>: "";
+    requestedFormat<string>: "json,graphviz";
+    shouldExecute<boolean>: false;
+    shouldImprove<boolean>: false;
+}
+
+// Stage 1: Parse the source code using Parser Machine
+Task parseSource {
+    description: "Parse Dygram source using Layer 2 Parser Machine";
+    machineRef: "DygramParser";
+    prompt: "Parse the provided Dygram source code into an AST";
+}
+
+// Stage 2: Generate outputs using Generator Machine
+Task generateOutputs {
+    description: "Generate requested output formats using Layer 2 Generator Machine";
+    machineRef: "DygramGenerator";
+    prompt: "Generate outputs in the requested formats (JSON, Graphviz, etc.)";
+}
+
+// Stage 3: Execute machine using Runtime Machine (optional)
+Task executeMachine {
+    description: "Execute the parsed machine using Layer 2 Runtime Machine";
+    machineRef: "DygramRuntimeExecutor";
+    prompt: "Execute the machine and collect results";
+}
+
+// Stage 4: Improve system using Meta-System (optional)
+Task improveSystem {
+    description: "Analyze and improve the Dygram system using Layer 3 Meta-System";
+    machineRef: "DygramSelfImprovementSystem";
+    prompt: "Analyze the system and propose improvements";
+    meta: true;
+}
+
+// Validation checkpoint
+Task validateWorkflow {
+    description: "Validate that all stages completed successfully";
+    prompt: "Check that parsing, generation, and execution all completed without errors";
+}
+
+// Decision states
+State readyToExecute {
+    description: "Machine parsed and generated, ready for execution";
+}
+
+State readyToImprove {
+    description: "Execution complete, ready for self-improvement";
+}
+
+State workflowComplete {
+    description: "All requested stages completed successfully";
+}
+
+// Output: Complete workflow results
+Result workflowResult {
+    parseSuccess<boolean>: false;
+    parsedMachine<Machine>: null;
+    generatedOutputs<Map<string, string>>: {};
+    executionResult<any>: null;
+    improvementResult<any>: null;
+    errors<Array<string>>: [];
+}
+
+// Main workflow pipeline
+dygramSource -> parseSource -> generateOutputs -> validateWorkflow;
+
+// Conditional execution based on shouldExecute flag
+validateWorkflow -> readyToExecute, workflowResult;
+readyToExecute -> executeMachine;
+
+// Conditional improvement based on shouldImprove flag
+executeMachine -> readyToImprove, workflowResult;
+readyToImprove -> improveSystem;
+
+// Final result
+improveSystem -> workflowComplete;
+workflowComplete -> workflowResult;
+
+// Notes explaining the architecture
+Note architecture {
+    text: "This workflow demonstrates the three-layer bootstrap architecture:
+
+    Layer 1: Bootstrap Core (TypeScript)
+    - Minimal executor (~390 lines)
+    - Core tool registry
+    - Primitive operations
+
+    Layer 2: Dygram-in-Dygram (Dygram DSL)
+    - Parser Machine (this uses parse_dygram tool)
+    - Generator Machine (uses generate_json, generate_graphviz)
+    - Runtime Machine (uses execute_machine recursively)
+
+    Layer 3: Self-Improving System (Dygram DSL + Meta)
+    - Meta-System Machine (uses construct_tool, update_definition)
+    - Can inspect and modify Layer 2 machines
+    - Enables system evolution through execution
+
+    This creates true meta-circular evaluation where Dygram defines and executes itself.";
+}
+
+Note usage {
+    text: "Example usage:
+
+    1. Parse only:
+       { code: 'machine \"Example\" ...', requestedFormat: 'json' }
+
+    2. Parse and execute:
+       { code: '...', shouldExecute: true }
+
+    3. Full self-hosting (parse, generate, execute, improve):
+       { code: '...', shouldExecute: true, shouldImprove: true }
+
+    The system will automatically handle all stages and return comprehensive results.";
+}
