@@ -4,7 +4,6 @@ import type { MachineServices } from './machine-module.js';
 import { TypeChecker } from './type-checker.js';
 import { GraphValidator } from './graph-validator.js';
 import { DependencyAnalyzer } from './dependency-analyzer.js';
-import { extractValueFromAST } from './utils/ast-helpers.js';
 
 /**
  * Registry for validation checks.
@@ -115,14 +114,22 @@ export class MachineValidator {
         }
 
         // Collect all explicitly defined node names (excluding notes)
+        // Include both simple names and qualified names for nested nodes
         const stateNames = new Set<string>();
-        const collectStateNames = (node: Node) => {
+        const collectStateNames = (node: Node, prefix: string = '') => {
             // Don't add note nodes themselves to the state names set
             if (node.type?.toLowerCase() !== 'note') {
+                // Add simple name
                 stateNames.add(node.name);
+                // Add qualified name if nested
+                if (prefix) {
+                    stateNames.add(`${prefix}.${node.name}`);
+                }
             }
+            // Recursively collect child nodes with qualified path
+            const newPrefix = prefix ? `${prefix}.${node.name}` : node.name;
             for (const childNode of node.nodes) {
-                collectStateNames(childNode);
+                collectStateNames(childNode, newPrefix);
             }
         };
 
