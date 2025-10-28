@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import type { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper';
 
 interface CodeEditorProps {
@@ -24,6 +24,21 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     const outputRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<MonacoEditorLanguageClientWrapper | null>(null);
     const initializingRef = useRef<boolean>(false);
+
+    // Generate playground link using the same encoding as the test report generator
+    const playgroundLink = useMemo(() => {
+        const basePath = import.meta.env.BASE_URL || '/';
+        const playgroundUrl = `${basePath}playground-mobile.html`;
+
+        // Base64 URL-safe encoding (matching CodeMirrorPlayground.tsx)
+        const base64UrlEncode = (str: string): string => {
+            const base64 = btoa(unescape(encodeURIComponent(str)));
+            return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '~');
+        };
+
+        const encoded = base64UrlEncode(initialCode);
+        return `${playgroundUrl}#content=${encoded}`;
+    }, [initialCode]);
 
     useEffect(() => {
         let mounted = true;
@@ -95,7 +110,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     }, [initialCode]);
 
     return (
-        <div className="code-block" style={{ marginTop: '1rem' }}>
+        <div className="code-block" style={{ marginTop: '1rem', position: 'relative' }}>
             <div
                 ref={codeRef}
                 className="code machine-lang"
@@ -106,6 +121,29 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                 {initialCode}
             </div>
             <div ref={outputRef} className="output"></div>
+            <div style={{
+                marginTop: '0.5rem',
+                fontSize: '0.85rem',
+                opacity: 0.7,
+                textAlign: 'right'
+            }}>
+                <a
+                    href={playgroundLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                        color: '#667eea',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                    onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                >
+                    🎮 Open in Playground →
+                </a>
+            </div>
         </div>
     );
 };
