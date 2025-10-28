@@ -324,22 +324,24 @@ a -@weight(5)-> b;
 
 ## Notes
 
-Notes attach documentation to nodes:
+Notes attach documentation to nodes. The note's name references the target node, and the title contains the note content:
 
 ```dygram !no-extract
 Task process;
 
-note process "This task handles data processing";
+Note process "This task handles data processing";
 ```
 
-With title and attributes:
+With annotations and attributes:
 
 ```dygram !no-extract
-note process "Processing Details" @Critical {
+Note process "Processing Details" @Critical {
     complexity: "O(n)";
     author: "Team A";
 };
 ```
+
+Notes create an inferred dashed edge to their target node and render with a note shape in diagrams. Node types (including `Note`) are case-insensitive, so `note`, `Note`, and `NOTE` are all equivalent.
 
 ## Comments
 
@@ -449,7 +451,7 @@ processing => complete;
 config "1" -provides-> "*" workflow;
 
 // Notes
-note fetchData "Fetches data from external API" @Documentation {
+Note fetchData "Fetches data from external API" @Documentation {
     complexity: "O(1)";
     author: "System";
 };

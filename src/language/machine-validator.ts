@@ -111,10 +111,13 @@ export class MachineValidator {
             return;
         }
 
-        // Collect all explicitly defined node names
+        // Collect all explicitly defined node names (excluding notes)
         const stateNames = new Set<string>();
         const collectStateNames = (node: Node) => {
-            stateNames.add(node.name);
+            // Don't add note nodes themselves to the state names set
+            if (node.type?.toLowerCase() !== 'note') {
+                stateNames.add(node.name);
+            }
             for (const childNode of node.nodes) {
                 collectStateNames(childNode);
             }
@@ -142,18 +145,14 @@ export class MachineValidator {
         }
 
         // Check all note target references (only in strict mode)
-        // Notes are now regular nodes with type="note"
+        // Notes are now regular nodes with type="note" where the node name is the target
         const validateNoteTargets = (nodes: Node[]) => {
             nodes.forEach(node => {
-                if (node.type === 'note') {
-                    // Check if note has a target attribute
-                    const targetAttr = node.attributes?.find(attr => attr.name === 'target');
-                    if (targetAttr && targetAttr.value) {
-                        // Extract the target value
-                        const targetValue = extractValueFromAST(targetAttr.value);
-                        if (targetValue && typeof targetValue === 'string' && !stateNames.has(targetValue)) {
-                            accept('error', `Note references undefined node: ${targetValue}`, { node, property: 'attributes' });
-                        }
+                if (node.type?.toLowerCase() === 'note') {
+                    // The node name is the target
+                    const targetValue = node.name;
+                    if (targetValue && !stateNames.has(targetValue)) {
+                        accept('error', `Note references undefined node: ${targetValue}`, { node, property: 'name' });
                     }
                 }
                 // Recursively check child nodes

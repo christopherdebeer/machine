@@ -25,17 +25,33 @@ Complete example combining Phase 3 features:
 
 ### Documentation Notes
 
-Notes attach explanatory documentation to nodes:
+Notes attach explanatory documentation to nodes. The note's name is the target node, and the title is the note content:
 
+```dygram
+Task myTask "My Task";
+Note myTask "This is a note about the task";
+```
 
 #### Multiline Notes
 
-Use `\n` for line breaks:
+Use multiline strings for notes with line breaks:
 
+```dygram
+Task algorithm "Algorithm";
+Note algorithm "Uses Dijkstra's algorithm for shortest path.
+Time complexity: O(V^2)
+Space complexity: O(V)";
+```
 
 #### Multiple Notes
 
-Attach multiple notes to a single node:
+Attach multiple notes to a single node (all notes reference the same target):
+
+```dygram
+Task process "Process";
+Note process "First note about the process";
+Note process "Second note with additional details";
+```
 
 
 ### Generic Types
@@ -57,32 +73,36 @@ Generic types provide type parameters for attributes:
 
 1. **Explain Complex Logic**
    ```dygram
-   note algorithm "Uses Dijkstra's algorithm for shortest path.
+   Task algorithm;
+   Note algorithm "Uses Dijkstra's algorithm for shortest path.
    Time complexity: O(V^2)
-   Space complexity: O(V)"
+   Space complexity: O(V)";
    ```
 
 2. **Warnings and Constraints**
    ```dygram
-   note criticalTask "⚠️ WARNING: This operation is irreversible.
-   Requires manual approval for production environments."
+   Task criticalTask;
+   Note criticalTask "⚠️ WARNING: This operation is irreversible.
+   Requires manual approval for production environments.";
    ```
 
 3. **Usage Instructions**
    ```dygram
-   note apiCall "Usage:
+   Task apiCall;
+   Note apiCall "Usage:
    1. Set API key in context
    2. Configure timeout
    3. Call with valid payload
-   4. Handle response or error"
+   4. Handle response or error";
    ```
 
 4. **Context and Background**
    ```dygram
-   note migrationTask "Legacy System Migration:
+   Task migrationTask;
+   Note migrationTask "Legacy System Migration:
    Migrating from Oracle to PostgreSQL.
    Must maintain backward compatibility.
-   Expected completion: Q2 2025"
+   Expected completion: Q2 2025";
    ```
 
 ### Generic Types
@@ -189,15 +209,15 @@ TransformTask "1" --> "0..1" Success;
 TransformTask "1" --> "0..1" Error;
 
 // Documentation notes
-note apiConfig "Singleton configuration for API access. Contains endpoint URL, authentication headers, and retry policy."
+Note apiConfig "Singleton configuration for API access. Contains endpoint URL, authentication headers, and retry policy.";
 
-note FetchTask "Asynchronous task that fetches data from the API. Returns Promise<Response> which resolves to the HTTP response."
+Note FetchTask "Asynchronous task that fetches data from the API. Returns Promise<Response> which resolves to the HTTP response.";
 
-note TransformTask "Transforms the raw API response into an array of typed records. Handles data validation and normalization."
+Note TransformTask "Transforms the raw API response into an array of typed records. Handles data validation and normalization.";
 
-note Success "Indicates successful completion. All data has been fetched and transformed."
+Note Success "Indicates successful completion. All data has been fetched and transformed.";
 
-note Error "Error state with optional error message. Triggered on API failures or transformation errors."
+Note Error "Error state with optional error message. Triggered on API failures or transformation errors.";
 
 ```
 
@@ -233,8 +253,8 @@ fetchData -> processData;
 processData -> complete;
 
 // Notes provide documentation
-note fetchData "Fetches data from external API. Returns Promise<Response> with the fetched data."
-note processData "Processes the fetched data and transforms it into Array<Record> format."
-note complete "Final state indicating successful completion of the workflow."
+Note fetchData "Fetches data from external API. Returns Promise<Response> with the fetched data.";
+Note processData "Processes the fetched data and transforms it into Array<Record> format.";
+Note complete "Final state indicating successful completion of the workflow.";
 
 ```
