@@ -28,6 +28,8 @@ export interface BootstrapContext {
         to: string;
         timestamp: string;
     }>;
+    // Optional meta-tool manager for advanced features
+    metaToolManager?: any;
 }
 
 /**
@@ -60,7 +62,7 @@ export interface BootstrapTool {
  */
 export interface BootstrapCore {
     // Load and validate a machine
-    loadMachine(source: string): MachineData;
+    loadMachine(source: string): Promise<MachineData>;
 
     // Execute a single node (primitive operation)
     executeNode(
@@ -125,15 +127,61 @@ export class BootstrapExecutor implements BootstrapCore {
 
     /**
      * Load and validate a machine from source
-     * In practice, this would call the parser tool
+     * Calls parse_dygram and validate_machine tools
      */
-    loadMachine(source: string): MachineData {
-        // This is a placeholder - in real implementation, this would:
-        // 1. Call parse_dygram tool to get AST
-        // 2. Call validate_machine tool to check structure
-        // 3. Return MachineData
+    async loadMachine(source: string): Promise<MachineData> {
+        // Check if required tools are registered
+        if (!this.hasTool('parse_dygram')) {
+            throw new Error('loadMachine requires parse_dygram tool to be registered');
+        }
+        if (!this.hasTool('validate_machine')) {
+            throw new Error('loadMachine requires validate_machine tool to be registered');
+        }
 
-        throw new Error('loadMachine requires parse_dygram and validate_machine tools to be registered');
+        // Step 1: Parse the source code to get Machine AST
+        const parseResult = await this.invokeTool('parse_dygram', {
+            code: source,
+            filepath: '<memory>'
+        }, this.context);
+
+        if (parseResult.errors && parseResult.errors.length > 0) {
+            throw new Error(`Parse errors: ${parseResult.errors.join(', ')}`);
+        }
+
+        if (!parseResult.machine) {
+            throw new Error('Parser did not return a machine');
+        }
+
+        const machine = parseResult.machine;
+
+        // Step 2: Validate the machine structure
+        const validateResult = await this.invokeTool('validate_machine', {
+            machine
+        }, this.context);
+
+        if (validateResult.errors && validateResult.errors.length > 0) {
+            console.warn('⚠️ Validation errors:', validateResult.errors.join(', '));
+        }
+
+        if (validateResult.warnings && validateResult.warnings.length > 0) {
+            console.warn('⚠️ Validation warnings:', validateResult.warnings.join(', '));
+        }
+
+        // Step 3: Convert Machine AST to MachineData format
+        // The machine AST needs to be converted to the executor's MachineData format
+        // For now, we'll use the JSON generator to do the conversion
+        if (!this.hasTool('generate_json')) {
+            throw new Error('loadMachine requires generate_json tool for AST conversion');
+        }
+
+        const jsonResult = await this.invokeTool('generate_json', {
+            machine
+        }, this.context);
+
+        // Parse the JSON to get MachineData
+        const machineData: MachineData = JSON.parse(jsonResult.json);
+
+        return machineData;
     }
 
     /**
@@ -370,6 +418,13 @@ export class BootstrapExecutor implements BootstrapCore {
      */
     resetContext(): void {
         this.context = this.createInitialContext();
+    }
+
+    /**
+     * Set MetaToolManager for meta-tools support
+     */
+    setMetaToolManager(metaToolManager: any): void {
+        this.context.metaToolManager = metaToolManager;
     }
 
     /**

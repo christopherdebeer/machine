@@ -5,10 +5,12 @@
  * Supports both production RailsExecutor and experimental BootstrapExecutor.
  */
 
-import { RailsExecutor, MachineExecutorConfig, MachineData } from './rails-executor.js';
+import { RailsExecutor, MachineExecutorConfig, MachineData, MachineMutation } from './rails-executor.js';
 import { BootstrapExecutor, createBootstrapExecutor } from './bootstrap-executor.js';
 import { BootstrapTools } from './bootstrap-tools.js';
 import { generateJSON } from './generator/generator.js';
+import { MetaToolManager } from './meta-tool-manager.js';
+import { ToolRegistry } from './tool-registry.js';
 
 /**
  * Unified executor interface for both Rails and Bootstrap executors
@@ -46,14 +48,11 @@ export async function createExecutor(
         console.log('🔬 [EXPERIMENTAL] Using Bootstrap Executor');
         console.log('   Note: Bootstrap executor is experimental and has limited functionality');
         console.log('   - No agent SDK integration');
-        console.log('   - No meta-tool support');
+        console.log('   - Meta-tools available but without full agent backing');
         console.log('   - Simplified execution model');
         console.log('   To use production executor, remove --use-bootstrap flag\n');
 
-        // Create bootstrap executor with core tools
-        const executor = createBootstrapExecutor(BootstrapTools.getCoreTools());
-
-        // Set the machine data
+        // Create bootstrap executor with machine data
         const bootstrapExecutor = new BootstrapExecutor(
             machineData,
             {
@@ -64,6 +63,28 @@ export async function createExecutor(
 
         // Register all core tools
         for (const tool of BootstrapTools.getCoreTools()) {
+            bootstrapExecutor.registerTool(tool.name, tool.implementation);
+        }
+
+        // Create MetaToolManager for meta-tools support
+        const mutations: MachineMutation[] = [];
+        const toolRegistry = new ToolRegistry();
+        const metaToolManager = new MetaToolManager(
+            machineData,
+            (mutation) => {
+                mutations.push({
+                    ...mutation,
+                    timestamp: new Date().toISOString()
+                });
+            },
+            toolRegistry
+        );
+
+        // Set MetaToolManager in executor context
+        bootstrapExecutor.setMetaToolManager(metaToolManager);
+
+        // Register meta-tools
+        for (const tool of BootstrapTools.getMetaTools()) {
             bootstrapExecutor.registerTool(tool.name, tool.implementation);
         }
 

@@ -176,16 +176,36 @@ export class BootstrapTools {
     /**
      * construct_tool: Dynamically construct a new tool
      *
-     * Input: { name: string, description: string, implementation_details: any }
-     * Output: { success: boolean, tool_name: string }
+     * Input: { name: string, description: string, input_schema: any, implementation_strategy: string, implementation_details: string }
+     * Output: { success: boolean, message: string, tool_name?: string }
      */
     static construct_tool: BootstrapTool = {
         name: 'construct_tool',
         description: 'Dynamically construct a new tool',
         implementation: async (input: any, context: BootstrapContext) => {
-            // Meta-tools require MetaToolManager instance with execution context
-            // This is a placeholder that would need a full executor context
-            throw new Error('construct_tool requires MetaToolManager instance - use within full executor context');
+            // Meta-tools require MetaToolManager instance
+            // Check if MetaToolManager is available in context
+            const metaToolManager = (context as any).metaToolManager;
+            if (!metaToolManager) {
+                throw new Error('construct_tool requires MetaToolManager instance - must be provided in context');
+            }
+
+            try {
+                const result = await metaToolManager.constructTool({
+                    name: input.name,
+                    description: input.description,
+                    input_schema: input.input_schema,
+                    implementation_strategy: input.implementation_strategy || 'agent_backed',
+                    implementation_details: input.implementation_details
+                });
+
+                return result;
+            } catch (error) {
+                return {
+                    success: false,
+                    message: error instanceof Error ? error.message : String(error)
+                };
+            }
         }
     };
 
@@ -193,15 +213,24 @@ export class BootstrapTools {
      * get_machine_definition: Get current machine definition
      *
      * Input: { format?: 'json' | 'dsl' | 'both' }
-     * Output: { definition: MachineData | string, format: string }
+     * Output: { json?: object, dsl?: string, format: string }
      */
     static get_machine_definition: BootstrapTool = {
         name: 'get_machine_definition',
         description: 'Get current machine definition',
         implementation: async (input: { format?: 'json' | 'dsl' | 'both' }, context: BootstrapContext) => {
-            // Meta-tools require MetaToolManager instance with execution context
-            // This is a placeholder that would need a full executor context
-            throw new Error('get_machine_definition requires MetaToolManager instance - use within full executor context');
+            // Meta-tools require MetaToolManager instance
+            const metaToolManager = (context as any).metaToolManager;
+            if (!metaToolManager) {
+                throw new Error('get_machine_definition requires MetaToolManager instance - must be provided in context');
+            }
+
+            try {
+                const result = await metaToolManager.getMachineDefinition(input);
+                return result;
+            } catch (error) {
+                throw new Error(`get_machine_definition failed: ${error instanceof Error ? error.message : String(error)}`);
+            }
         }
     };
 
@@ -209,15 +238,27 @@ export class BootstrapTools {
      * update_definition: Update machine definition
      *
      * Input: { machine: MachineData, reason: string }
-     * Output: { success: boolean, message: string }
+     * Output: { success: boolean, message: string, dsl?: string }
      */
     static update_definition: BootstrapTool = {
         name: 'update_definition',
         description: 'Update machine definition',
         implementation: async (input: { machine: MachineData; reason: string }, context: BootstrapContext) => {
-            // Meta-tools require MetaToolManager instance with execution context
-            // This is a placeholder that would need a full executor context
-            throw new Error('update_definition requires MetaToolManager instance - use within full executor context');
+            // Meta-tools require MetaToolManager instance
+            const metaToolManager = (context as any).metaToolManager;
+            if (!metaToolManager) {
+                throw new Error('update_definition requires MetaToolManager instance - must be provided in context');
+            }
+
+            try {
+                const result = await metaToolManager.updateDefinition(input);
+                return result;
+            } catch (error) {
+                return {
+                    success: false,
+                    message: error instanceof Error ? error.message : String(error)
+                };
+            }
         }
     };
 
