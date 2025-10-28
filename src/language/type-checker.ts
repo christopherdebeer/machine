@@ -394,7 +394,49 @@ export class TypeChecker {
      */
     private extractValue(attrValue: AttributeValue): any {
         if (typeof attrValue === 'object' && attrValue !== null) {
-            // Check if value property exists
+            // Handle ArrayValue using type guard
+            if (isArrayValue(attrValue)) {
+                const arrayVal = attrValue as ArrayValue;
+                // Recursively extract values from array elements
+                return arrayVal.values.map(v => this.extractValue(v));
+            }
+
+            // Handle ObjectValue using type guard
+            if (isObjectValue(attrValue)) {
+                const objVal = attrValue as ObjectValue;
+                const result: Record<string, any> = {};
+                objVal.attributes.forEach(attr => {
+                    if (attr.value) {
+                        result[attr.name] = this.extractValue(attr.value);
+                    }
+                });
+                return result;
+            }
+
+            // Handle PrimitiveValue using type guard
+            if (isPrimitiveValue(attrValue)) {
+                const primVal = attrValue as PrimitiveValue;
+                const val = primVal.value;
+
+                // If it's already a primitive, return it
+                if (typeof val === 'boolean' || typeof val === 'number') {
+                    return val;
+                }
+
+                // Convert string booleans to actual booleans
+                if (val === 'true') return true;
+                if (val === 'false') return false;
+                if (val === 'null') return null;
+
+                // Convert string numbers to actual numbers
+                if (typeof val === 'string' && /^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(val)) {
+                    return parseFloat(val);
+                }
+
+                return val;
+            }
+
+            // Fallback: Check if value property exists
             if ('value' in attrValue && (attrValue as any).value !== undefined) {
                 const val = (attrValue as any).value;
 

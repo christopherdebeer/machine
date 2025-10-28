@@ -342,7 +342,6 @@ class JSONGenerator extends BaseGenerator {
                 : undefined,
             nodes: this.serializeNodes(),
             edges: this.serializeEdges(),
-            notes: this.serializeNotes(),
             inferredDependencies: inferredDeps.map(dep => ({
                 source: dep.source,
                 target: dep.target,
@@ -358,6 +357,9 @@ class JSONGenerator extends BaseGenerator {
     }
 
     private serializeNodes(): any[] {
+        // Track note counters for each target node
+        const noteCounters = new Map<string, number>();
+        
         // Flatten and transform nodes recursively
         const flattenNode = (node: Node, parentName?: string): any[] => {
             // Skip note nodes - they're serialized separately in serializeNotes()
@@ -400,6 +402,9 @@ class JSONGenerator extends BaseGenerator {
 
         return this.machine.nodes.flatMap(node => flattenNode(node));
     }
+    
+    // Map to store note node to unique name mapping
+    private noteNameMap?: Map<Node, string>;
 
     /**
      * Recursively extract primitive value from AST nodes
@@ -591,8 +596,8 @@ class JSONGenerator extends BaseGenerator {
                     const sourceMultiplicity = segment.sourceMultiplicity?.replace(/"/g, '');
                     const targetMultiplicity = segment.targetMultiplicity?.replace(/"/g, '');
 
-                    activeSources.forEach(sourceRef => {
-                        targetRefs.forEach(targetRef => {
+                    activeSources.forEach((sourceRef: ResolvedReference) => {
+                        targetRefs.forEach((targetRef: ResolvedReference) => {
                             const baseValue = edgeValue ? { ...edgeValue } : undefined;
                             let valueWithMetadata = baseValue;
 
@@ -721,7 +726,7 @@ class JSONGenerator extends BaseGenerator {
         if (reference?.ref) {
             if (sanitizedRefText) {
                 const resolvedForNode = this.resolveReferencePath(sanitizedRefText, aliasMap);
-                if (resolvedForNode?.node === reference.ref) {
+                if (resolvedForNode && resolvedForNode.node === reference.ref) {
                     return resolvedForNode;
                 }
             }
@@ -1884,13 +1889,6 @@ export function generateDSL(machineJson: MachineJSON): string {
             lines.push(generateEdgeDSL(edge));
         });
         lines.push('');
-    }
-
-    // Generate notes
-    if (machineJson.notes && machineJson.notes.length > 0) {
-        machineJson.notes.forEach(note => {
-            lines.push(`note ${note.target} ${quoteString(note.content)};`);
-        });
     }
 
     return lines.join('\n').trim() + '\n';

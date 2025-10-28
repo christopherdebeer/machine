@@ -41,6 +41,7 @@ interface ValidationResult {
     source: string;
     passed: boolean;
     parseErrors: string[];
+    validationErrors: string[];  // NEW: Semantic/type validation errors
     transformErrors: string[];
     completenessIssues: string[];
     losslessnessIssues: string[];
@@ -232,11 +233,22 @@ class SnapshotManager {
 class ValidationReporter {
     private results: ValidationResult[] = [];
     private outputDir = path.join(process.cwd(), 'test-output', 'comprehensive-generative');
+    // Playground base URL - can be configured via environment variable
+    private playgroundUrl = (process.env.VITE_BASE_URL || '/machine/') + 'playground-mobile.html';
 
     constructor() {
         if (!fs.existsSync(this.outputDir)) {
             fs.mkdirSync(this.outputDir, { recursive: true });
         }
+    }
+
+    /**
+     * Generate a playground link with source code pre-loaded
+     */
+    private generatePlaygroundLink(source: string): string {
+        // Encode the source code to base64 for URL safety
+        const encoded = Buffer.from(source).toString('base64');
+        return `${this.playgroundUrl}#content=${encodeURIComponent(encoded)}`;
     }
 
     addResult(result: ValidationResult): void {
@@ -256,6 +268,10 @@ class ValidationReporter {
         mdContent += `**Path**: ${result.path}\n`;
         mdContent += `**Status**: ${result.passed ? '✅ PASSED' : '❌ FAILED'}\n\n`;
 
+        // Add playground link
+        const playgroundLink = this.generatePlaygroundLink(result.source);
+        mdContent += `[🎮 Open in Playground](${playgroundLink})\n\n`;
+
         mdContent += `## Source\n\`\`\`dygram\n${result.source}\n\`\`\`\n\n`;
 
         if (result.jsonOutput) {
@@ -268,6 +284,7 @@ class ValidationReporter {
 
         mdContent += `## Validation Results\n`;
         mdContent += `- Parse Errors: ${result.parseErrors.length}\n`;
+        mdContent += `- Validation Errors: ${result.validationErrors.length}\n`;
         mdContent += `- Transform Errors: ${result.transformErrors.length}\n`;
         mdContent += `- Completeness Issues: ${result.completenessIssues.length}\n`;
         mdContent += `- Losslessness Issues: ${result.losslessnessIssues.length}\n`;
@@ -277,6 +294,9 @@ class ValidationReporter {
 
         if (result.parseErrors.length > 0) {
             mdContent += `### Parse Errors\n${result.parseErrors.map(e => `- ${e}`).join('\n')}\n\n`;
+        }
+        if (result.validationErrors.length > 0) {
+            mdContent += `### Validation Errors\n${result.validationErrors.map(e => `- ${e}`).join('\n')}\n\n`;
         }
         if (result.transformErrors.length > 0) {
             mdContent += `### Transform Errors\n${result.transformErrors.map(e => `- ${e}`).join('\n')}\n\n`;
@@ -338,6 +358,7 @@ class ValidationReporter {
 
         // Group issues by type
         const allParseErrors = this.results.flatMap(r => r.parseErrors);
+        const allValidationErrors = this.results.flatMap(r => r.validationErrors);
         const allTransformErrors = this.results.flatMap(r => r.transformErrors);
         const allCompletenessIssues = this.results.flatMap(r => r.completenessIssues);
         const allLosslessnessIssues = this.results.flatMap(r => r.losslessnessIssues);
@@ -347,6 +368,7 @@ class ValidationReporter {
 
         report += `## Issue Summary\n`;
         report += `- Parse Errors: ${allParseErrors.length}\n`;
+        report += `- Validation Errors: ${allValidationErrors.length}\n`;
         report += `- Transform Errors: ${allTransformErrors.length}\n`;
         report += `- Completeness Issues: ${allCompletenessIssues.length}\n`;
         report += `- Losslessness Issues: ${allLosslessnessIssues.length}\n`;
@@ -363,6 +385,9 @@ class ValidationReporter {
                 report += `Path: ${r.path}\n\n`;
                 if (r.parseErrors.length > 0) {
                     report += `**Parse Errors:**\n${r.parseErrors.map(e => `- ${e}`).join('\n')}\n\n`;
+                }
+                if (r.validationErrors.length > 0) {
+                    report += `**Validation Errors:**\n${r.validationErrors.map(e => `- ${e}`).join('\n')}\n\n`;
                 }
                 if (r.transformErrors.length > 0) {
                     report += `**Transform Errors:**\n${r.transformErrors.map(e => `- ${e}`).join('\n')}\n\n`;
@@ -395,6 +420,7 @@ class ValidationReporter {
         const successRate = ((passed / total) * 100).toFixed(2);
 
         const allParseErrors = this.results.flatMap(r => r.parseErrors);
+        const allValidationErrors = this.results.flatMap(r => r.validationErrors);
         const allTransformErrors = this.results.flatMap(r => r.transformErrors);
         const allCompletenessIssues = this.results.flatMap(r => r.completenessIssues);
         const allLosslessnessIssues = this.results.flatMap(r => r.losslessnessIssues);
@@ -563,6 +589,10 @@ class ValidationReporter {
                     <div class="issue-count">${allParseErrors.length}</div>
                     <div class="issue-label">Parse Errors</div>
                 </div>
+                <div class="issue-card" style="border-left-color: #e91e63;">
+                    <div class="issue-count" style="color: #e91e63;">${allValidationErrors.length}</div>
+                    <div class="issue-label">Validation Errors</div>
+                </div>
                 <div class="issue-card">
                     <div class="issue-count">${allTransformErrors.length}</div>
                     <div class="issue-label">Transform Errors</div>
@@ -619,6 +649,7 @@ class ValidationReporter {
                 const statusClass = !result.passed ? 'failed' : hasSnapshotMismatch ? 'snapshot-mismatch' : 'passed';
                 const statusText = !result.passed ? 'FAILED' : hasSnapshotMismatch ? 'PASSED' : 'PASSED';
 
+                const playgroundLink = this.generatePlaygroundLink(result.source);
                 html += `
                 <div class="test-item">
                     <div class="test-header" onclick="toggleDetails('${detailsId}')">
@@ -636,6 +667,7 @@ class ValidationReporter {
 
                         <div class="tab-content active" id="${detailsId}-source">
                             <h4>Source Code</h4>
+                            <p style="margin-bottom: 0.5rem;"><a href="${playgroundLink}" target="_blank" style="color: #667eea; text-decoration: none;">🎮 Open in Playground →</a></p>
                             <div class="code-block">${this.escapeHtml(result.source)}</div>
                         </div>
 
@@ -662,6 +694,12 @@ class ValidationReporter {
                         html += `<div class="error-section">
                             <h4>Parse Errors</h4>
                             <ul class="error-list">${result.parseErrors.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
+                        </div>`;
+                    }
+                    if (result.validationErrors.length > 0) {
+                        html += `<div class="error-section">
+                            <h4>Validation Errors</h4>
+                            <ul class="error-list">${result.validationErrors.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
                         </div>`;
                     }
                     if (result.transformErrors.length > 0) {
@@ -768,6 +806,7 @@ describe('Comprehensive Generative Integration Tests', () => {
             source: example.content,
             passed: true,
             parseErrors: [],
+            validationErrors: [],
             transformErrors: [],
             completenessIssues: [],
             losslessnessIssues: [],
@@ -789,6 +828,17 @@ describe('Comprehensive Generative Integration Tests', () => {
             if (document.parseResult.lexerErrors.length > 0) {
                 result.parseErrors.push(...document.parseResult.lexerErrors.map(e => e.message));
                 result.passed = false;
+            }
+
+            // Check for validation errors (semantic/type errors)
+            if (document.diagnostics && document.diagnostics.length > 0) {
+                result.validationErrors = document.diagnostics
+                    .filter(d => d.severity === 1) // 1 = Error severity
+                    .map(d => d.message);
+
+                if (result.validationErrors.length > 0) {
+                    result.passed = false;
+                }
             }
 
             if (!isMachine(document.parseResult.value)) {

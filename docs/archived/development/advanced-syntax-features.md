@@ -19,13 +19,13 @@ Notes allow you to attach documentation and explanations directly to nodes in yo
 ### Syntax
 
 ```dygram
-note <nodeName> "Note content here"
+note <targetNodeName> "Note content here"
 ```
 
 ### Features
 
 - **Multiline Support**: Notes can contain line breaks for longer documentation
-- **Mermaid Integration**: Rendered using Mermaid's `note for` syntax
+- **Diagram Integration**: Rendered using graphiv note shape
 - **Rich Documentation**: Attach detailed explanations to any node
 
 ### Example
@@ -493,26 +493,12 @@ Planned improvements:
 - **Interactive Notes**: Click to expand/collapse notes
 - **Custom Style Themes**: User-defined color schemes
 - **Type Checking**: Validate type compatibility across edges
-- **Auto-Generated Notes**: Generate notes from code comments
 - **Note Templates**: Reusable note templates
 
 ---
 
 ## API Reference
 
-### Note Generation
-
-```typescript
-// JSON output includes notes
-{
-  "notes": [
-    {
-      "target": "nodeName",
-      "content": "Note content"
-    }
-  ]
-}
-```
 
 ### Generic Type Serialization
 

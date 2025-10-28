@@ -38,10 +38,25 @@ export class TypeRegistry {
         this.register('UUID', z.string().uuid({ message: 'Must be a valid UUID string' }));
         this.register('URL', z.string().url({ message: 'Must be a valid URL' }));
 
-        // Duration: ISO 8601 duration format (e.g., P1Y2M3DT4H5M6S)
-        this.register('Duration', z.string().regex(
-            /^P(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?$/,
-            { message: 'Must be a valid ISO 8601 duration (e.g., P1Y2M3D, PT4H5M6S)' }
+        // Duration: ISO 8601 duration format OR shorthand format
+        // ISO 8601: P1Y2M3DT4H5M6S
+        // Shorthand: 30s, 5min, 2h, 3d, 1w, etc.
+        this.register('Duration', z.string().refine(
+            (val) => {
+                // Check ISO 8601 format
+                const iso8601Pattern = /^P(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?$/;
+                if (iso8601Pattern.test(val)) {
+                    return true;
+                }
+
+                // Check shorthand format: number followed by unit
+                // Supported units: s (seconds), m/min (minutes), h/hr (hours), d (days), w (weeks), y (years)
+                const shorthandPattern = /^(\d+(?:\.\d+)?)(s|ms|m|min|h|hr|d|w|y)$/i;
+                return shorthandPattern.test(val);
+            },
+            {
+                message: 'Must be a valid ISO 8601 duration (e.g., P1Y2M3D, PT4H5M6S) or shorthand format (e.g., 30s, 5min, 2h, 3d)'
+            }
         ));
 
         // Numeric subtypes

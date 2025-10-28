@@ -56,7 +56,6 @@ export interface MachineJSON {
     annotations?: any[];
     nodes: Node[];
     edges: Edge[];
-    notes?: NoteInfo[];
     inferredDependencies?: InferredDependency[];
 }
 
