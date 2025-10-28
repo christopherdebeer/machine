@@ -372,7 +372,7 @@ class JSONGenerator extends BaseGenerator {
             }
 
             const baseNode: any = {
-                name: nodeName,
+                name: node.name,
                 type: node.type?.toLowerCase(),  // Normalize type to lowercase
                 attributes: this.serializeAttributes(node)
             };
