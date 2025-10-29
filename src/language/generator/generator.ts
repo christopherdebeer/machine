@@ -1857,9 +1857,11 @@ export function generateGraphviz(machine: Machine, filePath: string, destination
 export function generateDSL(machineJson: MachineJSON): string {
     const lines: string[] = [];
 
-    // Add machine title
-    lines.push(`machine ${quoteString(machineJson.title || "")}`);
-    lines.push('');
+    // Add machine title (only if present)
+    if (machineJson.title) {
+        lines.push(`machine ${quoteString(machineJson.title)}`);
+        lines.push('');
+    }
 
     // Track which nodes have been added to avoid duplicates
     const addedNodes = new Set<string>();
@@ -1891,6 +1893,14 @@ export function generateDSL(machineJson: MachineJSON): string {
     if (machineJson.edges && machineJson.edges.length > 0) {
         machineJson.edges.forEach(edge => {
             lines.push(generateEdgeDSL(edge));
+        });
+        lines.push('');
+    }
+
+    // Generate notes
+    if (machineJson.notes && machineJson.notes.length > 0) {
+        machineJson.notes.forEach(note => {
+            lines.push(generateNoteDSL(note));
         });
         lines.push('');
     }
@@ -2035,6 +2045,28 @@ function generateEdgeDSL(edge: Edge): string {
 
     // Target
     parts.push(edge.target);
+
+    return parts.join(' ') + ';';
+}
+
+function generateNoteDSL(note: any): string {
+    const parts: string[] = ['note', note.target];
+
+    // Add note content as title
+    if (note.content) {
+        parts.push(quoteString(note.content));
+    }
+
+    // Add annotations if present
+    if (note.annotations && note.annotations.length > 0) {
+        const annotationsStr = note.annotations.map((ann: any) => {
+            if (ann.value) {
+                return ` @${ann.name}(${quoteString(ann.value)})`;
+            }
+            return ` @${ann.name}`;
+        }).join('');
+        return parts.join(' ') + annotationsStr + ';';
+    }
 
     return parts.join(' ') + ';';
 }
