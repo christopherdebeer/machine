@@ -460,6 +460,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
 
     /**
      * Add completions for existing nodes (for edge source/target)
+     * with context-aware priority for qualified names
      */
     private addExistingNodeCompletions(context: CompletionContext, acceptor: CompletionAcceptor): void {
         const machine = this.getMachine(context.node);
@@ -468,49 +469,114 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         const allNodes = this.getAllNodes(machine);
         const seenNames = new Set<string>();
 
+        // Pass 1: Detect actual simple names and explicit qualified names
+        const actualSimpleNames = new Set<string>();
+        const explicitQualifiedNames = new Set<string>();
+
+        for (const node of allNodes) {
+            if (!node.name) continue;
+
+            const nameParts = node.name.split('.');
+            if (nameParts.length > 1) {
+                // This is an explicitly qualified name
+                explicitQualifiedNames.add(node.name);
+            } else {
+                // This is a simple name
+                actualSimpleNames.add(node.name);
+            }
+        }
+
+        // Pass 2: Generate completions with context-aware priorities
         for (const node of allNodes) {
             // Skip nodes without names
             if (!node.name) continue;
 
-            // Add simple name
-            if (!seenNames.has(node.name)) {
-                acceptor(context, {
-                    label: node.name,
-                    kind: CompletionItemKind.Reference,
-                    detail: node.type ? `${node.type} node` : 'node',
-                    documentation: node.title || `Node: ${node.name}`,
-                    sortText: '0_' + node.name
-                });
-                seenNames.add(node.name);
-            }
-
-            // Add qualified name if nested
+            const nameParts = node.name.split('.');
+            const simpleName = nameParts[nameParts.length - 1];
+            const isQualified = nameParts.length > 1;
             const qualifiedName = this.getQualifiedName(node);
-            if (qualifiedName && !seenNames.has(qualifiedName)) {
-                acceptor(context, {
-                    label: qualifiedName,
-                    kind: CompletionItemKind.Reference,
-                    detail: node.type ? `${node.type} node` : 'node',
-                    documentation: node.title || `Node: ${qualifiedName}`,
-                    sortText: '1_' + qualifiedName
-                });
-                seenNames.add(qualifiedName);
+
+            // Determine conflicts for intelligent prioritization
+            const hasQualifiedConflict = qualifiedName && explicitQualifiedNames.has(qualifiedName);
+            const hasSimpleConflict = actualSimpleNames.has(simpleName);
+
+            if (isQualified) {
+                // Explicitly qualified node (e.g., "Group.Child")
+
+                // Always add the explicit qualified name with high priority
+                if (!seenNames.has(node.name)) {
+                    acceptor(context, {
+                        label: node.name,
+                        kind: CompletionItemKind.Reference,
+                        detail: node.type ? `${node.type} node (explicit qualified)` : 'node (explicit qualified)',
+                        documentation: node.title || `Node: ${node.name}`,
+                        sortText: '0_' + node.name  // High priority for explicit names
+                    });
+                    seenNames.add(node.name);
+                }
+
+                // Add simple name shortcut only if no conflict exists
+                if (!hasSimpleConflict && !seenNames.has(simpleName)) {
+                    acceptor(context, {
+                        label: simpleName,
+                        kind: CompletionItemKind.Reference,
+                        detail: node.type ? `${node.type} node (shorthand for ${node.name})` : `node (shorthand for ${node.name})`,
+                        documentation: node.title || `Node: ${node.name}`,
+                        sortText: '1_' + simpleName  // Lower priority for shortcuts
+                    });
+                    seenNames.add(simpleName);
+                }
+            } else {
+                // Simple node name (e.g., "Child")
+
+                // Always add the simple name with high priority
+                if (!seenNames.has(node.name)) {
+                    acceptor(context, {
+                        label: node.name,
+                        kind: CompletionItemKind.Reference,
+                        detail: node.type ? `${node.type} node` : 'node',
+                        documentation: node.title || `Node: ${node.name}`,
+                        sortText: '0_' + node.name  // High priority for simple names
+                    });
+                    seenNames.add(node.name);
+                }
+
+                // Add qualified name only if no conflict exists
+                if (qualifiedName && !hasQualifiedConflict && !seenNames.has(qualifiedName)) {
+                    acceptor(context, {
+                        label: qualifiedName,
+                        kind: CompletionItemKind.Reference,
+                        detail: node.type ? `${node.type} node (qualified path)` : 'node (qualified path)',
+                        documentation: node.title || `Node: ${qualifiedName}`,
+                        sortText: '1_' + qualifiedName  // Lower priority for qualified paths
+                    });
+                    seenNames.add(qualifiedName);
+                }
             }
 
-            // Add node.attribute for attributes
+            // Add node.attribute for attributes (using all valid aliases)
             if (node.attributes && node.attributes.length > 0) {
-                for (const attr of node.attributes) {
-                    if (attr.name) {
-                        const attrRef = `${node.name}.${attr.name}`;
-                        if (!seenNames.has(attrRef)) {
-                            acceptor(context, {
-                                label: attrRef,
-                                kind: CompletionItemKind.Field,
-                                detail: 'attribute reference',
-                                documentation: `Attribute ${attr.name} of node ${node.name}`,
-                                sortText: '2_' + attrRef
-                            });
-                            seenNames.add(attrRef);
+                const nodeAliases = [node.name];
+                if (isQualified && !hasSimpleConflict) {
+                    nodeAliases.push(simpleName);
+                } else if (!isQualified && qualifiedName && !hasQualifiedConflict) {
+                    nodeAliases.push(qualifiedName);
+                }
+
+                for (const alias of nodeAliases) {
+                    for (const attr of node.attributes) {
+                        if (attr.name) {
+                            const attrRef = `${alias}.${attr.name}`;
+                            if (!seenNames.has(attrRef)) {
+                                acceptor(context, {
+                                    label: attrRef,
+                                    kind: CompletionItemKind.Field,
+                                    detail: 'attribute reference',
+                                    documentation: `Attribute ${attr.name} of node ${node.name}`,
+                                    sortText: '2_' + attrRef
+                                });
+                                seenNames.add(attrRef);
+                            }
                         }
                     }
                 }
@@ -519,16 +585,26 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
     }
 
     /**
-     * Get qualified name for a node
+     * Get qualified name for a node (parent path + node name)
      */
     private getQualifiedName(node: Node): string | undefined {
-        const parts: string[] = [node.name];
+        // Split the node's name to get the simple part
+        const nameParts = node.name.split('.');
+        const simpleName = nameParts[nameParts.length - 1];
+
+        // Get parent path
+        const parts: string[] = [];
         let current: AstNode | undefined = node.$container;
 
         while (current && isNode(current)) {
-            parts.unshift(current.name);
+            // Use simple name from parent (split on dots)
+            const parentNameParts = current.name.split('.');
+            parts.unshift(parentNameParts[parentNameParts.length - 1]);
             current = current.$container;
         }
+
+        // Add the node's simple name
+        parts.push(simpleName);
 
         return parts.length > 1 ? parts.join('.') : undefined;
     }
