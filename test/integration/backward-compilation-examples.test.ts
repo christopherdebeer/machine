@@ -21,11 +21,11 @@ beforeAll(async () => {
  */
 
 const exampleFiles = [
-    'examples/examples/basic-1.dygram',
-    'examples/examples/basic-2.dygram',
-    'examples/examples/state-machines-1.dygram',
-    'examples/examples/state-machines-2.dygram',
-    'examples/examples/workflows-1.dygram',
+    'examples/basic/hello-world.dygram',
+    'examples/basic/simple-workflow.dygram',
+    'examples/state-machines/traffic-light.dygram',
+    'examples/state-machines/connection-manager.dygram',
+    'examples/workflows/conditional-workflow.dygram',
 ];
 
 describe('Backward Compilation with Example Files', () => {

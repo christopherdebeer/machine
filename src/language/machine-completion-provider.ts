@@ -1,8 +1,8 @@
-import { DefaultCompletionProvider, CompletionAcceptor, CompletionContext, MaybePromise, NextFeature } from 'langium/lsp';
-import type { AstNode } from 'langium';
+import { DefaultCompletionProvider, CompletionAcceptor, CompletionContext, NextFeature } from 'langium/lsp';
+import type { AstNode, CstNode } from 'langium';
 import { AstUtils } from 'langium';
 import type { MachineServices } from './machine-module.js';
-import { isNode, isAttribute, isAnnotation, isEdgeSegment, isEdge, isMachine, type Node, type Machine } from './generated/ast.js';
+import { isNode, isAnnotation, isEdgeSegment, isEdge, isMachine, type Node, type Machine } from './generated/ast.js';
 import { CompletionItemKind } from 'vscode-languageserver-protocol';
 import { parseTemplateString, isInsidePlaceholder, getExpressionBeforeCursor, type TemplateStructure } from './template-parser.js';
 
@@ -30,8 +30,6 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         }
 
         // Create a context object for our custom checks
-        const offset = document.textDocument.offsetAt(params.position);
-        const textDocument = document.textDocument;
         const contexts = this.buildContexts(document, params.position);
 
         for (const context of contexts) {
@@ -76,72 +74,87 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
 
     protected override completionFor(
         context: CompletionContext,
-        next: NextFeature<AstNode>,
+        next: NextFeature,
         acceptor: CompletionAcceptor
-    ): MaybePromise<void> {
+    ): void {
+        console.log('=== MachineCompletionProvider.completionFor called ===');
+        console.log('Context node type:', context.node?.$type);
+        console.log('Context position:', context.position);
+        console.log('Next feature:', next);
+        
         // First, call the default completion logic to get grammar-based completions
-        const result = super.completionFor(context, next, acceptor);
+        super.completionFor(context, next, acceptor);
 
         // Then add custom completions based on context
         const astNode = context.node;
 
         // Node type completions - when at machine level or completing node type
         if (this.isNodeTypeContext(context, next)) {
+            console.log('Adding node type completions');
             this.addBuiltInNodeTypes(context, acceptor);
         }
 
         // Attribute name completions - when inside a node body
         if (isNode(astNode)) {
+            console.log('Adding node-specific attributes');
             this.addNodeSpecificAttributes(context, astNode, acceptor);
         }
 
         // Add Graphviz style attributes when inside @style annotation
         if (this.isInStyleAnnotation(context)) {
+            console.log('Adding Graphviz style attributes');
             this.addGraphvizStyleAttributes(context, acceptor);
         }
 
         // Add annotation completions when @ is typed
         if (this.isAnnotationContext(context, next)) {
+            console.log('Adding annotation completions');
             this.addAnnotationCompletions(context, acceptor);
         }
 
         // Add edge label completions when inside edge segments
         if (this.isInEdgeContext(context)) {
+            console.log('Adding edge label completions');
             this.addEdgeLabelCompletions(context, acceptor);
         }
 
         // Add type completions for attributes
         if (this.isInTypeContext(context)) {
+            console.log('Adding type completions');
             this.addTypeCompletions(context, acceptor);
         }
 
         // Add node reference completions for edges
         if (this.isEdgeReferenceContext(context, next)) {
+            console.log('Adding node reference completions');
             this.addExistingNodeCompletions(context, acceptor);
         }
 
         // Add template variable completions when inside template strings
         if (this.isInTemplateString(context)) {
+            console.log('Adding template variable completions');
             this.addTemplateVariableCompletions(context, acceptor);
         }
 
         // Add arrow type completions when between nodes
         if (this.isArrowContext(context)) {
+            console.log('Adding arrow type completions');
             this.addArrowTypeCompletions(context, acceptor);
         }
 
         // Add qualified attribute completions (node.attribute syntax outside templates)
         if (this.isQualifiedAttributeContext(context)) {
+            console.log('Adding qualified attribute completions');
             this.addQualifiedAttributeCompletions(context, acceptor);
         }
-
-        return result;
+        
+        console.log('=== MachineCompletionProvider.completionFor finished ===');
     }
 
     /**
      * Check if we're in a context where node types should be suggested
      */
-    private isNodeTypeContext(context: CompletionContext, next: NextFeature<AstNode>): boolean {
+    private isNodeTypeContext(context: CompletionContext, next: NextFeature): boolean {
         // At machine level - suggest node types
         if (isMachine(context.node)) {
             return true;
@@ -167,7 +180,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
     /**
      * Check if we're in a context where annotations should be suggested
      */
-    private isAnnotationContext(context: CompletionContext, next: NextFeature<AstNode>): boolean {
+    private isAnnotationContext(context: CompletionContext, next: NextFeature): boolean {
         // Check if we're at the start of an annotation
         const text = context.textDocument.getText({
             start: { line: context.position.line, character: Math.max(0, context.position.character - 1) },
@@ -573,10 +586,11 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
             }
 
             // Descend to children (if any)
-            if (!current.children || current.children.length === 0) {
+            const children = this.getCstNodeChildren(current);
+            if (!children || children.length === 0) {
                 break;
             }
-            const child = current.children.find(c =>
+            const child = children.find(c =>
                 c.offset <= context.offset && c.end >= context.offset
             );
             if (!child) break;
@@ -653,8 +667,11 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
      * Core logic for template variable completions
      */
     private addTemplateVariableCompletionsFromMachine(context: any, machine: Machine, acceptor: any): void {
+        console.log('addTemplateVariableCompletionsFromMachine called');
+        console.log('Machine:', machine);
 
         const allNodes = this.getAllNodes(machine);
+        console.log('All nodes found:', allNodes.length);
 
         // Try to get structured template information
         const templateInfo = this.getTemplateAtCursor(context);
@@ -678,9 +695,12 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
             }
         }
 
+        console.log('Expression before cursor:', expressionBeforeCursor);
+
         // Check if we're completing a qualified reference (e.g., "userData.")
         const qualifiedMatch = expressionBeforeCursor.match(/([a-zA-Z_][a-zA-Z0-9_]*)\.$/);
         if (qualifiedMatch) {
+            console.log('Qualified match found:', qualifiedMatch[1]);
             // We're after a dot, suggest attributes of that specific node
             const nodeName = qualifiedMatch[1];
             const targetNode = allNodes.find(n => n.name === nodeName);
@@ -688,6 +708,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
             if (targetNode && targetNode.attributes) {
                 for (const attr of targetNode.attributes) {
                     if (attr.name) {
+                        console.log(`Adding qualified attribute: ${attr.name}`);
                         acceptor(context, {
                             label: attr.name,
                             kind: CompletionItemKind.Field,
@@ -706,6 +727,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
             // Skip nodes without names
             if (!node.name) continue;
 
+            console.log(`Adding node completion: ${node.name}`);
             acceptor(context, {
                 label: node.name,
                 kind: CompletionItemKind.Variable,
@@ -718,6 +740,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
             if (node.attributes && node.attributes.length > 0) {
                 for (const attr of node.attributes) {
                     if (attr.name) {
+                        console.log(`Adding node.attribute completion: ${node.name}.${attr.name}`);
                         acceptor(context, {
                             label: `${node.name}.${attr.name}`,
                             kind: CompletionItemKind.Field,
@@ -738,6 +761,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         ];
 
         for (const builtIn of builtInVars) {
+            console.log(`Adding built-in variable: ${builtIn.name}`);
             acceptor(context, {
                 label: builtIn.name,
                 kind: CompletionItemKind.Constant,
@@ -813,7 +837,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
     /**
      * Check if we're in an edge reference context
      */
-    private isEdgeReferenceContext(context: CompletionContext, next: NextFeature<AstNode>): boolean {
+    private isEdgeReferenceContext(context: CompletionContext, next: NextFeature): boolean {
         // When inside edge or edge segment
         if (isEdge(context.node) || isEdgeSegment(context.node)) {
             return true;
@@ -969,5 +993,25 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
                 sortText: '0_' + arrow.name
             });
         }
+    }
+
+    /**
+     * Helper method to safely access CstNode children
+     */
+    private getCstNodeChildren(node: CstNode): CstNode[] {
+        // In newer versions of Langium, CstNode might not have a direct children property
+        // Try different approaches to get children
+        if ('children' in node && Array.isArray(node.children)) {
+            return node.children as CstNode[];
+        }
+        
+        // Alternative: check if it's a composite node with content
+        if ('content' in node && Array.isArray(node.content)) {
+            return (node.content as any[]).filter((item): item is CstNode => 
+                item && typeof item === 'object' && 'offset' in item && 'end' in item
+            );
+        }
+        
+        return [];
     }
 }
