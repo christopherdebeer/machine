@@ -117,7 +117,7 @@ temperature<Float>: 98.6;
 
 Generic types support parameterized validation.
 
-### Array<T>
+### Array\<T\>
 
 Arrays with validated element types:
 
@@ -137,9 +137,9 @@ task myTask {
 }
 ```
 
-**Alias:** `List<T>` is equivalent to `Array<T>`.
+**Alias:** `List<T>` is equivalent to `Array<T>` (use backticks in code).
 
-### Map<K, V>
+### Map\<K, V\>
 
 Maps with typed keys and values:
 
@@ -150,7 +150,7 @@ headers<Map<string, string>>: #httpHeaders;
 
 Note: Map values are typically external references (`#ref`), as DyGram doesn't have object literal syntax.
 
-### Promise<T>
+### Promise\<T\>
 
 Promise type (structural only, not validated at runtime):
 
@@ -158,7 +158,7 @@ Promise type (structural only, not validated at runtime):
 result<Promise<Data>>: #asyncResult;
 ```
 
-### Result<T, E>
+### Result\<T, E\>
 
 Result type for success/error patterns (structural only):
 
