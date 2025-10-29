@@ -1,49 +1,29 @@
 {
   "json": {
-    "attributes": [],
+    "attributes": [
+      {
+        "name": "count",
+        "value": 42
+      },
+      {
+        "name": "price",
+        "value": 19.99
+      },
+      {
+        "name": "scientific",
+        "value": 15000000000
+      }
+    ],
     "nodes": [
       {
-        "name": "workflow",
-        "type": "process",
+        "name": "temperature",
         "attributes": []
-      },
-      {
-        "name": "start",
-        "type": "task",
-        "attributes": [],
-        "parent": "workflow",
-        "title": "Initialize"
-      },
-      {
-        "name": "validate",
-        "type": "task",
-        "attributes": [],
-        "parent": "workflow",
-        "title": "Validate input"
-      },
-      {
-        "name": "process",
-        "type": "task",
-        "attributes": [],
-        "parent": "workflow",
-        "title": "Process data"
       }
     ],
-    "edges": [
-      {
-        "source": "start",
-        "target": "validate",
-        "arrowType": "->"
-      },
-      {
-        "source": "validate",
-        "target": "process",
-        "arrowType": "->"
-      }
-    ],
+    "edges": [],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_workflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>workflow</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"workflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Initialize</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate input</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n\n  // Edges\n  \"start\" -> \"validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validate\" -> \"process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "10da4d785032c55f6d9927c2b5d9300dfa56819ff4ed8f9d84c01a2f5925e0a7"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count</td><td port=\"count__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"price__key\" align=\"left\" balign=\"left\">price</td><td port=\"price__value\" align=\"left\" balign=\"left\">19.99</td></tr><tr><td port=\"scientific__key\" align=\"left\" balign=\"left\">scientific</td><td port=\"scientific__value\" align=\"left\" balign=\"left\">15000000000</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"temperature\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>temperature</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
+  "svgHash": "cf9dac4bd547b2e34f92c91fe18cc3f679c93f86eb01152e037b43f5a89c133d"
 }

@@ -1,0 +1,3 @@
+// do not edit, automatically extracted from docs/syntax/README.md lines 199-202.
+config: #globalConfig;
+handler: #processHandler;
