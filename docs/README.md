@@ -114,7 +114,7 @@ State SourceCode "User's .dygram file" @Entry;
 
 Task Parse "Parse via Langium" @Critical {
     input<string>: "{{ SourceCode }}";
-    output<AST>: "Abstract Syntax Tree";
+    output<Object>: {"Abstract": ["Syntax", "Tree"]};
 }
 
 Task Validate "Validate graph structure" {
