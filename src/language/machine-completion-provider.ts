@@ -4,6 +4,7 @@ import { AstUtils } from 'langium';
 import type { MachineServices } from './machine-module.js';
 import { isNode, isAttribute, isAnnotation, isEdgeSegment, isEdge, isMachine, type Node, type Machine } from './generated/ast.js';
 import { CompletionItemKind } from 'vscode-languageserver-protocol';
+import { parseTemplateString, isInsidePlaceholder, getExpressionBeforeCursor, type TemplateStructure } from './template-parser.js';
 
 /**
  * Custom completion provider for the Machine language
@@ -546,9 +547,64 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
     }
 
     /**
+     * Get the template structure at the cursor position, if inside a template string
+     * Returns template structure and offset within the string, or null if not in a template string
+     */
+    private getTemplateAtCursor(context: CompletionContext): { structure: TemplateStructure; offsetInString: number } | null {
+        // Find the string literal node containing the cursor
+        const cst = context.document.parseResult.value.$cstNode;
+        if (!cst) return null;
+
+        // Find the leaf node at cursor offset
+        let current = cst;
+        while (current && current.offset <= context.offset && current.end >= context.offset) {
+            // Check if this is a string literal terminal
+            if (current.grammarSource && 'terminal' in current.grammarSource) {
+                const terminal = (current.grammarSource as any).terminal;
+                if (terminal?.name === 'TEMPLATE_STR' || terminal?.name === 'STR') {
+                    const stringText = current.text;
+                    const structure = parseTemplateString(stringText);
+
+                    // Calculate offset within the string (excluding opening quote)
+                    const offsetInString = context.offset - current.offset - 1;
+
+                    return { structure, offsetInString };
+                }
+            }
+
+            // Descend to children (if any)
+            if (!current.children || current.children.length === 0) {
+                break;
+            }
+            const child = current.children.find(c =>
+                c.offset <= context.offset && c.end >= context.offset
+            );
+            if (!child) break;
+            current = child;
+        }
+
+        return null;
+    }
+
+    /**
      * Check if we're inside a template string ({{ ... }})
+     * Now uses structured template parsing for accurate detection
      */
     private isInTemplateString(context: CompletionContext): boolean {
+        const templateInfo = this.getTemplateAtCursor(context);
+        if (!templateInfo) {
+            // Fallback to text-based detection
+            return this.isInTemplateStringFallback(context);
+        }
+
+        const { structure, offsetInString } = templateInfo;
+        return structure.isTemplate && isInsidePlaceholder(structure, offsetInString);
+    }
+
+    /**
+     * Fallback text-based detection for template strings
+     */
+    private isInTemplateStringFallback(context: CompletionContext): boolean {
         // Get text from beginning of document to cursor
         const textBefore = context.textDocument.getText({
             start: { line: 0, character: 0 },
@@ -600,14 +656,30 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
 
         const allNodes = this.getAllNodes(machine);
 
-        // Get text before cursor to check if we're completing after a dot
-        const textBefore = context.textDocument.getText({
-            start: { line: 0, character: 0 },
-            end: context.position
-        });
+        // Try to get structured template information
+        const templateInfo = this.getTemplateAtCursor(context);
+        let expressionBeforeCursor = '';
+
+        if (templateInfo) {
+            // Use structured parsing to get the expression text
+            const { structure, offsetInString } = templateInfo;
+            expressionBeforeCursor = getExpressionBeforeCursor(structure, offsetInString);
+        } else {
+            // Fallback: Get text before cursor to check if we're completing after a dot
+            const textBefore = context.textDocument.getText({
+                start: { line: 0, character: 0 },
+                end: context.position
+            });
+
+            // Extract the expression inside {{ }}
+            const templateMatch = textBefore.match(/\{\{([^}]*)$/);
+            if (templateMatch) {
+                expressionBeforeCursor = templateMatch[1].trim();
+            }
+        }
 
         // Check if we're completing a qualified reference (e.g., "userData.")
-        const qualifiedMatch = textBefore.match(/\{\{[^}]*?([a-zA-Z_][a-zA-Z0-9_]*)\.$/);
+        const qualifiedMatch = expressionBeforeCursor.match(/([a-zA-Z_][a-zA-Z0-9_]*)\.$/);
         if (qualifiedMatch) {
             // We're after a dot, suggest attributes of that specific node
             const nodeName = qualifiedMatch[1];
@@ -617,7 +689,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
                 for (const attr of targetNode.attributes) {
                     if (attr.name) {
                         acceptor(context, {
-                            label: `${nodeName}.${attr.name}`,
+                            label: attr.name,
                             kind: CompletionItemKind.Field,
                             detail: 'attribute',
                             documentation: `Attribute ${attr.name} of node ${nodeName}`,

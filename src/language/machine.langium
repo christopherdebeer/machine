@@ -19,8 +19,13 @@ terminal ARROW_LABEL_START_SINGLE: '-';
 
 // Basic terminals
 terminal ID: /[A-Za-z_][A-Za-z0-9_]*/;              // identifiers for node and attribute names (must start with letter or underscore)
-terminal STR: /"([^"\\]|\\.)*"/;        // double-quoted strings for titles and default values
+
+// Template-aware string terminals
+// TEMPLATE_STR is more specific (contains {{) so it must come BEFORE STR
+terminal TEMPLATE_STR: /"([^"\\]|\\.)*\{\{([^"\\]|\\.)*"/;  // strings containing {{ markers for template detection
+terminal STR: /"([^"\\]|\\.)*"/;        // regular double-quoted strings
 terminal MLSTR: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;  // multiline strings
+
 terminal NUMBER returns number: /[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?/;
 terminal QUESTION: '\?';
 
@@ -46,7 +51,7 @@ terminal EXTID: /#([A-Za-z0-9_][A-Za-z0-9_]*)/;
 //     left?=(LEFT_ARROW | LOLIPOP) SHAFT+ right?=(RIGHT_ARROW | LOLIPOP)
 // ;
 
-STRING returns string: STR | MLSTR;
+STRING returns string: TEMPLATE_STR | STR | MLSTR;
 
 // Qualified name for node references (e.g., parent.child)
 QualifiedName returns string:
@@ -63,6 +68,10 @@ entry Machine:
 // Recursive AttributeValue supporting primitives, arrays, and nested objects
 // Using explicit properties (primitiveValue, arrayValue, objectValue) to enable
 // proper type inference and avoid union type ambiguities
+//
+// Template strings are recognized at the terminal level (TEMPLATE_STR) which matches
+// strings containing {{ markers. This allows template-aware completion without
+// full structural parsing in the grammar.
 AttributeValue:
     ObjectValue | ArrayValue | PrimitiveValue
 ;
@@ -77,7 +86,8 @@ ArrayValue:
     '[' (values+=AttributeValue (',' values+=AttributeValue)*)? ']'
 ;
 
-// Primitive value: string, number, ID, or external ID
+// Primitive value: string (including template strings), number, ID, or external ID
+// Template strings are detected via the TEMPLATE_STR terminal
 PrimitiveValue:
     value=(EXTID|STRING|ID|NUMBER)
 ;
