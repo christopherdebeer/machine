@@ -40,6 +40,7 @@
         "test:runtime": "npm run prebuild && vitest run test/integration/runtime-visualization.test.ts",
         "test:env": "npm run prebuild && vitest run test/scripts/test-with-env.ts",
         "test:e2e": "npm run prebuild && playwright test",
+        "test:e2e:ci": "npm run prebuild && npx playwright install --with-deps chromium && playwright test",
         "test:e2e:ui": "npm run prebuild && playwright test --ui",
         "test:e2e:headed": "npm run prebuild && playwright test --headed",
         "test:all": "npm run prebuild && vitest run --coverage && vitest run test/integration/runtime-visualization.test.ts && playwright test",
