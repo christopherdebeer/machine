@@ -158,8 +158,10 @@ describe('Qualified Names', () => {
         }
 
         const machine = document.parseResult.value;
-        expect(machine.notes).toHaveLength(1);
-        expect(machine.notes[0].target.ref?.name).toBe('Node1');
+        // Notes are nodes with type='note' and qualified names are supported for node names
+        const noteNodes = machine.nodes.filter(n => n.type?.toLowerCase() === 'note');
+        expect(noteNodes).toHaveLength(1);
+        expect(noteNodes[0].name).toBe('Group.Node1');
     });
 });
 
