@@ -13,7 +13,7 @@ Task process {
     timeout<number>: 30;
     retries<number>: 3;
     priority: "high";
-    enabled<bool>: true;
+    enabled<boolean>: true;
 };
 ```
 
@@ -182,7 +182,7 @@ Process apiGateway {
 
     Process routing {
         strategy: "round-robin";
-        healthCheck<bool>: true;
+        healthCheck<boolean>: true;
 
         Task routeRequest {
             backends: ["backend1", "backend2", "backend3"];
@@ -255,7 +255,7 @@ Context config {
     };
 
     cache: {
-        enabled<bool>: true;
+        enabled<boolean>: true;
         ttl<number>: 300;
         provider: "redis";
         nodes: ["cache1", "cache2"];
@@ -280,7 +280,7 @@ Task processor {
     inputs<Array<string>>: ["input1", "input2", "input3"];
     stages<Array<string>>: ["validate", "transform", "load"];
     priorities<Array<number>>: [1, 2, 3, 5, 8];
-    flags<Array<bool>>: [true, false, true];
+    flags<Array<boolean>>: [true, false, true];
     schemas<Array<ref>>: [#schema1, #schema2, #schema3];
 };
 ```
@@ -353,7 +353,7 @@ Context llmTaskConfig {
 Context criticalTaskConfig {
     base: #baseTaskConfig;  // Reference to base
     priority<number>: 10;
-    alerting<bool>: true;
+    alerting<boolean>: true;
 };
 
 // Tasks using configurations
@@ -423,7 +423,7 @@ machine "Validation Attributes"
 Input userInput {
     schema: #inputSchema;
     validation: "strict";
-    sanitize<bool>: true;
+    sanitize<boolean>: true;
     required<Array<string>>: ["email", "name"];
     optional<Array<string>>: ["phone", "address"];
     constraints: {
@@ -435,7 +435,7 @@ Input userInput {
 
 Task validate {
     schema: #inputSchema;
-    strict<bool>: true;
+    strict<boolean>: true;
     errorMode: "collect";  // or "fail-fast"
 };
 ```
@@ -464,7 +464,7 @@ Task complexTask {
     usage: "Called when input meets criteria X";
     examples: ["example1", "example2"];
     version: "2.1.0";
-    deprecated<bool>: false;
+    deprecated<boolean>: false;
     seeAlso: ["relatedTask1", "relatedTask2"];
     tags<Array<string>>: ["critical", "async", "monitored"];
 };

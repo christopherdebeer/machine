@@ -38,7 +38,7 @@
           },
           {
             "name": "flags",
-            "type": "Array<bool>",
+            "type": "Array<boolean>",
             "value": [
               true,
               false,
