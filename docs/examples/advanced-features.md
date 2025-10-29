@@ -292,7 +292,7 @@ Process ingestion {
 
     Task validate "Validate Data" @Critical {
         schema: #validationSchema;
-        strict<bool>: true;
+        strict<boolean>: true;
     };
 
     Task transform "Transform Data" {

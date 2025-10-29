@@ -29,7 +29,7 @@ Task authenticate {
 
 Task validateRequest {
     schema: #requestSchema;
-    strict<bool>: true;
+    strict<boolean>: true;
 };
 
 State authenticated "Authenticated";
@@ -116,7 +116,7 @@ Task createShipment {
 };
 
 Output result {
-    success<bool>: false;
+    success<boolean>: false;
     orderId: "";
 };
 
@@ -193,7 +193,7 @@ Process transformation {
 
     Task validateData "Validate" {
         schema: #targetSchema;
-        strict<bool>: true;
+        strict<boolean>: true;
     };
 
     cleanData -> normalizeData -> enrichData -> validateData;
@@ -276,7 +276,7 @@ State someFailed "Some Tests Failed";
 // Reporting
 Task generateReport "Generate test report" {
     format: "html";
-    includeScreenshots<bool>: true;
+    includeScreenshots<boolean>: true;
 };
 
 Task notifyTeam "Notify team" {
@@ -369,7 +369,7 @@ Process deploy {
 };
 
 Output result {
-    success<bool>: false;
+    success<boolean>: false;
     version: "";
     deployedAt: "";
 };

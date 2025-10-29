@@ -15,8 +15,16 @@ import { glob } from 'glob';
 // Use __dirname compatible approach
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+
+// Handle both bundled and unbundled cases
+let __dirname: string;
+try {
+    const __filename = fileURLToPath(import.meta.url);
+    __dirname = dirname(__filename);
+} catch {
+    // Fallback for bundled CommonJS - assume we're in out/cli and go up to project root
+    __dirname = path.resolve(process.cwd(), 'out', 'cli');
+}
 
 type GenerateFormat = 'json' | 'html' | 'dsl' | 'graphviz' | 'dot';
 
