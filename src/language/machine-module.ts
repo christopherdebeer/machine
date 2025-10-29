@@ -5,6 +5,7 @@ import { MachineValidator, MachineValidationRegistry } from './machine-validator
 import { MachineScopeProvider } from './machine-scope.js';
 import { MachineSemanticTokenProvider } from './machine-semantic-token-provider.js';
 import { MachineLinker } from './machine-linker.js';
+import { MachineCompletionProvider } from './machine-completion-provider.js';
 import { Node } from './generated/ast.js';
 
 /**
@@ -77,7 +78,8 @@ export const MachineModule: Module<MachineServices, PartialLangiumServices & Mac
         MachineValidator: () => new MachineValidator()
     },
     lsp: {
-        SemanticTokenProvider: (services) => new MachineSemanticTokenProvider(services)
+        SemanticTokenProvider: (services) => new MachineSemanticTokenProvider(services),
+        CompletionProvider: (services) => new MachineCompletionProvider(services)
     },
     references: {
         ScopeProvider: (services) => new MachineScopeProvider(services),

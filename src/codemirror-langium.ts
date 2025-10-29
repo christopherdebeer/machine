@@ -11,7 +11,7 @@ import { createMachineServices } from './language/machine-module.js';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import { Machine } from './language/generated/ast.js';
-import type { CompletionList, CompletionItemKind } from 'vscode-languageserver-protocol';
+import type { CompletionItemKind } from 'vscode-languageserver-protocol';
 
 // Initialize Langium services for parsing
 const services = createMachineServices(EmptyFileSystem);
