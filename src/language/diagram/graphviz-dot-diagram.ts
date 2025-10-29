@@ -1683,6 +1683,23 @@ function shouldShowEdgeAnnotation(edge: any): boolean {
 }
 
 /**
+ * Format edge label as HTML table with left alignment
+ * This wraps the edge label text in an HTML table to enforce left alignment
+ * and uses <br/> for line breaks instead of \n
+ */
+function formatEdgeLabelAsHtml(labelText: string): string {
+    if (!labelText || labelText.trim().length === 0) {
+        return '';
+    }
+
+    // Replace \n with <br/> for HTML rendering
+    const htmlText = labelText.split('\n').map(line => escapeHtml(line)).join('<br/>');
+
+    // Wrap in a single-cell table with left alignment
+    return `<table border="0" cellborder="0" cellspacing="0" cellpadding="2" align="left"><tr><td align="left" balign="left">${htmlText}</td></tr></table>`;
+}
+
+/**
  * Generate edges section with support for compound edges between clusters
  */
 function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappingConfig?: TextWrappingConfig): string {
@@ -1758,7 +1775,9 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         const edgeAttrs: string[] = [];
 
         if (label) {
-            edgeAttrs.push(`label="${escapeDot(label)}"`);
+            // Format label as HTML table with left alignment
+            const htmlLabel = formatEdgeLabelAsHtml(label);
+            edgeAttrs.push(`label=<${htmlLabel}>`);
         }
 
         // Add multiplicity using taillabel and headlabel (proper UML style) with wrapping
