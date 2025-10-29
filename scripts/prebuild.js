@@ -17,6 +17,7 @@
 import { readdir, readFile, writeFile, stat, mkdir, rm } from 'fs/promises';
 import { join, dirname, basename, relative } from 'path';
 import { fileURLToPath } from 'url';
+import { extractExamples } from './extract-examples.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -69,158 +70,9 @@ function logSubsection(title) {
 // STEP 1: Extract Examples from Markdown Documentation
 // ============================================================================
 
-async function extractExamples(projectRoot) {
-    logSection('STEP 1: Extract Examples from Documentation');
-
-    const docsDir = join(projectRoot, 'docs');
-    const examplesDir = join(projectRoot, 'examples');
-
-    log(`Scanning docs directory: ${relative(projectRoot, docsDir)}`);
-
-    // Recursively scan for markdown files
-    async function scanMarkdownFiles(dir) {
-        const files = [];
-        const entries = await readdir(dir, { withFileTypes: true });
-
-        for (const entry of entries) {
-            const fullPath = join(dir, entry.name);
-            if (entry.isDirectory()) {
-                if (entry.name !== 'node_modules' && entry.name !== '.git' && entry.name !== 'archived') {
-                    files.push(...await scanMarkdownFiles(fullPath));
-                }
-            } else if (entry.name.endsWith('.md') || entry.name.endsWith('.mdx')) {
-                files.push(fullPath);
-            }
-        }
-        return files;
-    }
-
-    const markdownFiles = await scanMarkdownFiles(docsDir);
-    log(`Found ${markdownFiles.length} markdown files`, 'info');
-
-    // Extract examples from markdown
-    function extractFromMarkdown(content, sourceFile) {
-        const lines = content.split('\n');
-        const examples = [];
-        const unnamedBlocks = [];
-        let inCodeblock = false;
-        let codeblockPath = null;
-        let codeblockContent = [];
-        let lineNumber = 0;
-        let unnamedBlockIndex = 0;
-
-        for (const line of lines) {
-            lineNumber++;
-            if (line.startsWith('```')) {
-                if (!inCodeblock) {
-                    const matchWithPath = line.match(/^```(dygram|mach|machine)\s+(.+\.(dygram|mach))$/);
-                    const matchWithoutPath = line.match(/^```(dygram|mach|machine)\s*(.*)$/);
-
-                    // Check for !no-extract marker
-                    const hasNoExtractMarker = matchWithoutPath && matchWithoutPath[2].includes('!no-extract');
-
-                    if (matchWithPath) {
-                        inCodeblock = true;
-                        codeblockPath = matchWithPath[2].trim();
-                        codeblockContent = [];
-                    } else if (matchWithoutPath && !hasNoExtractMarker) {
-                        inCodeblock = true;
-                        // Generate filename from source file path
-                        const sourceParts = sourceFile.replace(/^docs\//, '').replace(/\.(md|mdx)$/, '').split('/');
-                        const category = sourceParts.length > 1 ? sourceParts[0] : 'uncategorised';
-                        const baseName = sourceParts[sourceParts.length - 1].toLowerCase().replace(/readme$/i, 'example');
-                        unnamedBlockIndex++;
-                        const filename = `${baseName}-${unnamedBlockIndex}.dygram`;
-                        codeblockPath = `examples/${category}/${filename}`;
-                        codeblockContent = [];
-                        unnamedBlocks.push({
-                            sourceFile,
-                            sourceLine: lineNumber,
-                            generatedPath: codeblockPath
-                        });
-                    } else if (hasNoExtractMarker) {
-                        // Mark as in codeblock but don't extract
-                        inCodeblock = true;
-                        codeblockPath = null;
-                        codeblockContent = [];
-                    }
-                } else {
-                    if (codeblockPath) {
-                        examples.push({
-                            path: codeblockPath,
-                            content: codeblockContent.join('\n'),
-                            sourceFile: sourceFile,
-                            sourceLine: lineNumber - codeblockContent.length - 1,
-                            isUnnamed: unnamedBlocks.some(b => b.generatedPath === codeblockPath)
-                        });
-                    }
-                    inCodeblock = false;
-                    codeblockPath = null;
-                    codeblockContent = [];
-                }
-            } else if (inCodeblock && codeblockPath) {
-                codeblockContent.push(line);
-            }
-        }
-        return { examples, unnamedBlocks };
-    }
-
-    // Process all markdown files
-    const allExamples = [];
-    const allUnnamedBlocks = [];
-    for (const mdFile of markdownFiles) {
-        const content = await readFile(mdFile, 'utf-8');
-        const { examples, unnamedBlocks } = extractFromMarkdown(content, relative(projectRoot, mdFile));
-        allExamples.push(...examples);
-        allUnnamedBlocks.push(...unnamedBlocks);
-    }
-
-    log(`Extracted ${allExamples.length} examples from documentation`, 'success');
-
-    // Report unnamed blocks
-    if (allUnnamedBlocks.length > 0) {
-        log(`Found ${allUnnamedBlocks.length} unnamed code block(s)`, 'warn');
-        logSubsection('Unnamed code blocks (consider adding explicit filenames)');
-        for (const block of allUnnamedBlocks) {
-            log(`  ${block.sourceFile}:${block.sourceLine} → auto-generated as ${block.generatedPath}`, 'warn');
-        }
-        log(`\nTo fix: Add filename after language identifier, e.g.:`, 'info');
-        log(`  \`\`\`dygram examples/category/filename.dygram`, 'info');
-        console.log(''); // Empty line for readability
-    }
-
-    // Write examples to disk
-    logSubsection('Writing example files');
-    let writeCount = 0;
-    const byDirectory = {};
-
-    for (const example of allExamples) {
-        const fullPath = join(projectRoot, example.path);
-        const dir = dirname(fullPath);
-        await mkdir(dir, { recursive: true });
-
-        // Calculate end line number
-        const contentLines = example.content.split('\n').length;
-        const endLine = example.sourceLine + contentLines + 1;
-
-        // Add provenance comment
-        const provenanceComment = `// do not edit, automatically extracted from ${example.sourceFile} lines ${example.sourceLine}-${endLine}.\n`;
-        const contentWithProvenance = provenanceComment + example.content;
-
-        await writeFile(fullPath, contentWithProvenance, 'utf-8');
-
-        const dirName = relative(examplesDir, dir);
-        byDirectory[dirName] = (byDirectory[dirName] || 0) + 1;
-        writeCount++;
-    }
-
-    for (const [dir, count] of Object.entries(byDirectory)) {
-        log(`  ${dir}: ${count} file(s)`);
-    }
-
-    log(`Successfully wrote ${writeCount} example files`, 'success');
-
-    return { count: writeCount, examples: allExamples };
+async function extractExamplesStep(projectRoot) {
+    // Use the new dedicated extraction script
+    return await extractExamples(projectRoot);
 }
 
 // ============================================================================
@@ -884,7 +736,7 @@ async function main() {
 
     try {
         // Step 1: Extract examples
-        const examples = await extractExamples(projectRoot);
+        const examples = await extractExamplesStep(projectRoot);
 
         // Step 2: Generate examples list
         const examplesList = await generateExamplesList(projectRoot);
