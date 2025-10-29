@@ -8,19 +8,19 @@ Complete reference for the DyGram language syntax.
 
 Every DyGram file can optionally start with a machine declaration:
 
-```dygram !no-extract
+```dygram examples/syntax/machine-title.dygram
 machine "My Machine"
 ```
 
 With annotations:
 
-```dygram !no-extract
+```dygram examples/syntax/machine-annotation.dygram
 machine "Production System" @Critical @Version("2.0")
 ```
 
 With machine-level attributes:
 
-```dygram !no-extract
+```dygram examples/syntax/machine-attributes.dygram
 machine "API Service" {
     version: "1.0.0";
     environment: "production";
@@ -33,13 +33,13 @@ Nodes are the fundamental building blocks of a machine.
 
 ### Basic Syntax
 
-```dygram !no-extract
+```dygram examples/syntax/machine-basic.dygram
 nodeName;
 ```
 
 ### With Optional Type
 
-```dygram !no-extract
+```dygram examples/syntax/node-types.dygram
 Task process;
 State ready;
 Input data;
@@ -50,13 +50,13 @@ Common node types: `Task`, `State`, `Input`, `Output`, `Context`, `Resource`, `C
 
 ### With Title
 
-```dygram !no-extract
+```dygram examples/syntax/node-title.dygram
 Task process "Process the data";
 ```
 
 ### With Attributes
 
-```dygram !no-extract
+```dygram examples/syntax/node-attributes.dygram
 Task analyze {
     model: "claude-3-5-sonnet-20241022";
     temperature: 0.7;
@@ -66,14 +66,14 @@ Task analyze {
 
 ### With Annotations
 
-```dygram !no-extract
+```dygram examples/syntax/node-annotations.dygram
 Task critical @Critical @Async;
 Resource legacy @Deprecated("Use newResource instead");
 ```
 
 ### Nested Nodes
 
-```dygram !no-extract
+```dygram examples/syntax/node-nesting.dygram
 Process workflow {
     Task start "Initialize";
     Task validate "Validate input";
@@ -89,19 +89,19 @@ Edges define relationships and transitions between nodes.
 
 ### Basic Edges
 
-```dygram !no-extract
+```dygram examples/syntax/edge-basic.dygram
 start -> end;
 ```
 
 ### Multiple Targets
 
-```dygram !no-extract
+```dygram examples/syntax/edge-multiple-targets.dygram
 start -> task1, task2, task3;
 ```
 
 ### Chain Syntax
 
-```dygram !no-extract
+```dygram examples/syntax/edge-chaining.dygram
 start -> process -> validate -> complete;
 ```
 
@@ -109,7 +109,7 @@ start -> process -> validate -> complete;
 
 DyGram supports multiple arrow types for semantic relationships:
 
-```dygram !no-extract
+```dygram examples/syntax/edge-types.dygram
 // Single arrow (default transition)
 a -> b;
 
@@ -134,7 +134,7 @@ a <--> b;
 
 ### Edge Labels
 
-```dygram !no-extract
+```dygram examples/syntax/edge-labels.dygram
 a -label-> b;
 a --label--> b;
 a =label=> b;
@@ -142,20 +142,20 @@ a =label=> b;
 
 ### Edge Attributes
 
-```dygram !no-extract
+```dygram examples/syntax/edge-attributes.dygram
 a -condition: true, priority: 1-> b;
 ```
 
 ### Multiplicity
 
-```dygram !no-extract
+```dygram examples/syntax/edge-multiplicity.dygram
 User "1" --> "*" Post;
 Order "1" --> "1..*" LineItem;
 ```
 
 ### Edge Annotations
 
-```dygram !no-extract
+```dygram examples/syntax/edge-annotations.dygram
 a -@style("color: red; stroke-width: 3px")-> b;
 ```
 
@@ -165,7 +165,7 @@ Attributes add metadata and configuration to nodes.
 
 ### Basic Attributes
 
-```dygram !no-extract
+```dygram examples/syntax/attributes.dygram
 name: "value";
 count: 42;
 enabled: true;
@@ -173,7 +173,7 @@ enabled: true;
 
 ### Typed Attributes
 
-```dygram !no-extract
+```dygram examples/syntax/typed-attributes.dygram
 port<number>: 3000;
 host<string>: "localhost";
 timeout<Duration>: "30s";
@@ -181,7 +181,7 @@ timeout<Duration>: "30s";
 
 ### Generic Types
 
-```dygram !no-extract
+```dygram examples/syntax/types-generic.dygram
 results<Array<string>>: ["a", "b", "c"];
 data<Map<string, number>>: #dataMap;
 promise<Promise<Result>>: #pending;
@@ -189,14 +189,14 @@ promise<Promise<Result>>: #pending;
 
 ### Array Values
 
-```dygram !no-extract
+```dygram examples/syntax/types-array.dygram
 tags: ["api", "production", "critical"];
 ports: [8080, 8081, 8082];
 ```
 
 ### External References
 
-```dygram !no-extract
+```dygram !examples/syntax/external-references.dygram
 config: #globalConfig;
 handler: #processHandler;
 ```
@@ -224,7 +224,7 @@ DyGram supports type annotations for validation using Zod-powered runtime type c
 - `Float` - Floating-point numbers (alias for `number`)
 
 **Example:**
-```dygram !no-extract
+```dygram examples/syntax/types-built-in.dygram
 task myTask {
   id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
   createdAt<Date>: "2025-10-22T13:30:00Z";
@@ -248,7 +248,7 @@ Result<T, E>    # Result type (structural only)
 ```
 
 **Example with validated generics:**
-```dygram !no-extract
+```dygram examples/syntax/validated-generics.dygram
 task myTask {
   // Array elements are validated as Dates
   dates<Array<Date>>: ["2025-10-22T13:30:00Z", "2025-10-23T14:00:00Z"];
@@ -347,14 +347,14 @@ Notes create an inferred dashed edge to their target node and render with a note
 
 ### Single-line Comments
 
-```dygram !no-extract
+```dygram examples/syntax/comments-singleline.dygram
 // This is a comment
 Task process; // inline comment
 ```
 
 ### Multi-line Comments
 
-```dygram !no-extract
+```dygram examples/syntax/comments-multiline.dygram
 /*
  * This is a multi-line comment
  * explaining complex logic
@@ -366,18 +366,18 @@ Task analyze;
 
 Identifiers must start with a letter or underscore, followed by letters, digits, or underscores:
 
-```dygram !no-extract
-validName
-_private
-user123
-handle_event
+```dygram examples/syntax/node-identifiers.dygram
+validName;
+_private;
+user123;
+handle_event;
 ```
 
 ### Qualified Names
 
 Reference nested nodes using dot notation:
 
-```dygram !no-extract
+```dygram examples/syntax/node-qualified-ids.dygram
 workflow.start -> workflow.process;
 parent.child.grandchild;
 ```
@@ -386,13 +386,13 @@ parent.child.grandchild;
 
 ### Double-quoted Strings
 
-```dygram !no-extract
+```dygram examples/syntax/strings.dygram
 title: "Hello World";
 ```
 
 ### Multi-line Strings
 
-```dygram !no-extract
+```dygram examples/syntax/strings-multiline.dygram
 prompt: "This is a long prompt
 that spans multiple lines
 and preserves formatting";
