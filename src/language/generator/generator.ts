@@ -2058,17 +2058,31 @@ function generateNoteDSL(note: any): string {
     }
 
     // Add annotations if present
+    let annotationsStr = '';
     if (note.annotations && note.annotations.length > 0) {
-        const annotationsStr = note.annotations.map((ann: any) => {
+        annotationsStr = note.annotations.map((ann: any) => {
             if (ann.value) {
                 return ` @${ann.name}(${quoteString(ann.value)})`;
             }
             return ` @${ann.name}`;
         }).join('');
-        return parts.join(' ') + annotationsStr + ';';
     }
 
-    return parts.join(' ') + ';';
+    // Check if note has attributes
+    const hasAttributes = note.attributes && note.attributes.length > 0;
+
+    if (hasAttributes) {
+        // Note with attributes - use block syntax
+        let result = parts.join(' ') + annotationsStr + ' {\n';
+        note.attributes.forEach((attr: any) => {
+            result += '    ' + generateAttributeDSL(attr) + '\n';
+        });
+        result += '}';
+        return result;
+    } else {
+        // Simple note - use inline syntax
+        return parts.join(' ') + annotationsStr + ';';
+    }
 }
 
 function formatValue(value: any): string {
