@@ -1,0 +1,161 @@
+{
+  "json": {
+    "title": "foo",
+    "attributes": [],
+    "annotations": [
+      {
+        "name": "style",
+        "attributes": {
+          "rankdir": "LR"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "name": "a",
+        "type": "init",
+        "attributes": []
+      },
+      {
+        "name": "b",
+        "attributes": [],
+        "parent": "a"
+      },
+      {
+        "name": "c",
+        "attributes": [
+          {
+            "name": "prop",
+            "value": "val"
+          }
+        ],
+        "parent": "b",
+        "annotations": [
+          {
+            "name": "x"
+          }
+        ]
+      },
+      {
+        "name": "d",
+        "attributes": [
+          {
+            "name": "style",
+            "value": {
+              "color": "blue"
+            }
+          },
+          {
+            "name": "link",
+            "value": "f"
+          }
+        ],
+        "parent": "b"
+      },
+      {
+        "name": "e",
+        "attributes": [],
+        "parent": "d"
+      },
+      {
+        "name": "f",
+        "attributes": [],
+        "parent": "e",
+        "annotations": [
+          {
+            "name": "x"
+          }
+        ]
+      },
+      {
+        "name": "one",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "style",
+            "attributes": {
+              "color": "green"
+            }
+          }
+        ]
+      },
+      {
+        "name": "two",
+        "attributes": [
+          {
+            "name": "style",
+            "value": {
+              "shape": "circle"
+            }
+          }
+        ],
+        "parent": "one"
+      },
+      {
+        "name": "three",
+        "attributes": [],
+        "parent": "two"
+      },
+      {
+        "name": "test",
+        "type": "style",
+        "attributes": [
+          {
+            "name": "xrank",
+            "value": "min"
+          },
+          {
+            "name": "color",
+            "value": "yellow"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "x"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "b",
+        "target": "two",
+        "annotations": [
+          {
+            "name": "style",
+            "attributes": {
+              "color": "red",
+              "penwidth": "3"
+            }
+          }
+        ],
+        "arrowType": "->",
+        "value": {
+          "text": "@style(color: red; penwidth: 3;)"
+        },
+        "attributes": {
+          "text": "@style(color: red; penwidth: 3;)"
+        }
+      },
+      {
+        "source": "d",
+        "target": "f",
+        "value": {
+          "text": "link",
+          "sourceAttribute": "link"
+        },
+        "attributes": {
+          "text": "link",
+          "sourceAttribute": "link"
+        },
+        "annotations": [],
+        "arrowType": "->",
+        "sourceAttribute": "link"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>foo</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @style</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"LR\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_a {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>a</b> <i>&lt;init&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"a__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    subgraph cluster_b {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>b</b></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      \"b__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>c</b> <i>@x</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"prop__key\" align=\"left\" balign=\"left\">prop</td><td port=\"prop__value\" align=\"left\" balign=\"left\">val</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", xrank=\"min\", color=\"yellow\"];\n      subgraph cluster_d {\n        label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>d</b></td></tr></table>>;\n        labelloc=\"t\";\n        style=filled;\n        fontsize=10;\n        fillcolor=\"#FFFFFF\";\n        color=\"#999999\";\n        color=\"blue\";\n        \"d\" [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"link__key\" align=\"left\" balign=\"left\">link</td><td port=\"link__value\" align=\"left\" balign=\"left\">f</td></tr></table>>, shape=plain, margin=0];\n        \"d__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n        subgraph cluster_e {\n          label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>e</b></td></tr></table>>;\n          labelloc=\"t\";\n          style=filled;\n          fontsize=10;\n          fillcolor=\"#FFFFFF\";\n          color=\"#999999\";\n          \"e__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n          \"f\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>f</b> <i>@x</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", xrank=\"min\", color=\"yellow\"];\n        }\n      }\n    }\n  }\n  subgraph cluster_one {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>one</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    color=\"green\";\n    \"one__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    subgraph cluster_two {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>two</b></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      shape=\"circle\";\n      \"two__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"three\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>three</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    }\n  }\n\n  // Edges\n  \"b__cluster_anchor\" -> \"two__cluster_anchor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">@style(color: red; penwidth: 3;)</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_b\", lhead=\"cluster_two\", color=\"red\", penwidth=\"3\"];\n  \"d\":\"link__value\" -> \"f\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">link</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "3d470639fcf827e51bef84ad1e5887624f0b2e438f7647d6caf4ee903d618eba"
+}

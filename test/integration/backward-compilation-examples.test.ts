@@ -21,13 +21,11 @@ beforeAll(async () => {
  */
 
 const exampleFiles = [
-    'examples/basic/minimal.dygram',
-    'examples/basic/simple-nodes-3.dygram',
-    'examples/attributes/basic-attributes.dygram',
-    'examples/edges/labeled-edges.dygram',
-    'examples/edges/basic-edges.dygram',
-    'examples/advanced/annotations.dygram',
-    'examples/advanced/multiplicity.dygram',
+    'examples/examples/basic-1.dygram',
+    'examples/examples/basic-2.dygram',
+    'examples/examples/state-machines-1.dygram',
+    'examples/examples/state-machines-2.dygram',
+    'examples/examples/workflows-1.dygram',
 ];
 
 describe('Backward Compilation with Example Files', () => {

@@ -1,0 +1,94 @@
+{
+  "json": {
+    "title": "Aligned Layout",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "style",
+            "attributes": {
+              "rank": "min"
+            }
+          }
+        ]
+      },
+      {
+        "name": "a",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "style",
+            "attributes": {
+              "rank": "same"
+            }
+          }
+        ]
+      },
+      {
+        "name": "group1",
+        "attributes": []
+      },
+      {
+        "name": "b",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "style",
+            "attributes": {
+              "rank": "same"
+            }
+          }
+        ]
+      },
+      {
+        "name": "group1",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "style",
+            "attributes": {
+              "rank": "max"
+            }
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "a",
+        "arrowType": "->"
+      },
+      {
+        "source": "start",
+        "target": "b",
+        "arrowType": "->"
+      },
+      {
+        "source": "a",
+        "target": "end",
+        "arrowType": "->"
+      },
+      {
+        "source": "b",
+        "target": "end",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Aligned Layout</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", rank=\"min\"];\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", rank=\"same\"];\n  \"group1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>group1</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", rank=\"same\"];\n  \"group1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>group1</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", rank=\"max\"];\n\n  // Edges\n  \"start\" -> \"a\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"b\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"end\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"b\" -> \"end\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "0619ba63917683bd4cc1460982dd08becb9998055bfbe2c16811dbe3e89e7e8f"
+}
