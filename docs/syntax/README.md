@@ -250,10 +250,10 @@ Result<T, E>    # Result type (structural only)
 **Example with validated generics:**
 ```dygram !no-extract
 task myTask {
-  # Array elements are validated as Dates
+  // Array elements are validated as Dates
   dates<Array<Date>>: ["2025-10-22T13:30:00Z", "2025-10-23T14:00:00Z"];
 
-  # Array elements are validated as Integers
+  // Array elements are validated as Integers
   counts<Array<Integer>>: [1, 2, 3];
 }
 ```
@@ -318,7 +318,7 @@ Task important @Critical @Async @Version("1.0");
 ### Edge Annotations
 
 ```dygram !no-extract
-start -@style("color: blue")-> end;
+start -@style(color: blue;)-> end;
 a -@weight(5)-> b;
 ```
 

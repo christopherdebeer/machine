@@ -51,6 +51,15 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
      * Add custom completions based on text context
      */
     private addCustomCompletions(context: any, acceptor: any): void {
+        console.log('=== addCustomCompletions called ===');
+        console.log('Context node type:', context.node?.$type);
+        
+        // Add Graphviz style attributes when inside @style annotation
+        if (this.isInStyleAnnotation(context)) {
+            console.log('Adding Graphviz style attributes in addCustomCompletions');
+            this.addGraphvizStyleAttributes(context, acceptor);
+        }
+
         // Template variable completions
         if (this.isInTemplateString(context)) {
             this.addTemplateVariableCompletionsWithDocument(context, acceptor);
@@ -776,8 +785,29 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
      * Check if we're in a style annotation
      */
     private isInStyleAnnotation(context: CompletionContext): boolean {
+        console.log('=== isInStyleAnnotation called ===');
+        console.log('Context node:', context.node);
+        console.log('Context node type:', context.node?.$type);
+        console.log('Position:', context.position);
+        
+        // Check if current node is directly a style annotation
         if (isAnnotation(context.node) && context.node.name === 'style') {
+            console.log('Found annotation node with name "style"');
             return true;
+        }
+
+        // Check if we're inside an AnnotationParam within a style annotation
+        if (context.node?.$type === 'AnnotationParam') {
+            console.log('Found AnnotationParam, checking parent containers...');
+            let current = context.node.$container;
+            while (current) {
+                console.log('Checking container:', current.$type, current);
+                if (current.$type === 'Annotation' && (current as any).name === 'style') {
+                    console.log('Found parent style annotation!');
+                    return true;
+                }
+                current = current.$container;
+            }
         }
 
         // Check if we're inside @style(...) by looking at text
@@ -785,10 +815,15 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
             start: { line: context.position.line, character: 0 },
             end: context.position
         });
+        console.log('Text before cursor:', JSON.stringify(textBefore));
 
         // Look for @style( without closing )
         const styleMatch = textBefore.match(/@style\([^)]*$/);
-        return styleMatch !== null;
+        console.log('Style match result:', styleMatch);
+        
+        const result = styleMatch !== null;
+        console.log('isInStyleAnnotation result:', result);
+        return result;
     }
 
     /**

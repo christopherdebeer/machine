@@ -1,0 +1,213 @@
+{
+  "json": {
+    "title": "Content Generator",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "generation",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "temperature",
+            "value": 0.8
+          },
+          {
+            "name": "attempts",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "max_attempts",
+            "type": "number",
+            "value": 3
+          }
+        ]
+      },
+      {
+        "name": "requirements",
+        "type": "input",
+        "attributes": [
+          {
+            "name": "topic",
+            "value": ""
+          },
+          {
+            "name": "tone",
+            "value": ""
+          },
+          {
+            "name": "length",
+            "type": "number",
+            "value": 500
+          }
+        ]
+      },
+      {
+        "name": "generate",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Generate content on {{ requirements.topic }} with {{ requirements.tone }} tone, {{ requirements.length }} words"
+          }
+        ]
+      },
+      {
+        "name": "evaluate",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Evaluate if content meets requirements. Score 0-10."
+          }
+        ]
+      },
+      {
+        "name": "evaluating",
+        "type": "state",
+        "attributes": [],
+        "title": "Evaluating Quality"
+      },
+      {
+        "name": "approved",
+        "type": "state",
+        "attributes": [],
+        "title": "Approved"
+      },
+      {
+        "name": "needsRefinement",
+        "type": "state",
+        "attributes": [],
+        "title": "Needs Refinement"
+      },
+      {
+        "name": "refine",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Refine the content based on: {{ evaluate.feedback }}"
+          }
+        ]
+      },
+      {
+        "name": "finalContent",
+        "type": "output",
+        "attributes": [
+          {
+            "name": "text",
+            "value": ""
+          },
+          {
+            "name": "score",
+            "type": "number",
+            "value": 0
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "requirements",
+        "target": "generate",
+        "arrowType": "->"
+      },
+      {
+        "source": "generate",
+        "target": "evaluate",
+        "arrowType": "->"
+      },
+      {
+        "source": "evaluate",
+        "target": "evaluating",
+        "arrowType": "->"
+      },
+      {
+        "source": "evaluating",
+        "target": "approved",
+        "arrowType": "->",
+        "value": {
+          "text": "score >= 8"
+        },
+        "attributes": {
+          "text": "score >= 8"
+        }
+      },
+      {
+        "source": "approved",
+        "target": "finalContent",
+        "arrowType": "->"
+      },
+      {
+        "source": "evaluating",
+        "target": "needsRefinement",
+        "arrowType": "->",
+        "value": {
+          "text": "score < 8 AND attempts < max_attempts"
+        },
+        "attributes": {
+          "text": "score < 8 AND attempts < max_attempts"
+        }
+      },
+      {
+        "source": "needsRefinement",
+        "target": "refine",
+        "arrowType": "->"
+      },
+      {
+        "source": "refine",
+        "target": "generate",
+        "arrowType": "->"
+      },
+      {
+        "source": "evaluating",
+        "target": "approved",
+        "arrowType": "->",
+        "value": {
+          "text": "attempts >= max_attempts"
+        },
+        "attributes": {
+          "text": "attempts >= max_attempts"
+        }
+      },
+      {
+        "source": "approved",
+        "target": "finalContent",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "generate",
+        "target": "requirements",
+        "reason": "reads prompt",
+        "path": "requirements.topic"
+      },
+      {
+        "source": "generate",
+        "target": "requirements",
+        "reason": "reads prompt",
+        "path": "requirements.tone"
+      },
+      {
+        "source": "generate",
+        "target": "requirements",
+        "reason": "reads prompt",
+        "path": "requirements.length"
+      },
+      {
+        "source": "refine",
+        "target": "evaluate",
+        "reason": "reads prompt",
+        "path": "evaluate.feedback"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Content Generator</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"generation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generation</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.8</td></tr><tr><td port=\"attempts__key\" align=\"left\" balign=\"left\">attempts : number</td><td port=\"attempts__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"max_attempts__key\" align=\"left\" balign=\"left\">max_attempts : number</td><td port=\"max_attempts__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"requirements\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>requirements</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"topic__key\" align=\"left\" balign=\"left\">topic</td><td port=\"topic__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"tone__key\" align=\"left\" balign=\"left\">tone</td><td port=\"tone__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"length__key\" align=\"left\" balign=\"left\">length : number</td><td port=\"length__value\" align=\"left\" balign=\"left\">500</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"generate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate content on {{<br/>requirements.topic }} with {{<br/>requirements.tone }} tone, {{<br/>requirements.length }} words</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"evaluate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>evaluate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Evaluate if content meets requirements.<br/>Score 0-10.</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"evaluating\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>evaluating</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Evaluating Quality</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>approved</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Approved</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"needsRefinement\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>needsRefinement</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Needs Refinement</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"refine\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>refine</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Refine the content based on: {{<br/>evaluate.feedback }}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"finalContent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>finalContent</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"text__key\" align=\"left\" balign=\"left\">text</td><td port=\"text__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"score__key\" align=\"left\" balign=\"left\">score : number</td><td port=\"score__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"requirements\" -> \"generate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"generate\" -> \"evaluate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"evaluate\" -> \"evaluating\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"evaluating\" -> \"approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">score &gt;= 8</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"approved\" -> \"finalContent\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"evaluating\" -> \"needsRefinement\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">score &lt; 8 AND attempts &lt; max_attempts</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"needsRefinement\" -> \"refine\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"refine\" -> \"generate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"evaluating\" -> \"approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">attempts &gt;= max_attempts</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"approved\" -> \"finalContent\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"generate\" -> \"requirements\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"generate\" -> \"requirements\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"generate\" -> \"requirements\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"refine\" -> \"evaluate\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "2ed572fe3ea39d7c8f02bc860160fb47f839d8c7ffcdc033e87152d9e257cf38"
+}

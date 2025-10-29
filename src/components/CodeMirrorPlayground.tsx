@@ -78,18 +78,12 @@ interface SectionStates {
 
 // Base64 URL-safe encoding/decoding helpers
 function base64UrlEncode(str: string): string {
-  // Convert string to base64
-  const base64 = btoa(unescape(encodeURIComponent(str)));
-  // Make it URL-safe by replacing +/= with -_~
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '~');
+  return encodeURIComponent(btoa(str));
 }
 
 function base64UrlDecode(str: string): string {
   try {
-    // Convert URL-safe base64 back to standard base64
-    const base64 = str.replace(/-/g, '+').replace(/_/g, '/').replace(/~/g, '=');
-    // Decode base64 to string
-    return decodeURIComponent(escape(atob(base64)));
+    return atob(decodeURIComponent(str));
   } catch (error) {
     console.error('Failed to decode base64 content:', error);
     return '';

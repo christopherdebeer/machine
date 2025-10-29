@@ -1,0 +1,89 @@
+{
+  "json": {
+    "title": "Parallel Processing",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "source",
+        "type": "task",
+        "attributes": [],
+        "title": "Data source"
+      },
+      {
+        "name": "processA",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Process A"
+      },
+      {
+        "name": "processB",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Process B"
+      },
+      {
+        "name": "processC",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Process C"
+      },
+      {
+        "name": "aggregate",
+        "type": "task",
+        "attributes": [],
+        "title": "Aggregate results"
+      }
+    ],
+    "edges": [
+      {
+        "source": "source",
+        "target": "processA",
+        "arrowType": "->"
+      },
+      {
+        "source": "source",
+        "target": "processB",
+        "arrowType": "->"
+      },
+      {
+        "source": "source",
+        "target": "processC",
+        "arrowType": "->"
+      },
+      {
+        "source": "processA",
+        "target": "aggregate",
+        "arrowType": "->"
+      },
+      {
+        "source": "processB",
+        "target": "aggregate",
+        "arrowType": "->"
+      },
+      {
+        "source": "processC",
+        "target": "aggregate",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Parallel Processing</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"source\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>source</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data source</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processA</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Process A</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processB</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Process B</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processC\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processC</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Process C</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"aggregate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>aggregate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Aggregate results</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"source\" -> \"processA\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"source\" -> \"processB\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"source\" -> \"processC\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processA\" -> \"aggregate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processB\" -> \"aggregate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processC\" -> \"aggregate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "06f59db78a81064eed60d3ced0e1ff4a21235c67da323bc289c84464131449f7"
+}

@@ -1,0 +1,51 @@
+{
+  "json": {
+    "title": "Machine Attributes",
+    "attributes": [
+      {
+        "name": "author",
+        "value": "Team A"
+      },
+      {
+        "name": "created",
+        "value": "2024-01-15"
+      },
+      {
+        "name": "description",
+        "value": "Production machine"
+      },
+      {
+        "name": "timeout",
+        "type": "number",
+        "value": 60000
+      },
+      {
+        "name": "environment",
+        "value": "production"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "Version",
+        "value": "2.0"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "process",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process in {{ machine.environment }}"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Machine Attributes</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @Version(&quot;2.0&quot;)</font></td></tr><tr><td align=\"center\"><font point-size=\"10\"><i>Production machine</i></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"author__key\" align=\"left\" balign=\"left\">author</td><td port=\"author__value\" align=\"left\" balign=\"left\">Team A</td></tr><tr><td port=\"created__key\" align=\"left\" balign=\"left\">created</td><td port=\"created__value\" align=\"left\" balign=\"left\">2024-01-15</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">60000</td></tr><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">production</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process in {{ machine.environment }}</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "aa4ab616e9c00a4a6e2a14b10555c12e7f5e8bc68ed046abec318380d20ae58d"
+}
