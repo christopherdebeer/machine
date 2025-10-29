@@ -25,19 +25,19 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         next: NextFeature<AstNode>,
         acceptor: CompletionAcceptor
     ): MaybePromise<void> {
-        // First, call the default completion logic
+        // First, call the default completion logic to get grammar-based completions
         const result = super.completionFor(context, next, acceptor);
 
         // Then add custom completions based on context
         const astNode = context.node;
 
-        // Add node type completions when at the start of a node declaration
-        if (this.isNodeTypeContext(context, next)) {
+        // Always add node type completions at machine level
+        if (isMachine(astNode)) {
             this.addBuiltInNodeTypes(acceptor);
         }
 
         // Add attribute completions based on node type
-        if (isNode(astNode)) {
+        if (isNode(astNode) && next.type === 'Attribute' && next.property === undefined) {
             this.addNodeSpecificAttributes(astNode, acceptor);
         }
 
@@ -119,13 +119,17 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         ];
 
         for (const type of nodeTypes) {
-            acceptor({
+            const item = {
                 label: type.name,
                 kind: CompletionItemKind.Keyword,
                 detail: 'Node type',
                 documentation: type.doc,
                 sortText: '0_' + type.name // Prefix to prioritize
-            });
+            };
+            // Verify the item is valid before passing to acceptor
+            if (item && item.label) {
+                acceptor(item);
+            }
         }
     }
 
@@ -150,7 +154,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
                 { name: 'maxTokens', detail: 'Maximum tokens', doc: 'Maximum number of tokens to generate' },
                 { name: 'timeout', detail: 'Timeout duration', doc: 'Maximum time allowed for task execution' }
             ];
-            this.addAttributes([...commonAttributes, ...taskAttributes], acceptor);
+            this.addAttributes(commonAttributes.concat(taskAttributes), acceptor);
         }
         // Context-specific attributes
         else if (nodeType === 'context') {
@@ -158,7 +162,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
                 { name: 'schema', detail: 'Context schema', doc: 'Schema definition for the context data' },
                 { name: 'default', detail: 'Default value', doc: 'Default value for the context' }
             ];
-            this.addAttributes([...commonAttributes, ...contextAttributes], acceptor);
+            this.addAttributes(commonAttributes.concat(contextAttributes), acceptor);
         }
         // Tool-specific attributes
         else if (nodeType === 'tool') {
@@ -167,7 +171,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
                 { name: 'method', detail: 'HTTP method', doc: 'HTTP method to use (GET, POST, etc.)' },
                 { name: 'parameters', detail: 'Tool parameters', doc: 'Parameters required by the tool' }
             ];
-            this.addAttributes([...commonAttributes, ...toolAttributes], acceptor);
+            this.addAttributes(commonAttributes.concat(toolAttributes), acceptor);
         }
         // Note-specific attributes
         else if (nodeType === 'note') {
@@ -175,11 +179,16 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
                 { name: 'target', detail: 'Target node', doc: 'The node this note is attached to' },
                 { name: 'content', detail: 'Note content', doc: 'The text content of the note' }
             ];
-            this.addAttributes([...commonAttributes, ...noteAttributes], acceptor);
+            this.addAttributes(commonAttributes.concat(noteAttributes), acceptor);
         }
-        // Default attributes for other types
+        // Default attributes for other types (including state and init)
         else {
-            this.addAttributes(commonAttributes, acceptor);
+            const stateAttributes = [
+                { name: 'initial', detail: 'Initial state', doc: 'Marks this state as initial' },
+                { name: 'final', detail: 'Final state', doc: 'Marks this state as final' },
+                { name: 'timeout', detail: 'State timeout', doc: 'Timeout duration for this state' }
+            ];
+            this.addAttributes(commonAttributes.concat(stateAttributes), acceptor);
         }
     }
 
@@ -356,6 +365,9 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         const seenNames = new Set<string>();
 
         for (const node of allNodes) {
+            // Skip nodes without names
+            if (!node.name) continue;
+
             // Add simple name
             if (!seenNames.has(node.name)) {
                 acceptor({
@@ -436,6 +448,9 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         if (isEdge(context.node)) {
             // Suggest context nodes with higher priority
             for (const node of contextNodes) {
+                // Skip nodes without names
+                if (!node.name) continue;
+
                 acceptor({
                     label: node.name,
                     kind: CompletionItemKind.Variable,
@@ -474,6 +489,9 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
 
         // Add all node names as possible template variables
         for (const node of allNodes) {
+            // Skip nodes without names
+            if (!node.name) continue;
+
             acceptor({
                 label: node.name,
                 kind: CompletionItemKind.Variable,
