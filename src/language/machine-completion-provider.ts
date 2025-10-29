@@ -34,10 +34,8 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
 
         for (const context of contexts) {
             const acceptor = (ctx: any, value: any) => {
-                const completionItem = this.fillCompletionItem(ctx, value);
-                if (completionItem) {
-                    result.items.push(completionItem);
-                }
+                // Directly push completion items since fillCompletionItem expects different context properties
+                result.items.push(value);
             };
 
             // Add custom completions that might not be triggered by grammar
@@ -728,7 +726,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
                     }
                 }
             }
-            return; // Don't show other completions when completing qualified names
+            // Don't return early - also add the full qualified names for better completion support
         }
 
         // Add all node names as possible template variables
