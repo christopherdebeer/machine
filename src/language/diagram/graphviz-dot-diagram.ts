@@ -1073,6 +1073,71 @@ function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeCont
 }
 
 /**
+ * Generate HTML label for cluster showing title, description, and annotations
+ * This is used as the cluster's native label positioned above the cluster
+ */
+function generateClusterLabel(node: any, runtimeContext?: RuntimeContext, wrappingConfig?: TextWrappingConfig): string {
+    let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="2">';
+
+    // First row: ID (bold), Type (italic), Annotations (italic)
+    let firstRow = '<b>' + escapeHtml(node.name) + '</b>';
+
+    if (node.type) {
+        firstRow += ' <i>&lt;' + escapeHtml(node.type) + '&gt;</i>';
+    }
+
+    // Annotations (excluding @note and @style)
+    // @style is applied visually, @note is displayed separately
+    if (node.annotations && node.annotations.length > 0) {
+        const displayAnnotations = node.annotations.filter((ann: any) =>
+            ann.name !== 'note' && ann.name !== 'style'
+        );
+        if (displayAnnotations.length > 0) {
+            firstRow += ' <i>';
+            displayAnnotations.forEach((ann: any, idx: number) => {
+                if (idx > 0) firstRow += ' ';
+                if (ann.value) {
+                    firstRow += '@' + escapeHtml(ann.name) + '("' + escapeHtml(ann.value) + '")';
+                } else {
+                    firstRow += '@' + escapeHtml(ann.name);
+                }
+            });
+            firstRow += '</i>';
+        }
+    }
+
+    htmlLabel += '<tr><td align="center">' + firstRow + '</td></tr>';
+
+    // Description (if present)
+    const descAttr = node.attributes?.find((a: any) => a.name === 'description' || a.name === 'desc' || a.name === 'prompt');
+    if (node.title || descAttr) {
+        const titleText = node.title ? String(node.title).replace(/^"|"$/g, '') : '';
+        let descValue = descAttr?.value;
+        if (typeof descValue === 'string') {
+            descValue = descValue.replace(/^["']|["']$/g, '');
+            // Interpolate templates if runtime context is available
+            descValue = interpolateValue(descValue, runtimeContext);
+        }
+        
+        let secondRow = '';
+        if (titleText && titleText !== node.name) {
+            secondRow += '<b>' + escapeHtml(titleText) + '</b>';
+        }
+        if (descValue) {
+            if (secondRow) secondRow += ' — ';
+            secondRow += '<i>' + escapeHtml(String(descValue)) + '</i>';
+        }
+        
+        if (secondRow) {
+            htmlLabel += '<tr><td align="center">' + secondRow + '</td></tr>';
+        }
+    }
+
+    htmlLabel += '</table>';
+    return htmlLabel;
+}
+
+/**
  * Generate HTML label for namespace (parent node) showing id, type, annotations, title, description, and attributes
  */
 function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext, wrappingConfig?: TextWrappingConfig): string {
@@ -1137,6 +1202,128 @@ function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext, wrap
 }
 
 /**
+ * Extract and apply cluster styling from node's style attribute and annotations
+ * Returns an array of DOT style lines to be applied to the cluster subgraph
+ */
+function getClusterStyle(node: any, styleNodes: any[] = [], validationContext?: ValidationContext): string[] {
+    const styleLines: string[] = [];
+    
+    // Default cluster styling
+    styleLines.push('style=filled;');
+    styleLines.push('fontsize=10;');
+    styleLines.push('fillcolor="#FFFFFF";');
+    styleLines.push('color="#999999";');
+
+    // Apply style attribute (e.g., style: { color: green; fillcolor: green; })
+    const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
+    if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
+        // If style attribute is an object, apply each property
+        Object.keys(styleAttr.value).forEach(key => {
+            const value = styleAttr.value[key];
+            if (value !== undefined && value !== null) {
+                // Map CSS properties to Graphviz equivalents
+                const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                styleLines.push(`${graphvizKey}="${value}";`);
+            }
+        });
+    }
+
+    // Apply @style annotations directly (inline styles)
+    const annotations = node.annotations || [];
+    annotations.forEach((ann: any) => {
+        if (ann.name === 'style') {
+            // Check if annotation has attribute-style parameters
+            if (ann.attributes) {
+                // Apply each attribute as a graphviz property
+                Object.keys(ann.attributes).forEach(key => {
+                    const value = ann.attributes[key];
+                    styleLines.push(`${key}="${value}";`);
+                });
+            } else if (ann.value) {
+                // Parse string value for inline styles (e.g., @style("color: red; stroke-width: 3px;"))
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                styleAttrs.forEach((attr: string) => {
+                    const [key, ...valueParts] = attr.split(':');
+                    if (key && valueParts.length > 0) {
+                        const value = valueParts.join(':').trim();
+                        // Map CSS properties to Graphviz equivalents
+                        const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                        styleLines.push(`${graphvizKey}="${value}";`);
+                    }
+                });
+            }
+        }
+    });
+
+    // Apply custom styles from style nodes
+    if (styleNodes && styleNodes.length > 0) {
+        const nodeAnnotations = node.annotations || [];
+        
+        // Find matching style nodes
+        for (const styleNode of styleNodes) {
+            const styleAnnotations = styleNode.annotations || [];
+
+            // Check if any of the node's annotations match the style node's selector annotation
+            for (const styleAnnotation of styleAnnotations) {
+                const hasMatchingAnnotation = nodeAnnotations.some(
+                    (nodeAnn: any) => nodeAnn.name === styleAnnotation.name
+                );
+
+                if (hasMatchingAnnotation) {
+                    // Apply all attributes from the style node as graphviz properties
+                    const styleAttrs = styleNode.attributes || [];
+                    for (const attr of styleAttrs) {
+                        let attrValue = attr.value;
+
+                        // Clean up string values (remove quotes)
+                        if (typeof attrValue === 'string') {
+                            attrValue = attrValue.replace(/^["']|["']$/g, '');
+                        }
+
+                        // Add to style lines
+                        styleLines.push(`${attr.name}="${attrValue}";`);
+                    }
+                }
+            }
+        }
+    }
+
+    // Add validation warning styling if validation context is provided
+    if (validationContext) {
+        const nodeFlag = validationContext.getNodeFlag(node.name);
+        if (nodeFlag && nodeFlag.errors.length > 0) {
+            // Find the highest severity error
+            const maxSeverity = getMaxSeverity(nodeFlag.errors);
+
+            switch (maxSeverity) {
+                case ValidationSeverity.ERROR:
+                    // Red border for errors
+                    styleLines.push('penwidth=3;');
+                    styleLines.push('color="#D32F2F";');
+                    break;
+                case ValidationSeverity.WARNING:
+                    // Orange border for warnings
+                    styleLines.push('penwidth=2;');
+                    styleLines.push('color="#FFA726";');
+                    break;
+                case ValidationSeverity.INFO:
+                    // Blue border for info
+                    styleLines.push('penwidth=2;');
+                    styleLines.push('color="#42A5F5";');
+                    break;
+                case ValidationSeverity.HINT:
+                    // Light gray border for hints
+                    styleLines.push('penwidth=1;');
+                    styleLines.push('color="#9E9E9E";');
+                    break;
+            }
+        }
+    }
+
+    return styleLines;
+}
+
+/**
  * Generate DOT syntax with true nested subgraphs
  */
 function generateSemanticHierarchy(
@@ -1157,19 +1344,26 @@ function generateSemanticHierarchy(
         const { children } = hierarchy[node.name];
 
         if (children.length > 0) {
-            // Node has children - create a cluster subgraph with enhanced label
+            // Node has children - create a cluster subgraph with proper label and styling
             lines.push(`${indent}subgraph cluster_${node.name} {`);
 
-            lines.push(`${indent}  label="";`);
+            // Extract cluster title and description for proper cluster label
+            const clusterLabel = generateClusterLabel(node, options?.runtimeContext, wrappingConfig);
+            lines.push(`${indent}  label=<${clusterLabel}>;`);
+            lines.push(`${indent}  labelloc="t";`);
 
-            lines.push(`${indent}  style=filled;`);
-            lines.push(`${indent}  fontsize=10;`);
-            lines.push(`${indent}  fillcolor="#FFFFFF";`);
-            lines.push(`${indent}  color="#999999";`);
+            // Apply cluster styling from node's style attribute
+            const clusterStyle = getClusterStyle(node, styleNodes, validationContext);
+            clusterStyle.forEach(styleLine => {
+                lines.push(`${indent}  ${styleLine}`);
+            });
 
-            // Render a namespace node to host attribute ports within the cluster
-            const namespaceLabel = generateNamespaceLabel(node, options?.runtimeContext, wrappingConfig);
-            lines.push(`${indent}  "${node.name}" [label=<${namespaceLabel}>, shape=plain, margin=0];`);
+            // Only render namespace node if it has displayable attributes (excluding style, desc, prompt)
+            const displayAttrs = getNamespaceDisplayAttributes(node);
+            if (displayAttrs.length > 0) {
+                const namespaceLabel = generateAttributesTable(displayAttrs, options?.runtimeContext, wrappingConfig);
+                lines.push(`${indent}  "${node.name}" [label=<${namespaceLabel}>, shape=plain, margin=0];`);
+            }
 
             const anchorName = getClusterAnchorName(node.name);
             lines.push(`${indent}  "${anchorName}" [shape=point, width=0.01, height=0.01, label="", style=invis, fixedsize=true];`);
@@ -1551,7 +1745,7 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         // Apply text wrapping to edge label
         if (label) {
             const wrappedLines = breakLongText(label, maxEdgeLabelLength);
-            label = wrappedLines.join('\\n');
+            label = wrappedLines.join('\n');
         }
 
         // Get arrow style based on arrow type

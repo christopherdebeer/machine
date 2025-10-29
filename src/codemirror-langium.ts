@@ -455,7 +455,7 @@ export const semanticHighlightTheme = EditorView.baseTheme({
         paddingBottom: '2px'
     },
     '.cm-lintRange-warning': {
-        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%23cca700\' fill=\'none\' stroke-width=\'.7\'/></svg>")',
+        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%23efefef\' fill=\'none\' stroke-width=\'.7\'/></svg>")',
         backgroundRepeat: 'repeat-x',
         backgroundPosition: 'left bottom',
         paddingBottom: '2px'
