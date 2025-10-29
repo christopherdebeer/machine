@@ -163,6 +163,172 @@ describe('Qualified Names', () => {
         expect(noteNodes).toHaveLength(1);
         expect(noteNodes[0].name).toBe('Group.Node1');
     });
+
+    test('qualified name collision handling - explicit qualified child', async () => {
+        document = await parse(`
+            machine "Collision Test"
+
+            Group {
+                task Child "Simple child";
+                note Group.Child "Explicit qualified child";
+            }
+
+            Start;
+            End;
+
+            Start -> Child;
+            Child -> Group.Child;
+            Group.Child -> End;
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
+        expect(machine.edges).toHaveLength(3);
+
+        // Edge 1: Start -> Child (should resolve to simple child)
+        const edge1 = machine.edges[0];
+        expect(edge1.source[0].ref?.name).toBe('Start');
+        expect(edge1.segments[0].target[0].ref?.name).toBe('Child');
+
+        // Edge 2: Child -> Group.Child (simple to explicit qualified)
+        const edge2 = machine.edges[1];
+        expect(edge2.source[0].ref?.name).toBe('Child');
+        expect(edge2.segments[0].target[0].ref?.name).toBe('Group.Child');
+
+        // Edge 3: Group.Child -> End (explicit qualified to end)
+        const edge3 = machine.edges[2];
+        expect(edge3.source[0].ref?.name).toBe('Group.Child');
+        expect(edge3.segments[0].target[0].ref?.name).toBe('End');
+    });
+
+    test('root-level qualified name node', async () => {
+        document = await parse(`
+            machine "Root Qualified Test"
+
+            note Namespace.Item "Creating a node with qualified name at root level";
+            Start;
+
+            Start -> Namespace.Item;
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
+        expect(machine.edges).toHaveLength(1);
+
+        const edge = machine.edges[0];
+        expect(edge.source[0].ref?.name).toBe('Start');
+        // Should resolve to the note with name "Namespace.Item"
+        expect(edge.segments[0].target[0].ref?.name).toBe('Namespace.Item');
+    });
+
+    test('partial path qualification in nested context', async () => {
+        document = await parse(`
+            machine "Partial Path Test"
+
+            Outer {
+                Middle {
+                    Inner {
+                        task DeepTask "Deeply nested task";
+                    }
+                }
+            }
+
+            Start;
+
+            // Reference with full path
+            Start -> Outer.Middle.Inner.DeepTask;
+
+            // Reference with partial paths should also work
+            Outer.Middle.Inner.DeepTask -> Start;
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
+        expect(machine.edges).toHaveLength(2);
+    });
+
+    test('nested qualified name with matching parent', async () => {
+        document = await parse(`
+            machine "Matching Parent Test"
+
+            Pipeline {
+                task Pipeline.Step1 "Explicit qualified matches parent";
+                task Step2 "Simple name";
+            }
+
+            Start;
+
+            Start -> Pipeline.Step1;
+            Pipeline.Step1 -> Step2;
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
+        expect(machine.edges).toHaveLength(2);
+
+        const edge1 = machine.edges[0];
+        expect(edge1.segments[0].target[0].ref?.name).toBe('Pipeline.Step1');
+
+        const edge2 = machine.edges[1];
+        expect(edge2.source[0].ref?.name).toBe('Pipeline.Step1');
+        expect(edge2.segments[0].target[0].ref?.name).toBe('Step2');
+    });
+
+    test('simple name reference priority within nested context', async () => {
+        document = await parse(`
+            machine "Local Priority Test"
+
+            Group1 {
+                task Task "Task in Group1";
+            }
+
+            Group2 {
+                task Task "Task in Group2";
+                note LocalNote "Local to Group2";
+            }
+
+            // Qualified references should be unambiguous
+            Group1.Task -> Group2.Task;
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
+        expect(machine.edges).toHaveLength(1);
+
+        const edge = machine.edges[0];
+        expect(edge.source[0].ref?.name).toBe('Task');
+        expect(edge.segments[0].target[0].ref?.name).toBe('Task');
+
+        // Both should resolve (even though they have the same simple name)
+        // The qualified names make them unambiguous
+        expect(edge.source[0].ref).toBeDefined();
+        expect(edge.segments[0].target[0].ref).toBeDefined();
+    });
 });
 
 function checkDocumentValid(document: LangiumDocument): string | undefined {

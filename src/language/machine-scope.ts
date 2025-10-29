@@ -18,8 +18,26 @@ export class MachineScopeProvider extends DefaultScopeProvider {
                 const descriptions: AstNodeDescription[] = [];
                 const seenNames = new Set<string>();
 
+                // Two-pass approach to handle conflicts intelligently:
+                // Pass 1: Identify conflicts
+                const actualSimpleNames = new Set(
+                    allNodes
+                        .filter(n => !n.name.includes('.'))
+                        .map(n => this.getSimpleName(n.name))
+                );
+                const explicitQualifiedNames = new Set(
+                    allNodes
+                        .filter(n => n.name.includes('.'))
+                        .map(n => n.name)
+                );
+
+                // Pass 2: Register aliases for all nodes, respecting conflicts
                 allNodes.forEach(node => {
-                    const aliases = this.getNodeAliases(node);
+                    const aliases = this.getNodeAliasesWithConflictResolution(
+                        node,
+                        actualSimpleNames,
+                        explicitQualifiedNames
+                    );
                     const attributeNames = (node.attributes ?? []).map(attr => attr.name).filter(Boolean);
 
                     aliases.forEach(alias => {
@@ -82,34 +100,96 @@ export class MachineScopeProvider extends DefaultScopeProvider {
     }
 
     /**
-     * Get the qualified name for a node (e.g., parent.child.grandchild)
-     * Returns undefined if the node is at the machine level
+     * Extract the simple name from a potentially qualified name
+     * E.g., "Group.Child" -> "Child", "Simple" -> "Simple"
      */
-    private getQualifiedName(node: Node): string | undefined {
-        const parts: string[] = [node.name];
+    private getSimpleName(name: string): string {
+        const parts = name.split('.');
+        return parts[parts.length - 1];
+    }
+
+    /**
+     * Get the parent path for a node by walking up the AST
+     * E.g., for a node inside Group1 inside Group2: ["Group2", "Group1"]
+     */
+    private getParentPath(node: Node): string[] {
+        const parents: string[] = [];
         let current: AstNode | undefined = node.$container;
 
-        // Walk up the tree collecting parent names
         while (current && isNode(current)) {
-            parts.unshift(current.name);
+            parents.unshift(this.getSimpleName(current.name));
             current = current.$container;
         }
 
-        // If we only have the node name itself, return undefined (no qualification needed)
-        if (parts.length === 1) {
-            return undefined;
-        }
-
-        return parts.join('.');
+        return parents;
     }
 
-    private getNodeAliases(node: Node): string[] {
-        const aliases = new Set<string>();
-        aliases.add(node.name);
-        const qualifiedName = this.getQualifiedName(node);
-        if (qualifiedName) {
-            aliases.add(qualifiedName);
+    /**
+     * Get all aliases for a node with conflict resolution
+     *
+     * @param node - The node to generate aliases for
+     * @param actualSimpleNames - Set of simple names that are actually used by nodes
+     * @param explicitQualifiedNames - Set of explicit qualified names used by nodes
+     *
+     * Strategy: Avoid conflicts by preventing nodes from claiming aliases
+     * that belong to explicitly named nodes.
+     *
+     * Examples:
+     * - Node "Child" in "Group" with explicit "Group.Child" existing:
+     *   → Registers: "Child" only (skips "Group.Child" to avoid conflict)
+     *
+     * - Node "Group.Child" with actual simple "Child" existing:
+     *   → Registers: "Group.Child" only (skips "Child" to avoid conflict)
+     *
+     * - Node "Child" in "Group" with NO explicit "Group.Child":
+     *   → Registers: "Child", "Group.Child" (no conflict)
+     */
+    private getNodeAliasesWithConflictResolution(
+        node: Node,
+        actualSimpleNames: Set<string>,
+        explicitQualifiedNames: Set<string>
+    ): string[] {
+        const aliases: string[] = [];
+        const nodeName = node.name;
+        const nameParts = nodeName.split('.');
+        const simpleName = nameParts[nameParts.length - 1];
+        const parentPath = this.getParentPath(node);
+        const isQualified = nameParts.length > 1;
+
+        if (isQualified) {
+            // Node has a qualified name (contains dots)
+
+            // Always register the explicit qualified name
+            aliases.push(nodeName);
+
+            // Only register the simple name if there's no actual simple node with that name
+            if (!actualSimpleNames.has(simpleName)) {
+                aliases.push(simpleName);
+            }
+
+            // If nested, register the full path
+            if (parentPath.length > 0) {
+                const fullPath = [...parentPath, ...nameParts].join('.');
+                if (fullPath !== nodeName) {
+                    aliases.push(fullPath);
+                }
+            }
+        } else {
+            // Simple node name
+
+            // Always register the simple name
+            aliases.push(simpleName);
+
+            // Register with parent path if nested, but only if there's no explicit qualified node with that path
+            if (parentPath.length > 0) {
+                const qualifiedPath = [...parentPath, simpleName].join('.');
+                // Only register this qualified path if no node explicitly uses it as their name
+                if (!explicitQualifiedNames.has(qualifiedPath)) {
+                    aliases.push(qualifiedPath);
+                }
+            }
         }
-        return Array.from(aliases);
+
+        return aliases;
     }
 }
