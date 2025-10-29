@@ -20,6 +20,59 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         super(services);
     }
 
+    override async getCompletion(document: any, params: any, cancelToken?: any): Promise<any> {
+        // First get default completions
+        const result = await super.getCompletion(document, params, cancelToken);
+
+        if (!result) {
+            return result;
+        }
+
+        // Create a context object for our custom checks
+        const offset = document.textDocument.offsetAt(params.position);
+        const textDocument = document.textDocument;
+        const contexts = this.buildContexts(document, params.position);
+
+        for (const context of contexts) {
+            const acceptor = (ctx: any, value: any) => {
+                const completionItem = this.fillCompletionItem(ctx, value);
+                if (completionItem) {
+                    result.items.push(completionItem);
+                }
+            };
+
+            // Add custom completions that might not be triggered by grammar
+            this.addCustomCompletions(context, acceptor);
+        }
+
+        return result;
+    }
+
+    /**
+     * Add custom completions based on text context
+     */
+    private addCustomCompletions(context: any, acceptor: any): void {
+        // Template variable completions
+        if (this.isInTemplateString(context)) {
+            this.addTemplateVariableCompletionsWithDocument(context, acceptor);
+        }
+
+        // Type completions
+        if (this.isInTypeContext(context)) {
+            this.addTypeCompletions(context, acceptor);
+        }
+
+        // Edge label completions
+        if (this.isInEdgeContext(context)) {
+            this.addEdgeLabelCompletions(context, acceptor);
+        }
+
+        // Qualified attribute completions
+        if (this.isQualifiedAttributeContext(context)) {
+            this.addQualifiedAttributeCompletionsWithDocument(context, acceptor);
+        }
+    }
+
     protected override completionFor(
         context: CompletionContext,
         next: NextFeature<AstNode>,
@@ -31,18 +84,18 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         // Then add custom completions based on context
         const astNode = context.node;
 
-        // Node type completions - when expecting a Node's type property
-        if (isNode(astNode) && next.type === 'Node' && next.property === 'type') {
+        // Node type completions - when at machine level or completing node type
+        if (this.isNodeTypeContext(context, next)) {
             this.addBuiltInNodeTypes(context, acceptor);
         }
 
-        // Attribute name completions - when expecting an Attribute's name property inside a Node
-        if (isNode(astNode) && next.type === 'Attribute' && next.property === 'name') {
+        // Attribute name completions - when inside a node body
+        if (isNode(astNode)) {
             this.addNodeSpecificAttributes(context, astNode, acceptor);
         }
 
         // Add Graphviz style attributes when inside @style annotation
-        if (isAnnotation(astNode) && astNode.name === 'style') {
+        if (this.isInStyleAnnotation(context)) {
             this.addGraphvizStyleAttributes(context, acceptor);
         }
 
@@ -52,33 +105,33 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         }
 
         // Add edge label completions when inside edge segments
-        if (isEdgeSegment(astNode)) {
+        if (this.isInEdgeContext(context)) {
             this.addEdgeLabelCompletions(context, acceptor);
         }
 
         // Add type completions for attributes
-        if (isAttribute(astNode) && next.property === 'type') {
+        if (this.isInTypeContext(context)) {
             this.addTypeCompletions(context, acceptor);
         }
 
-        // Add node reference completions for edges (source/target)
-        if (next.type === 'Edge' && next.property === 'source') {
+        // Add node reference completions for edges
+        if (this.isEdgeReferenceContext(context, next)) {
             this.addExistingNodeCompletions(context, acceptor);
         }
 
-        // Add existing node names for edge targets
-        if (next.type === 'EdgeSegment' && next.property === 'target') {
-            this.addExistingNodeCompletions(context, acceptor);
-        }
-
-        // Add template variable completions when inside attribute values
-        if (isAttribute(astNode) && this.isInTemplateString(context)) {
+        // Add template variable completions when inside template strings
+        if (this.isInTemplateString(context)) {
             this.addTemplateVariableCompletions(context, acceptor);
         }
 
-        // Add arrow type completions based on relationship semantics
-        if (isNode(astNode) && next.type === 'EdgeSegment' && (next.property === 'endType' || next.property === 'startType')) {
+        // Add arrow type completions when between nodes
+        if (this.isArrowContext(context)) {
             this.addArrowTypeCompletions(context, acceptor);
+        }
+
+        // Add qualified attribute completions (node.attribute syntax outside templates)
+        if (this.isQualifiedAttributeContext(context)) {
+            this.addQualifiedAttributeCompletions(context, acceptor);
         }
 
         return result;
@@ -88,8 +141,26 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
      * Check if we're in a context where node types should be suggested
      */
     private isNodeTypeContext(context: CompletionContext, next: NextFeature<AstNode>): boolean {
-        // Check if we're completing the 'type' property of a Node
-        return next.property === 'type' && isNode(context.node);
+        // At machine level - suggest node types
+        if (isMachine(context.node)) {
+            return true;
+        }
+
+        // Inside a node's body
+        if (isNode(context.node)) {
+            return true;
+        }
+
+        // Check if the text before cursor suggests a node type
+        const textBefore = context.textDocument.getText({
+            start: { line: context.position.line, character: 0 },
+            end: context.position
+        });
+
+        // Look for patterns like "machine "test"\n" followed by partial identifier
+        const afterMachineDecl = /machine\s+[^{};]+[\r\n]\s*\w*$/.test(textBefore);
+
+        return afterMachineDecl;
     }
 
     /**
@@ -324,10 +395,26 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
     }
 
     /**
-     * Get the Machine container from any AST node
+     * Get the Machine container from any AST node or from context
      */
-    private getMachine(node: AstNode): Machine | undefined {
+    private getMachine(node: AstNode | undefined): Machine | undefined {
+        if (!node) {
+            return undefined;
+        }
         return AstUtils.getContainerOfType(node, isMachine);
+    }
+
+    /**
+     * Get the Machine from document root
+     */
+    private getMachineFromDocument(document: any): Machine | undefined {
+        if (document && document.parseResult && document.parseResult.value) {
+            const root = document.parseResult.value;
+            if (isMachine(root)) {
+                return root;
+            }
+        }
+        return undefined;
     }
 
     /**
@@ -462,16 +549,39 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
      * Check if we're inside a template string ({{ ... }})
      */
     private isInTemplateString(context: CompletionContext): boolean {
+        // Get text from beginning of document to cursor
         const textBefore = context.textDocument.getText({
-            start: { line: context.position.line, character: 0 },
+            start: { line: 0, character: 0 },
             end: context.position
         });
 
         // Check if we're inside {{ }}
-        const lastOpenBrace = textBefore.lastIndexOf('{{');
-        const lastCloseBrace = textBefore.lastIndexOf('}}');
+        // Count occurrences of {{ and }} to determine if we're inside
+        const openMatches = textBefore.match(/\{\{/g);
+        const closeMatches = textBefore.match(/\}\}/g);
 
-        return lastOpenBrace > lastCloseBrace;
+        const openCount = openMatches ? openMatches.length : 0;
+        const closeCount = closeMatches ? closeMatches.length : 0;
+
+        // If more opens than closes, we're inside a template
+        return openCount > closeCount;
+    }
+
+    /**
+     * Wrapper that tries to get machine from document
+     */
+    private addTemplateVariableCompletionsWithDocument(context: any, acceptor: any): void {
+        // Try to get machine from context node first
+        let machine = context.node ? this.getMachine(context.node) : undefined;
+
+        // If not found, try getting from document root
+        if (!machine && context.document) {
+            machine = this.getMachineFromDocument(context.document);
+        }
+
+        if (!machine) return;
+
+        this.addTemplateVariableCompletionsFromMachine(context, machine, acceptor);
     }
 
     /**
@@ -480,8 +590,44 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
     private addTemplateVariableCompletions(context: CompletionContext, acceptor: CompletionAcceptor): void {
         const machine = this.getMachine(context.node);
         if (!machine) return;
+        this.addTemplateVariableCompletionsFromMachine(context, machine, acceptor);
+    }
+
+    /**
+     * Core logic for template variable completions
+     */
+    private addTemplateVariableCompletionsFromMachine(context: any, machine: Machine, acceptor: any): void {
 
         const allNodes = this.getAllNodes(machine);
+
+        // Get text before cursor to check if we're completing after a dot
+        const textBefore = context.textDocument.getText({
+            start: { line: 0, character: 0 },
+            end: context.position
+        });
+
+        // Check if we're completing a qualified reference (e.g., "userData.")
+        const qualifiedMatch = textBefore.match(/\{\{[^}]*?([a-zA-Z_][a-zA-Z0-9_]*)\.$/);
+        if (qualifiedMatch) {
+            // We're after a dot, suggest attributes of that specific node
+            const nodeName = qualifiedMatch[1];
+            const targetNode = allNodes.find(n => n.name === nodeName);
+
+            if (targetNode && targetNode.attributes) {
+                for (const attr of targetNode.attributes) {
+                    if (attr.name) {
+                        acceptor(context, {
+                            label: `${nodeName}.${attr.name}`,
+                            kind: CompletionItemKind.Field,
+                            detail: 'attribute',
+                            documentation: `Attribute ${attr.name} of node ${nodeName}`,
+                            sortText: '0_' + attr.name
+                        });
+                    }
+                }
+            }
+            return; // Don't show other completions when completing qualified names
+        }
 
         // Add all node names as possible template variables
         for (const node of allNodes) {
@@ -531,17 +677,200 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
     }
 
     /**
-     * Check if we're in a context where arrow types should be suggested
+     * Check if we're in a style annotation
      */
-    private isArrowContext(context: CompletionContext): boolean {
-        // Check if we're at a position where an arrow would appear
+    private isInStyleAnnotation(context: CompletionContext): boolean {
+        if (isAnnotation(context.node) && context.node.name === 'style') {
+            return true;
+        }
+
+        // Check if we're inside @style(...) by looking at text
         const textBefore = context.textDocument.getText({
-            start: { line: context.position.line, character: Math.max(0, context.position.character - 5) },
+            start: { line: context.position.line, character: 0 },
             end: context.position
         });
 
-        // Look for patterns like "node1 " or "node1 --" or "node1 -"
-        return /\s+-*$/.test(textBefore);
+        // Look for @style( without closing )
+        const styleMatch = textBefore.match(/@style\([^)]*$/);
+        return styleMatch !== null;
+    }
+
+    /**
+     * Check if we're in an edge context (between arrow markers for labels)
+     */
+    private isInEdgeContext(context: CompletionContext): boolean {
+        if (isEdgeSegment(context.node) || isEdge(context.node)) {
+            return true;
+        }
+
+        // Check for arrow patterns in text - specifically looking for positions
+        // like "node1 -<cursor>->" or "node1 --<cursor>-->"
+        const textBefore = context.textDocument.getText({
+            start: { line: context.position.line, character: 0 },
+            end: context.position
+        });
+
+        const textAfter = context.textDocument.getText({
+            start: context.position,
+            end: { line: context.position.line, character: context.position.character + 10 }
+        });
+
+        // Check if we're between arrow markers: -...- followed by > or =>
+        const beforeMatch = textBefore.match(/-{1,2}[a-zA-Z0-9_]*$/);
+        const afterMatch = textAfter.match(/^[a-zA-Z0-9_]*-*>/);
+
+        return beforeMatch !== null && afterMatch !== null;
+    }
+
+    /**
+     * Check if we're in a type context
+     */
+    private isInTypeContext(context: CompletionContext): boolean {
+        // Check if we're after the < character for generic types
+        const textBefore = context.textDocument.getText({
+            start: { line: context.position.line, character: 0 },
+            end: context.position
+        });
+
+        // Look for attribute name followed by <...
+        // Pattern: identifier<<cursor>> or identifier<cursor>
+        const typeContextPattern = /\b[a-zA-Z_][a-zA-Z0-9_]*<[^>]*$/;
+        return typeContextPattern.test(textBefore);
+    }
+
+    /**
+     * Check if we're in an edge reference context
+     */
+    private isEdgeReferenceContext(context: CompletionContext, next: NextFeature<AstNode>): boolean {
+        // When inside edge or edge segment
+        if (isEdge(context.node) || isEdgeSegment(context.node)) {
+            return true;
+        }
+
+        // Check for patterns suggesting edge creation
+        const textBefore = context.textDocument.getText({
+            start: { line: context.position.line, character: 0 },
+            end: context.position
+        });
+
+        // After arrow operators
+        return /-{1,2}>|=>/.test(textBefore);
+    }
+
+    /**
+     * Check if we're in a context where arrow types should be suggested
+     */
+    private isArrowContext(context: CompletionContext): boolean {
+        // When inside edge segment
+        if (isEdgeSegment(context.node)) {
+            return true;
+        }
+
+        // Check if we're at a position where an arrow would appear
+        const textBefore = context.textDocument.getText({
+            start: { line: context.position.line, character: Math.max(0, context.position.character - 10) },
+            end: context.position
+        });
+
+        // Look for patterns like "node1 " or "node1 -" (but not complete arrows)
+        // Should match after a node reference, before completing the arrow
+        return /\b[a-zA-Z_][a-zA-Z0-9_]*\s+\-*$/.test(textBefore) && !/-{2}>|=>/.test(textBefore);
+    }
+
+    /**
+     * Check if we're completing qualified attributes (node.attribute)
+     */
+    private isQualifiedAttributeContext(context: CompletionContext): boolean {
+        const textBefore = context.textDocument.getText({
+            start: { line: 0, character: 0 },
+            end: context.position
+        });
+
+        // Check for pattern like "nodeName." at machine level (not inside templates)
+        // Make sure we're NOT inside {{ }}
+        if (this.isInTemplateString(context)) {
+            return false;
+        }
+
+        // Look for identifier followed by dot at the end
+        return /\b([a-zA-Z_][a-zA-Z0-9_]*)\.$/.test(textBefore);
+    }
+
+    /**
+     * Wrapper for qualified attribute completions that tries document
+     */
+    private addQualifiedAttributeCompletionsWithDocument(context: any, acceptor: any): void {
+        // Try to get machine from context node first
+        let machine = context.node ? this.getMachine(context.node) : undefined;
+
+        // If not found, try getting from document root
+        if (!machine && context.document) {
+            machine = this.getMachineFromDocument(context.document);
+        }
+
+        if (!machine) return;
+
+        const textBefore = context.textDocument.getText({
+            start: { line: 0, character: 0 },
+            end: context.position
+        });
+
+        // Extract the node name before the dot
+        const match = textBefore.match(/\b([a-zA-Z_][a-zA-Z0-9_]*)\.$/);
+        if (!match) return;
+
+        const nodeName = match[1];
+        const allNodes = this.getAllNodes(machine);
+        const targetNode = allNodes.find(n => n.name === nodeName);
+
+        if (!targetNode || !targetNode.attributes) return;
+
+        for (const attr of targetNode.attributes) {
+            if (attr.name) {
+                acceptor(context, {
+                    label: `${nodeName}.${attr.name}`,
+                    kind: CompletionItemKind.Field,
+                    detail: 'attribute',
+                    documentation: `Attribute ${attr.name} of node ${nodeName}`,
+                    sortText: '0_' + attr.name
+                });
+            }
+        }
+    }
+
+    /**
+     * Add qualified attribute completions (node.attribute)
+     */
+    private addQualifiedAttributeCompletions(context: CompletionContext, acceptor: CompletionAcceptor): void {
+        const textBefore = context.textDocument.getText({
+            start: { line: 0, character: 0 },
+            end: context.position
+        });
+
+        // Extract the node name before the dot
+        const match = textBefore.match(/\b([a-zA-Z_][a-zA-Z0-9_]*)\.$/);
+        if (!match) return;
+
+        const nodeName = match[1];
+        const machine = this.getMachine(context.node);
+        if (!machine) return;
+
+        const allNodes = this.getAllNodes(machine);
+        const targetNode = allNodes.find(n => n.name === nodeName);
+
+        if (!targetNode || !targetNode.attributes) return;
+
+        for (const attr of targetNode.attributes) {
+            if (attr.name) {
+                acceptor(context, {
+                    label: `${nodeName}.${attr.name}`,
+                    kind: CompletionItemKind.Field,
+                    detail: 'attribute',
+                    documentation: `Attribute ${attr.name} of node ${nodeName}`,
+                    sortText: '0_' + attr.name
+                });
+            }
+        }
     }
 
     /**
