@@ -114,18 +114,18 @@ State SourceCode "User's .dygram file" @Entry;
 
 Task Parse "Parse via Langium" @Critical {
     input<string>: "{{ SourceCode }}";
-    output<Object>: {"Abstract": ["Syntax", "Tree"]};
+    output<Record<string,any>>: {Abstract: ["Syntax", "Tree"]};
 }
 
 Task Validate "Validate graph structure" {
     checks<Array<string>>: ["cycles", "references", "types"];
 }
 
-Task Transform "Build semantic model" {
+Task Transform "Build semantic model" @Async {
     phase<string>: "type-checking";
 }
 
-Process Generate "Generate outputs" @Async {
+Process Generate "Generate outputs" {
     formats<Array<string>>: ["json", "html", "dot", "dsl"];
 }
 
