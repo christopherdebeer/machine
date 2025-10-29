@@ -1,5 +1,6 @@
 //@ts-check
 import * as esbuild from 'esbuild';
+import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin';
 
 const watch = process.argv.includes('--watch');
 const minify = process.argv.includes('--minify');
@@ -15,16 +16,19 @@ function padZeroes(i) {
     return i.toString().padStart(2, '0');
 }
 
-const plugins = [{
-    name: 'watch-plugin',
-    setup(build) {
-        build.onEnd(result => {
-            if (result.errors.length === 0) {
-                console.log(getTime() + success);
-            }
-        });
-    },
-}];
+const plugins = [
+    importMetaUrlPlugin,
+    {
+        name: 'watch-plugin',
+        setup(build) {
+            build.onEnd(result => {
+                if (result.errors.length === 0) {
+                    console.log(getTime() + success);
+                }
+            });
+        },
+    }
+];
 
 // Build VSCode extension and language server
 const ctx = await esbuild.context({
