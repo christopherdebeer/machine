@@ -329,6 +329,54 @@ describe('Qualified Names', () => {
         expect(edge.source[0].ref).toBeDefined();
         expect(edge.segments[0].target[0].ref).toBeDefined();
     });
+
+    test('qualified names with edge attributes', async () => {
+        document = await parse(`
+            machine "Qualified Names with Edge Attributes"
+
+            Group {
+                task Child1 "First child";
+                task Child2 "Second child";
+            }
+
+            Start;
+            End;
+
+            // Qualified names in source/target with edge attributes
+            Start -priority: 1;-> Group.Child1;
+            Group.Child1 -weight: 0.8; condition: "ready";-> Group.Child2;
+            Group.Child2 -timeout: 5000;-> End;
+
+            // Edge attributes with values that look like qualified names
+            Start -to: "Group.Child1";-> End;
+        `);
+
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
+        expect(machine.edges).toHaveLength(4);
+
+        // Verify qualified name references work with edge attributes
+        const edge1 = machine.edges[0];
+        expect(edge1.source[0].ref?.name).toBe('Start');
+        expect(edge1.segments[0].target[0].ref?.name).toBe('Child1');
+
+        const edge2 = machine.edges[1];
+        expect(edge2.source[0].ref?.name).toBe('Child1');
+        expect(edge2.segments[0].target[0].ref?.name).toBe('Child2');
+
+        const edge3 = machine.edges[2];
+        expect(edge3.source[0].ref?.name).toBe('Child2');
+        expect(edge3.segments[0].target[0].ref?.name).toBe('End');
+
+        const edge4 = machine.edges[3];
+        expect(edge4.source[0].ref?.name).toBe('Start');
+        expect(edge4.segments[0].target[0].ref?.name).toBe('End');
+    });
 });
 
 function checkDocumentValid(document: LangiumDocument): string | undefined {

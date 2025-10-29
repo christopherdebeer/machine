@@ -2,9 +2,19 @@
 
 Complete reference for the DyGram language syntax.
 
+## Documentation Structure
+
+This syntax guide is organized into the following sections:
+
+- **[Qualified Names](qualified-names.md)** - Using dot notation for node references and definitions
+- **[Core Concepts](#core-concepts)** - Machine declarations, nodes, edges, and attributes (below)
+- **[Advanced Features](#advanced-features)** - Types, annotations, and complex patterns (below)
+
 ## Table of Contents
 
-## Machine Declaration
+## Core Concepts
+
+### Machine Declaration
 
 Every DyGram file can optionally start with a machine declaration:
 
@@ -27,17 +37,17 @@ machine "API Service" {
 };
 ```
 
-## Nodes
+### Nodes
 
 Nodes are the fundamental building blocks of a machine.
 
-### Basic Syntax
+#### Basic Syntax
 
 ```dygram examples/syntax/machine-basic.dygram
 nodeName;
 ```
 
-### With Optional Type
+#### With Optional Type
 
 ```dygram examples/syntax/node-types.dygram
 Task process;
@@ -48,13 +58,13 @@ Output result;
 
 Common node types: `Task`, `State`, `Input`, `Output`, `Context`, `Resource`, `Concept`, `Implementation`, etc.
 
-### With Title
+#### With Title
 
 ```dygram examples/syntax/node-title.dygram
 Task process "Process the data";
 ```
 
-### With Attributes
+#### With Attributes
 
 ```dygram examples/syntax/node-attributes.dygram
 Task analyze {
@@ -64,14 +74,14 @@ Task analyze {
 };
 ```
 
-### With Annotations
+#### With Annotations
 
 ```dygram examples/syntax/node-annotations.dygram
 Task critical @Critical @Async;
 Resource legacy @Deprecated("Use newResource instead");
 ```
 
-### Nested Nodes
+#### Nested Nodes
 
 ```dygram examples/syntax/node-nesting.dygram
 Process workflow {
@@ -83,29 +93,29 @@ Process workflow {
 };
 ```
 
-## Edges
+### Edges
 
 Edges define relationships and transitions between nodes.
 
-### Basic Edges
+#### Basic Edges
 
 ```dygram examples/syntax/edge-basic.dygram
 start -> end;
 ```
 
-### Multiple Targets
+#### Multiple Targets
 
 ```dygram examples/syntax/edge-multiple-targets.dygram
 start -> task1, task2, task3;
 ```
 
-### Chain Syntax
+#### Chain Syntax
 
 ```dygram examples/syntax/edge-chaining.dygram
 start -> process -> validate -> complete;
 ```
 
-### Arrow Types
+#### Arrow Types
 
 DyGram supports multiple arrow types for semantic relationships:
 
@@ -132,7 +142,7 @@ Group o--> Member;
 a <--> b;
 ```
 
-### Edge Labels
+#### Edge Labels
 
 ```dygram examples/syntax/edge-labels.dygram
 a -label-> b;
@@ -140,30 +150,30 @@ a --label--> b;
 a =label=> b;
 ```
 
-### Edge Attributes
+#### Edge Attributes
 
 ```dygram examples/syntax/edge-attributes.dygram
 a -condition: true, priority: 1-> b;
 ```
 
-### Multiplicity
+#### Multiplicity
 
 ```dygram examples/syntax/edge-multiplicity.dygram
 User "1" --> "*" Post;
 Order "1" --> "1..*" LineItem;
 ```
 
-### Edge Annotations
+#### Edge Annotations
 
 ```dygram examples/syntax/edge-annotations.dygram
 a -@style("color: red; stroke-width: 3px")-> b;
 ```
 
-## Attributes
+### Attributes
 
 Attributes add metadata and configuration to nodes.
 
-### Basic Attributes
+#### Basic Attributes
 
 ```dygram examples/syntax/attributes.dygram
 name: "value";
@@ -171,7 +181,7 @@ count: 42;
 enabled: true;
 ```
 
-### Typed Attributes
+#### Typed Attributes
 
 ```dygram examples/syntax/typed-attributes.dygram
 port<number>: 3000;
@@ -187,25 +197,27 @@ data<Map<string, number>>: #dataMap;
 promise<Promise<Result>>: #pending;
 ```
 
-### Array Values
+#### Array Values
 
 ```dygram examples/syntax/types-array.dygram
 tags: ["api", "production", "critical"];
 ports: [8080, 8081, 8082];
 ```
 
-### External References
+#### External References
 
 ```dygram !examples/syntax/external-references.dygram
 config: #globalConfig;
 handler: #processHandler;
 ```
 
-## Types
+## Advanced Features
+
+### Types
 
 DyGram supports type annotations for validation using Zod-powered runtime type checking.
 
-### Built-in Types
+#### Built-in Types
 
 **Primitive Types:**
 - `string` - Text values
@@ -258,7 +270,7 @@ task myTask {
 }
 ```
 
-### Custom Types
+#### Custom Types
 
 You can register custom types programmatically using the TypeRegistry:
 
@@ -285,11 +297,11 @@ user {
 }
 ```
 
-## Annotations
+### Annotations
 
 Annotations add semantic metadata to nodes and edges.
 
-### Node Annotations
+#### Node Annotations
 
 ```dygram !no-extract
 @Abstract
@@ -315,14 +327,14 @@ Multiple annotations:
 Task important @Critical @Async @Version("1.0");
 ```
 
-### Edge Annotations
+#### Edge Annotations
 
 ```dygram !no-extract
 start -@style(color: blue;)-> end;
 a -@weight(5)-> b;
 ```
 
-## Notes
+### Notes
 
 Notes attach documentation to nodes. The note's name references the target node, and the title contains the note content:
 
@@ -343,16 +355,16 @@ Note process "Processing Details" @Critical {
 
 Notes create an inferred dashed edge to their target node and render with a note shape in diagrams. Node types (including `Note`) are case-insensitive, so `note`, `Note`, and `NOTE` are all equivalent.
 
-## Comments
+### Comments
 
-### Single-line Comments
+#### Single-line Comments
 
 ```dygram examples/syntax/comments-singleline.dygram
 // This is a comment
 Task process; // inline comment
 ```
 
-### Multi-line Comments
+#### Multi-line Comments
 
 ```dygram examples/syntax/comments-multiline.dygram
 /*
@@ -362,7 +374,7 @@ Task process; // inline comment
 Task analyze;
 ```
 
-## Identifiers
+### Identifiers
 
 Identifiers must start with a letter or underscore, followed by letters, digits, or underscores:
 
@@ -373,24 +385,26 @@ user123;
 handle_event;
 ```
 
-### Qualified Names
+#### Qualified Names
 
-Reference nested nodes using dot notation:
+Reference nested nodes using dot notation, or define nodes with qualified names for quick scaffolding:
 
 ```dygram examples/syntax/node-qualified-ids.dygram
 workflow.start -> workflow.process;
 parent.child.grandchild;
 ```
 
-## Strings
+**For comprehensive documentation on qualified names, see the [Qualified Names Guide](qualified-names.md).**
 
-### Double-quoted Strings
+### Strings
+
+#### Double-quoted Strings
 
 ```dygram examples/syntax/strings.dygram
 title: "Hello World";
 ```
 
-### Multi-line Strings
+#### Multi-line Strings
 
 ```dygram examples/syntax/strings-multiline.dygram
 prompt: "This is a long prompt
@@ -398,7 +412,7 @@ that spans multiple lines
 and preserves formatting";
 ```
 
-## Numbers
+### Numbers
 
 ```dygram !no-extract
 count: 42;
@@ -407,7 +421,7 @@ scientific: 1.5e10;
 temperature: -273.15;
 ```
 
-## Complete Example
+### Complete Example
 
 ```dygram examples/syntax/complete.dygram
 machine "Complete Syntax Demo" @Version("1.0") {
