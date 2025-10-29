@@ -31,13 +31,13 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         // Then add custom completions based on context
         const astNode = context.node;
 
-        // Always add node type completions at machine level
-        if (isMachine(astNode)) {
+        // Node type completions - when expecting a Node's type property
+        if (isNode(astNode) && next.type === 'Node' && next.property === 'type') {
             this.addBuiltInNodeTypes(acceptor);
         }
 
-        // Add attribute completions based on node type
-        if (isNode(astNode) && next.type === 'Attribute' && next.property === undefined) {
+        // Attribute name completions - when expecting an Attribute's name property inside a Node
+        if (isNode(astNode) && next.type === 'Attribute' && next.property === 'name') {
             this.addNodeSpecificAttributes(astNode, acceptor);
         }
 
@@ -46,12 +46,12 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
             this.addGraphvizStyleAttributes(acceptor);
         }
 
-        // Add annotation completions
+        // Add annotation completions when @ is typed
         if (this.isAnnotationContext(context, next)) {
             this.addAnnotationCompletions(acceptor);
         }
 
-        // Add edge label completions
+        // Add edge label completions when inside edge segments
         if (isEdgeSegment(astNode)) {
             this.addEdgeLabelCompletions(acceptor);
         }
@@ -62,13 +62,12 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         }
 
         // Add node reference completions for edges (source/target)
-        if ((isEdge(astNode) && next.property === 'source') ||
-            (isEdgeSegment(astNode) && next.property === 'target')) {
-            this.addNodeReferenceCompletions(context, acceptor);
+        if (next.type === 'Edge' && next.property === 'source') {
+            this.addExistingNodeCompletions(context, acceptor);
         }
 
-        // Add existing node names and qualified names
-        if (next.property === 'source' || next.property === 'target') {
+        // Add existing node names for edge targets
+        if (next.type === 'EdgeSegment' && next.property === 'target') {
             this.addExistingNodeCompletions(context, acceptor);
         }
 
@@ -78,7 +77,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         }
 
         // Add arrow type completions based on relationship semantics
-        if (isEdgeSegment(astNode) && this.isArrowContext(context)) {
+        if (isNode(astNode) && next.type === 'EdgeSegment' && (next.property === 'endType' || next.property === 'startType')) {
             this.addArrowTypeCompletions(acceptor);
         }
 
@@ -119,17 +118,12 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         ];
 
         for (const type of nodeTypes) {
-            const item = {
-                label: type.name,
+            acceptor(type.name, {
                 kind: CompletionItemKind.Keyword,
                 detail: 'Node type',
                 documentation: type.doc,
                 sortText: '0_' + type.name // Prefix to prioritize
-            };
-            // Verify the item is valid before passing to acceptor
-            if (item && item.label) {
-                acceptor(item);
-            }
+            });
         }
     }
 
@@ -200,8 +194,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         acceptor: CompletionAcceptor
     ): void {
         for (const attr of attributes) {
-            acceptor({
-                label: attr.name,
+            acceptor(attr.name, {
                 kind: CompletionItemKind.Property,
                 detail: attr.detail,
                 documentation: attr.doc,
@@ -227,8 +220,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         ];
 
         for (const attr of graphvizAttrs) {
-            acceptor({
-                label: attr.name,
+            acceptor(attr.name, {
                 kind: CompletionItemKind.Property,
                 detail: 'Graphviz attribute',
                 documentation: attr.doc + (attr.values.length > 0 ? `\n\nCommon values: ${attr.values.join(', ')}` : ''),
@@ -237,8 +229,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
 
             // Also add value completions
             for (const value of attr.values) {
-                acceptor({
-                    label: value,
+                acceptor(value, {
                     kind: CompletionItemKind.Value,
                     detail: `${attr.name} value`,
                     sortText: '3_' + value
@@ -261,8 +252,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         ];
 
         for (const annotation of annotations) {
-            acceptor({
-                label: annotation.name,
+            acceptor(annotation.name, {
                 kind: CompletionItemKind.Keyword,
                 detail: 'Annotation',
                 documentation: annotation.doc,
@@ -289,8 +279,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         ];
 
         for (const label of commonLabels) {
-            acceptor({
-                label: label.name,
+            acceptor(label.name, {
                 kind: CompletionItemKind.Value,
                 detail: 'Edge label',
                 documentation: label.doc,
@@ -317,8 +306,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         ];
 
         for (const type of types) {
-            acceptor({
-                label: type.name,
+            acceptor(type.name, {
                 kind: CompletionItemKind.Class,
                 detail: 'Type',
                 documentation: type.doc,
@@ -370,8 +358,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
 
             // Add simple name
             if (!seenNames.has(node.name)) {
-                acceptor({
-                    label: node.name,
+                acceptor(node.name, {
                     kind: CompletionItemKind.Reference,
                     detail: node.type ? `${node.type} node` : 'node',
                     documentation: node.title || `Node: ${node.name}`,
@@ -383,8 +370,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
             // Add qualified name if nested
             const qualifiedName = this.getQualifiedName(node);
             if (qualifiedName && !seenNames.has(qualifiedName)) {
-                acceptor({
-                    label: qualifiedName,
+                acceptor(qualifiedName, {
                     kind: CompletionItemKind.Reference,
                     detail: node.type ? `${node.type} node` : 'node',
                     documentation: node.title || `Node: ${qualifiedName}`,
@@ -399,8 +385,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
                     if (attr.name) {
                         const attrRef = `${node.name}.${attr.name}`;
                         if (!seenNames.has(attrRef)) {
-                            acceptor({
-                                label: attrRef,
+                            acceptor(attrRef, {
                                 kind: CompletionItemKind.Field,
                                 detail: 'attribute reference',
                                 documentation: `Attribute ${attr.name} of node ${node.name}`,
@@ -451,8 +436,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
                 // Skip nodes without names
                 if (!node.name) continue;
 
-                acceptor({
-                    label: node.name,
+                acceptor(node.name, {
                     kind: CompletionItemKind.Variable,
                     detail: 'context node',
                     documentation: `Context node: ${node.title || node.name}`,
@@ -492,8 +476,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
             // Skip nodes without names
             if (!node.name) continue;
 
-            acceptor({
-                label: node.name,
+            acceptor(node.name, {
                 kind: CompletionItemKind.Variable,
                 detail: node.type ? `${node.type} node` : 'node',
                 documentation: `Template variable: ${node.name}`,
@@ -504,8 +487,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
             if (node.attributes && node.attributes.length > 0) {
                 for (const attr of node.attributes) {
                     if (attr.name) {
-                        acceptor({
-                            label: `${node.name}.${attr.name}`,
+                        acceptor(`${node.name}.${attr.name}`, {
                             kind: CompletionItemKind.Field,
                             detail: 'attribute',
                             documentation: `Template variable: ${node.name}.${attr.name}`,
@@ -524,8 +506,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         ];
 
         for (const builtIn of builtInVars) {
-            acceptor({
-                label: builtIn.name,
+            acceptor(builtIn.name, {
                 kind: CompletionItemKind.Constant,
                 detail: 'built-in variable',
                 documentation: builtIn.doc,
@@ -563,8 +544,7 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
         ];
 
         for (const arrow of arrowTypes) {
-            acceptor({
-                label: arrow.arrow,
+            acceptor(arrow.arrow, {
                 kind: CompletionItemKind.Operator,
                 detail: arrow.name,
                 documentation: arrow.doc,
