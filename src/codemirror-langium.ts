@@ -410,16 +410,20 @@ export const semanticHighlightTheme = EditorView.baseTheme({
         fontWeight: 'bold'
     },
     '.cm-diagnostic-error': {
-        color: '#f48771'
+        color: '#f48771',
+        border: '0 none !important'
     },
     '.cm-diagnostic-warning': {
-        color: '#cca700'
+        color: '#cca700',
+        border: '0 none !important'
     },
     '.cm-diagnostic-info': {
-        color: '#75beff'
+        color: '#75beff',
+        bordeifjer: '0 none !important'
     },
     '.cm-diagnostic-hint': {
-        color: '#d4d4d4'
+        color: '#d4d4d4',
+        border: '0 none !important'
     },
     // Diagnostic tooltip styling
     '.cm-tooltip.cm-diagnostic-tooltip': {
@@ -449,19 +453,19 @@ export const semanticHighlightTheme = EditorView.baseTheme({
 
     // Inline lint decorations (underlines in the editor)
     '.cm-lintRange-error': {
-        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%23f48771\' fill=\'none\' stroke-width=\'.7\'/></svg>")',
+        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%23f48771\' stroke-opacity=\'0.6\' fill=\'none\' stroke-width=\'.7\'/></svg>") !important',
         backgroundRepeat: 'repeat-x',
         backgroundPosition: 'left bottom',
         paddingBottom: '2px'
     },
     '.cm-lintRange-warning': {
-        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%23efefef\' fill=\'none\' stroke-width=\'.7\'/></svg>")',
+        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%23efefef\' stroke-opacity=\'0.6\' fill=\'none\' stroke-width=\'.7\'/></svg>") !important',
         backgroundRepeat: 'repeat-x',
         backgroundPosition: 'left bottom',
         paddingBottom: '2px'
     },
     '.cm-lintRange-info': {
-        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%2375beff\' fill=\'none\' stroke-width=\'.7\'/></svg>")',
+        backgroundImage: 'url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'3\'><path d=\'m0 3 l3 -3 l3 3\' stroke=\'%2375beff\' stroke-opacity=\'0.6\' fill=\'none\' stroke-width=\'.7\'/></svg>") !important',
         backgroundRepeat: 'repeat-x',
         backgroundPosition: 'left bottom',
         paddingBottom: '2px'
