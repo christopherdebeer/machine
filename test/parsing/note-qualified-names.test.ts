@@ -8,7 +8,7 @@ const services = createMachineServices({ connection: undefined, ...EmptyFileSyst
 const parse = parseHelper<Machine>(services.Machine);
 
 describe('Note Qualified Names', () => {
-    test('note with qualified name should create nested structure and correct target', async () => {
+    test('note with qualified name should remain at root with qualified target', async () => {
         const text = `
 machine "Quick Scaffolding"
 
@@ -28,14 +28,14 @@ note API.Authentication "Handles user authentication";
 
         const machine = result.parseResult.value;
 
-        // Should create API parent node
+        // Should create API parent node for tasks
         expect(machine.nodes).toBeDefined();
         const apiNode = machine.nodes.find(n => n.name === 'API');
         expect(apiNode).toBeDefined();
         expect(apiNode?.nodes).toBeDefined();
 
-        // Should have DataFetch, Response, and Authentication as children
-        expect(apiNode?.nodes.length).toBe(3);
+        // API should have DataFetch and Response as children (tasks are expanded)
+        expect(apiNode?.nodes.length).toBe(2);
 
         const dataFetchNode = apiNode?.nodes.find(n => n.name === 'DataFetch');
         expect(dataFetchNode).toBeDefined();
@@ -47,7 +47,8 @@ note API.Authentication "Handles user authentication";
         expect(responseNode?.type).toBe('task');
         expect(responseNode?.title).toBe('Formats and returns response');
 
-        const authNode = apiNode?.nodes.find(n => n.name === 'Authentication');
+        // Note should be at root level, NOT nested under API
+        const authNode = machine.nodes.find(n => n.name === 'API.Authentication' && n.type === 'note');
         expect(authNode).toBeDefined();
         expect(authNode?.type).toBe('note');
         expect(authNode?.title).toBe('Handles user authentication');
@@ -58,8 +59,7 @@ note API.Authentication "Handles user authentication";
         expect(targetAttr).toBeDefined();
         expect(targetAttr?.value).toBeDefined();
 
-        // This is the bug: target should be "API.Authentication" but is currently just "Authentication"
-        // The fix should make this test pass
+        // The target should be the full qualified name
         const primitiveValue = (targetAttr?.value as any);
         expect(primitiveValue.$type).toBe('PrimitiveValue');
         expect(primitiveValue.value).toBe('API.Authentication'); // Should be full qualified name

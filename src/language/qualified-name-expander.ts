@@ -51,7 +51,9 @@ export class QualifiedNameExpander {
 
         for (let i = 0; i < nodes.length; i++) {
             const node = nodes[i];
-            if (node.name.includes('.')) {
+            // Skip note nodes - they should not be expanded into nested structures
+            // Notes should always remain at the root level with their qualified name as the target
+            if (node.name.includes('.') && node.type?.toLowerCase() !== 'note') {
                 nodesToExpand.push({ node, index: i });
             }
         }

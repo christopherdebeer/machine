@@ -338,8 +338,9 @@ export class MachineLinker extends DefaultLinker {
                             node.attributes = [];
                         }
 
-                        // Get the original qualified name if it was expanded, otherwise use current name
-                        const targetName = this.expander?.getOriginalQualifiedName(node) ?? node.name;
+                        // For notes, use the node name directly (which will be qualified if defined as such)
+                        // Notes are not expanded into nested structures, so their name is always correct
+                        const targetName = node.name;
 
                         // Create the primitive value for the target
                         const primitiveValue = {
