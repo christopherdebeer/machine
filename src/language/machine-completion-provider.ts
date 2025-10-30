@@ -460,122 +460,65 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
 
     /**
      * Add completions for existing nodes (for edge source/target)
-     * with context-aware priority for qualified names
+     * Registers all natural aliases for each node
      */
     private addExistingNodeCompletions(context: CompletionContext, acceptor: CompletionAcceptor): void {
         const machine = this.getMachine(context.node);
         if (!machine) return;
 
         const allNodes = this.getAllNodes(machine);
-        const seenNames = new Set<string>();
+        const seenLabels = new Set<string>();
 
-        // Pass 1: Detect actual simple names and explicit qualified names
-        const actualSimpleNames = new Set<string>();
-        const explicitQualifiedNames = new Set<string>();
+        // First pass: collect all explicit node names
+        const explicitNames = new Set(allNodes.map(n => n.name));
 
-        for (const node of allNodes) {
-            if (!node.name) continue;
-
-            const nameParts = node.name.split('.');
-            if (nameParts.length > 1) {
-                // This is an explicitly qualified name
-                explicitQualifiedNames.add(node.name);
-            } else {
-                // This is a simple name
-                actualSimpleNames.add(node.name);
-            }
-        }
-
-        // Pass 2: Generate completions with context-aware priorities
         for (const node of allNodes) {
             // Skip nodes without names
             if (!node.name) continue;
 
+            // Get all natural aliases for this node
+            const aliases = this.getNodeAliases(node, explicitNames);
             const nameParts = node.name.split('.');
-            const simpleName = nameParts[nameParts.length - 1];
-            const isQualified = nameParts.length > 1;
-            const qualifiedName = this.getQualifiedName(node);
 
-            // Determine conflicts for intelligent prioritization
-            const hasQualifiedConflict = qualifiedName && explicitQualifiedNames.has(qualifiedName);
-            const hasSimpleConflict = actualSimpleNames.has(simpleName);
+            // Add completions for each alias
+            aliases.forEach((alias, index) => {
+                if (!seenLabels.has(alias)) {
+                    // Determine detail text
+                    let detail = node.type ? `${node.type} node` : 'node';
+                    if (alias !== node.name) {
+                        if (nameParts.length > 1 && alias === nameParts[nameParts.length - 1]) {
+                            detail += ` (shorthand for ${node.name})`;
+                        } else {
+                            detail += ` (qualified path to ${node.name})`;
+                        }
+                    }
 
-            if (isQualified) {
-                // Explicitly qualified node (e.g., "Group.Child")
-
-                // Always add the explicit qualified name with high priority
-                if (!seenNames.has(node.name)) {
                     acceptor(context, {
-                        label: node.name,
+                        label: alias,
                         kind: CompletionItemKind.Reference,
-                        detail: node.type ? `${node.type} node (explicit qualified)` : 'node (explicit qualified)',
+                        detail: detail,
                         documentation: node.title || `Node: ${node.name}`,
-                        sortText: '0_' + node.name  // High priority for explicit names
+                        sortText: `${index}_${alias}` // Maintain natural order
                     });
-                    seenNames.add(node.name);
+                    seenLabels.add(alias);
                 }
+            });
 
-                // Add simple name shortcut only if no conflict exists
-                if (!hasSimpleConflict && !seenNames.has(simpleName)) {
-                    acceptor(context, {
-                        label: simpleName,
-                        kind: CompletionItemKind.Reference,
-                        detail: node.type ? `${node.type} node (shorthand for ${node.name})` : `node (shorthand for ${node.name})`,
-                        documentation: node.title || `Node: ${node.name}`,
-                        sortText: '1_' + simpleName  // Lower priority for shortcuts
-                    });
-                    seenNames.add(simpleName);
-                }
-            } else {
-                // Simple node name (e.g., "Child")
-
-                // Always add the simple name with high priority
-                if (!seenNames.has(node.name)) {
-                    acceptor(context, {
-                        label: node.name,
-                        kind: CompletionItemKind.Reference,
-                        detail: node.type ? `${node.type} node` : 'node',
-                        documentation: node.title || `Node: ${node.name}`,
-                        sortText: '0_' + node.name  // High priority for simple names
-                    });
-                    seenNames.add(node.name);
-                }
-
-                // Add qualified name only if no conflict exists
-                if (qualifiedName && !hasQualifiedConflict && !seenNames.has(qualifiedName)) {
-                    acceptor(context, {
-                        label: qualifiedName,
-                        kind: CompletionItemKind.Reference,
-                        detail: node.type ? `${node.type} node (qualified path)` : 'node (qualified path)',
-                        documentation: node.title || `Node: ${qualifiedName}`,
-                        sortText: '1_' + qualifiedName  // Lower priority for qualified paths
-                    });
-                    seenNames.add(qualifiedName);
-                }
-            }
-
-            // Add node.attribute for attributes (using all valid aliases)
+            // Add attribute completions for all aliases
             if (node.attributes && node.attributes.length > 0) {
-                const nodeAliases = [node.name];
-                if (isQualified && !hasSimpleConflict) {
-                    nodeAliases.push(simpleName);
-                } else if (!isQualified && qualifiedName && !hasQualifiedConflict) {
-                    nodeAliases.push(qualifiedName);
-                }
-
-                for (const alias of nodeAliases) {
+                for (const alias of aliases) {
                     for (const attr of node.attributes) {
                         if (attr.name) {
                             const attrRef = `${alias}.${attr.name}`;
-                            if (!seenNames.has(attrRef)) {
+                            if (!seenLabels.has(attrRef)) {
                                 acceptor(context, {
                                     label: attrRef,
                                     kind: CompletionItemKind.Field,
                                     detail: 'attribute reference',
                                     documentation: `Attribute ${attr.name} of node ${node.name}`,
-                                    sortText: '2_' + attrRef
+                                    sortText: `9_${attrRef}` // Lower priority than nodes
                                 });
-                                seenNames.add(attrRef);
+                                seenLabels.add(attrRef);
                             }
                         }
                     }
@@ -585,28 +528,60 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
     }
 
     /**
-     * Get qualified name for a node (parent path + node name)
+     * Get all natural aliases for a node
+     * (Matches the logic in MachineScopeProvider)
      */
-    private getQualifiedName(node: Node): string | undefined {
-        // Split the node's name to get the simple part
-        const nameParts = node.name.split('.');
+    private getNodeAliases(node: Node, explicitNames: Set<string>): string[] {
+        const aliases: string[] = [];
+        const nodeName = node.name;
+        const nameParts = nodeName.split('.');
         const simpleName = nameParts[nameParts.length - 1];
+        const parentPath = this.getParentPath(node);
 
-        // Get parent path
-        const parts: string[] = [];
+        // Always register the declared name (exactly as written)
+        aliases.push(nodeName);
+
+        // If the declared name is qualified (contains dots), also register just the simple part
+        if (nameParts.length > 1) {
+            aliases.push(simpleName);
+        }
+
+        // If nested, register the full path from root (unless it conflicts with an explicit name)
+        if (parentPath.length > 0) {
+            if (nameParts.length > 1) {
+                // Declared name is qualified: parent path + all name parts
+                const fullPath = [...parentPath, ...nameParts].join('.');
+                if (fullPath !== nodeName && !explicitNames.has(fullPath)) {
+                    aliases.push(fullPath);
+                }
+            } else {
+                // Declared name is simple: parent path + simple name
+                const qualifiedPath = [...parentPath, simpleName].join('.');
+                // Only register if it's different from the node name AND doesn't conflict with an explicit name
+                if (qualifiedPath !== nodeName && !explicitNames.has(qualifiedPath)) {
+                    aliases.push(qualifiedPath);
+                }
+            }
+        }
+
+        return aliases;
+    }
+
+    /**
+     * Get the parent path for a node by walking up the AST
+     */
+    private getParentPath(node: Node): string[] {
+        const parents: string[] = [];
         let current: AstNode | undefined = node.$container;
 
         while (current && isNode(current)) {
-            // Use simple name from parent (split on dots)
+            // Extract simple name from parent (handle qualified parent names)
             const parentNameParts = current.name.split('.');
-            parts.unshift(parentNameParts[parentNameParts.length - 1]);
+            parents.unshift(parentNameParts[parentNameParts.length - 1]);
             current = current.$container;
         }
 
-        // Add the node's simple name
-        parts.push(simpleName);
-
-        return parts.length > 1 ? parts.join('.') : undefined;
+        return parents;
     }
 
     /**

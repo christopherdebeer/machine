@@ -6,6 +6,9 @@ export class MachineScopeProvider extends DefaultScopeProvider {
     /**
      * Override getScope to provide custom scoping for node references
      * Supports both simple names (backward compatible) and qualified names (parent.child)
+     *
+     * Strategy: Register all valid paths to each node naturally.
+     * Explicit node names (exact matches) take precedence over path-based aliases.
      */
     override getScope(context: ReferenceInfo): Scope {
         // For node references in edges and notes, we want to include all nodes in the machine
@@ -16,42 +19,30 @@ export class MachineScopeProvider extends DefaultScopeProvider {
                 // Get all nodes in the machine, including nested ones
                 const allNodes = this.getAllNodes(machine);
                 const descriptions: AstNodeDescription[] = [];
-                const seenNames = new Set<string>();
+                const seenAliases = new Map<string, Node>(); // Track which node each alias points to
 
-                // Two-pass approach to handle conflicts intelligently:
-                // Pass 1: Identify conflicts
-                const actualSimpleNames = new Set(
-                    allNodes
-                        .filter(n => !n.name.includes('.'))
-                        .map(n => this.getSimpleName(n.name))
-                );
-                const explicitQualifiedNames = new Set(
-                    allNodes
-                        .filter(n => n.name.includes('.'))
-                        .map(n => n.name)
-                );
+                // First pass: collect all explicit node names (to detect conflicts)
+                const explicitNames = new Set(allNodes.map(n => n.name));
 
-                // Pass 2: Register aliases for all nodes, respecting conflicts
+                // Second pass: register aliases with precedence for explicit names
                 allNodes.forEach(node => {
-                    const aliases = this.getNodeAliasesWithConflictResolution(
-                        node,
-                        actualSimpleNames,
-                        explicitQualifiedNames
-                    );
+                    const aliases = this.getNodeAliases(node, explicitNames);
                     const attributeNames = (node.attributes ?? []).map(attr => attr.name).filter(Boolean);
 
                     aliases.forEach(alias => {
-                        if (!seenNames.has(alias)) {
+                        // Register this alias if not seen (first wins)
+                        if (!seenAliases.has(alias)) {
                             descriptions.push(this.descriptions.createDescription(node, alias));
-                            seenNames.add(alias);
+                            seenAliases.set(alias, node);
                         }
 
+                        // Register attribute access for this alias
                         if (attributeNames.length > 0) {
                             attributeNames.forEach(attrName => {
                                 const attributeAlias = `${alias}.${attrName}`;
-                                if (!seenNames.has(attributeAlias)) {
+                                if (!seenAliases.has(attributeAlias)) {
                                     descriptions.push(this.descriptions.createDescription(node, attributeAlias));
-                                    seenNames.add(attributeAlias);
+                                    seenAliases.set(attributeAlias, node);
                                 }
                             });
                         }
@@ -125,66 +116,52 @@ export class MachineScopeProvider extends DefaultScopeProvider {
     }
 
     /**
-     * Get all aliases for a node with conflict resolution
+     * Get all natural aliases for a node
      *
-     * @param node - The node to generate aliases for
-     * @param actualSimpleNames - Set of simple names that are actually used by nodes
-     * @param explicitQualifiedNames - Set of explicit qualified names used by nodes
-     *
-     * Strategy: Avoid conflicts by preventing nodes from claiming aliases
-     * that belong to explicitly named nodes.
+     * Strategy: Register all valid paths to reach this node.
+     * Skip path-based aliases that conflict with explicit node names.
      *
      * Examples:
-     * - Node "Child" in "Group" with explicit "Group.Child" existing:
-     *   → Registers: "Child" only (skips "Group.Child" to avoid conflict)
+     * - Node "Child" in "Group" (no conflict):
+     *   → Registers: "Child", "Group.Child"
      *
-     * - Node "Group.Child" with actual simple "Child" existing:
-     *   → Registers: "Group.Child" only (skips "Child" to avoid conflict)
+     * - Node "Child" in "Group" (with explicit "Group.Child" node):
+     *   → Registers: "Child" only (skips "Group.Child" path)
      *
-     * - Node "Child" in "Group" with NO explicit "Group.Child":
-     *   → Registers: "Child", "Group.Child" (no conflict)
+     * - Node "Group.Subprocess" in "Group":
+     *   → Registers: "Group.Subprocess", "Subprocess", "Group.Group.Subprocess"
+     *
+     * - Node "Task" at root:
+     *   → Registers: "Task"
      */
-    private getNodeAliasesWithConflictResolution(
-        node: Node,
-        actualSimpleNames: Set<string>,
-        explicitQualifiedNames: Set<string>
-    ): string[] {
+    private getNodeAliases(node: Node, explicitNames: Set<string>): string[] {
         const aliases: string[] = [];
         const nodeName = node.name;
         const nameParts = nodeName.split('.');
         const simpleName = nameParts[nameParts.length - 1];
         const parentPath = this.getParentPath(node);
-        const isQualified = nameParts.length > 1;
 
-        if (isQualified) {
-            // Node has a qualified name (contains dots)
+        // Always register the declared name (exactly as written)
+        aliases.push(nodeName);
 
-            // Always register the explicit qualified name
-            aliases.push(nodeName);
+        // If the declared name is qualified (contains dots), also register just the simple part
+        if (nameParts.length > 1) {
+            aliases.push(simpleName);
+        }
 
-            // Only register the simple name if there's no actual simple node with that name
-            if (!actualSimpleNames.has(simpleName)) {
-                aliases.push(simpleName);
-            }
-
-            // If nested, register the full path
-            if (parentPath.length > 0) {
+        // If nested, register the full path from root (unless it conflicts with an explicit name)
+        if (parentPath.length > 0) {
+            if (nameParts.length > 1) {
+                // Declared name is qualified: parent path + all name parts
                 const fullPath = [...parentPath, ...nameParts].join('.');
-                if (fullPath !== nodeName) {
+                if (fullPath !== nodeName && !explicitNames.has(fullPath)) {
                     aliases.push(fullPath);
                 }
-            }
-        } else {
-            // Simple node name
-
-            // Always register the simple name
-            aliases.push(simpleName);
-
-            // Register with parent path if nested, but only if there's no explicit qualified node with that path
-            if (parentPath.length > 0) {
+            } else {
+                // Declared name is simple: parent path + simple name
                 const qualifiedPath = [...parentPath, simpleName].join('.');
-                // Only register this qualified path if no node explicitly uses it as their name
-                if (!explicitQualifiedNames.has(qualifiedPath)) {
+                // Only register if it's different from the node name AND doesn't conflict with an explicit name
+                if (qualifiedPath !== nodeName && !explicitNames.has(qualifiedPath)) {
                     aliases.push(qualifiedPath);
                 }
             }
