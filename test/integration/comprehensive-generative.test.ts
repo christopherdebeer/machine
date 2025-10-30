@@ -5,6 +5,7 @@ import { createMachineServices } from "../../src/language/machine-module.js";
 import { Machine, isMachine } from "../../src/language/generated/ast.js";
 import { generateJSON, generateGraphviz } from "../../src/language/generator/generator.js";
 import { renderDotToSVG } from "../../src/language/diagram/graphviz-generator.js";
+import { base64UrlEncode } from "../../src/utils/url-encoding.js";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as crypto from "node:crypto";
@@ -246,9 +247,9 @@ class ValidationReporter {
      * Generate a playground link with source code pre-loaded
      */
     private generatePlaygroundLink(source: string): string {
-        // Encode the source code to base64 for URL safety
-        const encoded = Buffer.from(source).toString('base64');
-        return `${this.playgroundUrl}#content=${encodeURIComponent(encoded)}`;
+        // Encode the source code using the shared URL encoding utility
+        const encoded = base64UrlEncode(source);
+        return `${this.playgroundUrl}#content=${encoded}`;
     }
 
     addResult(result: ValidationResult): void {
