@@ -7,7 +7,8 @@ import { QualifiedNameExpander } from './qualified-name-expander.js';
  * Custom linker that auto-creates nodes for undefined references when not in @StrictMode
  */
 export class MachineLinker extends DefaultLinker {
-    
+    private expander?: QualifiedNameExpander;
+
     constructor(services: MachineServices) {
         super(services);
     }
@@ -56,8 +57,8 @@ export class MachineLinker extends DefaultLinker {
         const machine = document.parseResult.value as Machine;
         if (isMachine(machine)) {
             // Phase 1: Expand qualified names in node definitions
-            const expander = new QualifiedNameExpander();
-            expander.expandQualifiedNames(machine);
+            this.expander = new QualifiedNameExpander();
+            this.expander.expandQualifiedNames(machine);
 
             const isStrict = this.isStrictMode(machine);
 
@@ -330,12 +331,15 @@ export class MachineLinker extends DefaultLinker {
                 if (node.type === 'note') {
                     // Check if target attribute already exists
                     const hasTargetAttr = node.attributes?.some(attr => attr.name === 'target');
-                    
+
                     if (!hasTargetAttr) {
                         // Initialize attributes array if it doesn't exist
                         if (!node.attributes) {
                             node.attributes = [];
                         }
+
+                        // Get the original qualified name if it was expanded, otherwise use current name
+                        const targetName = this.expander?.getOriginalQualifiedName(node) ?? node.name;
 
                         // Create the primitive value for the target
                         const primitiveValue = {
@@ -343,7 +347,7 @@ export class MachineLinker extends DefaultLinker {
                             $container: undefined as any, // Will be set after creation
                             $containerProperty: 'value' as const,
                             $containerIndex: undefined,
-                            value: node.name
+                            value: targetName
                         };
 
                         // Create target attribute from the node's name

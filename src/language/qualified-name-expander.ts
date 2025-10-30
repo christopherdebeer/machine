@@ -16,6 +16,16 @@ import { Machine, Node, isMachine, isNode } from './generated/ast.js';
  * represents the actual nested structure that scope provider expects.
  */
 export class QualifiedNameExpander {
+    // Store original qualified names for note nodes (used by linker to set correct target)
+    private originalQualifiedNames = new WeakMap<Node, string>();
+
+    /**
+     * Get the original qualified name of a node before expansion (if it was expanded)
+     */
+    getOriginalQualifiedName(node: Node): string | undefined {
+        return this.originalQualifiedNames.get(node);
+    }
+
     /**
      * Expand all qualified node names in the machine
      */
@@ -81,6 +91,12 @@ export class QualifiedNameExpander {
         // If only one part, nothing to expand
         if (parts.length === 1) {
             return;
+        }
+
+        // Store the original qualified name for note nodes (needed by linker)
+        // Notes use their name as target, so we need to preserve the full qualified path
+        if (node.type?.toLowerCase() === 'note') {
+            this.originalQualifiedNames.set(node, node.name);
         }
 
         // Remove the qualified node from the array (we'll re-add it nested)
