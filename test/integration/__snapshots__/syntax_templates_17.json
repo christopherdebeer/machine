@@ -1,0 +1,56 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "defaults",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "timeout",
+            "type": "Duration",
+            "value": "PT30S"
+          },
+          {
+            "name": "retries",
+            "type": "Integer",
+            "value": 3
+          }
+        ]
+      },
+      {
+        "name": "production",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "timeout",
+            "type": "Duration",
+            "value": "PT60S"
+          }
+        ]
+      },
+      {
+        "name": "apiCall",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "timeout",
+            "value": "{{ production.timeout }}"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "apiCall",
+        "target": "production",
+        "reason": "reads timeout",
+        "path": "production.timeout"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"defaults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>defaults</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : Integer</td><td port=\"retries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"production\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>production</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT60S</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"apiCall\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiCall</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">{{ production.timeout }}</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Inferred Dependencies\n  \"apiCall\" -> \"production\" [label=\"reads timeout\", style=dashed, color=blue];\n}",
+  "svgHash": "b4c637617a4182c8d9ef1c21efd4e7155d1afb3673b46eaae10bdbef27f6b500"
+}

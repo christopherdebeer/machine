@@ -3,52 +3,26 @@
     "attributes": [],
     "nodes": [
       {
-        "name": "a",
-        "attributes": []
-      },
-      {
-        "name": "b",
-        "attributes": []
+        "name": "process",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "count",
+            "type": "Integer",
+            "value": 42
+          },
+          {
+            "name": "id",
+            "type": "UUID",
+            "value": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        ]
       }
     ],
-    "edges": [
-      {
-        "source": "a",
-        "target": "b",
-        "arrowType": "->",
-        "value": {
-          "text": "label"
-        },
-        "attributes": {
-          "text": "label"
-        }
-      },
-      {
-        "source": "a",
-        "target": "b",
-        "arrowType": "-->",
-        "value": {
-          "text": "label"
-        },
-        "attributes": {
-          "text": "label"
-        }
-      },
-      {
-        "source": "a",
-        "target": "b",
-        "arrowType": "=>",
-        "value": {
-          "text": "label"
-        },
-        "attributes": {
-          "text": "label"
-        }
-      }
-    ],
+    "edges": [],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"a\" -> \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">label</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">label</td></tr></table>>, style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">label</td></tr></table>>, penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "da39c502d41d61be2a7f72e3cbefa3c6a3e8f2106fa35662c0c47c7ffcdc8a4e"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count : Integer</td><td port=\"count__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"id__key\" align=\"left\" balign=\"left\">id : UUID</td><td port=\"id__value\" align=\"left\" balign=\"left\">550e8400-e29b-41d4-a716-446655<br align=\"left\"/>440000</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "22a3a0db00ea54c5702b97e02140a5e537588372e6eb86dd46f0396b8ef77c37"
 }

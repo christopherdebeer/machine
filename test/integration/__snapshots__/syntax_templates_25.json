@@ -1,0 +1,69 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "apiConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "baseUrl",
+            "value": "https://api.example.com"
+          },
+          {
+            "name": "version",
+            "value": "v1"
+          }
+        ]
+      },
+      {
+        "name": "authConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "token",
+            "value": "#envToken"
+          }
+        ]
+      },
+      {
+        "name": "makeRequest",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "url",
+            "value": "{{ apiConfig.baseUrl }}/{{ apiConfig.version }}/users"
+          },
+          {
+            "name": "auth",
+            "value": "Bearer {{ authConfig.token }}"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "makeRequest",
+        "target": "apiConfig",
+        "reason": "reads url",
+        "path": "apiConfig.baseUrl"
+      },
+      {
+        "source": "makeRequest",
+        "target": "apiConfig",
+        "reason": "reads url",
+        "path": "apiConfig.version"
+      },
+      {
+        "source": "makeRequest",
+        "target": "authConfig",
+        "reason": "reads auth",
+        "path": "authConfig.token"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"apiConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"baseUrl__key\" align=\"left\" balign=\"left\">baseUrl</td><td port=\"baseUrl__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version</td><td port=\"version__value\" align=\"left\" balign=\"left\">v1</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"authConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"token__key\" align=\"left\" balign=\"left\">token</td><td port=\"token__value\" align=\"left\" balign=\"left\">#envToken</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"makeRequest\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>makeRequest</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"url__key\" align=\"left\" balign=\"left\">url</td><td port=\"url__value\" align=\"left\" balign=\"left\">{{ apiConfig.baseUrl }}/{{<br align=\"left\"/>apiConfig.version }}/users</td></tr><tr><td port=\"auth__key\" align=\"left\" balign=\"left\">auth</td><td port=\"auth__value\" align=\"left\" balign=\"left\">Bearer {{ authConfig.token }}</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Inferred Dependencies\n  \"makeRequest\" -> \"apiConfig\" [label=\"reads url\", style=dashed, color=blue];\n  \"makeRequest\" -> \"apiConfig\" [label=\"reads url\", style=dashed, color=blue];\n  \"makeRequest\" -> \"authConfig\" [label=\"reads auth\", style=dashed, color=blue];\n}",
+  "svgHash": "c3e51b604fca88c5d71b75bdeea6e4263302b837aeca9ee2fe155cc175029305"
+}

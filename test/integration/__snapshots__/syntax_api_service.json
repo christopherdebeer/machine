@@ -3,12 +3,18 @@
     "title": "API Service",
     "attributes": [
       {
-        "name": "version",
-        "value": "1.0.0"
-      },
-      {
         "name": "environment",
         "value": "production"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "Version",
+        "value": "3.0"
+      },
+      {
+        "name": "Owner",
+        "value": "Platform Team"
       }
     ],
     "nodes": [],
@@ -16,6 +22,6 @@
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>API Service</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v1.0.0 </font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">production</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
-  "svgHash": "06644ce4a5b970ac1021b8175a44b982a32879a840fa9c67c8c68aa70ca97968"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>API Service</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @Version(&quot;3.0&quot;) @Owner(&quot;Platform Team&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">production</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "2ffcd44c0ee1f41a5ca61f99cbffdd947889b12d8a552a5e0a25042b402e17ac"
 }

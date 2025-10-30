@@ -3,32 +3,59 @@
     "attributes": [],
     "nodes": [
       {
-        "name": "a",
+        "name": "API",
         "attributes": []
       },
       {
-        "name": "b",
+        "name": "Auth",
+        "attributes": [],
+        "parent": "API"
+      },
+      {
+        "name": "Login",
+        "attributes": [],
+        "parent": "Auth"
+      },
+      {
+        "name": "Logout",
+        "attributes": [],
+        "parent": "Auth"
+      },
+      {
+        "name": "Data",
+        "attributes": [],
+        "parent": "API"
+      },
+      {
+        "name": "Fetch",
+        "attributes": [],
+        "parent": "Data"
+      },
+      {
+        "name": "Store",
+        "attributes": [],
+        "parent": "Data"
+      },
+      {
+        "name": "Start",
         "attributes": []
       }
     ],
     "edges": [
       {
-        "source": "a",
-        "target": "b",
-        "arrowType": "->",
-        "value": {
-          "condition": "true",
-          "priority": "1"
-        },
-        "attributes": {
-          "condition": "true",
-          "priority": "1"
-        }
+        "source": "Start",
+        "target": "Login",
+        "arrowType": "->"
+      },
+      {
+        "source": "Login",
+        "target": "Fetch",
+        "arrowType": "->"
       }
     ],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"a\" -> \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">condition=true, priority=1</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "1f49056966bf914052a874a610536b2716df30a2749964bcbd2f7297b498b3d9"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_API {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>API</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"API__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    subgraph cluster_Auth {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Auth</b></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      \"Auth__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"Login\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Login</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n      \"Logout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Logout</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    }\n    subgraph cluster_Data {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Data</b></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      \"Data__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"Fetch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Fetch</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n      \"Store\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Store</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    }\n  }\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n\n  // Edges\n  \"Start\" -> \"Login\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Login\" -> \"Fetch\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "124224ca150d629418adf330e0cb10d2278b01e42a34676472316231c12367c5"
 }

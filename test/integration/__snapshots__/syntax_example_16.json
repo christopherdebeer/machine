@@ -3,41 +3,75 @@
     "attributes": [],
     "nodes": [
       {
-        "name": "User",
+        "name": "Idle",
+        "type": "state",
         "attributes": []
       },
       {
-        "name": "Post",
+        "name": "Running",
+        "type": "state",
         "attributes": []
       },
       {
-        "name": "Order",
+        "name": "Paused",
+        "type": "state",
         "attributes": []
       },
       {
-        "name": "LineItem",
+        "name": "Stopped",
+        "type": "state",
         "attributes": []
       }
     ],
     "edges": [
       {
-        "source": "User",
-        "target": "Post",
-        "arrowType": "-->",
-        "sourceMultiplicity": "1",
-        "targetMultiplicity": "*"
+        "source": "Idle",
+        "target": "Running",
+        "arrowType": "->",
+        "value": {
+          "text": "start"
+        },
+        "attributes": {
+          "text": "start"
+        }
       },
       {
-        "source": "Order",
-        "target": "LineItem",
-        "arrowType": "-->",
-        "sourceMultiplicity": "1",
-        "targetMultiplicity": "1..*"
+        "source": "Running",
+        "target": "Paused",
+        "arrowType": "->",
+        "value": {
+          "text": "pause"
+        },
+        "attributes": {
+          "text": "pause"
+        }
+      },
+      {
+        "source": "Paused",
+        "target": "Running",
+        "arrowType": "->",
+        "value": {
+          "text": "resume"
+        },
+        "attributes": {
+          "text": "resume"
+        }
+      },
+      {
+        "source": "Running",
+        "target": "Stopped",
+        "arrowType": "->",
+        "value": {
+          "text": "stop"
+        },
+        "attributes": {
+          "text": "stop"
+        }
       }
     ],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"User\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>User</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Post\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Post</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Order\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Order</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"LineItem\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LineItem</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"User\" -> \"Post\" [taillabel=\"1\", headlabel=\"*\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Order\" -> \"LineItem\" [taillabel=\"1\", headlabel=\"1..*\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "867c96f25b9102488cfa610176d6ea21144311d288772f5abcbc2c27e910fcb7"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Idle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Idle</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Running</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Paused</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Stopped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Stopped</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Idle\" -> \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">start</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Running\" -> \"Paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">pause</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Paused\" -> \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">resume</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Running\" -> \"Stopped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">stop</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "9d300db728953eb6516ed3857078bd68b09c50f10f827082555a4a2b90274df3"
 }

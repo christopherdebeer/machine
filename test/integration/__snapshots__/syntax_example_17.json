@@ -3,30 +3,50 @@
     "attributes": [],
     "nodes": [
       {
-        "name": "a",
-        "attributes": []
+        "name": "input",
+        "type": "task",
+        "attributes": [],
+        "title": "Receive Input"
       },
       {
-        "name": "b",
-        "attributes": []
+        "name": "validate",
+        "type": "task",
+        "attributes": [],
+        "title": "Validate Data"
+      },
+      {
+        "name": "transform",
+        "type": "task",
+        "attributes": [],
+        "title": "Transform Data"
+      },
+      {
+        "name": "output",
+        "type": "task",
+        "attributes": [],
+        "title": "Send Output"
       }
     ],
     "edges": [
       {
-        "source": "a",
-        "target": "b",
-        "annotations": [
-          {
-            "name": "style",
-            "value": "color: red; stroke-width: 3px"
-          }
-        ],
+        "source": "input",
+        "target": "validate",
+        "arrowType": "->"
+      },
+      {
+        "source": "validate",
+        "target": "transform",
+        "arrowType": "->"
+      },
+      {
+        "source": "transform",
+        "target": "output",
         "arrowType": "->"
       }
     ],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"a\" -> \"b\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"red\", penwidth=\"3px\"];\n}",
-  "svgHash": "00d65c7d850eb495faed1f4f3ba90548c7490d7580e93c287477b4a7640957ef"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"input\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>input</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Receive Input</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate Data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transform</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Transform Data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"output\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>output</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Send Output</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"input\" -> \"validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validate\" -> \"transform\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transform\" -> \"output\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "b46e15ace669e8e0f7a86c5e8ed4f6228a18299ccc3c76871fb3062e6893cc2c"
 }

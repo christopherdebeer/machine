@@ -1,0 +1,20 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "prompt",
+        "value": "API: {{ config.url }}, Key: {{ config.key }}"
+      },
+      {
+        "name": "prompt",
+        "value": "Connect to {{ config.protocol }}://{{ config.host }}:{{ config.port }}/{{ config.path }}?key={{ config.apiKey }}&timeout={{ config.timeout }}&retry={{ config.retries }}"
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"prompt__key\" align=\"left\" balign=\"left\">prompt</td><td port=\"prompt__value\" align=\"left\" balign=\"left\">API: {{ config.url }}, Key: {{<br align=\"left\"/>config.key }}</td></tr><tr><td port=\"prompt__key_1\" align=\"left\" balign=\"left\">prompt</td><td port=\"prompt__value_1\" align=\"left\" balign=\"left\">Connect to {{ config.protocol<br align=\"left\"/>}}://{{ config.host }}:{{<br align=\"left\"/>config.port }}/{{ config.path<br align=\"left\"/>}}?key={{ config.apiKey<br align=\"left\"/>}}&amp;timeout={{ config.timeout<br align=\"left\"/>}}&amp;retry={{ config.retries }}</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "46abf497d50a84494e882726a4d6bc959d1c613cd7b4e9ad2809aa21f974642b"
+}

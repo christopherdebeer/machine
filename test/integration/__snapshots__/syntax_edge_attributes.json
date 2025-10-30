@@ -1,34 +1,75 @@
 {
   "json": {
+    "title": "Edge Attributes",
     "attributes": [],
     "nodes": [
       {
-        "name": "a",
+        "name": "Workflow",
         "attributes": []
       },
       {
-        "name": "b",
+        "name": "Validate",
+        "type": "task",
+        "attributes": [],
+        "parent": "Workflow",
+        "title": "Validation step"
+      },
+      {
+        "name": "Transform",
+        "type": "task",
+        "attributes": [],
+        "parent": "Workflow",
+        "title": "Transformation step"
+      },
+      {
+        "name": "Start",
+        "attributes": []
+      },
+      {
+        "name": "End",
         "attributes": []
       }
     ],
     "edges": [
       {
-        "source": "a",
-        "target": "b",
+        "source": "Start",
+        "target": "Validate",
         "arrowType": "->",
         "value": {
-          "condition": "true",
           "priority": "1"
         },
         "attributes": {
-          "condition": "true",
           "priority": "1"
+        }
+      },
+      {
+        "source": "Validate",
+        "target": "Transform",
+        "arrowType": "->",
+        "value": {
+          "weight": "0.8",
+          "condition": "ready"
+        },
+        "attributes": {
+          "weight": "0.8",
+          "condition": "ready"
+        }
+      },
+      {
+        "source": "Transform",
+        "target": "End",
+        "arrowType": "->",
+        "value": {
+          "timeout": "5000"
+        },
+        "attributes": {
+          "timeout": "5000"
         }
       }
     ],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"a\" -> \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">condition=true, priority=1</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "1f49056966bf914052a874a610536b2716df30a2749964bcbd2f7297b498b3d9"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Edge Attributes</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Workflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Workflow</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Workflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validation step</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Transform</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Transformation step</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Start\" -> \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">priority=1</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Validate\" -> \"Transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">weight=0.8, condition=ready</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Transform\" -> \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">timeout=5000</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "07a38af7d98c89454e829fc228f80fc9813e83f14ab4e8bd525d340bcad1e05d"
 }
