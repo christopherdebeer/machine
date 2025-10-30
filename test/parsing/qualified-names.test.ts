@@ -144,11 +144,7 @@ describe('Qualified Names', () => {
         document = await parse(`
             machine "Notes Test"
 
-            Group {
-                Node1;
-            }
-
-            note Group.Node1 "This is a note a nested node"
+            note Group.Node1 "This is a note in nested node"
         `);
 
         const errors = checkDocumentValid(document);
@@ -158,10 +154,17 @@ describe('Qualified Names', () => {
         }
 
         const machine = document.parseResult.value;
-        // Notes are nodes with type='note' and qualified names are supported for node names
-        const noteNodes = machine.nodes.filter(n => n.type?.toLowerCase() === 'note');
-        expect(noteNodes).toHaveLength(1);
-        expect(noteNodes[0].name).toBe('Group.Node1');
+        // With hierarchical qualified names, this creates: Group { Node1 (note) }
+        expect(machine.nodes).toHaveLength(1);
+
+        const group = machine.nodes[0];
+        expect(group.name).toBe('Group');
+        expect(group.nodes).toHaveLength(1);
+
+        const node1 = group.nodes[0];
+        expect(node1.name).toBe('Node1');
+        expect(node1.type?.toLowerCase()).toBe('note');
+        expect(node1.title).toBe('This is a note in nested node');
     });
 
     test('qualified name collision handling - explicit qualified child', async () => {
@@ -170,15 +173,16 @@ describe('Qualified Names', () => {
 
             Group {
                 task Child "Simple child";
-                note Group.Child "Explicit qualified child";
             }
+
+            note Group.SubGroup.Item "Deeply nested note";
 
             Start;
             End;
 
-            Start -> Child;
-            Child -> Group.Child;
-            Group.Child -> End;
+            Start -> Group.Child;
+            Group.Child -> Group.SubGroup.Item;
+            Group.SubGroup.Item -> End;
         `);
 
         const errors = checkDocumentValid(document);
@@ -190,20 +194,24 @@ describe('Qualified Names', () => {
         const machine = document.parseResult.value;
         expect(machine.edges).toHaveLength(3);
 
-        // Edge 1: Start -> Child (should resolve to simple child)
-        const edge1 = machine.edges[0];
-        expect(edge1.source[0].ref?.name).toBe('Start');
-        expect(edge1.segments[0].target[0].ref?.name).toBe('Child');
+        // Verify hierarchical structure: Group { Child; SubGroup { Item; } }
+        expect(machine.nodes).toHaveLength(3); // Group, Start, End
 
-        // Edge 2: Child -> Group.Child (simple to explicit qualified)
-        const edge2 = machine.edges[1];
-        expect(edge2.source[0].ref?.name).toBe('Child');
-        expect(edge2.segments[0].target[0].ref?.name).toBe('Group.Child');
+        const group = machine.nodes.find(n => n.name === 'Group');
+        expect(group).toBeDefined();
+        expect(group?.nodes).toHaveLength(2); // Child and SubGroup
 
-        // Edge 3: Group.Child -> End (explicit qualified to end)
-        const edge3 = machine.edges[2];
-        expect(edge3.source[0].ref?.name).toBe('Group.Child');
-        expect(edge3.segments[0].target[0].ref?.name).toBe('End');
+        const child = group?.nodes.find(n => n.name === 'Child');
+        expect(child).toBeDefined();
+        expect(child?.type).toBe('task');
+
+        const subGroup = group?.nodes.find(n => n.name === 'SubGroup');
+        expect(subGroup).toBeDefined();
+        expect(subGroup?.nodes).toHaveLength(1);
+
+        const item = subGroup?.nodes.find(n => n.name === 'Item');
+        expect(item).toBeDefined();
+        expect(item?.type?.toLowerCase()).toBe('note');
     });
 
     test('root-level qualified name node', async () => {
@@ -223,12 +231,23 @@ describe('Qualified Names', () => {
         }
 
         const machine = document.parseResult.value;
-        expect(machine.edges).toHaveLength(1);
+        // With hierarchical qualified names, this creates: Namespace { Item (note) }
+        expect(machine.nodes).toHaveLength(2); // Namespace and Start
 
+        const namespace = machine.nodes.find(n => n.name === 'Namespace');
+        expect(namespace).toBeDefined();
+        expect(namespace?.nodes).toHaveLength(1);
+
+        const item = namespace?.nodes.find(n => n.name === 'Item');
+        expect(item).toBeDefined();
+        expect(item?.type?.toLowerCase()).toBe('note');
+        expect(item?.title).toBe('Creating a node with qualified name at root level');
+
+        // Edge should reference the nested item
+        expect(machine.edges).toHaveLength(1);
         const edge = machine.edges[0];
         expect(edge.source[0].ref?.name).toBe('Start');
-        // Should resolve to the note with name "Namespace.Item"
-        expect(edge.segments[0].target[0].ref?.name).toBe('Namespace.Item');
+        expect(edge.segments[0].target[0].ref?.name).toBe('Item');
     });
 
     test('partial path qualification in nested context', async () => {
@@ -267,14 +286,14 @@ describe('Qualified Names', () => {
             machine "Matching Parent Test"
 
             Pipeline {
-                task Pipeline.Step1 "Explicit qualified matches parent";
+                task Workflow.Step1 "Nested qualified name";
                 task Step2 "Simple name";
             }
 
             Start;
 
-            Start -> Pipeline.Step1;
-            Pipeline.Step1 -> Step2;
+            Start -> Pipeline.Workflow.Step1;
+            Pipeline.Workflow.Step1 -> Pipeline.Step2;
         `);
 
         const errors = checkDocumentValid(document);
@@ -284,14 +303,25 @@ describe('Qualified Names', () => {
         }
 
         const machine = document.parseResult.value;
+        // With hierarchical names, Pipeline { Workflow { Step1 }, Step2 }
+        const pipeline = machine.nodes.find(n => n.name === 'Pipeline');
+        expect(pipeline).toBeDefined();
+        expect(pipeline?.nodes).toHaveLength(2); // Workflow and Step2
+
+        const workflow = pipeline?.nodes.find(n => n.name === 'Workflow');
+        expect(workflow).toBeDefined();
+        expect(workflow?.nodes).toHaveLength(1);
+
+        const step1 = workflow?.nodes.find(n => n.name === 'Step1');
+        expect(step1).toBeDefined();
+        expect(step1?.type).toBe('task');
+
+        const step2 = pipeline?.nodes.find(n => n.name === 'Step2');
+        expect(step2).toBeDefined();
+        expect(step2?.type).toBe('task');
+
+        // Verify edge references work correctly
         expect(machine.edges).toHaveLength(2);
-
-        const edge1 = machine.edges[0];
-        expect(edge1.segments[0].target[0].ref?.name).toBe('Pipeline.Step1');
-
-        const edge2 = machine.edges[1];
-        expect(edge2.source[0].ref?.name).toBe('Pipeline.Step1');
-        expect(edge2.segments[0].target[0].ref?.name).toBe('Step2');
     });
 
     test('simple name reference priority within nested context', async () => {

@@ -90,7 +90,7 @@ describe('Hierarchical Qualified Names', () => {
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         // Should create: one { two { three; four; } }
         expect(machine.nodes).toHaveLength(1);
@@ -125,7 +125,7 @@ describe('Hierarchical Qualified Names', () => {
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         const i = machine.nodes[0];
         expect(i.name).toBe('i');
@@ -160,7 +160,7 @@ describe('Hierarchical Qualified Names', () => {
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         // Should create: A { B { C; D; }; E; }
         expect(machine.nodes).toHaveLength(1);
@@ -196,7 +196,7 @@ describe('Hierarchical Qualified Names', () => {
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         expect(machine.nodes).toHaveLength(1);
 
@@ -210,7 +210,7 @@ describe('Hierarchical Qualified Names', () => {
         const b = a.nodes.find(n => n.name === 'B');
         expect(b).toBeDefined();
         expect(b?.type).toBe('task');
-        expect(b?.title).toBe('"B in A"');
+        expect(b?.title).toBe('B in A');
 
         const c = a.nodes.find(n => n.name === 'C');
         expect(c).toBeDefined();
@@ -226,7 +226,7 @@ describe('Hierarchical Qualified Names', () => {
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         const workflow = machine.nodes[0];
         expect(workflow.name).toBe('workflow');
@@ -248,7 +248,7 @@ describe('Hierarchical Qualified Names', () => {
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         // Verify edges exist
         expect(machine.edges).toHaveLength(3);
@@ -277,7 +277,7 @@ describe('Hierarchical Qualified Names', () => {
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         const workflow = machine.nodes[0];
         expect(workflow.name).toBe('workflow');
@@ -298,13 +298,11 @@ describe('Hierarchical Qualified Names', () => {
         const result = await parse(`
             machine "Test"
 
-            @Async
-            @Singleton
-            task workflow.background.processor;
+            task workflow.background.processor @Async @Singleton;
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         const processor = findNodeByPath(machine, 'workflow.background.processor');
         expect(processor).toBeDefined();
@@ -353,7 +351,7 @@ describe('Hierarchical Qualified Names', () => {
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         // Verify root nodes
         expect(machine.nodes.length).toBeGreaterThanOrEqual(5);
@@ -409,7 +407,7 @@ describe('Hierarchical Qualified Names', () => {
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         const b = findNodeByPath(machine, 'A.B');
         expect(b).toBeDefined();
@@ -431,7 +429,7 @@ describe('Hierarchical Qualified Names', () => {
         `);
 
         const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
+        expect(result.parseResult.parserErrors).toHaveLength(0);
 
         const b = findNodeByPath(machine, 'A.B');
         expect(b).toBeDefined();
