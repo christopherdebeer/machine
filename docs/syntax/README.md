@@ -1,465 +1,400 @@
 # Language Reference
 
-Complete reference for the DyGram language syntax.
+Complete reference for the DyGram language syntax. DyGram is a declarative language for defining machines, workflows, state machines, and system architectures.
 
-## Table of Contents
+## Quick Links
 
-## Machine Declaration
+**Core Concepts:**
+- **[Machines](machines.md)** - Top-level machine declarations
+- **[Nodes](nodes.md)** - Building blocks of your machine
+- **[Edges](edges.md)** - Relationships and transitions
+- **[Attributes](attributes.md)** - Typed metadata and configuration
 
-Every DyGram file can optionally start with a machine declaration:
+**Advanced Features:**
+- **[Types](types.md)** - Type system and validation
+- **[Annotations](annotations.md)** - Semantic metadata
+- **[Identifiers](identifiers.md)** - Naming rules and conventions
+- **[Qualified Names](qualified-names.md)** - Dot notation for references
+- **[Templates](templates.md)** - Template strings and variable references
 
-```dygram examples/syntax/machine-title.dygram
-machine "My Machine"
+## Getting Started
+
+### Hello World
+
+The simplest DyGram machine:
+
+```dygram
+Start -> End;
 ```
 
-With annotations:
+### Basic Workflow
 
-```dygram examples/syntax/machine-annotation.dygram
-machine "Production System" @Critical @Version("2.0")
+A typical workflow with nodes and edges:
+
+```dygram
+machine "Simple Workflow"
+
+Task validate "Validate Input";
+Task process "Process Data";
+Task complete "Complete Task";
+
+Start -> validate -> process -> complete -> End;
 ```
 
-With machine-level attributes:
+### With Types and Attributes
 
-```dygram examples/syntax/machine-attributes.dygram
+Adding structure and configuration:
+
+```dygram
 machine "API Service" {
     version: "1.0.0";
     environment: "production";
 };
+
+Context config {
+    apiKey<string>: #envApiKey;
+    timeout<Duration>: "PT30S";
+};
+
+Task authenticate @Critical {
+    provider: "OAuth2";
+};
+
+Task fetchData @Async {
+    endpoint<URL>: "https://api.example.com";
+};
+
+Start -> authenticate --> fetchData -> End;
 ```
 
-## Nodes
+## Language Overview
 
-Nodes are the fundamental building blocks of a machine.
+### Machines
 
-### Basic Syntax
+Machines are the top-level container. They're optional but provide a way to name and configure your definition.
 
-```dygram examples/syntax/machine-basic.dygram
-nodeName;
+```dygram
+machine "My Machine" @Version("1.0") {
+    environment: "production";
+};
 ```
 
-### With Optional Type
+Learn more: **[Machines](machines.md)**
 
-```dygram examples/syntax/node-types.dygram
-Task process;
-State ready;
-Input data;
-Output result;
-```
+### Nodes
 
-Common node types: `Task`, `State`, `Input`, `Output`, `Context`, `Resource`, `Concept`, `Implementation`, etc.
+Nodes represent entities in your system: tasks, states, resources, or concepts.
 
-### With Title
+```dygram
+Task process;                    // Simple node
+Task analyze "Analyze Data";     // With title
+State ready @Critical;           // With annotation
 
-```dygram examples/syntax/node-title.dygram
-Task process "Process the data";
-```
-
-### With Attributes
-
-```dygram examples/syntax/node-attributes.dygram
-Task analyze {
+Task configured {                // With attributes
     model: "claude-3-5-sonnet-20241022";
     temperature: 0.7;
-    max_tokens: 4096;
 };
 ```
 
-### With Annotations
+Learn more: **[Nodes](nodes.md)**
 
-```dygram examples/syntax/node-annotations.dygram
-Task critical @Critical @Async;
-Resource legacy @Deprecated("Use newResource instead");
-```
-
-### Nested Nodes
-
-```dygram examples/syntax/node-nesting.dygram
-Process workflow {
-    Task start "Initialize";
-    Task validate "Validate input";
-    Task process "Process data";
-
-    start -> validate -> process;
-};
-```
-
-## Edges
+### Edges
 
 Edges define relationships and transitions between nodes.
 
-### Basic Edges
+```dygram
+start -> end;                    // Basic edge
+a -> b, c, d;                    // Multiple targets
+a -> b -> c -> d;                // Chain syntax
 
-```dygram examples/syntax/edge-basic.dygram
-start -> end;
+a -label-> b;                    // Labeled edge
+a -condition: true-> b;          // With attributes
+a --> b;                         // Strong association
+a => b;                          // Transformation
 ```
 
-### Multiple Targets
+Learn more: **[Edges](edges.md)**
 
-```dygram examples/syntax/edge-multiple-targets.dygram
-start -> task1, task2, task3;
-```
+### Attributes
 
-### Chain Syntax
+Attributes add typed configuration and metadata.
 
-```dygram examples/syntax/edge-chaining.dygram
-start -> process -> validate -> complete;
-```
-
-### Arrow Types
-
-DyGram supports multiple arrow types for semantic relationships:
-
-```dygram examples/syntax/edge-types.dygram
-// Single arrow (default transition)
-a -> b;
-
-// Double arrow (strong association)
-a --> b;
-
-// Fat arrow (transformation)
-a => b;
-
-// Inheritance
-Child <|-- Parent;
-
-// Composition (strong ownership)
-Container *--> Component;
-
-// Aggregation (weak ownership)
-Group o--> Member;
-
-// Bidirectional
-a <--> b;
-```
-
-### Edge Labels
-
-```dygram examples/syntax/edge-labels.dygram
-a -label-> b;
-a --label--> b;
-a =label=> b;
-```
-
-### Edge Attributes
-
-```dygram examples/syntax/edge-attributes.dygram
-a -condition: true, priority: 1-> b;
-```
-
-### Multiplicity
-
-```dygram examples/syntax/edge-multiplicity.dygram
-User "1" --> "*" Post;
-Order "1" --> "1..*" LineItem;
-```
-
-### Edge Annotations
-
-```dygram examples/syntax/edge-annotations.dygram
-a -@style("color: red; stroke-width: 3px")-> b;
-```
-
-## Attributes
-
-Attributes add metadata and configuration to nodes.
-
-### Basic Attributes
-
-```dygram examples/syntax/attributes.dygram
-name: "value";
-count: 42;
-enabled: true;
-```
-
-### Typed Attributes
-
-```dygram examples/syntax/typed-attributes.dygram
-port<number>: 3000;
-host<string>: "localhost";
-timeout<Duration>: "30s";
-```
-
-### Generic Types
-
-```dygram examples/syntax/types-generic.dygram
-results<Array<string>>: ["a", "b", "c"];
-data<Map<string, number>>: #dataMap;
-promise<Promise<Result>>: #pending;
-```
-
-### Array Values
-
-```dygram examples/syntax/types-array.dygram
-tags: ["api", "production", "critical"];
-ports: [8080, 8081, 8082];
-```
-
-### External References
-
-```dygram !examples/syntax/external-references.dygram
-config: #globalConfig;
-handler: #processHandler;
-```
-
-## Types
-
-DyGram supports type annotations for validation using Zod-powered runtime type checking.
-
-### Built-in Types
-
-**Primitive Types:**
-- `string` - Text values
-- `number` - Numeric values (integers and floats)
-- `boolean` - true/false
-
-**Specialized String Types:**
-- `Date` - ISO 8601 datetime strings (e.g., `"2025-10-22T13:30:00Z"`)
-  - Must include time and timezone (Z format)
-- `UUID` - UUID strings (e.g., `"550e8400-e29b-41d4-a716-446655440000"`)
-- `URL` - Valid URLs (e.g., `"https://example.com"`)
-- `Duration` - ISO 8601 durations (e.g., `"P1Y2M3D"`, `"PT4H5M6S"`)
-
-**Numeric Subtypes:**
-- `Integer` - Integer numbers only (validates at runtime)
-- `Float` - Floating-point numbers (alias for `number`)
-
-**Example:**
-```dygram examples/syntax/types-built-in.dygram
+```dygram
 task myTask {
-  id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
-  createdAt<Date>: "2025-10-22T13:30:00Z";
-  endpoint<URL>: "https://api.example.com";
-  timeout<Duration>: "PT1H30M";
-  count<Integer>: 42;
-  price<Float>: 19.99;
-}
-```
-
-### Generic Types
-
-Generic types support parameterized validation:
-
-```dygram !no-extract
-Array<T>        # Array of type T (e.g., Array<Date>)
-List<T>         # Alias for Array<T>
-Map<K, V>       # Map with keys of type K and values of type V
-Promise<T>      # Promise resolving to type T (structural only)
-Result<T, E>    # Result type (structural only)
-```
-
-**Example with validated generics:**
-```dygram examples/syntax/validated-generics.dygram
-task myTask {
-  // Array elements are validated as Dates
-  dates<Array<Date>>: ["2025-10-22T13:30:00Z", "2025-10-23T14:00:00Z"];
-
-  // Array elements are validated as Integers
-  counts<Array<Integer>>: [1, 2, 3];
-}
-```
-
-### Custom Types
-
-You can register custom types programmatically using the TypeRegistry:
-
-```typescript
-import { z } from 'zod';
-
-// Get the type registry from TypeChecker
-const typeChecker = new TypeChecker(machine);
-const registry = typeChecker.getTypeRegistry();
-
-// Register a custom Email type
-registry.register('Email', z.string().email());
-
-// Register a custom SemVer type
-registry.register('SemVer', z.string().regex(/^\d+\.\d+\.\d+$/));
-```
-
-Then use them in your DyGram files:
-
-```dygram !no-extract
-user {
-  email<Email>: "user@example.com";
-  version<SemVer>: "1.2.3";
-}
-```
-
-## Annotations
-
-Annotations add semantic metadata to nodes and edges.
-
-### Node Annotations
-
-```dygram !no-extract
-@Abstract
-@Singleton
-@Async
-@Deprecated
-@Critical
-@ReadOnly
-```
-
-With values:
-
-```dygram !no-extract
-@Version("2.0")
-@Author("John Doe")
-@Since("2024-01-15")
-@Deprecated("Use NewTask instead")
-```
-
-Multiple annotations:
-
-```dygram !no-extract
-Task important @Critical @Async @Version("1.0");
-```
-
-### Edge Annotations
-
-```dygram !no-extract
-start -@style(color: blue;)-> end;
-a -@weight(5)-> b;
-```
-
-## Notes
-
-Notes attach documentation to nodes. The note's name references the target node, and the title contains the note content:
-
-```dygram !no-extract
-Task process;
-
-Note process "This task handles data processing";
-```
-
-With annotations and attributes:
-
-```dygram !no-extract
-Note process "Processing Details" @Critical {
-    complexity: "O(n)";
-    author: "Team A";
+    name<string>: "Process";
+    count<Integer>: 42;
+    timeout<Duration>: "PT30S";
+    tags<Array<string>>: ["critical", "api"];
 };
 ```
 
-Notes create an inferred dashed edge to their target node and render with a note shape in diagrams. Node types (including `Note`) are case-insensitive, so `note`, `Note`, and `NOTE` are all equivalent.
+Learn more: **[Attributes](attributes.md)** and **[Types](types.md)**
 
-## Comments
+### Nesting
 
-### Single-line Comments
+Nodes can contain other nodes for hierarchical organization:
 
-```dygram examples/syntax/comments-singleline.dygram
-// This is a comment
-Task process; // inline comment
+```dygram
+Workflow {
+    Task start;
+    Task process;
+    Task complete;
+
+    start -> process -> complete;
+};
 ```
 
-### Multi-line Comments
+Reference nested nodes using qualified names:
 
-```dygram examples/syntax/comments-multiline.dygram
-/*
- * This is a multi-line comment
- * explaining complex logic
- */
-Task analyze;
+```dygram
+Init -> Workflow.start;
+Workflow.complete -> Done;
 ```
 
-## Identifiers
+Learn more: **[Qualified Names](qualified-names.md)**
 
-Identifiers must start with a letter or underscore, followed by letters, digits, or underscores:
+### Annotations
 
-```dygram examples/syntax/node-identifiers.dygram
-validName;
-_private;
-user123;
-handle_event;
+Add semantic metadata with annotations:
+
+```dygram
+machine "System" @Critical @Version("2.0")
+
+Task important @Critical @Async {
+    priority: 1;
+};
+
+start -@style("color: red;")-> end;
 ```
 
-### Qualified Names
+Learn more: **[Annotations](annotations.md)**
 
-Reference nested nodes using dot notation:
+### Templates
 
-```dygram examples/syntax/node-qualified-ids.dygram
-workflow.start -> workflow.process;
-parent.child.grandchild;
+Reference dynamic values using template strings:
+
+```dygram
+Context config {
+    apiUrl: "https://api.example.com";
+};
+
+Task apiCall {
+    endpoint: "{{ config.apiUrl }}";
+};
 ```
 
-## Strings
-
-### Double-quoted Strings
-
-```dygram examples/syntax/strings.dygram
-title: "Hello World";
-```
-
-### Multi-line Strings
-
-```dygram examples/syntax/strings-multiline.dygram
-prompt: "This is a long prompt
-that spans multiple lines
-and preserves formatting";
-```
-
-## Numbers
-
-```dygram !no-extract
-count: 42;
-price: 19.99;
-scientific: 1.5e10;
-temperature: -273.15;
-```
+Learn more: **[Templates](templates.md)**
 
 ## Complete Example
 
-```dygram examples/syntax/complete.dygram
-machine "Complete Syntax Demo" @Version("1.0") {
-    environment: "demo";
+Here's a comprehensive example demonstrating all major features:
+
+```dygram
+machine "Order Processing System" @Version("2.0") @Critical {
+    environment: "production";
+    region: "us-east-1";
 };
 
-// Context node with typed attributes
+// Configuration context
 Context config {
-    apiKey<string>: "secret";
-    maxRetries<number>: 3;
-    timeout<Duration>: "30s";
-    endpoints<Array<string>>: ["api.example.com"];
+    paymentProvider<string>: "stripe";
+    inventoryDb<URL>: "https://inventory.example.com";
+    timeout<Duration>: "PT5M";
+    maxRetries<Integer>: 3;
 };
 
-// Task with annotations
-Task fetchData @Async @Critical {
-    model: "claude-3-5-sonnet-20241022";
-    temperature: 0.7;
+// Payment workflow
+Process PaymentWorkflow {
+    Task Validate "Validate Payment Method" @Critical;
+    Task Process "Process Transaction" @Async;
+    Task Confirm "Confirm Payment";
+
+    Validate -> Process -> Confirm;
 };
 
-// State nodes
-State ready "Ready State";
-State processing "Processing";
-State complete "Complete";
+// Inventory workflow
+Process InventoryWorkflow {
+    Task Check "Check Availability";
+    Task Reserve "Reserve Items";
+    Task Allocate "Allocate Stock";
 
-// Workflow with nested nodes
-Process workflow "Main Workflow" {
-    Task validate "Validate Input";
-    Task transform "Transform Data";
-    Task save "Save Results";
-
-    validate -> transform -> save;
+    Check -> Reserve -> Allocate;
 };
 
-// Various edge types
-ready -> fetchData;
-fetchData --> processing;
-processing => complete;
+// Main workflow states
+State OrderReceived "Order received";
+State Processing "Processing order";
+State Completed "Order completed";
+State Failed "Order failed";
 
-// Edges with attributes and multiplicity
-config "1" -provides-> "*" workflow;
+// Wire up workflows
+OrderReceived -> PaymentWorkflow.Validate;
+PaymentWorkflow.Confirm -> InventoryWorkflow.Check;
+InventoryWorkflow.Allocate -> Processing;
 
-// Notes
-Note fetchData "Fetches data from external API" @Documentation {
+Processing -condition: "success";-> Completed;
+Processing -condition: "error";-> Failed;
+
+// Fallback path
+Failed -retries: 3;-> PaymentWorkflow.Validate;
+
+// Documentation
+note PaymentWorkflow "Handles all payment processing with Stripe integration" {
     complexity: "O(1)";
-    author: "System";
+    owner: "Payment Team";
+};
+
+note InventoryWorkflow "Manages inventory checking and allocation" {
+    database: "{{ config.inventoryDb }}";
+    timeout: "{{ config.timeout }}";
+};
+```
+
+## Key Concepts
+
+### Types Are Optional
+
+DyGram is designed to be flexible. You can write simple, untyped machines:
+
+```dygram
+start -> process -> end;
+```
+
+Or add types for validation and tooling support:
+
+```dygram
+task process {
+    count<Integer>: 42;
+    id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
+};
+```
+
+### Semantic, Not Structural
+
+Node types like `Task`, `State`, `Context` are semantic labels, not rigid structural constraints. Use types that make sense for your domain.
+
+### Expressive Edges
+
+Multiple arrow types convey different relationships:
+- `->` for transitions
+- `-->` for strong dependencies
+- `=>` for transformations
+- `<|--` for inheritance
+- `*-->` for composition
+- `o-->` for aggregation
+
+### Hierarchical Organization
+
+Use nesting and qualified names to organize complex systems:
+
+```dygram
+API {
+    Auth {
+        Login;
+        Logout;
+    }
+    Data {
+        Fetch;
+        Store;
+    }
+};
+
+Start -> API.Auth.Login -> API.Data.Fetch;
+```
+
+## Language Features
+
+| Feature | Description | Documentation |
+|---------|-------------|---------------|
+| **Machines** | Top-level declarations | [machines.md](machines.md) |
+| **Nodes** | Building blocks | [nodes.md](nodes.md) |
+| **Edges** | Relationships | [edges.md](edges.md) |
+| **Attributes** | Configuration | [attributes.md](attributes.md) |
+| **Types** | Type system | [types.md](types.md) |
+| **Annotations** | Metadata | [annotations.md](annotations.md) |
+| **Nesting** | Hierarchy | [nodes.md#nested-nodes](nodes.md#nested-nodes) |
+| **Qualified Names** | Dot notation | [qualified-names.md](qualified-names.md) |
+| **Templates** | Variable references | [templates.md](templates.md) |
+| **Comments** | Documentation | Single-line `//` and multi-line `/* */` |
+
+## Common Patterns
+
+### State Machine
+
+```dygram
+State Idle;
+State Running;
+State Paused;
+State Stopped;
+
+Idle -start-> Running;
+Running -pause-> Paused;
+Paused -resume-> Running;
+Running -stop-> Stopped;
+```
+
+### Task Pipeline
+
+```dygram
+Task input "Receive Input";
+Task validate "Validate Data";
+Task transform "Transform Data";
+Task output "Send Output";
+
+input -> validate -> transform -> output;
+```
+
+### Hierarchical System
+
+```dygram
+System {
+    Frontend {
+        UI;
+        Router;
+    }
+    Backend {
+        API;
+        Database;
+    }
+};
+
+System.Frontend.UI --> System.Backend.API;
+System.Backend.API --> System.Backend.Database;
+```
+
+### Configuration-Driven
+
+```dygram
+Context config {
+    apiUrl<URL>: "https://api.example.com";
+    timeout<Duration>: "PT30S";
+};
+
+Task apiCall {
+    endpoint: "{{ config.apiUrl }}";
+    timeout: "{{ config.timeout }}";
 };
 ```
 
 ## Next Steps
 
-- **[CLI Reference](../cli/README.md)** - Learn command-line tools
+### Learn the Basics
+1. Start with **[Nodes](nodes.md)** - understand the building blocks
+2. Connect them with **[Edges](edges.md)** - create relationships
+3. Add **[Attributes](attributes.md)** - configure your nodes
+
+### Add Structure
+4. Use **[Qualified Names](qualified-names.md)** - organize complex systems
+5. Apply **[Annotations](annotations.md)** - add semantic metadata
+6. Leverage **[Types](types.md)** - ensure data integrity
+
+### Advanced Usage
+7. Use **[Templates](templates.md)** - reference dynamic values
+8. Study **[Identifiers](identifiers.md)** - master naming conventions
+9. Explore examples in the **[Examples Directory](../../examples/)**
+
+### Beyond Syntax
+- **[CLI Reference](../cli/README.md)** - Command-line tools
 - **[API Reference](../api/README.md)** - Programmatic usage
 - **[Examples](../examples/README.md)** - Practical patterns
 

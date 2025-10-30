@@ -460,57 +460,66 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
 
     /**
      * Add completions for existing nodes (for edge source/target)
+     * Registers all natural aliases for each node
      */
     private addExistingNodeCompletions(context: CompletionContext, acceptor: CompletionAcceptor): void {
         const machine = this.getMachine(context.node);
         if (!machine) return;
 
         const allNodes = this.getAllNodes(machine);
-        const seenNames = new Set<string>();
+        const seenLabels = new Set<string>();
+
+        // First pass: collect all explicit node names
+        const explicitNames = new Set(allNodes.map(n => n.name));
 
         for (const node of allNodes) {
             // Skip nodes without names
             if (!node.name) continue;
 
-            // Add simple name
-            if (!seenNames.has(node.name)) {
-                acceptor(context, {
-                    label: node.name,
-                    kind: CompletionItemKind.Reference,
-                    detail: node.type ? `${node.type} node` : 'node',
-                    documentation: node.title || `Node: ${node.name}`,
-                    sortText: '0_' + node.name
-                });
-                seenNames.add(node.name);
-            }
+            // Get all natural aliases for this node
+            const aliases = this.getNodeAliases(node, explicitNames);
+            const nameParts = node.name.split('.');
 
-            // Add qualified name if nested
-            const qualifiedName = this.getQualifiedName(node);
-            if (qualifiedName && !seenNames.has(qualifiedName)) {
-                acceptor(context, {
-                    label: qualifiedName,
-                    kind: CompletionItemKind.Reference,
-                    detail: node.type ? `${node.type} node` : 'node',
-                    documentation: node.title || `Node: ${qualifiedName}`,
-                    sortText: '1_' + qualifiedName
-                });
-                seenNames.add(qualifiedName);
-            }
+            // Add completions for each alias
+            aliases.forEach((alias, index) => {
+                if (!seenLabels.has(alias)) {
+                    // Determine detail text
+                    let detail = node.type ? `${node.type} node` : 'node';
+                    if (alias !== node.name) {
+                        if (nameParts.length > 1 && alias === nameParts[nameParts.length - 1]) {
+                            detail += ` (shorthand for ${node.name})`;
+                        } else {
+                            detail += ` (qualified path to ${node.name})`;
+                        }
+                    }
 
-            // Add node.attribute for attributes
+                    acceptor(context, {
+                        label: alias,
+                        kind: CompletionItemKind.Reference,
+                        detail: detail,
+                        documentation: node.title || `Node: ${node.name}`,
+                        sortText: `${index}_${alias}` // Maintain natural order
+                    });
+                    seenLabels.add(alias);
+                }
+            });
+
+            // Add attribute completions for all aliases
             if (node.attributes && node.attributes.length > 0) {
-                for (const attr of node.attributes) {
-                    if (attr.name) {
-                        const attrRef = `${node.name}.${attr.name}`;
-                        if (!seenNames.has(attrRef)) {
-                            acceptor(context, {
-                                label: attrRef,
-                                kind: CompletionItemKind.Field,
-                                detail: 'attribute reference',
-                                documentation: `Attribute ${attr.name} of node ${node.name}`,
-                                sortText: '2_' + attrRef
-                            });
-                            seenNames.add(attrRef);
+                for (const alias of aliases) {
+                    for (const attr of node.attributes) {
+                        if (attr.name) {
+                            const attrRef = `${alias}.${attr.name}`;
+                            if (!seenLabels.has(attrRef)) {
+                                acceptor(context, {
+                                    label: attrRef,
+                                    kind: CompletionItemKind.Field,
+                                    detail: 'attribute reference',
+                                    documentation: `Attribute ${attr.name} of node ${node.name}`,
+                                    sortText: `9_${attrRef}` // Lower priority than nodes
+                                });
+                                seenLabels.add(attrRef);
+                            }
                         }
                     }
                 }
@@ -519,18 +528,60 @@ export class MachineCompletionProvider extends DefaultCompletionProvider {
     }
 
     /**
-     * Get qualified name for a node
+     * Get all natural aliases for a node
+     * (Matches the logic in MachineScopeProvider)
      */
-    private getQualifiedName(node: Node): string | undefined {
-        const parts: string[] = [node.name];
+    private getNodeAliases(node: Node, explicitNames: Set<string>): string[] {
+        const aliases: string[] = [];
+        const nodeName = node.name;
+        const nameParts = nodeName.split('.');
+        const simpleName = nameParts[nameParts.length - 1];
+        const parentPath = this.getParentPath(node);
+
+        // Always register the declared name (exactly as written)
+        aliases.push(nodeName);
+
+        // If the declared name is qualified (contains dots), also register just the simple part
+        if (nameParts.length > 1) {
+            aliases.push(simpleName);
+        }
+
+        // If nested, register the full path from root (unless it conflicts with an explicit name)
+        if (parentPath.length > 0) {
+            if (nameParts.length > 1) {
+                // Declared name is qualified: parent path + all name parts
+                const fullPath = [...parentPath, ...nameParts].join('.');
+                if (fullPath !== nodeName && !explicitNames.has(fullPath)) {
+                    aliases.push(fullPath);
+                }
+            } else {
+                // Declared name is simple: parent path + simple name
+                const qualifiedPath = [...parentPath, simpleName].join('.');
+                // Only register if it's different from the node name AND doesn't conflict with an explicit name
+                if (qualifiedPath !== nodeName && !explicitNames.has(qualifiedPath)) {
+                    aliases.push(qualifiedPath);
+                }
+            }
+        }
+
+        return aliases;
+    }
+
+    /**
+     * Get the parent path for a node by walking up the AST
+     */
+    private getParentPath(node: Node): string[] {
+        const parents: string[] = [];
         let current: AstNode | undefined = node.$container;
 
         while (current && isNode(current)) {
-            parts.unshift(current.name);
+            // Extract simple name from parent (handle qualified parent names)
+            const parentNameParts = current.name.split('.');
+            parents.unshift(parentNameParts[parentNameParts.length - 1]);
             current = current.$container;
         }
 
-        return parts.length > 1 ? parts.join('.') : undefined;
+        return parents;
     }
 
     /**

@@ -16,6 +16,7 @@ export class MachineValidationRegistry extends ValidationRegistry {
             Machine: [
                 // validator.checkMachineStartsWithCapital.bind(validator),
                 validator.checkDuplicateStates.bind(validator),
+                validator.checkSimpleNameCollisions.bind(validator),
                 validator.checkReservedNodeNames.bind(validator),
                 validator.checkInvalidStateReferences.bind(validator),
                 // Validation: Graph validation
@@ -75,6 +76,51 @@ export class MachineValidator {
         for (const node of machine.nodes) {
             processNode(node);
         }
+    }
+
+    /**
+     * Check for simple name collisions at the same nesting level
+     * This helps users understand when qualified names might be ambiguous
+     */
+    checkSimpleNameCollisions(machine: Machine, accept: ValidationAcceptor): void {
+        const checkLevel = (nodes: Node[]) => {
+            const simpleNames = new Map<string, Node[]>();
+
+            // Collect nodes by their simple name (rightmost part)
+            for (const node of nodes) {
+                if (node.type?.toLowerCase() === 'note') continue; // Skip notes
+
+                const nameParts = node.name.split('.');
+                const simpleName = nameParts[nameParts.length - 1];
+
+                if (!simpleNames.has(simpleName)) {
+                    simpleNames.set(simpleName, []);
+                }
+                simpleNames.get(simpleName)!.push(node);
+            }
+
+            // Warn about collisions
+            for (const [simpleName, nodesWithName] of simpleNames.entries()) {
+                if (nodesWithName.length > 1) {
+                    for (const node of nodesWithName) {
+                        accept('warning',
+                            `Multiple nodes with simple name '${simpleName}' at this level. ` +
+                            `Use qualified names to avoid ambiguity.`,
+                            { node: node, property: 'name' }
+                        );
+                    }
+                }
+            }
+
+            // Recursively check nested levels
+            for (const node of nodes) {
+                if (node.nodes && node.nodes.length > 0) {
+                    checkLevel(node.nodes);
+                }
+            }
+        };
+
+        checkLevel(machine.nodes);
     }
 
     /**

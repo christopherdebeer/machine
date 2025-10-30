@@ -1,6 +1,7 @@
 import { AstNodeDescription, AstUtils, DefaultLinker, isLinkingError, LangiumDocument, LinkingError, ReferenceInfo } from 'langium';
 import { Machine, Node, isMachine, } from './generated/ast.js';
 import type { MachineServices } from './machine-module.js';
+import { QualifiedNameExpander } from './qualified-name-expander.js';
 
 /**
  * Custom linker that auto-creates nodes for undefined references when not in @StrictMode
@@ -48,23 +49,27 @@ export class MachineLinker extends DefaultLinker {
     }
 
     /**
-     * Override link to auto-create nodes before linking
+     * Override link to transform qualified names and auto-create nodes before linking
      */
     override async link(document: LangiumDocument): Promise<void> {
-        // First, check if we should auto-create nodes
+        // First, expand qualified node names into nested structures
         const machine = document.parseResult.value as Machine;
         if (isMachine(machine)) {
+            // Phase 1: Expand qualified names in node definitions
+            const expander = new QualifiedNameExpander();
+            expander.expandQualifiedNames(machine);
+
             const isStrict = this.isStrictMode(machine);
-            
+
             // Process note nodes to add target attributes
             this.processNoteNodes(machine);
-            
+
             // Only auto-create if not in strict mode
             if (!isStrict) {
                 this.autoCreateMissingNodes(machine);
             }
         }
-        
+
         // Then perform normal linking
         return super.link(document);
     }

@@ -129,10 +129,10 @@ Attribute<isRoot>:
 Node<isRoot>:
     (<isRoot> type=ID)?
     ('#')?
-    name=ID
+    name=QualifiedName
     (title=STRING)?
     (annotations+=Annotation)*
-    (('{' 
+    (('{'
         (edges+=Edge<true> | nodes+=Node<true> | attributes+=Attribute<false>)*
     '}' ';'?) | ';'?)
 ;
