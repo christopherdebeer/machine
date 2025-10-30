@@ -9,6 +9,22 @@ describe('Hierarchical Qualified Names', () => {
     const parse = parseHelper<Machine>(services);
 
     /**
+     * Helper to check document is valid and return errors if not
+     */
+    function checkDocumentValid(document: LangiumDocument): string | undefined {
+        if (document.parseResult.parserErrors.length > 0) {
+            return `Parser errors:\n  ${document.parseResult.parserErrors.map(e => e.message).join('\n  ')}`;
+        }
+        if (document.parseResult.value === undefined) {
+            return `ParseResult is 'undefined'.`;
+        }
+        if (!isMachine(document.parseResult.value)) {
+            return `Root AST object is not a Machine.`;
+        }
+        return undefined;
+    }
+
+    /**
      * Helper to find a node by path (e.g., "A.B.C" means node C inside B inside A)
      */
     function findNodeByPath(machine: Machine, path: string): Node | undefined {
@@ -32,15 +48,19 @@ describe('Hierarchical Qualified Names', () => {
     }
 
     test('Basic qualified name expansion - root level', async () => {
-        const result = await parse(`
+        const document = await parse(`
             machine "Test"
 
             person grandparent.parent.child;
         `);
 
-        const machine = result.parseResult.value as Machine;
-        expect(result.parserErrors).toHaveLength(0);
-        expect(result.lexerErrors).toHaveLength(0);
+        const errors = checkDocumentValid(document);
+        if (errors) {
+            expect(errors).toBeUndefined();
+            return;
+        }
+
+        const machine = document.parseResult.value;
 
         // Should create nested structure: grandparent { parent { child; } }
         expect(machine.nodes).toHaveLength(1);

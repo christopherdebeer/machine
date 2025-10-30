@@ -107,8 +107,11 @@ export class QualifiedNameExpander {
                 );
                 currentNodes.push(intermediateNode);
             } else {
-                // Merge: If intermediate node exists, merge type if needed
-                this.mergeNodeType(intermediateNode, node.type, isStrictMode);
+                // Merge: If intermediate node exists, ONLY set type if it doesn't have one
+                // Don't overwrite explicitly defined types
+                if (!intermediateNode.type && node.type) {
+                    intermediateNode.type = node.type;
+                }
             }
 
             // Move down to the next level
