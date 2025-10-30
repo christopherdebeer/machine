@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import type { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper';
+import { base64UrlEncode } from '../utils/url-encoding';
 
 interface CodeEditorProps {
     initialCode: string;
@@ -25,17 +26,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     const wrapperRef = useRef<MonacoEditorLanguageClientWrapper | null>(null);
     const initializingRef = useRef<boolean>(false);
 
-    // Generate playground link using the same encoding as the test report generator
+    // Generate playground link using shared encoding utility
     const playgroundLink = useMemo(() => {
         const basePath = import.meta.env.BASE_URL || '/';
         const playgroundUrl = `${basePath}playground-mobile.html`;
-
-        // Base64 URL-safe encoding (matching CodeMirrorPlayground.tsx)
-        const base64UrlEncode = (str: string): string => {
-            const base64 = btoa(unescape(encodeURIComponent(str)));
-            return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '~');
-        };
-
         const encoded = base64UrlEncode(initialCode);
         return `${playgroundUrl}#content=${encoded}`;
     }, [initialCode]);

@@ -53,16 +53,19 @@ import { RailsExecutor } from "../language/rails-executor";
 import { RuntimeVisualizer } from "../language/runtime-visualizer";
 import type { MachineData } from "../language/base-executor";
 import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples";
+import {
+  base64UrlEncode,
+  base64UrlDecode,
+  parseHashParams as parseHashParamsUtil,
+  updateHashParams as updateHashParamsUtil,
+  type HashParams as HashParamsType,
+} from "../utils/url-encoding";
 
 // Types
 type SectionSize = 'small' | 'medium' | 'big';
 
-// URL hash parameter helpers
-interface HashParams {
-  example?: string;
-  content?: string;
-  sections?: string;
-}
+// Use HashParams from shared utility
+type HashParams = HashParamsType;
 
 interface SectionStates {
   settingsCollapsed: boolean;
@@ -76,19 +79,8 @@ interface SectionStates {
   fitToContainer: boolean;
 }
 
-// Base64 URL-safe encoding/decoding helpers
-function base64UrlEncode(str: string): string {
-  return encodeURIComponent(btoa(str));
-}
-
-function base64UrlDecode(str: string): string {
-  try {
-    return atob(decodeURIComponent(str));
-  } catch (error) {
-    console.error('Failed to decode base64 content:', error);
-    return '';
-  }
-}
+// Use shared encoding/decoding utilities from url-encoding module
+// (Functions imported above: base64UrlEncode, base64UrlDecode)
 
 // Section state encoding/decoding helpers
 function encodeSectionStates(states: SectionStates): string {
@@ -150,47 +142,9 @@ function decodeSectionStates(encoded: string): Partial<SectionStates> {
   }
 }
 
-function parseHashParams(): HashParams {
-  const hash = window.location.hash.slice(1); // Remove '#'
-  const params: HashParams = {};
-  
-  if (!hash) return params;
-  
-  const pairs = hash.split('&');
-  for (const pair of pairs) {
-    const [key, value] = pair.split('=');
-    if (key === 'example') {
-      params.example = decodeURIComponent(value);
-    } else if (key === 'content') {
-      params.content = base64UrlDecode(value);
-    } else if (key === 'sections') {
-      params.sections = decodeURIComponent(value);
-    }
-  }
-  
-  return params;
-}
-
-function updateHashParams(params: HashParams): void {
-  const parts: string[] = [];
-  
-  if (params.example) {
-    parts.push(`example=${encodeURIComponent(params.example)}`);
-  }
-  if (params.content) {
-    parts.push(`content=${base64UrlEncode(params.content)}`);
-  }
-  if (params.sections) {
-    parts.push(`sections=${encodeURIComponent(params.sections)}`);
-  }
-  
-  const newHash = parts.length > 0 ? `#${parts.join('&')}` : '';
-  
-  // Update hash without triggering page reload
-  if (window.location.hash !== newHash) {
-    window.history.replaceState(null, '', newHash || window.location.pathname);
-  }
-}
+// Use shared hash parameter utilities
+const parseHashParams = parseHashParamsUtil;
+const updateHashParams = updateHashParamsUtil;
 
 // Helper function to get flex-basis for section size
 const getSectionFlexBasis = (collapsed: boolean, size: SectionSize): string => {
