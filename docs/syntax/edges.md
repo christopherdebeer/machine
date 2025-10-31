@@ -167,9 +167,9 @@ task Success;
 task Failure;
 task Continue;
 
-Processing -when: status == "valid"-> Success;
-Processing -when: status == "invalid"-> Failure;
-Processing -unless: errorCount > 0-> Continue;
+Processing -when: 'status == "valid"';-> Success;
+Processing -when: 'status == "invalid"';-> Failure;
+Processing -unless: 'errorCount > 0';-> Continue;
 ```
 
 #### Visual Indicators for Conditional Edges
@@ -210,12 +210,12 @@ task Retry;
 task End;
 
 Start -> Process;
-Process -when: errorCount > 0-> Retry;
-Process -when: retryCount < maxRetries-> Retry;
+Process -when: 'errorCount > 0';-> Retry;
+Process -when: 'retryCount < maxRetries';-> Retry;
 Retry -> End;
 ```
 
-In this example, the edge `Process -when: errorCount > 0-> Retry` would be visually rendered as **inactive** (gray, dashed) because `errorCount` defaults to `0` at the machine level.
+In this example, the edge `Process -when: 'errorCount > 0';-> Retry` would be visually rendered as **inactive** (gray, dashed) because `errorCount` defaults to `0` at the machine level.
 
 ### Weighted Edges
 
