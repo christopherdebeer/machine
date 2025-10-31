@@ -4,6 +4,7 @@
  */
 
 import { z, ZodType } from 'zod';
+import type { Node, Attribute } from './generated/ast.js';
 
 export interface ValidationResult {
     valid: boolean;
@@ -19,6 +20,7 @@ export interface ValidationResult {
  */
 export class TypeRegistry {
     private schemas = new Map<string, ZodType>();
+    private nodeTypes = new Map<string, Node>();
 
     constructor() {
         this.registerBuiltInTypes();
@@ -247,6 +249,173 @@ export class TypeRegistry {
      */
     public getRegisteredTypes(): string[] {
         return Array.from(this.schemas.keys());
+    }
+
+    /**
+     * Register a node as a type definition
+     * This allows any node to be used as a structural type
+     * @param node - The node to register as a type
+     */
+    public registerNodeType(node: Node): void {
+        this.nodeTypes.set(node.name, node);
+
+        // Create a Zod schema from the node's attributes
+        const schema = this.nodeToZodSchema(node);
+        this.register(node.name, schema);
+    }
+
+    /**
+     * Check if a type name refers to a registered node type
+     * @param typeName - The type name to check
+     * @returns true if the type is a registered node
+     */
+    public isNodeType(typeName: string): boolean {
+        return this.nodeTypes.has(typeName);
+    }
+
+    /**
+     * Get a registered node type by name
+     * @param typeName - The type name
+     * @returns The node, or undefined if not registered
+     */
+    public getNodeType(typeName: string): Node | undefined {
+        return this.nodeTypes.get(typeName);
+    }
+
+    /**
+     * Convert a node's attributes to a Zod object schema
+     * This enables structural validation of values against node types
+     * @param node - The node to convert
+     * @returns A Zod object schema
+     */
+    private nodeToZodSchema(node: Node): ZodType {
+        const shape: Record<string, ZodType> = {};
+
+        // Handle nodes without attributes array (e.g., empty nodes)
+        if (node.attributes && Array.isArray(node.attributes)) {
+            node.attributes.forEach(attr => {
+                if (attr.type) {
+                    // Get the type string for this attribute
+                    const typeStr = this.getTypeString(attr.type);
+                    const typeInfo = this.parseTypeString(typeStr);
+
+                    // Get or create schema for this type
+                    const attrSchema = this.getOrCreateSchemaForType(typeInfo);
+
+                    // Handle optional types
+                    shape[attr.name] = typeInfo.isOptional
+                        ? attrSchema.optional()
+                        : attrSchema;
+                } else {
+                    // No type annotation, accept any value
+                    shape[attr.name] = z.any();
+                }
+            });
+        }
+
+        return z.object(shape);
+    }
+
+    /**
+     * Parse a type string into components
+     * Simple parser for basic type syntax
+     */
+    private parseTypeString(typeStr: string): { baseType: string; genericParams?: string[]; isOptional?: boolean } {
+        typeStr = typeStr.trim();
+
+        const isOptional = typeStr.endsWith('?');
+        if (isOptional) {
+            typeStr = typeStr.slice(0, -1).trim();
+        }
+
+        const genericMatch = typeStr.match(/^([^<]+)<(.+)>$/);
+        if (genericMatch) {
+            const baseType = genericMatch[1].trim();
+            const paramsStr = genericMatch[2];
+            const genericParams = this.parseGenericParams(paramsStr);
+            return { baseType, genericParams, isOptional };
+        }
+
+        return { baseType: typeStr, isOptional };
+    }
+
+    /**
+     * Parse generic parameters (simple comma-split for now)
+     */
+    private parseGenericParams(paramsStr: string): string[] {
+        const params: string[] = [];
+        let current = '';
+        let depth = 0;
+
+        for (const char of paramsStr) {
+            if (char === '<') {
+                depth++;
+                current += char;
+            } else if (char === '>') {
+                depth--;
+                current += char;
+            } else if (char === ',' && depth === 0) {
+                params.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+
+        if (current.trim()) {
+            params.push(current.trim());
+        }
+
+        return params;
+    }
+
+    /**
+     * Get type string from TypeDef AST node
+     * This is a simplified version - full implementation would be in TypeChecker
+     */
+    private getTypeString(typeDef: any): string {
+        // Simple extraction - this would ideally use typeDefToString from TypeChecker
+        // but we can't import it here to avoid circular dependencies
+        if (typeof typeDef === 'string') {
+            return typeDef;
+        }
+
+        if (typeDef.base) {
+            let result = typeDef.base;
+            if (typeDef.generics && typeDef.generics.length > 0) {
+                const generics = typeDef.generics.map((g: any) => this.getTypeString(g));
+                result += '<' + generics.join(', ') + '>';
+            }
+            if (typeDef.optional) {
+                result += '?';
+            }
+            return result;
+        }
+
+        return 'any';
+    }
+
+    /**
+     * Get or create a Zod schema for a given type
+     */
+    private getOrCreateSchemaForType(typeInfo: { baseType: string; genericParams?: string[]; isOptional?: boolean }): ZodType {
+        // Check if it's a registered type
+        const existingSchema = this.schemas.get(typeInfo.baseType);
+        if (existingSchema) {
+            return existingSchema;
+        }
+
+        // Handle generic types
+        if (typeInfo.genericParams && typeInfo.genericParams.length > 0) {
+            if (typeInfo.baseType === 'Array' || typeInfo.baseType === 'List') {
+                return this.createArraySchema(typeInfo.genericParams[0]);
+            } else if (typeInfo.baseType === 'Map' || typeInfo.baseType === 'Record') {
+                return this.createMapSchema(typeInfo.genericParams[0], typeInfo.genericParams[1] || 'any');
+            }
+        }
+
+        // Default to any for unknown types
+        return z.any();
     }
 }
 

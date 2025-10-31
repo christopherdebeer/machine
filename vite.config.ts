@@ -7,6 +7,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 import react from '@vitejs/plugin-react';
 import mdx from '@mdx-js/rollup';
 import remarkLinkRewrite from './scripts/remark-link-rewrite.js';
+import remarkEscapeAngleBrackets from './scripts/remark-escape-angle-brackets.js';
 import remarkSlug from 'remark-slug';
 import remarkToc from 'remark-toc';
 
@@ -120,6 +121,7 @@ export default defineConfig(() => {
                 enforce: 'pre',
                 ...mdx({
                     remarkPlugins: [
+                        // remarkEscapeAngleBrackets,
                         remarkLinkRewrite,
                         remarkSlug,
                         [remarkToc, { maxDepth: 3, tight: true }]

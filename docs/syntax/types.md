@@ -117,7 +117,7 @@ temperature<Float>: 98.6;
 
 Generic types support parameterized validation.
 
-### Array\<T\>
+### `Array<T>`
 
 Arrays with validated element types:
 
@@ -139,7 +139,7 @@ task myTask {
 
 **Alias:** `List<T>` is equivalent to `Array<T>` (use backticks in code).
 
-### Map\<K, V\>
+### `Map<K, V>`
 
 Maps with typed keys and values:
 
@@ -150,7 +150,7 @@ headers<Map<string, string>>: #httpHeaders;
 
 Note: Map values are typically external references (`#ref`), as DyGram doesn't have object literal syntax.
 
-### Promise\<T\>
+### `Promise<T>`
 
 Promise type (structural only, not validated at runtime):
 
@@ -158,7 +158,7 @@ Promise type (structural only, not validated at runtime):
 result<Promise<Data>>: #asyncResult;
 ```
 
-### Result\<T, E\>
+### `Result<T, E>`
 
 Result type for success/error patterns (structural only):
 
@@ -190,9 +190,152 @@ if (errors.length > 0) {
 - **Generic types** validate element types recursively
 - **External references** (`#ref`) bypass validation (resolved at runtime)
 
+## Node Types
+
+**Any node can be used as a type.** This allows you to define structural types directly in your DyGram files without needing to register them programmatically.
+
+### Basic Node Types
+
+Define a node and use it as a type for attributes:
+
+```dygram
+machine "Node Types Example"
+
+Type User {
+    id<string>;
+    name<string>;
+    email<string>;
+}
+
+Task process {
+    currentUser<User>: {
+        id: "123";
+        name: "John";
+        email: "john@example.com";
+    };
+}
+```
+
+**Any node keyword works**, not just `Type`:
+
+```dygram
+machine "Any Node as Type"
+
+Context Config {
+    apiKey<string>;
+    timeout<number>;
+}
+
+State Session {
+    userId<string>;
+    expiresAt<Date>;
+}
+
+Task authenticate {
+    config<Config>: { apiKey: "secret"; timeout: 30; };
+    session<Session>: {
+        userId: "user123";
+        expiresAt: "2025-10-31T12:00:00Z";
+    };
+}
+```
+
+### Union Types with Literals
+
+Define union types using string literals with the pipe (`|`) operator:
+
+```dygram
+Type Task {
+    id<string>;
+    status<'idle' | 'in_progress' | 'complete'>;
+    priority<'low' | 'medium' | 'high'>;
+}
+
+Task myTask {
+    item<Task>: {
+        id: "task-1";
+        status: "idle";
+        priority: "high";
+    };
+}
+```
+
+Union types are validated at runtime - only the specified literal values are allowed.
+
+### Node Types with Generics
+
+Combine node types with generic types for powerful compositions:
+
+```dygram
+Type Item {
+    id<string>;
+    value<number>;
+}
+
+Task processor {
+    items<Array<Item>>: [
+        { id: "1"; value: 100; },
+        { id: "2"; value: 200; }
+    ];
+
+    itemMap<Map<string, Item>>: #itemRegistry;
+
+    pendingItem<Promise<Item>>: #asyncFetch;
+}
+```
+
+### Nested Node Types
+
+Node types can reference other node types:
+
+```dygram
+Type Address {
+    street<string>;
+    city<string>;
+    zipCode<string>;
+}
+
+Type User {
+    name<string>;
+    email<string>;
+    address<Address>;
+}
+
+Task userService {
+    currentUser<User>: {
+        name: "Alice";
+        email: "alice@example.com";
+        address: {
+            street: "123 Main St";
+            city: "Springfield";
+            zipCode: "12345";
+        };
+    };
+}
+```
+
+### How It Works
+
+When you create a `TypeChecker`, all nodes in your machine are automatically registered as types:
+
+```typescript
+import { TypeChecker } from 'dygram';
+
+const typeChecker = new TypeChecker(machine);
+
+// All nodes are now available as types
+console.log(typeChecker.isNodeType('User'));  // true
+console.log(typeChecker.isNodeType('Config'));  // true
+```
+
+The type checker validates that values match the structure defined by the node:
+- Checks that required attributes are present
+- Validates attribute types recursively
+- Supports nested node types and generics
+
 ## Custom Types
 
-You can register custom types programmatically using the TypeRegistry:
+You can also register custom types programmatically using the TypeRegistry:
 
 ```typescript
 import { z } from 'zod';
@@ -241,6 +384,14 @@ For specialized types (Date, UUID, URL, Duration), explicit type annotations are
 - **Consider** annotating arrays with element types for validation
 - **Use** Integer type when whole numbers are required
 - **Omit** types for obvious primitives (name: "string" doesn't need annotation)
+- **Define** node types for reusable structural types in your domain
+
+### When to Use Node Types
+- **Define** common data structures once and reuse them (e.g., User, Config, Session)
+- **Use** union types with literals for enumeration-like values (status, priority, etc.)
+- **Combine** with generics for collections of structured data (`Array<User>`, `Map<string, Config>`)
+- **Nest** node types to model complex hierarchical data
+- **Prefer** node types over external references when the structure is known at design time
 
 ### Type Selection
 - Use **`Date`** for timestamps, not plain strings
@@ -249,16 +400,20 @@ For specialized types (Date, UUID, URL, Duration), explicit type annotations are
 - Use **`Duration`** for time intervals
 - Use **`Integer`** for counts, indices, ports
 - Use **`Float`** when decimals are explicitly required
+- Use **node types** for structured domain objects
+- Use **union types** for restricted string values
 
 ### Validation
 - **Validate** at machine load time for early error detection
 - **Handle** validation errors gracefully
 - **Document** custom types in your application
+- **Test** node type validation with various inputs
 
 ### External References
 - Use for **runtime-resolved values**
 - Use for **complex objects** not expressible in DyGram
 - Use for **shared configuration**
+- Prefer **node types** when structure is known and can be validated
 
 ## Examples
 
@@ -323,6 +478,59 @@ user {
     themeColor<HexColor>: "#3B82F6";
 };
 ```
+
+### Node Types in Practice
+```dygram
+machine "E-commerce System"
+
+Type Product {
+    id<UUID>;
+    name<string>;
+    price<Float>;
+    inStock<boolean>;
+    category<'electronics' | 'clothing' | 'books' | 'other'>;
+}
+
+Type CartItem {
+    product<Product>;
+    quantity<Integer>;
+}
+
+Type Order {
+    id<UUID>;
+    items<Array<CartItem>>;
+    status<'pending' | 'processing' | 'shipped' | 'delivered'>;
+    createdAt<Date>;
+}
+
+Task processOrder {
+    order<Order>: {
+        id: "550e8400-e29b-41d4-a716-446655440000";
+        items: [
+            {
+                product: {
+                    id: "123e4567-e89b-12d3-a456-426614174000";
+                    name: "Laptop";
+                    price: 999.99;
+                    inStock: true;
+                    category: "electronics";
+                };
+                quantity: 1;
+            }
+        ];
+        status: "pending";
+        createdAt: "2025-10-31T12:00:00Z";
+    };
+}
+```
+
+This example demonstrates:
+- **Node types** (`Product`, `CartItem`, `Order`) as structural types
+- **Union types** for restricted values (`category`, `status`)
+- **Nested node types** (`CartItem` contains `Product`)
+- **Generic types with node types** (`Array<CartItem>`)
+- **Specialized types** (`UUID`, `Float`, `Integer`, `Date`)
+- **Complete type safety** with runtime validation
 
 ## See Also
 
