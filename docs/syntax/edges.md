@@ -156,7 +156,17 @@ Source "1" -label; attr1: value1; attr2: value2; @Annotation-> "0..*" Target;
 
 Edges can have conditions that control when they should be active using `when:`, `unless:`, or `if:` keywords in the label:
 
-```dygram
+```dygram examples/syntax/edge-conditional.dygram
+machine "Conditional Edges Example" {
+    status: "valid";
+    errorCount: 0;
+}
+
+task Processing;
+task Success;
+task Failure;
+task Continue;
+
 Processing -when: status == "valid"-> Success;
 Processing -when: status == "invalid"-> Failure;
 Processing -unless: errorCount > 0-> Continue;
@@ -187,15 +197,21 @@ These visual indicators provide immediate feedback about which edges are likely 
 
 Conditions are evaluated using machine-level attributes as defaults:
 
-```dygram
-machine MyWorkflow {
+```dygram examples/syntax/edge-condition-context.dygram
+machine "Condition Evaluation Context" {
     maxRetries: 3;
     errorCount: 0;
+    retryCount: 0;
 }
+
+task Start;
+task Process;
+task Retry;
+task End;
 
 Start -> Process;
 Process -when: errorCount > 0-> Retry;
-Process -when: retryCount < maxRetries-> Process;
+Process -when: retryCount < maxRetries-> Retry;
 Retry -> End;
 ```
 
