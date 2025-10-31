@@ -18,7 +18,19 @@ export function apiPlugin(): Plugin {
                 // Extract the function name from the URL
                 // e.g., /api/hello -> hello
                 const functionName = req.url.replace('/api/', '').split('?')[0];
-                const apiFilePath = path.join(process.cwd(), 'api', `${functionName}.ts`);
+
+                // Normalize and validate the path to prevent directory traversal
+                const normalizedName = path.normalize(functionName).replace(/^(\.\.[\/\\])+/, '');
+
+                // Ensure the path doesn't contain any directory separators (only allow single-level files)
+                if (normalizedName.includes('/') || normalizedName.includes('\\') || normalizedName.includes('..')) {
+                    res.statusCode = 400;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({ error: 'Invalid API endpoint path' }));
+                    return;
+                }
+
+                const apiFilePath = path.join(process.cwd(), 'api', `${normalizedName}.ts`);
 
                 // Check if the API file exists
                 if (!fs.existsSync(apiFilePath)) {
