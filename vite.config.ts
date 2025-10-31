@@ -10,6 +10,7 @@ import remarkLinkRewrite from './scripts/remark-link-rewrite.js';
 import remarkEscapeAngleBrackets from './scripts/remark-escape-angle-brackets.js';
 import remarkSlug from 'remark-slug';
 import remarkToc from 'remark-toc';
+import { apiPlugin } from './vite-plugin-api';
 
 /**
  * Dynamically scan for HTML entry files (including subdirectories)
@@ -117,6 +118,7 @@ export default defineConfig(() => {
             }
         },
         plugins: [
+            apiPlugin(),
             {
                 enforce: 'pre',
                 ...mdx({
