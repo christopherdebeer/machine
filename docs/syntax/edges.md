@@ -154,12 +154,52 @@ Source "1" -label; attr1: value1; attr2: value2; @Annotation-> "0..*" Target;
 
 ### Conditional Edges
 
-Use attributes to express conditions:
+Edges can have conditions that control when they should be active using `when:`, `unless:`, or `if:` keywords in the label:
 
 ```dygram
-Processing -condition: "status == 'valid'"-> Success;
-Processing -condition: "status == 'invalid'"-> Failure;
+Processing -when: status == "valid"-> Success;
+Processing -when: status == "invalid"-> Failure;
+Processing -unless: errorCount > 0-> Continue;
 ```
+
+#### Visual Indicators for Conditional Edges
+
+DyGram automatically evaluates edge conditions in static mode (before runtime) and applies visual styling to indicate their likely active/inactive status:
+
+- **Active edges** (condition evaluates to `true`):
+  - Style: **solid** line
+  - Color: **green** (#4CAF50)
+  - Width: **2px** (slightly thicker)
+
+- **Inactive edges** (condition evaluates to `false`):
+  - Style: **dashed** line
+  - Color: **gray** (#9E9E9E)
+  - Width: **1px** (thinner)
+
+- **Error edges** (condition evaluation failed):
+  - Style: **dashed** line
+  - Color: **red** (#D32F2F)
+  - Width: **1px**
+
+These visual indicators provide immediate feedback about which edges are likely to be traversed based on default or machine-level attribute values. See [Edge Conditions](../archived/guides/edge-conditions.md) for detailed condition syntax.
+
+#### Condition Evaluation Context
+
+Conditions are evaluated using machine-level attributes as defaults:
+
+```dygram
+machine MyWorkflow {
+    maxRetries: 3;
+    errorCount: 0;
+}
+
+Start -> Process;
+Process -when: errorCount > 0-> Retry;
+Process -when: retryCount < maxRetries-> Process;
+Retry -> End;
+```
+
+In this example, the edge `Process -when: errorCount > 0-> Retry` would be visually rendered as **inactive** (gray, dashed) because `errorCount` defaults to `0` at the machine level.
 
 ### Weighted Edges
 

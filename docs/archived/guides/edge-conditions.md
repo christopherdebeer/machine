@@ -87,6 +87,50 @@ Prior to version 0.3.5, DyGram used JavaScript `eval()` for condition evaluation
 The executor automatically converts JavaScript-style operators to CEL equivalents:
 
 
+## Visual Indicators
+
+DyGram provides visual feedback for conditional edges in static diagrams by evaluating conditions before runtime:
+
+### Edge Styling Based on Evaluation
+
+- **Active edges** (condition evaluates to `true`):
+  - Rendered as **solid green** lines (penwidth=2)
+  - Indicates the edge is likely to be traversed
+
+- **Inactive edges** (condition evaluates to `false`):
+  - Rendered as **dashed gray** lines (penwidth=1)
+  - Indicates the edge is unlikely to be traversed
+
+- **Error edges** (evaluation failed):
+  - Rendered as **dashed red** lines (penwidth=1)
+  - Indicates a problem with the condition expression
+
+### Static Evaluation Context
+
+Conditions are evaluated using machine-level attributes as defaults:
+
+```dygram
+machine Workflow {
+    maxRetries: 3;
+    errorThreshold: 5;
+}
+
+task Start;
+task Process;
+task Retry;
+task Failed;
+
+Start -> Process;
+Process -when: errorCount < errorThreshold-> Retry;  // Evaluated as true (0 < 5)
+Process -when: errorCount >= errorThreshold-> Failed; // Evaluated as false (0 >= 5)
+```
+
+In this example:
+- The edge to `Retry` would be rendered in **green** (solid) because `errorCount` defaults to `0` and the condition `0 < 5` evaluates to `true`
+- The edge to `Failed` would be rendered in **gray** (dashed) because `0 >= 5` evaluates to `false`
+
+This provides immediate visual feedback about the likely execution paths before runtime.
+
 ## Best Practices
 
 1. **Keep Conditions Simple**: Complex conditions can be hard to debug. Consider breaking complex logic into multiple nodes.
@@ -98,6 +142,8 @@ The executor automatically converts JavaScript-style operators to CEL equivalent
 4. **Test Edge Cases**: Ensure your conditions handle boundary cases correctly.
 
 5. **Use Parentheses**: Even when not strictly necessary, parentheses improve readability.
+
+6. **Consider Default Values**: Remember that static visual indicators use default values (errorCount=0, activeState='') unless machine-level attributes override them.
 
 ## Error Handling
 

@@ -1727,7 +1727,7 @@ function getEdgeConditionStyle(evaluation: EdgeEvaluationResult): string {
     // Apply visual indication based on condition evaluation
     if (evaluation.isActive) {
         // Active edges: solid, green, slightly thicker
-        return ', color="#4CAF50", penwidth=2';
+        return ', style=solid, color="#4CAF50", penwidth=2';
     } else {
         // Inactive edges: dashed, gray, thinner
         return ', style=dashed, color="#9E9E9E", penwidth=1';
