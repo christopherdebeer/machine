@@ -121,7 +121,7 @@ export default defineConfig(() => {
                 enforce: 'pre',
                 ...mdx({
                     remarkPlugins: [
-                        remarkEscapeAngleBrackets,
+                        // remarkEscapeAngleBrackets,
                         remarkLinkRewrite,
                         remarkSlug,
                         [remarkToc, { maxDepth: 3, tight: true }]

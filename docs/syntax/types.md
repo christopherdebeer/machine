@@ -117,7 +117,7 @@ temperature<Float>: 98.6;
 
 Generic types support parameterized validation.
 
-### Array\<T\>
+### `Array<T>`
 
 Arrays with validated element types:
 
@@ -139,7 +139,7 @@ task myTask {
 
 **Alias:** `List<T>` is equivalent to `Array<T>` (use backticks in code).
 
-### Map\<K, V\>
+### `Map<K, V>`
 
 Maps with typed keys and values:
 
@@ -150,7 +150,7 @@ headers<Map<string, string>>: #httpHeaders;
 
 Note: Map values are typically external references (`#ref`), as DyGram doesn't have object literal syntax.
 
-### Promise\<T\>
+### `Promise<T>`
 
 Promise type (structural only, not validated at runtime):
 
@@ -158,7 +158,7 @@ Promise type (structural only, not validated at runtime):
 result<Promise<Data>>: #asyncResult;
 ```
 
-### Result\<T, E\>
+### `Result<T, E>`
 
 Result type for success/error patterns (structural only):
 
@@ -389,7 +389,7 @@ For specialized types (Date, UUID, URL, Duration), explicit type annotations are
 ### When to Use Node Types
 - **Define** common data structures once and reuse them (e.g., User, Config, Session)
 - **Use** union types with literals for enumeration-like values (status, priority, etc.)
-- **Combine** with generics for collections of structured data (Array<User>, Map<string, Config>)
+- **Combine** with generics for collections of structured data (`Array<User>`, `Map<string, Config>`)
 - **Nest** node types to model complex hierarchical data
 - **Prefer** node types over external references when the structure is known at design time
 
