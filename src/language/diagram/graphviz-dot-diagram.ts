@@ -9,6 +9,7 @@ import { MachineJSON, DiagramOptions, RuntimeContext, RuntimeNodeState, RuntimeE
 import { NodeTypeChecker } from '../node-type-checker.js';
 import { ValidationContext, ValidationSeverity } from '../validation-errors.js';
 import { CelEvaluator } from '../cel-evaluator.js';
+import { EdgeEvaluator, EdgeEvaluationResult } from './edge-evaluator.js';
 import { marked } from 'marked';
 
 /**
@@ -846,7 +847,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     // Generate edges
     if (machineJson.edges && machineJson.edges.length > 0) {
         lines.push('  // Edges');
-        lines.push(generateEdges(machineJson, styleNodes, wrappingConfig));
+        lines.push(generateEdges(machineJson, styleNodes, wrappingConfig, options));
     }
 
     // Generate notes as edge labels
@@ -1709,6 +1710,31 @@ function applyCustomEdgeStyles(edge: any, styleNodes: any[]): string {
 }
 
 /**
+ * Get visual styling for edge based on condition evaluation
+ * Returns Graphviz style attributes to visually indicate active/inactive status
+ */
+function getEdgeConditionStyle(evaluation: EdgeEvaluationResult): string {
+    // If edge has no condition, use default styling
+    if (!evaluation.hasCondition) {
+        return '';
+    }
+
+    // If evaluation failed with error, use error styling
+    if (evaluation.error) {
+        return ', style=dashed, color="#D32F2F", penwidth=1';
+    }
+
+    // Apply visual indication based on condition evaluation
+    if (evaluation.isActive) {
+        // Active edges: solid, green, slightly thicker
+        return ', color="#4CAF50", penwidth=2';
+    } else {
+        // Inactive edges: dashed, gray, thinner
+        return ', style=dashed, color="#9E9E9E", penwidth=1';
+    }
+}
+
+/**
  * Check if edge annotations should be shown in label
  * Looks for @hideLabel annotation or showAnnotation attribute
  */
@@ -1754,8 +1780,9 @@ function formatEdgeLabelAsHtml(labelText: string): string {
 
 /**
  * Generate edges section with support for compound edges between clusters
+ * Now includes static evaluation of edge conditions for visual indication
  */
-function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappingConfig?: TextWrappingConfig): string {
+function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappingConfig?: TextWrappingConfig, options?: DiagramOptions): string {
     const lines: string[] = [];
 
     if (!machineJson.edges || machineJson.edges.length === 0) {
@@ -1775,8 +1802,13 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         }
     });
 
+    // Evaluate edge conditions in static mode (unless runtime context is provided)
+    const edgeEvaluator = new EdgeEvaluator();
+    const staticContext = edgeEvaluator.createDefaultContext(machineJson.attributes);
+    const edgeEvaluations = edgeEvaluator.evaluateEdges(machineJson.edges, staticContext);
+
     // Process all edges, including parent-to-parent edges using compound edge features
-    machineJson.edges.forEach(edge => {
+    machineJson.edges.forEach((edge, edgeIndex) => {
         const edgeValue = edge.value || {};
         const keys = Object.keys(edgeValue);
         const showAnnotation = shouldShowEdgeAnnotation(edge);
@@ -1851,6 +1883,10 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         edgeAttrs.push('labelOverlay="75%"');
         edgeAttrs.push('labelhref="#srcLineTBD"');
 
+        // Apply condition-based visual styling (for static evaluation)
+        const edgeEvaluation = edgeEvaluations.get(edgeIndex);
+        const conditionStyle = edgeEvaluation ? getEdgeConditionStyle(edgeEvaluation) : '';
+
         // Apply custom styles if any
         if (customStyles) {
             // Custom styles are already formatted as ", attr1=value1, attr2=value2"
@@ -1915,10 +1951,10 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
             }
         }
 
-        // Construct edge line with custom styles appended
+        // Construct edge line with custom styles and condition styling appended
         const sourceEndpoint = buildEndpointIdentifier(actualSource, sourcePortName);
         const targetEndpoint = buildEndpointIdentifier(actualTarget, targetPortName);
-        const edgeLine = `  ${sourceEndpoint} -> ${targetEndpoint} [${edgeAttrs.join(', ')}${customStyles}];`;
+        const edgeLine = `  ${sourceEndpoint} -> ${targetEndpoint} [${edgeAttrs.join(', ')}${customStyles}${conditionStyle}];`;
         lines.push(edgeLine);
     });
 

@@ -29,19 +29,22 @@ export class EdgeConditionParser {
         const edgeLabel = edge.label || edge.type || '';
 
         // Look for when: pattern (case-insensitive match, but preserve condition case)
-        const whenMatch = edgeLabel.match(/when:\s*['"]?([^'"]+)['"]?/i);
+        // Matches everything after "when:" until end of string or newline
+        const whenMatch = edgeLabel.match(/when:\s*(.+?)(?:\n|$)/i);
         if (whenMatch) {
             return whenMatch[1].trim();
         }
 
         // Look for unless: pattern (negate it, case-insensitive match, but preserve condition case)
-        const unlessMatch = edgeLabel.match(/unless:\s*['"]?([^'"]+)['"]?/i);
+        // Matches everything after "unless:" until end of string or newline
+        const unlessMatch = edgeLabel.match(/unless:\s*(.+?)(?:\n|$)/i);
         if (unlessMatch) {
             return `!(${unlessMatch[1].trim()})`;
         }
 
         // Look for if: pattern (case-insensitive match, but preserve condition case)
-        const ifMatch = edgeLabel.match(/if:\s*['"]?([^'"]+)['"]?/i);
+        // Matches everything after "if:" until end of string or newline
+        const ifMatch = edgeLabel.match(/if:\s*(.+?)(?:\n|$)/i);
         if (ifMatch) {
             return ifMatch[1].trim();
         }
