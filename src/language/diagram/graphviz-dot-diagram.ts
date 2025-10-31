@@ -140,8 +140,8 @@ function processMarkdown(text: string): string {
             // Remove <code> tags but keep content (could wrap in font tag later)
             .replace(/<code>/g, '')
             .replace(/<\/code>/g, '')
-            // Remove any other unsupported tags
-            .replace(/<\/?(?!b|i|u|br)[^>]+>/g, '');
+            // Remove any other unsupported tags (but preserve b, i, u, br)
+            .replace(/<(?!\/?(?:b|i|u|br)(?:\s|>|\/))[^>]+>/g, '');
 
         return html;
     } catch (error) {
