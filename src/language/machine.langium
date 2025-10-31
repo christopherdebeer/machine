@@ -114,8 +114,11 @@ AnnotationParam:
 // The node type 'note' is handled specially in the generator/validator
 
 // Type definition that supports generic types (e.g., Promise<Result>, List<Step>)
+// Also supports union types for literals (e.g., 'idle' | 'in_progress' | 'complete')
+// And qualified node references (e.g., Foo, parent.child)
 TypeDef:
-    base=ID ('<' generics+=TypeDef (',' generics+=TypeDef)* '>')? optional?=QUESTION?
+    (base=QualifiedName ('<' generics+=TypeDef (',' generics+=TypeDef)* '>')? optional?=QUESTION?)
+    | (literals+=STRING ('|' literals+=STRING)+)
 ;
 
 Attribute<isRoot>:

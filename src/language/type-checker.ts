@@ -3,7 +3,7 @@
  * Validates type annotations, infers types, and checks compatibility
  */
 
-import type { Machine, Node, Attribute, AttributeValue, ArrayValue, ObjectValue, PrimitiveValue } from './generated/ast.js';
+import type { Machine, Node, Attribute, AttributeValue, ArrayValue, ObjectValue, PrimitiveValue, TypeDef } from './generated/ast.js';
 import { isArrayValue, isObjectValue, isPrimitiveValue } from './generated/ast.js';
 import {
     ValidationContext,
@@ -36,6 +36,9 @@ export class TypeChecker {
         this.machine = machine;
         this.nodeMap = this.buildNodeMap();
         this.typeRegistry = typeRegistry || new TypeRegistry();
+
+        // Register all nodes as potential types
+        this.registerNodesAsTypes();
     }
 
     /**
@@ -54,29 +57,66 @@ export class TypeChecker {
     }
 
     /**
+     * Register all nodes as potential types in the type registry
+     * This allows any node to be used as a type (Option B)
+     */
+    private registerNodesAsTypes(): void {
+        this.nodeMap.forEach(node => {
+            this.typeRegistry.registerNodeType(node);
+        });
+    }
+
+    /**
+     * Check if a type name refers to a node type
+     * @param typeName - The type name to check
+     * @returns true if the type is a node
+     */
+    public isNodeType(typeName: string): boolean {
+        return this.nodeMap.has(typeName);
+    }
+
+    /**
      * Convert TypeDef AST node to string representation
      */
-    private typeDefToString(typeDef: any): string {
+    private typeDefToString(typeDef: TypeDef | string | any): string {
         if (typeof typeDef === 'string') {
             return typeDef;
         }
 
-        if (!typeDef || !typeDef.base) {
+        if (!typeDef) {
             return 'any';
         }
 
-        let result = typeDef.base;
-
-        if (typeDef.generics && typeDef.generics.length > 0) {
-            const genericStrs = typeDef.generics.map((g: any) => this.typeDefToString(g));
-            result += '<' + genericStrs.join(', ') + '>';
+        // Handle UnionType (e.g., 'idle' | 'in_progress' | 'complete')
+        if (typeDef.literals && typeDef.literals.length > 0) {
+            const literals = typeDef.literals.map((lit: string) => {
+                // Strip quotes from the string literal
+                if (typeof lit === 'string') {
+                    // Remove surrounding quotes if present
+                    return lit.replace(/^["']|["']$/g, '');
+                }
+                return lit;
+            });
+            return literals.map(l => `'${l}'`).join(' | ');
         }
 
-        if ('optional' in typeDef && typeDef.optional) {
-            result += '?';
+        // Handle GenericType or simple type (e.g., Array<string>, Foo, parent.child)
+        if (typeDef.base) {
+            let result = typeDef.base;
+
+            if (typeDef.generics && typeDef.generics.length > 0) {
+                const genericStrs = typeDef.generics.map(g => this.typeDefToString(g));
+                result += '<' + genericStrs.join(', ') + '>';
+            }
+
+            if (typeDef.optional) {
+                result += '?';
+            }
+
+            return result;
         }
 
-        return result;
+        return 'any';
     }
 
     /**
@@ -546,7 +586,30 @@ export class TypeChecker {
             return message ? `${fallback}. ${message}` : fallback;
         };
 
-        // Phase 1: Semantic validation using Zod
+        // Phase 1: Handle union types (literal types like 'idle' | 'in_progress' | 'complete')
+        if (typeStr.includes('|')) {
+            // Extract literal values from union type string
+            const literals = typeStr.split('|').map(s => s.trim().replace(/^'|'$/g, ''));
+
+            // Check if the extracted value matches any of the literals
+            const valueStr = typeof extractedValue === 'string'
+                ? extractedValue
+                : String(extractedValue);
+
+            if (!literals.includes(valueStr)) {
+                const inferredType = inferTypeSafely();
+                return {
+                    valid: false,
+                    expectedType: typeStr,
+                    actualType: inferredType,
+                    message: `Value "${valueStr}" does not match any of the allowed literals: ${literals.map(l => `'${l}'`).join(', ')}`
+                };
+            }
+
+            return { valid: true };
+        }
+
+        // Phase 2: Semantic validation using Zod
         // Only for types that have semantic meaning (Date, UUID, URL, etc.)
         if (typeInfo.genericParams && typeInfo.genericParams.length > 0) {
             // Handle generic types with Zod
@@ -566,7 +629,7 @@ export class TypeChecker {
                 };
             }
         } else if (this.typeRegistry.has(typeInfo.baseType)) {
-            // Validate non-generic types with Zod
+            // Validate non-generic types with Zod (including node types)
             const zodResult = this.typeRegistry.validate(typeInfo.baseType, extractedValue);
 
             if (!zodResult.valid) {
