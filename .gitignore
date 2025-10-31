@@ -31,6 +31,7 @@ examples/*
 *.html
 !playground.html
 !playground-mobile.html
+!api-test.html
 
 # Generated TSX page entries (except hand-authored)
 src/pages/*.tsx
