@@ -291,24 +291,27 @@ export class TypeRegistry {
     private nodeToZodSchema(node: Node): ZodType {
         const shape: Record<string, ZodType> = {};
 
-        node.attributes.forEach(attr => {
-            if (attr.type) {
-                // Get the type string for this attribute
-                const typeStr = this.getTypeString(attr.type);
-                const typeInfo = this.parseTypeString(typeStr);
+        // Handle nodes without attributes array (e.g., empty nodes)
+        if (node.attributes && Array.isArray(node.attributes)) {
+            node.attributes.forEach(attr => {
+                if (attr.type) {
+                    // Get the type string for this attribute
+                    const typeStr = this.getTypeString(attr.type);
+                    const typeInfo = this.parseTypeString(typeStr);
 
-                // Get or create schema for this type
-                const attrSchema = this.getOrCreateSchemaForType(typeInfo);
+                    // Get or create schema for this type
+                    const attrSchema = this.getOrCreateSchemaForType(typeInfo);
 
-                // Handle optional types
-                shape[attr.name] = typeInfo.isOptional
-                    ? attrSchema.optional()
-                    : attrSchema;
-            } else {
-                // No type annotation, accept any value
-                shape[attr.name] = z.any();
-            }
-        });
+                    // Handle optional types
+                    shape[attr.name] = typeInfo.isOptional
+                        ? attrSchema.optional()
+                        : attrSchema;
+                } else {
+                    // No type annotation, accept any value
+                    shape[attr.name] = z.any();
+                }
+            });
+        }
 
         return z.object(shape);
     }
