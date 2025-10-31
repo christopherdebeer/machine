@@ -463,12 +463,23 @@ export class TypeChecker {
                     return val;
                 }
 
+                // For string values, check the CST to determine if it was a quoted string
+                // Quoted strings should remain strings even if they look like numbers
+                if (typeof val === 'string' && '$cstNode' in attrValue && (attrValue as any).$cstNode) {
+                    const cstText = (attrValue as any).$cstNode.text.trim();
+                    // If it was quoted in the source, keep it as a string
+                    if (cstText.startsWith('"') || cstText.startsWith("'")) {
+                        return val; // Return the string as-is (Langium already strips quotes)
+                    }
+                }
+
                 // Convert string booleans to actual booleans
                 if (val === 'true') return true;
                 if (val === 'false') return false;
                 if (val === 'null') return null;
 
-                // Convert string numbers to actual numbers
+                // Convert unquoted string numbers to actual numbers
+                // (This handles NUMBER terminals from the grammar)
                 if (typeof val === 'string' && /^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(val)) {
                     return parseFloat(val);
                 }
@@ -485,12 +496,21 @@ export class TypeChecker {
                     return val;
                 }
 
+                // For string values, check the CST to determine if it was a quoted string
+                if (typeof val === 'string' && '$cstNode' in attrValue && (attrValue as any).$cstNode) {
+                    const cstText = (attrValue as any).$cstNode.text.trim();
+                    // If it was quoted in the source, keep it as a string
+                    if (cstText.startsWith('"') || cstText.startsWith("'")) {
+                        return val;
+                    }
+                }
+
                 // Convert string booleans to actual booleans
                 if (val === 'true') return true;
                 if (val === 'false') return false;
                 if (val === 'null') return null;
 
-                // Convert string numbers to actual numbers
+                // Convert unquoted string numbers to actual numbers
                 if (typeof val === 'string' && /^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(val)) {
                     return parseFloat(val);
                 }
@@ -628,6 +648,9 @@ export class TypeChecker {
                     message: formatTypeMismatchMessage(zodResult.message, inferredType)
                 };
             }
+
+            // If Zod validation passed for generic type, the type is valid
+            return { valid: true };
         } else if (this.typeRegistry.has(typeInfo.baseType)) {
             // Validate non-generic types with Zod (including node types)
             const zodResult = this.typeRegistry.validate(typeInfo.baseType, extractedValue);
@@ -641,10 +664,15 @@ export class TypeChecker {
                     message: formatTypeMismatchMessage(zodResult.message, inferredType)
                 };
             }
+
+            // If Zod validation passed, the type is valid
+            // Don't fall through to structural validation for registered types
+            return { valid: true };
         }
 
-        // Phase 2: Structural validation (existing logic)
+        // Phase 3: Structural validation (existing logic)
         // This ensures type compatibility at the structural level
+        // Only reached for types that are not registered in the type registry
         const inferredType = inferTypeSafely();
         return this.areTypesCompatible(typeStr, inferredType);
     }

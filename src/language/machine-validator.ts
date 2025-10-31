@@ -278,6 +278,13 @@ export class MachineValidator {
         const machine = this.getMachineFromAttribute(attr);
         if (!machine) return;
 
+        // Skip validation for attributes in type definition nodes
+        // Type definitions are structural schemas and don't need values
+        const parentNode = this.getNodeFromAttribute(attr);
+        if (parentNode && this.isTypeDefinitionNode(parentNode)) {
+            return;
+        }
+
         const typeChecker = new TypeChecker(machine);
         const result = typeChecker.validateAttributeType(attr);
 
@@ -345,6 +352,42 @@ export class MachineValidator {
         }
 
         return null;
+    }
+
+    /**
+     * Get the immediate parent node of an attribute
+     */
+    private getNodeFromAttribute(attr: Attribute): Node | null {
+        let current: any = attr.$container;
+
+        while (current) {
+            if (current.$type === 'Node') {
+                return current as Node;
+            }
+            current = current.$container;
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if a node is a type definition node
+     * Type definition nodes are structural schemas that don't need attribute values
+     */
+    private isTypeDefinitionNode(node: Node): boolean {
+        // Only nodes with the "Type" keyword are treated as type definitions
+        // where attributes don't need values
+        //
+        // This is conservative but correct: the "Type" keyword explicitly
+        // indicates the node is a structural schema, not a data container
+        if (node.type?.toLowerCase() === 'type') {
+            return true;
+        }
+
+        // For other node types (Task, State, Context, etc.), even though
+        // they CAN be used as types in Option B, they are primarily data
+        // containers and should have their attribute values validated
+        return false;
     }
 
     // ========== Validation: Graph Validation ==========
