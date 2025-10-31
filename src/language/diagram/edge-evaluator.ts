@@ -138,6 +138,8 @@ export class EdgeEvaluator {
      */
     createDefaultContext(machineAttributes?: Array<{ name: string; value: any }>): StaticEvaluationContext {
         const attributes: Record<string, any> = {};
+        let errorCount = 0;
+        let activeState = '';
 
         if (machineAttributes) {
             machineAttributes.forEach(attr => {
@@ -153,14 +155,21 @@ export class EdgeEvaluator {
                     }
 
                     attributes[attr.name] = value;
+
+                    // Extract built-in CEL variables if present in machine attributes
+                    if (attr.name === 'errorCount') {
+                        errorCount = typeof value === 'number' ? value : Number(value) || 0;
+                    } else if (attr.name === 'activeState') {
+                        activeState = String(value);
+                    }
                 }
             });
         }
 
         return {
             attributes,
-            errorCount: 0,
-            activeState: ''
+            errorCount,
+            activeState
         };
     }
 }

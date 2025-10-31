@@ -130,6 +130,52 @@ describe('EdgeEvaluator', () => {
             expect(context1.attributes).toEqual({});
             expect(context2.attributes).toEqual({});
         });
+
+        it('should preserve machine-level errorCount', () => {
+            const attributes = [
+                { name: 'status', value: 'valid' },
+                { name: 'errorCount', value: 3 }
+            ];
+
+            const context = evaluator.createDefaultContext(attributes);
+
+            expect(context.errorCount).toBe(3);
+            expect(context.attributes?.errorCount).toBe(3);
+        });
+
+        it('should preserve machine-level activeState', () => {
+            const attributes = [
+                { name: 'status', value: 'valid' },
+                { name: 'activeState', value: 'processing' }
+            ];
+
+            const context = evaluator.createDefaultContext(attributes);
+
+            expect(context.activeState).toBe('processing');
+            expect(context.attributes?.activeState).toBe('processing');
+        });
+
+        it('should use default values when errorCount and activeState not in machine attributes', () => {
+            const attributes = [
+                { name: 'status', value: 'valid' },
+                { name: 'maxRetries', value: 5 }
+            ];
+
+            const context = evaluator.createDefaultContext(attributes);
+
+            expect(context.errorCount).toBe(0);
+            expect(context.activeState).toBe('');
+        });
+
+        it('should handle errorCount as string and convert to number', () => {
+            const attributes = [
+                { name: 'errorCount', value: '10' }
+            ];
+
+            const context = evaluator.createDefaultContext(attributes);
+
+            expect(context.errorCount).toBe(10);
+        });
     });
 
     describe('complex conditions', () => {
@@ -177,6 +223,70 @@ describe('EdgeEvaluator', () => {
             const result = evaluator.evaluateEdge(edge, context);
 
             expect(result.isActive).toBe(true);
+        });
+    });
+
+    describe('integration: machine attributes with conditional edges', () => {
+        it('should correctly evaluate edges using machine-level errorCount', () => {
+            // Simulate machine attributes with errorCount: 3
+            const machineAttributes = [
+                { name: 'status', value: 'valid' },
+                { name: 'errorCount', value: 3 }
+            ];
+
+            // Create context from machine attributes
+            const context = evaluator.createDefaultContext(machineAttributes);
+
+            // Edge that checks errorCount > 0
+            const edge = { label: 'unless: errorCount > 0' };
+            const result = evaluator.evaluateEdge(edge, context);
+
+            // Should be INACTIVE because errorCount is 3 (> 0), and unless negates it
+            expect(result.isActive).toBe(false);
+            expect(result.hasCondition).toBe(true);
+        });
+
+        it('should correctly evaluate edges using machine-level activeState', () => {
+            // Simulate machine attributes with activeState
+            const machineAttributes = [
+                { name: 'status', value: 'valid' },
+                { name: 'activeState', value: 'processing' }
+            ];
+
+            // Create context from machine attributes
+            const context = evaluator.createDefaultContext(machineAttributes);
+
+            // Edge that checks activeState
+            const edge = { label: 'when: activeState == "processing"' };
+            const result = evaluator.evaluateEdge(edge, context);
+
+            // Should be ACTIVE because activeState matches
+            expect(result.isActive).toBe(true);
+            expect(result.hasCondition).toBe(true);
+        });
+
+        it('should handle the example from issue comment', () => {
+            // This is the example from the user's comment
+            const machineAttributes = [
+                { name: 'status', value: 'valid' },
+                { name: 'errorCount', value: 3 }
+            ];
+
+            const context = evaluator.createDefaultContext(machineAttributes);
+
+            const edges = [
+                { label: 'when: status == "valid"' },      // Should be ACTIVE
+                { label: 'when: status == "invalid"' },    // Should be INACTIVE
+                { label: 'unless: errorCount > 0' }        // Should be INACTIVE (errorCount is 3)
+            ];
+
+            const edge1Result = evaluator.evaluateEdge(edges[0], context);
+            const edge2Result = evaluator.evaluateEdge(edges[1], context);
+            const edge3Result = evaluator.evaluateEdge(edges[2], context);
+
+            expect(edge1Result.isActive).toBe(true);   // status == "valid" is true
+            expect(edge2Result.isActive).toBe(false);  // status == "invalid" is false
+            expect(edge3Result.isActive).toBe(false);  // unless errorCount > 0 is false when errorCount=3
         });
     });
 });
