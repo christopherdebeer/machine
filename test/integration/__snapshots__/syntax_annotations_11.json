@@ -1,0 +1,28 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Deprecated",
+        "attributes": []
+      },
+      {
+        "name": "Experimental",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Stable"
+          },
+          {
+            "name": "Beta"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Deprecated\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Deprecated</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Experimental\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Experimental</b> <i>@Stable @Beta</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
+  "svgHash": "1def88db3212ba4cf0e309326085b1f2fb4c6f432f0a4779724c7d0fdb3b366d"
+}

@@ -1,0 +1,44 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "legacyProcessor",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Deprecated",
+            "value": "Use newProcessor instead"
+          },
+          {
+            "name": "Version",
+            "value": "1.0"
+          }
+        ]
+      },
+      {
+        "name": "newProcessor",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Version",
+            "value": "2.0"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "legacyProcessor",
+        "target": "newProcessor",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"legacyProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>legacyProcessor</b> <i>&lt;task&gt;</i> <i>@Deprecated(\"Use newProcessor instead\") @Version(\"1.0\")</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\", fontcolor=\"#999999\"];\n  \"newProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>newProcessor</b> <i>&lt;task&gt;</i> <i>@Version(\"2.0\")</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"legacyProcessor\" -> \"newProcessor\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "b0a7172d953fac47eccd60f6f79dbd4ffc2460e484cb0c8d313c4b323ffa8766"
+}

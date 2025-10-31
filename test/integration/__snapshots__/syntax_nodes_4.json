@@ -1,0 +1,31 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [],
+    "edges": [],
+    "notes": [
+      {
+        "target": "process",
+        "content": "Processing Details",
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ],
+        "attributes": [
+          {
+            "name": "complexity",
+            "value": "O(n)"
+          },
+          {
+            "name": "author",
+            "value": "Team A"
+          }
+        ]
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n\n  // Notes\n  \"note_0_process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><i>@Critical</i></td></tr><tr><td align=\"left\">Processing Details</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"complexity__key\" align=\"left\" balign=\"left\">complexity</td><td port=\"complexity__value\" align=\"left\" balign=\"left\">O(n)</td></tr><tr><td port=\"author__key\" align=\"left\" balign=\"left\">author</td><td port=\"author__value\" align=\"left\" balign=\"left\">Team A</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_process\" -> \"process\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "98cb26fc72a50199b9d2d2f1c20d442bfc00bcec90630749c3e6c93f52758198"
+}

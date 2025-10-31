@@ -1,0 +1,17 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "outcome",
+        "type": "Result<Data, Error>",
+        "value": "#computation"
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"outcome__key\" align=\"left\" balign=\"left\">outcome : Result&lt;Data, Error&gt;</td><td port=\"outcome__value\" align=\"left\" balign=\"left\">#computation</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "357d61594f7843ff9e46e72df506ebdbc796932db9fbb9f0753ac144b5c59483"
+}

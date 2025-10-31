@@ -1,31 +1,45 @@
 {
   "json": {
     "attributes": [],
-    "nodes": [],
-    "edges": [],
-    "notes": [
+    "nodes": [
       {
-        "target": "process",
-        "content": "Processing Details",
-        "annotations": [
-          {
-            "name": "Critical"
-          }
-        ],
-        "attributes": [
-          {
-            "name": "complexity",
-            "value": "O(n)"
-          },
-          {
-            "name": "author",
-            "value": "Team A"
-          }
-        ]
+        "name": "Workflow",
+        "attributes": []
+      },
+      {
+        "name": "start",
+        "type": "task",
+        "attributes": [],
+        "parent": "Workflow"
+      },
+      {
+        "name": "process",
+        "type": "task",
+        "attributes": [],
+        "parent": "Workflow"
+      },
+      {
+        "name": "complete",
+        "type": "task",
+        "attributes": [],
+        "parent": "Workflow"
       }
     ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "process",
+        "arrowType": "->"
+      },
+      {
+        "source": "process",
+        "target": "complete",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n\n  // Notes\n  \"note_0_process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><i>@Critical</i></td></tr><tr><td align=\"left\">Processing Details</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"complexity__key\" align=\"left\" balign=\"left\">complexity</td><td port=\"complexity__value\" align=\"left\" balign=\"left\">O(n)</td></tr><tr><td port=\"author__key\" align=\"left\" balign=\"left\">author</td><td port=\"author__value\" align=\"left\" balign=\"left\">Team A</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_process\" -> \"process\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
-  "svgHash": "98cb26fc72a50199b9d2d2f1c20d442bfc00bcec90630749c3e6c93f52758198"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Workflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Workflow</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Workflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n\n  // Edges\n  \"start\" -> \"process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "a9cd9920f6bc5070f06b669fdfc473213b9de21fd86f7421446bad730b5ff3cd"
 }

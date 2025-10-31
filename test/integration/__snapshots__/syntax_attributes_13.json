@@ -1,0 +1,30 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "database",
+            "value": "#dbConnection"
+          },
+          {
+            "name": "cache",
+            "value": "#redisClient"
+          },
+          {
+            "name": "logger",
+            "value": "#appLogger"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"database__key\" align=\"left\" balign=\"left\">database</td><td port=\"database__value\" align=\"left\" balign=\"left\">#dbConnection</td></tr><tr><td port=\"cache__key\" align=\"left\" balign=\"left\">cache</td><td port=\"cache__value\" align=\"left\" balign=\"left\">#redisClient</td></tr><tr><td port=\"logger__key\" align=\"left\" balign=\"left\">logger</td><td port=\"logger__value\" align=\"left\" balign=\"left\">#appLogger</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n}",
+  "svgHash": "0854adfb2ef754130fbb2fc24169b0b44b232bf1cd383026eb246cd4ee3e49c9"
+}

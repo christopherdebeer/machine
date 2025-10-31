@@ -9,6 +9,7 @@ import { MachineJSON, DiagramOptions, RuntimeContext, RuntimeNodeState, RuntimeE
 import { NodeTypeChecker } from '../node-type-checker.js';
 import { ValidationContext, ValidationSeverity } from '../validation-errors.js';
 import { CelEvaluator } from '../cel-evaluator.js';
+import { marked } from 'marked';
 
 /**
  * Interpolate template variables in a string value
@@ -97,6 +98,57 @@ function escapeHtml(text: string): string {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+}
+
+/**
+ * Process Markdown text and convert to HTML suitable for Graphviz HTML-like labels
+ * Falls back to escaping if Markdown parsing fails
+ */
+function processMarkdown(text: string): string {
+    if (!text) return '';
+
+    // Check if the text contains Markdown syntax
+    const hasMarkdown = /[*_`#\[\]]/g.test(text);
+
+    // If no Markdown syntax detected, just escape HTML
+    if (!hasMarkdown) {
+        return escapeHtml(text);
+    }
+
+    try {
+        // Configure marked for inline rendering (no wrapping <p> tags)
+        marked.use({
+            breaks: true,
+            gfm: true,
+        });
+
+        // Parse Markdown to HTML
+        let html = marked.parseInline(text) as string;
+
+        // Graphviz HTML labels have limited HTML support
+        // Convert unsupported tags to supported ones or remove them
+        html = html
+            // Convert <strong> to <b>
+            .replace(/<strong>/g, '<b>')
+            .replace(/<\/strong>/g, '</b>')
+            // Convert <em> to <i>
+            .replace(/<em>/g, '<i>')
+            .replace(/<\/em>/g, '</i>')
+            // Remove <a> tags but keep the text
+            .replace(/<a[^>]*>/g, '')
+            .replace(/<\/a>/g, '')
+            // Remove <code> tags but keep content (could wrap in font tag later)
+            .replace(/<code>/g, '')
+            .replace(/<\/code>/g, '')
+            // Remove any other unsupported tags (but preserve b, i, u, br)
+            .replace(/<(?!\/?(?:b|i|u|br)(?:\s|>|\/))[^>]+>/g, '');
+
+        return html;
+    } catch (error) {
+        // If Markdown processing fails, fall back to HTML escaping
+        console.warn('Failed to process Markdown:', error);
+        return escapeHtml(text);
+    }
 }
 
 const EDGE_METADATA_KEYS = new Set([
@@ -518,7 +570,7 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions,
 
     // Title (bold, larger font)
     const title = options.title || machineJson.title || '';
-    if (title) htmlLabel += '<tr><td align="center"><font point-size="12"><b>' + escapeHtml(title) + '</b></font></td></tr>';
+    if (title) htmlLabel += '<tr><td align="center"><font point-size="12"><b>' + processMarkdown(title) + '</b></font></td></tr>';
 
     // Version (if present in attributes)
     const versionAttr = machineJson.attributes?.find(a => a.name === 'version');
@@ -544,7 +596,7 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions,
             : String(descAttr.value);
         // Interpolate templates if runtime context is available
         descValue = interpolateValue(descValue, options.runtimeContext);
-        htmlLabel += '<tr><td align="center"><font point-size="10"><i>' + escapeHtml(descValue) + '</i></font></td></tr>';
+        htmlLabel += '<tr><td align="center"><font point-size="10"><i>' + processMarkdown(descValue) + '</i></font></td></tr>';
     }
 
     // Attributes table (excluding description and version which are shown above)
@@ -1044,22 +1096,22 @@ function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeCont
         const maxValueLength = wrappingConfig?.maxAttributeValueLength ?? 30;
         const maxKeyLength = wrappingConfig?.maxAttributeKeyLength ?? 25;
 
-        // Break long values into multiple lines - escape BEFORE joining with <br/>
+        // Break long values into multiple lines - process Markdown BEFORE joining with <br/>
         // Preserve existing line breaks for multiline strings and formatted JSON
         if (typeof displayValue === 'string') {
             const lines = breakLongText(displayValue, maxValueLength, { preserveLineBreaks: true });
-            displayValue = lines.map(line => escapeHtml(line)).join('<br align="left"/>');
+            displayValue = lines.map(line => processMarkdown(line)).join('<br align="left"/>');
         } else {
             displayValue = escapeHtml(String(displayValue));
         }
 
-        // Break long attribute names into multiple lines - escape BEFORE joining with <br/>
+        // Break long attribute names into multiple lines - process Markdown BEFORE joining with <br/>
         let attrName = attr.name;
         if (attrName && attrName.length > maxKeyLength) {
             const lines = breakLongText(attrName, maxKeyLength);
-            attrName = lines.map(line => escapeHtml(line)).join('<br align="left"/>');
+            attrName = lines.map(line => processMarkdown(line)).join('<br align="left"/>');
         } else {
-            attrName = escapeHtml(attrName);
+            attrName = processMarkdown(attrName);
         }
 
         const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
@@ -1439,7 +1491,7 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
     if (displayValue && displayValue !== node.name) {
         htmlLabel += '<tr><td align="left">';
         const titleLines = breakLongText(displayValue, 40);
-        htmlLabel += titleLines.map(line => escapeHtml(line)).join('<br/>');
+        htmlLabel += titleLines.map(line => processMarkdown(line)).join('<br/>');
         htmlLabel += '</td></tr>';
     }
 
@@ -1686,14 +1738,15 @@ function shouldShowEdgeAnnotation(edge: any): boolean {
  * Format edge label as HTML table with left alignment
  * This wraps the edge label text in an HTML table to enforce left alignment
  * and uses <br/> for line breaks instead of \n
+ * Processes Markdown syntax in the label text
  */
 function formatEdgeLabelAsHtml(labelText: string): string {
     if (!labelText || labelText.trim().length === 0) {
         return '';
     }
 
-    // Replace \n with <br/> for HTML rendering
-    const htmlText = labelText.split('\n').map(line => escapeHtml(line)).join('<br/>');
+    // Replace \n with <br/> for HTML rendering, and process Markdown in each line
+    const htmlText = labelText.split('\n').map(line => processMarkdown(line)).join('<br/>');
 
     // Wrap in a single-cell table with left alignment
     return `<table border="0" cellborder="0" cellspacing="0" cellpadding="2" align="left"><tr><td align="left" balign="left">${htmlText}</td></tr></table>`;
@@ -1913,7 +1966,7 @@ function generateNotes(notes: any[], wrappingConfig?: TextWrappingConfig): strin
         // Second row: Main content
         if (note.content) {
             const content = breakLongText(note.content, 40);
-            htmlLabel += '<tr><td align="left">' + content.map(line => escapeHtml(line)).join('<br/>') + '</td></tr>';
+            htmlLabel += '<tr><td align="left">' + content.map(line => processMarkdown(line)).join('<br/>') + '</td></tr>';
         }
 
         // Attributes table (using shared function)

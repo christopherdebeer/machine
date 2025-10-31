@@ -17,48 +17,88 @@
       {
         "name": "b",
         "attributes": []
+      },
+      {
+        "name": "c",
+        "attributes": []
+      },
+      {
+        "name": "d",
+        "attributes": []
       }
     ],
     "edges": [
       {
         "source": "start",
         "target": "end",
-        "annotations": [
-          {
-            "name": "style",
-            "attributes": {
-              "color": "blue"
-            }
-          }
-        ],
+        "arrowType": "->"
+      },
+      {
+        "source": "a",
+        "target": "b",
+        "arrowType": "->"
+      },
+      {
+        "source": "a",
+        "target": "c",
+        "arrowType": "->"
+      },
+      {
+        "source": "a",
+        "target": "d",
+        "arrowType": "->"
+      },
+      {
+        "source": "a",
+        "target": "b",
+        "arrowType": "->"
+      },
+      {
+        "source": "b",
+        "target": "c",
+        "arrowType": "->"
+      },
+      {
+        "source": "c",
+        "target": "d",
+        "arrowType": "->"
+      },
+      {
+        "source": "a",
+        "target": "b",
         "arrowType": "->",
         "value": {
-          "text": "@style(color: blue;)"
+          "text": "label"
         },
         "attributes": {
-          "text": "@style(color: blue;)"
+          "text": "label"
         }
       },
       {
         "source": "a",
         "target": "b",
-        "annotations": [
-          {
-            "name": "weight"
-          }
-        ],
         "arrowType": "->",
         "value": {
-          "text": "5"
+          "condition": "true"
         },
         "attributes": {
-          "text": "5"
+          "condition": "true"
         }
+      },
+      {
+        "source": "a",
+        "target": "b",
+        "arrowType": "-->"
+      },
+      {
+        "source": "a",
+        "target": "b",
+        "arrowType": "=>"
       }
     ],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">@style(color: blue;)</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"blue\"];\n  \"a\" -> \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">@weight 5</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "1906d8daebf479e208df0b6de7bf0040c5f6c67805b7e4e276955d0fab2de9b6"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>c</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"d\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>d</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"end\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"c\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"d\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"b\" -> \"c\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"c\" -> \"d\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">label</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">condition=true</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "e884288906dc1adb7cbcfc778529aceb171189989ef16c35aa6387b2a6799876"
 }

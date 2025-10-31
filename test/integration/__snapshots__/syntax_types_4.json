@@ -1,0 +1,22 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "enabled",
+        "type": "boolean",
+        "value": true
+      },
+      {
+        "name": "active",
+        "type": "boolean",
+        "value": false
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"enabled__key\" align=\"left\" balign=\"left\">enabled : boolean</td><td port=\"enabled__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"active__key\" align=\"left\" balign=\"left\">active : boolean</td><td port=\"active__value\" align=\"left\" balign=\"left\">false</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "849da3897c858bf904ee011e0ae40d021938bab7534fa4c15b0f0cd15e9b0f69"
+}

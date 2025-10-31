@@ -1,0 +1,32 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Source",
+        "attributes": [],
+        "title": "1"
+      },
+      {
+        "name": "Annotation",
+        "attributes": []
+      },
+      {
+        "name": "Target",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "Annotation",
+        "target": "Target",
+        "arrowType": "->",
+        "targetMultiplicity": "0..*"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Source\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Source</b></td></tr><tr><td align=\"left\">1</td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Annotation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Annotation</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Target\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Target</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Annotation\" -> \"Target\" [headlabel=\"0..*\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "532d715d08f4b7c8761f5515bc9394152f66c9dc94e855c6186e49ce24d2f485"
+}
