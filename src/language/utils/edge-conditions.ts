@@ -28,22 +28,46 @@ export class EdgeConditionParser {
     static extract(edge: Edge): string | undefined {
         const edgeLabel = edge.label || edge.type || '';
 
+        // Helper to extract condition from pattern, handling quoted strings properly
+        // Matches: keyword: "condition" or keyword: condition or keyword: 'condition'
+        const extractCondition = (keyword: string): string | undefined => {
+            // Try double-quoted string first
+            const doubleQuoted = new RegExp(`${keyword}:\\s*"([^"]+)"`, 'i').exec(edgeLabel);
+            if (doubleQuoted) {
+                return doubleQuoted[1].trim();
+            }
+
+            // Try single-quoted string
+            const singleQuoted = new RegExp(`${keyword}:\\s*'([^']+)'`, 'i').exec(edgeLabel);
+            if (singleQuoted) {
+                return singleQuoted[1].trim();
+            }
+
+            // Try unquoted (everything after keyword: until end or semicolon)
+            const unquoted = new RegExp(`${keyword}:\\s*([^;]+)`, 'i').exec(edgeLabel);
+            if (unquoted) {
+                return unquoted[1].trim();
+            }
+
+            return undefined;
+        };
+
         // Look for when: pattern (case-insensitive match, but preserve condition case)
-        const whenMatch = edgeLabel.match(/when:\s*['"]?([^'"]+)['"]?/i);
-        if (whenMatch) {
-            return whenMatch[1].trim();
+        const whenCondition = extractCondition('when');
+        if (whenCondition) {
+            return whenCondition;
         }
 
         // Look for unless: pattern (negate it, case-insensitive match, but preserve condition case)
-        const unlessMatch = edgeLabel.match(/unless:\s*['"]?([^'"]+)['"]?/i);
-        if (unlessMatch) {
-            return `!(${unlessMatch[1].trim()})`;
+        const unlessCondition = extractCondition('unless');
+        if (unlessCondition) {
+            return `!(${unlessCondition})`;
         }
 
         // Look for if: pattern (case-insensitive match, but preserve condition case)
-        const ifMatch = edgeLabel.match(/if:\s*['"]?([^'"]+)['"]?/i);
-        if (ifMatch) {
-            return ifMatch[1].trim();
+        const ifCondition = extractCondition('if');
+        if (ifCondition) {
+            return ifCondition;
         }
 
         return undefined;
