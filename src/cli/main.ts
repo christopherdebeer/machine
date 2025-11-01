@@ -12,10 +12,10 @@ import * as fs from 'node:fs/promises';
 import { logger } from './logger.js';
 import { glob } from 'glob';
 import { spawn } from 'node:child_process';
-
-// Use __dirname compatible approach
-import { fileURLToPath } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
+import { WorkspaceManager, FileSystemResolver, MultiFileGenerator } from '../language/import-system/index.js';
+import { CircularDependencyError, ModuleNotFoundError } from '../language/import-system/import-errors.js';
 
 // Handle both bundled and unbundled cases
 let __dirname: string;
@@ -35,6 +35,7 @@ interface GenerateOptions {
     debug?: boolean;
     verbose?: boolean;
     quiet?: boolean;
+    noImports?: boolean;
 }
 
 interface BatchOptions {
@@ -79,6 +80,92 @@ function setupLogger(opts: { verbose?: boolean; quiet?: boolean }): void {
     }
 }
 
+async function generateWithImports(fileName: string, opts: GenerateOptions, formats: GenerateFormat[]): Promise<void> {
+    const services = createMachineServices(NodeFileSystem).Machine;
+    const workingDir = path.dirname(path.resolve(fileName));
+    const resolver = new FileSystemResolver();
+    const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
+
+    try {
+        const fileUri = pathToFileURL(path.resolve(fileName)).toString();
+
+        // Link all imports
+        logger.debug('Resolving imports...');
+        await workspace.linkAll(fileUri);
+
+        const fileCount = workspace.documents.size;
+        logger.debug(`Loaded ${fileCount} file(s) (including imports)`);
+
+        // Get entry document
+        const entryDoc = workspace.documents.get(fileUri);
+        if (!entryDoc) {
+            logger.error(`Failed to load entry file: ${fileName}`);
+            process.exit(1);
+        }
+
+        // Generate using multi-file generator
+        const generator = new MultiFileGenerator();
+        const mergedMachine = await generator.generate(entryDoc, workspace);
+
+        const results: string[] = [];
+
+        // Generate each requested format
+        for (const format of formats) {
+            try {
+                let res: FileGenerationResult | undefined;
+                switch (format) {
+                    case 'json':
+                        res = generateJSON(mergedMachine, fileName, opts.destination);
+                        break;
+                    case 'graphviz':
+                    case 'dot':
+                        res = generateGraphviz(mergedMachine, fileName, opts.destination);
+                        break;
+                    case 'html':
+                        res = generateHTML(mergedMachine, fileName, opts.destination);
+                        break;
+                    default:
+                        logger.warn(`Format '${format}' is not supported for multi-file input`);
+                        continue;
+                }
+                if (res) {
+                    if (opts.destination) {
+                        results.push(`Generated ${format.toUpperCase()}: ${res.filePath}`);
+                        logger.debug(`Wrote ${format} to ${res.filePath}`);
+                    } else {
+                        logger.output(res.content);
+                    }
+                }
+            } catch (error) {
+                const errorMsg = `Failed to generate ${format.toUpperCase()}: ${error instanceof Error ? error.message : String(error)}`;
+                results.push(errorMsg);
+                logger.error(errorMsg);
+            }
+        }
+
+        if (opts.destination && results.length > 0) {
+            logger.heading('\n✓ Generation Complete');
+            results.forEach(result => logger.success('  ' + result));
+
+            if (formats.includes('html')) {
+                logger.tip('\n💡 Tip: Open the HTML file in a browser to view the interactive diagram');
+            }
+        }
+
+    } catch (error) {
+        if (error instanceof CircularDependencyError) {
+            logger.error('✗ Circular dependency detected:');
+            logger.error('  ' + error.cycle.map(uri => fileURLToPath(uri)).join(' → '));
+            process.exit(1);
+        } else if (error instanceof ModuleNotFoundError) {
+            logger.error(`✗ ${error.message}`);
+            process.exit(1);
+        } else {
+            throw error;
+        }
+    }
+}
+
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     setupLogger(opts);
 
@@ -94,7 +181,21 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
         return;
     }
 
-    // Standard DSL input processing
+    // Check if file has imports and --no-imports is not set
+    const fileUri = pathToFileURL(path.resolve(fileName)).toString();
+    const document = await extractDocument(fileName, services);
+    const machine = document.parseResult.value as Machine;
+
+    const hasImports = machine.imports && machine.imports.length > 0;
+    const useImportSystem = hasImports && !opts.noImports;
+
+    if (useImportSystem) {
+        logger.debug('File has imports, using multi-file compilation');
+        await generateWithImports(fileName, opts, formats);
+        return;
+    }
+
+    // Standard single-file DSL input processing
     const model = await extractAstNode<Machine>(fileName, services);
     if (opts.debug) await generateSerialized(fileName, opts);
 
@@ -258,18 +359,65 @@ export const parseAndValidate = async (fileName: string, opts?: { verbose?: bool
  * @param fileName Program to execute
  * @param opts Execution options
  */
-export const executeAction = async (fileName: string, opts: { destination?: string; model?: string; verbose?: boolean; quiet?: boolean }): Promise<void> => {
+export const executeAction = async (fileName: string, opts: { destination?: string; model?: string; verbose?: boolean; quiet?: boolean; noImports?: boolean }): Promise<void> => {
     setupLogger(opts);
 
     // retrieve the services for our language
     const services = createMachineServices(NodeFileSystem).Machine;
 
-    // Parse and validate the machine program
-    const machine = await extractAstNode<Machine>(fileName, services);
+    // Check if file has imports
+    const document = await extractDocument(fileName, services);
+    const machine = document.parseResult.value as Machine;
+    const hasImports = machine.imports && machine.imports.length > 0;
+    const useImportSystem = hasImports && !opts.noImports;
 
-    // Generate JSON representation for execution
-    const jsonContent = generateJSON(machine, fileName, opts.destination);
-    const machineData = JSON.parse(jsonContent.content) as MachineData;
+    let machineData: MachineData;
+
+    if (useImportSystem) {
+        logger.debug('File has imports, using multi-file compilation');
+
+        const workingDir = path.dirname(path.resolve(fileName));
+        const resolver = new FileSystemResolver();
+        const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
+
+        try {
+            const fileUri = pathToFileURL(path.resolve(fileName)).toString();
+
+            // Link all imports
+            await workspace.linkAll(fileUri);
+
+            const entryDoc = workspace.documents.get(fileUri);
+            if (!entryDoc) {
+                logger.error(`Failed to load entry file: ${fileName}`);
+                process.exit(1);
+            }
+
+            // Generate using multi-file generator
+            const generator = new MultiFileGenerator();
+            const mergedMachine = await generator.generate(entryDoc, workspace);
+
+            // Generate JSON representation for execution
+            const jsonContent = generateJSON(mergedMachine, fileName, opts.destination);
+            machineData = JSON.parse(jsonContent.content) as MachineData;
+
+        } catch (error) {
+            if (error instanceof CircularDependencyError) {
+                logger.error('✗ Circular dependency detected:');
+                logger.error('  ' + error.cycle.map(uri => fileURLToPath(uri)).join(' → '));
+                process.exit(1);
+            } else if (error instanceof ModuleNotFoundError) {
+                logger.error(`✗ ${error.message}`);
+                process.exit(1);
+            } else {
+                throw error;
+            }
+        }
+    } else {
+        // Single-file execution (existing code)
+        const singleMachine = await extractAstNode<Machine>(fileName, services);
+        const jsonContent = generateJSON(singleMachine, fileName, opts.destination);
+        machineData = JSON.parse(jsonContent.content) as MachineData;
+    }
 
     logger.info(chalk.blue('\n⚙️  Executing machine program with Rails-Based Architecture...'));
 
@@ -390,6 +538,115 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
                     console.log(chalk.gray(`    Nodes: ${mutation.data.machine.nodeCount}, Edges: ${mutation.data.machine.edgeCount}`));
                 }
             });
+        }
+    }
+};
+
+/**
+ * Check imports and show dependency graph
+ * @param fileName Entry file to check
+ * @param opts Options
+ */
+export const checkImportsAction = async (fileName: string, opts?: { verbose?: boolean; quiet?: boolean }): Promise<void> => {
+    setupLogger(opts || {});
+
+    const services = createMachineServices(NodeFileSystem).Machine;
+    const workingDir = path.dirname(path.resolve(fileName));
+    const resolver = new FileSystemResolver();
+    const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
+
+    try {
+        const fileUri = pathToFileURL(path.resolve(fileName)).toString();
+
+        logger.info(`Checking imports for: ${fileName}`);
+
+        // Link all imports
+        await workspace.linkAll(fileUri);
+
+        logger.success('\n✓ All imports resolved successfully\n');
+
+        // Show dependency graph
+        logger.heading('Dependency Graph:');
+        const graph = workspace.dependencyGraph;
+        const order = graph.topologicalSort();
+
+        order.forEach((uri, i) => {
+            const filePath = fileURLToPath(uri);
+            const relativePath = path.relative(process.cwd(), filePath);
+            logger.info(`  ${i + 1}. ${relativePath}`);
+        });
+
+        logger.info(`\nTotal files: ${order.length}`);
+
+    } catch (error) {
+        if (error instanceof CircularDependencyError) {
+            logger.error('\n✗ Circular dependency detected:');
+            logger.error('  ' + error.cycle.map(uri => path.relative(process.cwd(), fileURLToPath(uri))).join(' → '));
+            process.exit(1);
+        } else if (error instanceof ModuleNotFoundError) {
+            logger.error(`\n✗ ${error.message}`);
+            process.exit(1);
+        } else {
+            throw error;
+        }
+    }
+};
+
+/**
+ * Bundle multi-file machine into single file
+ * @param fileName Entry file to bundle
+ * @param opts Bundling options
+ */
+export const bundleAction = async (fileName: string, opts: { output?: string; verbose?: boolean; quiet?: boolean }): Promise<void> => {
+    setupLogger(opts);
+
+    const services = createMachineServices(NodeFileSystem).Machine;
+    const workingDir = path.dirname(path.resolve(fileName));
+    const resolver = new FileSystemResolver();
+    const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
+
+    try {
+        const fileUri = pathToFileURL(path.resolve(fileName)).toString();
+
+        logger.info(`Bundling: ${fileName}`);
+
+        // Link all imports
+        await workspace.linkAll(fileUri);
+
+        const entryDoc = workspace.documents.get(fileUri);
+        if (!entryDoc) {
+            logger.error(`Failed to load entry file: ${fileName}`);
+            process.exit(1);
+        }
+
+        // Generate using multi-file generator
+        const generator = new MultiFileGenerator();
+        const mergedMachine = await generator.generate(entryDoc, workspace);
+
+        // Generate JSON representation
+        const jsonContent = generateJSON(mergedMachine, fileName);
+        const machineData = JSON.parse(jsonContent.content) as MachineData;
+
+        // Reverse-compile to DSL
+        const bundledDsl = generateDSL(machineData);
+
+        // Write to output file
+        const outputFile = opts.output || fileName.replace(/\.dygram$/, '.bundled.dygram');
+        await fs.writeFile(outputFile, bundledDsl);
+
+        logger.success(`\n✓ Bundled to: ${outputFile}`);
+        logger.info(`   Merged ${workspace.documents.size} file(s)`);
+
+    } catch (error) {
+        if (error instanceof CircularDependencyError) {
+            logger.error('\n✗ Circular dependency detected:');
+            logger.error('  ' + error.cycle.map(uri => fileURLToPath(uri)).join(' → '));
+            process.exit(1);
+        } else if (error instanceof ModuleNotFoundError) {
+            logger.error(`\n✗ ${error.message}`);
+            process.exit(1);
+        } else {
+            throw error;
         }
     }
 };
@@ -562,6 +819,7 @@ function initializeCLI(): Promise<void> {
                     .option('-f, --format <formats>',
                         'comma-separated list of output formats (json,graphviz,dot,html,dsl). Use "dsl" with JSON input for backward compilation. Default: json',
                         'json')
+                    .option('--no-imports', 'disable import resolution (treat as single file)', false)
                     .option('-v, --verbose', 'verbose output')
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .description('generates output in specified formats\n\nExamples:\n  dygram generate file.dygram --format json,html\n  dygram generate file.json --format dsl  # backward compilation')
@@ -611,6 +869,24 @@ function initializeCLI(): Promise<void> {
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .description('executes a machine program')
                     .action(executeAction);
+
+                program
+                    .command('check-imports')
+                    .aliases(['ci'])
+                    .argument('<file>', `source file to check (${fileExtensions})`)
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('validate imports and show dependency graph\n\nExamples:\n  dygram check-imports app.dygram')
+                    .action(checkImportsAction);
+
+                program
+                    .command('bundle')
+                    .argument('<file>', `entry file to bundle (${fileExtensions})`)
+                    .option('-o, --output <file>', 'output file path')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('bundle multi-file machine into single file\n\nExamples:\n  dygram bundle app.dygram\n  dygram bundle app.dygram --output dist/app.bundled.dygram')
+                    .action(bundleAction);
 
                 program
                     .command('server')

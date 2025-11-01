@@ -59,10 +59,19 @@ QualifiedName returns string:
 ;
 
 entry Machine:
+    imports+=ImportStatement*
     ('machine' title=STRING (annotations+=Annotation)* (('{'
         (attributes+=Attribute<false>)*
     '}' ';'?) | ';'?))?
     (edges+=Edge<true> | nodes+=Node<true> | attributes+=Attribute<true>)*
+;
+
+ImportStatement:
+    'import' '{' symbols+=ImportedSymbol (',' symbols+=ImportedSymbol)* '}' 'from' path=STRING ';'?
+;
+
+ImportedSymbol:
+    name=QualifiedName ('as' alias=ID)?
 ;
 
 // Recursive AttributeValue supporting primitives, arrays, and nested objects

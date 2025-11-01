@@ -16,6 +16,7 @@ Complete reference for the DyGram language syntax. DyGram is a declarative langu
 - **[Identifiers](identifiers.md)** - Naming rules and conventions
 - **[Qualified Names](qualified-names.md)** - Dot notation for references
 - **[Templates](templates.md)** - Template strings and variable references
+- **[Imports](imports.md)** - Multi-file projects and modular design
 
 ## Getting Started
 
@@ -315,6 +316,7 @@ Start -> API.Auth.Login -> API.Data.Fetch;
 | **Nesting** | Hierarchy | [nodes.md#nested-nodes](nodes.md#nested-nodes) |
 | **Qualified Names** | Dot notation | [qualified-names.md](qualified-names.md) |
 | **Templates** | Variable references | [templates.md](templates.md) |
+| **Imports** | Multi-file projects | [imports.md](imports.md) |
 | **Comments** | Documentation | Single-line `//` and multi-line `/* */` |
 
 ## Common Patterns

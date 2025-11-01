@@ -37,8 +37,11 @@ import { lintKeymap } from "@codemirror/lint";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { ExecutionControls } from "./ExecutionControls";
 import { ExampleButtons } from "./ExampleButtons";
-import { FileTree } from "./FileTree";
+import { UnifiedFileTree } from "./UnifiedFileTree";
 import { loadSettings, saveSettings } from "../language/shared-settings";
+import { VirtualFileSystem } from "../playground/virtual-filesystem";
+import { FileAccessService } from "../playground/file-access-service";
+import { getDefaultImportExample, loadExampleIntoVFS } from "../playground/sample-imports";
 import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
 import { createLangiumExtensions } from "../codemirror-langium";
 import { createMachineServices } from "../language/machine-module";
@@ -537,7 +540,6 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [isDirty, setIsDirty] = useState(false);
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
     const [fitToContainer, setFitToContainer] = useState(true);
-    const [showFileTree, setShowFileTree] = useState(false);
 
     // Multi-file editor state
     const [openFiles, setOpenFiles] = useState<Array<{ path: string; content: string; name: string }>>([]);
@@ -549,14 +551,18 @@ export const CodeMirrorPlayground: React.FC = () => {
     activeFileIndexRef.current = activeFileIndex;
   }, [activeFileIndex]);
 
-  // Check if file API is available
-  useEffect(() => {
-    const checkApi = async () => {
-      const available = await isFileApiAvailable();
-      setShowFileTree(available);
-    };
-    checkApi();
-  }, []);
+    // Unified file access (VFS + API)
+    const [fileService] = useState(() => {
+        const vfs = new VirtualFileSystem('dygram-playground-vfs');
+        // Try to load from localStorage
+        const loaded = vfs.loadFromLocalStorage();
+        if (!loaded) {
+            // Load default import example if nothing in storage
+            const defaultExample = getDefaultImportExample();
+            loadExampleIntoVFS(defaultExample, vfs);
+        }
+        return new FileAccessService(vfs, { workingDir: 'examples' });
+    });
 
   // Initialize editor
   useEffect(() => {
@@ -856,7 +862,7 @@ export const CodeMirrorPlayground: React.FC = () => {
     }
   }, []);
 
-  // Handle file selection from FileTree
+  // Handle file selection from Unified FileTree
   const handleFileSelect = useCallback((path: string, content: string) => {
     const pathParts = path.split('/');
     const filename = pathParts[pathParts.length - 1];
@@ -974,15 +980,25 @@ export const CodeMirrorPlayground: React.FC = () => {
     }
 
     const activeFile = openFiles[activeFileIndex];
+
     try {
-      await writeFile(activeFile.path, activeFile.content, 'examples');
-      alert(`Saved ${activeFile.name} successfully!`);
+      // Use FileAccessService which tries API first, falls back to VFS
+      await fileService.writeFile(activeFile.path, activeFile.content);
+
+      const apiAvailable = fileService.isApiAvailable();
+      if (apiAvailable) {
+        alert(`Saved ${activeFile.name} to both API and VFS!`);
+      } else {
+        alert(`Saved ${activeFile.name} to virtual filesystem!`);
+      }
+
       setIsDirty(false);
     } catch (error) {
       console.error('Error saving file:', error);
       alert(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  }, [openFiles, activeFileIndex]);
+  }, [openFiles, activeFileIndex, fileService]);
+
 
   // Helper to convert Machine AST to MachineData
   const convertToMachineData = useCallback((machine: Machine): MachineData => {
@@ -1360,18 +1376,23 @@ export const CodeMirrorPlayground: React.FC = () => {
 
             <SectionHeader onClick={toggleFiles}>
                 <span>Files</span>
-                <ToggleBtn>{filesCollapsed ? '▶' : '▼'}</ToggleBtn>
+                <HeaderControls>
+                    <ToggleBtn>{filesCollapsed ? '▶' : '▼'}</ToggleBtn>
+                </HeaderControls>
             </SectionHeader>
             <FilesPanel $collapsed={filesCollapsed}>
-                {showFileTree ? (
-                    <FileTreeContainer>
-                        <FileTree onSelectFile={handleFileSelect} workingDir="examples" />
-                    </FileTreeContainer>
-                ) : (
-                    <ExamplesContainer>
-                        <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />
-                    </ExamplesContainer>
-                )}
+                {/* Unified File Tree - shows both API and VFS files, including import examples */}
+                <FileTreeContainer>
+                    <UnifiedFileTree
+                        fileService={fileService}
+                        onSelectFile={handleFileSelect}
+                        onFilesChanged={() => { /* Trigger re-render if needed */ }}
+                    />
+                </FileTreeContainer>
+                {/* Regular Examples */}
+                <ExamplesContainer>
+                    <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />
+                </ExamplesContainer>
             </FilesPanel>
 
             <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
@@ -1424,12 +1445,12 @@ export const CodeMirrorPlayground: React.FC = () => {
                                     </TabCloseBtn>
                                 </Tab>
                             ))}
-                            {showFileTree && isDirty && (
+                            {isDirty && (
                                 <SaveButton
                                     onClick={handleSaveFile}
-                                    title="Save current file (local mode only)"
+                                    title="Save current file (API + VFS)"
                                 >
-                                    Save
+                                    💾 Save
                                 </SaveButton>
                             )}
                         </TabBar>
