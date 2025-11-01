@@ -150,11 +150,59 @@ export class URLResolver implements ModuleResolver {
  * Virtual filesystem resolver for playground/browser environments
  * Resolves modules from an in-memory file system
  */
+/**
+ * Virtual filesystem interface
+ * Supports both Map and VirtualFileSystem class from playground
+ */
+export interface VirtualFS {
+    has(path: string): boolean;
+    get(path: string): string | undefined;
+    set(path: string, content: string): void;
+    delete(path: string): boolean;
+}
+
+/**
+ * Adapter to make VirtualFileSystem compatible with VirtualFS interface
+ */
+export class VirtualFSAdapter implements VirtualFS {
+    constructor(private readonly vfs: {
+        exists(path: string): boolean;
+        readFile(path: string): string | undefined;
+        writeFile(path: string, content: string): void;
+        deleteFile(path: string): boolean;
+    }) {}
+
+    has(path: string): boolean {
+        return this.vfs.exists(path);
+    }
+
+    get(path: string): string | undefined {
+        return this.vfs.readFile(path);
+    }
+
+    set(path: string, content: string): void {
+        this.vfs.writeFile(path, content);
+    }
+
+    delete(path: string): boolean {
+        return this.vfs.deleteFile(path);
+    }
+}
+
 export class VirtualFSResolver implements ModuleResolver {
+    private readonly virtualFS: VirtualFS;
+
     constructor(
-        private readonly virtualFS: Map<string, string>,
+        virtualFS: VirtualFS | Map<string, string>,
         private readonly extensions: string[] = ['.dygram', '.mach']
-    ) {}
+    ) {
+        // Support both Map and VirtualFS interface
+        if (virtualFS instanceof Map) {
+            this.virtualFS = virtualFS as VirtualFS;
+        } else {
+            this.virtualFS = virtualFS;
+        }
+    }
 
     canResolve(importPath: string, fromUri: URI): boolean {
         // In virtual FS, we handle relative paths
