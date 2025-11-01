@@ -542,6 +542,12 @@ export const CodeMirrorPlayground: React.FC = () => {
     // Multi-file editor state
     const [openFiles, setOpenFiles] = useState<Array<{ path: string; content: string; name: string }>>([]);
     const [activeFileIndex, setActiveFileIndex] = useState(0);
+    const activeFileIndexRef = useRef(0);
+
+  // Sync activeFileIndexRef with activeFileIndex
+  useEffect(() => {
+    activeFileIndexRef.current = activeFileIndex;
+  }, [activeFileIndex]);
 
   // Check if file API is available
   useEffect(() => {
@@ -690,10 +696,11 @@ export const CodeMirrorPlayground: React.FC = () => {
 
           // Update content in open files array
           setOpenFiles(prev => {
-            if (prev.length > 0 && activeFileIndex < prev.length) {
+            const currentIndex = activeFileIndexRef.current;
+            if (prev.length > 0 && currentIndex < prev.length) {
               const updated = [...prev];
-              updated[activeFileIndex] = {
-                ...updated[activeFileIndex],
+              updated[currentIndex] = {
+                ...updated[currentIndex],
                 content: code
               };
               return updated;
