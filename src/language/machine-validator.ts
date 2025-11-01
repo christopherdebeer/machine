@@ -4,6 +4,7 @@ import type { MachineServices } from './machine-module.js';
 import { TypeChecker } from './type-checker.js';
 import { GraphValidator } from './graph-validator.js';
 import { DependencyAnalyzer } from './dependency-analyzer.js';
+import { ImportValidator } from './import-system/import-validator.js';
 
 /**
  * Registry for validation checks.
@@ -26,6 +27,8 @@ export class MachineValidationRegistry extends ValidationRegistry {
                 validator.checkRelationshipSemantics.bind(validator),
                 // Context access validation
                 validator.checkContextAccess.bind(validator),
+                // Import validation
+                validator.checkImports.bind(validator),
             ],
             EdgeSegment: [
                 validator.checkMultiplicityFormat.bind(validator),
@@ -669,5 +672,13 @@ export class MachineValidator {
         }
 
         return '->';  // Default to association
+    }
+
+    /**
+     * Validate import statements
+     */
+    checkImports(machine: Machine, accept: ValidationAcceptor): void {
+        const importValidator = new ImportValidator();
+        importValidator.checkImports(machine, accept);
     }
 }

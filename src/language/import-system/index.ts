@@ -21,3 +21,6 @@ export * from './import-scope-provider.js';
 
 // Multi-File Linker
 export * from './multi-file-linker.js';
+
+// Validation
+export * from './import-validator.js';
