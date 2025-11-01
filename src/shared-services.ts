@@ -15,7 +15,7 @@
 import { createMachineServices } from './language/machine-module.js';
 import { VirtualFileSystem } from './playground/virtual-filesystem.js';
 import type { MachineServices } from './language/machine-module.js';
-import { URI } from 'langium';
+import { URI, EmptyFileSystem } from 'langium';
 
 /**
  * Singleton instance of Langium services
@@ -41,8 +41,10 @@ export function getSharedServices(): MachineServices {
             sharedVFSInstance.loadFromLocalStorage();
         }
 
-        // Create services with shared VFS
-        sharedServicesInstance = createMachineServices(sharedVFSInstance);
+        // Create services with EmptyFileSystem
+        // The VFS is used separately for cross-file imports via registerFile()
+        const servicesWrapper = createMachineServices(EmptyFileSystem);
+        sharedServicesInstance = servicesWrapper.Machine;
 
         console.log('[SharedServices] Created shared Langium services with VFS');
     }
