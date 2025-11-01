@@ -375,6 +375,7 @@ async function transformMarkdownToMdx(projectRoot) {
         let codeBlockLang = null;
         let codeBlockContent = [];
         let codeBlockId = 0;
+        let codeBlockMetadata = {};
 
         // Check if file needs CodeEditor imports
         const hasDygramBlocks = /```(dy|dygram|mach|machine)/m.test(content);
@@ -404,13 +405,47 @@ async function transformMarkdownToMdx(projectRoot) {
                         inCodeBlock = true;
                         codeBlockLang = match[1];
                         codeBlockContent = [];
-                        // Check if this block has !no-extract marker (should be treated as regular code block for display)
-                        const hasNoExtract = match[2] && match[2].includes('!no-extract');
-                        if (hasNoExtract) {
-                            // Don't transform to CodeEditor, just display as syntax-highlighted code
-                            codeBlockLang = null;
-                            output.push('```' + match[1]);
+
+                        // Extract metadata from the optional part after language
+                        let codeBlockFilename = null;
+                        let codeBlockMode = null;
+                        let codeBlockEnableImports = false;
+
+                        if (match[2]) {
+                            const metadataStr = match[2].trim();
+
+                            // Check for !no-extract marker
+                            const hasNoExtract = metadataStr.includes('!no-extract');
+                            if (hasNoExtract) {
+                                // Don't transform to CodeEditor, just display as syntax-highlighted code
+                                codeBlockLang = null;
+                                output.push('```' + match[1]);
+                            } else {
+                                // Extract filename (e.g., filename="examples/state-machine.dygram")
+                                const filenameMatch = metadataStr.match(/filename=["']([^"']+)["']/);
+                                if (filenameMatch) {
+                                    codeBlockFilename = filenameMatch[1];
+                                    // If filename is provided, enable imports by default
+                                    codeBlockEnableImports = true;
+                                }
+
+                                // Extract mode (e.g., mode="split")
+                                const modeMatch = metadataStr.match(/mode=["']([^"']+)["']/);
+                                if (modeMatch) {
+                                    codeBlockMode = modeMatch[1];
+                                }
+
+                                // Check for explicit enableImports flag
+                                if (metadataStr.includes('enableImports=true')) {
+                                    codeBlockEnableImports = true;
+                                } else if (metadataStr.includes('enableImports=false')) {
+                                    codeBlockEnableImports = false;
+                                }
+                            }
                         }
+
+                        // Store metadata for use when closing the block
+                        codeBlockMetadata = { filename: codeBlockFilename, mode: codeBlockMode, enableImports: codeBlockEnableImports };
                     } else {
                         // Non-dygram code block, pass through
                         output.push(line);
@@ -426,6 +461,22 @@ async function transformMarkdownToMdx(projectRoot) {
                         output.push(`  initialCode={\`${code}\`}`);
                         output.push(`  language="${codeBlockLang}"`);
                         output.push(`  id="code-editor-${codeBlockId}"`);
+
+                        // Add filename if provided
+                        if (codeBlockMetadata.filename) {
+                            output.push(`  filename="${codeBlockMetadata.filename}"`);
+                        }
+
+                        // Add mode if provided
+                        if (codeBlockMetadata.mode) {
+                            output.push(`  mode="${codeBlockMetadata.mode}"`);
+                        }
+
+                        // Add enableImports if true
+                        if (codeBlockMetadata.enableImports) {
+                            output.push(`  enableImports={true}`);
+                        }
+
                         output.push(`/>`);
                         output.push('');
                     } else {
@@ -434,6 +485,7 @@ async function transformMarkdownToMdx(projectRoot) {
                     inCodeBlock = false;
                     codeBlockLang = null;
                     codeBlockContent = [];
+                    codeBlockMetadata = {};
                 }
             } else if (inCodeBlock && codeBlockLang) {
                 // Accumulate code block content
