@@ -246,7 +246,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         try {
             // Get shared services
             const services = getSharedServices();
-            const parse = parseHelper<Machine>(services.Machine);
+            const parse = parseHelper<Machine>(services);
 
             // Parse the code
             const document = await parse(code);
@@ -287,7 +287,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                         <div
                             ref={editorRef}
                             className="code-editor-container"
-                            style={{ minHeight: height || '300px' }}
+                            style={{
+                                maxHeight: height || '500px',
+                                overflowY: 'auto'
+                            }}
                         />
                         {showOutput && outputSvg && (
                             <div ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
@@ -306,7 +309,12 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                         <div
                             ref={editorRef}
                             className="code-editor-container"
-                            style={{ flex: '1 1 45%', minWidth: '300px', minHeight: height || '300px' }}
+                            style={{
+                                flex: '1 1 45%',
+                                minWidth: '300px',
+                                maxHeight: height || '500px',
+                                overflowY: 'auto'
+                            }}
                         />
                         {showOutput && (
                             <div
@@ -354,7 +362,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                             <div
                                 ref={editorRef}
                                 className="code-editor-container"
-                                style={{ minHeight: height || '300px' }}
+                                style={{
+                                    maxHeight: height || '500px',
+                                    overflowY: 'auto'
+                                }}
                             />
                         ) : (
                             <div ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
