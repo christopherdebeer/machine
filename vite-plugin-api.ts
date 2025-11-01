@@ -1,36 +1,69 @@
 import type { Plugin, ViteDevServer } from 'vite';
+import type { IncomingMessage } from 'http';
 import * as path from 'path';
 import * as fs from 'fs';
 
 /**
+ * Parse request body from stream
+ */
+async function parseBody(req: IncomingMessage): Promise<any> {
+    return new Promise((resolve, reject) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            try {
+                if (body) {
+                    resolve(JSON.parse(body));
+                } else {
+                    resolve(null);
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
+        req.on('error', reject);
+    });
+}
+
+/**
  * Vite plugin to handle /api routes locally, mimicking Vercel serverless functions
  */
-export function apiPlugin(): Plugin {
+export function apiPlugin(workingDir?: string): Plugin {
     return {
         name: 'vite-plugin-api',
         configureServer(server: ViteDevServer) {
+            // Set working directory in environment if provided
+            if (workingDir) {
+                process.env.DYGRAM_WORKING_DIR = workingDir;
+            }
+            // Enable local mode for file writing
+            process.env.DYGRAM_LOCAL_MODE = 'true';
+
             server.middlewares.use(async (req, res, next) => {
                 // Only handle /api routes
                 if (!req.url?.startsWith('/api/')) {
                     return next();
                 }
 
-                // Extract the function name from the URL
+                // Extract the API path from the URL
                 // e.g., /api/hello -> hello
-                const functionName = req.url.replace('/api/', '').split('?')[0];
+                // e.g., /api/files/list -> files/list
+                const apiPath = req.url.replace('/api/', '').split('?')[0];
 
-                // Normalize and validate the path to prevent directory traversal
-                const normalizedName = path.normalize(functionName).replace(/^(\.\.[\/\\])+/, '');
+                // Normalize the path to prevent directory traversal
+                const normalizedPath = path.normalize(apiPath).replace(/^(\.\.[\/\\])+/, '');
 
-                // Ensure the path doesn't contain any directory separators (only allow single-level files)
-                if (normalizedName.includes('/') || normalizedName.includes('\\') || normalizedName.includes('..')) {
+                // Validate that the path doesn't escape the api directory
+                if (normalizedPath.includes('..')) {
                     res.statusCode = 400;
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify({ error: 'Invalid API endpoint path' }));
                     return;
                 }
 
-                const apiFilePath = path.join(process.cwd(), 'api', `${normalizedName}.ts`);
+                const apiFilePath = path.join(process.cwd(), 'api', `${normalizedPath}.ts`);
 
                 // Check if the API file exists
                 if (!fs.existsSync(apiFilePath)) {
@@ -49,13 +82,42 @@ export function apiPlugin(): Plugin {
                         throw new Error('No default export function found in API handler');
                     }
 
+                    // Parse request body for POST/PUT requests
+                    let body = null;
+                    if (req.method === 'POST' || req.method === 'PUT') {
+                        try {
+                            body = await parseBody(req);
+                        } catch (error) {
+                            res.statusCode = 400;
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify({ error: 'Invalid JSON body' }));
+                            return;
+                        }
+                    }
+
+                    // Parse query parameters
+                    const url = new URL(req.url || '', `http://${req.headers.host || 'localhost'}`);
+                    const query: Record<string, string | string[]> = {};
+                    url.searchParams.forEach((value, key) => {
+                        if (query[key]) {
+                            // Multiple values for same key
+                            if (Array.isArray(query[key])) {
+                                (query[key] as string[]).push(value);
+                            } else {
+                                query[key] = [query[key] as string, value];
+                            }
+                        } else {
+                            query[key] = value;
+                        }
+                    });
+
                     // Create a mock Vercel request object
                     const mockReq = {
                         url: req.url,
                         method: req.method,
                         headers: req.headers,
-                        query: new URL(req.url || '', `http://${req.headers.host}`).searchParams,
-                        body: null, // Could be enhanced to parse body
+                        query,
+                        body,
                     };
 
                     // Create a mock Vercel response object

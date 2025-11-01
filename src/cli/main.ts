@@ -11,6 +11,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import { logger } from './logger.js';
 import { glob } from 'glob';
+import { spawn } from 'node:child_process';
 
 // Use __dirname compatible approach
 import { fileURLToPath } from 'node:url';
@@ -465,6 +466,83 @@ export const batchAction = async (pattern: string, opts: BatchOptions): Promise<
     }
 };
 
+/**
+ * Start local development server with API and playground
+ * @param directory Working directory containing machine files
+ * @param opts Server options
+ */
+export const serverAction = async (directory?: string, opts?: { port?: string; verbose?: boolean }): Promise<void> => {
+    setupLogger(opts || {});
+
+    // Resolve working directory
+    const workingDir = directory ? path.resolve(process.cwd(), directory) : process.cwd();
+
+    // Validate that the directory exists
+    try {
+        const stats = await fs.stat(workingDir);
+        if (!stats.isDirectory()) {
+            logger.error(`Path is not a directory: ${workingDir}`);
+            process.exit(1);
+        }
+    } catch (error) {
+        logger.error(`Directory not found: ${workingDir}`);
+        process.exit(1);
+    }
+
+    const port = opts?.port || '5173';
+
+    logger.info(chalk.blue('\n🚀 Starting DyGram Development Server...'));
+    logger.info(chalk.gray(`   Working directory: ${workingDir}`));
+    logger.info(chalk.gray(`   Port: ${port}`));
+
+    // Set environment variables for the vite server
+    process.env.DYGRAM_WORKING_DIR = workingDir;
+    process.env.DYGRAM_LOCAL_MODE = 'true';
+
+    // Find vite executable
+    const viteExecutable = path.join(__dirname, '..', '..', 'node_modules', '.bin', 'vite');
+    const projectRoot = path.resolve(__dirname, '..', '..');
+
+    logger.info(chalk.gray(`\n   Project root: ${projectRoot}`));
+    logger.info(chalk.gray(`   Vite executable: ${viteExecutable}\n`));
+
+    // Start vite dev server
+    const viteArgs = ['--port', port, '--host'];
+    const viteProcess = spawn(viteExecutable, viteArgs, {
+        cwd: projectRoot,
+        stdio: 'inherit',
+        env: {
+            ...process.env,
+            DYGRAM_WORKING_DIR: workingDir,
+            DYGRAM_LOCAL_MODE: 'true',
+        },
+    });
+
+    viteProcess.on('error', (error) => {
+        logger.error(chalk.red(`Failed to start server: ${error.message}`));
+        process.exit(1);
+    });
+
+    viteProcess.on('exit', (code) => {
+        if (code !== 0 && code !== null) {
+            logger.error(chalk.red(`Server exited with code ${code}`));
+            process.exit(code);
+        }
+    });
+
+    // Handle Ctrl+C gracefully
+    process.on('SIGINT', () => {
+        logger.info(chalk.yellow('\n\n⚡ Shutting down server...'));
+        viteProcess.kill('SIGINT');
+        process.exit(0);
+    });
+
+    process.on('SIGTERM', () => {
+        viteProcess.kill('SIGTERM');
+        process.exit(0);
+    });
+};
+
 // Initialize CLI
 function initializeCLI(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -533,6 +611,15 @@ function initializeCLI(): Promise<void> {
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .description('executes a machine program')
                     .action(executeAction);
+
+                program
+                    .command('server')
+                    .aliases(['serve', 's'])
+                    .argument('[directory]', 'working directory containing machine files (defaults to current directory)')
+                    .option('-p, --port <port>', 'port to run the server on', '5173')
+                    .option('-v, --verbose', 'verbose output')
+                    .description('starts local development server with API and playground\n\nExamples:\n  dygram server\n  dygram server ./my-machines\n  dygram server --port 3000')
+                    .action(serverAction);
 
                 program.parse(process.argv);
                 resolve();
