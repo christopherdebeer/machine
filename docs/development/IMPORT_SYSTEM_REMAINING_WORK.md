@@ -26,7 +26,7 @@ The DyGram import system is **production-ready for CLI usage** with full multi-f
 
 ## Quick Wins (Recommended for Immediate Implementation)
 
-### 1. Watch Mode for Multi-File Development ⭐ **Priority 1**
+### 1. Watch Mode for Multi-File Development **Priority 1**
 
 **Current State**: CLI commands work but require manual re-execution
 **Gap**: No file watching or incremental recompilation for multi-file projects
@@ -124,7 +124,7 @@ program
 
 ---
 
-### 2. Import Navigation in Playground ⭐ **Priority 2**
+### 2. Import Navigation in Playground **Priority 2**
 
 **Current State**: Import statements are syntax-highlighted but not clickable
 **Gap**: No UX for jumping between imported files
@@ -193,7 +193,7 @@ const importNavigationExtension = ViewPlugin.fromClass(class {
 
 ---
 
-### 3. URL Import Caching & Security ⭐ **Priority 3**
+### 3. URL Import Caching & Security  **Priority 3**
 
 **Current State**: Basic URLResolver with no caching or security
 **Gap**: Not production-ready for remote imports
@@ -310,14 +310,14 @@ export class URLResolver implements ModuleResolver {
 
 ---
 
-### 4. Monaco Playground Decision ⚠️
+### 4. Monaco Playground Decision
 
 **Current State**: Monaco playground exists but lacks all import features
 **Gap**: CodeMirror is ahead by ~1,100 lines and 4x feature-complete
 
 **Options**:
 
-**A. Deprecate Monaco** ⭐ **(Recommended)**
+**A. Deprecate Monaco**  **(Recommended)**
 ```markdown
 # In Monaco Playground
 ⚠️ **Notice**: The Monaco playground is deprecated. For import system support and latest features,
