@@ -1,0 +1,71 @@
+{
+  "json": {
+    "title": "Authentication",
+    "attributes": [
+      {
+        "name": "prompt",
+        "value": "Authenticate user with credentials"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "LoginTask",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "ValidateSession",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate user session token"
+          }
+        ]
+      },
+      {
+        "name": "UserSession",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "token",
+            "value": "string"
+          },
+          {
+            "name": "userId",
+            "value": "string"
+          },
+          {
+            "name": "expiresAt",
+            "value": "string"
+          }
+        ]
+      },
+      {
+        "name": "llm",
+        "attributes": []
+      },
+      {
+        "name": "temperature",
+        "attributes": [],
+        "parent": "llm"
+      }
+    ],
+    "edges": [
+      {
+        "source": "LoginTask",
+        "target": "UserSession",
+        "arrowType": "->"
+      },
+      {
+        "source": "UserSession",
+        "target": "ValidateSession",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Authentication</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"prompt__key\" align=\"left\" balign=\"left\">prompt</td><td port=\"prompt__value\" align=\"left\" balign=\"left\">Authenticate user with<br align=\"left\"/>credentials</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"LoginTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoginTask</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"ValidateSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ValidateSession</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate user session token</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"UserSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UserSession</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"token__key\" align=\"left\" balign=\"left\">token</td><td port=\"token__value\" align=\"left\" balign=\"left\">string</td></tr><tr><td port=\"userId__key\" align=\"left\" balign=\"left\">userId</td><td port=\"userId__value\" align=\"left\" balign=\"left\">string</td></tr><tr><td port=\"expiresAt__key\" align=\"left\" balign=\"left\">expiresAt</td><td port=\"expiresAt__value\" align=\"left\" balign=\"left\">string</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  subgraph cluster_llm {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>llm</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"llm__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"temperature\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>temperature</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  }\n\n  // Edges\n  \"LoginTask\" -> \"UserSession\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"UserSession\" -> \"ValidateSession\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "a37014b424ecce7127e64900fa136d92560ed0c3f52eb6a52dc405e30dc745d1"
+}

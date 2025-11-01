@@ -41,7 +41,7 @@ import { UnifiedFileTree } from "./UnifiedFileTree";
 import { loadSettings, saveSettings } from "../language/shared-settings";
 import { VirtualFileSystem } from "../playground/virtual-filesystem";
 import { FileAccessService } from "../playground/file-access-service";
-import { IMPORT_EXAMPLES, loadExampleIntoVFS, getDefaultImportExample, type ImportExample } from "../playground/sample-imports";
+import { getDefaultImportExample } from "../playground/sample-imports";
 import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
 import { createLangiumExtensions } from "../codemirror-langium";
 import { createMachineServices } from "../language/machine-module";
@@ -557,7 +557,6 @@ export const CodeMirrorPlayground: React.FC = () => {
         }
         return new FileAccessService(vfs, { workingDir: 'examples' });
     });
-    const [importExamples] = useState(IMPORT_EXAMPLES);
 
   // Initialize editor
   useEffect(() => {
@@ -993,28 +992,6 @@ export const CodeMirrorPlayground: React.FC = () => {
     }
   }, [openFiles, activeFileIndex, fileService]);
 
-  // No longer needed - unified with handleFileSelect
-
-  // Handle loading import example
-  const handleLoadImportExample = useCallback((example: ImportExample) => {
-    // Clear VFS and load new example
-    const vfs = fileService.getVFS();
-    vfs.clear();
-    loadExampleIntoVFS(example, vfs);
-    vfs.saveToLocalStorage();
-
-    // Close all open files
-    setOpenFiles([]);
-    setActiveFileIndex(0);
-
-    // Open the entry point file
-    const content = example.files[example.entryPoint];
-    if (content) {
-      handleFileSelect(example.entryPoint, content);
-    }
-
-    alert(`Loaded "${example.name}" example with ${Object.keys(example.files).length} files`);
-  }, [fileService, handleFileSelect]);
 
   // Helper to convert Machine AST to MachineData
   const convertToMachineData = useCallback((machine: Machine): MachineData => {
@@ -1397,23 +1374,7 @@ export const CodeMirrorPlayground: React.FC = () => {
                 </HeaderControls>
             </SectionHeader>
             <FilesPanel $collapsed={filesCollapsed}>
-                {/* Import Examples Selector */}
-                <ExamplesContainer style={{ borderBottom: '1px solid #3e3e42' }}>
-                    <div style={{ fontSize: '11px', color: '#cccccc', marginBottom: '4px', fontWeight: 600 }}>
-                        Import Examples:
-                    </div>
-                    {importExamples.map((example) => (
-                        <SaveButton
-                            key={example.name}
-                            onClick={() => handleLoadImportExample(example)}
-                            style={{ fontSize: '11px', padding: '4px 8px', marginBottom: '0' }}
-                            title={example.description}
-                        >
-                            {example.name}
-                        </SaveButton>
-                    ))}
-                </ExamplesContainer>
-                {/* Unified File Tree - shows both API and VFS files */}
+                {/* Unified File Tree - shows both API and VFS files, including import examples */}
                 <FileTreeContainer>
                     <UnifiedFileTree
                         fileService={fileService}

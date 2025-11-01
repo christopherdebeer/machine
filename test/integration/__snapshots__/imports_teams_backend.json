@@ -1,0 +1,64 @@
+{
+  "json": {
+    "title": "Backend Services",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "APIGateway",
+        "type": "state",
+        "attributes": [],
+        "title": "API Gateway"
+      },
+      {
+        "name": "AuthService",
+        "type": "state",
+        "attributes": [],
+        "title": "Authentication Service"
+      },
+      {
+        "name": "DatabaseLayer",
+        "type": "state",
+        "attributes": [],
+        "title": "Database Layer"
+      },
+      {
+        "name": "CacheLayer",
+        "type": "state",
+        "attributes": [],
+        "title": "Cache Layer"
+      },
+      {
+        "name": "EventBus",
+        "type": "state",
+        "attributes": [],
+        "title": "Event Bus"
+      }
+    ],
+    "edges": [
+      {
+        "source": "APIGateway",
+        "target": "AuthService",
+        "arrowType": "-->"
+      },
+      {
+        "source": "APIGateway",
+        "target": "DatabaseLayer",
+        "arrowType": "-->"
+      },
+      {
+        "source": "DatabaseLayer",
+        "target": "CacheLayer",
+        "arrowType": "-->"
+      },
+      {
+        "source": "APIGateway",
+        "target": "EventBus",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Backend Services</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"APIGateway\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>APIGateway</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">API Gateway</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"AuthService\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AuthService</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Authentication Service</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"DatabaseLayer\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DatabaseLayer</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Database Layer</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"CacheLayer\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CacheLayer</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Cache Layer</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"EventBus\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>EventBus</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Event Bus</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"APIGateway\" -> \"AuthService\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"APIGateway\" -> \"DatabaseLayer\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"DatabaseLayer\" -> \"CacheLayer\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"APIGateway\" -> \"EventBus\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "32e8bb31c5d0a25c6996f4a76b3447e8d246455071d046dd4aabadc4af124269"
+}

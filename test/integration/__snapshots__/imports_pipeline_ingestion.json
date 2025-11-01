@@ -1,0 +1,64 @@
+{
+  "json": {
+    "title": "Data Ingestion",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "FetchExternal",
+        "type": "state",
+        "attributes": [],
+        "title": "Fetch External Data"
+      },
+      {
+        "name": "ValidateFormat",
+        "type": "state",
+        "attributes": [],
+        "title": "Validate Format"
+      },
+      {
+        "name": "SanitizeData",
+        "type": "state",
+        "attributes": [],
+        "title": "Sanitize Data"
+      },
+      {
+        "name": "DetectSchema",
+        "type": "state",
+        "attributes": [],
+        "title": "Detect Schema"
+      },
+      {
+        "name": "StoreRaw",
+        "type": "state",
+        "attributes": [],
+        "title": "Store Raw Data"
+      }
+    ],
+    "edges": [
+      {
+        "source": "FetchExternal",
+        "target": "ValidateFormat",
+        "arrowType": "-->"
+      },
+      {
+        "source": "ValidateFormat",
+        "target": "SanitizeData",
+        "arrowType": "-->"
+      },
+      {
+        "source": "SanitizeData",
+        "target": "DetectSchema",
+        "arrowType": "-->"
+      },
+      {
+        "source": "DetectSchema",
+        "target": "StoreRaw",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Ingestion</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"FetchExternal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchExternal</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Fetch External Data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ValidateFormat\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ValidateFormat</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate Format</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"SanitizeData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SanitizeData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Sanitize Data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"DetectSchema\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DetectSchema</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Detect Schema</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"StoreRaw\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreRaw</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Store Raw Data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"FetchExternal\" -> \"ValidateFormat\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ValidateFormat\" -> \"SanitizeData\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"SanitizeData\" -> \"DetectSchema\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"DetectSchema\" -> \"StoreRaw\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "39b1c5018f6317ea389a22d2a1ab6cf9486aea57c066ec1f22abc47d704d63f7"
+}

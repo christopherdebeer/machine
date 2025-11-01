@@ -995,7 +995,7 @@ describe('Comprehensive Generative Integration Tests', () => {
     // Helper to extract node names from source
     const extractNodeNamesFromSource = (source: string): string[] => {
         const names: string[] = [];
-        const excludedKeywords = ['machine', 'note', 'workflow'];
+        const excludedKeywords = ['machine', 'note', 'workflow', 'import'];
 
         // Match simple node declarations: nodeName;
         const simpleMatches = source.matchAll(/^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*;/gm);
