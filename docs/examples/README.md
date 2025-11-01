@@ -110,6 +110,7 @@ Explore specific topics in depth:
 - **[Advanced Features](./advanced-features.md)** - Nesting, generics, annotations, arrows, and notes
 - **[Styling & Validation](./styling-and-validation.md)** - StrictMode, warning visualization, diagram controls
 - **[Text Wrapping](./text-wrapping-configuration.md)** - Text wrapping configuration
+- **[Imports](./imports.md)** - Multi-file projects, modular design, and code reuse
 
 
 ### Domain-Specific

@@ -578,13 +578,13 @@ await workspace.linkAll('file:///path/to/main.dygram');
 // src/language/import-validator.ts
 export class ImportValidator {
 
-  validateImports(machine: Machine, document: LangiumDocument): ValidationAcceptor {
-    const acceptor: Diagnostic[] = [];
+  async validateImports(machine: Machine, document: LangiumDocument): Promise<Diagnostic[]> {
+    const diagnostics: Diagnostic[] = [];
 
     for (const importStmt of machine.imports) {
       // 1. Validate import path syntax
       if (!this.isValidPath(importStmt.path)) {
-        acceptor.push({
+        diagnostics.push({
           severity: 'error',
           message: `Invalid import path: ${importStmt.path}`,
           range: getRange(importStmt.$cstNode)
@@ -595,7 +595,7 @@ export class ImportValidator {
       const importedPaths = machine.imports.map(i => i.path);
       const duplicates = importedPaths.filter((p, i) => importedPaths.indexOf(p) !== i);
       if (duplicates.includes(importStmt.path)) {
-        acceptor.push({
+        diagnostics.push({
           severity: 'warning',
           message: `Duplicate import: ${importStmt.path}`,
           range: getRange(importStmt.$cstNode)
@@ -612,7 +612,7 @@ export class ImportValidator {
           const found = this.findSymbol(importedMachine, symbol.name);
 
           if (!found) {
-            acceptor.push({
+            diagnostics.push({
               severity: 'error',
               message: `Symbol '${symbol.name}' not found in ${importStmt.path}`,
               range: getRange(symbol.$cstNode)
@@ -627,7 +627,7 @@ export class ImportValidator {
         const localName = symbol.alias || this.getShortName(symbol.name);
 
         if (localNames.has(localName)) {
-          acceptor.push({
+          diagnostics.push({
             severity: 'error',
             message: `Naming conflict: '${localName}' imported multiple times`,
             range: getRange(symbol.$cstNode)
@@ -641,7 +641,7 @@ export class ImportValidator {
       for (const node of machine.nodes) {
         const nodeName = this.getShortName(node.name);
         if (localNames.has(nodeName)) {
-          acceptor.push({
+          diagnostics.push({
             severity: 'error',
             message: `Name '${nodeName}' conflicts with imported symbol`,
             range: getRange(node.$cstNode)
@@ -650,7 +650,7 @@ export class ImportValidator {
       }
     }
 
-    return acceptor;
+    return diagnostics;
   }
 
   private isValidPath(path: string): boolean {
@@ -1706,24 +1706,29 @@ export function CodeMirrorPlayground() {
   };
 
   // Handle imports in editor
-  const handleImportClick = (importPath: string) => {
-    // Resolve import path
-    const resolver = new VirtualFSResolver(vfs, '/');
-    const resolvedUri = resolver.resolve(importPath, `vfs://${currentFile}`);
-    const resolvedPath = resolvedUri.replace('vfs://', '');
+  const handleImportClick = async (importPath: string) => {
+    try {
+      // Resolve import path
+      const resolver = new VirtualFSResolver(vfs, '/');
+      const resolvedUri = await resolver.resolve(importPath, `vfs://${currentFile}`);
+      const resolvedPath = resolvedUri.replace('vfs://', '');
 
-    if (vfs.exists(resolvedPath)) {
-      // Open the imported file in a new tab
-      if (!openFiles.includes(resolvedPath)) {
-        setOpenFiles([...openFiles, resolvedPath]);
+      if (vfs.exists(resolvedPath)) {
+        // Open the imported file in a new tab
+        if (!openFiles.includes(resolvedPath)) {
+          setOpenFiles([...openFiles, resolvedPath]);
+        }
+        setCurrentFile(resolvedPath);
+      } else {
+        // Offer to create the file
+        const shouldCreate = confirm(`File ${resolvedPath} not found. Create it?`);
+        if (shouldCreate) {
+          handleFileCreate(resolvedPath);
+        }
       }
-      setCurrentFile(resolvedPath);
-    } else {
-      // Offer to create the file
-      const shouldCreate = confirm(`File ${resolvedPath} not found. Create it?`);
-      if (shouldCreate) {
-        handleFileCreate(resolvedPath);
-      }
+    } catch (error) {
+      console.error('Failed to resolve import:', error);
+      alert(`Failed to resolve import: ${importPath}`);
     }
   };
 
