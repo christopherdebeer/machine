@@ -137,7 +137,8 @@
                 ],
                 "extensions": [
                     ".mach",
-                    ".dygram"
+                    ".dygram",
+                    ".dy"
                 ],
                 "configuration": "./language-configuration.json"
             }

@@ -3,7 +3,7 @@
     "languages": [{
         "id": "machine",
         "grammar": "src/language/machine.langium",
-        "fileExtensions": [".mach", ".dygram"],
+        "fileExtensions": [".mach", ".dygram", ".dy"],
         "textMate": {
             "out": "syntaxes/machine.tmLanguage.json"
         },

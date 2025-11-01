@@ -41,7 +41,23 @@ function log(message, level = 'info') {
 }
 
 /**
- * Maps source file paths to appropriate example categories with better structure
+ * Load file extensions from langium-config.json (source of truth)
+ */
+async function getFileExtensions(projectRoot) {
+    const langiumConfigPath = join(projectRoot, 'langium-config.json');
+    const langiumConfig = JSON.parse(await readFile(langiumConfigPath, 'utf-8'));
+    return langiumConfig.languages[0].fileExtensions;
+}
+
+/**
+ * Get the primary/preferred file extension
+ */
+function getPrimaryExtension(extensions) {
+    return extensions[0];
+}
+
+/**
+ * Maps source file paths to appropriate example categories
  */
 function getCategoryFromPath(sourcePath) {
     const parts = sourcePath.replace(/^docs\//, '').split('/');
@@ -88,7 +104,7 @@ function getCategoryFromPath(sourcePath) {
 /**
  * Extracts a meaningful filename from code block content or generates one
  */
-function extractFilename(content, sourceFile, blockIndex) {
+function extractFilename(content, sourceFile, blockIndex, primaryExt) {
     // Try to extract machine name from content
     const machineMatch = content.match(/^machine\s+"([^"]+)"/m);
     if (machineMatch) {
@@ -97,20 +113,20 @@ function extractFilename(content, sourceFile, blockIndex) {
             .replace(/[^a-z0-9\s-]/g, '')
             .replace(/\s+/g, '-')
             .substring(0, 50); // Limit length
-        return `${machineName}.dygram`;
+        return `${machineName}${primaryExt}`;
     }
-    
+
     // Generate from source file and block index
     const sourceParts = sourceFile.replace(/^docs\//, '').replace(/\.(md|mdx)$/, '').split('/');
     const baseName = sourceParts[sourceParts.length - 1].toLowerCase().replace(/readme$/i, 'example');
-    
-    return `${baseName}-${blockIndex}.dygram`;
+
+    return `${baseName}-${blockIndex}${primaryExt}`;
 }
 
 /**
  * Extracts examples from a single markdown file
  */
-function extractFromMarkdown(content, sourceFile) {
+function extractFromMarkdown(content, sourceFile, primaryExt) {
     const lines = content.split('\n');
     const examples = [];
     const unnamedBlocks = [];
@@ -142,7 +158,7 @@ function extractFromMarkdown(content, sourceFile) {
                     blockIndex++;
                     
                     const category = getCategoryFromPath(sourceFile);
-                    const filename = extractFilename('', sourceFile, blockIndex); // We'll update this after getting content
+                    const filename = extractFilename('', sourceFile, blockIndex, primaryExt); // We'll update this after getting content
                     codeblockPath = `examples/${category}/${filename}`;
                     codeblockContent = [];
                     
@@ -165,9 +181,9 @@ function extractFromMarkdown(content, sourceFile) {
                     // If this was an unnamed block, try to get a better filename from content
                     if (unnamedBlocks.some(b => b.generatedPath === codeblockPath)) {
                         const category = getCategoryFromPath(sourceFile);
-                        const betterFilename = extractFilename(content, sourceFile, blockIndex);
+                        const betterFilename = extractFilename(content, sourceFile, blockIndex, primaryExt);
                         codeblockPath = `examples/${category}/${betterFilename}`;
-                        
+
                         // Update the unnamed block record
                         const blockRecord = unnamedBlocks.find(b => b.generatedPath.endsWith(betterFilename));
                         if (blockRecord) {
@@ -226,6 +242,11 @@ export async function extractExamples(projectRoot) {
     const docsDir = join(projectRoot, 'docs');
     const examplesDir = join(projectRoot, 'examples');
 
+    // Load file extensions from langium-config.json
+    const fileExtensions = await getFileExtensions(projectRoot);
+    const primaryExt = getPrimaryExtension(fileExtensions);
+    log(`Using file extensions: ${fileExtensions.join(', ')} (primary: ${primaryExt})`);
+
     log(`Scanning docs directory: ${relative(projectRoot, docsDir)}`);
 
     // Clean existing examples directory
@@ -243,10 +264,10 @@ export async function extractExamples(projectRoot) {
     // Extract examples from all files
     const allExamples = [];
     const allUnnamedBlocks = [];
-    
+
     for (const mdFile of markdownFiles) {
         const content = await readFile(mdFile, 'utf-8');
-        const { examples, unnamedBlocks } = extractFromMarkdown(content, relative(projectRoot, mdFile));
+        const { examples, unnamedBlocks } = extractFromMarkdown(content, relative(projectRoot, mdFile), primaryExt);
         allExamples.push(...examples);
         allUnnamedBlocks.push(...unnamedBlocks);
     }
