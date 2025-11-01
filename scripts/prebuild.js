@@ -23,7 +23,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Get base URL from environment (Vercel sets VERCEL_BASE_URL, or use VITE_BASE_URL)
-const BASE_URL = process.env.VITE_BASE_URL || process.env.VERCEL_BASE_URL || '/machine/';
+// Default to '/' for production deployment on custom domain (dygram.parc.land)
+const BASE_URL = process.env.VITE_BASE_URL || process.env.VERCEL_BASE_URL || '/';
 // Ensure base URL starts and ends with /
 const normalizedBaseUrl = BASE_URL.startsWith('/') ? BASE_URL : `/${BASE_URL}`;
 const baseUrl = normalizedBaseUrl.endsWith('/') ? normalizedBaseUrl : `${normalizedBaseUrl}/`;
@@ -686,9 +687,9 @@ async function generateEntries(projectRoot) {
             }
         }
 
-        // Calculate relative path to assets from this HTML file
-        const depth = htmlFilePath.split('/').length - projectRoot.split('/').length - 1;
-        const relativeRoot = depth === 0 ? './' : '../'.repeat(depth);
+        // Use absolute paths with base URL for all resources to ensure they work at any nesting level
+        // This prevents 404 errors on child pages like /examples/basic/
+        // Base URL is used in production (e.g., /machine/) and defaults to / in development
 
         // Generate HTML entry
         const htmlContent = `<!DOCTYPE html>
@@ -697,13 +698,13 @@ async function generateEntries(projectRoot) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DyGram | ${page.title}</title>
-    <link rel="stylesheet" href="${relativeRoot}static/styles/main.css">
-    <link rel="stylesheet" href="${relativeRoot}static/styles/carousel.css">
-    <link rel="icon" type="image/jpeg" href="${relativeRoot}icon.jpg">
+    <link rel="stylesheet" href="${baseUrl}static/styles/main.css">
+    <link rel="stylesheet" href="${baseUrl}static/styles/carousel.css">
+    <link rel="icon" type="image/jpeg" href="${baseUrl}icon.jpg">
 </head>
 <body>
     <div id="root"></div>
-    <script type="module" src="/src/pages/${pageName}.tsx"></script>
+    <script type="module" src="${baseUrl}src/pages/${pageName}.tsx"></script>
 </body>
 </html>
 `;

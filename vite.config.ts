@@ -59,13 +59,25 @@ function getStaticCopyTargets() {
     ];
 
     // Dynamically scan examples directory and include all subdirectories
+    // Exclude HTML files since they are processed as Vite entry points
     const examplesDir = path.join(__dirname, 'examples');
     if (fs.existsSync(examplesDir)) {
         const exampleContents = fs.readdirSync(examplesDir, { withFileTypes: true });
         for (const item of exampleContents) {
             // Only include directories, not files like index.html
             if (item.isDirectory()) {
-                targets.push({ src: `examples/${item.name}`, dest: 'examples' });
+                const dirPath = path.join(examplesDir, item.name);
+                const filesInDir = fs.readdirSync(dirPath);
+                // Only add copy target if there are non-HTML files
+                const hasNonHtmlFiles = filesInDir.some(f =>
+                    !f.endsWith('.html') && !fs.statSync(path.join(dirPath, f)).isDirectory()
+                );
+                if (hasNonHtmlFiles) {
+                    targets.push({
+                        src: `examples/${item.name}/*.{dy,dygram,mach,machine,json,txt,md}`,
+                        dest: `examples/${item.name}`
+                    });
+                }
             }
         }
     }
@@ -95,7 +107,7 @@ function getStaticCopyTargets() {
 
 export default defineConfig(() => {
     const config = {
-        base: process.env.VITE_BASE_URL || '/machine/',
+        base: process.env.VITE_BASE_URL || '/',
         build: {
             target: 'esnext',
             minify: 'esbuild',
