@@ -427,12 +427,21 @@ async function transformMarkdownToMdx(projectRoot) {
                                     codeBlockFilename = filenameMatch[1];
                                     // If filename is provided, enable imports by default
                                     codeBlockEnableImports = true;
+                                } else if (!metadataStr.includes('=')) {
+                                    // Backward compatibility: plain path without attributes
+                                    // e.g., ```dy examples/imports/simple-library.dygram
+                                    codeBlockFilename = metadataStr;
+                                    codeBlockEnableImports = true;
                                 }
 
                                 // Extract mode (e.g., mode="split")
                                 const modeMatch = metadataStr.match(/mode=["']([^"']+)["']/);
                                 if (modeMatch) {
                                     codeBlockMode = modeMatch[1];
+                                } else if (codeBlockFilename) {
+                                    // Backward compatibility: if filename provided without explicit mode,
+                                    // default to 'split' to show both code and visual
+                                    codeBlockMode = 'split';
                                 }
 
                                 // Check for explicit enableImports flag
