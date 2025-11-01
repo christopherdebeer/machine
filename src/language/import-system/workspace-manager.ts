@@ -30,9 +30,10 @@ export interface ModuleInfo {
 export class WorkspaceManager {
     private graph: DependencyGraph = new DependencyGraph();
     private modules: Map<string, ModuleInfo> = new Map();
+    public documents: Map<string, LangiumDocument<Machine>> = new Map();
 
     constructor(
-        private readonly documents: LangiumDocuments,
+        private readonly langiumDocs: LangiumDocuments,
         private readonly resolver: ModuleResolver
     ) {}
 
@@ -69,8 +70,9 @@ export class WorkspaceManager {
             dependencies
         };
 
-        // Add to modules map
+        // Add to both maps
         this.modules.set(uriStr, moduleInfo);
+        this.documents.set(uriStr, document);
 
         // Update dependency graph
         this.graph.addModule(uri);
@@ -85,6 +87,7 @@ export class WorkspaceManager {
     removeDocument(uri: URI): void {
         const uriStr = uri.toString();
         this.modules.delete(uriStr);
+        this.documents.delete(uriStr);
         this.graph.removeModule(uri);
     }
 
@@ -132,6 +135,13 @@ export class WorkspaceManager {
      * Get the dependency graph
      */
     getDependencyGraph(): DependencyGraph {
+        return this.graph;
+    }
+
+    /**
+     * Dependency graph accessor (for CLI compatibility)
+     */
+    get dependencyGraph(): DependencyGraph {
         return this.graph;
     }
 
@@ -210,10 +220,10 @@ export class WorkspaceManager {
         const textDoc = TextDocument.create(uriStr, 'dygram', 1, content);
 
         // Get or create a Langium document
-        let document = this.documents.getDocument(uri);
+        let document = this.langiumDocs.getDocument(uri);
         if (!document) {
             // Create a new document
-            document = this.documents.createDocument(uri, textDoc);
+            document = this.langiumDocs.createDocument(uri, textDoc);
         }
 
         // Add to workspace
@@ -225,6 +235,31 @@ export class WorkspaceManager {
             for (const dep of moduleInfo.dependencies) {
                 await this.loadDocumentWithDependencies(dep, loadContent);
             }
+        }
+    }
+
+    /**
+     * Link all imports starting from an entry point (CLI-compatible method)
+     * Loads the entry file and all its dependencies recursively
+     */
+    async linkAll(entryUri: string): Promise<void> {
+        const uri = URI.parse(entryUri);
+
+        await this.loadDocumentWithDependencies(uri, async (docUri) => {
+            // Use the resolver to load the file content
+            const resolved = await this.resolver.resolve(docUri.toString(), uri);
+            if (!resolved || !resolved.content) {
+                throw new Error(`Failed to load module: ${docUri.toString()}`);
+            }
+            return resolved.content;
+        });
+
+        // Check for circular dependencies after loading all files
+        const cycles = this.graph.detectCycles();
+        if (cycles.length > 0) {
+            // Import CircularDependencyError
+            const { CircularDependencyError } = await import('./import-errors.js');
+            throw new CircularDependencyError(cycles[0].cycle);
         }
     }
 }

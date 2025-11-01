@@ -34,12 +34,27 @@ export interface MergedMachine {
  * Merges multiple DyGram files into a single machine
  */
 export class MultiFileGenerator {
-    constructor(private readonly workspaceManager: WorkspaceManager) {}
+    constructor(private readonly workspaceManager?: WorkspaceManager) {}
+
+    /**
+     * Generate merged machine from entry document (convenience method for CLI)
+     * @param entryDoc Entry point document
+     * @param workspace Workspace manager (overrides constructor workspace)
+     */
+    async generate(entryDoc: LangiumDocument<Machine>, workspace: WorkspaceManager): Promise<Machine> {
+        const generator = new MultiFileGenerator(workspace);
+        const merged = await generator.mergeMachines(entryDoc.uri.toString());
+        return merged.machine;
+    }
 
     /**
      * Merge all modules in the workspace into a single machine
      */
     async mergeMachines(entryPoint: string): Promise<MergedMachine> {
+        if (!this.workspaceManager) {
+            throw new Error('WorkspaceManager is required for mergeMachines');
+        }
+
         // Get documents in dependency order
         const orderedDocs = this.workspaceManager.getDocumentsInOrder();
         if (!orderedDocs) {

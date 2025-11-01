@@ -14,8 +14,8 @@ import { glob } from 'glob';
 import { spawn } from 'node:child_process';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
-import { MachineWorkspaceManager, FileSystemResolver, MultiFileGenerator } from '../language/import-system/index.js';
-import { ImportCycleError, ModuleNotFoundError } from '../language/import-system/import-errors.js';
+import { WorkspaceManager, FileSystemResolver, MultiFileGenerator } from '../language/import-system/index.js';
+import { CircularDependencyError, ModuleNotFoundError } from '../language/import-system/import-errors.js';
 
 // Handle both bundled and unbundled cases
 let __dirname: string;
@@ -83,8 +83,8 @@ function setupLogger(opts: { verbose?: boolean; quiet?: boolean }): void {
 async function generateWithImports(fileName: string, opts: GenerateOptions, formats: GenerateFormat[]): Promise<void> {
     const services = createMachineServices(NodeFileSystem).Machine;
     const workingDir = path.dirname(path.resolve(fileName));
-    const resolver = new FileSystemResolver(workingDir);
-    const workspace = new MachineWorkspaceManager(services, resolver);
+    const resolver = new FileSystemResolver();
+    const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
     try {
         const fileUri = pathToFileURL(path.resolve(fileName)).toString();
@@ -153,11 +153,9 @@ async function generateWithImports(fileName: string, opts: GenerateOptions, form
         }
 
     } catch (error) {
-        if (error instanceof ImportCycleError) {
+        if (error instanceof CircularDependencyError) {
             logger.error('✗ Circular dependency detected:');
-            error.cycles.forEach(cycle => {
-                logger.error('  ' + cycle.map(uri => fileURLToPath(uri)).join(' → '));
-            });
+            logger.error('  ' + error.cycle.map(uri => fileURLToPath(uri)).join(' → '));
             process.exit(1);
         } else if (error instanceof ModuleNotFoundError) {
             logger.error(`✗ ${error.message}`);
@@ -379,8 +377,8 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
         logger.debug('File has imports, using multi-file compilation');
 
         const workingDir = path.dirname(path.resolve(fileName));
-        const resolver = new FileSystemResolver(workingDir);
-        const workspace = new MachineWorkspaceManager(services, resolver);
+        const resolver = new FileSystemResolver();
+        const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
         try {
             const fileUri = pathToFileURL(path.resolve(fileName)).toString();
@@ -403,11 +401,9 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
             machineData = JSON.parse(jsonContent.content) as MachineData;
 
         } catch (error) {
-            if (error instanceof ImportCycleError) {
+            if (error instanceof CircularDependencyError) {
                 logger.error('✗ Circular dependency detected:');
-                error.cycles.forEach(cycle => {
-                    logger.error('  ' + cycle.map(uri => fileURLToPath(uri)).join(' → '));
-                });
+                logger.error('  ' + error.cycle.map(uri => fileURLToPath(uri)).join(' → '));
                 process.exit(1);
             } else if (error instanceof ModuleNotFoundError) {
                 logger.error(`✗ ${error.message}`);
@@ -556,8 +552,8 @@ export const checkImportsAction = async (fileName: string, opts?: { verbose?: bo
 
     const services = createMachineServices(NodeFileSystem).Machine;
     const workingDir = path.dirname(path.resolve(fileName));
-    const resolver = new FileSystemResolver(workingDir);
-    const workspace = new MachineWorkspaceManager(services, resolver);
+    const resolver = new FileSystemResolver();
+    const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
     try {
         const fileUri = pathToFileURL(path.resolve(fileName)).toString();
@@ -583,11 +579,9 @@ export const checkImportsAction = async (fileName: string, opts?: { verbose?: bo
         logger.info(`\nTotal files: ${order.length}`);
 
     } catch (error) {
-        if (error instanceof ImportCycleError) {
+        if (error instanceof CircularDependencyError) {
             logger.error('\n✗ Circular dependency detected:');
-            error.cycles.forEach(cycle => {
-                logger.error('  ' + cycle.map(uri => path.relative(process.cwd(), fileURLToPath(uri))).join(' → '));
-            });
+            logger.error('  ' + error.cycle.map(uri => path.relative(process.cwd(), fileURLToPath(uri))).join(' → '));
             process.exit(1);
         } else if (error instanceof ModuleNotFoundError) {
             logger.error(`\n✗ ${error.message}`);
@@ -608,8 +602,8 @@ export const bundleAction = async (fileName: string, opts: { output?: string; ve
 
     const services = createMachineServices(NodeFileSystem).Machine;
     const workingDir = path.dirname(path.resolve(fileName));
-    const resolver = new FileSystemResolver(workingDir);
-    const workspace = new MachineWorkspaceManager(services, resolver);
+    const resolver = new FileSystemResolver();
+    const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
     try {
         const fileUri = pathToFileURL(path.resolve(fileName)).toString();
@@ -644,11 +638,9 @@ export const bundleAction = async (fileName: string, opts: { output?: string; ve
         logger.info(`   Merged ${workspace.documents.size} file(s)`);
 
     } catch (error) {
-        if (error instanceof ImportCycleError) {
+        if (error instanceof CircularDependencyError) {
             logger.error('\n✗ Circular dependency detected:');
-            error.cycles.forEach(cycle => {
-                logger.error('  ' + cycle.map(uri => fileURLToPath(uri)).join(' → '));
-            });
+            logger.error('  ' + error.cycle.map(uri => fileURLToPath(uri)).join(' → '));
             process.exit(1);
         } else if (error instanceof ModuleNotFoundError) {
             logger.error(`\n✗ ${error.message}`);
