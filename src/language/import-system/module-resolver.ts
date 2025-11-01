@@ -8,6 +8,7 @@
 import { URI } from 'langium';
 import * as path from 'path';
 import * as fs from 'fs';
+import { getFileExtensions } from '../file-extensions.js';
 
 /**
  * Result of module resolution
@@ -49,7 +50,7 @@ export interface ModuleResolver {
  */
 export class FileSystemResolver implements ModuleResolver {
     constructor(
-        private readonly extensions: string[] = ['.dygram', '.mach']
+        private readonly extensions: string[] = getFileExtensions()
     ) {}
 
     canResolve(importPath: string, fromUri: URI): boolean {

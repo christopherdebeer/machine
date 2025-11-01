@@ -67,6 +67,38 @@ function logSubsection(title) {
 }
 
 // ============================================================================
+// Centralized File Extension Configuration
+// ============================================================================
+
+/**
+ * Load file extensions from langium-config.json (source of truth)
+ */
+async function getFileExtensions(projectRoot) {
+    const langiumConfigPath = join(projectRoot, 'langium-config.json');
+    const langiumConfig = JSON.parse(await readFile(langiumConfigPath, 'utf-8'));
+    return langiumConfig.languages[0].fileExtensions;
+}
+
+/**
+ * Check if a filename has a valid DyGram extension
+ */
+function hasValidExtension(filename, extensions) {
+    return extensions.some(ext => filename.endsWith(ext));
+}
+
+/**
+ * Get the file extension from a filename
+ */
+function getExtension(filename, extensions) {
+    for (const ext of extensions) {
+        if (filename.endsWith(ext)) {
+            return ext;
+        }
+    }
+    return null;
+}
+
+// ============================================================================
 // STEP 1: Extract Examples from Markdown Documentation
 // ============================================================================
 
@@ -85,6 +117,10 @@ async function generateExamplesList(projectRoot) {
     const examplesDir = join(projectRoot, 'examples');
     const outputFile = join(projectRoot, 'src', 'generated', 'examples-list.json');
 
+    // Load file extensions from langium-config.json
+    const fileExtensions = await getFileExtensions(projectRoot);
+    log(`Using file extensions: ${fileExtensions.join(', ')}`);
+
     log(`Scanning examples directory: ${relative(projectRoot, examplesDir)}`);
 
     // Recursively scan for example files
@@ -97,11 +133,12 @@ async function generateExamplesList(projectRoot) {
 
             if (entry.isDirectory()) {
                 examples.push(...await scanExamples(fullPath, baseDir));
-            } else if (entry.name.endsWith('.dygram') || entry.name.endsWith('.mach')) {
+            } else if (hasValidExtension(entry.name, fileExtensions)) {
                 const relativePath = relative(baseDir, fullPath);
                 const pathParts = relativePath.split('/');
                 const category = pathParts.length > 1 ? pathParts[0] : 'root';
-                const nameWithoutExt = basename(entry.name, entry.name.endsWith('.dygram') ? '.dygram' : '.mach');
+                const ext = getExtension(entry.name, fileExtensions);
+                const nameWithoutExt = basename(entry.name, ext);
                 const readableName = nameWithoutExt.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
                 let title = readableName;
