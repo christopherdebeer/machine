@@ -195,7 +195,7 @@ export class VirtualFSResolver implements ModuleResolver {
 
     constructor(
         virtualFS: VirtualFS | Map<string, string>,
-        private readonly extensions: string[] = ['.dygram', '.mach']
+        private readonly extensions: string[] = getFileExtensions()
     ) {
         // Support both Map and VirtualFS interface
         if (virtualFS instanceof Map) {

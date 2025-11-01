@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { getFileExtensions } from '../../src/language/file-extensions.js';
 
 /**
  * API endpoint to write/update a machine file
@@ -45,8 +46,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Ensure file has valid extension
-  if (!filePath.endsWith('.dygram') && !filePath.endsWith('.mach')) {
-    return res.status(400).json({ error: 'Invalid file extension. Only .dygram and .mach files are allowed' });
+  const extensions = getFileExtensions();
+  const hasValidExtension = extensions.some(ext => filePath.endsWith(ext));
+  if (!hasValidExtension) {
+    return res.status(400).json({
+      error: `Invalid file extension. Only ${extensions.join(', ')} files are allowed`
+    });
   }
 
   // Get working directory from request or environment
