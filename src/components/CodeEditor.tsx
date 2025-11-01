@@ -165,7 +165,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             EditorView.theme({
                 '&': {
                     fontSize: '14px',
-                    height: height || '300px',
+                    height: height || 'auto',
                 },
                 '.cm-scroller': {
                     fontFamily: 'Monaco, Courier New, monospace',
