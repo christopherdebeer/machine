@@ -19,58 +19,19 @@ interface CategoryNode {
     files: FileInfo[];
 }
 
-const Container = styled.div<{ $collapsed?: boolean }>`
+const Container = styled.div`
     background: #252526;
     border: 1px solid #3e3e42;
     border-radius: 4px;
     font-size: 12px;
-    max-height: ${props => props.$collapsed ? 'auto' : '300px'};
+    max-height: 300px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 `;
 
-const Header = styled.div`
-    background: #2d2d30;
-    padding: 6px 8px;
-    font-weight: 600;
-    color: #cccccc;
-    border-bottom: 1px solid #3e3e42;
+const Content = styled.div`
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-    flex-shrink: 0;
-
-    &:hover {
-        background: #333336;
-    }
-`;
-
-const HeaderLeft = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 6px;
-`;
-
-const ToggleIcon = styled.span<{ $collapsed: boolean }>`
-    font-size: 10px;
-    transition: transform 0.2s ease;
-    transform: ${props => props.$collapsed ? 'rotate(0deg)' : 'rotate(90deg)'};
-`;
-
-const StatusBadge = styled.span<{ $available: boolean }>`
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    background: ${props => props.$available ? '#1a7f37' : '#6e7681'};
-    color: white;
-    font-weight: normal;
-`;
-
-const Content = styled.div<{ $collapsed?: boolean }>`
-    display: ${props => props.$collapsed ? 'none' : 'flex'};
     flex-direction: column;
     overflow-y: auto;
     max-height: 300px;
@@ -216,7 +177,6 @@ export const FileTree: React.FC<FileTreeProps> = ({ onSelectFile, workingDir = '
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [apiAvailable, setApiAvailable] = useState(false);
-    const [collapsed, setCollapsed] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -268,10 +228,6 @@ export const FileTree: React.FC<FileTreeProps> = ({ onSelectFile, workingDir = '
         }
     };
 
-    const toggleCollapsed = () => {
-        setCollapsed(prev => !prev);
-    };
-
     const handleCategoryClick = (categoryName: string) => {
         setSelectedCategory(categoryName);
     };
@@ -297,15 +253,8 @@ export const FileTree: React.FC<FileTreeProps> = ({ onSelectFile, workingDir = '
 
     if (loading) {
         return (
-            <Container $collapsed={collapsed}>
-                <Header onClick={toggleCollapsed}>
-                    <HeaderLeft>
-                        <ToggleIcon $collapsed={collapsed}>▶</ToggleIcon>
-                        <span>Files</span>
-                    </HeaderLeft>
-                    <StatusBadge $available={false}>Loading...</StatusBadge>
-                </Header>
-                <Content $collapsed={collapsed}>
+            <Container>
+                <Content>
                     <LoadingMessage>Loading files...</LoadingMessage>
                 </Content>
             </Container>
@@ -314,15 +263,8 @@ export const FileTree: React.FC<FileTreeProps> = ({ onSelectFile, workingDir = '
 
     if (error && !apiAvailable) {
         return (
-            <Container $collapsed={collapsed}>
-                <Header onClick={toggleCollapsed}>
-                    <HeaderLeft>
-                        <ToggleIcon $collapsed={collapsed}>▶</ToggleIcon>
-                        <span>Files</span>
-                    </HeaderLeft>
-                    <StatusBadge $available={false}>Offline</StatusBadge>
-                </Header>
-                <Content $collapsed={collapsed}>
+            <Container>
+                <Content>
                     <EmptyMessage>Using embedded examples</EmptyMessage>
                 </Content>
             </Container>
@@ -331,17 +273,8 @@ export const FileTree: React.FC<FileTreeProps> = ({ onSelectFile, workingDir = '
 
     if (categories.size === 0) {
         return (
-            <Container $collapsed={collapsed}>
-                <Header onClick={toggleCollapsed}>
-                    <HeaderLeft>
-                        <ToggleIcon $collapsed={collapsed}>▶</ToggleIcon>
-                        <span>Files</span>
-                    </HeaderLeft>
-                    <StatusBadge $available={apiAvailable}>
-                        {apiAvailable ? 'Online' : 'Offline'}
-                    </StatusBadge>
-                </Header>
-                <Content $collapsed={collapsed}>
+            <Container>
+                <Content>
                     <EmptyMessage>No files found</EmptyMessage>
                 </Content>
             </Container>
@@ -361,17 +294,8 @@ export const FileTree: React.FC<FileTreeProps> = ({ onSelectFile, workingDir = '
     const isLocalMode = workingDir !== 'examples';
 
     return (
-        <Container $collapsed={collapsed}>
-            <Header onClick={toggleCollapsed}>
-                <HeaderLeft>
-                    <ToggleIcon $collapsed={collapsed}>▶</ToggleIcon>
-                    <span>Files</span>
-                </HeaderLeft>
-                <StatusBadge $available={apiAvailable}>
-                    {apiAvailable ? 'Online' : 'Offline'}
-                </StatusBadge>
-            </Header>
-            <Content $collapsed={collapsed}>
+        <Container>
+            <Content>
                 {selectedCategory && selectedCategoryNode ? (
                     // Show files in selected category
                     <>
