@@ -37,10 +37,10 @@ import { lintKeymap } from "@codemirror/lint";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { ExecutionControls } from "./ExecutionControls";
 import { ExampleButtons } from "./ExampleButtons";
-import { FileTree } from "./FileTree";
-import { VirtualFileTree } from "./VirtualFileTree";
+import { UnifiedFileTree } from "./UnifiedFileTree";
 import { loadSettings, saveSettings } from "../language/shared-settings";
 import { VirtualFileSystem } from "../playground/virtual-filesystem";
+import { FileAccessService } from "../playground/file-access-service";
 import { IMPORT_EXAMPLES, loadExampleIntoVFS, getDefaultImportExample, type ImportExample } from "../playground/sample-imports";
 import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
 import { createLangiumExtensions } from "../codemirror-langium";
@@ -540,35 +540,24 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [isDirty, setIsDirty] = useState(false);
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
     const [fitToContainer, setFitToContainer] = useState(true);
-    const [showFileTree, setShowFileTree] = useState(false);
 
     // Multi-file editor state
     const [openFiles, setOpenFiles] = useState<Array<{ path: string; content: string; name: string }>>([]);
     const [activeFileIndex, setActiveFileIndex] = useState(0);
 
-    // Virtual filesystem for imports
-    const [vfs] = useState(() => {
-        const filesystem = new VirtualFileSystem('dygram-playground-vfs');
+    // Unified file access (VFS + API)
+    const [fileService] = useState(() => {
+        const vfs = new VirtualFileSystem('dygram-playground-vfs');
         // Try to load from localStorage
-        const loaded = filesystem.loadFromLocalStorage();
+        const loaded = vfs.loadFromLocalStorage();
         if (!loaded) {
             // Load default import example if nothing in storage
             const defaultExample = getDefaultImportExample();
-            loadExampleIntoVFS(defaultExample, filesystem);
+            loadExampleIntoVFS(defaultExample, vfs);
         }
-        return filesystem;
+        return new FileAccessService(vfs, { workingDir: 'examples' });
     });
-    const [useVirtualFS, setUseVirtualFS] = useState(true);
     const [importExamples] = useState(IMPORT_EXAMPLES);
-
-  // Check if file API is available
-  useEffect(() => {
-    const checkApi = async () => {
-      const available = await isFileApiAvailable();
-      setShowFileTree(available);
-    };
-    checkApi();
-  }, []);
 
   // Initialize editor
   useEffect(() => {
@@ -867,7 +856,7 @@ export const CodeMirrorPlayground: React.FC = () => {
     }
   }, []);
 
-  // Handle file selection from FileTree
+  // Handle file selection from Unified FileTree
   const handleFileSelect = useCallback((path: string, content: string) => {
     const pathParts = path.split('/');
     const filename = pathParts[pathParts.length - 1];
@@ -986,70 +975,30 @@ export const CodeMirrorPlayground: React.FC = () => {
 
     const activeFile = openFiles[activeFileIndex];
 
-    // Save to VFS if in virtual mode
-    if (useVirtualFS) {
-      vfs.writeFile(activeFile.path, activeFile.content);
-      vfs.saveToLocalStorage();
-      alert(`Saved ${activeFile.name} to virtual filesystem!`);
-      setIsDirty(false);
-      return;
-    }
-
-    // Otherwise save to API
     try {
-      await writeFile(activeFile.path, activeFile.content, 'examples');
-      alert(`Saved ${activeFile.name} successfully!`);
+      // Use FileAccessService which tries API first, falls back to VFS
+      await fileService.writeFile(activeFile.path, activeFile.content);
+
+      const apiAvailable = fileService.isApiAvailable();
+      if (apiAvailable) {
+        alert(`Saved ${activeFile.name} to both API and VFS!`);
+      } else {
+        alert(`Saved ${activeFile.name} to virtual filesystem!`);
+      }
+
       setIsDirty(false);
     } catch (error) {
       console.error('Error saving file:', error);
       alert(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  }, [openFiles, activeFileIndex, useVirtualFS, vfs]);
+  }, [openFiles, activeFileIndex, fileService]);
 
-  // Handle VFS file selection
-  const handleVFSFileSelect = useCallback((path: string, content: string) => {
-    const pathParts = path.split('/');
-    const filename = pathParts[pathParts.length - 1];
-    const name = filename.replace(/\.(dygram|mach)$/, '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-
-    // Check if file is already open
-    const existingIndex = openFiles.findIndex(f => f.path === path);
-
-    if (existingIndex >= 0) {
-      // File already open, just switch to it
-      setActiveFileIndex(existingIndex);
-      if (editorViewRef.current) {
-        editorViewRef.current.dispatch({
-          changes: {
-            from: 0,
-            to: editorViewRef.current.state.doc.length,
-            insert: openFiles[existingIndex].content,
-          },
-        });
-      }
-    } else {
-      // Open new file
-      const newFile = { path, content, name };
-      setOpenFiles(prev => [...prev, newFile]);
-      setActiveFileIndex(openFiles.length); // New file will be at end of array
-
-      if (editorViewRef.current) {
-        editorViewRef.current.dispatch({
-          changes: {
-            from: 0,
-            to: editorViewRef.current.state.doc.length,
-            insert: content,
-          },
-        });
-      }
-    }
-
-    setIsDirty(false);
-  }, [openFiles]);
+  // No longer needed - unified with handleFileSelect
 
   // Handle loading import example
   const handleLoadImportExample = useCallback((example: ImportExample) => {
     // Clear VFS and load new example
+    const vfs = fileService.getVFS();
     vfs.clear();
     loadExampleIntoVFS(example, vfs);
     vfs.saveToLocalStorage();
@@ -1061,11 +1010,11 @@ export const CodeMirrorPlayground: React.FC = () => {
     // Open the entry point file
     const content = example.files[example.entryPoint];
     if (content) {
-      handleVFSFileSelect(example.entryPoint, content);
+      handleFileSelect(example.entryPoint, content);
     }
 
     alert(`Loaded "${example.name}" example with ${Object.keys(example.files).length} files`);
-  }, [vfs, handleVFSFileSelect]);
+  }, [fileService, handleFileSelect]);
 
   // Helper to convert Machine AST to MachineData
   const convertToMachineData = useCallback((machine: Machine): MachineData => {
@@ -1444,54 +1393,38 @@ export const CodeMirrorPlayground: React.FC = () => {
             <SectionHeader onClick={toggleFiles}>
                 <span>Files</span>
                 <HeaderControls>
-                    <ToggleBtn
-                        onClick={(e) => { e.stopPropagation(); setUseVirtualFS(!useVirtualFS); }}
-                        title={useVirtualFS ? "Switch to filesystem" : "Switch to virtual filesystem"}
-                        style={{ marginRight: '8px', fontSize: '10px', padding: '2px 6px', background: useVirtualFS ? '#0e639c' : '#505053', borderRadius: '3px' }}
-                    >
-                        {useVirtualFS ? 'VFS' : 'FS'}
-                    </ToggleBtn>
                     <ToggleBtn>{filesCollapsed ? '▶' : '▼'}</ToggleBtn>
                 </HeaderControls>
             </SectionHeader>
             <FilesPanel $collapsed={filesCollapsed}>
-                {useVirtualFS ? (
-                    // Virtual filesystem mode - show VFS tree and import examples
-                    <>
-                        <ExamplesContainer style={{ borderBottom: '1px solid #3e3e42' }}>
-                            <div style={{ fontSize: '11px', color: '#cccccc', marginBottom: '4px', fontWeight: 600 }}>
-                                Import Examples:
-                            </div>
-                            {importExamples.map((example) => (
-                                <SaveButton
-                                    key={example.name}
-                                    onClick={() => handleLoadImportExample(example)}
-                                    style={{ fontSize: '11px', padding: '4px 8px', marginBottom: '0' }}
-                                    title={example.description}
-                                >
-                                    {example.name}
-                                </SaveButton>
-                            ))}
-                        </ExamplesContainer>
-                        <FileTreeContainer>
-                            <VirtualFileTree
-                                vfs={vfs}
-                                onSelectFile={handleVFSFileSelect}
-                                onFilesChanged={() => { /* Trigger re-render if needed */ }}
-                            />
-                        </FileTreeContainer>
-                    </>
-                ) : showFileTree ? (
-                    // Filesystem mode with local files
-                    <FileTreeContainer>
-                        <FileTree onSelectFile={handleFileSelect} workingDir="examples" />
-                    </FileTreeContainer>
-                ) : (
-                    // Regular examples mode
-                    <ExamplesContainer>
-                        <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />
-                    </ExamplesContainer>
-                )}
+                {/* Import Examples Selector */}
+                <ExamplesContainer style={{ borderBottom: '1px solid #3e3e42' }}>
+                    <div style={{ fontSize: '11px', color: '#cccccc', marginBottom: '4px', fontWeight: 600 }}>
+                        Import Examples:
+                    </div>
+                    {importExamples.map((example) => (
+                        <SaveButton
+                            key={example.name}
+                            onClick={() => handleLoadImportExample(example)}
+                            style={{ fontSize: '11px', padding: '4px 8px', marginBottom: '0' }}
+                            title={example.description}
+                        >
+                            {example.name}
+                        </SaveButton>
+                    ))}
+                </ExamplesContainer>
+                {/* Unified File Tree - shows both API and VFS files */}
+                <FileTreeContainer>
+                    <UnifiedFileTree
+                        fileService={fileService}
+                        onSelectFile={handleFileSelect}
+                        onFilesChanged={() => { /* Trigger re-render if needed */ }}
+                    />
+                </FileTreeContainer>
+                {/* Regular Examples */}
+                <ExamplesContainer>
+                    <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />
+                </ExamplesContainer>
             </FilesPanel>
 
             <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
@@ -1544,10 +1477,10 @@ export const CodeMirrorPlayground: React.FC = () => {
                                     </TabCloseBtn>
                                 </Tab>
                             ))}
-                            {(showFileTree || useVirtualFS) && isDirty && (
+                            {isDirty && (
                                 <SaveButton
                                     onClick={handleSaveFile}
-                                    title={useVirtualFS ? "Save to virtual filesystem" : "Save current file"}
+                                    title="Save current file (API + VFS)"
                                 >
                                     💾 Save
                                 </SaveButton>
