@@ -451,6 +451,9 @@ async function transformMarkdownToMdx(projectRoot) {
                                     codeBlockEnableImports = false;
                                 }
                             }
+                        } else {
+                           // Default: no metadata provided, use split mode
+                           codeBlockMode = "split";
                         }
 
                         // Store metadata for use when closing the block
