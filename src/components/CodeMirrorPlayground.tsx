@@ -1131,13 +1131,14 @@ export const CodeMirrorPlayground: React.FC = () => {
                         onChange={handleApiKeyChange}
                     />
                 </SettingsGroup>
-                <ExamplesContainer>
-                    <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />
-                </ExamplesContainer>
-                {showFileTree && (
+                {showFileTree ? (
                     <FileTreeContainer>
                         <FileTree onSelectFile={handleFileSelect} workingDir="examples" />
                     </FileTreeContainer>
+                ) : (
+                    <ExamplesContainer>
+                        <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />
+                    </ExamplesContainer>
                 )}
             </SettingsPanel>
 
