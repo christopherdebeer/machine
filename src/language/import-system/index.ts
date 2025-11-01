@@ -24,3 +24,6 @@ export * from './multi-file-linker.js';
 
 // Validation
 export * from './import-validator.js';
+
+// Multi-File Generation
+export * from './multi-file-generator.js';
