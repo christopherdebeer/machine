@@ -41,7 +41,7 @@ import { UnifiedFileTree } from "./UnifiedFileTree";
 import { loadSettings, saveSettings } from "../language/shared-settings";
 import { VirtualFileSystem } from "../playground/virtual-filesystem";
 import { FileAccessService } from "../playground/file-access-service";
-import { getDefaultImportExample } from "../playground/sample-imports";
+import { getDefaultImportExample, loadExampleIntoVFS } from "../playground/sample-imports";
 import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
 import { createLangiumExtensions } from "../codemirror-langium";
 import { createMachineServices } from "../language/machine-module";
