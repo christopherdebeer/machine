@@ -37,10 +37,12 @@ import { lintKeymap } from "@codemirror/lint";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { ExecutionControls } from "./ExecutionControls";
 import { ExampleButtons } from "./ExampleButtons";
+import { FileTree } from "./FileTree";
 import { loadSettings, saveSettings } from "../language/shared-settings";
 import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
 import { createLangiumExtensions } from "../codemirror-langium";
 import { createMachineServices } from "../language/machine-module";
+import { isFileApiAvailable } from "../api/files-api";
 import { EmptyFileSystem } from "langium";
 import { parseHelper } from "langium/test";
 import { Machine } from "../language/generated/ast";
@@ -328,6 +330,11 @@ const ExamplesContainer = styled.div`
     width: 100%;
 `;
 
+const FileTreeContainer = styled.div`
+    width: 100%;
+    margin-top: 0.5em;
+`;
+
 const MainContainer = styled.div<{ $collapsed?: boolean }>`
     flex: 1;
     display: flex;
@@ -429,6 +436,16 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [isDirty, setIsDirty] = useState(false);
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
     const [fitToContainer, setFitToContainer] = useState(true);
+    const [showFileTree, setShowFileTree] = useState(false);
+
+  // Check if file API is available
+  useEffect(() => {
+    const checkApi = async () => {
+      const available = await isFileApiAvailable();
+      setShowFileTree(available);
+    };
+    checkApi();
+  }, []);
 
   // Initialize editor
   useEffect(() => {
@@ -694,14 +711,50 @@ export const CodeMirrorPlayground: React.FC = () => {
           insert: content,
         },
       });
-      
+
       // Update state
       setSelectedExample(example);
       setIsDirty(false);
-      
+
       // Update URL hash (without content since it's a clean example)
       updateHashParams({
         example: example.name.toLowerCase().replace(/\s+/g, '-'),
+      });
+    }
+  }, []);
+
+  // Handle file selection from FileTree
+  const handleFileSelect = useCallback((path: string, content: string) => {
+    if (editorViewRef.current) {
+      editorViewRef.current.dispatch({
+        changes: {
+          from: 0,
+          to: editorViewRef.current.state.doc.length,
+          insert: content,
+        },
+      });
+
+      // Create an example-like object for consistency
+      const pathParts = path.split('/');
+      const filename = pathParts[pathParts.length - 1];
+      const category = pathParts.length > 1 ? pathParts[0] : 'root';
+      const name = filename.replace(/\.(dygram|mach)$/, '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+      const fileExample: Example = {
+        path,
+        name,
+        title: name,
+        category,
+        filename,
+        content
+      };
+
+      setSelectedExample(fileExample);
+      setIsDirty(false);
+
+      // Update URL hash
+      updateHashParams({
+        example: name.toLowerCase().replace(/\s+/g, '-'),
       });
     }
   }, []);
@@ -1081,6 +1134,11 @@ export const CodeMirrorPlayground: React.FC = () => {
                 <ExamplesContainer>
                     <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />
                 </ExamplesContainer>
+                {showFileTree && (
+                    <FileTreeContainer>
+                        <FileTree onSelectFile={handleFileSelect} workingDir="examples" />
+                    </FileTreeContainer>
+                )}
             </SettingsPanel>
 
             <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
