@@ -201,6 +201,32 @@ const LoadingMessage = styled.div`
     color: #858585;
 `;
 
+const Breadcrumbs = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    background: #1e1e1e;
+    border-bottom: 1px solid #3e3e42;
+    font-size: 11px;
+    color: #cccccc;
+    overflow-x: auto;
+    white-space: nowrap;
+`;
+
+const BreadcrumbItem = styled.span<{ $clickable?: boolean }>`
+    cursor: ${props => props.$clickable ? 'pointer' : 'default'};
+    color: ${props => props.$clickable ? '#4FC3F7' : '#cccccc'};
+
+    &:hover {
+        text-decoration: ${props => props.$clickable ? 'underline' : 'none'};
+    }
+`;
+
+const BreadcrumbSeparator = styled.span`
+    color: #858585;
+`;
+
 export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
     fileService,
     onSelectFile,
@@ -208,6 +234,7 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
 }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set(['/']));
+    const [currentDir, setCurrentDir] = useState<string>('/');
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFile, setActiveFile] = useState<string | null>(null);
     const [files, setFiles] = useState<FileAccessFile[]>([]);
@@ -290,28 +317,34 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
         return root;
     }, [files, searchQuery]);
 
-    const handleToggleDir = (path: string) => {
-        setExpandedDirs(prev => {
-            const next = new Set(prev);
-            if (next.has(path)) {
-                next.delete(path);
-            } else {
-                next.add(path);
-            }
-            return next;
-        });
+    const handleDirClick = (path: string) => {
+        // Navigate into the directory
+        setCurrentDir(path);
+        // Expand it in case we navigate back up
+        setExpandedDirs(prev => new Set([...prev, path]));
+    };
+
+    const handleBreadcrumbClick = (path: string) => {
+        setCurrentDir(path);
     };
 
     const handleFileClick = async (file: FileAccessFile) => {
         setActiveFile(file.path);
 
-        // Load content if not already loaded
-        let content = file.content;
-        if (!content) {
-            content = await fileService.readFile(file.path) || '';
-        }
+        try {
+            // Always load content from fileService for API files, or use VFS content
+            let content = file.content;
+            if (!content || file.source === 'api') {
+                // For API files, always fetch fresh content
+                // For VFS files with no content, fetch as well
+                content = await fileService.readFile(file.path) || '';
+            }
 
-        onSelectFile(file.path, content);
+            onSelectFile(file.path, content);
+        } catch (error) {
+            console.error('Error loading file:', error);
+            alert(`Failed to load file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
     };
 
     const handleRefresh = async () => {
@@ -348,53 +381,84 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
         }
     };
 
-    const renderDirectory = (dir: DirectoryNode, level: number = 0): React.ReactNode[] => {
+    const renderCurrentDirectory = (tree: DirectoryNode): React.ReactNode[] => {
         const nodes: React.ReactNode[] = [];
-        const isExpanded = expandedDirs.has(dir.path);
 
-        // Render directory header (except for root)
-        if (dir.path !== '/') {
+        // Find the current directory node
+        const findDirNode = (node: DirectoryNode, targetPath: string): DirectoryNode | null => {
+            if (node.path === targetPath) return node;
+            for (const subdir of node.subdirs) {
+                const found = findDirNode(subdir, targetPath);
+                if (found) return found;
+            }
+            return null;
+        };
+
+        const currentDirNode = findDirNode(tree, currentDir);
+        if (!currentDirNode) return nodes;
+
+        // Render subdirectories
+        for (const subdir of currentDirNode.subdirs) {
             nodes.push(
                 <DirectoryItem
-                    key={dir.path}
-                    $level={level}
-                    onClick={() => handleToggleDir(dir.path)}
+                    key={subdir.path}
+                    $level={0}
+                    onClick={() => handleDirClick(subdir.path)}
                 >
-                    <DirectoryIcon $expanded={isExpanded}>▶</DirectoryIcon>
-                    📁 {dir.name}
+                    <DirectoryIcon $expanded={false}>▶</DirectoryIcon>
+                    📁 {subdir.name}
                 </DirectoryItem>
             );
         }
 
-        // Render contents if expanded (or if root)
-        if (isExpanded || dir.path === '/') {
-            // Render subdirectories
-            for (const subdir of dir.subdirs) {
-                nodes.push(...renderDirectory(subdir, level + 1));
-            }
-
-            // Render files
-            for (const file of dir.files) {
-                const fileName = file.path.split('/').pop() || file.path;
-                nodes.push(
-                    <FileItem
-                        key={file.path}
-                        $level={dir.path === '/' ? level : level + 1}
-                        $active={file.path === activeFile}
-                        $source={file.source}
-                        onClick={() => handleFileClick(file)}
-                        title={`${file.path} (${file.source})`}
-                    >
-                        📄 {fileName}
-                        <FileSourceBadge $source={file.source}>
-                            {file.source.toUpperCase()}
-                        </FileSourceBadge>
-                    </FileItem>
-                );
-            }
+        // Render files in current directory
+        for (const file of currentDirNode.files) {
+            const fileName = file.path.split('/').pop() || file.path;
+            nodes.push(
+                <FileItem
+                    key={file.path}
+                    $level={0}
+                    $active={file.path === activeFile}
+                    $source={file.source}
+                    onClick={() => handleFileClick(file)}
+                    title={`${file.path} (${file.source})`}
+                >
+                    📄 {fileName}
+                    <FileSourceBadge $source={file.source}>
+                        {file.source.toUpperCase()}
+                    </FileSourceBadge>
+                </FileItem>
+            );
         }
 
         return nodes;
+    };
+
+    const renderBreadcrumbs = (): React.ReactNode => {
+        const parts = currentDir === '/' ? [''] : currentDir.split('/').filter(p => p);
+        const paths: { name: string; path: string }[] = [{ name: 'Root', path: '/' }];
+
+        let accumulatedPath = '';
+        for (const part of parts) {
+            accumulatedPath += '/' + part;
+            paths.push({ name: part, path: accumulatedPath });
+        }
+
+        return (
+            <Breadcrumbs>
+                {paths.map((item, index) => (
+                    <React.Fragment key={item.path}>
+                        {index > 0 && <BreadcrumbSeparator>/</BreadcrumbSeparator>}
+                        <BreadcrumbItem
+                            $clickable={index < paths.length - 1}
+                            onClick={() => index < paths.length - 1 && handleBreadcrumbClick(item.path)}
+                        >
+                            {item.name}
+                        </BreadcrumbItem>
+                    </React.Fragment>
+                ))}
+            </Breadcrumbs>
+        );
     };
 
     if (loading) {
@@ -460,10 +524,11 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </SearchContainer>
+                {!searchQuery && renderBreadcrumbs()}
                 {fileCount === 0 ? (
                     <EmptyMessage>No files available</EmptyMessage>
                 ) : (
-                    renderDirectory(directoryTree)
+                    renderCurrentDirectory(directoryTree)
                 )}
             </Content>
         </Container>

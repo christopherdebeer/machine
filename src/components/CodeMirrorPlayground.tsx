@@ -36,7 +36,6 @@ import {
 import { lintKeymap } from "@codemirror/lint";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { ExecutionControls } from "./ExecutionControls";
-import { ExampleButtons } from "./ExampleButtons";
 import { UnifiedFileTree } from "./UnifiedFileTree";
 import { loadSettings, saveSettings } from "../language/shared-settings";
 import { VirtualFileSystem } from "../playground/virtual-filesystem";
@@ -74,7 +73,6 @@ type HashParams = HashParamsType;
 
 interface SectionStates {
   settingsCollapsed: boolean;
-  filesCollapsed: boolean;
   editorCollapsed: boolean;
   outputCollapsed: boolean;
   executionCollapsed: boolean;
@@ -91,9 +89,8 @@ interface SectionStates {
 // Section state encoding/decoding helpers
 function encodeSectionStates(states: SectionStates): string {
   // Create a compact representation using single characters
-  // Format: [s][f][e][o][x][eSize][oSize][xSize][format][fit]
+  // Format: [s][e][o][x][eSize][oSize][xSize][format][fit]
   // s = settings collapsed (0/1)
-  // f = files collapsed (0/1)
   // e = editor collapsed (0/1)
   // o = output collapsed (0/1)
   // x = execution collapsed (0/1)
@@ -110,7 +107,6 @@ function encodeSectionStates(states: SectionStates): string {
 
   return [
     states.settingsCollapsed ? '1' : '0',
-    states.filesCollapsed ? '1' : '0',
     states.editorCollapsed ? '1' : '0',
     states.outputCollapsed ? '1' : '0',
     states.executionCollapsed ? '1' : '0',
@@ -123,7 +119,7 @@ function encodeSectionStates(states: SectionStates): string {
 }
 
 function decodeSectionStates(encoded: string): Partial<SectionStates> {
-  if (!encoded || encoded.length !== 10) {
+  if (!encoded || encoded.length !== 9) {
     return {}; // Return empty object for invalid input
   }
 
@@ -135,15 +131,14 @@ function decodeSectionStates(encoded: string): Partial<SectionStates> {
   try {
     return {
       settingsCollapsed: encoded[0] === '1',
-      filesCollapsed: encoded[1] === '1',
-      editorCollapsed: encoded[2] === '1',
-      outputCollapsed: encoded[3] === '1',
-      executionCollapsed: encoded[4] === '1',
-      editorSize: sizeMap[encoded[5]] || 'medium',
-      outputSize: sizeMap[encoded[6]] || 'medium',
-      executionSize: sizeMap[encoded[7]] || 'medium',
-      outputFormat: formatMap[encoded[8]] || 'svg',
-      fitToContainer: encoded[9] === '1'
+      editorCollapsed: encoded[1] === '1',
+      outputCollapsed: encoded[2] === '1',
+      executionCollapsed: encoded[3] === '1',
+      editorSize: sizeMap[encoded[4]] || 'medium',
+      outputSize: sizeMap[encoded[5]] || 'medium',
+      executionSize: sizeMap[encoded[6]] || 'medium',
+      outputFormat: formatMap[encoded[7]] || 'svg',
+      fitToContainer: encoded[8] === '1'
     };
   } catch (error) {
     console.error('Failed to decode section states:', error);
@@ -325,29 +320,6 @@ const SettingsSelect = styled.select`
   }
 `;
 
-const ExamplesContainer = styled.div`
-    background: #252526;
-    padding: 0.4em;
-    display: flex;
-    gap: 0.3em;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    min-height: 44px;
-    flex-wrap: wrap;
-    width: 100%;
-`;
-
-const FileTreeContainer = styled.div`
-    width: 100%;
-`;
-
-const FilesPanel = styled.div<{ $collapsed?: boolean }>`
-  background: #252526;
-  padding: 0.3em;
-  border-bottom: 1px solid #3e3e42;
-  display: ${(props) => (props.$collapsed ? "none" : "block")};
-`;
-
 const TabBar = styled.div`
   display: flex;
   gap: 2px;
@@ -525,7 +497,6 @@ export const CodeMirrorPlayground: React.FC = () => {
 
     const [settings, setSettings] = useState(() => loadSettings());
     const [settingsCollapsed, setSettingsCollapsed] = useState(false);
-    const [filesCollapsed, setFilesCollapsed] = useState(false);
     const [editorCollapsed, setEditorCollapsed] = useState(false);
     const [outputCollapsed, setOutputCollapsed] = useState(false);
     const [executionCollapsed, setExecutionCollapsed] = useState(false);
@@ -605,9 +576,6 @@ export const CodeMirrorPlayground: React.FC = () => {
       const sectionStates = decodeSectionStates(hashParams.sections);
       if (sectionStates.settingsCollapsed !== undefined) {
         setSettingsCollapsed(sectionStates.settingsCollapsed);
-      }
-      if (sectionStates.filesCollapsed !== undefined) {
-        setFilesCollapsed(sectionStates.filesCollapsed);
       }
       if (sectionStates.editorCollapsed !== undefined) {
         setEditorCollapsed(sectionStates.editorCollapsed);
@@ -746,7 +714,6 @@ export const CodeMirrorPlayground: React.FC = () => {
   useEffect(() => {
     const currentSectionStates: SectionStates = {
       settingsCollapsed,
-      filesCollapsed,
       editorCollapsed,
       outputCollapsed,
       executionCollapsed,
@@ -768,7 +735,7 @@ export const CodeMirrorPlayground: React.FC = () => {
       ...hashParams,
       sections: encodedSections
     });
-  }, [settingsCollapsed, filesCollapsed, editorCollapsed, outputCollapsed, executionCollapsed, editorSize, outputSize, executionSize, outputFormat, fitToContainer]);
+  }, [settingsCollapsed, editorCollapsed, outputCollapsed, executionCollapsed, editorSize, outputSize, executionSize, outputFormat, fitToContainer]);
 
   // Handle settings changes
   const handleModelChange = useCallback(
@@ -798,10 +765,6 @@ export const CodeMirrorPlayground: React.FC = () => {
   // Handle section toggles
   const toggleSettings = useCallback(() => {
     setSettingsCollapsed((prev) => !prev);
-  }, []);
-
-  const toggleFiles = useCallback(() => {
-    setFilesCollapsed((prev) => !prev);
   }, []);
 
   const toggleEditor = useCallback(() => {
@@ -1374,26 +1337,12 @@ export const CodeMirrorPlayground: React.FC = () => {
                 </SettingsGroup>
             </SettingsPanel>
 
-            <SectionHeader onClick={toggleFiles}>
-                <span>Files</span>
-                <HeaderControls>
-                    <ToggleBtn>{filesCollapsed ? '▶' : '▼'}</ToggleBtn>
-                </HeaderControls>
-            </SectionHeader>
-            <FilesPanel $collapsed={filesCollapsed}>
-                {/* Unified File Tree - shows both API and VFS files, including import examples */}
-                <FileTreeContainer>
-                    <UnifiedFileTree
-                        fileService={fileService}
-                        onSelectFile={handleFileSelect}
-                        onFilesChanged={() => { /* Trigger re-render if needed */ }}
-                    />
-                </FileTreeContainer>
-                {/* Regular Examples */}
-                <ExamplesContainer>
-                    <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />
-                </ExamplesContainer>
-            </FilesPanel>
+            {/* Unified File Tree - shows both API and VFS files, including import examples */}
+            <UnifiedFileTree
+                fileService={fileService}
+                onSelectFile={handleFileSelect}
+                onFilesChanged={() => { /* Trigger re-render if needed */ }}
+            />
 
             <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
                 <SectionHeader onClick={toggleEditor} $sideways={outputCollapsed && editorCollapsed ? false : true}>
