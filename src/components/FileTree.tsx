@@ -154,6 +154,63 @@ const EmptyMessage = styled.div`
     font-style: italic;
 `;
 
+const SearchContainer = styled.div`
+    padding: 8px;
+    border-bottom: 1px solid #3e3e42;
+    background: #1e1e1e;
+`;
+
+const SearchInput = styled.input`
+    width: 100%;
+    background: #3e3e42;
+    color: #d4d4d4;
+    border: 1px solid #505053;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: inherit;
+
+    &:focus {
+        outline: none;
+        border-color: #0e639c;
+    }
+
+    &::placeholder {
+        color: #858585;
+    }
+`;
+
+const ActionBar = styled.div`
+    display: flex;
+    gap: 4px;
+    padding: 4px 8px;
+    border-bottom: 1px solid #3e3e42;
+    background: #2d2d30;
+`;
+
+const ActionButton = styled.button`
+    background: transparent;
+    border: 1px solid #505053;
+    color: #cccccc;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #3e3e42;
+        border-color: #0e639c;
+        color: #ffffff;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+`;
+
 export const FileTree: React.FC<FileTreeProps> = ({ onSelectFile, workingDir = 'examples' }) => {
     const [categories, setCategories] = useState<Map<string, CategoryNode>>(new Map());
     const [loading, setLoading] = useState(true);
@@ -161,6 +218,7 @@ export const FileTree: React.FC<FileTreeProps> = ({ onSelectFile, workingDir = '
     const [apiAvailable, setApiAvailable] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         loadFiles();
@@ -290,8 +348,17 @@ export const FileTree: React.FC<FileTreeProps> = ({ onSelectFile, workingDir = '
         );
     }
 
-    // Get selected category files
+    // Get selected category files with filtering
     const selectedCategoryNode = selectedCategory ? categories.get(selectedCategory) : null;
+    const filteredFiles = selectedCategoryNode
+        ? selectedCategoryNode.files.filter(file =>
+            file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            file.path.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : [];
+
+    // Check if local mode (DYGRAM_LOCAL_MODE environment variable)
+    const isLocalMode = workingDir !== 'examples';
 
     return (
         <Container $collapsed={collapsed}>
@@ -308,18 +375,38 @@ export const FileTree: React.FC<FileTreeProps> = ({ onSelectFile, workingDir = '
                 {selectedCategory && selectedCategoryNode ? (
                     // Show files in selected category
                     <>
+                        {isLocalMode && (
+                            <ActionBar>
+                                <ActionButton title="Create new file">+ New</ActionButton>
+                                <ActionButton title="Refresh file list" onClick={loadFiles}>⟳</ActionButton>
+                            </ActionBar>
+                        )}
+                        <SearchContainer>
+                            <SearchInput
+                                type="text"
+                                placeholder="Search files..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </SearchContainer>
                         <BackButton onClick={handleBackClick}>
                             ← Back to folders
                         </BackButton>
-                        {selectedCategoryNode.files.map(file => (
-                            <FileItem
-                                key={file.path}
-                                onClick={() => handleFileClick(file)}
-                                title={file.path}
-                            >
-                                {file.name}
-                            </FileItem>
-                        ))}
+                        {filteredFiles.length > 0 ? (
+                            filteredFiles.map(file => (
+                                <FileItem
+                                    key={file.path}
+                                    onClick={() => handleFileClick(file)}
+                                    title={file.path}
+                                >
+                                    {file.name}
+                                </FileItem>
+                            ))
+                        ) : (
+                            <EmptyMessage>
+                                {searchQuery ? 'No files match your search' : 'No files found'}
+                            </EmptyMessage>
+                        )}
                     </>
                 ) : (
                     // Show category list

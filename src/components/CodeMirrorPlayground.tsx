@@ -42,7 +42,7 @@ import { loadSettings, saveSettings } from "../language/shared-settings";
 import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
 import { createLangiumExtensions } from "../codemirror-langium";
 import { createMachineServices } from "../language/machine-module";
-import { isFileApiAvailable } from "../api/files-api";
+import { isFileApiAvailable, writeFile } from "../api/files-api";
 import { EmptyFileSystem } from "langium";
 import { parseHelper } from "langium/test";
 import { Machine } from "../language/generated/ast";
@@ -71,6 +71,7 @@ type HashParams = HashParamsType;
 
 interface SectionStates {
   settingsCollapsed: boolean;
+  filesCollapsed: boolean;
   editorCollapsed: boolean;
   outputCollapsed: boolean;
   executionCollapsed: boolean;
@@ -87,9 +88,10 @@ interface SectionStates {
 // Section state encoding/decoding helpers
 function encodeSectionStates(states: SectionStates): string {
   // Create a compact representation using single characters
-  // Format: [s][e][o][x][eSize][oSize][xSize][format][fit]
+  // Format: [s][f][e][o][x][eSize][oSize][xSize][format][fit]
   // s = settings collapsed (0/1)
-  // e = editor collapsed (0/1) 
+  // f = files collapsed (0/1)
+  // e = editor collapsed (0/1)
   // o = output collapsed (0/1)
   // x = execution collapsed (0/1)
   // eSize = editor size (s/m/b for small/medium/big)
@@ -97,15 +99,16 @@ function encodeSectionStates(states: SectionStates): string {
   // xSize = execution size (s/m/b)
   // format = output format (0=svg, 1=png, 2=dot, 3=json, 4=ast, 5=cst)
   // fit = fit to container (0/1)
-  
+
   const sizeMap: Record<SectionSize, string> = { small: 's', medium: 'm', big: 'b' };
-  const formatMap: Record<OutputFormat, string> = { 
-    svg: '0', png: '1', dot: '2', json: '3', ast: '4', cst: '5' 
+  const formatMap: Record<OutputFormat, string> = {
+    svg: '0', png: '1', dot: '2', json: '3', ast: '4', cst: '5'
   };
-  
+
   return [
     states.settingsCollapsed ? '1' : '0',
-    states.editorCollapsed ? '1' : '0', 
+    states.filesCollapsed ? '1' : '0',
+    states.editorCollapsed ? '1' : '0',
     states.outputCollapsed ? '1' : '0',
     states.executionCollapsed ? '1' : '0',
     sizeMap[states.editorSize],
@@ -117,26 +120,27 @@ function encodeSectionStates(states: SectionStates): string {
 }
 
 function decodeSectionStates(encoded: string): Partial<SectionStates> {
-  if (!encoded || encoded.length !== 9) {
+  if (!encoded || encoded.length !== 10) {
     return {}; // Return empty object for invalid input
   }
-  
+
   const sizeMap: Record<string, SectionSize> = { s: 'small', m: 'medium', b: 'big' };
-  const formatMap: Record<string, OutputFormat> = { 
-    '0': 'svg', '1': 'png', '2': 'dot', '3': 'json', '4': 'ast', '5': 'cst' 
+  const formatMap: Record<string, OutputFormat> = {
+    '0': 'svg', '1': 'png', '2': 'dot', '3': 'json', '4': 'ast', '5': 'cst'
   };
-  
+
   try {
     return {
       settingsCollapsed: encoded[0] === '1',
-      editorCollapsed: encoded[1] === '1',
-      outputCollapsed: encoded[2] === '1', 
-      executionCollapsed: encoded[3] === '1',
-      editorSize: sizeMap[encoded[4]] || 'medium',
-      outputSize: sizeMap[encoded[5]] || 'medium',
-      executionSize: sizeMap[encoded[6]] || 'medium',
-      outputFormat: formatMap[encoded[7]] || 'svg',
-      fitToContainer: encoded[8] === '1'
+      filesCollapsed: encoded[1] === '1',
+      editorCollapsed: encoded[2] === '1',
+      outputCollapsed: encoded[3] === '1',
+      executionCollapsed: encoded[4] === '1',
+      editorSize: sizeMap[encoded[5]] || 'medium',
+      outputSize: sizeMap[encoded[6]] || 'medium',
+      executionSize: sizeMap[encoded[7]] || 'medium',
+      outputFormat: formatMap[encoded[8]] || 'svg',
+      fitToContainer: encoded[9] === '1'
     };
   } catch (error) {
     console.error('Failed to decode section states:', error);
@@ -332,7 +336,103 @@ const ExamplesContainer = styled.div`
 
 const FileTreeContainer = styled.div`
     width: 100%;
-    margin-top: 0.5em;
+`;
+
+const FilesPanel = styled.div<{ $collapsed?: boolean }>`
+  background: #252526;
+  padding: 0.3em;
+  border-bottom: 1px solid #3e3e42;
+  display: ${(props) => (props.$collapsed ? "none" : "block")};
+`;
+
+const TabBar = styled.div`
+  display: flex;
+  gap: 2px;
+  background: #2d2d30;
+  padding: 4px;
+  overflow-x: auto;
+  border-bottom: 1px solid #3e3e42;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #1e1e1e;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #424242;
+    border-radius: 3px;
+  }
+`;
+
+const Tab = styled.div<{ $active?: boolean }>`
+  background: ${props => props.$active ? '#1e1e1e' : '#252526'};
+  color: ${props => props.$active ? '#ffffff' : '#cccccc'};
+  padding: 6px 12px;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 13px;
+  border: 1px solid ${props => props.$active ? '#3e3e42' : 'transparent'};
+  border-bottom: none;
+
+  &:hover {
+    background: ${props => props.$active ? '#1e1e1e' : '#2a2d2e'};
+  }
+`;
+
+const TabName = styled.span`
+  flex: 1;
+`;
+
+const TabCloseBtn = styled.button`
+  background: transparent;
+  border: none;
+  color: #858585;
+  cursor: pointer;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border-radius: 3px;
+
+  &:hover {
+    background: #3e3e42;
+    color: #ffffff;
+  }
+`;
+
+const SaveButton = styled.button`
+  background: #0e639c;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: auto;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #1177bb;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #505053;
+  }
 `;
 
 const MainContainer = styled.div<{ $collapsed?: boolean }>`
@@ -422,6 +522,7 @@ export const CodeMirrorPlayground: React.FC = () => {
 
     const [settings, setSettings] = useState(() => loadSettings());
     const [settingsCollapsed, setSettingsCollapsed] = useState(false);
+    const [filesCollapsed, setFilesCollapsed] = useState(false);
     const [editorCollapsed, setEditorCollapsed] = useState(false);
     const [outputCollapsed, setOutputCollapsed] = useState(false);
     const [executionCollapsed, setExecutionCollapsed] = useState(false);
@@ -437,6 +538,10 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
     const [fitToContainer, setFitToContainer] = useState(true);
     const [showFileTree, setShowFileTree] = useState(false);
+
+    // Multi-file editor state
+    const [openFiles, setOpenFiles] = useState<Array<{ path: string; content: string; name: string }>>([]);
+    const [activeFileIndex, setActiveFileIndex] = useState(0);
 
   // Check if file API is available
   useEffect(() => {
@@ -488,6 +593,9 @@ export const CodeMirrorPlayground: React.FC = () => {
       const sectionStates = decodeSectionStates(hashParams.sections);
       if (sectionStates.settingsCollapsed !== undefined) {
         setSettingsCollapsed(sectionStates.settingsCollapsed);
+      }
+      if (sectionStates.filesCollapsed !== undefined) {
+        setFilesCollapsed(sectionStates.filesCollapsed);
       }
       if (sectionStates.editorCollapsed !== undefined) {
         setEditorCollapsed(sectionStates.editorCollapsed);
@@ -579,10 +687,23 @@ export const CodeMirrorPlayground: React.FC = () => {
         if (transaction.docChanged) {
           const code = view.state.doc.toString();
           handleDocumentChange(code);
-          
+
+          // Update content in open files array
+          setOpenFiles(prev => {
+            if (prev.length > 0 && activeFileIndex < prev.length) {
+              const updated = [...prev];
+              updated[activeFileIndex] = {
+                ...updated[activeFileIndex],
+                content: code
+              };
+              return updated;
+            }
+            return prev;
+          });
+
           // Mark as dirty and update URL hash with content
           setIsDirty(true);
-          
+
           // Update URL hash with encoded content
           if (selectedExample) {
             updateHashParams({
@@ -612,6 +733,7 @@ export const CodeMirrorPlayground: React.FC = () => {
   useEffect(() => {
     const currentSectionStates: SectionStates = {
       settingsCollapsed,
+      filesCollapsed,
       editorCollapsed,
       outputCollapsed,
       executionCollapsed,
@@ -624,16 +746,16 @@ export const CodeMirrorPlayground: React.FC = () => {
 
     // Get current hash params
     const hashParams = parseHashParams();
-    
+
     // Encode current section states
     const encodedSections = encodeSectionStates(currentSectionStates);
-    
+
     // Update hash params with new section states
     updateHashParams({
       ...hashParams,
       sections: encodedSections
     });
-  }, [settingsCollapsed, editorCollapsed, outputCollapsed, executionCollapsed, editorSize, outputSize, executionSize, outputFormat, fitToContainer]);
+  }, [settingsCollapsed, filesCollapsed, editorCollapsed, outputCollapsed, executionCollapsed, editorSize, outputSize, executionSize, outputFormat, fitToContainer]);
 
   // Handle settings changes
   const handleModelChange = useCallback(
@@ -663,6 +785,10 @@ export const CodeMirrorPlayground: React.FC = () => {
   // Handle section toggles
   const toggleSettings = useCallback(() => {
     setSettingsCollapsed((prev) => !prev);
+  }, []);
+
+  const toggleFiles = useCallback(() => {
+    setFilesCollapsed((prev) => !prev);
   }, []);
 
   const toggleEditor = useCallback(() => {
@@ -725,39 +851,131 @@ export const CodeMirrorPlayground: React.FC = () => {
 
   // Handle file selection from FileTree
   const handleFileSelect = useCallback((path: string, content: string) => {
-    if (editorViewRef.current) {
-      editorViewRef.current.dispatch({
-        changes: {
-          from: 0,
-          to: editorViewRef.current.state.doc.length,
-          insert: content,
-        },
-      });
+    const pathParts = path.split('/');
+    const filename = pathParts[pathParts.length - 1];
+    const name = filename.replace(/\.(dygram|mach)$/, '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
-      // Create an example-like object for consistency
-      const pathParts = path.split('/');
-      const filename = pathParts[pathParts.length - 1];
-      const category = pathParts.length > 1 ? pathParts[0] : 'root';
-      const name = filename.replace(/\.(dygram|mach)$/, '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    // Check if file is already open
+    const existingIndex = openFiles.findIndex(f => f.path === path);
 
-      const fileExample: Example = {
-        path,
-        name,
-        title: name,
-        category,
-        filename,
-        content
-      };
+    if (existingIndex >= 0) {
+      // File already open, just switch to it
+      setActiveFileIndex(existingIndex);
+      if (editorViewRef.current) {
+        editorViewRef.current.dispatch({
+          changes: {
+            from: 0,
+            to: editorViewRef.current.state.doc.length,
+            insert: openFiles[existingIndex].content,
+          },
+        });
+      }
+    } else {
+      // Open new file
+      const newFile = { path, content, name };
+      setOpenFiles(prev => [...prev, newFile]);
+      setActiveFileIndex(openFiles.length); // New file will be at end of array
 
-      setSelectedExample(fileExample);
-      setIsDirty(false);
-
-      // Update URL hash
-      updateHashParams({
-        example: name.toLowerCase().replace(/\s+/g, '-'),
-      });
+      if (editorViewRef.current) {
+        editorViewRef.current.dispatch({
+          changes: {
+            from: 0,
+            to: editorViewRef.current.state.doc.length,
+            insert: content,
+          },
+        });
+      }
     }
-  }, []);
+
+    // Create an example-like object for consistency
+    const category = pathParts.length > 1 ? pathParts[0] : 'root';
+    const fileExample: Example = {
+      path,
+      name,
+      title: name,
+      category,
+      filename,
+      content
+    };
+
+    setSelectedExample(fileExample);
+    setIsDirty(false);
+
+    // Update URL hash
+    updateHashParams({
+      example: name.toLowerCase().replace(/\s+/g, '-'),
+    });
+  }, [openFiles]);
+
+  // Handle tab switching
+  const handleTabSwitch = useCallback((index: number) => {
+    if (index >= 0 && index < openFiles.length) {
+      setActiveFileIndex(index);
+      if (editorViewRef.current) {
+        editorViewRef.current.dispatch({
+          changes: {
+            from: 0,
+            to: editorViewRef.current.state.doc.length,
+            insert: openFiles[index].content,
+          },
+        });
+      }
+    }
+  }, [openFiles]);
+
+  // Handle tab close
+  const handleTabClose = useCallback((index: number) => {
+    const newFiles = openFiles.filter((_, i) => i !== index);
+    setOpenFiles(newFiles);
+
+    // Adjust active index
+    if (newFiles.length === 0) {
+      setActiveFileIndex(0);
+      // Clear editor
+      if (editorViewRef.current) {
+        editorViewRef.current.dispatch({
+          changes: {
+            from: 0,
+            to: editorViewRef.current.state.doc.length,
+            insert: '',
+          },
+        });
+      }
+    } else if (index === activeFileIndex) {
+      // Closed active tab, switch to previous or next
+      const newIndex = index > 0 ? index - 1 : 0;
+      setActiveFileIndex(newIndex);
+      if (editorViewRef.current) {
+        editorViewRef.current.dispatch({
+          changes: {
+            from: 0,
+            to: editorViewRef.current.state.doc.length,
+            insert: newFiles[newIndex].content,
+          },
+        });
+      }
+    } else if (index < activeFileIndex) {
+      // Closed tab before active, adjust index
+      setActiveFileIndex(activeFileIndex - 1);
+    }
+  }, [openFiles, activeFileIndex]);
+
+  // Handle save file
+  const handleSaveFile = useCallback(async () => {
+    if (openFiles.length === 0 || activeFileIndex >= openFiles.length) {
+      return;
+    }
+
+    const activeFile = openFiles[activeFileIndex];
+    try {
+      await writeFile(activeFile.path, activeFile.content, 'examples');
+      alert(`Saved ${activeFile.name} successfully!`);
+      setIsDirty(false);
+    } catch (error) {
+      console.error('Error saving file:', error);
+      alert(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }, [openFiles, activeFileIndex]);
 
   // Helper to convert Machine AST to MachineData
   const convertToMachineData = useCallback((machine: Machine): MachineData => {
@@ -1131,6 +1349,13 @@ export const CodeMirrorPlayground: React.FC = () => {
                         onChange={handleApiKeyChange}
                     />
                 </SettingsGroup>
+            </SettingsPanel>
+
+            <SectionHeader onClick={toggleFiles}>
+                <span>Files</span>
+                <ToggleBtn>{filesCollapsed ? '▶' : '▼'}</ToggleBtn>
+            </SectionHeader>
+            <FilesPanel $collapsed={filesCollapsed}>
                 {showFileTree ? (
                     <FileTreeContainer>
                         <FileTree onSelectFile={handleFileSelect} workingDir="examples" />
@@ -1140,7 +1365,7 @@ export const CodeMirrorPlayground: React.FC = () => {
                         <ExampleButtons onLoadExample={handleLoadExample} categoryView={true} />
                     </ExamplesContainer>
                 )}
-            </SettingsPanel>
+            </FilesPanel>
 
             <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
                 <SectionHeader onClick={toggleEditor} $sideways={outputCollapsed && editorCollapsed ? false : true}>
@@ -1172,6 +1397,36 @@ export const CodeMirrorPlayground: React.FC = () => {
                     </HeaderControls>
                 </SectionHeader>
                 <EditorSection $collapsed={editorCollapsed} $size={editorSize} $borderRight>
+                    {openFiles.length > 0 && !editorCollapsed && (
+                        <TabBar>
+                            {openFiles.map((file, index) => (
+                                <Tab
+                                    key={file.path}
+                                    $active={index === activeFileIndex}
+                                    onClick={() => handleTabSwitch(index)}
+                                >
+                                    <TabName>{file.name}</TabName>
+                                    <TabCloseBtn
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleTabClose(index);
+                                        }}
+                                        title="Close"
+                                    >
+                                        ×
+                                    </TabCloseBtn>
+                                </Tab>
+                            ))}
+                            {showFileTree && isDirty && (
+                                <SaveButton
+                                    onClick={handleSaveFile}
+                                    title="Save current file (local mode only)"
+                                >
+                                    Save
+                                </SaveButton>
+                            )}
+                        </TabBar>
+                    )}
                     <SectionContent $collapsed={editorCollapsed}>
                         <EditorContainer ref={editorRef} />
                     </SectionContent>
