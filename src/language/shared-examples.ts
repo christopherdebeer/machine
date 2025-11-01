@@ -1,9 +1,11 @@
 /**
  * Shared example loader for both Monaco and CodeMirror playgrounds
  * Provides dynamic example loading with category-based navigation
+ * Supports both API-based loading (local + Vercel) and fallback to embedded examples
  */
 
 import examplesList from '../generated/examples-list.json';
+import { listFiles, isFileApiAvailable, type FileInfo } from '../api/files-api';
 
 export interface Example {
     path: string;
@@ -14,8 +16,90 @@ export interface Example {
     content: string;
 }
 
+// Cache for API-loaded examples
+let apiExamplesCache: Example[] | null = null;
+let apiAvailableCache: boolean | null = null;
+
 /**
- * Get all examples
+ * Check if file API is available and cache result
+ */
+async function checkApiAvailable(): Promise<boolean> {
+    if (apiAvailableCache !== null) {
+        return apiAvailableCache;
+    }
+
+    apiAvailableCache = await isFileApiAvailable();
+    return apiAvailableCache;
+}
+
+/**
+ * Convert FileInfo to Example format
+ */
+function fileInfoToExample(file: FileInfo, content: string): Example {
+    return {
+        path: file.path,
+        name: file.name,
+        title: file.name,
+        category: file.category,
+        filename: file.filename,
+        content
+    };
+}
+
+/**
+ * Load examples from API
+ */
+async function loadExamplesFromApi(): Promise<Example[]> {
+    try {
+        const response = await listFiles('examples');
+
+        // Load content for each file
+        const examples: Example[] = [];
+        for (const file of response.files) {
+            try {
+                const contentResponse = await fetch(`/api/files/read?file=${encodeURIComponent(file.path)}&dir=examples`);
+                if (contentResponse.ok) {
+                    const content = await contentResponse.text();
+                    examples.push(fileInfoToExample(file, content));
+                }
+            } catch (error) {
+                console.warn(`Failed to load content for ${file.path}:`, error);
+            }
+        }
+
+        return examples;
+    } catch (error) {
+        console.error('Failed to load examples from API:', error);
+        return [];
+    }
+}
+
+/**
+ * Get all examples (API-first, fallback to embedded)
+ */
+export async function getAllExamplesAsync(): Promise<Example[]> {
+    // Return cached API examples if available
+    if (apiExamplesCache) {
+        return apiExamplesCache;
+    }
+
+    // Try to load from API
+    const apiAvailable = await checkApiAvailable();
+    if (apiAvailable) {
+        const apiExamples = await loadExamplesFromApi();
+        if (apiExamples.length > 0) {
+            apiExamplesCache = apiExamples;
+            return apiExamples;
+        }
+    }
+
+    // Fallback to embedded examples
+    return examplesList as Example[];
+}
+
+/**
+ * Get all examples (synchronous - returns embedded only)
+ * @deprecated Use getAllExamplesAsync for API support
  */
 export function getAllExamples(): Example[] {
     return examplesList as Example[];
