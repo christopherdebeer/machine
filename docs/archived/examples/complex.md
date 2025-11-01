@@ -3,7 +3,7 @@
 
 Complex Generated Machine
 
-```dygram examples/complex/complex-machine.dygram
+```dy examples/complex/complex-machine.dygram
 machine "Complex Generated Machine"
 
 context config {
@@ -49,7 +49,7 @@ cleanup -if: '(config.debug == true)';-> startup;
 
 Context Heavy Machine
 
-```dygram examples/complex/context-heavy.dygram
+```dy examples/complex/context-heavy.dygram
 machine "Context Heavy Machine"
 context appConfig {
     environment<string>: "production";
@@ -75,7 +75,7 @@ bootstrap -> ready;
 
 Unicode Machine 🔄
 
-```dygram examples/complex/unicode-machine.dygram
+```dy examples/complex/unicode-machine.dygram
 machine "Unicode Machine 🔄"
 start "開始" {
     desc: "Starting point 开始";

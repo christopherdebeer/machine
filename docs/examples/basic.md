@@ -6,7 +6,7 @@ Fundamental concepts and simple machine definitions.
 
 The simplest possible machine:
 
-```dygram
+```dy
 machine "Hello World"
 
 Task greet {
@@ -23,7 +23,7 @@ This minimal example shows:
 
 A basic linear workflow:
 
-```dygram
+```dy
 machine "Simple Workflow"
 
 Task start "Initialize";
@@ -42,7 +42,7 @@ Key concepts:
 
 Adding configuration to nodes:
 
-```dygram
+```dy
 machine "Configured Tasks"
 
 Task analyze {
@@ -69,7 +69,7 @@ Attribute features:
 
 Different node types for different purposes:
 
-```dygram
+```dy
 machine "Node Types Demo"
 
 Input source "Data source";

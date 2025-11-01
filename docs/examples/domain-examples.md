@@ -6,7 +6,7 @@ Real-world applications: API workflows, ETL pipelines, and testing.
 
 RESTful API processing:
 
-```dygram
+```dy
 machine "API Handler"
 
 Context config {
@@ -67,7 +67,7 @@ API workflow features:
 
 Coordinating multiple services:
 
-```dygram
+```dy
 machine "Order Processing Microservices"
 
 Input order {
@@ -142,7 +142,7 @@ Microservices patterns:
 
 Extract, Transform, Load pipeline:
 
-```dygram
+```dy
 machine "ETL Pipeline"
 
 Context config {
@@ -235,7 +235,7 @@ ETL patterns:
 
 Automated testing suite:
 
-```dygram
+```dy
 machine "Test Suite"
 
 Context testConfig {
@@ -322,7 +322,7 @@ Testing patterns:
 
 Continuous integration and deployment:
 
-```dygram
+```dy
 machine "CI/CD Pipeline" @Version("1.0")
 
 Input trigger {
@@ -399,7 +399,7 @@ CI/CD patterns:
 
 System monitoring workflow:
 
-```dygram
+```dy
 machine "Monitoring System"
 
 Context config {

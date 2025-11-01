@@ -6,7 +6,7 @@ StrictMode, warning visualization, and diagram controls.
 
 Enable strict validation to catch errors early:
 
-```dygram
+```dy
 machine "Strict Machine" @StrictMode
 
 Task process "Process data";
@@ -24,7 +24,7 @@ StrictMode behavior:
 
 ### StrictMode Example with Error
 
-```dygram
+```dy
 machine "Strict Validation" @StrictMode
 
 Task start "Start";
@@ -35,7 +35,7 @@ start -> undefined_node;  // This will cause a validation error
 
 ### Non-Strict Mode (Default)
 
-```dygram
+```dy
 machine "Lenient Machine"
 
 Task start "Start";
@@ -52,7 +52,7 @@ Control how validation warnings appear in diagrams:
 
 Warnings shown in node styling:
 
-```dygram
+```dy
 machine "Inline Warnings" @StrictMode
 
 Task process {
@@ -75,7 +75,7 @@ const options: DiagramOptions = {
 
 Warnings as separate note nodes:
 
-```dygram
+```dy
 machine "Warning Notes"
 
 Task process "Process data";
@@ -142,7 +142,7 @@ Control graph layout direction using `@style` annotations:
 
 ### Machine-Level Direction
 
-```dygram
+```dy
 // Left-to-right layout
 machine "Horizontal Flow" @style(rankdir: LR)
 
@@ -155,7 +155,7 @@ a -> b -> c;
 
 ### Supported Directions
 
-```dygram
+```dy
 // Top-to-bottom (default)
 machine "Vertical" @style(rankdir: TB)
 
@@ -175,7 +175,7 @@ machine "Bottom Up" @style(rankdir: BT)
 
 Graphviz diagrams now expose deterministic ports for every attribute row. Use `sourceAttribute` / `targetAttribute` when defining an edge to connect directly to the value cell of an attribute:
 
-```dygram
+```dy
 machine "Attribute Anchors"
 
 Context api {
@@ -204,7 +204,7 @@ Edges attached to namespace parents (clusters) now terminate at an invisible anc
 
 Use the `@rank` annotation (or a `rank` attribute) to group nodes horizontally or pin them to the top/bottom of the diagram:
 
-```dygram
+```dy
 machine "Ranked Layout"
 
 Task start @rank("header");
@@ -253,7 +253,7 @@ const runtimeDot = generateRuntimeGraphviz(
 
 ### Runtime Visualization Example
 
-```dygram
+```dy
 machine "Runtime Demo"
 
 Context state {
@@ -287,7 +287,7 @@ With runtime visualization:
 
 Custom edge styling with `@style` annotations:
 
-```dygram
+```dy
 machine "Styled Edges"
 
 Task start "Start";

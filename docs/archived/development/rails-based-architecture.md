@@ -39,7 +39,7 @@ Some transitions happen automatically without invoking the agent:
 - **Single-path**: Only one valid outbound edge
 
 **Example:**
-```dygram examples/workflows/auto-transition.dygram
+```dy examples/workflows/auto-transition.dygram
 machine "Auto Transitions Demo"
 
 State idle;
@@ -125,7 +125,7 @@ Generated for each valid outbound edge:
 
 Based on edge permissions:
 
-```dygram examples/context/permissions.dygram
+```dy examples/context/permissions.dygram
 analyze -reads-> input;
 analyze -writes-> metrics;
 ```
@@ -161,7 +161,7 @@ Generates tools:
 
 When a task node has `meta: true`, the agent can modify the machine:
 
-```dygram examples/meta/basic.dygram
+```dy examples/meta/basic.dygram
 Task optimizer {
     meta: true;
     prompt: "Monitor metrics and add error handling if needed";
@@ -333,7 +333,7 @@ const diagnostics = toolRegistry.getDiagnostics();
 
 Edge labels define context access:
 
-```dygram examples/edges/permissions-model.dygram
+```dy examples/edges/permissions-model.dygram
 context database {
     connection<string>: "postgres://localhost/db";
     schema<object>: "{}";
@@ -355,7 +355,7 @@ task -read: field3-> context;
 
 ## Complete Example
 
-```dygram examples/meta/self-improving-pipeline.dygram
+```dy examples/meta/self-improving-pipeline.dygram
 machine "Self-Improving Data Pipeline"
 
 // Context nodes
@@ -557,7 +557,7 @@ interface ExecutionHistory {
 
 Support for parallel task execution:
 
-```dygram examples/speculative/parallel-execution.dygram
+```dy examples/speculative/parallel-execution.dygram
 Task analyze {
     prompt: "Analyze data";
 };
@@ -579,7 +579,7 @@ validate -> mergeResults;
 
 Cross-machine agent sharing:
 
-```dygram examples/speculative/distributed-execution.dygram
+```dy examples/speculative/distributed-execution.dygram
 // Import agent from another machine
 
 Task process {

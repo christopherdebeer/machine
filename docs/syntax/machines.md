@@ -6,7 +6,7 @@ A machine declaration is the top-level container for your DyGram definition. Whi
 
 Every DyGram file can optionally start with a machine declaration:
 
-```dygram examples/syntax/machine-title.dygram
+```dy examples/syntax/machine-title.dygram
 machine "My Machine"
 ```
 
@@ -14,7 +14,7 @@ machine "My Machine"
 
 Machines can be annotated with metadata:
 
-```dygram examples/syntax/machine-annotation.dygram
+```dy examples/syntax/machine-annotation.dygram
 machine "Production System" @Critical @Version("2.0")
 ```
 
@@ -24,7 +24,7 @@ See [Annotations](annotations.md) for more details on available annotations.
 
 Machine-level attributes provide global configuration:
 
-```dygram examples/syntax/machine-attributes.dygram
+```dy examples/syntax/machine-attributes.dygram
 machine "API Service" {
     version: "1.0.0";
     environment: "production";
@@ -37,7 +37,7 @@ See [Attributes](attributes.md) for more details on attribute syntax and types.
 
 If you don't need a title or configuration, you can omit the machine declaration entirely and start directly with node and edge definitions:
 
-```dygram
+```dy
 Start -> Process -> End;
 ```
 
@@ -57,12 +57,12 @@ Start -> Process -> End;
 ## Examples
 
 ### Minimal Machine
-```dygram
+```dy
 machine "Order Processing"
 ```
 
 ### Documented Machine
-```dygram
+```dy
 machine "Payment Gateway" @Version("3.1.0") @Critical @Owner("Platform Team") {
     region: "us-east-1";
     maxConcurrency: 100;
@@ -71,7 +71,7 @@ machine "Payment Gateway" @Version("3.1.0") @Critical @Owner("Platform Team") {
 ```
 
 ### Machine Without Declaration
-```dygram
+```dy
 // Just define the workflow directly
 task Process;
 Start -> Process -> End;

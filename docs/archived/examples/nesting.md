@@ -291,7 +291,7 @@ When multiple rules could apply, priority determines the type:
 ### `nested-2-levels.dygram`
 Nested Machine
 
-```dygram examples/nesting/nested-2-levels.dygram
+```dy examples/nesting/nested-2-levels.dygram
 machine "Nested Machine"
 level1 {
     level2a;
@@ -302,7 +302,7 @@ level1 {
 ### `nested-3-levels.dygram`
 Nested Machine
 
-```dygram examples/nesting/nested-3-levels.dygram
+```dy examples/nesting/nested-3-levels.dygram
 machine "Nested Machine"
 level1 {
     level2a {
@@ -319,7 +319,7 @@ level1 {
 ### `optional-types-example.dygram`
 Optional Types Example
 
-```dygram examples/nesting/optional-types-example.dygram
+```dy examples/nesting/optional-types-example.dygram
 machine "Optional Types Example"
 
 // ═══════════════════════════════════════════════════════════════════
@@ -509,7 +509,7 @@ Pipeline -> waiting -> processing;
 ### `semantic-nesting-example.dygram`
 Semantic Nesting Example
 
-```dygram examples/nesting/semantic-nesting-example.dygram
+```dy examples/nesting/semantic-nesting-example.dygram
 machine "Semantic Nesting Example"
 
 // Context nodes at the top level
@@ -652,7 +652,7 @@ note DataPipeline.StoragePhase.prepareData "This task inherits access to globalC
 ### `state-modules-example.dygram`
 State Modules Example - ETL Pipeline
 
-```dygram examples/nesting/state-modules-example.dygram
+```dy examples/nesting/state-modules-example.dygram
 machine "State Modules Example - ETL Pipeline"
 
 // Global configuration context
@@ -778,7 +778,7 @@ note Extract.validateSource "Terminal node within Extract module. No explicit ou
 
 Deep Nested Machine
 
-```dygram examples/nesting/deep-nested-5-levels.dygram
+```dy examples/nesting/deep-nested-5-levels.dygram
 machine "Deep Nested Machine"
 level1 {
     level2 {

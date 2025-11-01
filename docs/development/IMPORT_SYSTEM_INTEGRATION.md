@@ -335,7 +335,7 @@ digraph G {
 **Single File Output:**
 When generating a single .dygram file (e.g., via `bundle` command), merge all imports:
 
-```dygram
+```dy
 machine "Bundled Application"
 
 // Merged from auth/login.dygram
@@ -352,7 +352,7 @@ LoginPage --> Dashboard
 When generating multi-file output (e.g., refactoring or splitting), preserve import structure:
 
 **File: auth/login.dygram**
-```dygram
+```dy
 machine "Authentication"
 
 state LoginPage "User Login"
@@ -362,7 +362,7 @@ LoginPage --> LoginForm
 ```
 
 **File: app.dygram**
-```dygram
+```dy
 import { LoginPage } from "./auth/login.dygram"
 
 machine "Application"
@@ -378,14 +378,14 @@ LoginPage --> Dashboard
 
 **Example Scenario:**
 
-```dygram
+```dy
 // auth.dygram
 machine "Auth"
 state Login
 state Session
 ```
 
-```dygram
+```dy
 // app.dygram
 import { Login } from "./auth.dygram"
 

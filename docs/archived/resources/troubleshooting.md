@@ -38,7 +38,7 @@ Common issues and their solutions when working with DyGram and the Machine DSL.
 
 **Solution**: Machine statements require semicolons:
 
-```machine
+```dyine
 // ❌ Wrong
 state start
 
@@ -52,7 +52,7 @@ state start;
 
 **Solution**: Ensure all referenced nodes are defined:
 
-```machine
+```dyine
 // ❌ Wrong - 'processData' not defined
 start --> processData;
 
@@ -70,7 +70,7 @@ start --> processData;
 
 **Solutions**:
 
-```machine
+```dyine
 // ✓ Valid edge types
 start --> target;          // Standard edge
 start -stores-> context;   // Stores edge
@@ -88,7 +88,7 @@ start ---> target;         // Too long
 
 **Solution**: Match attribute types:
 
-```machine
+```dyine
 // ❌ Wrong - string for number field
 context data {
   count<number>: "10";
@@ -122,7 +122,7 @@ context data {
 
 **Solution**: Every machine needs a state named `start`:
 
-```machine
+```dyine
 machine "Example"
 
 state start;  // Required entry point
@@ -276,7 +276,7 @@ start --> end;
 
 **Solutions**:
 - Use correct import syntax:
-  ```machine
+  ```dyine
   ```
 - Verify file paths are relative or absolute
 - Ensure imported file is valid Machine code

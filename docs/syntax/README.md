@@ -24,7 +24,7 @@ Complete reference for the DyGram language syntax. DyGram is a declarative langu
 
 The simplest DyGram machine:
 
-```dygram
+```dy
 Start -> End;
 ```
 
@@ -32,7 +32,7 @@ Start -> End;
 
 A typical workflow with nodes and edges:
 
-```dygram
+```dy
 machine "Simple Workflow"
 
 Task validate "Validate Input";
@@ -46,7 +46,7 @@ Start -> validate -> process -> complete -> End;
 
 Adding structure and configuration:
 
-```dygram
+```dy
 machine "API Service" {
     version: "1.0.0";
     environment: "production";
@@ -74,7 +74,7 @@ Start -> authenticate --> fetchData -> End;
 
 Machines are the top-level container. They're optional but provide a way to name and configure your definition.
 
-```dygram
+```dy
 machine "My Machine" @Version("1.0") {
     environment: "production";
 };
@@ -86,7 +86,7 @@ Learn more: **[Machines](machines.md)**
 
 Nodes represent entities in your system: tasks, states, resources, or concepts.
 
-```dygram
+```dy
 Task process;                    // Simple node
 Task analyze "Analyze Data";     // With title
 State ready @Critical;           // With annotation
@@ -103,7 +103,7 @@ Learn more: **[Nodes](nodes.md)**
 
 Edges define relationships and transitions between nodes.
 
-```dygram
+```dy
 start -> end;                    // Basic edge
 a -> b, c, d;                    // Multiple targets
 a -> b -> c -> d;                // Chain syntax
@@ -120,7 +120,7 @@ Learn more: **[Edges](edges.md)**
 
 Attributes add typed configuration and metadata.
 
-```dygram
+```dy
 task myTask {
     name<string>: "Process";
     count<Integer>: 42;
@@ -135,7 +135,7 @@ Learn more: **[Attributes](attributes.md)** and **[Types](types.md)**
 
 Nodes can contain other nodes for hierarchical organization:
 
-```dygram
+```dy
 Workflow {
     Task start;
     Task process;
@@ -147,7 +147,7 @@ Workflow {
 
 Reference nested nodes using qualified names:
 
-```dygram
+```dy
 Init -> Workflow.start;
 Workflow.complete -> Done;
 ```
@@ -158,7 +158,7 @@ Learn more: **[Qualified Names](qualified-names.md)**
 
 Add semantic metadata with annotations:
 
-```dygram
+```dy
 machine "System" @Critical @Version("2.0")
 
 Task important @Critical @Async {
@@ -174,7 +174,7 @@ Learn more: **[Annotations](annotations.md)**
 
 Reference dynamic values using template strings:
 
-```dygram
+```dy
 Context config {
     apiUrl: "https://api.example.com";
 };
@@ -190,7 +190,7 @@ Learn more: **[Templates](templates.md)**
 
 Here's a comprehensive example demonstrating all major features:
 
-```dygram
+```dy
 machine "Order Processing System" @Version("2.0") @Critical {
     environment: "production";
     region: "us-east-1";
@@ -257,13 +257,13 @@ note InventoryWorkflow "Manages inventory checking and allocation" {
 
 DyGram is designed to be flexible. You can write simple, untyped machines:
 
-```dygram
+```dy
 start -> process -> end;
 ```
 
 Or add types for validation and tooling support:
 
-```dygram
+```dy
 task process {
     count<Integer>: 42;
     id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
@@ -288,7 +288,7 @@ Multiple arrow types convey different relationships:
 
 Use nesting and qualified names to organize complex systems:
 
-```dygram
+```dy
 API {
     Auth {
         Login;
@@ -323,7 +323,7 @@ Start -> API.Auth.Login -> API.Data.Fetch;
 
 ### State Machine
 
-```dygram
+```dy
 State Idle;
 State Running;
 State Paused;
@@ -337,7 +337,7 @@ Running -stop-> Stopped;
 
 ### Task Pipeline
 
-```dygram
+```dy
 Task input "Receive Input";
 Task validate "Validate Data";
 Task transform "Transform Data";
@@ -348,7 +348,7 @@ input -> validate -> transform -> output;
 
 ### Hierarchical System
 
-```dygram
+```dy
 System {
     Frontend {
         UI;
@@ -366,7 +366,7 @@ System.Backend.API --> System.Backend.Database;
 
 ### Configuration-Driven
 
-```dygram
+```dy
 Context config {
     apiUrl<URL>: "https://api.example.com";
     timeout<Duration>: "PT30S";

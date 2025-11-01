@@ -63,7 +63,7 @@ When `meta: true` is set on a Task node, these tools become available:
 ### `nested-access.dygram`
 Nested Attribute Access Patterns
 
-```dygram examples/context/nested-access.dygram
+```dy examples/context/nested-access.dygram
 machine "Nested Attribute Access Patterns"
 
 // This example demonstrates accessing nested attributes in context nodes
@@ -297,7 +297,7 @@ note typedConfig "Type safety in nested structures:
 
 Enhanced Task Management with Context
 
-```dygram examples/context/context-management.mach
+```dy examples/context/context-management.mach
 machine "Enhanced Task Management with Context"
 
 state start;
@@ -335,7 +335,7 @@ summary --> end;
 
 Template Variable Demo
 
-```dygram examples/context/template-variables.mach
+```dy examples/context/template-variables.mach
 machine "Template Variable Demo"
 
 state start;

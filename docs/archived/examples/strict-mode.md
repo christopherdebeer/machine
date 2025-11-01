@@ -6,7 +6,7 @@ The `@StrictMode` annotation controls how the Machine language handles undefined
 
 By default, when you reference a node in an edge that hasn't been explicitly defined, the system will **automatically create** that node for you:
 
-```dygram examples/annotations/no-strict.dygram
+```dy examples/annotations/no-strict.dygram
 problem;
 solution;
 problem -> solution;
@@ -19,7 +19,7 @@ This results in 4 nodes: `problem`, `solution`, `one`, and `two`.
 
 When you add the `@StrictMode` annotation to your machine, all node references must be explicitly defined before use:
 
-```dygram examples/annotations/strict.dygram
+```dy examples/annotations/strict.dygram
 machine "MyMachine" @StrictMode
 
 problem;
@@ -46,7 +46,7 @@ In strict mode, you'll get linking errors for undefined nodes:
 
 ## Example: Rapid Prototyping
 
-```dygram examples/basic/sketch.dygram
+```dy examples/basic/sketch.dygram
 // Quick workflow sketch - nodes auto-created
 start -> authenticate -> validate -> process -> complete;
 process -> error -> retry -> process;
@@ -54,7 +54,7 @@ process -> error -> retry -> process;
 
 ## Example: Strict Production Code
 
-```dygram examples/annotations/strict-auth-example.dygram
+```dy examples/annotations/strict-auth-example.dygram
 machine "UserAuth" @StrictMode
 
 init start;

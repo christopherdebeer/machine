@@ -13,7 +13,7 @@ When a Task node has the `meta: true` attribute, the agent executing that task g
 
 To enable meta-programming for a task node, add the `meta` attribute:
 
-```machine
+```dyine
 machine "Self-Modifying Pipeline"
 
 Task optimizer {
@@ -155,7 +155,7 @@ The system automatically converts the JSON back to DyGram DSL using the `generat
 
 ## Example: Self-Healing Pipeline
 
-```machine
+```dyine
 machine "Self-Healing Pipeline"
 
 context metrics {
@@ -284,7 +284,7 @@ The `generateDSL()` backward compiler ensures that:
 
 ### Conditional Machine Evolution
 
-```machine
+```dyine
 Task evolver {
     meta: true;
     prompt: "If successRate < 0.8, add validation step. If errorCount > 5, add circuit breaker.";
@@ -295,7 +295,7 @@ evolver -reads-> metrics;
 
 ### Multi-Stage Evolution
 
-```machine
+```dyine
 Task stage1 {
     meta: true;
     prompt: "Add data validation nodes";
@@ -311,7 +311,7 @@ stage1 -> stage2;
 
 ### Context-Driven Modifications
 
-```machine
+```dyine
 context config {
     mode<string>: "production";
     maxRetries<number>: 3;

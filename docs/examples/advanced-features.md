@@ -6,7 +6,7 @@ Complex patterns including nesting, generics, annotations, and more.
 
 Hierarchical node organization:
 
-```dygram
+```dy
 machine "Project Management"
 
 Process development {
@@ -38,7 +38,7 @@ Nesting benefits:
 
 Multiple levels of nesting:
 
-```dygram
+```dy
 machine "Enterprise System"
 
 Process backend {
@@ -81,7 +81,7 @@ Deep nesting features:
 
 Type-safe attributes with generics:
 
-```dygram
+```dy
 machine "Type Safe Machine"
 
 Context config {
@@ -110,7 +110,7 @@ Generic type syntax:
 
 Metadata and documentation with annotations:
 
-```dygram
+```dy
 machine "Annotated System" @Version("2.0") @Critical @StrictMode
 
 Task important @Critical @Async {
@@ -148,7 +148,7 @@ Built-in annotations:
 
 Inline documentation for nodes:
 
-```dygram
+```dy
 machine "Documented System"
 
 Task process {
@@ -182,7 +182,7 @@ Note features:
 
 Semantic relationships with different arrows:
 
-```dygram
+```dy
 machine "Relationship Types"
 
 // Standard flow
@@ -235,7 +235,7 @@ Arrow types:
 
 Labeled and styled edges:
 
-```dygram
+```dy
 machine "Labeled Edges"
 
 Task start "Start";
@@ -275,7 +275,7 @@ Edge labeling:
 
 Bringing it all together:
 
-```dygram
+```dy
 machine "Comprehensive System" @Version("3.0") @StrictMode
 
 Context globalConfig {

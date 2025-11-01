@@ -14,7 +14,7 @@ Imports allow you to:
 
 Import named nodes from other files using familiar ES6-style syntax:
 
-```dygram examples/imports/basic-import.dygram
+```dy examples/imports/basic-import.dygram
 import { LoginPage, UserSession } from "./auth-lib.dygram"
 
 machine "Main Application"
@@ -27,7 +27,7 @@ LoginPage --> Dashboard --> Profile --> UserSession
 
 The imported file (`auth-lib.dygram`):
 
-```dygram examples/imports/auth-lib.dygram
+```dy examples/imports/auth-lib.dygram
 machine "Auth Library"
 
 state LoginPage "User Login"
@@ -43,7 +43,7 @@ LoginPage --> AuthService --> UserSession
 
 Import specific nodes by name:
 
-```dygram examples/imports/named-imports.dygram
+```dy examples/imports/named-imports.dygram
 import { Start, Process, End } from "./workflow.dygram"
 
 machine "Extended Workflow"
@@ -58,7 +58,7 @@ Init --> Start --> Process --> End --> Finalize
 
 Rename imported nodes to avoid name collisions:
 
-```dygram examples/imports/import-aliasing.dygram
+```dy examples/imports/import-aliasing.dygram
 import { Start as StartA, Process as ProcessA } from "./module-a.dygram"
 import { Start as StartB, Process as ProcessB } from "./module-b.dygram"
 
@@ -74,7 +74,7 @@ Init --> StartA --> ProcessA --> ProcessB --> StartB --> Final
 
 Import nodes with qualified names for better organization:
 
-```dygram examples/imports/qualified-imports.dygram
+```dy examples/imports/qualified-imports.dygram
 import { Workflow.Validate, Workflow.Process } from "./workflows.dygram"
 
 machine "Simplified App"
@@ -89,7 +89,7 @@ Start --> Workflow.Validate --> Workflow.Process --> End
 
 Import from multiple files:
 
-```dygram examples/imports/multiple-imports.dygram
+```dy examples/imports/multiple-imports.dygram
 import { LoginPage } from "./auth.dygram"
 import { ShoppingCart } from "./cart.dygram"
 import { Checkout } from "./payment.dygram"
@@ -110,7 +110,7 @@ DyGram resolves imports using multiple strategies depending on the execution con
 
 Use `./` and `../` for relative imports:
 
-```dygram
+```dy
 import { Task } from "./tasks.dygram"        // Same directory
 import { Config } from "../config.dygram"    // Parent directory
 import { Utils } from "../../shared/utils.dygram"  // Multiple levels up
@@ -129,7 +129,7 @@ dygram generate app.dygram
 
 In the browser playground, imports are resolved from the virtual filesystem stored in localStorage:
 
-```dygram
+```dy
 import { Component } from "/components/ui.dygram"  // Absolute VFS path
 import { Helper } from "./utils.dygram"            // Relative VFS path
 ```
@@ -138,7 +138,7 @@ import { Helper } from "./utils.dygram"            // Relative VFS path
 
 URL imports will be supported for loading remote modules:
 
-```dygram
+```dy
 import { Template } from "https://cdn.dygram.dev/templates/auth.dygram"
 ```
 
@@ -146,7 +146,7 @@ import { Template } from "https://cdn.dygram.dev/templates/auth.dygram"
 
 All top-level nodes in a DyGram file are automatically exported. No explicit `export` keyword is needed:
 
-```dygram examples/imports/auto-export-lib.dygram
+```dy examples/imports/auto-export-lib.dygram
 machine "Library"
 
 // All these nodes are automatically exported
@@ -157,7 +157,7 @@ Task PublicTask "This too"
 
 Any file can import these nodes:
 
-```dygram examples/imports/auto-export-usage.dygram
+```dy examples/imports/auto-export-usage.dygram
 import { PublicStateA, PublicTask } from "./auto-export-lib.dygram"
 
 machine "Consumer"
@@ -242,7 +242,7 @@ Structure files by domain or feature:
 
 When importing similar components, use aliases:
 
-```dygram
+```dy
 import { Validate as ValidateAuth } from "./auth.dygram"
 import { Validate as ValidatePayment } from "./payment.dygram"
 ```
@@ -260,7 +260,7 @@ Avoid deep import chains. If you find yourself importing from imports, consider 
 
 Extract reusable components into dedicated library files:
 
-```dygram examples/imports/shared-library.dygram
+```dy examples/imports/shared-library.dygram
 machine "Common Patterns"
 
 // Reusable authentication flow

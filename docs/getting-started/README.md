@@ -32,7 +32,7 @@ dygram --version
 
 Create a file called `hello.dygram`:
 
-```dygram examples/getting-started/hello.dygram
+```dy examples/getting-started/hello.dygram
 machine "Hello World"
 
 Task start {
@@ -74,7 +74,7 @@ This creates:
 ### Nodes
 Nodes are the building blocks - states, tasks, or data.
 
-```dygram
+```dy
 Task process;
 State ready;
 ```
@@ -82,14 +82,14 @@ State ready;
 ### Edges
 Edges define transitions between nodes.
 
-```dygram
+```dy
 start -> process -> complete;
 ```
 
 ### Attributes
 Add metadata and configuration to nodes.
 
-```dygram
+```dy
 Task analyze {
     model: "claude-3-5-sonnet-20241022";
     temperature: 0.7;
@@ -99,7 +99,7 @@ Task analyze {
 ### Types
 Specify data types for validation.
 
-```dygram
+```dy
 Input config {
     port<number>: 3000;
     host<string>: "localhost";

@@ -6,7 +6,7 @@ Schemas, linked nodes, type hierarchies, and attributes at all levels.
 
 Simple key-value attributes:
 
-```dygram
+```dy
 machine "Basic Attributes"
 
 Task process {
@@ -27,7 +27,7 @@ Attribute syntax:
 
 Using external ID references for schemas:
 
-```dygram
+```dy
 machine "Schema References"
 
 Input request {
@@ -59,7 +59,7 @@ Schema references:
 
 Referencing other nodes for type information:
 
-```dygram
+```dy
 machine "Linked Nodes"
 
 // Define type templates
@@ -97,7 +97,7 @@ Linked node patterns:
 
 Machine-level attributes:
 
-```dygram
+```dy
 machine "Machine Attributes" @Version("2.0") {
     author: "Team A";
     created: "2024-01-15";
@@ -122,7 +122,7 @@ Machine attributes:
 
 Node-specific attributes:
 
-```dygram
+```dy
 machine "Node Attributes"
 
 Task analyze {
@@ -156,7 +156,7 @@ Node attributes:
 
 Attributes at multiple hierarchy levels:
 
-```dygram
+```dy
 machine "Nested Attributes" {
     environment: "production";
     region: "us-west-2";
@@ -202,7 +202,7 @@ Hierarchical attributes:
 
 Template syntax for hierarchical access:
 
-```dygram
+```dy
 machine "Attribute Access" {
     apiKey: "secret123";
     environment: "prod";
@@ -236,7 +236,7 @@ Access patterns:
 
 Nested attribute structures:
 
-```dygram
+```dy
 machine "Complex Attributes"
 
 Context config {
@@ -273,7 +273,7 @@ Nested objects:
 
 Arrays and lists:
 
-```dygram
+```dy
 machine "Array Attributes"
 
 Task processor {
@@ -295,7 +295,7 @@ Array features:
 
 Complex generic types:
 
-```dygram
+```dy
 machine "Generic Types"
 
 Context types {
@@ -332,7 +332,7 @@ Generic syntax:
 
 Simulating inheritance with references:
 
-```dygram
+```dy
 machine "Attribute Inheritance"
 
 // Base configuration template
@@ -378,7 +378,7 @@ Inheritance pattern:
 
 Composing types from multiple sources:
 
-```dygram
+```dy
 machine "Type Composition"
 
 Context baseAttributes {
@@ -417,7 +417,7 @@ Composition pattern:
 
 Attributes for validation:
 
-```dygram
+```dy
 machine "Validation Attributes"
 
 Input userInput {
@@ -451,7 +451,7 @@ Validation attributes:
 
 Self-documenting attributes:
 
-```dygram
+```dy
 machine "Self-Documenting"
 
 Task complexTask {

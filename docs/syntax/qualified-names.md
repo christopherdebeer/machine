@@ -16,7 +16,7 @@ With qualified names, you can:
 
 The most common use case is referencing nodes inside parent containers:
 
-```dygram
+```dy
 machine "Basic Qualified Names"
 
 Workflow {
@@ -35,7 +35,7 @@ Workflow.Complete -> Done;
 
 You can also define nodes using qualified names, which creates implicit namespace structure:
 
-```dygram
+```dy
 machine "Quick Scaffolding"
 
 // Define nodes with qualified names at root level
@@ -54,7 +54,7 @@ This is particularly useful for rapid prototyping and scaffolding.
 
 Simple node names work exactly as before:
 
-```dygram
+```dy
 machine "Simple Names"
 
 Parent {
@@ -70,7 +70,7 @@ Child1 -> Child2;
 
 When nodes are nested, they can be referenced using their qualified path:
 
-```dygram
+```dy
 machine "Qualified References"
 
 Group1 {
@@ -91,7 +91,7 @@ Group2.Step -> End;
 
 Qualified names support arbitrary nesting depth:
 
-```dygram
+```dy
 machine "Deep Nesting"
 
 Level1 {
@@ -113,7 +113,7 @@ The scope provider intelligently handles naming conflicts using a two-pass resol
 
 When a simple node and a qualified node have overlapping names, both remain accessible:
 
-```dygram
+```dy
 machine "Collision Handling"
 
 Group {
@@ -152,7 +152,7 @@ Group.Child -> End;
 
 You can freely mix simple and qualified names:
 
-```dygram
+```dy
 machine "Mixed Naming"
 
 Pipeline {
@@ -169,7 +169,7 @@ Pipeline.Explicit -> End;
 
 Create implicit namespaces at the root level:
 
-```dygram
+```dy
 machine "Root Namespaces"
 
 // Create implicit namespace structure
@@ -188,7 +188,7 @@ Orchestrator -> Services.Cache;
 
 When no conflicts exist, nodes can be accessed via their simple name:
 
-```dygram
+```dy
 machine "Shorthand Access"
 
 API {
@@ -206,7 +206,7 @@ Start -> API.Endpoint.Handler;             // Full path
 
 Qualified names work seamlessly with edge attributes:
 
-```dygram
+```dy
 machine "Edge Attributes"
 
 Workflow {
@@ -226,7 +226,7 @@ Workflow.Transform -timeout: 5000;-> End;
 
 Qualified names work with all node types, including notes:
 
-```dygram
+```dy
 machine "Documented System"
 
 Processor {
@@ -249,7 +249,7 @@ Start -> Processor.Input -> Processor.Validate -> Processor.Transform -> Process
 
 Qualified names are excellent for organizing related nodes:
 
-```dygram
+```dy
 machine "Organized Structure"
 
 // Group related authentication nodes
@@ -267,7 +267,7 @@ Data.Store;
 
 Quick scaffold complex structures without explicit nesting:
 
-```dygram
+```dy
 machine "Quick Prototype"
 
 // Rapidly define structure
@@ -284,7 +284,7 @@ UI.Dashboard -> Backend.DataService;
 
 While qualified names support deep nesting, keep hierarchies manageable:
 
-```dygram
+```dy
 // ✅ Good: 2-3 levels
 API.Users.GetProfile;
 API.Users.UpdateProfile;
@@ -297,7 +297,7 @@ System.API.Services.Users.Controllers.Handlers.GetProfile;
 
 Be consistent with naming strategies within a machine:
 
-```dygram
+```dy
 machine "Consistent Naming"
 
 // ✅ Good: Consistent use of qualified names for grouping
@@ -352,7 +352,7 @@ Qualified names are supported in:
 
 ### Complete Example
 
-```dygram
+```dy
 machine "E-Commerce Order Processing" @Version("1.0")
 
 // Define workflow structure using qualified names

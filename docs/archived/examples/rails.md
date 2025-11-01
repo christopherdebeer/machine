@@ -158,7 +158,7 @@ Try these examples in the interactive playground:
 ## Key Patterns
 
 ### Automated Transition Pattern
-```machine
+```dyine
 State idle;
 State ready;
 
@@ -167,7 +167,7 @@ idle -@auto-> ready;
 ```
 
 ### Agent Decision Pattern
-```machine
+```dyine
 Task analyze {
     prompt: "Analyze and decide next step";
 };
@@ -177,7 +177,7 @@ analyze -> success, retry, abort;
 ```
 
 ### Context Permission Pattern
-```machine
+```dyine
 context secrets {
     apiKey<string>: "secret";
 };
@@ -187,7 +187,7 @@ process -reads-> secrets;
 ```
 
 ### Tool Construction Pattern
-```machine
+```dyine
 Task process {
     meta: true;
     prompt: "Process data. Construct tools if needed.";
@@ -197,7 +197,7 @@ process -writes-> toolRegistry;
 ```
 
 ### Tool Improvement Pattern
-```machine
+```dyine
 Task review {
     meta: true;
     prompt: "Review tools and propose improvements";
@@ -226,7 +226,7 @@ Have a Rails-Based Architecture pattern to share? Submit a PR with:
 
 Automated Transitions Demo
 
-```dygram examples/rails/auto-transitions.mach
+```dy examples/rails/auto-transitions.mach
 machine "Automated Transitions Demo"
 
 // This example demonstrates automatic transitions that execute
@@ -294,7 +294,7 @@ complete -> idle;   // Restart after completion
 
 Dynamic Tool Construction Demo
 
-```dygram examples/rails/dynamic-tool-construction.mach
+```dy examples/rails/dynamic-tool-construction.mach
 machine "Dynamic Tool Construction Demo"
 
 // This example demonstrates how an agent can construct tools
@@ -363,7 +363,7 @@ complete -> idle;
 
 Phase-Specific Context Demo
 
-```dygram examples/rails/phase-specific-context.mach
+```dy examples/rails/phase-specific-context.mach
 machine "Phase-Specific Context Demo"
 
 // This example demonstrates how agents receive only relevant
@@ -471,7 +471,7 @@ complete -> idle;
 
 Self-Improving Data Pipeline
 
-```dygram examples/rails/self-improving-pipeline.mach
+```dy examples/rails/self-improving-pipeline.mach
 machine "Self-Improving Data Pipeline"
 
 // This is the complete example from the Rails-Based Architecture docs
@@ -575,7 +575,7 @@ complete -> idle;                         // Loop back
 
 Tool Review and Improvement Demo
 
-```dygram examples/rails/tool-review-improvement.mach
+```dy examples/rails/tool-review-improvement.mach
 machine "Tool Review and Improvement Demo"
 
 // This example demonstrates how an agent can review existing

@@ -149,7 +149,7 @@ Each test creates `{test-name}.md` with:
 
 **Example:**
 
-```dygram
+```dy
 level1 {
     level2 {
         level3;  // This was being lost!
@@ -272,7 +272,7 @@ cat test-output/generative/new_feature.md
 
 Large machine for performance and stress testing:
 
-```dygram examples/stress/large-50-nodes.dygram
+```dy examples/stress/large-50-nodes.dygram
 machine "Large Machine"
 node0 {
     id<number>: 0;

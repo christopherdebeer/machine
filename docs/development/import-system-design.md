@@ -13,7 +13,7 @@ This document outlines the design considerations for implementing an import/modu
 
 ### Basic Import
 
-```dygram
+```dy
 import "shared/templates.dygram" as templates;
 
 machine "MyMachine" {
@@ -25,7 +25,7 @@ machine "MyMachine" {
 
 ### Selective Import
 
-```dygram
+```dy
 import { ErrorHandling, Logging } from "shared/templates.dygram";
 
 machine "MyMachine" {
@@ -38,7 +38,7 @@ machine "MyMachine" {
 
 ### Relative and Absolute Paths
 
-```dygram
+```dy
 // Relative to current file
 import "./shared/types.dygram" as types;
 

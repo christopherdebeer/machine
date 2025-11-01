@@ -6,7 +6,7 @@ Working with language models and prompts.
 
 Simple LLM-powered task:
 
-```dygram
+```dy
 machine "Text Analysis"
 
 Context config {
@@ -40,7 +40,7 @@ LLM basics:
 
 Chain of LLM tasks:
 
-```dygram
+```dy
 machine "Document Processing"
 
 Context llm {
@@ -81,7 +81,7 @@ Multi-step patterns:
 
 LLM-powered conversational workflow:
 
-```dygram
+```dy
 machine "Customer Support Bot"
 
 Context agent {
@@ -141,7 +141,7 @@ Conversational features:
 
 LLM workflow with feedback loop:
 
-```dygram
+```dy
 machine "Content Generator"
 
 Context generation {
@@ -194,7 +194,7 @@ Iterative pattern:
 
 Using different models for different tasks:
 
-```dygram
+```dy
 machine "Research Assistant"
 
 Input query {
@@ -243,7 +243,7 @@ Multi-model strategy:
 
 Task using function calling:
 
-```dygram
+```dy
 machine "Data Analyst"
 
 Context config {

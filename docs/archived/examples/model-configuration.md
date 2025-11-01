@@ -62,7 +62,7 @@ dygram execute examples/model-configuration/task-specific-models.dygram
 ### `machine-level-model.dygram`
 Cost-Optimized System
 
-```dygram examples/model-configuration/machine-level-model.dygram
+```dy examples/model-configuration/machine-level-model.dygram
 machine "Cost-Optimized System"
 
 // Machine-level configuration using haiku for all tasks (unless overridden)
@@ -106,7 +106,7 @@ complex_task -> complete;
 
 Multi-Model Task System
 
-```dygram examples/model-configuration/task-specific-models.dygram
+```dy examples/model-configuration/task-specific-models.dygram
 machine "Multi-Model Task System"
 
 // Example demonstrating task-specific model ID configuration

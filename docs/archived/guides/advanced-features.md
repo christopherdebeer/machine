@@ -28,7 +28,7 @@ DyGram supports multiple relationship types to express different semantic meanin
 **Meaning:** Basic connection or transition between nodes.
 **Use Case:** Standard workflow transitions, simple relationships.
 
-```dygram
+```dy
 machine "Association Example"
 client;
 server;
@@ -43,7 +43,7 @@ client -> server;
 **Meaning:** Source depends on target but doesn't own it.
 **Use Case:** Configuration dependencies, optional references.
 
-```dygram
+```dy
 machine "Dependency Example"
 task process;
 context config;
@@ -56,7 +56,7 @@ process --> config;  // process depends on config
 **Meaning:** "is-a" relationship where child inherits from parent.
 **Use Case:** Type hierarchies, specialized behaviors.
 
-```dygram
+```dy
 machine "Inheritance Example"
 task BaseProcessor;
 task DataProcessor;
@@ -69,7 +69,7 @@ BaseProcessor <|-- DataProcessor;  // DataProcessor is a BaseProcessor
 **Meaning:** Strong ownership where components cannot exist independently.
 **Use Case:** Lifecycle-bound components, required parts.
 
-```dygram
+```dy
 machine "Composition Example"
 task Workflow;
 task Step1;
@@ -84,7 +84,7 @@ Workflow *--> Step2;
 **Meaning:** Weak ownership where parts can exist independently.
 **Use Case:** Shared resources, reusable components.
 
-```dygram
+```dy
 machine "Aggregation Example"
 task Team;
 task Member;
@@ -97,7 +97,7 @@ Team o--> Member;  // Team has members, but members can exist independently
 **Meaning:** Two-way relationship or mutual dependency.
 **Use Case:** Peer relationships, circular references.
 
-```dygram
+```dy
 machine "Bidirectional Example"
 task Parent;
 task Child;
@@ -110,7 +110,7 @@ Parent <--> Child;  // Parent knows Child, Child knows Parent
 **Meaning:** Strong transition or emphasis.
 **Use Case:** Primary flow, critical paths.
 
-```dygram
+```dy
 machine "Fat Arrow Example"
 start;
 critical;
@@ -167,7 +167,7 @@ Multiplicity expresses quantitative relationships between nodes, indicating how 
 ### Examples
 
 #### One-to-Many
-```dygram
+```dy
 machine "One-to-Many"
 task User;
 task Order;
@@ -175,7 +175,7 @@ User "1" -> "*" Order;  // One user has many orders
 ```
 
 #### One-to-One
-```dygram
+```dy
 machine "One-to-One"
 task Order;
 task Payment;
@@ -183,7 +183,7 @@ Order "1" -> "1" Payment;  // One order has exactly one payment
 ```
 
 #### Many-to-Many
-```dygram
+```dy
 machine "Many-to-Many"
 task Student;
 task Course;
@@ -191,7 +191,7 @@ Student "*" -> "*" Course;  // Students take multiple courses
 ```
 
 #### Optional Relationship
-```dygram
+```dy
 machine "Optional"
 task User;
 task Profile;
@@ -229,7 +229,7 @@ Annotations provide semantic metadata about nodes using the `@Name` or `@Name("v
 ### Examples
 
 #### Abstract Task
-```dygram
+```dy
 machine "Abstract Base"
 task BaseHandler @Abstract {
     prompt: "Base handler that must be overridden";
@@ -243,7 +243,7 @@ BaseHandler <|-- ConcreteHandler;
 ```
 
 #### Singleton Context
-```dygram
+```dy
 machine "Singleton Pattern"
 context AppConfig @Singleton {
     apiKey<string>: "secret";
@@ -251,7 +251,7 @@ context AppConfig @Singleton {
 ```
 
 #### Deprecated Node
-```dygram
+```dy
 machine "Migration"
 task oldProcess @Deprecated("Use newProcess instead") {
     prompt: "Legacy processing";
@@ -298,7 +298,7 @@ When you reference a context attribute using `{{ nodeName.attributeName }}`, the
 
 ### Syntax
 
-```dygram
+```dy
 context config {
     apiKey<string>: "secret123";
     endpoint<string>: "https://api.example.com";
@@ -320,7 +320,7 @@ task apiCall {
 ### Complex References
 
 #### Multiple Dependencies
-```dygram
+```dy
 context userConfig {
     name<string>: "Alice";
 }
@@ -363,14 +363,14 @@ Use angle brackets for generic type parameters:
 ### Supported Generic Patterns
 
 #### Promise Types
-```dygram
+```dy
 task fetchData {
     response<Promise<Response>>: "pending";
 }
 ```
 
 #### Collection Types
-```dygram
+```dy
 task processRecords {
     data<Array<Record>>: [];
     lookup<Map<string, User>>: [];
@@ -378,7 +378,7 @@ task processRecords {
 ```
 
 #### Nested Generics
-```dygram
+```dy
 task asyncBatch {
     results<Promise<Array<Result>>>: [];
 }
@@ -402,7 +402,7 @@ Map<K,V> → Map~K,V~
 ### Examples
 
 #### API Response Handling
-```dygram
+```dy
 machine "API Client"
 
 task fetchUsers {
@@ -430,7 +430,7 @@ Notes attach explanatory documentation to nodes using the `note for` syntax.
 ### Examples
 
 #### Single Note
-```dygram
+```dy
 machine "Documented System"
 
 task authenticate {
@@ -514,7 +514,7 @@ DyGram includes a comprehensive type checking system that validates attribute ty
 The type checker validates:
 
 #### 1. Primitive Types
-```dygram
+```dy
 task example {
     name<string>: "Alice";     // ✅ Valid
     count<number>: 42;          // ✅ Valid
@@ -525,7 +525,7 @@ task example {
 ```
 
 #### 2. Generic Types
-```dygram
+```dy
 task async {
     result<Promise<string>>: "pending";  // ✅ Valid
     data<Array<number>>: [1, 2, 3];      // ✅ Valid
@@ -536,7 +536,7 @@ task async {
 
 When type annotations are omitted, the type checker infers types from values:
 
-```dygram
+```dy
 task inferred {
     autoString: "hello";      // Inferred: string
     autoNumber: 42;           // Inferred: number
@@ -568,7 +568,7 @@ Graph validation ensures structural integrity of the state machine.
 
 Detects nodes that cannot be reached from init nodes:
 
-```dygram
+```dy
 machine "Unreachable Example"
 
 init start;
@@ -583,7 +583,7 @@ start -> reachable;
 
 Identifies cycles in the graph:
 
-```dygram
+```dy
 machine "Cycle Example"
 
 task a;
@@ -601,7 +601,7 @@ c -> a;  // ⚠️ Cycle detected: a → b → c → a
 
 Finds nodes with no incoming or outgoing edges:
 
-```dygram
+```dy
 machine "Orphan Example"
 
 init start;
@@ -640,7 +640,7 @@ Semantic validation enforces DyGram's design patterns and best practices.
 #### Init Nodes
 **Rule:** Must have outgoing edges (entry points)
 
-```dygram
+```dy
 machine "Init Validation"
 
 init start;
@@ -651,7 +651,7 @@ start -> next;  // ✅ Valid
 #### Context Nodes
 **Rule:** Shouldn't have incoming edges (not part of execution flow)
 
-```dygram
+```dy
 context config {
     value: 42;
 }
@@ -666,7 +666,7 @@ task setup {
 #### Inheritance Validation
 **Rule:** Inheritance should be between compatible types
 
-```dygram
+```dy
 task BaseTask;
 task SpecializedTask;
 
@@ -678,7 +678,7 @@ BaseTask <|-- SpecializedTask;  // ✅ Valid
 #### @Async Validation
 **Rule:** Only on task nodes
 
-```dygram
+```dy
 task asyncOperation @Async {
     prompt: "Long-running operation";
 }
@@ -687,7 +687,7 @@ task asyncOperation @Async {
 #### @Singleton Validation
 **Rule:** Only on tasks or contexts
 
-```dygram
+```dy
 context AppConfig @Singleton {
     apiKey: "secret";
 }
@@ -709,7 +709,7 @@ context AppConfig @Singleton {
 
 Here's a comprehensive example using all advanced features:
 
-```dygram
+```dy
 machine "Advanced E-Commerce System"
 
 // Configuration with singleton pattern

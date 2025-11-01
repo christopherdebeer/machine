@@ -6,7 +6,7 @@ Nodes are the fundamental building blocks of a DyGram machine. They represent st
 
 The simplest node is just an identifier:
 
-```dygram examples/syntax/machine-basic.dygram
+```dy examples/syntax/machine-basic.dygram
 nodeName;
 ```
 
@@ -14,7 +14,7 @@ nodeName;
 
 Nodes can have an optional type prefix:
 
-```dygram examples/syntax/node-types.dygram
+```dy examples/syntax/node-types.dygram
 Task process;
 State ready;
 Input data;
@@ -42,7 +42,7 @@ You can use any identifier as a type - DyGram doesn't restrict type names.
 
 Add a human-readable title after the node name:
 
-```dygram examples/syntax/node-title.dygram
+```dy examples/syntax/node-title.dygram
 Task process "Process the data";
 ```
 
@@ -50,7 +50,7 @@ Task process "Process the data";
 
 Nodes can have typed attributes in a block:
 
-```dygram examples/syntax/node-attributes.dygram
+```dy examples/syntax/node-attributes.dygram
 Task analyze {
     model: "claude-3-5-sonnet-20241022";
     temperature: 0.7;
@@ -64,7 +64,7 @@ See [Attributes](attributes.md) for detailed syntax and type options.
 
 Annotate nodes with metadata:
 
-```dygram examples/syntax/node-annotations.dygram
+```dy examples/syntax/node-annotations.dygram
 Task critical @Critical @Async;
 Resource legacy @Deprecated("Use newResource instead");
 ```
@@ -75,7 +75,7 @@ See [Annotations](annotations.md) for available annotation types.
 
 Nodes can contain other nodes, creating hierarchical structure:
 
-```dygram examples/syntax/node-nesting.dygram
+```dy examples/syntax/node-nesting.dygram
 Process workflow {
     Task start "Initialize";
     Task validate "Validate input";
@@ -89,7 +89,7 @@ Process workflow {
 
 Nested nodes can be referenced using [qualified names](qualified-names.md):
 
-```dygram
+```dy
 Workflow {
     task Step1;
     task Step2;
@@ -103,7 +103,7 @@ Workflow.Step1 -> Workflow.Step2;
 
 Nodes can be defined with qualified names for quick scaffolding:
 
-```dygram
+```dy
 // Create implicit namespace structure
 task API.Authentication "Auth handler";
 task API.DataFetch "Data retrieval";
@@ -117,7 +117,7 @@ See the [Qualified Names Guide](qualified-names.md) for comprehensive documentat
 
 Notes are special nodes that attach documentation to other nodes:
 
-```dygram
+```dy
 Task process;
 
 Note process "This task handles data processing";
@@ -130,7 +130,7 @@ Notes have special behavior:
 
 With attributes and annotations:
 
-```dygram
+```dy
 Note process "Processing Details" @Critical {
     complexity: "O(n)";
     author: "Team A";
@@ -141,7 +141,7 @@ Note process "Processing Details" @Critical {
 
 A node can combine all features:
 
-```dygram
+```dy
 Type NodeName "Title" @Annotation1 @Annotation2("value") {
     attribute1: "value1";
     attribute2<number>: 42;
@@ -174,17 +174,17 @@ Type NodeName "Title" @Annotation1 @Annotation2("value") {
 ## Examples
 
 ### Minimal Node
-```dygram
+```dy
 process;
 ```
 
 ### Typed Node with Title
-```dygram
+```dy
 Task authenticate "Authenticate user";
 ```
 
 ### Fully Featured Node
-```dygram
+```dy
 Task processPayment "Process Payment Transaction" @Critical @Async {
     provider: "stripe";
     timeout<Duration>: "PT30S";
@@ -194,7 +194,7 @@ Task processPayment "Process Payment Transaction" @Critical @Async {
 ```
 
 ### Nested Workflow
-```dygram
+```dy
 Process OrderWorkflow "Order Processing" @Version("2.0") {
     State Received "Order received";
     State Processing "Processing order";
@@ -208,7 +208,7 @@ Process OrderWorkflow "Order Processing" @Version("2.0") {
 ```
 
 ### Quick Scaffolding with Qualified Names
-```dygram
+```dy
 // Rapidly define structure without explicit nesting
 task Auth.Login "Login handler";
 task Auth.Logout "Logout handler";

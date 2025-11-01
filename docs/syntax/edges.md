@@ -6,7 +6,7 @@ Edges define relationships and transitions between nodes. They are the connectiv
 
 The simplest edge connects two nodes:
 
-```dygram examples/syntax/edge-basic.dygram
+```dy examples/syntax/edge-basic.dygram
 start -> end;
 ```
 
@@ -14,7 +14,7 @@ start -> end;
 
 One source can connect to multiple targets:
 
-```dygram examples/syntax/edge-multiple-targets.dygram
+```dy examples/syntax/edge-multiple-targets.dygram
 start -> task1, task2, task3;
 ```
 
@@ -22,12 +22,12 @@ start -> task1, task2, task3;
 
 Chain multiple edges together for readability:
 
-```dygram examples/syntax/edge-chaining.dygram
+```dy examples/syntax/edge-chaining.dygram
 start -> process -> validate -> complete;
 ```
 
 This is equivalent to:
-```dygram
+```dy
 start -> process;
 process -> validate;
 validate -> complete;
@@ -37,7 +37,7 @@ validate -> complete;
 
 DyGram supports multiple arrow types to convey different relationship semantics:
 
-```dygram examples/syntax/edge-types.dygram
+```dy examples/syntax/edge-types.dygram
 // Single arrow (default transition)
 a -> b;
 
@@ -76,7 +76,7 @@ a <--> b;
 
 Add descriptive labels to edges:
 
-```dygram examples/syntax/edge-labels.dygram
+```dy examples/syntax/edge-labels.dygram
 a -label-> b;
 a --label--> b;
 a =label=> b;
@@ -88,13 +88,13 @@ Labels appear between the dashes/equals of the arrow syntax.
 
 Add typed attributes to edges:
 
-```dygram examples/syntax/edge-attributes.dygram
+```dy examples/syntax/edge-attributes.dygram
 a -condition: true, priority: 1-> b;
 ```
 
 Attributes appear between the first dash and the arrow head, separated by semicolons:
 
-```dygram
+```dy
 source -attr1: value1; attr2: value2;-> target;
 ```
 
@@ -102,7 +102,7 @@ source -attr1: value1; attr2: value2;-> target;
 
 Edge attributes work seamlessly with [qualified names](qualified-names.md):
 
-```dygram
+```dy
 Start -priority: 1;-> Workflow.Step1;
 Workflow.Step1 -weight: 0.8; condition: "ready";-> Workflow.Step2;
 ```
@@ -113,7 +113,7 @@ See [Attributes](attributes.md) for detailed type syntax.
 
 Specify cardinality for relationships:
 
-```dygram examples/syntax/edge-multiplicity.dygram
+```dy examples/syntax/edge-multiplicity.dygram
 User "1" --> "*" Post;
 Order "1" --> "1..*" LineItem;
 ```
@@ -130,13 +130,13 @@ Common multiplicity patterns:
 
 Annotate edges with metadata:
 
-```dygram examples/syntax/edge-annotations.dygram
+```dy examples/syntax/edge-annotations.dygram
 a -@style("color: red; stroke-width: 3px")-> b;
 ```
 
 Multiple annotations:
 
-```dygram
+```dy
 a -@Critical @Async-> b;
 ```
 
@@ -146,7 +146,7 @@ See [Annotations](annotations.md) for available annotation types.
 
 An edge can combine all features:
 
-```dygram
+```dy
 Source "1" -label; attr1: value1; attr2: value2; @Annotation-> "0..*" Target;
 ```
 
@@ -156,7 +156,7 @@ Source "1" -label; attr1: value1; attr2: value2; @Annotation-> "0..*" Target;
 
 Edges can have conditions that control when they should be active using `when:`, `unless:`, or `if:` keywords in the label:
 
-```dygram examples/syntax/edge-conditional.dygram
+```dy examples/syntax/edge-conditional.dygram
 machine "Conditional Edges Example" {
     status: "valid";
     errorCount: 0;
@@ -197,7 +197,7 @@ These visual indicators provide immediate feedback about which edges are likely 
 
 Conditions are evaluated using machine-level attributes as defaults:
 
-```dygram examples/syntax/edge-condition-context.dygram
+```dy examples/syntax/edge-condition-context.dygram
 machine "Condition Evaluation Context" {
     maxRetries: 3;
     errorCount: 0;
@@ -221,7 +221,7 @@ In this example, the edge `Process -when: 'errorCount > 0';-> Retry` would be vi
 
 Express priority or weight:
 
-```dygram
+```dy
 Start -weight: 0.8-> Primary;
 Start -weight: 0.2-> Fallback;
 ```
@@ -230,7 +230,7 @@ Start -weight: 0.2-> Fallback;
 
 Create readable state machines:
 
-```dygram
+```dy
 Idle -start-> Processing;
 Processing -success-> Complete;
 Processing -error-> Failed;
@@ -241,7 +241,7 @@ Failed -retry-> Processing;
 
 Mix different arrow types:
 
-```dygram
+```dy
 // Inheritance
 Animal <|-- Dog;
 Animal <|-- Cat;
@@ -284,12 +284,12 @@ RawData => ProcessedData;
 ## Examples
 
 ### Simple Workflow
-```dygram
+```dy
 Start -> Validate -> Process -> Complete;
 ```
 
 ### Branching Logic
-```dygram
+```dy
 Start -> Validate;
 Validate -success-> Process;
 Validate -failure-> Error;
@@ -297,7 +297,7 @@ Process -> Complete;
 ```
 
 ### Labeled State Machine
-```dygram
+```dy
 Idle -start-> Running;
 Running -pause-> Paused;
 Paused -resume-> Running;
@@ -307,7 +307,7 @@ Failed -retry-> Running;
 ```
 
 ### Complex Relationships
-```dygram
+```dy
 // Inheritance
 Vehicle <|-- Car;
 Vehicle <|-- Truck;
@@ -325,7 +325,7 @@ Backend --> Database;
 ```
 
 ### Weighted Workflow
-```dygram
+```dy
 Start -> Process;
 Process -weight: 0.9; condition: "success";-> Complete;
 Process -weight: 0.1; condition: "error";-> Retry;
@@ -334,7 +334,7 @@ Retry -exhausted: true;-> Failed;
 ```
 
 ### With Qualified Names
-```dygram
+```dy
 Workflow {
     task Validate;
     task Process;

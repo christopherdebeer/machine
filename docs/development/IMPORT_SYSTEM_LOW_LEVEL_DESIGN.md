@@ -6,7 +6,7 @@ This document provides a comprehensive low-level design for implementing an impo
 
 ### Preferred Syntax (Initial Implementation)
 
-```dygram
+```dy
 import { nodeX, nameSpace, qualified.subNamespace, typeFoo } from "./lib/core.dygram"
 ```
 
@@ -187,7 +187,7 @@ export interface ImportedSymbol extends AstNode {
 
 ### Example Usage
 
-```dygram
+```dy
 // Import individual symbols
 import { LoginTask, AuthContext } from "./auth.dygram"
 
@@ -2464,7 +2464,7 @@ export class SandboxedExecutor extends RailsExecutor {
    - Dependency locking
 
 2. **Module Prefixes**
-   ```dygram
+   ```dy
    import * as auth from "./auth.dygram"
 
    machine "App" {
@@ -2473,13 +2473,13 @@ export class SandboxedExecutor extends RailsExecutor {
    ```
 
 3. **Re-exports**
-   ```dygram
+   ```dy
    export { LoginTask, LogoutTask } from "./auth.dygram"
    export { UserProfile, UserSettings } from "./user.dygram"
    ```
 
 4. **Private Symbols**
-   ```dygram
+   ```dy
    private node _InternalHelper { ... }
    ```
 
@@ -2488,7 +2488,7 @@ export class SandboxedExecutor extends RailsExecutor {
    - Auto-imported or via `@dygram/stdlib`
 
 6. **Type Imports**
-   ```dygram
+   ```dy
    import type { UserType, SessionType } from "./types.dygram"
    ```
 
@@ -2510,7 +2510,7 @@ my-project/
 ```
 
 **main.dygram**:
-```dygram
+```dy
 import { LoginTask, ValidateSession } from "./lib/auth.dygram"
 import { ProcessPayment, RefundPayment } from "./lib/payment.dygram"
 import { ErrorHandler, Logger } from "./lib/common.dygram"
@@ -2527,7 +2527,7 @@ machine "E-Commerce App" {
 ```
 
 **lib/auth.dygram**:
-```dygram
+```dy
 machine "Authentication" {
   task LoginTask {
     prompt: "Authenticate user with credentials"
@@ -2549,7 +2549,7 @@ machine "Authentication" {
 ```
 
 **lib/payment.dygram**:
-```dygram
+```dy
 import { UserSession } from "./auth.dygram"
 
 machine "Payment Processing" {
@@ -2573,7 +2573,7 @@ machine "Payment Processing" {
 ```
 
 **lib/common.dygram**:
-```dygram
+```dy
 machine "Common Utilities" {
   task ErrorHandler {
     prompt: "Handle errors gracefully and log them"

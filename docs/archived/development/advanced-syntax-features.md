@@ -18,7 +18,7 @@ Notes allow you to attach documentation and explanations directly to nodes in yo
 
 ### Syntax
 
-```dygram
+```dy
 note <targetNodeName> "Note content here"
 ```
 
@@ -30,7 +30,7 @@ note <targetNodeName> "Note content here"
 
 ### Example
 
-```dygram
+```dy
 machine "Documentation Example"
 
 task fetchData {
@@ -96,7 +96,7 @@ Generic types allow you to express parameterized types (like TypeScript generics
 
 ### Syntax
 
-```dygram
+```dy
 attributeName<BaseType<GenericType>>: value;
 ```
 
@@ -111,7 +111,7 @@ attributeName<BaseType<GenericType>>: value;
 
 ### Example
 
-```dygram
+```dy
 machine "Generic Types Example"
 
 context config {
@@ -187,7 +187,7 @@ Link styling allows you to customize the visual appearance of edges based on the
 
 ### Syntax
 
-```dygram
+```dy
 // Inline style annotation (planned feature)
 source @style("stroke: red; stroke-width: 4px") --> target;
 
@@ -211,7 +211,7 @@ DyGram automatically applies colors based on edge semantics:
 
 ### Example
 
-```dygram
+```dy
 machine "Styled Edges Example"
 
 task process {
@@ -252,7 +252,7 @@ classDiagram-v2
 
 ### Custom Styles (Future Feature)
 
-```dygram
+```dy
 // Custom CSS-like styling (planned)
 source @style("stroke: #blue; stroke-width: 4px; stroke-dasharray: 5 5") --> target;
 ```
@@ -272,13 +272,13 @@ Bidirectional relationships can have role names that clarify the nature of the t
 
 ### Syntax
 
-```dygram
+```dy
 source <--roleName1/roleName2--> target;
 ```
 
 ### Example
 
-```dygram
+```dy
 machine "Role Names Example"
 
 state frontend {
@@ -325,7 +325,7 @@ classDiagram-v2
 
 Here's a comprehensive example using all Advanced Syntax features:
 
-```dygram
+```dy
 machine "Advanced Syntax Complete Demo"
 
 // Configuration with generic types
@@ -411,7 +411,7 @@ Advanced Syntax is **fully backward compatible** with expressivity. Existing dia
 ### Example Migration
 
 **expressivity**:
-```dygram
+```dy
 machine "User API"
 
 task fetchUser {
@@ -426,7 +426,7 @@ fetchUser -> processUser;
 ```
 
 **Advanced Syntax Enhanced**:
-```dygram
+```dy
 machine "User API"
 
 task fetchUser @Async {

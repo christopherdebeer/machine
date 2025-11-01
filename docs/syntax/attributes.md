@@ -6,7 +6,7 @@ Attributes add typed metadata and configuration to nodes, edges, and machines. T
 
 Attributes are key-value pairs:
 
-```dygram examples/syntax/attributes.dygram
+```dy examples/syntax/attributes.dygram
 name: "value";
 count: 42;
 enabled: true;
@@ -14,7 +14,7 @@ enabled: true;
 
 ### In Nodes
 
-```dygram examples/syntax/node-attributes.dygram
+```dy examples/syntax/node-attributes.dygram
 Task analyze {
     model: "claude-3-5-sonnet-20241022";
     temperature: 0.7;
@@ -24,7 +24,7 @@ Task analyze {
 
 ### In Edges
 
-```dygram examples/syntax/edge-attributes.dygram
+```dy examples/syntax/edge-attributes.dygram
 a -condition: true, priority: 1-> b;
 ```
 
@@ -32,7 +32,7 @@ Note: Edge attributes are separated by semicolons (`;`), while node attributes a
 
 ### In Machines
 
-```dygram examples/syntax/machine-attributes.dygram
+```dy examples/syntax/machine-attributes.dygram
 machine "API Service" {
     version: "1.0.0";
     environment: "production";
@@ -43,7 +43,7 @@ machine "API Service" {
 
 Add type annotations for validation:
 
-```dygram examples/syntax/typed-attributes.dygram
+```dy examples/syntax/typed-attributes.dygram
 port<number>: 3000;
 host<string>: "localhost";
 timeout<Duration>: "30s";
@@ -54,13 +54,13 @@ See [Types](types.md) for detailed type information.
 ## Primitive Types
 
 ### String
-```dygram
+```dy
 name<string>: "value";
 description: "Inferred as string";
 ```
 
 ### Number
-```dygram
+```dy
 count<number>: 42;
 price: 19.99;
 scientific: 1.5e10;
@@ -68,7 +68,7 @@ temperature: -273.15;
 ```
 
 ### Boolean
-```dygram
+```dy
 enabled<boolean>: true;
 active: false;
 ```
@@ -79,32 +79,32 @@ DyGram provides specialized string types for common patterns:
 
 ### Date
 ISO 8601 datetime strings with time and timezone:
-```dygram
+```dy
 createdAt<Date>: "2025-10-22T13:30:00Z";
 ```
 
 ### UUID
 UUID strings:
-```dygram
+```dy
 id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
 ```
 
 ### URL
 Valid URLs:
-```dygram
+```dy
 endpoint<URL>: "https://api.example.com";
 ```
 
 ### Duration
 ISO 8601 durations:
-```dygram
+```dy
 timeout<Duration>: "PT1H30M";
 waitTime<Duration>: "P1Y2M3D";
 ```
 
 ### Integer and Float
 Numeric subtypes:
-```dygram
+```dy
 count<Integer>: 42;
 price<Float>: 19.99;
 ```
@@ -114,18 +114,18 @@ See [Types](types.md) for complete type reference.
 ## Generic Types
 
 ### Arrays
-```dygram examples/syntax/types-array.dygram
+```dy examples/syntax/types-array.dygram
 tags: ["api", "production", "critical"];
 ports: [8080, 8081, 8082];
 ```
 
 With type validation:
-```dygram examples/syntax/types-generic.dygram
+```dy examples/syntax/types-generic.dygram
 results<Array<string>>: ["a", "b", "c"];
 ```
 
 ### Validated Generic Elements
-```dygram examples/syntax/validated-generics.dygram
+```dy examples/syntax/validated-generics.dygram
 task myTask {
   // Array elements are validated as Dates
   dates<Array<Date>>: ["2025-10-22T13:30:00Z", "2025-10-23T14:00:00Z"];
@@ -136,12 +136,12 @@ task myTask {
 ```
 
 ### Maps
-```dygram
+```dy
 data<Map<string, number>>: #dataMap;
 ```
 
 ### Other Generics
-```dygram
+```dy
 promise<Promise<Result>>: #pending;
 result<Result<Data, Error>>: #outcome;
 ```
@@ -152,7 +152,7 @@ See [Types](types.md) for generic type details.
 
 Reference external values using `#` prefix:
 
-```dygram !examples/syntax/external-references.dygram
+```dy !examples/syntax/external-references.dygram
 config: #globalConfig;
 handler: #processHandler;
 ```
@@ -163,7 +163,7 @@ External references allow you to link attributes to values defined outside the D
 
 Strings can span multiple lines:
 
-```dygram examples/syntax/strings-multiline.dygram
+```dy examples/syntax/strings-multiline.dygram
 prompt: "This is a long prompt
 that spans multiple lines
 and preserves formatting";
@@ -173,7 +173,7 @@ and preserves formatting";
 
 Attributes can use all features:
 
-```dygram examples/syntax/types-built-in.dygram
+```dy examples/syntax/types-built-in.dygram
 task myTask {
   id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
   createdAt<Date>: "2025-10-22T13:30:00Z";
@@ -209,7 +209,7 @@ task myTask {
 ## Examples
 
 ### Basic Configuration
-```dygram
+```dy
 task processor {
     enabled: true;
     maxRetries: 3;
@@ -218,7 +218,7 @@ task processor {
 ```
 
 ### Typed Configuration
-```dygram
+```dy
 task apiCall {
     endpoint<URL>: "https://api.example.com/v1/users";
     timeout<Duration>: "PT30S";
@@ -228,7 +228,7 @@ task apiCall {
 ```
 
 ### External References
-```dygram
+```dy
 context config {
     database: #dbConnection;
     cache: #redisClient;
@@ -237,12 +237,12 @@ context config {
 ```
 
 ### Edge Attributes
-```dygram
+```dy
 Start -priority: 1; weight: 0.8; condition: "status == 'ready'";-> Process;
 ```
 
 ### Complex Attributes
-```dygram
+```dy
 task llmCall {
     model: "claude-3-5-sonnet-20241022";
     temperature<Float>: 0.7;
@@ -255,7 +255,7 @@ task llmCall {
 ```
 
 ### Machine-Level Attributes
-```dygram
+```dy
 machine "Production API" @Version("2.0") {
     region: "us-east-1";
     environment: "production";
