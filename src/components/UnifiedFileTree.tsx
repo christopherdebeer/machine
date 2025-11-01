@@ -22,45 +22,25 @@ interface DirectoryNode {
     subdirs: DirectoryNode[];
 }
 
-const Container = styled.div<{ $collapsed?: boolean }>`
+const Container = styled.div`
     background: #252526;
-    border: 1px solid #3e3e42;
-    border-radius: 4px;
     font-size: 12px;
-    max-height: ${props => props.$collapsed ? 'auto' : '400px'};
+    max-height: 400px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 `;
 
-const Header = styled.div`
+const StatusBar = styled.div`
     background: #2d2d30;
     padding: 6px 8px;
-    font-weight: 600;
+    font-size: 10px;
     color: #cccccc;
     border-bottom: 1px solid #3e3e42;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    cursor: pointer;
-    user-select: none;
     flex-shrink: 0;
-
-    &:hover {
-        background: #333336;
-    }
-`;
-
-const HeaderLeft = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 6px;
-`;
-
-const ToggleIcon = styled.span<{ $collapsed: boolean }>`
-    font-size: 10px;
-    transition: transform 0.2s ease;
-    transform: ${props => props.$collapsed ? 'rotate(0deg)' : 'rotate(90deg)'};
 `;
 
 const StatusBadge = styled.span<{ $available: boolean | null }>`
@@ -72,8 +52,8 @@ const StatusBadge = styled.span<{ $available: boolean | null }>`
     font-weight: normal;
 `;
 
-const Content = styled.div<{ $collapsed?: boolean }>`
-    display: ${props => props.$collapsed ? 'none' : 'flex'};
+const Content = styled.div`
+    display: flex;
     flex-direction: column;
     overflow-y: auto;
     max-height: 400px;
@@ -232,7 +212,6 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
     onSelectFile,
     onFilesChanged
 }) => {
-    const [collapsed, setCollapsed] = useState(false);
     const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set(['/']));
     const [currentDir, setCurrentDir] = useState<string>('/');
     const [searchQuery, setSearchQuery] = useState('');
@@ -463,15 +442,11 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
 
     if (loading) {
         return (
-            <Container $collapsed={collapsed}>
-                <Header onClick={() => setCollapsed(!collapsed)}>
-                    <HeaderLeft>
-                        <ToggleIcon $collapsed={collapsed}>▶</ToggleIcon>
-                        <span>Files</span>
-                    </HeaderLeft>
+            <Container>
+                <StatusBar>
                     <StatusBadge $available={null}>Loading...</StatusBadge>
-                </Header>
-                <Content $collapsed={collapsed}>
+                </StatusBar>
+                <Content>
                     <LoadingMessage>Loading files...</LoadingMessage>
                 </Content>
             </Container>
@@ -484,17 +459,13 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
     const vfsFileCount = files.filter(f => f.source === 'vfs').length;
 
     return (
-        <Container $collapsed={collapsed}>
-            <Header onClick={() => setCollapsed(!collapsed)}>
-                <HeaderLeft>
-                    <ToggleIcon $collapsed={collapsed}>▶</ToggleIcon>
-                    <span>Files</span>
-                </HeaderLeft>
+        <Container>
+            <StatusBar>
                 <StatusBadge $available={apiAvailable}>
                     {apiAvailable ? `API: ${apiFileCount} | VFS: ${vfsFileCount}` : `VFS: ${vfsFileCount}`}
                 </StatusBadge>
-            </Header>
-            <Content $collapsed={collapsed}>
+            </StatusBar>
+            <Content>
                 <ActionBar>
                     <ActionButton onClick={handleNewFile} title="Create new file (VFS)">
                         + New

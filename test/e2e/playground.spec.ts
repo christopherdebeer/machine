@@ -145,8 +145,8 @@ test.describe('Playground Mobile Version', () => {
 
 test.describe('CodeMirror Playground', () => {
     test.beforeEach(async ({ page }) => {
-        // Navigate to the CodeMirror playground before each test
-        await page.goto('playground-codemirror.html');
+        // Navigate to the CodeMirror playground (mobile version uses CodeMirror)
+        await page.goto('playground-mobile.html');
     });
 
     test('should load CodeMirror playground page successfully', async ({ page }) => {
@@ -233,7 +233,7 @@ test.describe('CodeMirror Playground at Mobile Viewport', () => {
     test.beforeEach(async ({ page }) => {
         // Set mobile viewport size
         await page.setViewportSize({ width: 375, height: 667 }); // iPhone SE
-        await page.goto('playground-codemirror.html');
+        await page.goto('playground-mobile.html');
     });
 
     test('should load successfully on mobile viewport', async ({ page }) => {
@@ -311,7 +311,7 @@ test.describe('CodeMirror Playground at Mobile Viewport', () => {
     test('should handle tablet viewport', async ({ page }) => {
         // Test at tablet size (iPad)
         await page.setViewportSize({ width: 768, height: 1024 });
-        await page.goto('playground-codemirror.html');
+        await page.goto('playground-mobile.html');
 
         const editor = page.locator('.cm-editor');
         await expect(editor).toBeVisible({ timeout: 15000 });

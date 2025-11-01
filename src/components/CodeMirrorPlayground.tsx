@@ -40,7 +40,6 @@ import { UnifiedFileTree } from "./UnifiedFileTree";
 import { loadSettings, saveSettings } from "../language/shared-settings";
 import { VirtualFileSystem } from "../playground/virtual-filesystem";
 import { FileAccessService } from "../playground/file-access-service";
-import { getDefaultImportExample, loadExampleIntoVFS } from "../playground/sample-imports";
 import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
 import { createLangiumExtensions } from "../codemirror-langium";
 import { createMachineServices } from "../language/machine-module";
@@ -497,6 +496,7 @@ export const CodeMirrorPlayground: React.FC = () => {
 
     const [settings, setSettings] = useState(() => loadSettings());
     const [settingsCollapsed, setSettingsCollapsed] = useState(false);
+    const [filesCollapsed, setFilesCollapsed] = useState(false);
     const [editorCollapsed, setEditorCollapsed] = useState(false);
     const [outputCollapsed, setOutputCollapsed] = useState(false);
     const [executionCollapsed, setExecutionCollapsed] = useState(false);
@@ -525,13 +525,8 @@ export const CodeMirrorPlayground: React.FC = () => {
     // Unified file access (VFS + API)
     const [fileService] = useState(() => {
         const vfs = new VirtualFileSystem('dygram-playground-vfs');
-        // Try to load from localStorage
-        const loaded = vfs.loadFromLocalStorage();
-        if (!loaded) {
-            // Load default import example if nothing in storage
-            const defaultExample = getDefaultImportExample();
-            loadExampleIntoVFS(defaultExample, vfs);
-        }
+        // Load from localStorage (VFS handles this automatically)
+        vfs.loadFromLocalStorage();
         return new FileAccessService(vfs, { workingDir: 'examples' });
     });
 
@@ -765,6 +760,10 @@ export const CodeMirrorPlayground: React.FC = () => {
   // Handle section toggles
   const toggleSettings = useCallback(() => {
     setSettingsCollapsed((prev) => !prev);
+  }, []);
+
+  const toggleFiles = useCallback(() => {
+    setFilesCollapsed((prev) => !prev);
   }, []);
 
   const toggleEditor = useCallback(() => {
@@ -1337,12 +1336,18 @@ export const CodeMirrorPlayground: React.FC = () => {
                 </SettingsGroup>
             </SettingsPanel>
 
-            {/* Unified File Tree - shows both API and VFS files, including import examples */}
-            <UnifiedFileTree
-                fileService={fileService}
-                onSelectFile={handleFileSelect}
-                onFilesChanged={() => { /* Trigger re-render if needed */ }}
-            />
+            {/* Files Section */}
+            <SectionHeader onClick={toggleFiles}>
+                <span>Files</span>
+                <ToggleBtn>{filesCollapsed ? '▶' : '▼'}</ToggleBtn>
+            </SectionHeader>
+            {!filesCollapsed && (
+                <UnifiedFileTree
+                    fileService={fileService}
+                    onSelectFile={handleFileSelect}
+                    onFilesChanged={() => { /* Trigger re-render if needed */ }}
+                />
+            )}
 
             <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
                 <SectionHeader onClick={toggleEditor} $sideways={outputCollapsed && editorCollapsed ? false : true}>
