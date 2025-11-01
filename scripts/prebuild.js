@@ -438,7 +438,7 @@ async function transformMarkdownToMdx(projectRoot) {
                                 const modeMatch = metadataStr.match(/mode=["']([^"']+)["']/);
                                 if (modeMatch) {
                                     codeBlockMode = modeMatch[1];
-                                } else if (codeBlockFilename) {
+                                } else {
                                     // Backward compatibility: if filename provided without explicit mode,
                                     // default to 'split' to show both code and visual
                                     codeBlockMode = 'split';
