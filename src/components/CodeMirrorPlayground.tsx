@@ -495,11 +495,11 @@ export const CodeMirrorPlayground: React.FC = () => {
   const editorViewRef = useRef<EditorView | null>(null);
 
     const [settings, setSettings] = useState(() => loadSettings());
-    const [settingsCollapsed, setSettingsCollapsed] = useState(false);
-    const [filesCollapsed, setFilesCollapsed] = useState(false);
+    const [settingsCollapsed, setSettingsCollapsed] = useState(true);
+    const [filesCollapsed, setFilesCollapsed] = useState(true);
     const [editorCollapsed, setEditorCollapsed] = useState(false);
     const [outputCollapsed, setOutputCollapsed] = useState(false);
-    const [executionCollapsed, setExecutionCollapsed] = useState(false);
+    const [executionCollapsed, setExecutionCollapsed] = useState(true);
     const [editorSize, setEditorSize] = useState<SectionSize>('medium');
     const [outputSize, setOutputSize] = useState<SectionSize>('medium');
     const [executionSize, setExecutionSize] = useState<SectionSize>('medium');
