@@ -6,13 +6,13 @@ Template strings allow you to reference dynamic values from context nodes, other
 
 Template strings use double curly braces to mark placeholders:
 
-```dygram
+```dy
 prompt: "Use {{ variableName }}";
 ```
 
 ### Simple Variable Reference
 
-```dygram
+```dy
 Context config {
     apiUrl: "https://api.example.com";
 };
@@ -26,7 +26,7 @@ Task apiCall {
 
 A single string can contain multiple template placeholders:
 
-```dygram
+```dy
 Context apiConfig {
     baseUrl: "https://api.example.com";
 };
@@ -44,7 +44,7 @@ Task setup {
 
 Reference attributes from context nodes:
 
-```dygram
+```dy
 Context config {
     apiKey: "secret";
     timeout: 30;
@@ -59,7 +59,7 @@ Task authenticate {
 
 Reference attributes from other tasks:
 
-```dygram
+```dy
 Task taskA {
     prompt: "Generate a summary";
 };
@@ -73,7 +73,7 @@ Task taskB {
 
 Tasks can reference their own attributes:
 
-```dygram
+```dy
 Task myTask {
     name: "ProcessData";
     prompt: "I am {{ myTask.name }}";
@@ -84,7 +84,7 @@ Task myTask {
 
 Access nested attributes using dot notation:
 
-```dygram
+```dy
 Context config {
     nested: #complexObject;
 };
@@ -100,7 +100,7 @@ Note: Nested object access depends on the structure of external references (#) r
 
 ### In String Attributes
 
-```dygram
+```dy
 Task myTask {
     endpoint: "{{ config.url }}";
     description: "Config is at {{ config.key }}";
@@ -109,7 +109,7 @@ Task myTask {
 
 ### In Prompts
 
-```dygram
+```dy
 Task llmTask {
     prompt: "Analyze: {{ userRequest.query }}";
 };
@@ -117,7 +117,7 @@ Task llmTask {
 
 ### In Titles
 
-```dygram
+```dy
 Task process "Processing {{ context.itemName }}";
 ```
 
@@ -133,7 +133,7 @@ Template strings are evaluated at runtime, not at parse time. This means:
 
 ### Valid References
 
-```dygram
+```dy
 Context config {
     value: "test";
 };
@@ -145,7 +145,7 @@ Task taskA {
 
 ### Multiple Tasks Referencing Same Context
 
-```dygram
+```dy
 Context config {
     value: "shared";
 };
@@ -163,7 +163,7 @@ Task taskB {
 
 ### Use Context for Configuration
 
-```dygram
+```dy
 // ✅ Good - centralized configuration
 Context appConfig {
     apiUrl: "https://api.example.com";
@@ -180,7 +180,7 @@ Task fetchData {
 
 ### Reference Task Outputs
 
-```dygram
+```dy
 // ✅ Good - task pipeline with data flow
 Task analyze {
     prompt: "Analyze the data and extract key points";
@@ -199,7 +199,7 @@ analyze -> summarize -> report;
 
 ### Keep Templates Readable
 
-```dygram
+```dy
 // ✅ Good - clear and concise
 prompt: "API: {{ config.url }}, Key: {{ config.key }}";
 
@@ -211,7 +211,7 @@ prompt: "Connect to {{ config.protocol }}://{{ config.host }}:{{ config.port }}/
 
 Ensure referenced nodes and attributes exist:
 
-```dygram
+```dy
 // ✅ Good - config.url exists
 Context config {
     url: "https://api.example.com";
@@ -231,7 +231,7 @@ Task fetch {
 
 ### Configuration Inheritance
 
-```dygram
+```dy
 Context defaults {
     timeout<Duration>: "PT30S";
     retries<Integer>: 3;
@@ -249,7 +249,7 @@ Task apiCall {
 
 ### Multi-Stage Pipelines
 
-```dygram
+```dy
 Context userRequest {
     query: "What is machine learning?";
 };
@@ -271,7 +271,7 @@ research -> synthesize -> format;
 
 ### Environment-Specific Configuration
 
-```dygram
+```dy
 Context environment {
     name: "production";
     apiUrl: #productionApiUrl;  // External reference
@@ -287,7 +287,7 @@ Task startup {
 
 Template strings are treated as strings in the type system:
 
-```dygram
+```dy
 Context config {
     port<Integer>: 8080;
 };
@@ -306,7 +306,7 @@ For type-safe runtime evaluation, use CEL expressions or custom validators.
 
 Template strings do not support expressions or logic:
 
-```dygram
+```dy
 // ❌ Not supported - no arithmetic
 value: "{{ config.count + 1 }}";
 
@@ -321,7 +321,7 @@ value: #computedValue;
 
 Template placeholders cannot contain other templates:
 
-```dygram
+```dy
 // ❌ Not supported - nested templates
 value: "{{ {{ config.keyName }} }}";
 ```
@@ -330,7 +330,7 @@ value: "{{ {{ config.keyName }} }}";
 
 Templates are parsed as static strings. Dynamic template generation is not supported:
 
-```dygram
+```dy
 // ❌ Not supported - dynamic template construction
 template: "{{ config.";  // Invalid
 ```
@@ -339,7 +339,7 @@ template: "{{ config.";  // Invalid
 
 ### Simple Configuration Reference
 
-```dygram
+```dy
 Context config {
     apiUrl: "https://api.example.com";
 };
@@ -351,7 +351,7 @@ Task apiCall {
 
 ### Multi-Context Usage
 
-```dygram
+```dy
 Context apiConfig {
     baseUrl: "https://api.example.com";
     version: "v1";
@@ -369,7 +369,7 @@ Task makeRequest {
 
 ### Task Pipeline
 
-```dygram
+```dy
 Context userRequest {
     query: "Explain quantum computing";
 };
@@ -391,7 +391,7 @@ retrieve -> analyze -> summarize;
 
 ### Self-Reference
 
-```dygram
+```dy
 Task processor {
     name: "DataProcessor";
     type: "transformer";
@@ -401,7 +401,7 @@ Task processor {
 
 ### Complex Workflow
 
-```dygram
+```dy
 machine "LLM Processing Pipeline"
 
 Context llmConfig {

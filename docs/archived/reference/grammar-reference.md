@@ -6,7 +6,7 @@
 
 Every DyGram program starts with a machine declaration:
 
-```dygram
+```dy
 machine "My System"
 
 // Define states
@@ -22,7 +22,7 @@ start -> process -> end;
 
 Use context nodes for data storage with type validation:
 
-```dygram
+```dy
 machine "Context Demo"
 
 Task generateData {
@@ -48,7 +48,7 @@ storage --> processData;
 
 Reference context values in task prompts:
 
-```dygram
+```dy
 machine "Template Demo"
 
 context input {
@@ -101,7 +101,7 @@ Supported type annotations:
 
 Connect entities with labeled relationships:
 
-```dygram
+```dy
 
 // Simple connection
 a -> b;

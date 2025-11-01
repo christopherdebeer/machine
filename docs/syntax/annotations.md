@@ -6,7 +6,7 @@ Annotations add semantic metadata to machines, nodes, and edges. They're prefixe
 
 Annotations start with `@` followed by an identifier:
 
-```dygram
+```dy
 @Annotation
 @AnotherAnnotation
 ```
@@ -15,7 +15,7 @@ Annotations start with `@` followed by an identifier:
 
 Annotations can have string values in parentheses:
 
-```dygram
+```dy
 @Version("2.0")
 @Author("John Doe")
 @Deprecated("Use NewTask instead")
@@ -25,7 +25,7 @@ Annotations can have string values in parentheses:
 
 Elements can have multiple annotations:
 
-```dygram
+```dy
 Task important @Critical @Async @Version("1.0");
 ```
 
@@ -33,13 +33,13 @@ Task important @Critical @Async @Version("1.0");
 
 Annotate machine declarations:
 
-```dygram examples/syntax/machine-annotation.dygram
+```dy examples/syntax/machine-annotation.dygram
 machine "Production System" @Critical @Version("2.0")
 ```
 
 With attributes:
 
-```dygram
+```dy
 machine "API Service" @Version("3.0") @Owner("Platform Team") {
     environment: "production";
 };
@@ -49,7 +49,7 @@ machine "API Service" @Version("3.0") @Owner("Platform Team") {
 
 Annotate nodes to add metadata:
 
-```dygram examples/syntax/node-annotations.dygram
+```dy examples/syntax/node-annotations.dygram
 Task critical @Critical @Async;
 Resource legacy @Deprecated("Use newResource instead");
 ```
@@ -68,7 +68,7 @@ Resource legacy @Deprecated("Use newResource instead");
 
 ### With All Features
 
-```dygram
+```dy
 Task processPayment "Process Payment" @Critical @Async @Version("2.1") {
     provider: "stripe";
     timeout<Duration>: "PT30S";
@@ -79,14 +79,14 @@ Task processPayment "Process Payment" @Critical @Async @Version("2.1") {
 
 Annotate edges to add styling or metadata:
 
-```dygram examples/syntax/edge-annotations.dygram
+```dy examples/syntax/edge-annotations.dygram
 start -@style("color: red; stroke-width: 3px")-> end;
 a -@weight(5)-> b;
 ```
 
 ### Multiple Edge Annotations
 
-```dygram
+```dy
 a -@Critical @style(color: blue;)-> b;
 ```
 
@@ -94,7 +94,7 @@ a -@Critical @style(color: blue;)-> b;
 
 Combine annotations and attributes:
 
-```dygram
+```dy
 Start -priority: 1; @Critical-> Process;
 ```
 
@@ -106,7 +106,7 @@ Note: Annotations come after attributes in edge syntax.
 
 Most annotations accept string values:
 
-```dygram
+```dy
 @Version("1.0.0")
 @Author("Team A")
 @Description("Long description text")
@@ -117,7 +117,7 @@ Most annotations accept string values:
 
 Some annotations work without quotes in edge context:
 
-```dygram
+```dy
 a -@weight(5)-> b;
 a -@priority(high)-> b;
 ```
@@ -126,7 +126,7 @@ a -@priority(high)-> b;
 
 Annotation values can be multi-line strings:
 
-```dygram
+```dy
 @Description("This is a long description
 that spans multiple lines
 and provides detailed information")
@@ -136,7 +136,7 @@ and provides detailed information")
 
 ### Lifecycle Annotations
 
-```dygram
+```dy
 @Deprecated("Use v2 API")
 @Experimental
 @Stable
@@ -145,7 +145,7 @@ and provides detailed information")
 
 ### Organizational Annotations
 
-```dygram
+```dy
 @Owner("Platform Team")
 @Team("Backend")
 @Project("Migration")
@@ -153,7 +153,7 @@ and provides detailed information")
 
 ### Technical Annotations
 
-```dygram
+```dy
 @Async
 @Sync
 @Cached
@@ -164,7 +164,7 @@ and provides detailed information")
 
 ### Quality Annotations
 
-```dygram
+```dy
 @Critical
 @Important
 @Optional
@@ -173,7 +173,7 @@ and provides detailed information")
 
 ### Documentation Annotations
 
-```dygram
+```dy
 @Since("2024-01-15")
 @Version("2.0")
 @Author("John Doe")
@@ -206,7 +206,7 @@ and provides detailed information")
 ## Examples
 
 ### Machine Metadata
-```dygram
+```dy
 machine "User Service" @Version("3.0.0") @Critical @Owner("Platform Team") {
     region: "us-east-1";
     deployed<Date>: "2025-10-22T13:30:00Z";
@@ -214,7 +214,7 @@ machine "User Service" @Version("3.0.0") @Critical @Owner("Platform Team") {
 ```
 
 ### Node Documentation
-```dygram
+```dy
 Task authenticateUser "Authenticate User"
     @Critical
     @Async
@@ -227,7 +227,7 @@ Task authenticateUser "Authenticate User"
 ```
 
 ### Deprecated Components
-```dygram
+```dy
 Task legacyProcessor @Deprecated("Use newProcessor instead") @Version("1.0");
 Task newProcessor @Version("2.0");
 
@@ -235,13 +235,13 @@ legacyProcessor -> newProcessor;
 ```
 
 ### Edge Styling
-```dygram
+```dy
 Start -@style("color: green; stroke-width: 2px;")-> Success;
 Start -@style("color: red; stroke-dasharray: 5,5;")-> Failure;
 ```
 
 ### Mixed Usage
-```dygram
+```dy
 machine "Payment Gateway" @Critical @Version("2.0")
 
 Context config @Singleton {
@@ -262,7 +262,7 @@ processPayment -weight: 0.1; @style(color: red;)-> fallbackPayment;
 ```
 
 ### Organizational Hierarchy
-```dygram
+```dy
 machine "Multi-Team System" @Version("1.0")
 
 Task frontend @Team("Frontend") @Owner("Alice") {
@@ -285,7 +285,7 @@ backend --> database;
 
 While DyGram doesn't restrict annotation names, consider defining a vocabulary for your domain:
 
-```dygram
+```dy
 // Custom domain annotations
 Task apiEndpoint @HTTP("GET") @Route("/api/users") @Auth("Bearer");
 Task handler @EventDriven @Topic("user.created");

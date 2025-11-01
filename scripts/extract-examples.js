@@ -141,8 +141,8 @@ function extractFromMarkdown(content, sourceFile, primaryExt) {
         
         if (line.startsWith('```')) {
             if (!inCodeblock) {
-                const matchWithPath = line.match(/^```(dygram|mach|machine)\s+(.+\.(dygram|mach))$/);
-                const matchWithoutPath = line.match(/^```(dygram|mach|machine)\s*(.*)$/);
+                const matchWithPath = line.match(/^```(dy|dygram|mach|machine)\s+(.+\.(dy|dygram|mach))$/);
+                const matchWithoutPath = line.match(/^```(dy|dygram|mach|machine)\s*(.*)$/);
 
                 // Check for !no-extract marker
                 const hasNoExtractMarker = matchWithoutPath && matchWithoutPath[2].includes('!no-extract');

@@ -6,7 +6,7 @@ DyGram supports a rich type system powered by Zod for runtime validation. Types 
 
 Types are specified using angle brackets after the attribute name:
 
-```dygram
+```dy
 attributeName<TypeName>: value;
 ```
 
@@ -14,14 +14,14 @@ attributeName<TypeName>: value;
 
 ### string
 Text values:
-```dygram
+```dy
 name<string>: "John Doe";
 description<string>: "A description";
 ```
 
 ### number
 Numeric values (integers and floats):
-```dygram
+```dy
 count<number>: 42;
 price<number>: 19.99;
 scientific<number>: 1.5e10;
@@ -30,7 +30,7 @@ temperature<number>: -273.15;
 
 ### boolean
 True or false values:
-```dygram
+```dy
 enabled<boolean>: true;
 active<boolean>: false;
 ```
@@ -40,7 +40,7 @@ active<boolean>: false;
 ### Date
 ISO 8601 datetime strings. Must include time and timezone (Z format):
 
-```dygram
+```dy
 createdAt<Date>: "2025-10-22T13:30:00Z";
 updatedAt<Date>: "2025-10-23T14:00:00Z";
 ```
@@ -52,7 +52,7 @@ updatedAt<Date>: "2025-10-23T14:00:00Z";
 ### UUID
 UUID strings in standard format:
 
-```dygram
+```dy
 id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
 userId<UUID>: "123e4567-e89b-12d3-a456-426614174000";
 ```
@@ -60,7 +60,7 @@ userId<UUID>: "123e4567-e89b-12d3-a456-426614174000";
 ### URL
 Valid URLs with protocol:
 
-```dygram
+```dy
 endpoint<URL>: "https://api.example.com";
 homepage<URL>: "https://example.com/home";
 ```
@@ -73,7 +73,7 @@ homepage<URL>: "https://example.com/home";
 ### Duration
 ISO 8601 duration strings:
 
-```dygram
+```dy
 timeout<Duration>: "PT1H30M";
 cacheTTL<Duration>: "P1D";
 interval<Duration>: "PT30S";
@@ -95,7 +95,7 @@ interval<Duration>: "PT30S";
 ### Integer
 Integer numbers only (validated at runtime):
 
-```dygram
+```dy
 count<Integer>: 42;
 retries<Integer>: 3;
 ```
@@ -108,7 +108,7 @@ retries<Integer>: 3;
 ### Float
 Floating-point numbers (alias for `number`):
 
-```dygram
+```dy
 price<Float>: 19.99;
 temperature<Float>: 98.6;
 ```
@@ -121,13 +121,13 @@ Generic types support parameterized validation.
 
 Arrays with validated element types:
 
-```dygram
+```dy
 tags<Array<string>>: ["api", "production"];
 ports<Array<number>>: [8080, 8081, 8082];
 ```
 
 **With specialized types:**
-```dygram examples/syntax/validated-generics.dygram
+```dy examples/syntax/validated-generics.dygram
 task myTask {
   // Array elements are validated as Dates
   dates<Array<Date>>: ["2025-10-22T13:30:00Z", "2025-10-23T14:00:00Z"];
@@ -143,7 +143,7 @@ task myTask {
 
 Maps with typed keys and values:
 
-```dygram
+```dy
 config<Map<string, number>>: #configMap;
 headers<Map<string, string>>: #httpHeaders;
 ```
@@ -154,7 +154,7 @@ Note: Map values are typically external references (`#ref`), as DyGram doesn't h
 
 Promise type (structural only, not validated at runtime):
 
-```dygram
+```dy
 result<Promise<Data>>: #asyncResult;
 ```
 
@@ -162,7 +162,7 @@ result<Promise<Data>>: #asyncResult;
 
 Result type for success/error patterns (structural only):
 
-```dygram
+```dy
 outcome<Result<Data, Error>>: #computation;
 ```
 
@@ -198,7 +198,7 @@ if (errors.length > 0) {
 
 Define a node and use it as a type for attributes:
 
-```dygram
+```dy
 machine "Node Types Example"
 
 Type User {
@@ -218,7 +218,7 @@ Task process {
 
 **Any node keyword works**, not just `Type`:
 
-```dygram
+```dy
 machine "Any Node as Type"
 
 Context Config {
@@ -244,7 +244,7 @@ Task authenticate {
 
 Define union types using string literals with the pipe (`|`) operator:
 
-```dygram
+```dy
 Type Task {
     id<string>;
     status<'idle' | 'in_progress' | 'complete'>;
@@ -266,7 +266,7 @@ Union types are validated at runtime - only the specified literal values are all
 
 Combine node types with generic types for powerful compositions:
 
-```dygram
+```dy
 Type Item {
     id<string>;
     value<number>;
@@ -288,7 +288,7 @@ Task processor {
 
 Node types can reference other node types:
 
-```dygram
+```dy
 Type Address {
     street<string>;
     city<string>;
@@ -356,7 +356,7 @@ registry.register('Port', z.number().int().min(1).max(65535));
 
 Then use them in your DyGram files:
 
-```dygram
+```dy
 user {
   email<Email>: "user@example.com";
   version<SemVer>: "1.2.3";
@@ -368,7 +368,7 @@ user {
 
 When types are omitted, DyGram infers types from values:
 
-```dygram
+```dy
 name: "John";        // inferred as string
 count: 42;           // inferred as number
 enabled: true;       // inferred as boolean
@@ -418,7 +418,7 @@ For specialized types (Date, UUID, URL, Duration), explicit type annotations are
 ## Examples
 
 ### Basic Types
-```dygram examples/syntax/types-built-in.dygram
+```dy examples/syntax/types-built-in.dygram
 task myTask {
   id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
   createdAt<Date>: "2025-10-22T13:30:00Z";
@@ -430,14 +430,14 @@ task myTask {
 ```
 
 ### Generic Types
-```dygram examples/syntax/types-generic.dygram
+```dy examples/syntax/types-generic.dygram
 results<Array<string>>: ["a", "b", "c"];
 data<Map<string, number>>: #dataMap;
 promise<Promise<Result>>: #pending;
 ```
 
 ### Validated Generics
-```dygram examples/syntax/validated-generics.dygram
+```dy examples/syntax/validated-generics.dygram
 task myTask {
   dates<Array<Date>>: ["2025-10-22T13:30:00Z", "2025-10-23T14:00:00Z"];
   counts<Array<Integer>>: [1, 2, 3];
@@ -445,7 +445,7 @@ task myTask {
 ```
 
 ### Complex Configuration
-```dygram
+```dy
 task apiClient {
     baseUrl<URL>: "https://api.example.com";
     timeout<Duration>: "PT30S";
@@ -470,7 +470,7 @@ registry.register('Percentage', z.number().min(0).max(100));
 registry.register('HexColor', z.string().regex(/^#[0-9A-Fa-f]{6}$/));
 ```
 
-```dygram
+```dy
 user {
     email<Email>: "user@example.com";
     phone<PhoneNumber>: "+1234567890";
@@ -480,7 +480,7 @@ user {
 ```
 
 ### Node Types in Practice
-```dygram
+```dy
 machine "E-commerce System"
 
 Type Product {

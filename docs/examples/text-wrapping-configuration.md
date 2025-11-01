@@ -10,7 +10,7 @@ The Graphviz diagram generator automatically wraps long text to prevent layout i
 
 Add these attributes to your machine definition to override the default text wrapping lengths:
 
-```dygram examples/text-wrapping/overview.dygram
+```dy examples/text-wrapping/overview.dygram
 machine "MyMachine"
 // Edge and multiplicity wrapping
 maxEdgeLabelLength: 50          // Default: 40 characters
@@ -33,7 +33,7 @@ maxNoteContentLength: 50        // Default: 40 characters
 ### Edge Labels
 Long edge labels are wrapped at word boundaries using `\n` line breaks:
 
-```dygram examples/text-wrapping/edge-labels.dygram
+```dy examples/text-wrapping/edge-labels.dygram
 machine "EdgeWrappingExample"
 maxEdgeLabelLength: 20  // Short wrapping for demo
 
@@ -44,7 +44,7 @@ nodeA -"This is a very long edge label that will be wrapped"-> nodeB
 ### Edge Multiplicity
 Source and target multiplicity labels are wrapped:
 
-```dygram examples/text-wrapping/multiplicity.dygram
+```dy examples/text-wrapping/multiplicity.dygram
 machine "MultiplicityExample"
 maxMultiplicityLength: 15
 
@@ -54,7 +54,7 @@ nodeA "0..many items" -> "1..single item" nodeB;
 ### Attribute Keys and Values
 Both attribute names and values support wrapping:
 
-```dygram examples/text-wrapping/attribute.dygram
+```dy examples/text-wrapping/attribute.dygram
 machine "AttributeWrappingExample"
 maxAttributeKeyLength: 15
 maxAttributeValueLength: 25
@@ -69,7 +69,7 @@ context Node {
 ### Node Titles and Descriptions
 Node titles and descriptions are wrapped for readability:
 
-```dygram examples/text-wrapping/node-title.dygram
+```dy examples/text-wrapping/node-title.dygram
 machine "NodeTitleExample"
 maxNodeTitleLength: 25
 
@@ -84,7 +84,7 @@ longTitleNode "This is a very long node title that will be wrapped" {
 ### JSON Formatting
 JSON strings in attribute values are automatically detected and pretty-formatted:
 
-```dygram
+```dy
 machine "JsonExample"
 configNode {
   settings: '{"theme":"dark","features":{"notifications":true,"analytics":false}}'
@@ -94,7 +94,7 @@ configNode {
 ### Multiline String Preservation
 Existing line breaks in multiline strings are preserved:
 
-```dygram examples/text-wrapping/multiline.dygram
+```dy examples/text-wrapping/multiline.dygram
 machine "MultilineExample"
 instructionNode {
     steps: "Step 1: Initialize
@@ -106,7 +106,7 @@ instructionNode {
 ### Force Breaking Long Unbroken Text
 Long URLs, hashes, or identifiers without spaces are automatically broken:
 
-```dygram examples/text-wrapping/force.dygram
+```dy examples/text-wrapping/force.dygram
 machine "ForceBreakExample"
 maxAttributeValueLength: 20
 

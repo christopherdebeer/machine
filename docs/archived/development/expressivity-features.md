@@ -18,7 +18,7 @@ Multiplicity (also known as cardinality) allows you to express quantitative rela
 
 ### Syntax
 
-```dygram
+```dy
 source "sourceMultiplicity" --> "targetMultiplicity" target
 ```
 
@@ -33,7 +33,7 @@ source "sourceMultiplicity" --> "targetMultiplicity" target
 
 ### Examples
 
-```dygram
+```dy
 machine "Multiplicity Examples"
 
 // One-to-many relationship
@@ -89,7 +89,7 @@ Annotations provide metadata about nodes, allowing you to mark nodes with specia
 
 ### Syntax
 
-```dygram
+```dy
 nodeName @AnnotationName
 nodeName @AnnotationName("value")
 ```
@@ -104,7 +104,7 @@ nodeName @AnnotationName("value")
 
 ### Examples
 
-```dygram
+```dy
 machine "Annotation Examples"
 
 // Abstract base class
@@ -163,7 +163,7 @@ When you reference a variable from another node using template syntax (`{{ node.
 
 ### Example
 
-```dygram
+```dy
 machine "Dependency Inference Example"
 
 // Configuration context
@@ -262,7 +262,7 @@ Runtime diagrams include notes attached to nodes:
 
 ### Example
 
-```dygram
+```dy
 machine "Runtime Example"
 
 init start {
@@ -331,7 +331,7 @@ classDiagram-v2
 
 Here's a comprehensive example using all Expressivity features:
 
-```dygram
+```dy
 machine "Complete Expressivity Example"
 
 // Configuration with dependency inference
@@ -415,7 +415,7 @@ You can enhance existing diagrams by:
 ### Example Migration
 
 **relationship types (still works)**:
-```dygram
+```dy
 machine "User Management"
 task User;
 task Order;
@@ -423,7 +423,7 @@ User -> Order;
 ```
 
 **Expressivity (enhanced)**:
-```dygram
+```dy
 machine "User Management"
 
 context config {

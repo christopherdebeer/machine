@@ -149,7 +149,7 @@ This document summarizes the implementation of Phases 1-6 of the DyGram import s
 
 ### Import Statement
 
-```dygram
+```dy
 // Import specific symbols
 import { symbol1, symbol2 } from "./path/to/file.dygram"
 
@@ -166,7 +166,7 @@ import { StateC } from "./lib2.dygram"
 
 ### Usage
 
-```dygram
+```dy
 // lib.dygram
 machine "Library"
 state LoginPage "Login Page"

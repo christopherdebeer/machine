@@ -377,7 +377,7 @@ async function transformMarkdownToMdx(projectRoot) {
         let codeBlockId = 0;
 
         // Check if file needs CodeEditor imports
-        const hasDygramBlocks = /```(dygram|mach|machine)/m.test(content);
+        const hasDygramBlocks = /```(dy|dygram|mach|machine)/m.test(content);
 
         if (hasDygramBlocks) {
             // Calculate relative path from this MDX file to src/components/CodeEditor
@@ -399,7 +399,7 @@ async function transformMarkdownToMdx(projectRoot) {
             if (line.startsWith('```')) {
                 if (!inCodeBlock) {
                     // Starting a code block
-                    const match = line.match(/^```(dygram|mach|machine)(?:\s+(.+))?$/);
+                    const match = line.match(/^```(dy|dygram|mach|machine)(?:\s+(.+))?$/);
                     if (match) {
                         inCodeBlock = true;
                         codeBlockLang = match[1];

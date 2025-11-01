@@ -23,7 +23,7 @@ Validation.13 introduces a comprehensive type checking system that validates typ
 
 Validates that declared types match the actual values provided:
 
-```dygram
+```dy
 machine "Type Checking Example"
 
 task myTask {
@@ -40,7 +40,7 @@ task myTask {
 
 Validates generic types and nested generics:
 
-```dygram
+```dy
 machine "Generic Types"
 
 task fetchData {
@@ -63,7 +63,7 @@ task fetchData {
 
 Automatically infers types from values when no type annotation is provided:
 
-```dygram
+```dy
 machine "Type Inference"
 
 task example {
@@ -82,7 +82,7 @@ task example {
 
 Support for optional type annotations:
 
-```dygram
+```dy
 machine "Optional Types"
 
 task example {
@@ -130,7 +130,7 @@ Validation.14 provides comprehensive graph structure validation, detecting commo
 
 Identifies nodes that cannot be reached from entry points:
 
-```dygram
+```dy
 machine "Unreachable Nodes"
 
 init start;
@@ -147,7 +147,7 @@ start -> processA;
 
 Finds nodes with no incoming or outgoing edges:
 
-```dygram
+```dy
 machine "Orphaned Nodes"
 
 init start;
@@ -163,7 +163,7 @@ start -> connected;
 
 Detects cycles in the graph that may lead to infinite loops:
 
-```dygram
+```dy
 machine "Cycles"
 
 task taskA;
@@ -182,7 +182,7 @@ taskC -> taskA;  // ⚠️ Warning: Cycle detected
 
 Validates that the machine has clear entry points:
 
-```dygram
+```dy
 machine "No Entry Point"
 
 task taskA;
@@ -199,7 +199,7 @@ taskB -> taskA;  // ⚠️ Warning: No entry points
 
 Identifies exit points (nodes with no outgoing edges):
 
-```dygram
+```dy
 machine "Exit Points"
 
 init start;
@@ -253,7 +253,7 @@ Validation.15 enforces semantic rules based on node types, relationships, and an
 
 Init nodes are entry points and should transition to other nodes:
 
-```dygram
+```dy
 machine "Init Node Validation"
 
 init start;  // ⚠️ Warning: No outgoing edges
@@ -265,7 +265,7 @@ task process;
 **Warning:** `Init node 'start' has no outgoing edges. Init nodes should transition to other nodes.`
 
 **Fix:**
-```dygram
+```dy
 init start;
 task process;
 start -> process;  // ✅ Valid
@@ -275,7 +275,7 @@ start -> process;  // ✅ Valid
 
 Context nodes represent configuration and shouldn't be execution targets:
 
-```dygram
+```dy
 machine "Context Node Validation"
 
 context config {
@@ -290,7 +290,7 @@ setup -> config;  // ⚠️ Warning: Context nodes shouldn't have incoming edges
 
 **Fix:** Remove edges targeting context nodes. Instead, reference them via template variables:
 
-```dygram
+```dy
 context config {
     apiKey<string>: "secret";
 }
@@ -306,7 +306,7 @@ task apiCall {
 
 Inheritance relationships (`<|--`) should typically occur between nodes of the same type:
 
-```dygram
+```dy
 machine "Inheritance Validation"
 
 task BaseProcessor @Abstract;
@@ -319,7 +319,7 @@ BaseProcessor <|-- Processor;  // ⚠️ Warning: Type mismatch in inheritance
 
 **Fix:** Use same node types for inheritance:
 
-```dygram
+```dy
 task BaseProcessor @Abstract;
 task DataProcessor;  // ✅ Same type
 
@@ -332,7 +332,7 @@ BaseProcessor <|-- DataProcessor;  // ✅ Valid
 
 Should only be used on task nodes:
 
-```dygram
+```dy
 machine "Async Annotation Validation"
 
 state myState @Async;  // ⚠️ Warning: @Async on non-task node
@@ -345,7 +345,7 @@ task myTask @Async;    // ✅ Valid
 
 Makes sense for tasks or contexts, but not states:
 
-```dygram
+```dy
 machine "Singleton Annotation Validation"
 
 state myState @Singleton;      // ⚠️ Warning: @Singleton on state
@@ -359,7 +359,7 @@ task service @Singleton;       // ✅ Valid
 
 Cannot be used on init nodes (they are concrete entry points):
 
-```dygram
+```dy
 machine "Abstract Annotation Validation"
 
 init start @Abstract;  // ❌ Error: @Abstract on init node
@@ -437,7 +437,7 @@ const stats = graphValidator.getStatistics();
 
 ### Example 1: Valid Machine with All Features
 
-```dygram
+```dy
 machine "Validation Complete Example"
 
 // Configuration context (no incoming edges)
@@ -489,7 +489,7 @@ ProcessData -> Error;
 
 ### Example 2: Machine with Validation Issues
 
-```dygram
+```dy
 machine "Validation Issues Example"
 
 // ⚠️ Warning: Init node with no outgoing edges

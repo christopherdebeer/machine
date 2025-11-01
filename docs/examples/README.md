@@ -8,7 +8,7 @@ Practical examples organized by use case and domain.
 
 The simplest possible machine:
 
-```dygram
+```dy
 machine "Hello World"
 
 Task greet {
@@ -20,7 +20,7 @@ Task greet {
 
 A comprehensive example showcasing multiple features:
 
-```dygram
+```dy
 machine "Comprehensive Demo" @StrictMode @Version("1.0")
 
 // Machine-level configuration

@@ -59,7 +59,7 @@ npx dygram export --format json file.dygram
 
 ### Basic Syntax
 
-```dygram
+```dy
 machine "Title"
 
 # Nodes

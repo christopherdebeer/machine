@@ -7,7 +7,7 @@ Complete reference for DyGram language syntax.
 
 Every file starts with a machine declaration:
 
-```dygram
+```dy
 machine "Machine Title"
 ```
 
@@ -17,7 +17,7 @@ machine "Machine Title"
 
 ### Untyped Nodes
 
-```dygram
+```dy
 nodeName;
 ```
 
@@ -25,7 +25,7 @@ nodeName;
 
 ### Typed Nodes
 
-```dygram
+```dy
 task taskNode;
 state stateNode;
 init initNode;
@@ -36,7 +36,7 @@ context contextNode;
 
 ### Nodes with Labels
 
-```dygram
+```dy
 task processData "Process User Data";
 state waiting "Waiting for Input";
 ```
@@ -45,7 +45,7 @@ state waiting "Waiting for Input";
 
 ### Nodes with Attributes
 
-```dygram
+```dy
 nodeName {
     attribute: value;
 }
@@ -64,7 +64,7 @@ nodeName {
 
 ### Basic Edges
 
-```dygram
+```dy
 source -> target;
 ```
 
@@ -82,19 +82,19 @@ source -> target;
 
 #### Simple Label
 
-```dygram
+```dy
 start -init-> middle;
 ```
 
 #### Quoted Label
 
-```dygram
+```dy
 middle -"user clicks button"-> end;
 ```
 
 #### Label with Attributes
 
-```dygram
+```dy
 error -retry: 3; timeout: 5000;-> start;
 end -if: '(count > 10)';-> start;
 ```
@@ -103,7 +103,7 @@ end -if: '(count > 10)';-> start;
 
 ### Chained Edges
 
-```dygram
+```dy
 a -> b -> c -> d;
 ```
 
@@ -113,7 +113,7 @@ a -> b -> c -> d;
 
 Nodes can contain child nodes:
 
-```dygram
+```dy
 parent {
     child1;
     child2;
@@ -122,7 +122,7 @@ parent {
 
 ### Multiple Levels
 
-```dygram
+```dy
 level1 {
     level2 {
         level3 {
@@ -136,7 +136,7 @@ level1 {
 
 ### Mixed Nesting with Attributes
 
-```dygram
+```dy
 parent {
     child1 {
         attr: "value";
@@ -151,7 +151,7 @@ parent {
 
 Context nodes define shared configuration:
 
-```dygram
+```dy
 context configName {
     setting1<string>: "value";
     setting2<number>: 100;
@@ -164,7 +164,7 @@ context configName {
 
 Combining all features:
 
-```dygram
+```dy
 machine "Complete Example"
 
 context config {
@@ -219,7 +219,7 @@ cleanup -if: '(config.debug == true)';-> startup;
 ### Unicode Identifiers
 Full Unicode support in identifiers and labels:
 
-```dygram
+```dy
 start "開始";
 process "処理";
 ```
@@ -244,7 +244,7 @@ See [Testing Approach](testing-approach.html) for validation details.
 
 ### Minimal Empty Machine
 
-```dygram examples/basic/empty-and-minimal.dygram
+```dy examples/basic/empty-and-minimal.dygram
 machine "Minimal Test"
 a;
 ```
@@ -253,7 +253,7 @@ a;
 
 Complex attribute usage with multiple types and long values:
 
-```dygram examples/attributes/deep-attributes.dygram
+```dy examples/attributes/deep-attributes.dygram
 machine "Deep Attributes Test"
 node1 {
     name<string>: "Primary Node";
@@ -278,7 +278,7 @@ node1 -config: "primary";-> node2;
 
 Edges with quoted labels for complex descriptions:
 
-```dygram examples/edges/quoted-labels.dygram
+```dy examples/edges/quoted-labels.dygram
 machine "Quoted Labels Machine"
 start;
 middle;

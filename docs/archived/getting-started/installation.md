@@ -228,7 +228,7 @@ npx dygram export --format mermaid examples/basic/simple-state.dygram
 
 1. Create a new file: `test.dygram`
 2. Start typing:
-   ```dygram examples/basic/start-only.dygram
+   ```dy examples/basic/start-only.dygram
    machine "Test"
 
    state start;

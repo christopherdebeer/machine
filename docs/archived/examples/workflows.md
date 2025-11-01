@@ -97,7 +97,7 @@ ls output/
 ### `data-pipeline.dygram`
 Data Pipeline ETL Workflow
 
-```dygram examples/workflows/data-pipeline.dygram
+```dy examples/workflows/data-pipeline.dygram
 machine "Data Pipeline ETL Workflow"
 
 // This example demonstrates a complete Extract-Transform-Load (ETL) data pipeline
@@ -346,7 +346,7 @@ note recordMetrics "Pipeline Metrics:
 
 CI/CD Pipeline
 
-```dygram examples/workflows/ci-cd-pipeline.dygram
+```dy examples/workflows/ci-cd-pipeline.dygram
 machine "CI/CD Pipeline"
 
 // Pipeline stages
@@ -413,7 +413,7 @@ integration_test -failure-> failed;
 
 Code Generation Workflow
 
-```dygram examples/workflows/code-generation-demo.dygram
+```dy examples/workflows/code-generation-demo.dygram
 machine "Code Generation Workflow"
 
 // Define the workflow for generating, testing, and documenting code
@@ -492,7 +492,7 @@ validation_result -> complete;
 
 E-Commerce Order Processing
 
-```dygram examples/workflows/order-processing.dygram
+```dy examples/workflows/order-processing.dygram
 machine "E-Commerce Order Processing"
 
 init start;
@@ -551,7 +551,7 @@ preparing -cancel_request-> refunded;
 
 Smart Task Prioritization System
 
-```dygram examples/workflows/smart-task-prioritizer.dygram
+```dy examples/workflows/smart-task-prioritizer.dygram
 machine "Smart Task Prioritization System"
 
 // A practical workflow that analyzes and prioritizes tasks using AI
@@ -601,7 +601,7 @@ finalize -> complete;
 
 User Onboarding Workflow
 
-```dygram examples/workflows/user-onboarding.dygram
+```dy examples/workflows/user-onboarding.dygram
 machine "User Onboarding Workflow"
 
 // Define states

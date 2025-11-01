@@ -24,7 +24,7 @@ CEL uses standard comparison operators:
 - `<=` - Less than or equal to
 - `>=` - Greater than or equal to
 
-```dygram examples/syntax/edge-numeric-comparison.dygram
+```dy examples/syntax/edge-numeric-comparison.dygram
 machine "Numeric Comparison Examples" {
     maxRetries: 3;
     errorCount: 0;
@@ -48,7 +48,7 @@ Combine conditions using logical operators:
 - `||` - Logical OR
 - `!` - Logical NOT
 
-```dygram examples/syntax/edge-logical-operators.dygram
+```dy examples/syntax/edge-logical-operators.dygram
 machine "Logical Operator Examples" {
     errorCount: 0;
     maxRetries: 3;
@@ -71,7 +71,7 @@ Process -when: errorCount == 0 && status == "ready"-> Success;
 
 Use parentheses to group expressions and control evaluation order:
 
-```dygram examples/syntax/edge-parentheses.dygram
+```dy examples/syntax/edge-parentheses.dygram
 machine "Parentheses Grouping Example" {
     errorCount: 0;
     retryCount: 2;
@@ -102,7 +102,7 @@ DyGram provides several built-in variables:
 - `errors` - Alias for `errorCount` (backward compatibility)
 - `activeState` - Name of the current active state
 
-```dygram examples/syntax/edge-builtin-variables.dygram
+```dy examples/syntax/edge-builtin-variables.dygram
 machine "Built-in Variables Example" {
     errorThreshold: 5;
 }
@@ -122,7 +122,7 @@ HandleErrors -when: errorCount < errorThreshold-> Process;
 
 Access node attributes using dot notation:
 
-```dygram examples/syntax/edge-attribute-access.dygram
+```dy examples/syntax/edge-attribute-access.dygram
 machine "Attribute Access Example" {
     maxRetries: 3;
     timeout: 5000;
@@ -143,7 +143,7 @@ Process -when: maxRetries > 2-> Retry;
 
 ### Nested Attribute Access
 
-```dygram examples/syntax/edge-nested-attributes.dygram
+```dy examples/syntax/edge-nested-attributes.dygram
 machine "Nested Attribute Access Example" {
     config: { enabled: true, maxRetries: 3 };
     settings: { retry: { maxAttempts: 5 } };
@@ -168,7 +168,7 @@ You can use template variable syntax `{{ nodeName.attributeName }}` which is aut
 
 ### Retry Logic
 
-```dygram examples/advanced/retry-logic.dygram
+```dy examples/advanced/retry-logic.dygram
 machine "Retry Logic Pattern" {
     errorCount: 0;
     retryCount: 0;
@@ -190,7 +190,7 @@ Retry -> Process;
 
 ### Circuit Breaker Pattern
 
-```dygram examples/advanced/circuit-breaker.dygram
+```dy examples/advanced/circuit-breaker.dygram
 machine "Circuit Breaker Pattern" {
     errorCount: 0;
     threshold: 5;
@@ -212,7 +212,7 @@ CloseCircuit -> Process;
 
 ### State-Based Routing
 
-```dygram examples/advanced/state-routing.dygram
+```dy examples/advanced/state-routing.dygram
 machine "State-Based Routing" {
     status: "pending";
     priority: 1;
@@ -271,7 +271,7 @@ DyGram provides visual feedback for conditional edges in static diagrams by eval
 
 Conditions are evaluated using machine-level attributes as defaults:
 
-```dygram
+```dy
 machine Workflow {
     maxRetries: 3;
     errorThreshold: 5;

@@ -554,7 +554,7 @@ export default defineConfig({
 **Not Yet Implemented**:
 
 1. **Module Prefixes** (`import * as auth`):
-```dygram
+```dy
 import * as auth from "./auth.dygram"
 
 machine "App" {
@@ -563,18 +563,18 @@ machine "App" {
 ```
 
 2. **Re-exports**:
-```dygram
+```dy
 export { LoginTask, LogoutTask } from "./auth.dygram"
 export { UserProfile, UserSettings } from "./user.dygram"
 ```
 
 3. **Type-only imports**:
-```dygram
+```dy
 import type { UserType, SessionType } from "./types.dygram"
 ```
 
 4. **Private symbols**:
-```dygram
+```dy
 private node _InternalHelper { ... }
 ```
 

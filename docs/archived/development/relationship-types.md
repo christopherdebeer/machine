@@ -11,7 +11,7 @@ The default relationship type, representing a simple association or connection b
 
 **Mermaid Output:** `-->`
 
-```dygram
+```dy
 machine "Association Example"
 client;
 server;
@@ -25,7 +25,7 @@ Represents a dependency relationship where the source depends on the target but 
 
 **Mermaid Output:** `..>` (dashed arrow)
 
-```dygram
+```dy
 machine "Dependency Example"
 task process;
 context config;
@@ -39,7 +39,7 @@ Represents an inheritance or "is-a" relationship where the child inherits from t
 
 **Mermaid Output:** `<|--`
 
-```dygram
+```dy
 machine "Inheritance Example"
 task BaseProcessor;
 task DataProcessor;
@@ -53,7 +53,7 @@ Represents a strong "owns-a" relationship where the container owns the component
 
 **Mermaid Output:** `*--`
 
-```dygram
+```dy
 machine "Composition Example"
 task Workflow;
 task Step;
@@ -67,7 +67,7 @@ Represents a weak "has-a" relationship where the aggregate contains the part but
 
 **Mermaid Output:** `o--`
 
-```dygram
+```dy
 machine "Aggregation Example"
 task Team;
 task Member;
@@ -81,7 +81,7 @@ Represents a two-way relationship where both nodes reference each other.
 
 **Mermaid Output:** `<-->`
 
-```dygram
+```dy
 machine "Bidirectional Example"
 state frontend;
 state backend;
@@ -95,7 +95,7 @@ Alternative association syntax, useful for emphasizing important transitions.
 
 **Mermaid Output:** `-->`
 
-```dygram
+```dy
 machine "Fat Arrow Example"
 task initialize;
 task execute;
@@ -104,7 +104,7 @@ initialize => execute;
 
 ## Complete Example
 
-```dygram
+```dy
 machine "Comprehensive Relationship Example"
 
 // Define nodes

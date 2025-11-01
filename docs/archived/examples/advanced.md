@@ -17,7 +17,7 @@ Annotation system demonstrating metadata on nodes:
 
 Annotation System Examples
 
-```dygram examples/advanced/annotations.dygram
+```dy examples/advanced/annotations.dygram
 machine "Annotation System Examples"
 
 // Abstract base class
@@ -107,7 +107,7 @@ Multiplicity and cardinality in relationships:
 
 Multiplicity Examples
 
-```dygram examples/advanced/multiplicity.dygram
+```dy examples/advanced/multiplicity.dygram
 machine "Multiplicity Examples"
 
 // One-to-many relationship
@@ -198,7 +198,7 @@ Comprehensive example combining many features:
 
 Complete Phase 2 Feature Showcase
 
-```dygram examples/advanced/complete-example.dygram
+```dy examples/advanced/complete-example.dygram
 machine "Complete Phase 2 Feature Showcase"
 
 // Configuration with annotations and dependency inference
@@ -349,7 +349,7 @@ Common error handling patterns:
 
 Error Handling Patterns
 
-```dygram examples/advanced/error-handling.dygram
+```dy examples/advanced/error-handling.dygram
 machine "Error Handling Patterns"
 
 // This example demonstrates common error handling patterns in DyGram
@@ -549,7 +549,7 @@ note protectedCall "Circuit breaker states:
 
 CEL Condition Examples
 
-```dygram examples/advanced/cel-conditions.dygram
+```dy examples/advanced/cel-conditions.dygram
 machine "CEL Condition Examples"
 
 // This example demonstrates Common Expression Language (CEL) conditions
@@ -756,7 +756,7 @@ Optional types and null handling:
 
 Optional Types and Null Handling
 
-```dygram examples/advanced/optional-types.dygram
+```dy examples/advanced/optional-types.dygram
 machine "Optional Types and Null Handling"
 
 // This example demonstrates optional types and null value handling in DyGram
@@ -935,7 +935,7 @@ note formValidation "Required vs Optional guidelines:
 
 Dependency Inference Examples
 
-```dygram examples/advanced/dependency-inference.dygram
+```dy examples/advanced/dependency-inference.dygram
 machine "Dependency Inference Examples"
 
 // Configuration contexts

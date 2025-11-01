@@ -6,7 +6,7 @@ State transitions and stateful workflows.
 
 Basic state transitions:
 
-```dygram
+```dy
 machine "Traffic Light"
 
 State red "Red Light";
@@ -27,7 +27,7 @@ State machine basics:
 
 Combining tasks and states:
 
-```dygram
+```dy
 machine "Order Processing"
 
 State pending "Order Pending";
@@ -53,7 +53,7 @@ Pattern notes:
 
 States with conditional transitions:
 
-```dygram
+```dy
 machine "Document Approval"
 
 State draft "Draft";
@@ -84,7 +84,7 @@ Multi-path features:
 
 Using annotations for transition conditions:
 
-```dygram
+```dy
 machine "Smart Thermostat"
 
 State idle "Idle";
@@ -113,7 +113,7 @@ Guard pattern:
 
 Nested states with substates:
 
-```dygram
+```dy
 machine "Connection Manager"
 
 State disconnected "Disconnected";
@@ -149,7 +149,7 @@ Hierarchical features:
 
 Stateful processing with shared context:
 
-```dygram
+```dy
 machine "Game Session"
 
 Context session {

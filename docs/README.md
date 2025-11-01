@@ -32,13 +32,13 @@ Watch your system naturally evolve from explorative sketches to structured imple
 
 Start with an immediately executable, unstructured representation of your domain.
 
-```dygram examples/basic/simple-flow.dygram
+```dy examples/basic/simple-flow.dygram
 problem -> solution;
 ```
 
 Or add more structure:
 
-```dygram examples/basic/solution-sketch.dygram
+```dy examples/basic/solution-sketch.dygram
 machine "Solution Sketch"
 
 Input problem {
@@ -60,7 +60,7 @@ problem -necessitates-> solution;
 
 Through execution and feedback, add context and structure to your prototype.
 
-```dygram examples/basic/solution-framework.dygram
+```dy examples/basic/solution-framework.dygram
 machine "Solution Framework"
 
 Concept problem "User Authentication" {
@@ -92,7 +92,7 @@ solution -documented_by-> documentation;
 
 Evolve into a comprehensive executable model that bridges conceptual and technical domains.
 
-```dygram examples/advanced-features/dygram-system.dygram
+```dy examples/advanced-features/dygram-system.dygram
 machine "DyGram: Dynamic State Machine DSL" @Version("0.3.7")
 
 // ═══════════════════════════════════════════════════════════

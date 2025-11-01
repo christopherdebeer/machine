@@ -10,7 +10,7 @@ Identifiers must:
 
 Valid identifiers:
 
-```dygram examples/syntax/node-identifiers.dygram
+```dy examples/syntax/node-identifiers.dygram
 validName;
 _private;
 user123;
@@ -18,7 +18,7 @@ handle_event;
 ```
 
 Invalid identifiers:
-```dygram
+```dy
 123invalid;  // ❌ starts with digit
 my-name;     // ❌ contains hyphen
 user@host;   // ❌ contains @
@@ -28,7 +28,7 @@ user@host;   // ❌ contains @
 
 DyGram identifiers are **case-sensitive**, except for node types:
 
-```dygram
+```dy
 // These are different nodes
 User;
 user;
@@ -36,7 +36,7 @@ USER;
 ```
 
 Node types are **case-insensitive**:
-```dygram
+```dy
 // These are all equivalent
 Task myTask;
 task myTask;
@@ -47,7 +47,7 @@ TASK myTask;
 
 Simple identifiers are single words:
 
-```dygram
+```dy
 start;
 process;
 validate;
@@ -58,7 +58,7 @@ complete;
 
 Qualified names use dot notation to reference or define nodes hierarchically:
 
-```dygram examples/syntax/node-qualified-ids.dygram
+```dy examples/syntax/node-qualified-ids.dygram
 workflow.start -> workflow.process;
 parent.child.grandchild;
 ```
@@ -67,7 +67,7 @@ parent.child.grandchild;
 
 The primary use of qualified names is referencing nodes inside parents:
 
-```dygram
+```dy
 Workflow {
     task Start;
     task Process;
@@ -83,7 +83,7 @@ Workflow.Process -> Workflow.Complete;
 
 Nodes can be defined with qualified names for quick scaffolding:
 
-```dygram
+```dy
 // Create implicit namespace structure
 task API.Authentication "Auth handler";
 task API.DataFetch "Data retrieval";
@@ -96,7 +96,7 @@ Start -> API.Authentication -> API.DataFetch -> API.Response -> End;
 
 Qualified names support arbitrary depth:
 
-```dygram
+```dy
 Level1.Level2.Level3.DeepNode;
 
 Start -> Level1.Level2.Level3.DeepNode -> End;
@@ -108,7 +108,7 @@ Start -> Level1.Level2.Level3.DeepNode -> End;
 
 Simple names resolve to nodes in the current or parent scope:
 
-```dygram
+```dy
 Parent {
     Child1;
     Child2;
@@ -122,7 +122,7 @@ Child1 -> Child2;
 
 Qualified names provide unambiguous references:
 
-```dygram
+```dy
 Group1 {
     task Step;
 }
@@ -140,7 +140,7 @@ Group1.Step -> Group2.Step;
 
 When simple and qualified names overlap, both remain accessible:
 
-```dygram
+```dy
 Group {
     task Child "Simple child";
     note Group.Child "Explicit qualified child";
@@ -175,7 +175,7 @@ To use reserved words as identifiers, they must appear in contexts where they're
 - Use **camelCase** for general nodes
 - Be **descriptive** and **concise**
 
-```dygram
+```dy
 Task ProcessPayment;
 State processingOrder;
 Context userConfig;
@@ -185,7 +185,7 @@ Context userConfig;
 - Use **camelCase** consistently
 - Use **descriptive names**
 
-```dygram
+```dy
 task myTask {
     maxRetries: 3;
     timeoutDuration: "30s";
@@ -198,7 +198,7 @@ task myTask {
 - Use **camelCase** for leaf nodes
 - Keep hierarchy **2-3 levels** maximum
 
-```dygram
+```dy
 API.Users.GetProfile;
 Data.Cache.redis;
 ```
@@ -207,7 +207,7 @@ Data.Cache.redis;
 
 Avoid these patterns:
 
-```dygram
+```dy
 // ❌ Too generic
 a;
 temp;
@@ -229,7 +229,7 @@ System.API.Services.Users.Controllers.Handlers.GetProfile;
 
 ### Node Names
 
-```dygram
+```dy
 // Simple
 process;
 
@@ -242,7 +242,7 @@ Workflow.process;
 
 ### Attribute Names
 
-```dygram
+```dy
 task myTask {
     attributeName: "value";
     anotherAttribute: 42;
@@ -251,7 +251,7 @@ task myTask {
 
 ### Type Names
 
-```dygram
+```dy
 task myTask {
     count<Integer>: 42;
     id<UUID>: "550e8400-e29b-41d4-a716-446655440000";
@@ -260,14 +260,14 @@ task myTask {
 
 ### Annotation Names
 
-```dygram
+```dy
 Task myTask @Critical @Version("1.0");
 ```
 
 ## Best Practices
 
 ### Be Descriptive
-```dygram
+```dy
 // ✅ Good
 authenticateUser;
 validatePayment;
@@ -280,7 +280,7 @@ proc;
 ```
 
 ### Be Consistent
-```dygram
+```dy
 // ✅ Good - consistent camelCase
 getUserProfile;
 updateUserSettings;
@@ -293,7 +293,7 @@ DELETEUSERACCOUNT;
 ```
 
 ### Use Qualified Names for Organization
-```dygram
+```dy
 // ✅ Good - clear organization
 Auth.Login;
 Auth.Logout;
@@ -308,7 +308,7 @@ DataStore;
 ```
 
 ### Avoid Over-nesting
-```dygram
+```dy
 // ✅ Good - 2-3 levels
 API.Users.GetProfile;
 
@@ -319,7 +319,7 @@ System.API.V1.Services.Users.Handlers.GetProfile;
 ## Examples
 
 ### Simple Workflow
-```dygram
+```dy
 start;
 validate;
 process;
@@ -329,7 +329,7 @@ start -> validate -> process -> complete;
 ```
 
 ### Organized with Qualified Names
-```dygram
+```dy
 // Clear namespace organization
 Auth.Login;
 Auth.Register;
@@ -348,7 +348,7 @@ UI.Dashboard -> Data.Fetch -> Data.Transform -> Data.Store;
 ```
 
 ### Mixed Simple and Qualified
-```dygram
+```dy
 // Global nodes
 Start;
 End;
@@ -368,7 +368,7 @@ Workflow.Complete -> End;
 ```
 
 ### Collision Handling
-```dygram
+```dy
 Parent {
     // Simple node
     task Process "Parent's process";

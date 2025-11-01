@@ -3,7 +3,7 @@
 
 Edges Machine
 
-```dygram examples/edges/basic-edges.dygram
+```dy examples/edges/basic-edges.dygram
 machine "Edges Machine"
 node1;
 node2;
@@ -24,7 +24,7 @@ node2 -> node4;
 
 Relationship Types Demonstration
 
-```dygram examples/edges/relationship-types.dygram
+```dy examples/edges/relationship-types.dygram
 machine "Relationship Types Demonstration"
 
 // This example demonstrates all relationship types in DyGram

@@ -8,7 +8,7 @@ DyGram is a declarative language for defining state machines, workflows, and pro
 ### Machines
 Every DyGram file defines a machine with a title:
 
-```dygram examples/basic/minimal.dygram
+```dy examples/basic/minimal.dygram
 machine "Generated Minimal Machine"
 ```
 
@@ -17,7 +17,7 @@ Nodes are the fundamental building blocks. They can be untyped or have specific 
 
 **Untyped node:**
 
-```dygram examples/basic/simple-nodes-3.dygram
+```dy examples/basic/simple-nodes-3.dygram
 machine "Simple Node Machine"
 node1;
 node2;
@@ -30,7 +30,7 @@ node3;
 - `init` - Initial/entry point
 - `context` - Configuration or shared state
 
-```dygram examples/basic/typed-nodes.dygram
+```dy examples/basic/typed-nodes.dygram
 machine "Typed Nodes Machine"
 task taskNode1;
 task taskNode2;
@@ -45,7 +45,7 @@ context contextNode2;
 ### Node Labels
 Nodes can have human-readable labels:
 
-```dygram examples/basic/all-node-types.dygram
+```dy examples/basic/all-node-types.dygram
 machine "All Node Types Test"
 init startNode "Initialization Phase";
 task processTask "Process Data";
@@ -64,7 +64,7 @@ waitingState -> regularNode;
 ### Attributes
 Nodes can have typed or untyped attributes:
 
-```dygram examples/attributes/basic-attributes.dygram
+```dy examples/attributes/basic-attributes.dygram
 machine "Attributes Machine"
 node1 {
     stringAttr<string>: "test value";
@@ -79,7 +79,7 @@ node1 {
 ### Edges
 Edges define transitions between nodes with multiple arrow styles:
 
-```dygram examples/edges/mixed-arrow-types.dygram
+```dy examples/edges/mixed-arrow-types.dygram
 machine "Mixed Arrow Types"
 
 // This example demonstrates the syntax of different arrow types
@@ -109,7 +109,7 @@ e -> a;
 ### Edge Labels
 Edges can have labels and attributes:
 
-```dygram examples/edges/labeled-edges.dygram
+```dy examples/edges/labeled-edges.dygram
 machine "Labeled Edges Machine"
 start;
 middle;
@@ -126,7 +126,7 @@ end -if: '(count > 10)';-> start;
 ### Nesting
 Nodes can contain child nodes to create hierarchies:
 
-```dygram examples/nesting/complex-nesting.dygram
+```dy examples/nesting/complex-nesting.dygram
 machine "Complex Nesting Test"
 root {
     level1a {
@@ -150,7 +150,7 @@ root {
 ### Context Nodes
 Context nodes define shared configuration and data storage:
 
-```dygram
+```dy
 context appConfig {
     environment<string>: "production";
     maxRetries<number>: 3;
@@ -165,7 +165,7 @@ Tasks can dynamically read and write context values using built-in tools:
 
 **Setting context values:**
 
-```dygram
+```dy
 Task generateData {
   meta: true;
   prompt: "Generate data and store it using set_context_value tool";
@@ -179,7 +179,7 @@ context output {
 
 **Reading context values with template variables:**
 
-```dygram
+```dy
 Task processData {
   prompt: "Process the data: {{output.result}} from {{output.timestamp}}";
 };
@@ -197,7 +197,7 @@ Task processData {
 
 Here's a complete machine demonstrating multiple features:
 
-```dygram
+```dy
 machine "User Authentication System"
 
 context config {
@@ -223,7 +223,7 @@ locked -timeout: config.timeout;-> landing;
 
 DyGram fully supports Unicode in identifiers and labels:
 
-```dygram
+```dy
 machine "Unicode Machine 🔄"
 start "開始";
 process "処理";
@@ -250,7 +250,7 @@ DyGram includes powerful features for expressing complex relationships and valid
 
 **Example:**
 
-```dygram
+```dy
 machine "Advanced Example"
 
 context Config @Singleton {

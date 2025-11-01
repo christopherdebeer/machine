@@ -35,7 +35,7 @@ This document explores how attributes behave across different levels of the mach
 **Concept**: Child nodes automatically inherit read-only access to parent and root attributes.
 
 **Example**:
-```dygram
+```dy
 machine "Pipeline" {
     apiUrl: "https://api.example.com";
     timeout<number>: 5000;
@@ -65,7 +65,7 @@ task DataPipeline "Data Processing" {
 **Concept**: Attributes are accessed via fully qualified names to avoid ambiguity.
 
 **Example**:
-```dygram
+```dy
 task analyze {
     prompt: "Analyze {{ $machine.apiUrl }} with timeout {{ $root.timeout }}";
     // Or: {{ DataPipeline.batchSize }}
@@ -86,7 +86,7 @@ task analyze {
 **Concept**: Attributes resolve like JavaScript prototype chain - check local first, then parent, then root.
 
 **Example**:
-```dygram
+```dy
 machine "System" {
     modelId: "claude-3-5-haiku-20241022";  // Default
 }
@@ -136,7 +136,7 @@ task ComplexAnalysis {
 
 ### Context Inheritance (Already Implemented)
 From the README:
-```dygram
+```dy
 task DataPipeline {
     context pipelineState { recordsProcessed: 0; }
 

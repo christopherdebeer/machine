@@ -3,7 +3,7 @@
 
 Edge Cases Collection
 
-```dygram examples/edge-cases/edge-cases-collection.dygram
+```dy examples/edge-cases/edge-cases-collection.dygram
 machine "Edge Cases Collection"
 empty;
 singleChar {
@@ -26,7 +26,7 @@ target1 -> target2 -> target3 -> empty;
 
 Special Characters Test 🚀
 
-```dygram examples/edge-cases/special-characters.dygram
+```dy examples/edge-cases/special-characters.dygram
 machine "Special Characters Test 🚀"
 node_with_underscores;
 nodeWithSpaces;
@@ -43,7 +43,7 @@ node123 -"emoji: 🎉"-> _privateNode;
 
 Interleaved nodes, edges and attributes (including at root)
 
-```dygram examples/edge-cases/interleaved.dygram
+```dy examples/edge-cases/interleaved.dygram
 machine "Interleaved attributes, nodes and edges" @Example("foo")
 
 four: 1

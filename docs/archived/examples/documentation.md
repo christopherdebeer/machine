@@ -27,7 +27,7 @@ Complete example combining Phase 3 features:
 
 Notes attach explanatory documentation to nodes. The note's name is the target node, and the title is the note content:
 
-```dygram
+```dy
 Task myTask "My Task";
 Note myTask "This is a note about the task";
 ```
@@ -36,7 +36,7 @@ Note myTask "This is a note about the task";
 
 Use multiline strings for notes with line breaks:
 
-```dygram
+```dy
 Task algorithm "Algorithm";
 Note algorithm "Uses Dijkstra's algorithm for shortest path.
 Time complexity: O(V^2)
@@ -47,7 +47,7 @@ Space complexity: O(V)";
 
 Attach multiple notes to a single node (all notes reference the same target):
 
-```dygram
+```dy
 Task process "Process";
 Note process "First note about the process";
 Note process "Second note with additional details";
@@ -72,7 +72,7 @@ Generic types provide type parameters for attributes:
 ### Documentation Notes
 
 1. **Explain Complex Logic**
-   ```dygram
+   ```dy
    Task algorithm;
    Note algorithm "Uses Dijkstra's algorithm for shortest path.
    Time complexity: O(V^2)
@@ -80,14 +80,14 @@ Generic types provide type parameters for attributes:
    ```
 
 2. **Warnings and Constraints**
-   ```dygram
+   ```dy
    Task criticalTask;
    Note criticalTask "⚠️ WARNING: This operation is irreversible.
    Requires manual approval for production environments.";
    ```
 
 3. **Usage Instructions**
-   ```dygram
+   ```dy
    Task apiCall;
    Note apiCall "Usage:
    1. Set API key in context
@@ -97,7 +97,7 @@ Generic types provide type parameters for attributes:
    ```
 
 4. **Context and Background**
-   ```dygram
+   ```dy
    Task migrationTask;
    Note migrationTask "Legacy System Migration:
    Migrating from Oracle to PostgreSQL.
@@ -166,7 +166,7 @@ Map<K,V> → Map~K,V~
 ### `complete-phase3.dygram`
 Phase 3: Complete Feature Demo
 
-```dygram examples/documentation/complete-phase3.dygram
+```dy examples/documentation/complete-phase3.dygram
 machine "Phase 3: Complete Feature Demo"
 
 // Configuration context with generic types
@@ -225,7 +225,7 @@ Note Error "Error state with optional error message. Triggered on API failures o
 
 Phase 3: Notes and Generic Types
 
-```dygram examples/documentation/notes-and-generics.dygram
+```dy examples/documentation/notes-and-generics.dygram
 machine "Phase 3: Notes and Generic Types"
 
 // Generic types demonstration

@@ -24,7 +24,7 @@ See the [Installation Guide](installation.md) for detailed instructions.
 
 Create a simple state machine:
 
-```dygram
+```dy
 machine "Hello World"
 
 state start;

@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { getFileExtensions } from '../../src/language/file-extensions.js';
 
 /**
  * API endpoint to list machine files from a directory
@@ -46,6 +47,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       filename: string;
     }> = [];
 
+    // Get supported file extensions
+    const extensions = getFileExtensions();
+
     // Recursively scan for machine files
     function scanDirectory(dir: string, relativePath: string = '') {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -60,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             continue;
           }
           scanDirectory(fullPath, relPath);
-        } else if (entry.name.endsWith('.dygram') || entry.name.endsWith('.mach')) {
+        } else if (extensions.some(ext => entry.name.endsWith(ext))) {
           // Extract category from path
           const pathParts = relPath.split(path.sep);
           const category = pathParts.length > 1 ? pathParts[0] : 'root';

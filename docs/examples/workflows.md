@@ -6,7 +6,7 @@ Patterns for branching, sequential, and parallel execution.
 
 Multiple paths based on conditions:
 
-```dygram
+```dy
 machine "Conditional Workflow"
 
 Task evaluate "Evaluate condition";
@@ -28,7 +28,7 @@ Pattern notes:
 
 Data processing pipeline:
 
-```dygram
+```dy
 machine "Data Pipeline"
 
 Task fetch "Fetch data" {
@@ -60,7 +60,7 @@ Pipeline characteristics:
 
 Tasks that run concurrently:
 
-```dygram
+```dy
 machine "Parallel Processing"
 
 Task source "Data source";
@@ -87,7 +87,7 @@ Parallel execution features:
 
 Complex pipeline with multiple stages:
 
-```dygram
+```dy
 machine "Multi-Stage Pipeline"
 
 // Stage 1: Collection
@@ -121,7 +121,7 @@ Multi-stage patterns:
 
 Workflow with state-based routing:
 
-```dygram
+```dy
 machine "Conditional Processing"
 
 Input request;

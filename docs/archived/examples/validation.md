@@ -162,7 +162,7 @@ npm test -- --grep validation
 
 Phase 4: Complete Validated Example
 
-```dygram examples/validation/complete-validated.dygram
+```dy examples/validation/complete-validated.dygram
 machine "Phase 4: Complete Validated Example"
 
 // This example demonstrates all Phase 4 validation features working together
@@ -341,7 +341,7 @@ note ProcessingComplete "Exit point - has no outgoing edges (expected)"
 
 Phase 4: Type Checking Examples
 
-```dygram examples/validation/type-checking.dygram
+```dy examples/validation/type-checking.dygram
 machine "Phase 4: Type Checking Examples"
 
 // ========== Valid Type Checking ==========
@@ -417,7 +417,7 @@ task edgeCases {
 
 Phase 4: Graph Validation Examples
 
-```dygram examples/validation/graph-validation.dygram
+```dy examples/validation/graph-validation.dygram
 machine "Phase 4: Graph Validation Examples"
 
 // ========== Valid Graph Structure ==========
@@ -485,7 +485,7 @@ context config {
 
 Phase 4: Semantic Validation Examples
 
-```dygram examples/validation/semantic-validation.dygram
+```dy examples/validation/semantic-validation.dygram
 machine "Phase 4: Semantic Validation Examples"
 
 // ========== Valid Node Type Usage ==========

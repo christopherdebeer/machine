@@ -88,7 +88,7 @@ Yes! Machine supports extensible node types through its grammar. You can define 
 
 Machine provides **Context** nodes for state management:
 
-```dygram examples/context/storage.dygram
+```dy examples/context/storage.dygram
 context storage {
   value<string>: "";
   count<number>: 0;
@@ -101,7 +101,7 @@ Context can be accessed and modified using template variables: `{{storage.value}
 
 ~~Yes~~, Machine ~~supports~~ imports:
 
-```dygram examples/speculative/imports.dygram
+```dy examples/speculative/imports.dygram
 # TBD
 ```
 

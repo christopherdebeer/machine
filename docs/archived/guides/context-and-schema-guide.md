@@ -11,7 +11,7 @@ The machine language now supports enhanced context value management and schema v
 
 Context nodes can declare typed attributes that serve as data containers:
 
-```dygram
+```dy
 context output {
   value<string>: "";
   metadata<object>: "{}";
@@ -56,7 +56,7 @@ list_context_nodes()
 
 Tasks can reference context values using template syntax powered by Common Expression Language (CEL):
 
-```dygram
+```dy
 Task processData {
   prompt: "The stored value is {{output.value}}. Process this data and create a summary.";
 };
@@ -93,7 +93,7 @@ The execution system now:
 
 ### Basic Context Storage
 
-```dygram
+```dy
 machine "Data Processing"
 
 Task generate {
@@ -115,7 +115,7 @@ data --> process;
 
 ### Multi-Context Pipeline
 
-```dygram
+```dy
 machine "Analysis Pipeline"
 
 Task analyze {
@@ -144,7 +144,7 @@ summary --> report;
 
 ### CEL Expressions in Prompts
 
-```dygram
+```dy
 machine "Dynamic Reporting"
 
 context userData {
@@ -212,7 +212,7 @@ config --> generateReport;
 
 **Before:**
 
-```dygram
+```dy
 Task process {
   prompt: "write a haiku";
 };
@@ -221,7 +221,7 @@ Task process {
 
 **After:**
 
-```dygram
+```dy
 Task process {
   meta: true;
   prompt: "write a haiku and store it using set_context_value";
