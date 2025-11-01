@@ -76,6 +76,13 @@ export async function readFile(filePath: string, dir?: string): Promise<string> 
         throw new Error(`Failed to read file: ${response.status} ${response.statusText}`);
     }
 
+    // Check if response is JSON (server might return JSON even with text/plain accept header)
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        const json: FileReadResponse = await response.json();
+        return json.content;
+    }
+
     return response.text();
 }
 

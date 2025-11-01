@@ -62,7 +62,7 @@ function getPrimaryExtension(extensions) {
 function getCategoryFromPath(sourcePath) {
     const parts = sourcePath.replace(/^docs\//, '').split('/');
     const fileName = parts[parts.length - 1].replace(/\.(md|mdx)$/, '');
-    
+
     // Handle different documentation structures
     if (parts.length === 1) {
         // docs/README.md → "basic"
@@ -70,7 +70,7 @@ function getCategoryFromPath(sourcePath) {
         if (fileName === 'README') return 'basic';
         return fileName;
     }
-    
+
     if (parts[0] === 'examples') {
         // docs/examples/advanced-features.md → "advanced-features"
         // docs/examples/README.md → "basic" (overview examples should go to basic)
@@ -79,9 +79,25 @@ function getCategoryFromPath(sourcePath) {
         }
         return 'basic'; // For docs/examples/README.md - these are basic examples
     }
-    
-    // docs/getting-started/README.md → "getting-started"
-    // docs/syntax/README.md → "syntax"
+
+    if (parts[0] === 'syntax') {
+        // docs/syntax/ has many files - create subfolders based on filename
+        // docs/syntax/machines.md → "syntax/machines"
+        // docs/syntax/states.md → "syntax/states"
+        if (fileName === 'README') return 'syntax';
+        return `syntax/${fileName}`;
+    }
+
+    // For other multi-level paths, preserve directory structure
+    // docs/getting-started/installation.md → "getting-started/installation"
+    if (parts.length >= 2) {
+        if (fileName === 'README') {
+            return parts[0]; // docs/getting-started/README.md → "getting-started"
+        }
+        return parts.slice(0, -1).join('/') + '/' + fileName;
+    }
+
+    // Fallback: use first part as category
     return parts[0];
 }
 
