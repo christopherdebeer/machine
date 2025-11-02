@@ -18,7 +18,7 @@ handle_event;
 ```
 
 Invalid identifiers:
-```dy
+```text
 123invalid;  // ❌ starts with digit
 my-name;     // ❌ contains hyphen
 user@host;   // ❌ contains @

@@ -4,11 +4,12 @@ Annotations add semantic metadata to machines, nodes, and edges. They're prefixe
 
 ## Basic Syntax
 
-Annotations start with `@` followed by an identifier:
+Annotations start with `@` followed by an identifier and must be attached to machines, nodes, or edges:
 
 ```dy
-@Annotation
-@AnotherAnnotation
+machine "Example" @Annotation {
+    Task foo @AnotherAnnotation "Bar";
+}
 ```
 
 ### With Values
@@ -16,9 +17,10 @@ Annotations start with `@` followed by an identifier:
 Annotations can have string values in parentheses:
 
 ```dy
-@Version("2.0")
-@Author("John Doe")
-@Deprecated("Use NewTask instead")
+machine "Example" {
+    Task process @Version("2.0") @Author("John Doe");
+    Task legacy @Deprecated("Use NewTask instead");
+}
 ```
 
 ### Multiple Annotations
@@ -107,10 +109,11 @@ Note: Annotations come after attributes in edge syntax.
 Most annotations accept string values:
 
 ```dy
-@Version("1.0.0")
-@Author("Team A")
-@Description("Long description text")
-@Deprecated("Use newImplementation instead")
+machine "Example" {
+    Task component @Version("1.0.0") @Author("Team A");
+    Task feature @Description("Long description text");
+    Task oldFeature @Deprecated("Use newImplementation instead");
+}
 ```
 
 ### Simple Values (No Quotes)
@@ -118,8 +121,10 @@ Most annotations accept string values:
 Some annotations work without quotes in edge context:
 
 ```dy
-a -@weight(5)-> b;
-a -@priority(high)-> b;
+machine "Example" {
+    a -@weight(5)-> b;
+    a -@priority(high)-> b;
+}
 ```
 
 ### Multi-line Values
@@ -127,9 +132,11 @@ a -@priority(high)-> b;
 Annotation values can be multi-line strings:
 
 ```dy
-@Description("This is a long description
+machine "Example" {
+    Task feature @Description("This is a long description
 that spans multiple lines
-and provides detailed information")
+and provides detailed information");
+}
 ```
 
 ## Semantic Annotations
@@ -137,47 +144,55 @@ and provides detailed information")
 ### Lifecycle Annotations
 
 ```dy
-@Deprecated("Use v2 API")
-@Experimental
-@Stable
-@Beta
+machine "Example" {
+    Task oldApi @Deprecated("Use v2 API");
+    Task newFeature @Experimental;
+    Task core @Stable;
+    Task preview @Beta;
+}
 ```
 
 ### Organizational Annotations
 
 ```dy
-@Owner("Platform Team")
-@Team("Backend")
-@Project("Migration")
+machine "Example" {
+    Task service @Owner("Platform Team") @Team("Backend");
+    Task migration @Project("Migration");
+}
 ```
 
 ### Technical Annotations
 
 ```dy
-@Async
-@Sync
-@Cached
-@Transactional
-@ReadOnly
-@WriteOnly
+machine "Example" {
+    Task fetch @Async;
+    Task compute @Sync;
+    Task lookup @Cached;
+    Task save @Transactional;
+    Task query @ReadOnly;
+    Task update @WriteOnly;
+}
 ```
 
 ### Quality Annotations
 
 ```dy
-@Critical
-@Important
-@Optional
-@Required
+machine "Example" {
+    Task urgent @Critical;
+    Task priority @Important;
+    Task extra @Optional;
+    Task mandatory @Required;
+}
 ```
 
 ### Documentation Annotations
 
 ```dy
-@Since("2024-01-15")
-@Version("2.0")
-@Author("John Doe")
-@Description("Detailed explanation")
+machine "Example" {
+    Task feature @Since("2024-01-15") @Version("2.0");
+    Task handler @Author("John Doe");
+    Task process @Description("Detailed explanation");
+}
 ```
 
 ## Best Practices

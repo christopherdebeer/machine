@@ -321,10 +321,10 @@ You can also control node grouping and alignment:
 ```dy examples/styling/aligned-layout.dygram
 machine "Aligned Layout"
 
-Task start @style(rank: min;) "Start";
-Task a @style(rank: same:group1;) "Task A";
-Task b @style(rank: same:group1;) "Task B";
-Task end @style(rank: max;) "End";
+Task start @style(rank: min) "Start";
+Task a @style(rank: "same:group1") "Task A";
+Task b @style(rank: "same:group1") "Task B";
+Task end @style(rank: max) "End";
 
 start -> a;
 start -> b;

@@ -61,10 +61,12 @@ description: "Inferred as string";
 
 ### Number
 ```dy
-count<number>: 42;
-price: 19.99;
-scientific: 1.5e10;
-temperature: -273.15;
+machine "Example" {
+    count<number>: 42;
+    price: 19.99;
+    scientific: 1.5e10;
+    temperature: -273.15;
+}
 ```
 
 ### Boolean
