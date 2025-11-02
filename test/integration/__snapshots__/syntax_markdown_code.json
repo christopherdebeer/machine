@@ -1,0 +1,19 @@
+{
+  "json": {
+    "title": "Markdown Demo",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Execute",
+        "type": "state",
+        "attributes": [],
+        "title": "Run `npm install` to install dependencies"
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Markdown Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Execute\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Execute</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Run `npm install` to install<br/>dependencies</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n}",
+  "svgHash": "18450d1f00915744e698a5f90f105f2f6f5b5892dc970637459da6b4bb0f7560"
+}

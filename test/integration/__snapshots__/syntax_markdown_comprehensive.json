@@ -1,0 +1,100 @@
+{
+  "json": {
+    "title": "**API Gateway** Documentation",
+    "attributes": [
+      {
+        "name": "text",
+        "value": "**POST** to `/auth`"
+      },
+      {
+        "name": "text",
+        "value": "*Authenticated* request"
+      },
+      {
+        "name": "text",
+        "value": "On **failure**"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "Config",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "apiKey",
+            "value": "`$ENV_API_KEY`"
+          },
+          {
+            "name": "endpoint",
+            "value": "[API Docs](https://api.example.com)"
+          }
+        ]
+      },
+      {
+        "name": "Authenticate",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "method",
+            "value": "`POST /auth/token`"
+          },
+          {
+            "name": "desc",
+            "value": "Verify credentials with **strong** validation"
+          }
+        ],
+        "title": "**Authenticate** using *OAuth 2.0*"
+      },
+      {
+        "name": "FetchData",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "timeout",
+            "value": "~~5s~~ **30s**"
+          }
+        ],
+        "title": "*Fetch* data from **remote** API"
+      },
+      {
+        "name": "Error",
+        "type": "state",
+        "attributes": [],
+        "title": "Handle `4xx` and `5xx` errors"
+      }
+    ],
+    "edges": [
+      {
+        "source": "Config",
+        "target": "Authenticate",
+        "arrowType": "-->"
+      },
+      {
+        "source": "Authenticate",
+        "target": "FetchData",
+        "arrowType": "-->"
+      },
+      {
+        "source": "FetchData",
+        "target": "Error",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [
+      {
+        "target": "Authenticate",
+        "content": "Use `Bearer` token in **Authorization** header",
+        "annotations": [],
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Authenticate"
+          }
+        ]
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>**API Gateway** Documentation</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"text__key\" align=\"left\" balign=\"left\">text</td><td port=\"text__value\" align=\"left\" balign=\"left\">**POST** to `/auth`</td></tr><tr><td port=\"text__key_1\" align=\"left\" balign=\"left\">text</td><td port=\"text__value_1\" align=\"left\" balign=\"left\">*Authenticated* request</td></tr><tr><td port=\"text__key_2\" align=\"left\" balign=\"left\">text</td><td port=\"text__value_2\" align=\"left\" balign=\"left\">On **failure**</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Config</b> <i>&lt;state&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiKey__key\" align=\"left\" balign=\"left\">apiKey</td><td port=\"apiKey__value\" align=\"left\" balign=\"left\">`$ENV_API_KEY`</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">[API<br align=\"left\"/>Docs](https://api.example.com)</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Authenticate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Authenticate</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">**Authenticate** using *OAuth 2.0*</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"method__key\" align=\"left\" balign=\"left\">method</td><td port=\"method__value\" align=\"left\" balign=\"left\">`POST /auth/token`</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"FetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">*Fetch* data from **remote** API</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">~~5s~~ **30s**</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Error\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Error</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Handle `4xx` and `5xx` errors</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Config\" -> \"Authenticate\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Authenticate\" -> \"FetchData\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"FetchData\" -> \"Error\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_Authenticate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Use `Bearer` token in **Authorization**<br/>header</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_Authenticate\" -> \"Authenticate\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "f378375b5bfaa3d039f2bb84e03c0680497946b0440519d1a611a97616c28a9b"
+}

@@ -1,0 +1,39 @@
+{
+  "json": {
+    "title": "Markdown in Descriptions",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Process",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Process data using **fast** algorithm"
+          }
+        ]
+      },
+      {
+        "name": "Verify",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Verify with `checksum` *before* saving"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "Process",
+        "target": "Verify",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Markdown in Descriptions</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process data using **fast** algorithm</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Verify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Verify</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Verify with `checksum` *before* saving</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Process\" -> \"Verify\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "f55bcdea4844a5ba6e7a5f2e037cfa7de6da710a070d94f44f7fa4d9d3ca6d7c"
+}
