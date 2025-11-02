@@ -123,30 +123,35 @@ function processMarkdown(text: string): string {
         // Create custom renderer for Graphviz HTML subset
         const renderer = {
             // Bold text: **text** or __text__
-            strong(text: string): string {
+            strong(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
                 return `<b>${text}</b>`;
             },
 
             // Italic text: *text* or _text_
-            em(text: string): string {
+            em(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
                 return `<i>${text}</i>`;
             },
 
             // Strikethrough: ~~text~~
-            del(text: string): string {
+            del(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
                 return `<s>${text}</s>`;
             },
 
             // Inline code: `code`
             // Use monospace font with light gray background color simulation
-            codespan(code: string): string {
+            codespan(token: any): string {
+                const code = typeof token === 'string' ? token : token.text;
                 const escaped = escapeHtml(code);
                 return `<font face="monospace" color="#6C757D">${escaped}</font>`;
             },
 
             // Links: [text](url)
             // Show as underlined text (can't make clickable in labels, but preserve text)
-            link(href: string, title: string | null, text: string): string {
+            link(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
                 return `<u>${text}</u>`;
             },
 
@@ -157,22 +162,25 @@ function processMarkdown(text: string): string {
 
             // Images: ![alt](src)
             // Can't embed images in labels, just show alt text
-            image(href: string, title: string | null, text: string): string {
+            image(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
                 return escapeHtml(text || '[image]');
             },
 
             // Text nodes (escape HTML entities)
-            text(text: string): string {
+            text(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
                 return escapeHtml(text);
             },
 
             // Paragraphs (should not appear in inline parsing, but handle gracefully)
-            paragraph(text: string): string {
+            paragraph(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
                 return text;
             },
 
             // HTML tags (strip for safety)
-            html(html: string): string {
+            html(token: any): string {
                 return '';
             }
         };
@@ -294,7 +302,9 @@ function findAttributePort(attributes: any[], attributeName: string, column: Att
 }
 
 function buildEndpointIdentifier(nodeName: string, port?: string): string {
-    const escapedNode = nodeName.replace(/"/g, '\\"');
+    // Ensure nodeName is a string
+    const nameStr = typeof nodeName === 'string' ? nodeName : String(nodeName);
+    const escapedNode = nameStr.replace(/"/g, '\\"');
     if (port) {
         return `"${escapedNode}":"${port}"`;
     }
