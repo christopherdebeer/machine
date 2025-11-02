@@ -3,59 +3,25 @@
     "attributes": [],
     "nodes": [
       {
-        "name": "Group",
-        "attributes": []
-      },
-      {
-        "name": "Child",
+        "name": "ProcessPayment",
         "type": "task",
-        "attributes": [],
-        "parent": "Group",
-        "title": "Simple child"
+        "attributes": []
       },
       {
-        "name": "Start",
+        "name": "processingOrder",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "userConfig",
+        "type": "context",
         "attributes": []
       }
     ],
-    "edges": [
-      {
-        "source": "Start",
-        "target": "Child",
-        "arrowType": "->"
-      },
-      {
-        "source": "Child",
-        "target": "Child",
-        "arrowType": "->"
-      }
-    ],
-    "notes": [
-      {
-        "target": "Group",
-        "content": "",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Group"
-          }
-        ]
-      },
-      {
-        "target": "Child",
-        "content": "Explicit qualified child",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Child"
-          }
-        ]
-      }
-    ],
+    "edges": [],
+    "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Group {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Group</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Group__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Child</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Simple child</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n\n  // Edges\n  \"Start\" -> \"Child\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Child\" -> \"Child\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_Group\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_Group\" -> \"Group\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_Child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Explicit qualified child</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_Child\" -> \"Child\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
-  "svgHash": "b76c21a2098047d217ebfdf96510f9464e8920bc7e60e535dd4afe6d839c4010"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ProcessPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessPayment</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processingOrder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processingOrder</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"userConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userConfig</b> <i>&lt;context&gt;</i></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n}",
+  "svgHash": "a4a3a3ea1a9539cc8b86c7bcf08984d288b3ae9331defd0e6d5d643ed7dc1320"
 }

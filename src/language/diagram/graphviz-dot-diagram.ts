@@ -103,13 +103,16 @@ function escapeHtml(text: string): string {
 
 /**
  * Process Markdown text and convert to HTML suitable for Graphviz HTML-like labels
- * Falls back to escaping if Markdown parsing fails
+ * Uses marked.js custom renderer to properly handle all markdown elements
+ * within Graphviz's HTML subset constraints
+ *
+ * Supported Graphviz tags: <B>, <I>, <U>, <O>, <S>, <SUB>, <SUP>, <BR/>, <FONT>, <TABLE>
  */
 function processMarkdown(text: string): string {
     if (!text) return '';
 
     // Check if the text contains Markdown syntax
-    const hasMarkdown = /[*_`#\[\]]/g.test(text);
+    const hasMarkdown = /[*_`#\[\]~]/g.test(text);
 
     // If no Markdown syntax detected, just escape HTML
     if (!hasMarkdown) {
@@ -117,32 +120,72 @@ function processMarkdown(text: string): string {
     }
 
     try {
-        // Configure marked for inline rendering (no wrapping <p> tags)
+        // Create custom renderer for Graphviz HTML subset
+        const renderer = {
+            // Bold text: **text** or __text__
+            strong(text: string): string {
+                return `<b>${text}</b>`;
+            },
+
+            // Italic text: *text* or _text_
+            em(text: string): string {
+                return `<i>${text}</i>`;
+            },
+
+            // Strikethrough: ~~text~~
+            del(text: string): string {
+                return `<s>${text}</s>`;
+            },
+
+            // Inline code: `code`
+            // Use monospace font with light gray background color simulation
+            codespan(code: string): string {
+                const escaped = escapeHtml(code);
+                return `<font face="monospace" color="#6C757D">${escaped}</font>`;
+            },
+
+            // Links: [text](url)
+            // Show as underlined text (can't make clickable in labels, but preserve text)
+            link(href: string, title: string | null, text: string): string {
+                return `<u>${text}</u>`;
+            },
+
+            // Line breaks
+            br(): string {
+                return '<br/>';
+            },
+
+            // Images: ![alt](src)
+            // Can't embed images in labels, just show alt text
+            image(href: string, title: string | null, text: string): string {
+                return escapeHtml(text || '[image]');
+            },
+
+            // Text nodes (escape HTML entities)
+            text(text: string): string {
+                return escapeHtml(text);
+            },
+
+            // Paragraphs (should not appear in inline parsing, but handle gracefully)
+            paragraph(text: string): string {
+                return text;
+            },
+
+            // HTML tags (strip for safety)
+            html(html: string): string {
+                return '';
+            }
+        };
+
+        // Configure marked with custom renderer
         marked.use({
+            renderer,
             breaks: true,
             gfm: true,
         });
 
-        // Parse Markdown to HTML
-        let html = marked.parseInline(text) as string;
-
-        // Graphviz HTML labels have limited HTML support
-        // Convert unsupported tags to supported ones or remove them
-        html = html
-            // Convert <strong> to <b>
-            .replace(/<strong>/g, '<b>')
-            .replace(/<\/strong>/g, '</b>')
-            // Convert <em> to <i>
-            .replace(/<em>/g, '<i>')
-            .replace(/<\/em>/g, '</i>')
-            // Remove <a> tags but keep the text
-            .replace(/<a[^>]*>/g, '')
-            .replace(/<\/a>/g, '')
-            // Remove <code> tags but keep content (could wrap in font tag later)
-            .replace(/<code>/g, '')
-            .replace(/<\/code>/g, '')
-            // Remove any other unsupported tags (but preserve b, i, u, br)
-            .replace(/<(?!\/?(?:b|i|u|br)(?:\s|>|\/))[^>]+>/g, '');
+        // Parse Markdown to HTML using custom renderer
+        const html = marked.parseInline(text) as string;
 
         return html;
     } catch (error) {
