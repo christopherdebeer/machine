@@ -62,22 +62,38 @@ function getStaticCopyTargets() {
     // Exclude HTML files since they are processed as Vite entry points
     const examplesDir = path.join(__dirname, 'examples');
     if (fs.existsSync(examplesDir)) {
+
+        function addExampleTargets(dir, relativePrefix = '') {
+            const items = fs.readdirSync(dir, { withFileTypes: true });
+
+            for (const item of items) {
+                const fullPath = path.join(dir, item.name);
+                const relativePath = path.join(relativePrefix, item.name);
+
+                if (item.isDirectory()) {
+                    // Recursively scan subdirectories
+                    addExampleTargets(fullPath, relativePath);
+                } else if (item.isFile() && !item.name.endsWith('.html')) {
+                    // Add non-HTML files with glob pattern to preserve structure
+                    const dirGlob = path.dirname(relativePath);
+                    const fileName = path.basename(relativePath);
+                    const ext = path.extname(fileName);
+
+                    // Only add supported extensions
+                    if (['.dy', '.dygram', '.mach', '.machine', '.json', '.txt', '.md'].includes(ext)) {
+                        targets.push({
+                            src: `examples/${relativePath}`,
+                            dest: `examples/${dirGlob}`
+                        });
+                    }
+                }
+            }
+        }
+
         const exampleContents = fs.readdirSync(examplesDir, { withFileTypes: true });
         for (const item of exampleContents) {
-            // Only include directories, not files like index.html
             if (item.isDirectory()) {
-                const dirPath = path.join(examplesDir, item.name);
-                const filesInDir = fs.readdirSync(dirPath);
-                // Only add copy target if there are non-HTML files
-                const hasNonHtmlFiles = filesInDir.some(f =>
-                    !f.endsWith('.html') && !fs.statSync(path.join(dirPath, f)).isDirectory()
-                );
-                if (hasNonHtmlFiles) {
-                    targets.push({
-                        src: `examples/${item.name}/*.{dy,dygram,mach,machine,json,txt,md}`,
-                        dest: `examples/${item.name}`
-                    });
-                }
+                addExampleTargets(path.join(examplesDir, item.name), item.name);
             }
         }
     }
