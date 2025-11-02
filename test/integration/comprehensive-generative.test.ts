@@ -3,7 +3,7 @@ import { EmptyFileSystem } from "langium";
 import { parseHelper } from "langium/test";
 import { createMachineServices } from "../../src/language/machine-module.js";
 import { Machine, isMachine } from "../../src/language/generated/ast.js";
-import { generateJSON, generateGraphviz } from "../../src/language/generator/generator.js";
+import { generateJSON, generateGraphviz, generateDSL } from "../../src/language/generator/generator.js";
 import { renderDotToSVG } from "../../src/language/diagram/graphviz-generator.js";
 import { base64UrlEncode } from "../../src/utils/url-encoding.js";
 import * as fs from "node:fs";
@@ -48,10 +48,12 @@ interface ValidationResult {
     losslessnessIssues: string[];
     graphvizParseErrors: string[];
     svgRenderErrors: string[];
+    dslRoundTripErrors: string[];  // NEW: DSL round-trip errors
     snapshotMismatches: string[];
     jsonOutput?: any;
     graphvizOutput?: string;
     svgOutput?: string;
+    dslOutput?: string;  // NEW: Regenerated DSL
 }
 
 /**
@@ -283,6 +285,10 @@ class ValidationReporter {
             mdContent += `## Graphviz DOT Output\n\`\`\`dot\n${result.graphvizOutput}\n\`\`\`\n\n`;
         }
 
+        if (result.dslOutput) {
+            mdContent += `## Regenerated DSL (Round-trip)\n\`\`\`dygram\n${result.dslOutput}\n\`\`\`\n\n`;
+        }
+
         mdContent += `## Validation Results\n`;
         mdContent += `- Parse Errors: ${result.parseErrors.length}\n`;
         mdContent += `- Validation Errors: ${result.validationErrors.length}\n`;
@@ -291,6 +297,7 @@ class ValidationReporter {
         mdContent += `- Losslessness Issues: ${result.losslessnessIssues.length}\n`;
         mdContent += `- Graphviz Parse Errors: ${result.graphvizParseErrors.length}\n`;
         mdContent += `- SVG Render Errors: ${result.svgRenderErrors.length}\n`;
+        mdContent += `- DSL Round-trip Errors: ${result.dslRoundTripErrors.length}\n`;
         mdContent += `- Snapshot Mismatches: ${result.snapshotMismatches.length}\n\n`;
 
         if (result.parseErrors.length > 0) {
@@ -314,6 +321,9 @@ class ValidationReporter {
         if (result.svgRenderErrors.length > 0) {
             mdContent += `### SVG Render Errors\n${result.svgRenderErrors.map(e => `- ${e}`).join('\n')}\n\n`;
         }
+        if (result.dslRoundTripErrors.length > 0) {
+            mdContent += `### DSL Round-trip Errors\n${result.dslRoundTripErrors.map(e => `- ${e}`).join('\n')}\n\n`;
+        }
         if (result.snapshotMismatches.length > 0) {
             mdContent += `### Snapshot Mismatches\n${result.snapshotMismatches.map(e => `- ${e}`).join('\n')}\n\n`;
         }
@@ -323,6 +333,11 @@ class ValidationReporter {
         // Write SVG if it was successfully generated
         if (result.svgOutput && result.svgRenderErrors.length === 0) {
             fs.writeFileSync(path.join(categoryDir, `${fileName}.svg`), result.svgOutput);
+        }
+
+        // Write regenerated DSL if it was successfully generated
+        if (result.dslOutput && result.dslRoundTripErrors.length === 0) {
+            fs.writeFileSync(path.join(categoryDir, `${fileName}.roundtrip.dy`), result.dslOutput);
         }
     }
 
@@ -365,6 +380,7 @@ class ValidationReporter {
         const allLosslessnessIssues = this.results.flatMap(r => r.losslessnessIssues);
         const allGraphvizParseErrors = this.results.flatMap(r => r.graphvizParseErrors);
         const allSvgRenderErrors = this.results.flatMap(r => r.svgRenderErrors);
+        const allDslRoundTripErrors = this.results.flatMap(r => r.dslRoundTripErrors);
         const allSnapshotMismatches = this.results.flatMap(r => r.snapshotMismatches);
 
         report += `## Issue Summary\n`;
@@ -375,6 +391,7 @@ class ValidationReporter {
         report += `- Losslessness Issues: ${allLosslessnessIssues.length}\n`;
         report += `- Graphviz Parse Errors: ${allGraphvizParseErrors.length}\n`;
         report += `- SVG Render Errors: ${allSvgRenderErrors.length}\n`;
+        report += `- DSL Round-trip Errors: ${allDslRoundTripErrors.length}\n`;
         report += `- Snapshot Mismatches: ${allSnapshotMismatches.length}\n\n`;
 
         // Failed tests details
@@ -405,6 +422,9 @@ class ValidationReporter {
                 if (r.svgRenderErrors.length > 0) {
                     report += `**SVG Render Errors:**\n${r.svgRenderErrors.map(e => `- ${e}`).join('\n')}\n\n`;
                 }
+                if (r.dslRoundTripErrors.length > 0) {
+                    report += `**DSL Round-trip Errors:**\n${r.dslRoundTripErrors.map(e => `- ${e}`).join('\n')}\n\n`;
+                }
                 if (r.snapshotMismatches.length > 0) {
                     report += `**Snapshot Mismatches:**\n${r.snapshotMismatches.map(e => `- ${e}`).join('\n')}\n\n`;
                 }
@@ -427,6 +447,7 @@ class ValidationReporter {
         const allLosslessnessIssues = this.results.flatMap(r => r.losslessnessIssues);
         const allGraphvizParseErrors = this.results.flatMap(r => r.graphvizParseErrors);
         const allSvgRenderErrors = this.results.flatMap(r => r.svgRenderErrors);
+        const allDslRoundTripErrors = this.results.flatMap(r => r.dslRoundTripErrors);
         const allSnapshotMismatches = this.results.flatMap(r => r.snapshotMismatches);
 
         // Group by category
@@ -614,6 +635,10 @@ class ValidationReporter {
                     <div class="issue-count">${allSvgRenderErrors.length}</div>
                     <div class="issue-label">SVG Errors</div>
                 </div>
+                <div class="issue-card">
+                    <div class="issue-count">${allDslRoundTripErrors.length}</div>
+                    <div class="issue-label">DSL Round-trip Errors</div>
+                </div>
                 <div class="issue-card" style="border-left-color: #ff9800;">
                     <div class="issue-count" style="color: #ff9800;">${allSnapshotMismatches.length}</div>
                     <div class="issue-label">Snapshot Mismatches</div>
@@ -663,6 +688,7 @@ class ValidationReporter {
                             <button class="tab" data-tab="json" onclick="showTab('${detailsId}', 'json')">JSON</button>
                             <button class="tab" data-tab="dot" onclick="showTab('${detailsId}', 'dot')">Graphviz DOT</button>
                             <button class="tab" data-tab="svg" onclick="showTab('${detailsId}', 'svg')">SVG</button>
+                            <button class="tab" data-tab="dsl" onclick="showTab('${detailsId}', 'dsl')">DSL Round-trip</button>
                             ${!result.passed || hasSnapshotMismatch ? '<button class="tab" data-tab="issues" onclick="showTab(\'' + detailsId + '\', \'issues\')">Issues</button>' : ''}
                         </div>
 
@@ -685,6 +711,11 @@ class ValidationReporter {
                         <div class="tab-content" id="${detailsId}-svg">
                             <h4>SVG Rendering</h4>
                             ${result.svgOutput ? `<div class="svg-container">${result.svgOutput}</div>` : '<p>No SVG output available</p>'}
+                        </div>
+
+                        <div class="tab-content" id="${detailsId}-dsl">
+                            <h4>Regenerated DSL (JSON → DSL)</h4>
+                            ${result.dslOutput ? `<div class="code-block">${this.escapeHtml(result.dslOutput)}</div>` : '<p>No DSL output available</p>'}
                         </div>`;
 
                 if (!result.passed || hasSnapshotMismatch) {
@@ -731,6 +762,12 @@ class ValidationReporter {
                         html += `<div class="error-section">
                             <h4>SVG Render Errors</h4>
                             <ul class="error-list">${result.svgRenderErrors.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
+                        </div>`;
+                    }
+                    if (result.dslRoundTripErrors.length > 0) {
+                        html += `<div class="error-section">
+                            <h4>DSL Round-trip Errors</h4>
+                            <ul class="error-list">${result.dslRoundTripErrors.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
                         </div>`;
                     }
                     if (result.snapshotMismatches.length > 0) {
@@ -781,9 +818,25 @@ class ValidationReporter {
         fs.writeFileSync(path.join(this.outputDir, 'REPORT.md'), report);
         fs.writeFileSync(path.join(this.outputDir, 'index.html'), htmlReport);
 
-        console.log(`\n📊 Comprehensive test report written to: ${path.join(this.outputDir, 'REPORT.md')}`);
-        console.log(`🌐 HTML report available at: ${path.join(this.outputDir, 'index.html')}`);
-        console.log(`📁 Individual test outputs: ${this.outputDir}\n`);
+        // Check if we're in verbose mode
+        const isVerbose = process.env.VERBOSE_TESTS === 'true';
+
+        if (isVerbose) {
+            console.log(`\n📊 Comprehensive test report written to: ${path.join(this.outputDir, 'REPORT.md')}`);
+            console.log(`🌐 HTML report available at: ${path.join(this.outputDir, 'index.html')}`);
+            console.log(`📁 Individual test outputs: ${this.outputDir}\n`);
+        } else {
+            // Minimal output: just show the HTML report location
+            const total = this.results.length;
+            const passed = this.results.filter(r => r.passed).length;
+            const failed = total - passed;
+
+            console.log(`\n📊 Comprehensive Generative Tests: ${passed}/${total} passed`);
+            if (failed > 0) {
+                console.log(`   ❌ ${failed} test(s) failed - see HTML report for details`);
+            }
+            console.log(`   🌐 Full report: ${path.join(this.outputDir, 'index.html')}\n`);
+        }
     }
 }
 
@@ -791,12 +844,17 @@ describe('Comprehensive Generative Integration Tests', () => {
     const reporter = new ValidationReporter();
     const snapshotManager = new SnapshotManager();
 
-    // Log snapshot mode at the start
-    if (snapshotManager.shouldUpdateSnapshots()) {
-        console.log('🔄 Running in SNAPSHOT UPDATE mode. Snapshots will be created/updated.');
-    } else {
-        console.log('📸 Running in SNAPSHOT COMPARISON mode. Tests will fail if outputs differ from snapshots.');
-        console.log('💡 To update snapshots, run: UPDATE_SNAPSHOTS=true npm test');
+    // Determine if we should minimize output (default: yes, unless VERBOSE_TESTS is set)
+    const isVerbose = process.env.VERBOSE_TESTS === 'true';
+
+    // Log snapshot mode at the start (only if verbose)
+    if (isVerbose) {
+        if (snapshotManager.shouldUpdateSnapshots()) {
+            console.log('🔄 Running in SNAPSHOT UPDATE mode. Snapshots will be created/updated.');
+        } else {
+            console.log('📸 Running in SNAPSHOT COMPARISON mode. Tests will fail if outputs differ from snapshots.');
+            console.log('💡 To update snapshots, run: UPDATE_SNAPSHOTS=true npm test');
+        }
     }
 
     const runGenerativeTest = async (example: typeof examplesList[0]) => {
@@ -813,6 +871,7 @@ describe('Comprehensive Generative Integration Tests', () => {
             losslessnessIssues: [],
             graphvizParseErrors: [],
             svgRenderErrors: [],
+            dslRoundTripErrors: [],
             snapshotMismatches: []
         };
 
@@ -950,6 +1009,63 @@ describe('Comprehensive Generative Integration Tests', () => {
             } catch (e) {
                 result.transformErrors.push(`Graphviz generation failed: ${e}`);
                 result.passed = false;
+            }
+
+            // NEW: DSL Round-trip testing (JSON → DSL → JSON)
+            if (result.jsonOutput) {
+                try {
+                    result.dslOutput = generateDSL(result.jsonOutput);
+
+                    // Parse the regenerated DSL
+                    const roundTripDoc = await parse(result.dslOutput);
+
+                    // Check for parse errors in round-trip
+                    if (roundTripDoc.parseResult.parserErrors.length > 0) {
+                        result.dslRoundTripErrors.push(
+                            `Round-trip DSL has parse errors: ${roundTripDoc.parseResult.parserErrors.map(e => e.message).join(', ')}`
+                        );
+                        result.passed = false;
+                    }
+
+                    if (roundTripDoc.parseResult.lexerErrors.length > 0) {
+                        result.dslRoundTripErrors.push(
+                            `Round-trip DSL has lexer errors: ${roundTripDoc.parseResult.lexerErrors.map(e => e.message).join(', ')}`
+                        );
+                        result.passed = false;
+                    }
+
+                    // If parse succeeded, convert back to JSON and compare
+                    if (isMachine(roundTripDoc.parseResult.value)) {
+                        const roundTripMachine = roundTripDoc.parseResult.value as Machine;
+                        const roundTripJsonResult = generateJSON(roundTripMachine, example.filename, undefined);
+                        const roundTripJson = JSON.parse(roundTripJsonResult.content);
+
+                        // Compare key properties (title, node count, edge count)
+                        if (roundTripJson.title !== result.jsonOutput.title) {
+                            result.dslRoundTripErrors.push(
+                                `Round-trip title mismatch: "${result.jsonOutput.title}" → "${roundTripJson.title}"`
+                            );
+                            result.passed = false;
+                        }
+
+                        if (roundTripJson.nodes.length !== result.jsonOutput.nodes.length) {
+                            result.dslRoundTripErrors.push(
+                                `Round-trip node count mismatch: ${result.jsonOutput.nodes.length} → ${roundTripJson.nodes.length}`
+                            );
+                            result.passed = false;
+                        }
+
+                        if (roundTripJson.edges.length !== result.jsonOutput.edges.length) {
+                            result.dslRoundTripErrors.push(
+                                `Round-trip edge count mismatch: ${result.jsonOutput.edges.length} → ${roundTripJson.edges.length}`
+                            );
+                            result.passed = false;
+                        }
+                    }
+                } catch (e) {
+                    result.dslRoundTripErrors.push(`DSL round-trip failed: ${e}`);
+                    result.passed = false;
+                }
             }
 
             // NEW: Snapshot comparison
