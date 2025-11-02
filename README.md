@@ -2,7 +2,7 @@
 
 **Dynamic state machine prototyping language** - Transform thoughts into executable systems
 
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](http://www.christopherdebeer.com/machine/)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](http://dygram.parc.land/playground-mobile.html/)
 
 ## Table of Contents
 
