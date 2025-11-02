@@ -38,9 +38,10 @@ export default defineConfig({
         },
         include: ['**/*.test.ts'],
         exclude: ['**/e2e/**', '**/node_modules/**'],
-        reporters: ['default', 'junit'],
+        reporters: ['default', 'junit', 'html'],
         outputFile: {
-            junit: 'test-output/vitest/junit.xml'
+            junit: 'test-output/vitest/junit.xml',
+            html: 'test-output/vitest/index.html'
         },
         // Ensure langium files are generated before tests run
         globalSetup: ['./test/setup/vitest-setup.ts']

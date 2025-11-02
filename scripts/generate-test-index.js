@@ -23,6 +23,7 @@ const playwrightReportExists = fs.existsSync(path.join(outputDir, 'reports', 'pl
 const coverageReportExists = fs.existsSync(path.join(outputDir, 'coverage', 'index.html'));
 const e2eArtifactsExist = fs.existsSync(path.join(outputDir, 'e2e-artifacts'));
 const vitestReportExists = fs.existsSync(path.join(outputDir, 'vitest', 'junit.xml'));
+const vitestHtmlReportExists = fs.existsSync(path.join(outputDir, 'vitest', 'index.html'));
 const generativeReportExists = fs.existsSync(path.join(outputDir, 'generative', 'index.html'));
 const comprehensiveGenerativeReportExists = fs.existsSync(path.join(outputDir, 'comprehensive-generative', 'index.html'));
 
@@ -226,8 +227,9 @@ const html = `<!DOCTYPE html>
 
             <div class="report-card">
                 <h2><span class="icon">✅</span> Unit Test Results <span class="badge">Vitest</span></h2>
-                <p>Unit and integration test results in JUnit XML format for CI/CD integration.</p>
+                <p>Unit and integration test results in HTML and JUnit XML format for CI/CD integration.</p>
                 <ul>
+                    <li>🌐 ${vitestHtmlReportExists ? '<a href="vitest/index.html">HTML Test Report</a>' : '<span class="unavailable">HTML Test Report</span>'} ${vitestHtmlReportExists ? '<span class="status available">✓</span>' : '<span class="status unavailable">Not Generated</span>'}</li>
                     <li>📄 ${vitestReportExists ? '<a href="vitest/junit.xml">JUnit XML Report</a>' : '<span class="unavailable">JUnit XML Report</span>'} ${vitestReportExists ? '<span class="status available">✓</span>' : '<span class="status unavailable">Not Generated</span>'}</li>
                 </ul>
             </div>
