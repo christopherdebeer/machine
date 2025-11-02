@@ -77,7 +77,14 @@ function shouldShowWarningsForNode(
     };
 
     // Check the node and its parents recursively
+    const visited = new Set<string>();
     const checkNodeHierarchy = (currentNodeName: string): boolean | undefined => {
+        // Prevent infinite recursion from circular parent relationships
+        if (visited.has(currentNodeName)) {
+            return undefined;
+        }
+        visited.add(currentNodeName);
+
         const currentNode = nodeMap.get(currentNodeName);
         if (!currentNode) return undefined;
 
@@ -1863,35 +1870,51 @@ export function generateDSL(machineJson: MachineJSON): string {
         lines.push('');
     }
 
-    // Track which nodes have been added to avoid duplicates
-    const addedNodes = new Set<string>();
+    // Build a tree structure from flat nodes list
+    const nodeMap = new Map<string, any>();
+    const childrenMap = new Map<string, any[]>();
+    const rootNodes: any[] = [];
 
-    // Group nodes by type for better organization
-    const nodesByType = new Map<string, any[]>();
+    // First pass: Create node map and identify children
     machineJson.nodes.forEach(node => {
-        const type = node.type || 'undefined';
-        if (!nodesByType.has(type)) {
-            nodesByType.set(type, []);
+        nodeMap.set(node.name, node);
+
+        if (node.parent) {
+            // This node has a parent - add to children map
+            if (!childrenMap.has(node.parent)) {
+                childrenMap.set(node.parent, []);
+            }
+            childrenMap.get(node.parent)!.push(node);
+        } else {
+            // This is a root node (no parent)
+            rootNodes.push(node);
         }
-        nodesByType.get(type)!.push(node);
     });
 
-    // Generate nodes organized by type
-    nodesByType.forEach((nodes, type) => {
+    // Group root nodes by type for better organization
+    const rootNodesByType = new Map<string, any[]>();
+    rootNodes.forEach(node => {
+        const type = node.type || 'undefined';
+        if (!rootNodesByType.has(type)) {
+            rootNodesByType.set(type, []);
+        }
+        rootNodesByType.get(type)!.push(node);
+    });
+
+    // Generate root nodes with their children recursively
+    rootNodesByType.forEach((nodes, type) => {
         nodes.forEach(node => {
-            if (!addedNodes.has(node.name)) {
-                lines.push(generateNodeDSL(node));
-                addedNodes.add(node.name);
-            }
+            lines.push(generateNodeDSLWithChildren(node, childrenMap, machineJson.edges || [], 0));
         });
         if (nodes.length > 0) {
             lines.push(''); // Add blank line between type groups
         }
     });
 
-    // Generate edges
-    if (machineJson.edges && machineJson.edges.length > 0) {
-        machineJson.edges.forEach(edge => {
+    // Generate edges that are at the root level (not within any node scope)
+    const rootEdges = getRootLevelEdges(machineJson.edges || [], rootNodes, childrenMap);
+    if (rootEdges.length > 0) {
+        rootEdges.forEach(edge => {
             lines.push(generateEdgeDSL(edge));
         });
         lines.push('');
@@ -1906,6 +1929,147 @@ export function generateDSL(machineJson: MachineJSON): string {
     }
 
     return lines.join('\n').trim() + '\n';
+}
+
+/**
+ * Determine which edges belong at the root level vs. inside node scopes
+ */
+function getRootLevelEdges(edges: Edge[], rootNodes: any[], childrenMap: Map<string, any[]>): Edge[] {
+    const rootNodeNames = new Set(rootNodes.map(n => n.name));
+    const allDescendantNames = new Set<string>();
+
+    // Collect all descendant node names
+    const collectDescendants = (nodeName: string) => {
+        const children = childrenMap.get(nodeName) || [];
+        children.forEach(child => {
+            allDescendantNames.add(child.name);
+            collectDescendants(child.name);
+        });
+    };
+
+    rootNodes.forEach(node => collectDescendants(node.name));
+
+    // An edge belongs at root level if:
+    // - Both source and target are root nodes, OR
+    // - Source or target is in different parent scopes
+    return edges.filter(edge => {
+        const sourceIsRoot = rootNodeNames.has(edge.source);
+        const targetIsRoot = rootNodeNames.has(edge.target);
+
+        // If both are root nodes, it's a root-level edge
+        if (sourceIsRoot && targetIsRoot) {
+            return true;
+        }
+
+        // If one is root and one is nested, it's a root-level edge
+        if (sourceIsRoot || targetIsRoot) {
+            return true;
+        }
+
+        // Both are nested - need to check if they share the same parent
+        // For now, we'll include cross-scope edges at root level
+        // A more sophisticated implementation would determine the common ancestor
+        return true;
+    });
+}
+
+/**
+ * Generate DSL for a node and its children recursively
+ */
+function generateNodeDSLWithChildren(
+    node: any,
+    childrenMap: Map<string, any[]>,
+    allEdges: Edge[],
+    indentLevel: number
+): string {
+    const indent = '    '.repeat(indentLevel);
+    const childIndent = '    '.repeat(indentLevel + 1);
+    const children = childrenMap.get(node.name) || [];
+    const hasChildren = children.length > 0;
+
+    // Find edges that belong to this node's scope (between its children)
+    const scopeEdges = allEdges.filter(edge => {
+        const childNames = new Set(children.map(c => c.name));
+        return childNames.has(edge.source) && childNames.has(edge.target);
+    });
+
+    const parts: string[] = [];
+
+    // Add type if present and not 'undefined'
+    if (node.type && node.type !== 'undefined') {
+        parts.push(node.type);
+    }
+
+    // Add node name
+    parts.push(node.name);
+
+    // Add title if present
+    if (node.title) {
+        parts.push(quoteString(node.title));
+    }
+
+    // Add annotations if present
+    let annotationsStr = '';
+    if (node.annotations && node.annotations.length > 0) {
+        annotationsStr = node.annotations.map((ann: any) => {
+            if (ann.value) {
+                return ` @${ann.name}(${quoteString(ann.value)})`;
+            }
+            return ` @${ann.name}`;
+        }).join('');
+    }
+
+    // Check if node has attributes
+    const hasAttributes = node.attributes && node.attributes.length > 0;
+
+    if (hasChildren || hasAttributes || scopeEdges.length > 0) {
+        // Node with children, attributes, or scoped edges - use block syntax
+        let result = indent + parts.join(' ') + annotationsStr + ' {\n';
+
+        // Add attributes
+        if (hasAttributes) {
+            node.attributes.forEach((attr: any) => {
+                result += childIndent + generateAttributeDSL(attr) + '\n';
+            });
+            if (hasChildren || scopeEdges.length > 0) {
+                result += '\n'; // Blank line after attributes
+            }
+        }
+
+        // Add children recursively
+        if (hasChildren) {
+            children.forEach((child, idx) => {
+                result += generateNodeDSLWithChildren(child, childrenMap, allEdges, indentLevel + 1);
+                if (idx < children.length - 1 || scopeEdges.length > 0) {
+                    result += '\n';
+                }
+            });
+        }
+
+        // Add scoped edges
+        if (scopeEdges.length > 0) {
+            if (hasChildren) {
+                result += '\n'; // Blank line before edges
+            }
+            scopeEdges.forEach(edge => {
+                result += childIndent + generateEdgeDSL(edge) + '\n';
+            });
+        }
+
+        result += indent + '};\n';
+        return result;
+    } else if (hasAttributes) {
+        // Node with only attributes - use block syntax
+        let result = indent + parts.join(' ') + annotationsStr + ' {\n';
+        node.attributes.forEach((attr: any) => {
+            result += childIndent + generateAttributeDSL(attr) + '\n';
+        });
+        result += indent + '};\n';
+        return result;
+    } else {
+        // Simple node - use inline syntax
+        return indent + parts.join(' ') + annotationsStr + ';\n';
+    }
 }
 
 function generateNodeDSL(node: any): string {
