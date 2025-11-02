@@ -3,38 +3,72 @@
     "attributes": [],
     "nodes": [
       {
-        "name": "Data",
+        "name": "a",
         "attributes": []
       },
       {
-        "name": "Cache",
-        "attributes": [],
-        "parent": "Data"
+        "name": "temp",
+        "attributes": []
       },
       {
-        "name": "redis",
-        "attributes": [],
-        "parent": "Cache"
+        "name": "data",
+        "attributes": []
+      },
+      {
+        "name": "thisIsAReallyLongNodeNameThatIsHardToRead",
+        "attributes": []
+      },
+      {
+        "name": "MyNode",
+        "attributes": []
+      },
+      {
+        "name": "my_other_node",
+        "attributes": []
+      },
+      {
+        "name": "ANOTHER_NODE",
+        "attributes": []
+      },
+      {
+        "name": "System",
+        "attributes": []
       },
       {
         "name": "API",
-        "attributes": []
+        "attributes": [],
+        "parent": "System"
       },
       {
-        "name": "Users",
+        "name": "Services",
         "attributes": [],
         "parent": "API"
       },
       {
-        "name": "GetProfile",
+        "name": "Users",
+        "attributes": [],
+        "parent": "Services"
+      },
+      {
+        "name": "Controllers",
         "attributes": [],
         "parent": "Users"
+      },
+      {
+        "name": "Handlers",
+        "attributes": [],
+        "parent": "Controllers"
+      },
+      {
+        "name": "GetProfile",
+        "attributes": [],
+        "parent": "Handlers"
       }
     ],
     "edges": [],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Data {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Data</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Data__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    subgraph cluster_Cache {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Cache</b></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      \"Cache__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"redis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>redis</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    }\n  }\n  subgraph cluster_API {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>API</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"API__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    subgraph cluster_Users {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Users</b></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      \"Users__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"GetProfile\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>GetProfile</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    }\n  }\n\n}",
-  "svgHash": "85e7d8d9fc47e79156d412658702363046dcc914447db26edf697720c7e1464e"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"temp\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>temp</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"data\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>data</b></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"thisIsAReallyLongNodeNameThatIsHardToRead\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>thisIsAReallyLongNodeNameThatIsHardToRead</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"MyNode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>MyNode</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"my_other_node\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>my_other_node</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ANOTHER_NODE\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ANOTHER_NODE</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  subgraph cluster_System {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>System</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"System__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    subgraph cluster_API {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>API</b></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      \"API__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      subgraph cluster_Services {\n        label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Services</b></td></tr></table>>;\n        labelloc=\"t\";\n        style=filled;\n        fontsize=10;\n        fillcolor=\"#FFFFFF\";\n        color=\"#999999\";\n        \"Services__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n        subgraph cluster_Users {\n          label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Users</b></td></tr></table>>;\n          labelloc=\"t\";\n          style=filled;\n          fontsize=10;\n          fillcolor=\"#FFFFFF\";\n          color=\"#999999\";\n          \"Users__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n          subgraph cluster_Controllers {\n            label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Controllers</b></td></tr></table>>;\n            labelloc=\"t\";\n            style=filled;\n            fontsize=10;\n            fillcolor=\"#FFFFFF\";\n            color=\"#999999\";\n            \"Controllers__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n            subgraph cluster_Handlers {\n              label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Handlers</b></td></tr></table>>;\n              labelloc=\"t\";\n              style=filled;\n              fontsize=10;\n              fillcolor=\"#FFFFFF\";\n              color=\"#999999\";\n              \"Handlers__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n              \"GetProfile\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>GetProfile</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n            }\n          }\n        }\n      }\n    }\n  }\n\n}",
+  "svgHash": "1986aeecc9e969d1f5326389b5091484266ce0919d32720924b43d40a307cbbf"
 }

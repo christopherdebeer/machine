@@ -103,13 +103,16 @@ function escapeHtml(text: string): string {
 
 /**
  * Process Markdown text and convert to HTML suitable for Graphviz HTML-like labels
- * Falls back to escaping if Markdown parsing fails
+ * Uses marked.js custom renderer to properly handle all markdown elements
+ * within Graphviz's HTML subset constraints
+ *
+ * Supported Graphviz tags: <B>, <I>, <U>, <O>, <S>, <SUB>, <SUP>, <BR/>, <FONT>, <TABLE>
  */
 function processMarkdown(text: string): string {
     if (!text) return '';
 
     // Check if the text contains Markdown syntax
-    const hasMarkdown = /[*_`#\[\]]/g.test(text);
+    const hasMarkdown = /[*_`#\[\]~]/g.test(text);
 
     // If no Markdown syntax detected, just escape HTML
     if (!hasMarkdown) {
@@ -117,32 +120,80 @@ function processMarkdown(text: string): string {
     }
 
     try {
-        // Configure marked for inline rendering (no wrapping <p> tags)
+        // Create custom renderer for Graphviz HTML subset
+        const renderer = {
+            // Bold text: **text** or __text__
+            strong(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
+                return `<b>${text}</b>`;
+            },
+
+            // Italic text: *text* or _text_
+            em(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
+                return `<i>${text}</i>`;
+            },
+
+            // Strikethrough: ~~text~~
+            del(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
+                return `<s>${text}</s>`;
+            },
+
+            // Inline code: `code`
+            // Use monospace font with light gray background color simulation
+            codespan(token: any): string {
+                const code = typeof token === 'string' ? token : token.text;
+                const escaped = escapeHtml(code);
+                return `<font face="monospace" color="#6C757D">${escaped}</font>`;
+            },
+
+            // Links: [text](url)
+            // Show as underlined text (can't make clickable in labels, but preserve text)
+            link(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
+                return `<u>${text}</u>`;
+            },
+
+            // Line breaks
+            br(): string {
+                return '<br/>';
+            },
+
+            // Images: ![alt](src)
+            // Can't embed images in labels, just show alt text
+            image(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
+                return escapeHtml(text || '[image]');
+            },
+
+            // Text nodes (escape HTML entities)
+            text(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
+                return escapeHtml(text);
+            },
+
+            // Paragraphs (should not appear in inline parsing, but handle gracefully)
+            paragraph(token: any): string {
+                const text = typeof token === 'string' ? token : token.text;
+                return text;
+            },
+
+            // HTML tags (strip for safety)
+            html(token: any): string {
+                return '';
+            }
+        };
+
+        // Configure marked with custom renderer
         marked.use({
+            renderer,
             breaks: true,
             gfm: true,
         });
 
-        // Parse Markdown to HTML
-        let html = marked.parseInline(text) as string;
-
-        // Graphviz HTML labels have limited HTML support
-        // Convert unsupported tags to supported ones or remove them
-        html = html
-            // Convert <strong> to <b>
-            .replace(/<strong>/g, '<b>')
-            .replace(/<\/strong>/g, '</b>')
-            // Convert <em> to <i>
-            .replace(/<em>/g, '<i>')
-            .replace(/<\/em>/g, '</i>')
-            // Remove <a> tags but keep the text
-            .replace(/<a[^>]*>/g, '')
-            .replace(/<\/a>/g, '')
-            // Remove <code> tags but keep content (could wrap in font tag later)
-            .replace(/<code>/g, '')
-            .replace(/<\/code>/g, '')
-            // Remove any other unsupported tags (but preserve b, i, u, br)
-            .replace(/<(?!\/?(?:b|i|u|br)(?:\s|>|\/))[^>]+>/g, '');
+        // Parse Markdown to HTML using custom renderer
+        const html = marked.parseInline(text) as string;
 
         return html;
     } catch (error) {
@@ -251,7 +302,9 @@ function findAttributePort(attributes: any[], attributeName: string, column: Att
 }
 
 function buildEndpointIdentifier(nodeName: string, port?: string): string {
-    const escapedNode = nodeName.replace(/"/g, '\\"');
+    // Ensure nodeName is a string
+    const nameStr = typeof nodeName === 'string' ? nodeName : String(nodeName);
+    const escapedNode = nameStr.replace(/"/g, '\\"');
     if (port) {
         return `"${escapedNode}":"${port}"`;
     }

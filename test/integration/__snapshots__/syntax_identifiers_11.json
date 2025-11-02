@@ -3,25 +3,28 @@
     "attributes": [],
     "nodes": [
       {
-        "name": "ProcessPayment",
+        "name": "myTask",
         "type": "task",
-        "attributes": []
-      },
-      {
-        "name": "processingOrder",
-        "type": "state",
-        "attributes": []
-      },
-      {
-        "name": "userConfig",
-        "type": "context",
-        "attributes": []
+        "attributes": [
+          {
+            "name": "maxRetries",
+            "value": 3
+          },
+          {
+            "name": "timeoutDuration",
+            "value": "30s"
+          },
+          {
+            "name": "isEnabled",
+            "value": true
+          }
+        ]
       }
     ],
     "edges": [],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ProcessPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessPayment</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processingOrder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processingOrder</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"userConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userConfig</b> <i>&lt;context&gt;</i></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n}",
-  "svgHash": "a4a3a3ea1a9539cc8b86c7bcf08984d288b3ae9331defd0e6d5d643ed7dc1320"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"myTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>myTask</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"timeoutDuration__key\" align=\"left\" balign=\"left\">timeoutDuration</td><td port=\"timeoutDuration__value\" align=\"left\" balign=\"left\">30s</td></tr><tr><td port=\"isEnabled__key\" align=\"left\" balign=\"left\">isEnabled</td><td port=\"isEnabled__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "02415cdc081b4d6d2cdc6401af4ad500d60a89ff8f331866af398826517471fc"
 }
