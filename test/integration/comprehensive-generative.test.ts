@@ -3,7 +3,7 @@ import { EmptyFileSystem } from "langium";
 import { parseHelper } from "langium/test";
 import { createMachineServices } from "../../src/language/machine-module.js";
 import { Machine, isMachine } from "../../src/language/generated/ast.js";
-import { generateJSON, generateGraphviz } from "../../src/language/generator/generator.js";
+import { generateJSON, generateGraphviz, generateDSL } from "../../src/language/generator/generator.js";
 import { renderDotToSVG } from "../../src/language/diagram/graphviz-generator.js";
 import { base64UrlEncode } from "../../src/utils/url-encoding.js";
 import * as fs from "node:fs";
@@ -48,10 +48,12 @@ interface ValidationResult {
     losslessnessIssues: string[];
     graphvizParseErrors: string[];
     svgRenderErrors: string[];
+    dslRoundTripErrors: string[];  // NEW: DSL round-trip errors
     snapshotMismatches: string[];
     jsonOutput?: any;
     graphvizOutput?: string;
     svgOutput?: string;
+    dslOutput?: string;  // NEW: Regenerated DSL
 }
 
 /**
@@ -283,6 +285,10 @@ class ValidationReporter {
             mdContent += `## Graphviz DOT Output\n\`\`\`dot\n${result.graphvizOutput}\n\`\`\`\n\n`;
         }
 
+        if (result.dslOutput) {
+            mdContent += `## Regenerated DSL (Round-trip)\n\`\`\`dygram\n${result.dslOutput}\n\`\`\`\n\n`;
+        }
+
         mdContent += `## Validation Results\n`;
         mdContent += `- Parse Errors: ${result.parseErrors.length}\n`;
         mdContent += `- Validation Errors: ${result.validationErrors.length}\n`;
@@ -291,6 +297,7 @@ class ValidationReporter {
         mdContent += `- Losslessness Issues: ${result.losslessnessIssues.length}\n`;
         mdContent += `- Graphviz Parse Errors: ${result.graphvizParseErrors.length}\n`;
         mdContent += `- SVG Render Errors: ${result.svgRenderErrors.length}\n`;
+        mdContent += `- DSL Round-trip Errors: ${result.dslRoundTripErrors.length}\n`;
         mdContent += `- Snapshot Mismatches: ${result.snapshotMismatches.length}\n\n`;
 
         if (result.parseErrors.length > 0) {
@@ -314,6 +321,9 @@ class ValidationReporter {
         if (result.svgRenderErrors.length > 0) {
             mdContent += `### SVG Render Errors\n${result.svgRenderErrors.map(e => `- ${e}`).join('\n')}\n\n`;
         }
+        if (result.dslRoundTripErrors.length > 0) {
+            mdContent += `### DSL Round-trip Errors\n${result.dslRoundTripErrors.map(e => `- ${e}`).join('\n')}\n\n`;
+        }
         if (result.snapshotMismatches.length > 0) {
             mdContent += `### Snapshot Mismatches\n${result.snapshotMismatches.map(e => `- ${e}`).join('\n')}\n\n`;
         }
@@ -323,6 +333,11 @@ class ValidationReporter {
         // Write SVG if it was successfully generated
         if (result.svgOutput && result.svgRenderErrors.length === 0) {
             fs.writeFileSync(path.join(categoryDir, `${fileName}.svg`), result.svgOutput);
+        }
+
+        // Write regenerated DSL if it was successfully generated
+        if (result.dslOutput && result.dslRoundTripErrors.length === 0) {
+            fs.writeFileSync(path.join(categoryDir, `${fileName}.roundtrip.dy`), result.dslOutput);
         }
     }
 
@@ -365,6 +380,7 @@ class ValidationReporter {
         const allLosslessnessIssues = this.results.flatMap(r => r.losslessnessIssues);
         const allGraphvizParseErrors = this.results.flatMap(r => r.graphvizParseErrors);
         const allSvgRenderErrors = this.results.flatMap(r => r.svgRenderErrors);
+        const allDslRoundTripErrors = this.results.flatMap(r => r.dslRoundTripErrors);
         const allSnapshotMismatches = this.results.flatMap(r => r.snapshotMismatches);
 
         report += `## Issue Summary\n`;
@@ -375,6 +391,7 @@ class ValidationReporter {
         report += `- Losslessness Issues: ${allLosslessnessIssues.length}\n`;
         report += `- Graphviz Parse Errors: ${allGraphvizParseErrors.length}\n`;
         report += `- SVG Render Errors: ${allSvgRenderErrors.length}\n`;
+        report += `- DSL Round-trip Errors: ${allDslRoundTripErrors.length}\n`;
         report += `- Snapshot Mismatches: ${allSnapshotMismatches.length}\n\n`;
 
         // Failed tests details
@@ -405,6 +422,9 @@ class ValidationReporter {
                 if (r.svgRenderErrors.length > 0) {
                     report += `**SVG Render Errors:**\n${r.svgRenderErrors.map(e => `- ${e}`).join('\n')}\n\n`;
                 }
+                if (r.dslRoundTripErrors.length > 0) {
+                    report += `**DSL Round-trip Errors:**\n${r.dslRoundTripErrors.map(e => `- ${e}`).join('\n')}\n\n`;
+                }
                 if (r.snapshotMismatches.length > 0) {
                     report += `**Snapshot Mismatches:**\n${r.snapshotMismatches.map(e => `- ${e}`).join('\n')}\n\n`;
                 }
@@ -427,6 +447,7 @@ class ValidationReporter {
         const allLosslessnessIssues = this.results.flatMap(r => r.losslessnessIssues);
         const allGraphvizParseErrors = this.results.flatMap(r => r.graphvizParseErrors);
         const allSvgRenderErrors = this.results.flatMap(r => r.svgRenderErrors);
+        const allDslRoundTripErrors = this.results.flatMap(r => r.dslRoundTripErrors);
         const allSnapshotMismatches = this.results.flatMap(r => r.snapshotMismatches);
 
         // Group by category
@@ -439,6 +460,9 @@ class ValidationReporter {
             if (r.passed) byCategory[r.category].passed++;
         });
 
+        // Get all unique categories for filter dropdown
+        const allCategories = Object.keys(byCategory).sort();
+
         let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -447,68 +471,91 @@ class ValidationReporter {
     <title>Comprehensive Generative Test Report - DyGram</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; padding: 1rem; }
-        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 1rem; }
-        h1 { color: #667eea; margin-bottom: 0.25rem; font-size: 1.75rem; }
-        .subtitle { color: #666; margin-bottom: 1rem; font-size: 0.875rem; }
+        body { font-family: 'Space Mono', monospace, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #0F0F0F; background: #F7F7F7; padding: 1rem; }
+        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 1.5rem; }
+        h1 { color: #0F0F0F; margin-bottom: 0.25rem; font-size: 1.75rem; font-weight: 700; }
+        .subtitle { color: #303030; margin-bottom: 1.5rem; font-size: 0.875rem; }
+
+        /* Filters */
+        .filters { background: #F7F7F7; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 8px solid #FF5E5B; }
+        .filters h2 { font-size: 1rem; margin-bottom: 0.75rem; color: #0F0F0F; }
+        .filter-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        .filter-group label { font-size: 0.75rem; font-weight: 600; color: #303030; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-group select { padding: 0.5rem; border: 2px solid #0F0F0F; background: white; color: #0F0F0F; font-family: 'Space Mono', monospace; font-size: 0.875rem; border-radius: 4px; cursor: pointer; }
+        .filter-group select:focus { outline: none; border-color: #FF5E5B; }
+        .filter-reset { padding: 0.5rem 1rem; background: #0F0F0F; color: white; border: none; cursor: pointer; font-family: 'Space Mono', monospace; font-weight: 600; font-size: 0.875rem; border-radius: 4px; margin-top: 1.25rem; }
+        .filter-reset:hover { background: #FF5E5B; }
+
         .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
-        .stat-card { padding: 1rem; border-radius: 6px; text-align: center; }
-        .stat-card.total { background: #e3f2fd; }
-        .stat-card.passed { background: #e8f5e9; }
-        .stat-card.failed { background: #ffebee; }
-        .stat-value { font-size: 2rem; font-weight: bold; }
-        .stat-label { color: #666; font-size: 0.75rem; margin-top: 0.25rem; }
+        .stat-card { padding: 1rem; border-radius: 6px; text-align: center; border-left: 4px solid #0F0F0F; }
+        .stat-card.total { background: #F7F7F7; }
+        .stat-card.passed { background: #e8f5e9; border-left-color: #4caf50; }
+        .stat-card.failed { background: #ffebee; border-left-color: #FF5E5B; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: #0F0F0F; }
+        .stat-label { color: #303030; font-size: 0.75rem; margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .issues { margin-bottom: 1.5rem; }
+        .issues h2 { font-size: 1.25rem; margin-bottom: 0.75rem; color: #0F0F0F; }
         .issue-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; }
-        .issue-card { padding: 0.75rem; border-radius: 4px; background: #f9f9f9; border-left: 4px solid #667eea; }
-        .issue-count { font-size: 1.25rem; font-weight: bold; color: #667eea; }
-        .issue-label { font-size: 0.75rem; color: #666; }
+        .issue-card { padding: 0.75rem; border-radius: 4px; background: #F7F7F7; border-left: 4px solid #0F0F0F; cursor: pointer; transition: all 0.2s; }
+        .issue-card:hover { background: #FF5E5B; color: white; transform: translateY(-2px); }
+        .issue-card:hover .issue-count, .issue-card:hover .issue-label { color: white; }
+        .issue-card.active { background: #FF5E5B; color: white; }
+        .issue-card.active .issue-count, .issue-card.active .issue-label { color: white; }
+        .issue-count { font-size: 1.25rem; font-weight: bold; color: #0F0F0F; }
+        .issue-label { font-size: 0.75rem; color: #303030; text-transform: uppercase; letter-spacing: 0.5px; }
         .category-section { margin-bottom: 1.5rem; }
-        .category-header { background: #f9f9f9; padding: 0.75rem; border-radius: 4px; cursor: pointer; user-select: none; }
-        .category-header:hover { background: #f0f0f0; }
-        .category-header h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; }
+        .category-section.hidden { display: none; }
+        .category-header { background: #F7F7F7; padding: 0.75rem; border-radius: 4px; cursor: pointer; user-select: none; border-left: 4px solid #0F0F0F; }
+        .category-header:hover { background: #303030; color: white; }
+        .category-header:hover h3, .category-header:hover .category-stats { color: white; }
+        .category-header h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; color: #0F0F0F; }
         .category-toggle { display: inline-block; transition: transform 0.2s; }
         .category-toggle.collapsed { transform: rotate(-90deg); }
-        .category-stats { display: flex; gap: 0.75rem; align-items: center; margin-top: 0.5rem; font-size: 0.875rem; }
+        .category-stats { display: flex; gap: 0.75rem; align-items: center; margin-top: 0.5rem; font-size: 0.875rem; color: #303030; }
         .category-bar { flex: 1; height: 16px; background: #e0e0e0; border-radius: 8px; overflow: hidden; }
-        .category-bar-fill { height: 100%; background: linear-gradient(to right, #4caf50, #8bc34a); transition: width 0.3s; }
+        .category-bar-fill { height: 100%; background: #FF5E5B; transition: width 0.3s; }
         .test-list { margin-top: 0.75rem; display: none; }
         .test-list.expanded { display: block; }
-        .test-item { border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 0.75rem; overflow: hidden; }
-        .test-header { padding: 0.75rem; background: #fafafa; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 0.5rem; flex-wrap: wrap; }
-        .test-header:hover { background: #f5f5f5; }
+        .test-item { border: 2px solid #0F0F0F; border-radius: 4px; margin-bottom: 0.75rem; overflow: hidden; }
+        .test-item.hidden { display: none; }
+        .test-header { padding: 0.75rem; background: #F7F7F7; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 0.5rem; flex-wrap: wrap; }
+        .test-header:hover { background: #303030; color: white; }
         .test-name { font-weight: 600; font-size: 0.9rem; word-break: break-word; }
-        .test-status { padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+        .test-status { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
         .test-status.passed { background: #4caf50; color: white; }
-        .test-status.failed { background: #f44336; color: white; }
+        .test-status.failed { background: #FF5E5B; color: white; }
         .test-status.snapshot-mismatch { background: #ff9800; color: white; }
-        .test-details { padding: 1rem; display: none; background: white; border-top: 1px solid #e0e0e0; }
+        .test-details { padding: 1rem; display: none; background: white; border-top: 2px solid #0F0F0F; }
         .test-details.active { display: block; }
-        .tabs { display: flex; gap: 0.25rem; margin-bottom: 0.75rem; border-bottom: 2px solid #e0e0e0; flex-wrap: wrap; }
-        .tab { padding: 0.5rem 0.75rem; cursor: pointer; background: none; border: none; font-size: 0.8rem; font-weight: 600; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; }
-        .tab:hover { color: #667eea; }
-        .tab.active { color: #667eea; border-bottom-color: #667eea; }
+        .tabs { display: flex; gap: 0.25rem; margin-bottom: 0.75rem; border-bottom: 2px solid #0F0F0F; flex-wrap: wrap; }
+        .tab { padding: 0.5rem 0.75rem; cursor: pointer; background: none; border: none; font-size: 0.8rem; font-weight: 600; color: #303030; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tab:hover { color: #FF5E5B; }
+        .tab.active { color: #FF5E5B; border-bottom-color: #FF5E5B; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .tab-content h4 { font-size: 1rem; margin-bottom: 0.5rem; }
-        .code-block { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 0.75rem; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.8rem; margin: 0.5rem 0; white-space: pre-wrap; word-break: break-word; }
+        .tab-content h4 { font-size: 1rem; margin-bottom: 0.5rem; color: #0F0F0F; }
+        .code-block { background: #1A1A1A; color: #F7F7F7; border-left: 8px solid #FF5E5B; padding: 0.75rem; overflow-x: auto; font-family: 'Courier New', 'Fira Code', monospace; font-size: 0.8rem; margin: 0.5rem 0; white-space: pre-wrap; word-break: break-word; border-radius: 4px; }
         .error-section { margin-top: 0.75rem; }
-        .error-section h4 { color: #d32f2f; margin-bottom: 0.5rem; font-size: 0.95rem; }
-        .warning-section h4 { color: #f57c00; margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .error-section h4 { color: #FF5E5B; margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .warning-section h4 { color: #ff9800; margin-bottom: 0.5rem; font-size: 0.95rem; }
         .error-list { list-style: none; padding-left: 0.75rem; }
-        .error-list li { padding: 0.25rem 0; color: #666; font-size: 0.85rem; }
-        .error-list li:before { content: "⚠ "; color: #d32f2f; }
-        .warning-list li:before { content: "⚠ "; color: #f57c00; }
-        .svg-container { border: 1px solid #e0e0e0; border-radius: 4px; padding: 0.75rem; background: white; margin: 0.5rem 0; overflow-x: auto; }
+        .error-list li { padding: 0.25rem 0; color: #303030; font-size: 0.85rem; }
+        .error-list li:before { content: "⚠ "; color: #FF5E5B; }
+        .warning-list li:before { content: "⚠ "; color: #ff9800; }
+        .svg-container { border: 2px solid #0F0F0F; border-radius: 4px; padding: 0.75rem; background: white; margin: 0.5rem 0; overflow-x: auto; }
         .svg-container svg { max-width: 100%; height: auto; }
         .snapshot-badge { display: inline-block; padding: 0.25rem 0.5rem; background: #ff9800; color: white; font-size: 0.7rem; border-radius: 4px; margin-left: 0.5rem; }
+        a { color: #FF5E5B; text-decoration: none; font-weight: 600; }
+        a:hover { text-decoration: underline; }
 
         /* Mobile responsive adjustments */
         @media (max-width: 768px) {
             body { padding: 0.5rem; }
-            .container { padding: 0.75rem; border-radius: 4px; }
+            .container { padding: 1rem; border-radius: 4px; }
             h1 { font-size: 1.5rem; }
             .subtitle { font-size: 0.8rem; }
+            .filter-controls { grid-template-columns: 1fr; }
             .summary { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
             .stat-card { padding: 0.75rem; }
             .stat-value { font-size: 1.5rem; }
@@ -539,6 +586,9 @@ class ValidationReporter {
         }
     </style>
     <script>
+        // Store all test data for filtering
+        const testData = [];
+
         function toggleCategory(categoryId) {
             const testList = document.getElementById(categoryId);
             const toggle = document.getElementById(categoryId + '-toggle');
@@ -557,12 +607,125 @@ class ValidationReporter {
             document.querySelector(\`#\${testId} .tab[data-tab="\${tabName}"]\`).classList.add('active');
             document.getElementById(\`\${testId}-\${tabName}\`).classList.add('active');
         }
+
+        function filterTests() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const issueFilter = document.getElementById('issueFilter').value;
+
+            // Filter categories
+            document.querySelectorAll('.category-section').forEach(section => {
+                const category = section.dataset.category;
+                const categoryMatch = categoryFilter === 'all' || category === categoryFilter;
+
+                if (!categoryMatch) {
+                    section.classList.add('hidden');
+                    return;
+                }
+
+                // Filter tests within category
+                let visibleCount = 0;
+                section.querySelectorAll('.test-item').forEach(item => {
+                    const testId = item.dataset.testId;
+                    const test = testData.find(t => t.id === testId);
+
+                    if (!test) {
+                        item.classList.add('hidden');
+                        return;
+                    }
+
+                    const statusMatch = statusFilter === 'all' ||
+                        (statusFilter === 'passed' && test.passed) ||
+                        (statusFilter === 'failed' && !test.passed);
+
+                    const issueMatch = issueFilter === 'all' || test.issues.includes(issueFilter);
+
+                    if (statusMatch && issueMatch) {
+                        item.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                // Hide category if no visible tests
+                if (visibleCount === 0) {
+                    section.classList.add('hidden');
+                } else {
+                    section.classList.remove('hidden');
+                }
+            });
+        }
+
+        function resetFilters() {
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('categoryFilter').value = 'all';
+            document.getElementById('issueFilter').value = 'all';
+            filterTests();
+        }
+
+        function highlightIssueCard(issueType) {
+            // Remove active class from all cards
+            document.querySelectorAll('.issue-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Set filter and add active class
+            if (issueType) {
+                document.getElementById('issueFilter').value = issueType;
+                const card = document.querySelector(\`.issue-card[data-issue="\${issueType}"]\`);
+                if (card) card.classList.add('active');
+            } else {
+                document.getElementById('issueFilter').value = 'all';
+            }
+
+            filterTests();
+        }
     </script>
 </head>
 <body>
     <div class="container">
         <h1>📊 Comprehensive Generative Test Report</h1>
         <p class="subtitle">Complete DyGram transformation pipeline validation with snapshot testing</p>
+
+        <div class="filters">
+            <h2>🔍 Filter Tests</h2>
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter" onchange="filterTests()">
+                        <option value="all">All Tests</option>
+                        <option value="passed">Passed Only</option>
+                        <option value="failed">Failed Only</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="categoryFilter">Category</label>
+                    <select id="categoryFilter" onchange="filterTests()">
+                        <option value="all">All Categories</option>
+                        ${allCategories.map(cat => `<option value="${this.escapeHtml(cat)}">${this.escapeHtml(cat)}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="issueFilter">Issue Type</label>
+                    <select id="issueFilter" onchange="filterTests()">
+                        <option value="all">All Issues</option>
+                        <option value="parseErrors">Parse Errors</option>
+                        <option value="validationErrors">Validation Errors</option>
+                        <option value="transformErrors">Transform Errors</option>
+                        <option value="completenessIssues">Completeness Issues</option>
+                        <option value="losslessnessIssues">Losslessness Issues</option>
+                        <option value="graphvizParseErrors">Graphviz Errors</option>
+                        <option value="svgRenderErrors">SVG Errors</option>
+                        <option value="dslRoundTripErrors">DSL Round-trip Errors</option>
+                        <option value="snapshotMismatches">Snapshot Mismatches</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button class="filter-reset" onclick="resetFilters()">Reset Filters</button>
+                </div>
+            </div>
+        </div>
 
         <div class="summary">
             <div class="stat-card total">
@@ -585,37 +748,42 @@ class ValidationReporter {
 
         <div class="issues">
             <h2>Issue Summary</h2>
+            <p style="font-size: 0.875rem; color: #303030; margin-bottom: 0.75rem;">Click on any issue type to filter tests</p>
             <div class="issue-grid">
-                <div class="issue-card">
+                <div class="issue-card" data-issue="parseErrors" onclick="highlightIssueCard('parseErrors')">
                     <div class="issue-count">${allParseErrors.length}</div>
                     <div class="issue-label">Parse Errors</div>
                 </div>
-                <div class="issue-card" style="border-left-color: #e91e63;">
-                    <div class="issue-count" style="color: #e91e63;">${allValidationErrors.length}</div>
+                <div class="issue-card" data-issue="validationErrors" onclick="highlightIssueCard('validationErrors')">
+                    <div class="issue-count">${allValidationErrors.length}</div>
                     <div class="issue-label">Validation Errors</div>
                 </div>
-                <div class="issue-card">
+                <div class="issue-card" data-issue="transformErrors" onclick="highlightIssueCard('transformErrors')">
                     <div class="issue-count">${allTransformErrors.length}</div>
                     <div class="issue-label">Transform Errors</div>
                 </div>
-                <div class="issue-card">
+                <div class="issue-card" data-issue="completenessIssues" onclick="highlightIssueCard('completenessIssues')">
                     <div class="issue-count">${allCompletenessIssues.length}</div>
                     <div class="issue-label">Completeness Issues</div>
                 </div>
-                <div class="issue-card">
+                <div class="issue-card" data-issue="losslessnessIssues" onclick="highlightIssueCard('losslessnessIssues')">
                     <div class="issue-count">${allLosslessnessIssues.length}</div>
                     <div class="issue-label">Losslessness Issues</div>
                 </div>
-                <div class="issue-card">
+                <div class="issue-card" data-issue="graphvizParseErrors" onclick="highlightIssueCard('graphvizParseErrors')">
                     <div class="issue-count">${allGraphvizParseErrors.length}</div>
                     <div class="issue-label">Graphviz Errors</div>
                 </div>
-                <div class="issue-card">
+                <div class="issue-card" data-issue="svgRenderErrors" onclick="highlightIssueCard('svgRenderErrors')">
                     <div class="issue-count">${allSvgRenderErrors.length}</div>
                     <div class="issue-label">SVG Errors</div>
                 </div>
-                <div class="issue-card" style="border-left-color: #ff9800;">
-                    <div class="issue-count" style="color: #ff9800;">${allSnapshotMismatches.length}</div>
+                <div class="issue-card" data-issue="dslRoundTripErrors" onclick="highlightIssueCard('dslRoundTripErrors')">
+                    <div class="issue-count">${allDslRoundTripErrors.length}</div>
+                    <div class="issue-label">DSL Round-trip Errors</div>
+                </div>
+                <div class="issue-card" data-issue="snapshotMismatches" onclick="highlightIssueCard('snapshotMismatches')">
+                    <div class="issue-count">${allSnapshotMismatches.length}</div>
                     <div class="issue-label">Snapshot Mismatches</div>
                 </div>
             </div>
@@ -631,7 +799,7 @@ class ValidationReporter {
             const categoryId = `category-${categoryIndex}`;
 
             html += `
-        <div class="category-section">
+        <div class="category-section" data-category="${this.escapeHtml(category)}">
             <div class="category-header" onclick="toggleCategory('${categoryId}')">
                 <h3><span class="category-toggle collapsed" id="${categoryId}-toggle">▼</span> ${category}</h3>
                 <div class="category-stats">
@@ -646,13 +814,36 @@ class ValidationReporter {
             categoryResults.forEach((result, index) => {
                 const fileName = result.testName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
                 const detailsId = `details-${category}-${index}`;
+                const testId = `test-${categoryIndex}-${index}`;
                 const hasSnapshotMismatch = result.snapshotMismatches.length > 0;
                 const statusClass = !result.passed ? 'failed' : hasSnapshotMismatch ? 'snapshot-mismatch' : 'passed';
                 const statusText = !result.passed ? 'FAILED' : hasSnapshotMismatch ? 'PASSED' : 'PASSED';
 
+                // Build list of issue types for this test
+                const issueTypes: string[] = [];
+                if (result.parseErrors.length > 0) issueTypes.push('parseErrors');
+                if (result.validationErrors.length > 0) issueTypes.push('validationErrors');
+                if (result.transformErrors.length > 0) issueTypes.push('transformErrors');
+                if (result.completenessIssues.length > 0) issueTypes.push('completenessIssues');
+                if (result.losslessnessIssues.length > 0) issueTypes.push('losslessnessIssues');
+                if (result.graphvizParseErrors.length > 0) issueTypes.push('graphvizParseErrors');
+                if (result.svgRenderErrors.length > 0) issueTypes.push('svgRenderErrors');
+                if (result.dslRoundTripErrors.length > 0) issueTypes.push('dslRoundTripErrors');
+                if (result.snapshotMismatches.length > 0) issueTypes.push('snapshotMismatches');
+
+                // Add test data for JavaScript filtering
+                html += `
+                <script>
+                    testData.push({
+                        id: '${testId}',
+                        passed: ${result.passed},
+                        issues: ${JSON.stringify(issueTypes)}
+                    });
+                </script>`;
+
                 const playgroundLink = this.generatePlaygroundLink(result.source);
                 html += `
-                <div class="test-item">
+                <div class="test-item" data-test-id="${testId}">
                     <div class="test-header" onclick="toggleDetails('${detailsId}')">
                         <span class="test-name">${result.testName}${hasSnapshotMismatch && result.passed ? '<span class="snapshot-badge">SNAPSHOT INFO</span>' : ''}</span>
                         <span class="test-status ${statusClass}">${statusText}</span>
@@ -663,6 +854,7 @@ class ValidationReporter {
                             <button class="tab" data-tab="json" onclick="showTab('${detailsId}', 'json')">JSON</button>
                             <button class="tab" data-tab="dot" onclick="showTab('${detailsId}', 'dot')">Graphviz DOT</button>
                             <button class="tab" data-tab="svg" onclick="showTab('${detailsId}', 'svg')">SVG</button>
+                            <button class="tab" data-tab="dsl" onclick="showTab('${detailsId}', 'dsl')">DSL Round-trip</button>
                             ${!result.passed || hasSnapshotMismatch ? '<button class="tab" data-tab="issues" onclick="showTab(\'' + detailsId + '\', \'issues\')">Issues</button>' : ''}
                         </div>
 
@@ -685,6 +877,11 @@ class ValidationReporter {
                         <div class="tab-content" id="${detailsId}-svg">
                             <h4>SVG Rendering</h4>
                             ${result.svgOutput ? `<div class="svg-container">${result.svgOutput}</div>` : '<p>No SVG output available</p>'}
+                        </div>
+
+                        <div class="tab-content" id="${detailsId}-dsl">
+                            <h4>Regenerated DSL (JSON → DSL)</h4>
+                            ${result.dslOutput ? `<div class="code-block">${this.escapeHtml(result.dslOutput)}</div>` : '<p>No DSL output available</p>'}
                         </div>`;
 
                 if (!result.passed || hasSnapshotMismatch) {
@@ -731,6 +928,12 @@ class ValidationReporter {
                         html += `<div class="error-section">
                             <h4>SVG Render Errors</h4>
                             <ul class="error-list">${result.svgRenderErrors.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
+                        </div>`;
+                    }
+                    if (result.dslRoundTripErrors.length > 0) {
+                        html += `<div class="error-section">
+                            <h4>DSL Round-trip Errors</h4>
+                            <ul class="error-list">${result.dslRoundTripErrors.map(e => `<li>${this.escapeHtml(e)}</li>`).join('')}</ul>
                         </div>`;
                     }
                     if (result.snapshotMismatches.length > 0) {
@@ -781,9 +984,25 @@ class ValidationReporter {
         fs.writeFileSync(path.join(this.outputDir, 'REPORT.md'), report);
         fs.writeFileSync(path.join(this.outputDir, 'index.html'), htmlReport);
 
-        console.log(`\n📊 Comprehensive test report written to: ${path.join(this.outputDir, 'REPORT.md')}`);
-        console.log(`🌐 HTML report available at: ${path.join(this.outputDir, 'index.html')}`);
-        console.log(`📁 Individual test outputs: ${this.outputDir}\n`);
+        // Check if we're in verbose mode
+        const isVerbose = process.env.VERBOSE_TESTS === 'true';
+
+        if (isVerbose) {
+            console.log(`\n📊 Comprehensive test report written to: ${path.join(this.outputDir, 'REPORT.md')}`);
+            console.log(`🌐 HTML report available at: ${path.join(this.outputDir, 'index.html')}`);
+            console.log(`📁 Individual test outputs: ${this.outputDir}\n`);
+        } else {
+            // Minimal output: just show the HTML report location
+            const total = this.results.length;
+            const passed = this.results.filter(r => r.passed).length;
+            const failed = total - passed;
+
+            console.log(`\n📊 Comprehensive Generative Tests: ${passed}/${total} passed`);
+            if (failed > 0) {
+                console.log(`   ❌ ${failed} test(s) failed - see HTML report for details`);
+            }
+            console.log(`   🌐 Full report: ${path.join(this.outputDir, 'index.html')}\n`);
+        }
     }
 }
 
@@ -791,12 +1010,17 @@ describe('Comprehensive Generative Integration Tests', () => {
     const reporter = new ValidationReporter();
     const snapshotManager = new SnapshotManager();
 
-    // Log snapshot mode at the start
-    if (snapshotManager.shouldUpdateSnapshots()) {
-        console.log('🔄 Running in SNAPSHOT UPDATE mode. Snapshots will be created/updated.');
-    } else {
-        console.log('📸 Running in SNAPSHOT COMPARISON mode. Tests will fail if outputs differ from snapshots.');
-        console.log('💡 To update snapshots, run: UPDATE_SNAPSHOTS=true npm test');
+    // Determine if we should minimize output (default: yes, unless VERBOSE_TESTS is set)
+    const isVerbose = process.env.VERBOSE_TESTS === 'true';
+
+    // Log snapshot mode at the start (only if verbose)
+    if (isVerbose) {
+        if (snapshotManager.shouldUpdateSnapshots()) {
+            console.log('🔄 Running in SNAPSHOT UPDATE mode. Snapshots will be created/updated.');
+        } else {
+            console.log('📸 Running in SNAPSHOT COMPARISON mode. Tests will fail if outputs differ from snapshots.');
+            console.log('💡 To update snapshots, run: UPDATE_SNAPSHOTS=true npm test');
+        }
     }
 
     const runGenerativeTest = async (example: typeof examplesList[0]) => {
@@ -813,6 +1037,7 @@ describe('Comprehensive Generative Integration Tests', () => {
             losslessnessIssues: [],
             graphvizParseErrors: [],
             svgRenderErrors: [],
+            dslRoundTripErrors: [],
             snapshotMismatches: []
         };
 
@@ -950,6 +1175,63 @@ describe('Comprehensive Generative Integration Tests', () => {
             } catch (e) {
                 result.transformErrors.push(`Graphviz generation failed: ${e}`);
                 result.passed = false;
+            }
+
+            // NEW: DSL Round-trip testing (JSON → DSL → JSON)
+            if (result.jsonOutput) {
+                try {
+                    result.dslOutput = generateDSL(result.jsonOutput);
+
+                    // Parse the regenerated DSL
+                    const roundTripDoc = await parse(result.dslOutput);
+
+                    // Check for parse errors in round-trip
+                    if (roundTripDoc.parseResult.parserErrors.length > 0) {
+                        result.dslRoundTripErrors.push(
+                            `Round-trip DSL has parse errors: ${roundTripDoc.parseResult.parserErrors.map(e => e.message).join(', ')}`
+                        );
+                        result.passed = false;
+                    }
+
+                    if (roundTripDoc.parseResult.lexerErrors.length > 0) {
+                        result.dslRoundTripErrors.push(
+                            `Round-trip DSL has lexer errors: ${roundTripDoc.parseResult.lexerErrors.map(e => e.message).join(', ')}`
+                        );
+                        result.passed = false;
+                    }
+
+                    // If parse succeeded, convert back to JSON and compare
+                    if (isMachine(roundTripDoc.parseResult.value)) {
+                        const roundTripMachine = roundTripDoc.parseResult.value as Machine;
+                        const roundTripJsonResult = generateJSON(roundTripMachine, example.filename, undefined);
+                        const roundTripJson = JSON.parse(roundTripJsonResult.content);
+
+                        // Compare key properties (title, node count, edge count)
+                        if (roundTripJson.title !== result.jsonOutput.title) {
+                            result.dslRoundTripErrors.push(
+                                `Round-trip title mismatch: "${result.jsonOutput.title}" → "${roundTripJson.title}"`
+                            );
+                            result.passed = false;
+                        }
+
+                        if (roundTripJson.nodes.length !== result.jsonOutput.nodes.length) {
+                            result.dslRoundTripErrors.push(
+                                `Round-trip node count mismatch: ${result.jsonOutput.nodes.length} → ${roundTripJson.nodes.length}`
+                            );
+                            result.passed = false;
+                        }
+
+                        if (roundTripJson.edges.length !== result.jsonOutput.edges.length) {
+                            result.dslRoundTripErrors.push(
+                                `Round-trip edge count mismatch: ${result.jsonOutput.edges.length} → ${roundTripJson.edges.length}`
+                            );
+                            result.passed = false;
+                        }
+                    }
+                } catch (e) {
+                    result.dslRoundTripErrors.push(`DSL round-trip failed: ${e}`);
+                    result.passed = false;
+                }
             }
 
             // NEW: Snapshot comparison
