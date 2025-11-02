@@ -22,10 +22,12 @@ description<string>: "A description";
 ### number
 Numeric values (integers and floats):
 ```dy
-count<number>: 42;
-price<number>: 19.99;
-scientific<number>: 1.5e10;
-temperature<number>: -273.15;
+machine "Example" {
+    count<number>: 42;
+    price<number>: 19.99;
+    scientific<number>: 1.5e10;
+    temperature<number>: -273.15;
+}
 ```
 
 ### boolean

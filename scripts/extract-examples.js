@@ -221,7 +221,7 @@ async function scanMarkdownFiles(dir) {
     for (const entry of entries) {
         const fullPath = join(dir, entry.name);
         if (entry.isDirectory()) {
-            if (entry.name !== 'node_modules' && entry.name !== '.git' && entry.name !== 'archived') {
+            if (entry.name !== 'node_modules' && entry.name !== '.git' && entry.name !== 'archived' && entry.name !== 'development') {
                 files.push(...await scanMarkdownFiles(fullPath));
             }
         } else if (entry.name.endsWith('.md') || entry.name.endsWith('.mdx')) {
