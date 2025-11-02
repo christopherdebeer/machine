@@ -41,10 +41,10 @@ const html = `<!DOCTYPE html>
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Space Mono', monospace, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #0F0F0F;
+            background: #F7F7F7;
             min-height: 100vh;
             padding: 2rem;
         }
@@ -53,19 +53,20 @@ const html = `<!DOCTYPE html>
             max-width: 1200px;
             margin: 0 auto;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             padding: 3rem;
         }
 
         h1 {
-            color: #667eea;
+            color: #0F0F0F;
             margin-bottom: 0.5rem;
             font-size: 2.5rem;
+            font-weight: 700;
         }
 
         .subtitle {
-            color: #666;
+            color: #303030;
             margin-bottom: 3rem;
             font-size: 1.1rem;
         }
@@ -78,30 +79,51 @@ const html = `<!DOCTYPE html>
         }
 
         .report-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border: 2px solid #0F0F0F;
+            border-left: 8px solid #FF5E5B;
+            border-radius: 4px;
             padding: 1.5rem;
-            transition: all 0.3s ease;
-            background: #fafafa;
+            transition: all 0.2s;
+            background: #F7F7F7;
         }
 
         .report-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            background: #303030;
+            color: white;
             transform: translateY(-2px);
         }
 
+        .report-card:hover h2,
+        .report-card:hover p,
+        .report-card:hover .icon {
+            color: white;
+        }
+
+        .report-card:hover a {
+            color: #FF5E5B;
+        }
+
+        .report-card:hover a.unavailable {
+            color: #999;
+        }
+
+        .report-card:hover .status {
+            background: #FF5E5B;
+            color: white;
+        }
+
         .report-card h2 {
-            color: #333;
+            color: #0F0F0F;
             margin-bottom: 1rem;
             font-size: 1.5rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
         .report-card p {
-            color: #666;
+            color: #303030;
             margin-bottom: 1rem;
         }
 
@@ -115,14 +137,13 @@ const html = `<!DOCTYPE html>
         }
 
         .report-card a {
-            color: #667eea;
+            color: #FF5E5B;
             text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
         .report-card a:hover {
-            color: #764ba2;
             text-decoration: underline;
         }
 
@@ -137,40 +158,62 @@ const html = `<!DOCTYPE html>
         }
 
         .info-section {
-            background: #f0f4ff;
-            border-left: 4px solid #667eea;
+            background: #F7F7F7;
+            border-left: 8px solid #FF5E5B;
             padding: 1.5rem;
             border-radius: 4px;
             margin-bottom: 2rem;
         }
 
         .info-section h3 {
-            color: #667eea;
+            color: #0F0F0F;
             margin-bottom: 0.5rem;
+            font-weight: 600;
         }
 
         .info-section p {
-            color: #555;
+            color: #303030;
             margin-bottom: 0.5rem;
+        }
+
+        .info-section code {
+            background: #1A1A1A;
+            color: #F7F7F7;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            font-size: 0.9rem;
         }
 
         footer {
             text-align: center;
-            color: #999;
+            color: #303030;
             margin-top: 3rem;
             padding-top: 2rem;
-            border-top: 1px solid #e0e0e0;
+            border-top: 2px solid #0F0F0F;
+        }
+
+        footer a {
+            color: #FF5E5B;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
         }
 
         .badge {
             display: inline-block;
             padding: 0.25rem 0.75rem;
-            background: #667eea;
+            background: #0F0F0F;
             color: white;
-            border-radius: 12px;
+            border-radius: 4px;
             font-size: 0.875rem;
             font-weight: 600;
             margin-left: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .status {
@@ -180,16 +223,75 @@ const html = `<!DOCTYPE html>
             font-size: 0.75rem;
             font-weight: 600;
             margin-left: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .status.available {
-            background: #d4edda;
-            color: #155724;
+            background: #4caf50;
+            color: white;
         }
 
         .status.unavailable {
-            background: #f8d7da;
-            color: #721c24;
+            background: #FF5E5B;
+            color: white;
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .report-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .report-card {
+                padding: 1rem;
+            }
+
+            .report-card h2 {
+                font-size: 1.25rem;
+            }
+
+            .info-section {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+            }
+
+            .report-card h2 {
+                font-size: 1.1rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .badge {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
         }
     </style>
 </head>
