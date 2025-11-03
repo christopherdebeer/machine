@@ -1206,25 +1206,23 @@ describe('Comprehensive Generative Integration Tests', () => {
                         const roundTripJsonResult = generateJSON(roundTripMachine, example.filename, undefined);
                         const roundTripJson = JSON.parse(roundTripJsonResult.content);
 
-                        // Compare key properties (title, node count, edge count)
-                        if (roundTripJson.title !== result.jsonOutput.title) {
-                            result.dslRoundTripErrors.push(
-                                `Round-trip title mismatch: "${result.jsonOutput.title}" → "${roundTripJson.title}"`
-                            );
-                            result.passed = false;
-                        }
+                        // Deep compare JSON structures (DSL→JSON1→DSL2→JSON2, check JSON1 === JSON2)
+                        // This ensures lossless transformation, ignoring formatting differences
+                        const jsonDifferences = deepCompareJSON(result.jsonOutput, roundTripJson, 'json');
 
-                        if (roundTripJson.nodes.length !== result.jsonOutput.nodes.length) {
+                        if (jsonDifferences.length > 0) {
                             result.dslRoundTripErrors.push(
-                                `Round-trip node count mismatch: ${result.jsonOutput.nodes.length} → ${roundTripJson.nodes.length}`
+                                `Round-trip JSON mismatch (DSL→JSON→DSL→JSON should be lossless):`
                             );
-                            result.passed = false;
-                        }
+                            // Report first 10 differences to avoid overwhelming output
+                            const limitedDiffs = jsonDifferences.slice(0, 10);
+                            result.dslRoundTripErrors.push(...limitedDiffs.map(d => `  - ${d}`));
 
-                        if (roundTripJson.edges.length !== result.jsonOutput.edges.length) {
-                            result.dslRoundTripErrors.push(
-                                `Round-trip edge count mismatch: ${result.jsonOutput.edges.length} → ${roundTripJson.edges.length}`
-                            );
+                            if (jsonDifferences.length > 10) {
+                                result.dslRoundTripErrors.push(
+                                    `  ... and ${jsonDifferences.length - 10} more difference(s)`
+                                );
+                            }
                             result.passed = false;
                         }
                     }
@@ -1272,6 +1270,111 @@ describe('Comprehensive Generative Integration Tests', () => {
 
         reporter.addResult(result);
         return result;
+    };
+
+    /**
+     * Deep comparison of two JSON objects with normalization for arrays
+     * Returns an array of difference descriptions, or empty array if equal
+     */
+    const deepCompareJSON = (obj1: any, obj2: any, path: string = 'root'): string[] => {
+        const differences: string[] = [];
+
+        // Handle null/undefined
+        if (obj1 == null && obj2 == null) return [];
+        if (obj1 == null) {
+            differences.push(`${path}: first is null/undefined, second is ${typeof obj2}`);
+            return differences;
+        }
+        if (obj2 == null) {
+            differences.push(`${path}: first is ${typeof obj1}, second is null/undefined`);
+            return differences;
+        }
+
+        // Handle type differences
+        if (typeof obj1 !== typeof obj2) {
+            differences.push(`${path}: type mismatch (${typeof obj1} vs ${typeof obj2})`);
+            return differences;
+        }
+
+        // Handle primitives
+        if (typeof obj1 !== 'object') {
+            if (obj1 !== obj2) {
+                differences.push(`${path}: value mismatch (${obj1} vs ${obj2})`);
+            }
+            return differences;
+        }
+
+        // Handle arrays
+        if (Array.isArray(obj1) && Array.isArray(obj2)) {
+            if (obj1.length !== obj2.length) {
+                differences.push(`${path}: array length mismatch (${obj1.length} vs ${obj2.length})`);
+                return differences;
+            }
+
+            // For arrays of objects with 'name' field, compare by name (order-independent)
+            const hasNameField = obj1.length > 0 && obj1[0]?.name !== undefined;
+            if (hasNameField) {
+                const map1 = new Map(obj1.map((item: any) => [item.name, item]));
+                const map2 = new Map(obj2.map((item: any) => [item.name, item]));
+
+                // Check all names exist in both
+                for (const name of map1.keys()) {
+                    if (!map2.has(name)) {
+                        differences.push(`${path}: item "${name}" exists in first but not in second`);
+                    }
+                }
+                for (const name of map2.keys()) {
+                    if (!map1.has(name)) {
+                        differences.push(`${path}: item "${name}" exists in second but not in first`);
+                    }
+                }
+
+                // Deep compare matching items
+                for (const [name, item1] of map1.entries()) {
+                    const item2 = map2.get(name);
+                    if (item2) {
+                        differences.push(...deepCompareJSON(item1, item2, `${path}[name="${name}"]`));
+                    }
+                }
+            } else {
+                // For other arrays, compare by index
+                for (let i = 0; i < obj1.length; i++) {
+                    differences.push(...deepCompareJSON(obj1[i], obj2[i], `${path}[${i}]`));
+                }
+            }
+
+            return differences;
+        }
+
+        // Handle objects
+        if (Array.isArray(obj1) !== Array.isArray(obj2)) {
+            differences.push(`${path}: type mismatch (array vs object)`);
+            return differences;
+        }
+
+        // Compare object keys
+        const keys1 = Object.keys(obj1).sort();
+        const keys2 = Object.keys(obj2).sort();
+
+        // Check for missing keys
+        for (const key of keys1) {
+            if (!keys2.includes(key)) {
+                differences.push(`${path}.${key}: exists in first but not in second`);
+            }
+        }
+        for (const key of keys2) {
+            if (!keys1.includes(key)) {
+                differences.push(`${path}.${key}: exists in second but not in first`);
+            }
+        }
+
+        // Deep compare common keys
+        const commonKeys = keys1.filter(k => keys2.includes(k));
+        for (const key of commonKeys) {
+            differences.push(...deepCompareJSON(obj1[key], obj2[key], `${path}.${key}`));
+        }
+
+        return differences;
     };
 
     // Helper to extract node names from source
