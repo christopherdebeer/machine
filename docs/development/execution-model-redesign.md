@@ -109,18 +109,27 @@ Tasks with `meta: true` can:
 
 ### Where to Start?
 
-**Current approach**: Single entry point ("start" node or first node)
+**Previous approach**: Single entry point ("start" node or first node)
 
-**Considerations**:
-- ✅ Non-data nodes without incoming edges (init nodes)
-- ✅ Support for multiple entry points (different execution modes)
-- ❌ Parallel execution from multiple starts
-- ❌ Entry points for sub-graphs or modules
+**New decision**: **Support multiple start nodes by default**
 
-**Recommendation**: Keep single entry point for simplicity, but:
-- Make start node detection more explicit
-- Support init nodes as entry candidates
-- Allow execution from any node (for testing/debugging)
+**Rationale**:
+- Production machines often have independent workflows
+- Parallel execution paths improve performance
+- Different entry points for different execution modes
+- Natural fit for event-driven architectures
+
+**Multiple start node detection**:
+1. All nodes with `init` type
+2. All nodes named "start*" (case-insensitive)
+3. All non-data nodes without incoming edges
+4. Explicit start nodes via machine configuration
+
+**Execution semantics**:
+- Each start node initiates an independent execution path
+- Paths execute concurrently by default
+- Shared context requires synchronization
+- Execution completes when all paths reach terminal nodes or limits
 
 ### Edge Type Semantics
 
@@ -212,6 +221,7 @@ Tasks with `meta: true` can:
 3. **Progressive**: Works for sketches, scales to production
 4. **Explicit when needed**: Defaults for quick prototyping, annotations for control
 5. **Single render path**: One execution model, one visualization
+6. **Concurrent by default**: Support multiple start nodes and parallel execution paths
 
 ### Architecture
 
@@ -242,6 +252,228 @@ Tasks with `meta: true` can:
         │  - Template vars    │
         └─────────────────────┘
 ```
+
+### Multiple Start Nodes: Deep Dive
+
+#### Motivation
+
+Production machines often require parallel workflows:
+
+```dygram
+machine "Data Pipeline"
+
+// Three independent start nodes
+init DataIngestion "Ingest data from API"
+init HealthCheck "Monitor system health"
+init UserRequests "Process user requests"
+
+// Each has independent flow
+DataIngestion -> ValidateData -> TransformData -> StoreData
+HealthCheck -> CheckMetrics -> AlertIfNeeded
+UserRequests -> AuthenticateUser -> ProcessRequest -> SendResponse
+```
+
+This machine has three concurrent entry points, each managing a different concern.
+
+#### Execution Model
+
+**Initialization**:
+```javascript
+function initialize(machine) {
+  // Find all start nodes
+  const startNodes = detectStartNodes(machine)
+
+  // Create execution path for each
+  const paths = startNodes.map(node => ({
+    id: generatePathId(),
+    currentNode: node,
+    history: [node],
+    context: createPathContext(),
+    status: 'active'
+  }))
+
+  return {
+    paths,
+    sharedContext: createSharedContext(),
+    startTime: Date.now()
+  }
+}
+```
+
+**Execution loop**:
+```javascript
+async function execute(executionState) {
+  while (hasActivePaths(executionState)) {
+    // Process all active paths in parallel
+    const updates = await Promise.all(
+      executionState.paths
+        .filter(p => p.status === 'active')
+        .map(path => executePathStep(path, executionState.sharedContext))
+    )
+
+    // Apply updates
+    updates.forEach(update => applyPathUpdate(executionState, update))
+
+    // Check global limits
+    if (exceedsLimits(executionState)) break
+  }
+
+  return executionState
+}
+```
+
+#### Synchronization Strategies
+
+**1. Context Locking**
+
+When multiple paths access shared context:
+
+```javascript
+class ContextManager {
+  async read(contextName, pathId) {
+    // Reads are concurrent
+    return this.contexts[contextName].value
+  }
+
+  async write(contextName, pathId, value) {
+    // Writes are serialized
+    await this.locks[contextName].acquire()
+    try {
+      this.contexts[contextName].value = value
+      this.contexts[contextName].version++
+    } finally {
+      this.locks[contextName].release()
+    }
+  }
+}
+```
+
+**2. Path Barriers**
+
+Wait for multiple paths to reach a point:
+
+```dygram
+// Parallel processing with synchronization
+init Worker1, Worker2, Worker3
+
+Worker1 -> Process1 -> @barrier("sync_point")
+Worker2 -> Process2 -> @barrier("sync_point")
+Worker3 -> Process3 -> @barrier("sync_point")
+
+// Continue after all reach barrier
+@barrier("sync_point") -> Aggregate -> Finish
+```
+
+**3. Message Passing**
+
+Paths communicate via context channels:
+
+```dygram
+context Channel { messages: [] }
+
+init Producer "Generate messages"
+init Consumer "Process messages"
+
+Producer --> Channel  // writes
+Consumer --> Channel  // reads
+
+Producer -[when: "Channel.messages.length < 10"]-> Producer
+Consumer -[when: "Channel.messages.length > 0"]-> Consumer
+```
+
+#### Path Lifecycle
+
+**States**:
+- `active`: Path is executing
+- `waiting`: Path is blocked (barrier, condition)
+- `completed`: Path reached terminal node
+- `failed`: Path hit error or limit
+- `cancelled`: Path was stopped externally
+
+**Transitions**:
+```
+active -> waiting: Blocked on condition or barrier
+waiting -> active: Condition met or barrier released
+active -> completed: Reached terminal node
+active -> failed: Error, timeout, or limit exceeded
+any -> cancelled: External cancellation
+```
+
+#### Safety and Limits
+
+**Per-path limits**:
+- Maximum steps per path
+- Maximum node invocations per path
+- Timeout per path
+
+**Global limits**:
+- Maximum total steps (all paths)
+- Maximum concurrent paths
+- Global execution timeout
+- Memory limits
+
+```dygram
+machine "With Limits" {
+  maxSteps: 1000              // Global limit
+  maxConcurrentPaths: 10      // Concurrent paths
+  timeout: 300000             // 5 minutes total
+  perPathMaxSteps: 100        // Each path limit
+}
+```
+
+#### Error Handling
+
+**Strategies**:
+
+1. **Fail-fast**: Any path failure stops all paths
+   ```javascript
+   machine "CriticalSystem" @errorHandling("fail-fast")
+   ```
+
+2. **Continue**: Path failures don't affect other paths
+   ```javascript
+   machine "ResilientSystem" @errorHandling("continue")
+   ```
+
+3. **Compensate**: Failed path triggers rollback
+   ```javascript
+   machine "TransactionalSystem" @errorHandling("compensate")
+   ```
+
+#### Visualization Considerations
+
+**Rendering multiple active nodes**:
+- Highlight all active paths in different colors
+- Show path IDs in node labels
+- Animate transitions per path
+- Display path status in sidebar
+
+**Examples**:
+```
+Path 1 (active): Start -> Task1 -> [Task2] -> End
+Path 2 (waiting): Init -> Check -> [Blocked on condition]
+Path 3 (completed): Setup -> Process -> Done
+```
+
+#### Implementation Implications
+
+**Phase 1 additions**:
+- `PathManager`: Track and coordinate execution paths
+- `SynchronizationManager`: Handle barriers and locks
+- Update `ExecutionContext` to support multiple paths
+- Modify transition logic for concurrent execution
+
+**Phase 2 additions**:
+- Barrier annotations (`@barrier("name")`)
+- Path communication primitives
+- Error handling strategies
+- Path-specific attributes
+
+**Phase 3 additions**:
+- Advanced synchronization (semaphores, channels)
+- Path priorities and scheduling
+- Dynamic path creation
+- Path lifecycle hooks
 
 ### Key Components
 
@@ -346,43 +578,54 @@ function getContextPermissions(task, context):
 ```
 1. Initialize
    - Load machine definition
-   - Find start node
-   - Create execution context
-   - Set up safety limits
+   - Find all start nodes (multiple supported)
+   - Create execution paths for each start node
+   - Create shared context
+   - Set up safety limits (per-path and global)
 
 2. Execute Loop
-   while not terminated and not limit_exceeded:
-     a. Get current node
-     b. Track invocation (check limits)
-     c. Track state transition (check cycles)
-     d. Check timeout
+   while hasActivePaths() and not global_limits_exceeded:
+     // Process all active paths concurrently
+     for each path in paths.filter(p => p.status === 'active'):
+       a. Get current node for path
+       b. Track invocation (check per-path limits)
+       c. Track state transition (check cycles)
+       d. Check path and global timeouts
 
-     e. Evaluate automated transitions
-        - Single edge from state/init
-        - @auto annotation
-        - Simple deterministic condition
+       e. Evaluate automated transitions
+          - Single edge from state/init
+          - @auto annotation
+          - Simple deterministic condition
 
-     f. If auto transition found:
-        - Transition to target
-        - Continue loop
+       f. If auto transition found:
+          - Transition to target
+          - Update path state
+          - Continue to next path
 
-     g. If no auto transition:
-        - Check if requires agent decision
-        - Build system prompt
-        - Get available tools
-        - Invoke agent
-        - Process tool calls
-        - Transition based on agent choice
+       g. If no auto transition:
+          - Check if requires agent decision
+          - Build system prompt
+          - Get available tools
+          - Invoke agent (async)
+          - Process tool calls
+          - Handle context synchronization if needed
+          - Transition based on agent choice
 
-     h. If no outbound edges:
-        - Terminal node reached
-        - Exit loop
+       h. If no outbound edges:
+          - Terminal node reached
+          - Mark path as completed
+
+       i. Handle path barriers:
+          - If at barrier, mark path as waiting
+          - Check if all required paths at barrier
+          - If barrier complete, resume all waiting paths
 
 3. Return Results
-   - Execution context
-   - History
+   - Execution context (all paths)
+   - Per-path history
+   - Shared context state
    - Mutations
-   - Final state
+   - Final status for each path
 ```
 
 ### Edge Semantic Types
@@ -425,13 +668,32 @@ Different node types have different execution strategies:
 
 ### Start Node Detection
 
-Priority order:
+**Multiple start nodes supported by default**. Detection algorithm:
 
-1. Explicit `init` type node
-2. Node named "start" (case-insensitive)
-3. Node with no incoming edges and outgoing edges
-4. First node in definition
-5. Configurable via `startNode` in machine attributes
+1. **Explicit init nodes**: All nodes with `init` type
+2. **Named start nodes**: All nodes matching "start*" pattern (case-insensitive)
+3. **Inference**: All non-data nodes with no incoming edges and at least one outgoing edge
+4. **Configuration override**: `startNodes: ["Node1", "Node2"]` in machine attributes
+5. **Single start fallback**: If none found, use first node in definition
+
+**Examples**:
+
+```dygram
+// Multiple explicit starts
+init Workflow1, Workflow2, Workflow3
+
+// Mixed detection
+init Start1        // Explicit
+state Start2       // Named pattern
+task Orphan        // No incoming edges
+
+// Configuration override
+machine "MyMachine" {
+  startNodes: ["CustomEntry1", "CustomEntry2"]
+}
+```
+
+**Backward compatibility**: Machines with single start node work unchanged
 
 ### Annotation System
 
@@ -553,83 +815,200 @@ Behavior: Full production features
 
 ## Implementation Plan
 
-### Phase 1: Core Refactoring (Weeks 1-2)
+### Phase 1: Core Refactoring and Concurrency Foundation (Weeks 1-3)
 
-1. **Extract Transition Logic**
+1. **Extract Core Managers**
    - Move transition evaluation to `TransitionManager`
-   - Centralize auto-transition rules
-   - Support state module entry
-
-2. **Extract Context Logic**
    - Move context permissions to `ContextManager`
-   - Centralize access control
-   - Support field-level permissions
-
-3. **Extract Tool Logic**
    - Move tool registration to `ToolManager`
-   - Dynamic tool generation
-   - Meta-tool support
+   - Centralize CEL evaluation in `EvaluationEngine`
 
-### Phase 2: Enhanced Semantics (Weeks 3-4)
+2. **Multiple Start Nodes Infrastructure**
+   - Implement `PathManager` for execution path tracking
+   - Update `ExecutionContext` to support multiple active paths
+   - Create path state management (active, waiting, completed, failed)
+   - Implement start node detection algorithm
+
+3. **Basic Concurrency Support**
+   - Parallel path execution loop
+   - Per-path and global safety limits
+   - Path-level history and state tracking
+   - Backward compatibility with single-start machines
+
+4. **Context Synchronization (Basic)**
+   - Add locking mechanism for shared context writes
+   - Implement concurrent reads
+   - Track context version numbers
+   - Basic race condition prevention
+
+### Phase 2: Enhanced Semantics and Synchronization (Weeks 4-6)
 
 1. **Edge Type System**
-   - Define semantic edge types
-   - Map arrow syntax to types
-   - Update generators
+   - Define semantic edge types (control, data, dependency)
+   - Map arrow syntax to types (→, -->, =>)
+   - Update DSL parser and generators
+   - Update visualizer for edge types
 
 2. **Annotation System**
-   - Support node annotations
-   - Support edge annotations
-   - Support machine annotations
+   - Support node annotations (@retry, @timeout, @checkpoint)
+   - Support edge annotations (@auto, @parallel, @priority)
+   - Support machine annotations (@concurrent, @errorHandling)
+   - Update parser grammar
 
-3. **Start Node Detection**
-   - Implement priority-based detection
-   - Support multiple entry points
-   - Add execution modes
+3. **Advanced Synchronization**
+   - Implement `SynchronizationManager`
+   - Add barrier annotations (@barrier)
+   - Path waiting and resumption logic
+   - Message passing via context channels
 
-### Phase 3: Safety and Reliability (Weeks 5-6)
+4. **Error Handling Strategies**
+   - Fail-fast mode (any failure stops all)
+   - Continue mode (isolated failures)
+   - Compensate mode (rollback on failure)
+   - Per-path error boundaries
 
-1. **Enhanced Safety**
-   - Per-node timeout
-   - Retry policies
-   - Error handling strategies
+### Phase 3: Production Features and Optimization (Weeks 7-9)
 
-2. **State Management**
-   - Checkpoint/restore
-   - Execution replay
-   - Mutation tracking
+1. **Enhanced Safety and Limits**
+   - Per-node timeout annotations
+   - Retry policies (exponential backoff, fixed)
+   - Circuit breaker pattern
+   - Resource limits (memory, concurrent paths)
 
-3. **Testing and Documentation**
-   - Comprehensive tests
-   - Update documentation
-   - Migration guide
+2. **Execution Modes**
+   - Eager execution (default, immediate)
+   - Groundwork for lazy evaluation
+   - Add @lazy and @eager annotations
+   - Dependency graph analysis
 
-## Open Questions
+3. **State Management**
+   - Checkpoint/restore for paths
+   - Execution replay from checkpoint
+   - Mutation tracking and audit log
+   - Serialization of execution state
 
-1. **Parallel execution**: Should we support concurrent node execution?
-   - Pro: Enables parallel workflows
-   - Con: Adds complexity (synchronization, state)
-   - Decision: Defer to future, design for it
+4. **Testing and Documentation**
+   - Comprehensive unit tests for managers
+   - Integration tests for concurrent execution
+   - Test barrier and synchronization primitives
+   - Update all documentation
+   - Create migration guide
+   - Add examples for parallel workflows
 
-2. **Async transitions**: Should edges support async/await semantics?
-   - Pro: Natural for API calls, delays
-   - Con: Complicates execution model
-   - Decision: Handle via task nodes, not edges
+### Phase 4: Advanced Features (Future)
 
-3. **Dynamic graphs**: Should execution support runtime graph modification beyond meta-tools?
-   - Pro: More flexible
-   - Con: Harder to reason about
-   - Decision: Meta-tools sufficient, keep graph mostly static
+1. **Dynamic Path Creation**
+   - Spawn new paths at runtime
+   - Dynamic fan-out patterns
+   - Path termination and cleanup
 
-4. **Execution modes**: Should we support different execution strategies (eager, lazy, etc.)?
-   - Pro: Optimization opportunities
-   - Con: More complex API
-   - Decision: Start with eager, consider lazy for future
+2. **Lazy Evaluation**
+   - On-demand node execution
+   - Dependency-driven execution
+   - Smart execution planning
 
-5. **Subgraphs**: Should we support modular subgraph composition?
-   - Pro: Reusability, organization
-   - Con: Namespace management, composition rules
-   - Decision: State modules provide this, enhance if needed
+3. **Advanced Synchronization**
+   - Semaphores for resource limits
+   - Channels for message passing
+   - Path priorities and scheduling
+   - Deadlock detection
+
+4. **Visualization Enhancements**
+   - Real-time multi-path visualization
+   - Path timeline view
+   - Resource utilization graphs
+   - Barrier and sync point indicators
+
+## Design Decisions
+
+### 1. Parallel Execution
+**Question**: Should we support concurrent node execution?
+
+**Decision**: **YES** - Support multiple start nodes by default
+
+**Rationale**:
+- Enables parallel workflows and concurrent task execution
+- Multiple start nodes allow different execution paths to run simultaneously
+- Essential for production-grade machines with independent workflows
+- Complexity is manageable with proper synchronization primitives
+
+**Implications**:
+- Need to handle multiple active nodes in execution context
+- Require synchronization for shared context access
+- Must track multiple execution paths independently
+- Safety limits apply per-path and globally
+
+### 2. Async Transitions
+**Question**: Should edges support async/await semantics?
+
+**Decision**: **YES** - Handle via task nodes and dependencies, not edges explicitly
+
+**Rationale**:
+- Task nodes naturally support async operations (API calls, delays)
+- Edges remain declarative (relationships, not execution)
+- Dependencies can be expressed through edge conditions
+- Keeps edge semantics simple and compositional
+
+**Implementation**:
+- Task nodes execute asynchronously by nature
+- Use `when:` conditions to wait for completion
+- Context updates signal completion to waiting paths
+- No special edge syntax needed
+
+### 3. Dynamic Graphs
+**Question**: Should execution support runtime graph modification beyond meta-tools?
+
+**Decision**: **LIMITED** - Meta-tools only, but entirely possible when active
+
+**Rationale**:
+- Meta-tools provide controlled, auditable graph modification
+- Unrestricted runtime changes make execution unpredictable
+- Meta-tool approach maintains single source of truth
+- Sufficient for self-modifying agents and adaptive workflows
+
+**Constraints**:
+- Only nodes with `meta: true` can modify graph
+- Modifications logged in mutation history
+- Changes affect subsequent execution, not current step
+- Graph validation runs after modifications
+
+### 4. Execution Modes
+**Question**: Should we support different execution strategies (eager, lazy, etc.)?
+
+**Decision**: **START WITH EAGER** - Prepare groundwork for lazy in near future
+
+**Rationale**:
+- Eager execution is simpler and more predictable
+- Covers 90% of use cases immediately
+- Lazy evaluation useful for optimization and large graphs
+- Architecture should support both modes
+
+**Roadmap**:
+- Phase 1-2: Eager execution only
+- Phase 3: Add lazy evaluation annotations
+- Future: Smart execution planning based on graph analysis
+
+**Groundwork**:
+- Design edge semantics to support lazy evaluation
+- Use annotations (`@lazy`, `@eager`) for hints
+- Track node dependencies for lazy resolution
+
+### 5. Subgraphs
+**Question**: Should we support modular subgraph composition?
+
+**Decision**: **STATE MODULES PROVIDE THIS** - Enhance if needed
+
+**Rationale**:
+- State modules already support hierarchical composition
+- Nested modules provide namespace isolation
+- Module-level edges support reusable patterns
+- Additional composition can be added later
+
+**Enhancement opportunities**:
+- Import/export of state modules
+- Module parameterization
+- Module libraries
+- Dynamic module loading
 
 ## Success Criteria
 
