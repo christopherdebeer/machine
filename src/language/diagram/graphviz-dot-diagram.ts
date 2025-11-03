@@ -1050,9 +1050,12 @@ export function generateRuntimeDotDiagram(
             }
         }
 
+        // Determine edge styling based on traversal status
+        const edgeStyle = getRuntimeEdgeStyle(edge, context);
+
         const edgeLine = label
-            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}"];`
-            : `  "${edge.source}" -> "${edge.target}";`;
+            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}", ${edgeStyle}];`
+            : `  "${edge.source}" -> "${edge.target}" [${edgeStyle}];`;
         lines.push(edgeLine);
     });
 
@@ -2153,7 +2156,11 @@ function buildNodeStates(machineJson: MachineJSON, context: RuntimeContext): Run
 
         const runtimeValues: Record<string, any> = {};
 
-        if (isCurrent && context.attributes.size > 0) {
+        // For Context nodes, show all runtime values regardless of current node
+        // For other nodes, only show runtime values when they are the current node
+        const isContextNode = node.type?.toLowerCase() === 'context';
+
+        if (isContextNode || isCurrent) {
             context.attributes.forEach((value, key) => {
                 runtimeValues[key] = value;
             });
@@ -2228,6 +2235,30 @@ function getRuntimeNodeStyle(node: RuntimeNodeState): string {
             return 'fillcolor="#FFC107", style=filled, color="#F57F17"';
         default:
             return 'fillcolor="#FFFFFF", style=filled, color="#000000"';
+    }
+}
+
+/**
+ * Get runtime edge styling based on traversal status
+ * Shows recently traversed edges (active), previously traversed edges, and untraversed edges
+ */
+function getRuntimeEdgeStyle(edge: RuntimeEdgeState, context: RuntimeContext): string {
+    // Check if this is the most recent transition (active edge)
+    const lastTransition = context.history[context.history.length - 1];
+    const isActiveEdge = lastTransition &&
+                         lastTransition.from === edge.source &&
+                         lastTransition.to === edge.target;
+
+    if (isActiveEdge) {
+        // Active edge (just transitioned): thick green line
+        return 'color="#4CAF50", penwidth=3, style=bold';
+    } else if (edge.traversalCount > 0) {
+        // Previously traversed edge: blue, thickness based on traversal count
+        const width = Math.min(2 + edge.traversalCount * 0.5, 5); // Cap at penwidth 5
+        return `color="#2196F3", penwidth=${width}`;
+    } else {
+        // Never traversed edge: gray, thin
+        return 'color="#CCCCCC", penwidth=1, style=dashed';
     }
 }
 
