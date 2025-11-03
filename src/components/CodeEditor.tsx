@@ -30,7 +30,6 @@ import {
     autocompletion,
     completionKeymap,
     closeBrackets,
-    closeBracketsKeymap,
 } from '@codemirror/autocomplete';
 import {
     foldGutter,
@@ -49,6 +48,7 @@ import { Machine } from '../language/generated/ast';
 import { parseHelper } from 'langium/test';
 import { generateGraphviz } from '../language/generator/generator';
 import { render as renderGraphviz } from '../language/diagram-controls';
+import styled from 'styled-components';
 
 export type DisplayMode = 'code-only' | 'visual-only' | 'split' | 'toggle';
 export type ThemeMode = 'light' | 'dark' | 'auto';
@@ -81,6 +81,28 @@ export interface CodeEditorProps {
     language?: string;
     id?: string;
 }
+
+const Output = styled.div`
+    min-width: 300px;
+    border-radius: 0.3em;
+    box-shadow: 0 0 1em black;
+
+    & > svg {
+        width: auto !important;
+        height: auto !important;
+        max-height: 500px;
+    }
+`;
+
+const Wrapper = styled.div`
+    padding: 0.6em;
+    background-color: #282c34;
+    border-radius: 0.6em;
+`
+
+const CodeEditorWrapper = styled.div`
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+`
 
 /**
  * CodeEditor Component
@@ -152,7 +174,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             highlightActiveLine(),
             highlightSelectionMatches(),
             keymap.of([
-                ...closeBracketsKeymap,
+                // ...closeBracketsKeymap,
                 ...defaultKeymap,
                 ...searchKeymap,
                 ...historyKeymap,
@@ -283,8 +305,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         switch (mode) {
             case 'code-only':
                 return (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        <div
+                    <Wrapper style={{ display: 'flex', flexDirection: 'column'}}>
+                        <CodeEditorWrapper
                             ref={editorRef}
                             className="code-editor-container"
                             style={{
@@ -293,20 +315,20 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                             }}
                         />
                         {showOutput && outputSvg && (
-                            <div ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                            <Output ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
                         )}
-                    </div>
+                    </Wrapper>
                 );
 
             case 'visual-only':
                 return (
-                    <div ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                    <Output ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
                 );
 
             case 'split':
                 return (
-                    <div style={{ display: 'flex', gap: '1rem', flexDirection: 'row', flexWrap: 'wrap' }}>
-                        <div
+                    <Wrapper style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+                        <CodeEditorWrapper
                             ref={editorRef}
                             className="code-editor-container"
                             style={{
@@ -317,19 +339,19 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                             }}
                         />
                         {showOutput && (
-                            <div
+                            <Output
                                 ref={outputRef}
                                 className="output"
-                                style={{ flex: '1 1 45%', minWidth: '300px' }}
+                                style={{ flex: '1 1 45%' }}
                                 dangerouslySetInnerHTML={{ __html: outputSvg }}
                             />
                         )}
-                    </div>
+                    </Wrapper>
                 );
 
             case 'toggle':
                 return (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <Wrapper style={{ display: 'flex', flexDirection: 'column' }}>
                         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                             <button
                                 onClick={() => setCurrentView('code')}
@@ -359,7 +381,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                             </button>
                         </div>
                         {currentView === 'code' ? (
-                            <div
+                            <CodeEditorWrapper
                                 ref={editorRef}
                                 className="code-editor-container"
                                 style={{
@@ -368,9 +390,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 }}
                             />
                         ) : (
-                            <div ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                            <Output ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
                         )}
-                    </div>
+                    </Wrapper>
                 );
         }
     };
