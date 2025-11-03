@@ -334,12 +334,23 @@ export class RailsExecutor extends BaseExecutor {
 
         const outboundEdges = this.getOutboundEdges(nodeName);
 
+        this.logger.debug('transition', `Evaluating ${outboundEdges.length} outbound edges from ${nodeName}`);
+
         // If only one edge and it's a state or init node, auto-transition
         if (outboundEdges.length === 1 && (NodeTypeChecker.isState(node) || NodeTypeChecker.isInit(node))) {
             const edge = outboundEdges[0];
             const condition = this.extractEdgeCondition(edge);
 
+            this.logger.debug('transition', `Single edge from ${NodeTypeChecker.isInit(node) ? 'init' : 'state'} node`, {
+                target: edge.target,
+                condition: condition || 'none'
+            });
+
             if (this.evaluateCondition(condition)) {
+                this.logger.info('transition', `Auto-transition: ${nodeName} -> ${edge.target} (single edge)`, {
+                    condition: condition || 'none',
+                    result: 'true'
+                });
                 return {
                     edge,
                     target: edge.target,
@@ -347,6 +358,10 @@ export class RailsExecutor extends BaseExecutor {
                     isAutomatic: true,
                     reason: NodeTypeChecker.isInit(node) ? 'Single edge from init node' : 'Single edge from state node'
                 };
+            } else {
+                this.logger.debug('transition', `Single edge condition not met`, {
+                    condition: condition || 'none'
+                });
             }
         }
 
@@ -355,7 +370,15 @@ export class RailsExecutor extends BaseExecutor {
             if (this.hasAutoAnnotation(edge)) {
                 const condition = this.extractEdgeCondition(edge);
 
+                this.logger.debug('transition', `Evaluating @auto edge: ${nodeName} -> ${edge.target}`, {
+                    condition: condition || 'none'
+                });
+
                 if (this.evaluateCondition(condition)) {
+                    this.logger.info('transition', `Auto-transition: ${nodeName} -> ${edge.target} (@auto)`, {
+                        condition: condition || 'none',
+                        result: 'true'
+                    });
                     return {
                         edge,
                         target: edge.target,
@@ -363,6 +386,11 @@ export class RailsExecutor extends BaseExecutor {
                         isAutomatic: true,
                         reason: '@auto annotation'
                     };
+                } else {
+                    this.logger.debug('transition', `@auto edge condition not met`, {
+                        target: edge.target,
+                        condition: condition || 'none'
+                    });
                 }
             }
         }
@@ -372,7 +400,15 @@ export class RailsExecutor extends BaseExecutor {
             const condition = this.extractEdgeCondition(edge);
 
             if (condition && EdgeConditionParser.isSimpleCondition(condition)) {
+                this.logger.debug('transition', `Evaluating simple condition edge: ${nodeName} -> ${edge.target}`, {
+                    condition
+                });
+
                 if (this.evaluateCondition(condition)) {
+                    this.logger.info('transition', `Auto-transition: ${nodeName} -> ${edge.target} (simple condition)`, {
+                        condition,
+                        result: 'true'
+                    });
                     return {
                         edge,
                         target: edge.target,
@@ -380,10 +416,17 @@ export class RailsExecutor extends BaseExecutor {
                         isAutomatic: true,
                         reason: 'Simple deterministic condition'
                     };
+                } else {
+                    this.logger.debug('transition', `Simple condition not met`, {
+                        target: edge.target,
+                        condition,
+                        result: 'false'
+                    });
                 }
             }
         }
 
+        this.logger.debug('transition', `No automated transitions available from ${nodeName}`);
         return null;
     }
 
@@ -474,6 +517,10 @@ export class RailsExecutor extends BaseExecutor {
         let currentTarget = targetNode;
         const moduleChain: string[] = [];
 
+        this.logger.debug('execution', `Transitioning from ${fromNode} to ${targetNode}`, {
+            transitionLabel
+        });
+
         // Recursively enter nested state modules
         while (true) {
             const currentTargetObj = this.machineData.nodes.find(n => n.name === currentTarget);
@@ -486,6 +533,10 @@ export class RailsExecutor extends BaseExecutor {
                 if (!firstChild) {
                     break; // No children found, stop recursion
                 }
+
+                this.logger.debug('execution', `Entering state module: ${currentTarget}`, {
+                    firstChild
+                });
 
                 // Check if first child is also a state module
                 const firstChildObj = this.machineData.nodes.find(n => n.name === firstChild);
@@ -506,6 +557,11 @@ export class RailsExecutor extends BaseExecutor {
 
         // If we entered any modules, record the entry chain
         if (moduleChain.length > 0) {
+            this.logger.info('execution', `Entered state module(s): ${moduleChain.join(' -> ')}`, {
+                finalTarget: currentTarget,
+                fromNode
+            });
+
             console.log(`📦 State module(s) detected: ${moduleChain.join(' -> ')}, entering at ${currentTarget}`);
 
             // Record entry into each module in the chain
@@ -552,7 +608,13 @@ export class RailsExecutor extends BaseExecutor {
         // Update active state if transitioning to a state node
         if (finalTargetObj && NodeTypeChecker.isState(finalTargetObj)) {
             this.context.activeState = targetNode;
+            this.logger.info('execution', `Active state updated: ${targetNode}`);
         }
+
+        this.logger.info('execution', `Transition completed: ${fromNode} -> ${targetNode}`, {
+            transition: transitionLabel,
+            nodeType: finalTargetObj?.type || 'unknown'
+        });
 
         console.log(`🚂 Transitioned: ${fromNode} -> ${targetNode} (${transitionLabel})`);
     }
@@ -717,12 +779,22 @@ export class RailsExecutor extends BaseExecutor {
                     filtered[field] = attributes[field];
                 }
             });
+
+            this.logger.info('context', `Read from context: ${contextName}`, {
+                fields: input.fields,
+                values: filtered
+            });
+
             return {
                 success: true,
                 context: contextName,
                 data: filtered
             };
         }
+
+        this.logger.info('context', `Read all from context: ${contextName}`, {
+            fieldCount: Object.keys(attributes).length
+        });
 
         return {
             success: true,
@@ -745,6 +817,11 @@ export class RailsExecutor extends BaseExecutor {
         if (!input.data || typeof input.data !== 'object') {
             throw new Error('write tool requires data object');
         }
+
+        this.logger.info('context', `Writing to context: ${contextName}`, {
+            fields: Object.keys(input.data),
+            values: input.data
+        });
 
         // Update context node attributes
         if (!contextNode.attributes) {
@@ -773,6 +850,8 @@ export class RailsExecutor extends BaseExecutor {
             }
         });
 
+        this.logger.debug('context', `Context update recorded as mutation`);
+
         return {
             success: true,
             context: contextName,
@@ -799,13 +878,24 @@ export class RailsExecutor extends BaseExecutor {
             throw new Error(`Node ${nodeName} not found`);
         }
 
-        this.logger.info('execution', `Step: ${nodeName}`, { type: node.type || 'unknown' });
-        console.log(`\n🎯 Step: ${nodeName} (${node.type || 'unknown'})`);
+        // Get node attributes for detailed logging
+        const attributes = this.getNodeAttributes(nodeName);
+        const nodeType = node.type || 'unknown';
+
+        this.logger.info('execution', `Entering node: ${nodeName}`, {
+            type: nodeType,
+            attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
+            stepCount: this.context.history.length,
+            activeState: this.context.activeState
+        });
+
+        console.log(`\n🎯 Step: ${nodeName} (${nodeType})`);
 
         // Phase 3: Safety checks
         if (this.safetyManager) {
             // Check circuit breaker
             if (!this.safetyManager.canExecuteNode(nodeName)) {
+                this.logger.warn('safety', `Circuit breaker open for node ${nodeName}`);
                 console.warn(`⚠️ Circuit breaker open for node ${nodeName}, skipping`);
                 return false;
             }
@@ -843,11 +933,22 @@ export class RailsExecutor extends BaseExecutor {
         // Check timeout
         this.checkTimeout();
 
+        // Log outbound edges
+        const outboundEdges = this.getOutboundEdges(nodeName);
+        this.logger.debug('execution', `Node has ${outboundEdges.length} outbound edges`, {
+            edges: outboundEdges.map(e => ({
+                target: e.target,
+                label: e.label || e.type,
+                hasAnnotations: (e.annotations?.length || 0) > 0
+            }))
+        });
+
         // Step 1: Check for automated transitions
         const autoTransition = this.evaluateAutomatedTransitions(nodeName);
         if (autoTransition) {
             this.logger.info('transition', `Automated transition from ${nodeName} to ${autoTransition.target}`, {
-                reason: autoTransition.reason
+                reason: autoTransition.reason,
+                condition: autoTransition.condition
             });
             console.log(`✓ Automated transition: ${autoTransition.reason}`);
             this.transition(autoTransition.target, autoTransition.reason);
@@ -856,16 +957,22 @@ export class RailsExecutor extends BaseExecutor {
 
         // Step 2: If no auto-transition, check if agent decision required
         if (this.requiresAgentDecision(nodeName)) {
-            this.logger.info('execution', `Agent decision required for ${nodeName}`);
+            this.logger.info('execution', `Agent decision required for ${nodeName}`, {
+                nonAutomatedTransitions: this.getNonAutomatedTransitions(nodeName).length
+            });
             console.log(`🤖 Agent decision required for ${nodeName}`);
 
             // Extract task-level model ID if present
-            const attributes = this.getNodeAttributes(nodeName);
             const taskModelId = attributes.modelId ? String(attributes.modelId).replace(/^["']|["']$/g, '') : undefined;
 
             // Invoke agent with Agent SDK
             const systemPrompt = this.buildSystemPrompt(nodeName);
             const tools = this.buildPhaseTools(nodeName);
+
+            this.logger.debug('execution', `Invoking agent with ${tools.length} tools`, {
+                modelId: taskModelId,
+                toolNames: tools.map(t => t.name)
+            });
 
             try {
                 const result = await this.agentSDKBridge.invokeAgent(
@@ -875,6 +982,11 @@ export class RailsExecutor extends BaseExecutor {
                     (toolName: string, input: any) => this.executeTool(toolName, input),
                     taskModelId
                 );
+
+                this.logger.info('execution', `Agent completed successfully`, {
+                    output: result.output,
+                    nextNode: result.nextNode
+                });
 
                 console.log(`✓ Agent completed: ${result.output}`);
 
@@ -890,6 +1002,7 @@ export class RailsExecutor extends BaseExecutor {
                 }
 
                 // Otherwise, machine is stuck - no decision made
+                this.logger.warn('execution', 'Agent completed but did not choose a transition');
                 console.warn('⚠️ Agent completed but did not choose a transition');
                 return false;
             } catch (error) {
@@ -897,18 +1010,23 @@ export class RailsExecutor extends BaseExecutor {
                 if (this.safetyManager && error instanceof Error) {
                     this.safetyManager.recordFailure(nodeName, error);
                 }
+                this.logger.error('execution', `Agent execution failed: ${error instanceof Error ? error.message : String(error)}`);
                 throw error;
             }
         }
 
         // No outbound edges - terminal node
-        const outboundEdges = this.getOutboundEdges(nodeName);
         if (outboundEdges.length === 0) {
+            this.logger.info('execution', `Reached terminal node: ${nodeName}`);
             console.log('✓ Reached terminal node');
             return false;
         }
 
         // Should not reach here - either auto-transition or agent decision should handle
+        this.logger.warn('execution', `No transition available for node: ${nodeName}`, {
+            outboundEdges: outboundEdges.length,
+            requiresAgent: this.requiresAgentDecision(nodeName)
+        });
         console.warn(`⚠️ No transition available for node: ${nodeName}`);
         return false;
     }
