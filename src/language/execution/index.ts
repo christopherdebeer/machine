@@ -10,6 +10,7 @@
  */
 
 export * from './types.js';
+export * from './logger.js';
 export * from './evaluation-engine.js';
 export * from './context-manager.js';
 export * from './transition-manager.js';

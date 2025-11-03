@@ -23,6 +23,9 @@ export interface ExecutionControlsProps {
     onReset?: () => void;
     mobile?: boolean;
     showLog?: boolean;
+    executor?: any; // RailsExecutor instance to get logs from
+    logLevel?: string; // Current log level
+    onLogLevelChange?: (level: string) => void;
 }
 
 interface LogEntry {
@@ -131,7 +134,10 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
     onStop,
     onReset,
     mobile = false,
-    showLog = true
+    showLog = true,
+    executor,
+    logLevel,
+    onLogLevelChange
 }, ref) => {
     const [state, setState] = useState<ExecutionState>({
         status: 'idle',
@@ -140,6 +146,31 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
 
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const logContentRef = useRef<HTMLDivElement>(null);
+
+    // Sync executor logs periodically
+    useEffect(() => {
+        if (!executor) return;
+
+        const syncLogs = () => {
+            try {
+                const executorLogs = executor.getLogs();
+                const formatted = executorLogs.map((log: any) => ({
+                    timestamp: new Date(log.timestamp).toLocaleTimeString(),
+                    message: `[${log.category}] ${log.message}`,
+                    type: log.level === 'error' ? 'error' : log.level === 'warn' ? 'warning' : log.level === 'debug' ? 'info' : 'info'
+                }));
+                setLogs(formatted);
+            } catch (e) {
+                // Ignore errors in log sync
+            }
+        };
+
+        // Sync immediately and then every 500ms
+        syncLogs();
+        const interval = setInterval(syncLogs, 500);
+
+        return () => clearInterval(interval);
+    }, [executor]);
 
     // Auto-scroll to bottom when new logs are added
     useEffect(() => {
@@ -298,6 +329,21 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
         }
     };
 
+    const LogLevelSelector = styled.select`
+        background: rgb(62, 62, 66);
+        color: rgb(212, 212, 212);
+        border: 1px solid rgb(80, 80, 83);
+        padding: 0.25em 0.6em;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+
+        &:focus {
+            outline: none;
+            border-color: #0e639c;
+        }
+    `;
+
     return (
         <Container $mobile={mobile} className="execution-panel">
             <Header className="execution-header">
@@ -330,6 +376,20 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
                         🔄 Reset
                     </Button>
                 </ButtonGroup>
+
+                {onLogLevelChange && (
+                    <LogLevelSelector
+                        value={logLevel || 'info'}
+                        onChange={(e) => onLogLevelChange(e.target.value)}
+                        title="Log level"
+                    >
+                        <option value="debug">Debug</option>
+                        <option value="info">Info</option>
+                        <option value="warn">Warn</option>
+                        <option value="error">Error</option>
+                        <option value="none">None</option>
+                    </LogLevelSelector>
+                )}
             </Header>
 
             <StatusBar className="execution-status">

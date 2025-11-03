@@ -35,7 +35,10 @@ import {
     EdgeTypeResolver,
     ErrorHandlingManager,
     SafetyManager,
-    StateManager
+    StateManager,
+    ExecutionLogger,
+    type LogLevel,
+    type LogEntry
 } from './execution/index.js';
 
 // Re-export interfaces for compatibility
@@ -85,6 +88,9 @@ export class RailsExecutor extends BaseExecutor {
     protected agentSDKBridge: AgentSDKBridge;
     protected toolRegistry: ToolRegistry;
 
+    // Execution logger
+    protected logger: ExecutionLogger;
+
     // Phase 1-3 managers (optional - backward compatibility)
     protected transitionManager?: TransitionManager;
     protected contextManager?: ContextManager;
@@ -98,6 +104,13 @@ export class RailsExecutor extends BaseExecutor {
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
         super(machineData, config);
+
+        // Initialize execution logger
+        // Check for logLevel in machine attributes
+        const machineAttrs = this.getNodeAttributes(machineData.title || 'machine');
+        const logLevel = (machineAttrs.logLevel as LogLevel) || 'info';
+        this.logger = new ExecutionLogger({ level: logLevel });
+        this.logger.info('execution', `RailsExecutor initialized with log level: ${logLevel}`);
 
         // Initialize ToolRegistry
         this.toolRegistry = new ToolRegistry();
@@ -775,15 +788,18 @@ export class RailsExecutor extends BaseExecutor {
         const nodeName = this.context.currentNode;
 
         if (!nodeName) {
+            this.logger.info('execution', 'Machine complete - no current node');
             console.log('Machine complete - no current node');
             return false;
         }
 
         const node = this.machineData.nodes.find(n => n.name === nodeName);
         if (!node) {
+            this.logger.error('execution', `Node ${nodeName} not found`);
             throw new Error(`Node ${nodeName} not found`);
         }
 
+        this.logger.info('execution', `Step: ${nodeName}`, { type: node.type || 'unknown' });
         console.log(`\n🎯 Step: ${nodeName} (${node.type || 'unknown'})`);
 
         // Phase 3: Safety checks
@@ -830,6 +846,9 @@ export class RailsExecutor extends BaseExecutor {
         // Step 1: Check for automated transitions
         const autoTransition = this.evaluateAutomatedTransitions(nodeName);
         if (autoTransition) {
+            this.logger.info('transition', `Automated transition from ${nodeName} to ${autoTransition.target}`, {
+                reason: autoTransition.reason
+            });
             console.log(`✓ Automated transition: ${autoTransition.reason}`);
             this.transition(autoTransition.target, autoTransition.reason);
             return true;
@@ -837,6 +856,7 @@ export class RailsExecutor extends BaseExecutor {
 
         // Step 2: If no auto-transition, check if agent decision required
         if (this.requiresAgentDecision(nodeName)) {
+            this.logger.info('execution', `Agent decision required for ${nodeName}`);
             console.log(`🤖 Agent decision required for ${nodeName}`);
 
             // Extract task-level model ID if present
@@ -967,8 +987,31 @@ export class RailsExecutor extends BaseExecutor {
             edgeType: this.edgeTypeResolver,
             errorHandling: this.errorHandlingManager,
             safety: this.safetyManager,
-            state: this.stateManager
+            state: this.stateManager,
+            logger: this.logger
         };
+    }
+
+    /**
+     * Get execution logger
+     */
+    getLogger(): ExecutionLogger {
+        return this.logger;
+    }
+
+    /**
+     * Get log entries (all or filtered)
+     */
+    getLogs(filters?: { level?: LogLevel; category?: string }): LogEntry[] {
+        return this.logger.getFilteredEntries(filters as any);
+    }
+
+    /**
+     * Set log level dynamically
+     */
+    setLogLevel(level: LogLevel): void {
+        this.logger.setLevel(level);
+        this.logger.info('execution', `Log level changed to: ${level}`);
     }
 
     /**

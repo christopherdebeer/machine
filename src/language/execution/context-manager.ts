@@ -146,13 +146,37 @@ export class ContextManager {
 
             Object.entries(data).forEach(([key, value]) => {
                 const existingAttr = node.attributes!.find(a => a.name === key);
+
+                // Serialize value properly for storage
+                let serializedValue: string;
+                let attrType: string;
+
+                if (typeof value === 'number') {
+                    serializedValue = String(value);
+                    attrType = 'number';
+                } else if (typeof value === 'boolean') {
+                    serializedValue = String(value);
+                    attrType = 'boolean';
+                } else if (typeof value === 'string') {
+                    serializedValue = value;
+                    attrType = 'string';
+                } else if (value === null || value === undefined) {
+                    serializedValue = String(value);
+                    attrType = 'string';
+                } else {
+                    // Objects and arrays: serialize as JSON
+                    serializedValue = JSON.stringify(value);
+                    attrType = Array.isArray(value) ? 'array' : 'object';
+                }
+
                 if (existingAttr) {
-                    existingAttr.value = String(value);
+                    existingAttr.value = serializedValue;
+                    existingAttr.type = attrType;
                 } else {
                     node.attributes!.push({
                         name: key,
-                        type: typeof value === 'number' ? 'number' : 'string',
-                        value: String(value)
+                        type: attrType,
+                        value: serializedValue
                     });
                 }
             });
@@ -176,21 +200,37 @@ export class ContextManager {
         }
 
         return node.attributes.reduce((acc, attr) => {
-            // Simple value extraction
-            let value = attr.value;
+            let value: any = attr.value;
 
-            // Strip quotes
+            // Deserialize based on type hint
             if (typeof value === 'string') {
+                // Strip quotes for string values
                 value = value.replace(/^["']|["']$/g, '');
 
-                // Try to parse JSON-like values
-                try {
-                    if ((value.startsWith('{') && value.endsWith('}')) ||
-                        (value.startsWith('[') && value.endsWith(']'))) {
+                // Use type hint if available
+                if (attr.type === 'number') {
+                    const parsed = Number(value);
+                    value = isNaN(parsed) ? value : parsed;
+                } else if (attr.type === 'boolean') {
+                    value = value === 'true';
+                } else if (attr.type === 'array' || attr.type === 'object') {
+                    // Deserialize JSON for objects/arrays
+                    try {
                         value = JSON.parse(value);
+                    } catch (e) {
+                        console.warn(`Failed to parse JSON for attribute ${attr.name}:`, e);
+                        // Keep as string if parsing fails
                     }
-                } catch {
-                    // Keep as string if parsing fails
+                } else {
+                    // For untyped or string-typed values, try to parse JSON if it looks like JSON
+                    try {
+                        if ((value.startsWith('{') && value.endsWith('}')) ||
+                            (value.startsWith('[') && value.endsWith(']'))) {
+                            value = JSON.parse(value);
+                        }
+                    } catch {
+                        // Keep as string if parsing fails
+                    }
                 }
             }
 
