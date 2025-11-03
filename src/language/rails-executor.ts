@@ -25,6 +25,18 @@ import {
 } from './base-executor.js';
 import { EdgeConditionParser } from './utils/edge-conditions.js';
 import { NodeTypeChecker } from './node-type-checker.js';
+// Phase 1-3 execution managers
+import {
+    TransitionManager,
+    ContextManager,
+    PathManager,
+    SynchronizationManager,
+    AnnotationProcessor,
+    EdgeTypeResolver,
+    ErrorHandlingManager,
+    SafetyManager,
+    StateManager
+} from './execution/index.js';
 
 // Re-export interfaces for compatibility
 export type { MachineExecutionContext, MachineData, MachineMutation };
@@ -73,6 +85,17 @@ export class RailsExecutor extends BaseExecutor {
     protected agentSDKBridge: AgentSDKBridge;
     protected toolRegistry: ToolRegistry;
 
+    // Phase 1-3 managers (optional - backward compatibility)
+    protected transitionManager?: TransitionManager;
+    protected contextManager?: ContextManager;
+    protected pathManager?: PathManager;
+    protected synchronizationManager?: SynchronizationManager;
+    protected annotationProcessor?: AnnotationProcessor;
+    protected edgeTypeResolver?: EdgeTypeResolver;
+    protected errorHandlingManager?: ErrorHandlingManager;
+    protected safetyManager?: SafetyManager;
+    protected stateManager?: StateManager;
+
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
         super(machineData, config);
 
@@ -97,6 +120,40 @@ export class RailsExecutor extends BaseExecutor {
 
         // Register dynamic tool patterns with ToolRegistry
         this.registerDynamicTools();
+
+        // Initialize Phase 1-3 managers (available for use, but not required)
+        this.initializeManagers();
+    }
+
+    /**
+     * Initialize Phase 1-3 execution managers
+     */
+    private initializeManagers(): void {
+        // Phase 1: Core managers
+        this.transitionManager = new TransitionManager(this.machineData, this.celEvaluator);
+        this.contextManager = new ContextManager(this.machineData);
+        this.pathManager = new PathManager(this.limits.maxSteps, this.limits.maxNodeInvocations);
+
+        // Phase 2: Enhanced semantics
+        this.synchronizationManager = new SynchronizationManager();
+        this.annotationProcessor = new AnnotationProcessor();
+        this.edgeTypeResolver = new EdgeTypeResolver();
+        this.errorHandlingManager = new ErrorHandlingManager();
+
+        // Phase 3: Production features
+        this.safetyManager = new SafetyManager(this.machineData, {
+            circuitBreakerThreshold: 5,
+            circuitBreakerTimeout: 60000,
+            circuitBreakerSuccessThreshold: 2,
+            defaultNodeTimeout: 30000,
+            globalTimeout: this.limits.timeout,
+            maxConcurrentPaths: 10,
+            maxTotalSteps: this.limits.maxSteps,
+            maxMemoryMB: 512
+        });
+        this.stateManager = new StateManager(100);
+
+        console.log('✅ Phase 1-3 execution managers initialized');
     }
 
     /**
@@ -729,6 +786,30 @@ export class RailsExecutor extends BaseExecutor {
 
         console.log(`\n🎯 Step: ${nodeName} (${node.type || 'unknown'})`);
 
+        // Phase 3: Safety checks
+        if (this.safetyManager) {
+            // Check circuit breaker
+            if (!this.safetyManager.canExecuteNode(nodeName)) {
+                console.warn(`⚠️ Circuit breaker open for node ${nodeName}, skipping`);
+                return false;
+            }
+
+            // Check global timeout
+            this.safetyManager.checkGlobalTimeout();
+
+            // Check resource limits
+            const usage = {
+                totalSteps: this.context.history.length,
+                totalPaths: 1,
+                activePaths: this.context.currentNode ? 1 : 0,
+                totalNodeInvocations: Array.from(this.context.nodeInvocationCounts.values())
+                    .reduce((sum, count) => sum + count, 0),
+                startTime: this.executionStartTime || Date.now(),
+                elapsedTime: this.executionStartTime ? Date.now() - this.executionStartTime : 0
+            };
+            this.safetyManager.checkResourceLimits(usage);
+        }
+
         // Track node invocation and check limits
         this.trackNodeInvocation(nodeName);
 
@@ -766,25 +847,38 @@ export class RailsExecutor extends BaseExecutor {
             const systemPrompt = this.buildSystemPrompt(nodeName);
             const tools = this.buildPhaseTools(nodeName);
 
-            const result = await this.agentSDKBridge.invokeAgent(
-                nodeName,
-                systemPrompt,
-                tools,
-                (toolName: string, input: any) => this.executeTool(toolName, input),
-                taskModelId
-            );
+            try {
+                const result = await this.agentSDKBridge.invokeAgent(
+                    nodeName,
+                    systemPrompt,
+                    tools,
+                    (toolName: string, input: any) => this.executeTool(toolName, input),
+                    taskModelId
+                );
 
-            console.log(`✓ Agent completed: ${result.output}`);
+                console.log(`✓ Agent completed: ${result.output}`);
 
-            // If agent determined next node, transition
-            if (result.nextNode) {
-                this.transition(result.nextNode, 'agent_decision');
-                return true;
+                // Phase 3: Record success
+                if (this.safetyManager) {
+                    this.safetyManager.recordSuccess(nodeName);
+                }
+
+                // If agent determined next node, transition
+                if (result.nextNode) {
+                    this.transition(result.nextNode, 'agent_decision');
+                    return true;
+                }
+
+                // Otherwise, machine is stuck - no decision made
+                console.warn('⚠️ Agent completed but did not choose a transition');
+                return false;
+            } catch (error) {
+                // Phase 3: Record failure
+                if (this.safetyManager && error instanceof Error) {
+                    this.safetyManager.recordFailure(nodeName, error);
+                }
+                throw error;
             }
-
-            // Otherwise, machine is stuck - no decision made
-            console.warn('⚠️ Agent completed but did not choose a transition');
-            return false;
         }
 
         // No outbound edges - terminal node
@@ -858,5 +952,102 @@ export class RailsExecutor extends BaseExecutor {
      */
     getMachineData(): MachineData {
         return this.machineData;
+    }
+
+    /**
+     * Get Phase 1-3 managers (for advanced usage)
+     */
+    getManagers() {
+        return {
+            transition: this.transitionManager,
+            context: this.contextManager,
+            path: this.pathManager,
+            synchronization: this.synchronizationManager,
+            annotation: this.annotationProcessor,
+            edgeType: this.edgeTypeResolver,
+            errorHandling: this.errorHandlingManager,
+            safety: this.safetyManager,
+            state: this.stateManager
+        };
+    }
+
+    /**
+     * Create a checkpoint of current execution state
+     */
+    createCheckpoint(description?: string): string | null {
+        if (!this.stateManager) return null;
+
+        // For single-path execution, create a simplified checkpoint
+        const simplifiedPath = {
+            id: 'main',
+            currentNode: this.context.currentNode,
+            history: this.context.history,
+            status: 'active' as const,
+            stepCount: this.context.history.length,
+            nodeInvocationCounts: this.context.nodeInvocationCounts,
+            stateTransitions: this.context.stateTransitions,
+            startTime: this.executionStartTime || Date.now()
+        };
+
+        // Get shared context from machine data
+        const sharedContext: Record<string, any> = {};
+        for (const node of this.machineData.nodes) {
+            if (NodeTypeChecker.isContext(node)) {
+                sharedContext[node.name] = this.getNodeAttributes(node.name);
+            }
+        }
+
+        return this.stateManager.createCheckpoint(
+            this.machineData,
+            [simplifiedPath],
+            sharedContext,
+            this.context.history.length,
+            description
+        );
+    }
+
+    /**
+     * Restore execution state from checkpoint
+     */
+    restoreCheckpoint(checkpointId: string): boolean {
+        if (!this.stateManager) return false;
+
+        const checkpoint = this.stateManager.restoreCheckpoint(checkpointId);
+        if (!checkpoint) return false;
+
+        // Restore machine data
+        this.machineData = checkpoint.machineData;
+
+        // Restore execution context from first path (single-path execution)
+        if (checkpoint.paths.length > 0) {
+            const path = checkpoint.paths[0];
+            this.context.currentNode = path.currentNode;
+            this.context.history = path.history;
+            this.context.nodeInvocationCounts = path.nodeInvocationCounts;
+            this.context.stateTransitions = path.stateTransitions;
+        }
+
+        console.log(`✅ Checkpoint restored: ${checkpointId}`);
+        return true;
+    }
+
+    /**
+     * Get safety manager statistics
+     */
+    getSafetyStats() {
+        if (!this.safetyManager) return null;
+
+        return {
+            circuitBreakers: this.safetyManager.getCircuitBreakerStats(),
+            resourceUsage: {
+                totalSteps: this.context.history.length,
+                totalPaths: 1,
+                activePaths: this.context.currentNode ? 1 : 0,
+                totalNodeInvocations: Array.from(this.context.nodeInvocationCounts.values())
+                    .reduce((sum, count) => sum + count, 0),
+                startTime: this.executionStartTime || Date.now(),
+                elapsedTime: this.executionStartTime ? Date.now() - this.executionStartTime : 0
+            }
+        };
     }
 }
