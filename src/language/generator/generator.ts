@@ -1864,9 +1864,48 @@ export function generateGraphviz(machine: Machine, filePath: string, destination
 export function generateDSL(machineJson: MachineJSON): string {
     const lines: string[] = [];
 
-    // Add machine title (only if present)
+    // Add machine title with annotations (if present)
     if (machineJson.title) {
-        lines.push(`machine ${quoteString(machineJson.title)}`);
+        let machineLine = `machine ${quoteString(machineJson.title)}`;
+
+        // Add machine-level annotations
+        if (machineJson.annotations && machineJson.annotations.length > 0) {
+            const annotationsStr = machineJson.annotations.map((ann: any) => {
+                if (ann.value) {
+                    return ` @${ann.name}(${quoteString(ann.value)})`;
+                } else if (ann.attributes) {
+                    // Annotation with attribute-style parameters
+                    const attrs = Object.entries(ann.attributes)
+                        .map(([key, val]) => {
+                            if (typeof val === 'string' && (val.includes(':') || val.includes(' '))) {
+                                return `${key}: ${quoteString(val as string)}`;
+                            }
+                            return `${key}: ${val}`;
+                        })
+                        .join('; ');
+                    return ` @${ann.name}(${attrs})`;
+                }
+                return ` @${ann.name}`;
+            }).join('');
+            machineLine += annotationsStr;
+        }
+
+        // Check if machine has attributes
+        const hasMachineAttributes = machineJson.attributes && machineJson.attributes.length > 0;
+
+        if (hasMachineAttributes) {
+            // Machine with attributes - use block syntax
+            machineLine += ' {';
+            lines.push(machineLine);
+            machineJson.attributes.forEach((attr: any) => {
+                lines.push('    ' + generateAttributeDSL(attr));
+            });
+            lines.push('};');
+        } else {
+            // Machine without attributes - simple declaration
+            lines.push(machineLine);
+        }
+
         lines.push('');
     }
 
@@ -2158,6 +2197,28 @@ function generateEdgeDSL(edge: Edge): string {
         parts.push(quoteString(edge.sourceMultiplicity));
     }
 
+    // Build edge annotations string (goes between source and arrow)
+    let edgeAnnotationsStr = '';
+    if (edge.annotations && edge.annotations.length > 0) {
+        edgeAnnotationsStr = edge.annotations.map((ann: any) => {
+            if (ann.value) {
+                return `@${ann.name}(${quoteString(ann.value)})`;
+            } else if (ann.attributes) {
+                // Annotation with attribute-style parameters
+                const attrs = Object.entries(ann.attributes)
+                    .map(([key, val]) => {
+                        if (typeof val === 'string' && (val.includes(':') || val.includes(' '))) {
+                            return `${key}: ${quoteString(val as string)}`;
+                        }
+                        return `${key}: ${val}`;
+                    })
+                    .join('; ');
+                return `@${ann.name}(${attrs})`;
+            }
+            return `@${ann.name}`;
+        }).join(' ');
+    }
+
     // Determine arrow type and label
     const arrowType = edge.arrowType || '->';
     const edgeValue = edge.value || {};
@@ -2181,25 +2242,42 @@ function generateEdgeDSL(edge: Edge): string {
         }
     }
 
-    // Build arrow with label
+    // Build arrow with label and annotations
+    // Edge annotations go between source and arrow: a -@Critical-> b
+    const arrowPrefix = edgeAnnotationsStr ? ` -${edgeAnnotationsStr}` : '';
+
     if (label) {
         // Format label (quote if necessary)
         // Only format plain text labels, not attribute maps (which are already formatted)
         const formattedLabel = isPlainText ? formatValue(label) : label;
         // Labeled arrow
         if (arrowType === '->') {
-            parts.push(`-${formattedLabel}->`);
+            parts.push(`${arrowPrefix}-${formattedLabel}->`);
         } else if (arrowType === '-->') {
-            parts.push(`--${formattedLabel}-->`);
+            parts.push(`${arrowPrefix}--${formattedLabel}-->`);
         } else if (arrowType === '=>') {
-            parts.push(`=${formattedLabel}=>`);
+            parts.push(`${arrowPrefix}=${formattedLabel}=>`);
         } else {
             // For other arrow types, just use the arrow as-is
-            parts.push(arrowType);
+            parts.push(edgeAnnotationsStr ? `${arrowPrefix}${arrowType.substring(1)}` : arrowType);
         }
     } else {
         // Simple arrow without label
-        parts.push(arrowType);
+        if (edgeAnnotationsStr) {
+            // Arrow with annotations but no label: -@Critical->
+            if (arrowType === '->') {
+                parts.push(`-${edgeAnnotationsStr}->`);
+            } else if (arrowType === '-->') {
+                parts.push(`-${edgeAnnotationsStr}-->`);
+            } else if (arrowType === '=>') {
+                parts.push(`-${edgeAnnotationsStr}=>`);
+            } else {
+                // For other arrow types
+                parts.push(`-${edgeAnnotationsStr}${arrowType.substring(1)}`);
+            }
+        } else {
+            parts.push(arrowType);
+        }
     }
 
     // Add target multiplicity if present
