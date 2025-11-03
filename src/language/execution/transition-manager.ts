@@ -8,6 +8,8 @@ import { NodeTypeChecker } from '../node-type-checker.js';
 import { EdgeConditionParser } from '../utils/edge-conditions.js';
 import { EvaluationEngine } from './evaluation-engine.js';
 import { AnnotatedEdge, TransitionEvaluation, EvaluationContext } from './types.js';
+import { EdgeTypeResolver } from './edge-type-resolver.js';
+import { AnnotationProcessor, ProcessedEdgeAnnotations } from './annotation-processor.js';
 
 /**
  * TransitionManager handles transition evaluation and state module logic
@@ -22,28 +24,42 @@ export class TransitionManager {
     }
 
     /**
-     * Extract @auto annotation from edge label
+     * Extract annotations from edge label
+     * Supports: @auto, @barrier("name"), @priority(N), @parallel
      */
     private extractAnnotationsFromLabel(edge: { label?: string; type?: string }): Array<{ name: string; value?: string }> {
         const edgeLabel = edge.label || edge.type || '';
         const annotations: Array<{ name: string; value?: string }> = [];
 
-        // Look for @auto annotation
-        if (edgeLabel.includes('@auto')) {
-            annotations.push({ name: 'auto' });
+        // Match annotation patterns: @name or @name(value)
+        const annotationRegex = /@(\w+)(?:\(([^)]+)\))?/g;
+        let match;
+
+        while ((match = annotationRegex.exec(edgeLabel)) !== null) {
+            const name = match[1];
+            const value = match[2];
+            annotations.push({ name, value });
         }
 
         return annotations;
     }
 
     /**
-     * Get annotated edges (edges with extracted annotations)
+     * Get annotated edges (edges with extracted annotations and semantic types)
      */
     private getAnnotatedEdges(): AnnotatedEdge[] {
-        return this.machineData.edges.map(edge => ({
-            ...edge,
-            annotations: this.extractAnnotationsFromLabel(edge)
-        }));
+        return this.machineData.edges.map(edge => {
+            const annotations = this.extractAnnotationsFromLabel(edge);
+            const edgeType = EdgeTypeResolver.resolveEdgeType(edge);
+            const processed = AnnotationProcessor.processEdgeAnnotations(annotations);
+
+            return {
+                ...edge,
+                annotations,
+                edgeType,
+                priority: processed.priority
+            };
+        });
     }
 
     /**
@@ -52,6 +68,31 @@ export class TransitionManager {
     private hasAutoAnnotation(edge: AnnotatedEdge): boolean {
         if (!edge.annotations) return false;
         return edge.annotations.some(a => a.name === 'auto');
+    }
+
+    /**
+     * Check if edge has @barrier annotation
+     */
+    hasBarrierAnnotation(edge: AnnotatedEdge): boolean {
+        if (!edge.annotations) return false;
+        return edge.annotations.some(a => a.name === 'barrier');
+    }
+
+    /**
+     * Get barrier name from edge annotation
+     */
+    getBarrierName(edge: AnnotatedEdge): string | undefined {
+        if (!edge.annotations) return undefined;
+        const barrierAnnotation = edge.annotations.find(a => a.name === 'barrier');
+        return barrierAnnotation?.value || 'default';
+    }
+
+    /**
+     * Check if edge has @parallel annotation
+     */
+    hasParallelAnnotation(edge: AnnotatedEdge): boolean {
+        if (!edge.annotations) return false;
+        return edge.annotations.some(a => a.name === 'parallel');
     }
 
     /**

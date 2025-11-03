@@ -3,6 +3,11 @@
  */
 
 /**
+ * Edge semantic types
+ */
+export type EdgeType = 'control' | 'data' | 'dependency' | 'transform';
+
+/**
  * Edge annotation interface
  */
 export interface EdgeAnnotation {
@@ -11,14 +16,30 @@ export interface EdgeAnnotation {
 }
 
 /**
- * Extended edge with annotation support
+ * Node annotation interface
+ */
+export interface NodeAnnotation {
+    name: string;
+    value?: string;
+    params?: Record<string, any>;
+}
+
+/**
+ * Error handling strategy
+ */
+export type ErrorHandlingStrategy = 'fail-fast' | 'continue' | 'compensate';
+
+/**
+ * Extended edge with annotation support and semantic types
  */
 export interface AnnotatedEdge {
     source: string;
     target: string;
     type?: string;
     label?: string;
+    edgeType?: EdgeType;  // Semantic edge type
     annotations?: EdgeAnnotation[];
+    priority?: number;  // For @priority annotation
 }
 
 /**
