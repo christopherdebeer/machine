@@ -1,0 +1,46 @@
+{
+  "json": {
+    "title": "Annotation Attributes Test",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "A",
+        "type": "state",
+        "attributes": [],
+        "title": "Start"
+      },
+      {
+        "name": "B",
+        "type": "state",
+        "attributes": [],
+        "title": "End"
+      }
+    ],
+    "edges": [
+      {
+        "source": "A",
+        "target": "B",
+        "annotations": [
+          {
+            "name": "style",
+            "attributes": {
+              "color": "red",
+              "weight": "bold"
+            }
+          }
+        ],
+        "arrowType": "->",
+        "value": {
+          "text": "@style(color: red; weight: bold)"
+        },
+        "attributes": {
+          "text": "@style(color: red; weight: bold)"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Annotation Attributes Test</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"A\" -> \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">@style(color: red; weight: bold)</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"red\", weight=\"bold\"];\n}",
+  "svgHash": "8a9403f4492f8a79849b560cad248840bbd414f1d45ee69ad8ebf13404214d82"
+}
