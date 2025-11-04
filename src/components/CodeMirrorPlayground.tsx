@@ -511,6 +511,7 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [isDirty, setIsDirty] = useState(false);
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
     const [fitToContainer, setFitToContainer] = useState(true);
+    const [logLevel, setLogLevel] = useState<string>('info');
 
     // Multi-file editor state
     const [openFiles, setOpenFiles] = useState<Array<{ path: string; content: string; name: string }>>([]);
@@ -1109,7 +1110,11 @@ export const CodeMirrorPlayground: React.FC = () => {
       console.log("Executing step...");
       const continued = await exec.step();
 
-      // Update visualization
+      // Get logs from executor and log them
+      const logs = exec.getLogs();
+      console.log('Execution logs:', logs);
+
+      // Update visualization (this ensures viz reflects execution state)
       await updateRuntimeVisualization(exec);
 
       if (!continued) {
@@ -1203,6 +1208,13 @@ export const CodeMirrorPlayground: React.FC = () => {
     setIsExecuting(false);
     // Executor will be preserved for inspection
   }, []);
+
+  const handleLogLevelChange = useCallback((level: string) => {
+    setLogLevel(level);
+    if (executor) {
+      executor.setLogLevel(level as any);
+    }
+  }, [executor]);
 
   const handleReset = useCallback(async () => {
     console.log("Resetting machine");
@@ -1493,6 +1505,9 @@ export const CodeMirrorPlayground: React.FC = () => {
                         onReset={handleReset}
                         mobile={false}
                         showLog={true}
+                        executor={executor}
+                        logLevel={logLevel}
+                        onLogLevelChange={handleLogLevelChange}
                     />
                 </SectionContent>
             </ExecutionSection>

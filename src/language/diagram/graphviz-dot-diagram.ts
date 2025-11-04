@@ -822,10 +822,19 @@ function renderRankStatements(nodes: any[]): string {
 }
 
 /**
- * Generate a static DOT diagram from MachineJSON
+ * Generate a DOT diagram from MachineJSON with optional runtime state
+ *
+ * This unified function generates both static and runtime diagrams based on whether
+ * a runtime context is provided. Runtime information is rendered as decorations
+ * on top of the base static visualization.
+ *
+ * @param machineJson - Machine definition in JSON format
+ * @param options - Generation options (can include runtimeContext)
+ * @returns DOT diagram as a string
  */
 export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOptions = {}): string {
     const lines: string[] = [];
+    const runtimeContext = options.runtimeContext;
 
     // Get text wrapping configuration from machine attributes
     const wrappingConfig = getTextWrappingConfig(machineJson);
@@ -833,6 +842,10 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     // Separate style nodes from renderable nodes
     const styleNodes = machineJson.nodes.filter(n => NodeTypeChecker.isStyleNode(n));
     const renderableNodes = machineJson.nodes.filter(n => !NodeTypeChecker.isStyleNode(n));
+
+    // Build runtime node and edge states if context provided
+    const nodeStates = runtimeContext ? buildNodeStates(machineJson, runtimeContext) : undefined;
+    const edgeStates = runtimeContext ? buildEdgeStates(machineJson, runtimeContext) : undefined;
 
     // Header
     lines.push('digraph {');
@@ -887,7 +900,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
 
     // Generate nodes organized by semantic/lexical nesting
     lines.push('  // Node definitions with nested namespaces');
-    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, styleNodes, validationContext, options, wrappingConfig));
+    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, styleNodes, validationContext, options, wrappingConfig, nodeStates));
     lines.push('');
 
     const rankStatements = renderRankStatements(renderableNodes);
@@ -900,7 +913,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     // Generate edges
     if (machineJson.edges && machineJson.edges.length > 0) {
         lines.push('  // Edges');
-        lines.push(generateEdges(machineJson, styleNodes, wrappingConfig, options));
+        lines.push(generateEdges(machineJson, styleNodes, wrappingConfig, options, edgeStates));
     }
 
     // Generate notes as edge labels
@@ -928,6 +941,22 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
         lines.push(generateInferredDependencies(machineJson.inferredDependencies));
     }
 
+    // Add execution path information as comments when runtime context is provided
+    if (runtimeContext && options.showExecutionPath !== false && runtimeContext.history.length > 0) {
+        lines.push('');
+        lines.push('  // Execution Path:');
+        runtimeContext.history.forEach((step, idx) => {
+            const timestamp = new Date(step.timestamp).toLocaleTimeString();
+            lines.push(`  // ${idx + 1}. ${step.from} → ${step.to} (${step.transition}) at ${timestamp}`);
+            if (step.output) {
+                const truncatedOutput = step.output.length > 50
+                    ? step.output.substring(0, 50) + '...'
+                    : step.output;
+                lines.push(`  //    Output: ${truncatedOutput}`);
+            }
+        });
+    }
+
     lines.push('}');
 
     return lines.join('\n');
@@ -935,8 +964,31 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
 
 /**
  * Generate a runtime DOT diagram with execution state
+ *
+ * @deprecated Use generateDotDiagram with runtimeContext in options instead
+ * This function is maintained for backward compatibility and delegates to the unified generator
  */
 export function generateRuntimeDotDiagram(
+    machineJson: MachineJSON,
+    context: RuntimeContext,
+    options: DiagramOptions = {}
+): string {
+    // Delegate to unified generator with runtime context
+    return generateDotDiagram(machineJson, {
+        ...options,
+        runtimeContext: context,
+        showRuntimeState: options.showRuntimeState !== false,
+        showVisitCounts: options.showVisitCounts !== false,
+        showExecutionPath: options.showExecutionPath !== false,
+        showRuntimeValues: options.showRuntimeValues !== false
+    });
+}
+
+/**
+ * Legacy runtime diagram generation (now unused internally)
+ * Kept for reference but not exported
+ */
+function generateRuntimeDotDiagramLegacy(
     machineJson: MachineJSON,
     context: RuntimeContext,
     options: DiagramOptions = {}
@@ -1050,9 +1102,12 @@ export function generateRuntimeDotDiagram(
             }
         }
 
+        // Determine edge styling based on traversal status
+        const edgeStyle = getRuntimeEdgeStyle(edge, context);
+
         const edgeLine = label
-            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}"];`
-            : `  "${edge.source}" -> "${edge.target}";`;
+            ? `  "${edge.source}" -> "${edge.target}" [label="${escapeDot(label)}", ${edgeStyle}];`
+            : `  "${edge.source}" -> "${edge.target}" [${edgeStyle}];`;
         lines.push(edgeLine);
     });
 
@@ -1440,11 +1495,15 @@ function generateSemanticHierarchy(
     styleNodes: any[] = [],
     validationContext?: ValidationContext,
     options?: DiagramOptions,
-    wrappingConfig?: TextWrappingConfig
+    wrappingConfig?: TextWrappingConfig,
+    nodeStates?: RuntimeNodeState[]
 ): string {
     const lines: string[] = [];
     const indent = '  '.repeat(level);
     const edges = machineJson.edges;
+
+    // Build a lookup map for node states if available
+    const nodeStateMap = nodeStates ? new Map(nodeStates.map(ns => [ns.name, ns])) : undefined;
 
     nodes.forEach(node => {
         const { children } = hierarchy[node.name];
@@ -1477,12 +1536,13 @@ function generateSemanticHierarchy(
 
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);
-            lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1, styleNodes, validationContext, options, wrappingConfig));
+            lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1, styleNodes, validationContext, options, wrappingConfig, nodeStates));
 
             lines.push(`${indent}}`);
         } else {
-            // Leaf node
-            lines.push(generateNodeDefinition(node, edges, indent, styleNodes, validationContext, options, wrappingConfig));
+            // Leaf node - pass runtime state if available
+            const runtimeState = nodeStateMap?.get(node.name);
+            lines.push(generateNodeDefinition(node, edges, indent, styleNodes, validationContext, options, wrappingConfig, runtimeState));
         }
     });
 
@@ -1491,8 +1551,18 @@ function generateSemanticHierarchy(
 
 /**
  * Generate a node definition in DOT format with HTML-like labels for multi-line formatting
+ * Now includes optional runtime state decoration
  */
-function generateNodeDefinition(node: any, edges: any[], indent: string, styleNodes: any[] = [], validationContext?: ValidationContext, options?: DiagramOptions, wrappingConfig?: TextWrappingConfig): string {
+function generateNodeDefinition(
+    node: any,
+    edges: any[],
+    indent: string,
+    styleNodes: any[] = [],
+    validationContext?: ValidationContext,
+    options?: DiagramOptions,
+    wrappingConfig?: TextWrappingConfig,
+    runtimeState?: RuntimeNodeState
+): string {
     const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
                  node.attributes?.find((a: any) => a.name === 'prompt');
     let displayValue: any = node.title || desc?.value;
@@ -1505,10 +1575,16 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
     // Build HTML label
     let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
-    // First row: Type (italic), ID (bold), Annotations (italic) ONLY
+    // First row: Type (italic), ID (bold), Annotations (italic), Runtime Status
     htmlLabel += '<tr><td align="left">';
 
     let firstRowContent = '';
+
+    // Runtime status emoji if available
+    if (runtimeState && options?.showRuntimeState !== false) {
+        const statusEmoji = getStatusEmoji(runtimeState.status);
+        firstRowContent += statusEmoji + ' ';
+    }
 
     // ID (bold) - always present
     firstRowContent += '<b>' + escapeHtml(node.name) + '</b>';
@@ -1549,13 +1625,45 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
         htmlLabel += '</td></tr>';
     }
 
-    // Attributes table
+    // Runtime statistics if available
+    if (runtimeState && options?.showRuntimeState !== false && runtimeState.visitCount > 0) {
+        htmlLabel += '<tr><td align="left">';
+        htmlLabel += `<font point-size="8"><i>visits: ${runtimeState.visitCount}</i></font>`;
+        htmlLabel += '</td></tr>';
+    }
+
+    // Static Attributes table (always show static attributes)
     const attributes = getNodeDisplayAttributes(node);
 
     if (attributes.length > 0) {
         htmlLabel += '<tr><td>';
         htmlLabel += generateAttributesTable(attributes, options?.runtimeContext, wrappingConfig);
         htmlLabel += '</td></tr>';
+    }
+
+    // Runtime Values table (supplementary, additive only)
+    // Show runtime values that don't have corresponding static attributes
+    if (runtimeState?.runtimeValues && Object.keys(runtimeState.runtimeValues).length > 0 && options?.showRuntimeState !== false) {
+        const staticAttrNames = new Set(attributes.map((a: any) => a.name));
+        const runtimeOnlyValues: any[] = [];
+
+        Object.entries(runtimeState.runtimeValues).forEach(([key, value]) => {
+            // Only show runtime values that aren't already in static attributes
+            if (!staticAttrNames.has(key)) {
+                runtimeOnlyValues.push({
+                    name: key,
+                    value: value,
+                    type: typeof value
+                });
+            }
+        });
+
+        if (runtimeOnlyValues.length > 0) {
+            htmlLabel += '<tr><td>';
+            htmlLabel += '<font point-size="8"><i>Runtime Values:</i></font><br/>';
+            htmlLabel += generateAttributesTable(runtimeOnlyValues, options?.runtimeContext, wrappingConfig);
+            htmlLabel += '</td></tr>';
+        }
     }
 
     // Add inline validation warnings if enabled
@@ -1612,7 +1720,14 @@ function generateNodeDefinition(node: any, edges: any[], indent: string, styleNo
 
     // Get shape and styling
     const shape = getNodeShape(node, edges);
-    const style = getNodeStyle(node, edges, styleNodes, validationContext);
+    let style = getNodeStyle(node, edges, styleNodes, validationContext);
+
+    // Apply runtime styling overlay if runtime state is available
+    if (runtimeState && options?.showRuntimeState !== false) {
+        const runtimeStyle = getRuntimeNodeStyle(runtimeState);
+        // Runtime style takes precedence for fill and border colors
+        style = runtimeStyle;
+    }
 
     return `${indent}"${node.name}" [label=<${htmlLabel}>, shape=${shape}, ${style}];`;
 }
@@ -1834,8 +1949,15 @@ function formatEdgeLabelAsHtml(labelText: string): string {
 /**
  * Generate edges section with support for compound edges between clusters
  * Now includes static evaluation of edge conditions for visual indication
+ * and runtime edge state decorations when available
  */
-function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappingConfig?: TextWrappingConfig, options?: DiagramOptions): string {
+function generateEdges(
+    machineJson: MachineJSON,
+    styleNodes: any[] = [],
+    wrappingConfig?: TextWrappingConfig,
+    options?: DiagramOptions,
+    edgeStates?: RuntimeEdgeState[]
+): string {
     const lines: string[] = [];
 
     if (!machineJson.edges || machineJson.edges.length === 0) {
@@ -1854,6 +1976,11 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
             parentNodes.add(node.parent);
         }
     });
+
+    // Build edge state lookup if available
+    const edgeStateMap = edgeStates
+        ? new Map(edgeStates.map(es => [`${es.source}->${es.target}`, es]))
+        : undefined;
 
     // Evaluate edge conditions in static mode (unless runtime context is provided)
     const edgeEvaluator = new EdgeEvaluator();
@@ -1897,6 +2024,14 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         const maxEdgeLabelLength = wrappingConfig?.maxEdgeLabelLength ?? 40;
         const maxMultiplicityLength = wrappingConfig?.maxMultiplicityLength ?? 20;
 
+        // Add runtime visit count to label if edge states are available
+        const edgeKey = `${edge.source}->${edge.target}`;
+        const edgeState = edgeStateMap?.get(edgeKey);
+
+        if (edgeState && options?.showVisitCounts !== false && edgeState.traversalCount > 0) {
+            label += (label ? ' ' : '') + `[${edgeState.traversalCount}x]`;
+        }
+
         // Apply text wrapping to edge label
         if (label) {
             const wrappedLines = breakLongText(label, maxEdgeLabelLength);
@@ -1936,9 +2071,18 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
         edgeAttrs.push('labelOverlay="75%"');
         edgeAttrs.push('labelhref="#srcLineTBD"');
 
-        // Apply condition-based visual styling (for static evaluation)
-        const edgeEvaluation = edgeEvaluations.get(edgeIndex);
-        const conditionStyle = edgeEvaluation ? getEdgeConditionStyle(edgeEvaluation) : '';
+        // Determine edge styling:
+        // 1. If runtime edge state is available, use runtime styling
+        // 2. Otherwise, apply condition-based visual styling (for static evaluation)
+        let edgeStyle = '';
+        if (edgeState && options?.runtimeContext) {
+            // Runtime styling takes precedence
+            edgeStyle = getRuntimeEdgeStyle(edgeState, options.runtimeContext);
+        } else {
+            // Static condition styling
+            const edgeEvaluation = edgeEvaluations.get(edgeIndex);
+            edgeStyle = edgeEvaluation ? getEdgeConditionStyle(edgeEvaluation) : '';
+        }
 
         // Apply custom styles if any
         if (customStyles) {
@@ -2004,10 +2148,10 @@ function generateEdges(machineJson: MachineJSON, styleNodes: any[] = [], wrappin
             }
         }
 
-        // Construct edge line with custom styles and condition styling appended
+        // Construct edge line with custom styles and runtime/condition styling appended
         const sourceEndpoint = buildEndpointIdentifier(actualSource, sourcePortName);
         const targetEndpoint = buildEndpointIdentifier(actualTarget, targetPortName);
-        const edgeLine = `  ${sourceEndpoint} -> ${targetEndpoint} [${edgeAttrs.join(', ')}${customStyles}${conditionStyle}];`;
+        const edgeLine = `  ${sourceEndpoint} -> ${targetEndpoint} [${edgeAttrs.join(', ')}${customStyles}${edgeStyle}];`;
         lines.push(edgeLine);
     });
 
@@ -2153,7 +2297,11 @@ function buildNodeStates(machineJson: MachineJSON, context: RuntimeContext): Run
 
         const runtimeValues: Record<string, any> = {};
 
-        if (isCurrent && context.attributes.size > 0) {
+        // For Context nodes, show all runtime values regardless of current node
+        // For other nodes, only show runtime values when they are the current node
+        const isContextNode = node.type?.toLowerCase() === 'context';
+
+        if (isContextNode || isCurrent) {
             context.attributes.forEach((value, key) => {
                 runtimeValues[key] = value;
             });
@@ -2228,6 +2376,30 @@ function getRuntimeNodeStyle(node: RuntimeNodeState): string {
             return 'fillcolor="#FFC107", style=filled, color="#F57F17"';
         default:
             return 'fillcolor="#FFFFFF", style=filled, color="#000000"';
+    }
+}
+
+/**
+ * Get runtime edge styling based on traversal status
+ * Shows recently traversed edges (active), previously traversed edges, and untraversed edges
+ */
+function getRuntimeEdgeStyle(edge: RuntimeEdgeState, context: RuntimeContext): string {
+    // Check if this is the most recent transition (active edge)
+    const lastTransition = context.history[context.history.length - 1];
+    const isActiveEdge = lastTransition &&
+                         lastTransition.from === edge.source &&
+                         lastTransition.to === edge.target;
+
+    if (isActiveEdge) {
+        // Active edge (just transitioned): thick green line
+        return 'color="#4CAF50", penwidth=3, style=bold';
+    } else if (edge.traversalCount > 0) {
+        // Previously traversed edge: blue, thickness based on traversal count
+        const width = Math.min(2 + edge.traversalCount * 0.5, 5); // Cap at penwidth 5
+        return `color="#2196F3", penwidth=${width}`;
+    } else {
+        // Never traversed edge: gray, thin
+        return 'color="#CCCCCC", penwidth=1, style=dashed';
     }
 }
 
