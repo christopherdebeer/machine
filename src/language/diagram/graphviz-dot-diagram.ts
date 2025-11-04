@@ -1632,19 +1632,38 @@ function generateNodeDefinition(
         htmlLabel += '</td></tr>';
     }
 
-    // Attributes table (with runtime values if available)
+    // Static Attributes table (always show static attributes)
     const attributes = getNodeDisplayAttributes(node);
 
-    if (attributes.length > 0 || (runtimeState?.runtimeValues && Object.keys(runtimeState.runtimeValues).length > 0)) {
+    if (attributes.length > 0) {
         htmlLabel += '<tr><td>';
-
-        // If we have runtime state with values, merge them into the attributes display
-        if (runtimeState?.attributes) {
-            htmlLabel += generateAttributesTable(runtimeState.attributes, options?.runtimeContext, wrappingConfig);
-        } else {
-            htmlLabel += generateAttributesTable(attributes, options?.runtimeContext, wrappingConfig);
-        }
+        htmlLabel += generateAttributesTable(attributes, options?.runtimeContext, wrappingConfig);
         htmlLabel += '</td></tr>';
+    }
+
+    // Runtime Values table (supplementary, additive only)
+    // Show runtime values that don't have corresponding static attributes
+    if (runtimeState?.runtimeValues && Object.keys(runtimeState.runtimeValues).length > 0 && options?.showRuntimeState !== false) {
+        const staticAttrNames = new Set(attributes.map((a: any) => a.name));
+        const runtimeOnlyValues: any[] = [];
+
+        Object.entries(runtimeState.runtimeValues).forEach(([key, value]) => {
+            // Only show runtime values that aren't already in static attributes
+            if (!staticAttrNames.has(key)) {
+                runtimeOnlyValues.push({
+                    name: key,
+                    value: value,
+                    type: typeof value
+                });
+            }
+        });
+
+        if (runtimeOnlyValues.length > 0) {
+            htmlLabel += '<tr><td>';
+            htmlLabel += '<font point-size="8"><i>Runtime Values:</i></font><br/>';
+            htmlLabel += generateAttributesTable(runtimeOnlyValues, options?.runtimeContext, wrappingConfig);
+            htmlLabel += '</td></tr>';
+        }
     }
 
     // Add inline validation warnings if enabled
