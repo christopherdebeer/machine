@@ -304,20 +304,49 @@ Use `@style` annotations at the machine or namespace level to control diagram la
 
 ### Direction Control
 
-The `direction` property provides an easier way to control layout direction, supporting both verbose and short formats:
+The `direction` property provides an easier way to control layout direction, supporting verbose, short, and CSS flex-inspired formats:
 
 ```dy examples/styling/layout-control.dygram
-// Left-to-right layout (verbose format)
-machine "Horizontal Flow" @style(direction: left-to-right)
+// Direction property supports multiple formats:
+// - Verbose: left-to-right, right-to-left, top-to-bottom, bottom-to-top
+// - Short: LR, RL, TB, BT
+// - CSS Flex: column (LR), row (TB)
 
-// Same as above (short format)
-machine "Horizontal Flow" @style(direction: LR)
+machine "Layout Control Example" @style(direction: column)
 
-// Other directions
-machine "Vertical Flow" @style(direction: top-to-bottom)  // or TB
-machine "RTL Flow" @style(direction: right-to-left)       // or RL
-machine "Bottom Up" @style(direction: bottom-to-top)      // or BT
+state Start;
+state Process;
+state End;
+
+Start -> Process;
+Process -> End;
 ```
+
+**Direction Formats:**
+- **Verbose**: `left-to-right`, `right-to-left`, `top-to-bottom`, `bottom-to-top`
+- **Short**: `LR`, `RL`, `TB`, `BT`
+- **CSS Flex**: `column` (equivalent to LR), `row` (equivalent to TB)
+
+#### Cluster-Level Direction Control
+
+While Graphviz's `rankdir` can only be set at the root graph level, you can use the `direction` property on namespaces/clusters to control how grid layout positions are interpreted within that cluster:
+
+```dy !no-extract
+namespace DataProcessing @style(direction: column; grid: 3) {
+    // With direction: column (LR), grid positions create rows
+    Task a;
+    Task b;
+    Task c;
+}
+
+namespace OtherProcessing @style(direction: row; grid: 2) {
+    // With direction: row (TB), grid positions create columns
+    Task x;
+    Task y;
+}
+```
+
+This enables effective cluster-level layout control by adapting the grid rail/ranking strategy to the specified direction, even though the root-level `rankdir` remains unchanged.
 
 ### Grid Layout
 
@@ -364,9 +393,11 @@ Task d @style(grid-pos: 1) "Position 1 Task D";
 
 ### Layout Options Summary
 
-- `direction`: Layout direction with verbose or short format
+- `direction`: Layout direction with multiple format options
   - Verbose: `left-to-right`, `right-to-left`, `top-to-bottom`, `bottom-to-top`
   - Short: `LR`, `RL`, `TB`, `BT`
+  - CSS Flex: `column` (LR), `row` (TB)
+  - Works at machine level (sets root `rankdir`) and cluster level (affects grid interpretation)
 - `grid`: Number of grid positions for layout (direction-adaptive)
 - `grid-position` / `grid-pos`: Assign node to specific grid position (1-based index)
 - `columns` / `cols`: Legacy alias for `grid` (backwards compatibility)

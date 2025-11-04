@@ -77,6 +77,7 @@ function mapCssPropertyToGraphviz(cssProperty: string): string {
 /**
  * Normalize direction value to Graphviz rankdir format
  * Supports both verbose (left-to-right) and short (LR) formats
+ * Also supports CSS flex-inspired shorthand: "row" (TB) and "column" (LR)
  */
 function normalizeDirectionValue(value: string): string {
     const normalized = value.toLowerCase().trim();
@@ -88,9 +89,52 @@ function normalizeDirectionValue(value: string): string {
         'lr': 'LR',
         'rl': 'RL',
         'tb': 'TB',
-        'bt': 'BT'
+        'bt': 'BT',
+        // CSS flex-inspired shorthand
+        'row': 'TB',      // row flows top-to-bottom
+        'column': 'LR'    // column flows left-to-right
     };
     return directionMap[normalized] || value;
+}
+
+/**
+ * Extract direction from style attributes
+ * Supports: direction property in @style annotations and style attributes
+ * Returns normalized direction value (LR, RL, TB, BT) or undefined if not set
+ */
+function extractDirection(node: any): string | undefined {
+    // Check @style annotations
+    const annotations = node.annotations || [];
+    for (const ann of annotations) {
+        if (ann.name === 'style') {
+            if (ann.attributes) {
+                const direction = ann.attributes['direction'];
+                if (direction !== undefined) {
+                    return normalizeDirectionValue(String(direction));
+                }
+            } else if (ann.value) {
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                for (const attr of styleAttrs) {
+                    const [key, ...valueParts] = attr.split(':');
+                    const normalizedKey = key.trim().toLowerCase();
+                    if (normalizedKey === 'direction') {
+                        return normalizeDirectionValue(valueParts.join(':').trim());
+                    }
+                }
+            }
+        }
+    }
+
+    // Check style attribute
+    const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
+    if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
+        const direction = styleAttr.value['direction'];
+        if (direction !== undefined) {
+            return normalizeDirectionValue(String(direction));
+        }
+    }
+
+    return undefined;
 }
 
 /**
@@ -182,12 +226,25 @@ function extractNodeGridPosition(node: any): number | undefined {
 
 /**
  * Generate grid layout infrastructure with invisible rail nodes and edges
- * The grid adapts to the diagram direction (rankdir):
+ * The grid adapts to the specified direction (or defaults to parent):
  * - TB/BT: grid positions become columns (vertical stacks)
  * - LR/RL: grid positions become rows (horizontal stacks)
+ *
+ * @param nodes - Nodes to organize in the grid
+ * @param gridSize - Number of grid positions
+ * @param prefix - Prefix for rail node names
+ * @param direction - Optional direction override (LR, RL, TB, BT)
  */
-function generateGridLayout(nodes: any[], gridSize: number, prefix: string = ''): string {
+function generateGridLayout(nodes: any[], gridSize: number, prefix: string = '', direction?: string): string {
     const lines: string[] = [];
+
+    // Note: The direction parameter affects how grid positions are interpreted:
+    // - TB/BT or undefined: grid positions become columns (vertical stacks)
+    // - LR/RL: grid positions become rows (horizontal stacks)
+    //
+    // While Graphviz rankdir can only be set at the root graph level, we can use the
+    // cluster-local direction to inform our rail/ranking strategy within subgraphs.
+    // This enables cluster-level control of layout orientation through grid positioning.
 
     // Generate invisible rail nodes for each grid position
     const railNodes: string[] = [];
@@ -1006,7 +1063,8 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     const machineGridSize = extractGridSize(machineJson);
     if (machineGridSize && machineGridSize > 0) {
         lines.push('  // Grid layout');
-        lines.push(generateGridLayout(rootNodes, machineGridSize, 'root'));
+        const machineDirection = extractDirection(machineJson);
+        lines.push(generateGridLayout(rootNodes, machineGridSize, 'root', machineDirection));
         lines.push('');
     }
 
@@ -1656,7 +1714,8 @@ function generateSemanticHierarchy(
                 if (leafChildren.length > 0) {
                     lines.push('');
                     lines.push(`${indent}  // Grid layout for cluster ${node.name}`);
-                    const gridLayoutLines = generateGridLayout(leafChildren, clusterGridSize, `cluster_${node.name}`);
+                    const clusterDirection = extractDirection(node);
+                    const gridLayoutLines = generateGridLayout(leafChildren, clusterGridSize, `cluster_${node.name}`, clusterDirection);
                     // Add proper indentation to each line
                     const indentedLines = gridLayoutLines.split('\n').map(line => {
                         if (line.trim()) {
