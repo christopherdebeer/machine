@@ -300,41 +300,71 @@ This generates: `label="done"` (no "@critical" shown) but still applies `color="
 
 ## Layout Control
 
-Use `@style` annotations at the machine level to control diagram layout:
+Use `@style` annotations at the machine or namespace level to control diagram layout:
+
+### Direction Control
+
+The `direction` property provides an easier way to control layout direction, supporting both verbose and short formats:
 
 ```dy examples/styling/layout-control.dygram
-// Left-to-right layout
-machine "Horizontal Flow" @style(rankdir: LR)
+// Left-to-right layout (verbose format)
+machine "Horizontal Flow" @style(direction: left-to-right)
 
-// Top-to-bottom layout (default)
-machine "Vertical Flow" @style(rankdir: TB)
+// Same as above (short format)
+machine "Horizontal Flow" @style(direction: LR)
 
-// Right-to-left layout
-machine "RTL Flow" @style(rankdir: RL)
-
-// Bottom-to-top layout
-machine "Bottom Up" @style(rankdir: BT)
+// Other directions
+machine "Vertical Flow" @style(direction: top-to-bottom)  // or TB
+machine "RTL Flow" @style(direction: right-to-left)       // or RL
+machine "Bottom Up" @style(direction: bottom-to-top)      // or BT
 ```
 
-You can also control node grouping and alignment:
+### Column Layout
 
-```dy examples/styling/aligned-layout.dygram
-machine "Aligned Layout"
+Control the width of diagrams by distributing nodes across multiple columns. This is especially useful for namespaces with many items:
 
-Task start @style(rank: min) "Start";
-Task a @style(rank: "same:group1") "Task A";
-Task b @style(rank: "same:group1") "Task B";
-Task end @style(rank: max) "End";
+```dy examples/styling/column-layout.dygram
+machine "Column Layout Example"
 
-start -> a;
-start -> b;
-a -> end;
-b -> end;
+// Namespace with many items limited to 3 columns
+namespace DataProcessing @style(columns: 3) {
+    Task fetchData "Fetch Data";
+    Task validateData "Validate Data";
+    Task transformData "Transform Data";
+    Task filterData "Filter Data";
+    Task aggregateData "Aggregate Data";
+    Task storeData "Store Data";
+}
+
+// Nodes are auto-distributed across the 3 columns
 ```
 
-**Layout Options**:
-- `rankdir`: Direction (LR, RL, TB, BT)
-- `rank`: Node alignment (min/max for top/bottom, same:name for grouping)
+**Auto-Distribution**: When you specify `columns` or `cols` without explicit column assignments, nodes are automatically distributed evenly across the columns in a round-robin fashion.
+
+**Explicit Column Assignment**: You can assign specific nodes to specific columns:
+
+```dy examples/styling/explicit-columns.dygram
+machine "Explicit Column Assignment" @style(columns: 3)
+
+Task a @style(col: 1) "Column 1 Task A";
+Task b @style(col: 2) "Column 2 Task B";
+Task c @style(col: 3) "Column 3 Task C";
+Task d @style(col: 1) "Column 1 Task D";
+```
+
+**Column Layout Options**:
+- `columns` or `cols`: Number of columns (e.g., `columns: 5`)
+- `col` or `column`: Assign node to specific column (e.g., `col: 2`)
+- Works at machine level and within clusters/namespaces
+- Auto-distributes nodes without explicit column assignments
+
+### Layout Options Summary
+
+- `direction`: Layout direction with verbose or short format
+  - Verbose: `left-to-right`, `right-to-left`, `top-to-bottom`, `bottom-to-top`
+  - Short: `LR`, `RL`, `TB`, `BT`
+- `columns` / `cols`: Number of columns for layout
+- `col` / `column`: Assign node to specific column (1-based index)
 - `nodesep`: Horizontal spacing between nodes
 - `ranksep`: Vertical spacing between ranks
 

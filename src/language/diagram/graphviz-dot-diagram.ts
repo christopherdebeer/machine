@@ -66,11 +66,178 @@ function mapCssPropertyToGraphviz(cssProperty: string): string {
         'background-color': 'fillcolor',
         'border-color': 'color',
         'border-width': 'penwidth',
-        'opacity': 'alpha'
+        'opacity': 'alpha',
+        'direction': 'rankdir'
     };
 
     const normalized = cssProperty.toLowerCase().trim();
     return propertyMap[normalized] || cssProperty;
+}
+
+/**
+ * Normalize direction value to Graphviz rankdir format
+ * Supports both verbose (left-to-right) and short (LR) formats
+ */
+function normalizeDirectionValue(value: string): string {
+    const normalized = value.toLowerCase().trim();
+    const directionMap: Record<string, string> = {
+        'left-to-right': 'LR',
+        'right-to-left': 'RL',
+        'top-to-bottom': 'TB',
+        'bottom-to-top': 'BT',
+        'lr': 'LR',
+        'rl': 'RL',
+        'tb': 'TB',
+        'bt': 'BT'
+    };
+    return directionMap[normalized] || value;
+}
+
+/**
+ * Extract column count from style attributes
+ */
+function extractColumnCount(node: any): number | undefined {
+    // Check @style annotations
+    const annotations = node.annotations || [];
+    for (const ann of annotations) {
+        if (ann.name === 'style') {
+            if (ann.attributes) {
+                const cols = ann.attributes['columns'] || ann.attributes['cols'];
+                if (cols !== undefined) {
+                    const count = parseInt(String(cols), 10);
+                    return isNaN(count) ? undefined : count;
+                }
+            } else if (ann.value) {
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                for (const attr of styleAttrs) {
+                    const [key, ...valueParts] = attr.split(':');
+                    const normalizedKey = key.trim().toLowerCase();
+                    if (normalizedKey === 'columns' || normalizedKey === 'cols') {
+                        const count = parseInt(valueParts.join(':').trim(), 10);
+                        return isNaN(count) ? undefined : count;
+                    }
+                }
+            }
+        }
+    }
+
+    // Check style attribute
+    const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
+    if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
+        const cols = styleAttr.value['columns'] || styleAttr.value['cols'];
+        if (cols !== undefined) {
+            const count = parseInt(String(cols), 10);
+            return isNaN(count) ? undefined : count;
+        }
+    }
+
+    return undefined;
+}
+
+/**
+ * Extract column assignment from node style attributes
+ */
+function extractNodeColumn(node: any): number | undefined {
+    // Check @style annotations
+    const annotations = node.annotations || [];
+    for (const ann of annotations) {
+        if (ann.name === 'style') {
+            if (ann.attributes) {
+                const col = ann.attributes['column'] || ann.attributes['col'];
+                if (col !== undefined) {
+                    const colNum = parseInt(String(col), 10);
+                    return isNaN(colNum) ? undefined : colNum;
+                }
+            } else if (ann.value) {
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                for (const attr of styleAttrs) {
+                    const [key, ...valueParts] = attr.split(':');
+                    const normalizedKey = key.trim().toLowerCase();
+                    if (normalizedKey === 'column' || normalizedKey === 'col') {
+                        const colNum = parseInt(valueParts.join(':').trim(), 10);
+                        return isNaN(colNum) ? undefined : colNum;
+                    }
+                }
+            }
+        }
+    }
+
+    // Check style attribute
+    const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
+    if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
+        const col = styleAttr.value['column'] || styleAttr.value['col'];
+        if (col !== undefined) {
+            const colNum = parseInt(String(col), 10);
+            return isNaN(colNum) ? undefined : colNum;
+        }
+    }
+
+    return undefined;
+}
+
+/**
+ * Generate column layout infrastructure with invisible rail nodes and edges
+ */
+function generateColumnLayout(nodes: any[], columnCount: number, prefix: string = ''): string {
+    const lines: string[] = [];
+
+    // Generate invisible rail nodes for each column
+    const railNodes: string[] = [];
+    for (let i = 1; i <= columnCount; i++) {
+        const railName = `${prefix}__col_rail_${i}`;
+        railNodes.push(railName);
+        lines.push(`  "${railName}" [shape=point, width=0.01, height=0.01, label="", style=invis, fixedsize=true];`);
+    }
+
+    // Create invisible edges to enforce column ordering
+    if (railNodes.length > 1) {
+        for (let i = 0; i < railNodes.length - 1; i++) {
+            lines.push(`  "${railNodes[i]}" -> "${railNodes[i + 1]}" [style=invis];`);
+        }
+    }
+
+    // Assign nodes to columns
+    const nodesByColumn = new Map<number, string[]>();
+    const nodesWithoutColumn: string[] = [];
+
+    // First pass: collect nodes with explicit column assignments
+    for (const node of nodes) {
+        const col = extractNodeColumn(node);
+        if (col !== undefined && col >= 1 && col <= columnCount) {
+            if (!nodesByColumn.has(col)) {
+                nodesByColumn.set(col, []);
+            }
+            nodesByColumn.get(col)!.push(node.name);
+        } else if (col === undefined) {
+            nodesWithoutColumn.push(node.name);
+        }
+    }
+
+    // Auto-distribute nodes without explicit column assignment
+    if (nodesWithoutColumn.length > 0) {
+        let currentCol = 1;
+        for (const nodeName of nodesWithoutColumn) {
+            if (!nodesByColumn.has(currentCol)) {
+                nodesByColumn.set(currentCol, []);
+            }
+            nodesByColumn.get(currentCol)!.push(nodeName);
+            currentCol = (currentCol % columnCount) + 1;
+        }
+    }
+
+    // Generate invisible edges from rail nodes to assigned nodes
+    for (let col = 1; col <= columnCount; col++) {
+        const colNodes = nodesByColumn.get(col);
+        if (colNodes && colNodes.length > 0) {
+            const railName = `${prefix}__col_rail_${col}`;
+            lines.push(`  // Column ${col}`);
+            // Create rank group for this column
+            const nodesList = [railName, ...colNodes].map(n => buildEndpointIdentifier(n)).join('; ');
+            lines.push(`  { rank=same; ${nodesList}; }`);
+        }
+    }
+
+    return lines.join('\n');
 }
 
 /**
@@ -475,9 +642,13 @@ function getNodeStyle(node: any, edges?: any[], styleNodes?: any[], validationCo
                 styleAttrs.forEach((attr: string) => {
                     const [key, ...valueParts] = attr.split(':');
                     if (key && valueParts.length > 0) {
-                        const value = valueParts.join(':').trim();
+                        let value = valueParts.join(':').trim();
                         // Map CSS properties to Graphviz equivalents
                         const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                        // Normalize direction values
+                        if (graphvizKey === 'rankdir' || key.trim().toLowerCase() === 'direction') {
+                            value = normalizeDirectionValue(value);
+                        }
                         baseStyle += `, ${graphvizKey}="${value}"`;
                     }
                 });
@@ -708,118 +879,7 @@ function getTextWrappingConfig(machineJson: MachineJSON): TextWrappingConfig {
     };
 }
 
-interface RankCollections {
-    min: Set<string>;
-    max: Set<string>;
-    same: Map<string, Set<string>>;
-}
-
-function extractRankHint(node: any): string | undefined {
-    const rankAnnotation = node.annotations?.find((ann: any) => ann.name === 'rank');
-    if (rankAnnotation) {
-        const value = rankAnnotation.value ?? '';
-        const normalized = normalizeHandleValue(value);
-        if (normalized) {
-            return normalized;
-        }
-    }
-
-    const rankAttribute = node.attributes?.find((attr: any) => attr.name === 'rank');
-    if (rankAttribute) {
-        const rawValue = rankAttribute.value?.value ?? rankAttribute.value;
-        if (rawValue !== undefined && rawValue !== null) {
-            if (typeof rawValue === 'string') {
-                const normalized = normalizeHandleValue(rawValue);
-                if (normalized) {
-                    return normalized;
-                }
-            } else {
-                return String(rawValue);
-            }
-        }
-    }
-
-    return undefined;
-}
-
-function resolveRankTarget(node: any): string {
-    if (Array.isArray(node.nodes) && node.nodes.length > 0) {
-        return getClusterAnchorName(node.name);
-    }
-    return node.name;
-}
-
-function collectRankCollections(nodes: any[]): RankCollections {
-    const result: RankCollections = {
-        min: new Set<string>(),
-        max: new Set<string>(),
-        same: new Map<string, Set<string>>()
-    };
-
-    nodes.forEach(node => {
-        const hint = extractRankHint(node);
-        if (!hint) {
-            return;
-        }
-
-        const trimmed = hint.trim();
-        if (!trimmed) {
-            return;
-        }
-
-        const normalized = trimmed.toLowerCase();
-        const target = resolveRankTarget(node);
-
-        if (['min', 'top', 'header', 'source'].includes(normalized)) {
-            result.min.add(target);
-            return;
-        }
-
-        if (['max', 'bottom', 'footer', 'sink'].includes(normalized)) {
-            result.max.add(target);
-            return;
-        }
-
-        const sameMatch = trimmed.match(/^(?:same|group|align)[:=](.+)$/i);
-        const groupName = sameMatch ? sameMatch[1] : trimmed;
-        const sanitizedGroup = sanitizePortId(groupName);
-        if (!sanitizedGroup) {
-            return;
-        }
-
-        const groupSet = result.same.get(sanitizedGroup) ?? new Set<string>();
-        groupSet.add(target);
-        result.same.set(sanitizedGroup, groupSet);
-    });
-
-    return result;
-}
-
-function renderRankStatements(nodes: any[]): string {
-    const collections = collectRankCollections(nodes);
-    const lines: string[] = [];
-
-    const formatGroup = (rank: string, members: Set<string>, comment?: string) => {
-        if (members.size === 0) {
-            return;
-        }
-        const nodesList = Array.from(members).map(name => buildEndpointIdentifier(name)).join('; ');
-        if (comment) {
-            lines.push(`  // ${comment}`);
-        }
-        lines.push(`  { rank=${rank}; ${nodesList}; }`);
-    };
-
-    formatGroup('min', collections.min, 'Rank: top/header nodes');
-    formatGroup('max', collections.max, 'Rank: bottom/footer nodes');
-
-    collections.same.forEach((members, groupName) => {
-        const comment = groupName ? `Rank group ${groupName}` : undefined;
-        formatGroup('same', members, comment);
-    });
-
-    return lines.join('\n');
-}
+// @rank annotation support removed in favor of column layout system
 
 /**
  * Generate a DOT diagram from MachineJSON with optional runtime state
@@ -878,8 +938,17 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
                     styleAttrs.forEach((attr: string) => {
                         const [key, ...valueParts] = attr.split(':');
                         if (key && valueParts.length > 0) {
-                            const value = valueParts.join(':').trim();
-                            lines.push(`  ${key.trim()}="${value}";`);
+                            let value = valueParts.join(':').trim();
+                            const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                            // Normalize direction values
+                            if (graphvizKey === 'rankdir' || key.trim().toLowerCase() === 'direction') {
+                                value = normalizeDirectionValue(value);
+                            }
+                            // Skip layout properties (columns, cols, col, column) - these are handled separately
+                            if (['columns', 'cols', 'col', 'column'].includes(key.trim().toLowerCase())) {
+                                return;
+                            }
+                            lines.push(`  ${graphvizKey}="${value}";`);
                         }
                     });
                 }
@@ -903,10 +972,11 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, styleNodes, validationContext, options, wrappingConfig, nodeStates));
     lines.push('');
 
-    const rankStatements = renderRankStatements(renderableNodes);
-    if (rankStatements) {
-        lines.push('  // Rank directives');
-        lines.push(rankStatements);
+    // Check for column layout at machine level
+    const machineColumnCount = extractColumnCount(machineJson);
+    if (machineColumnCount && machineColumnCount > 0) {
+        lines.push('  // Column layout');
+        lines.push(generateColumnLayout(rootNodes, machineColumnCount, 'root'));
         lines.push('');
     }
 
@@ -1406,9 +1476,17 @@ function getClusterStyle(node: any, styleNodes: any[] = [], validationContext?: 
                 styleAttrs.forEach((attr: string) => {
                     const [key, ...valueParts] = attr.split(':');
                     if (key && valueParts.length > 0) {
-                        const value = valueParts.join(':').trim();
+                        let value = valueParts.join(':').trim();
                         // Map CSS properties to Graphviz equivalents
                         const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                        // Normalize direction values
+                        if (graphvizKey === 'rankdir' || key.trim().toLowerCase() === 'direction') {
+                            value = normalizeDirectionValue(value);
+                        }
+                        // Skip layout properties (columns, cols, col, column) - these are handled separately
+                        if (['columns', 'cols', 'col', 'column'].includes(key.trim().toLowerCase())) {
+                            return;
+                        }
                         styleLines.push(`${graphvizKey}="${value}";`);
                     }
                 });
@@ -1537,6 +1615,28 @@ function generateSemanticHierarchy(
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);
             lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1, styleNodes, validationContext, options, wrappingConfig, nodeStates));
+
+            // Check for column layout within this cluster
+            const clusterColumnCount = extractColumnCount(node);
+            if (clusterColumnCount && clusterColumnCount > 0) {
+                const leafChildren = childNodes.filter(child => {
+                    const childHierarchy = hierarchy[child.name];
+                    return !childHierarchy || childHierarchy.children.length === 0;
+                });
+                if (leafChildren.length > 0) {
+                    lines.push('');
+                    lines.push(`${indent}  // Column layout for cluster ${node.name}`);
+                    const columnLayoutLines = generateColumnLayout(leafChildren, clusterColumnCount, `cluster_${node.name}`);
+                    // Add proper indentation to each line
+                    const indentedLines = columnLayoutLines.split('\n').map(line => {
+                        if (line.trim()) {
+                            return `${indent}${line}`;
+                        }
+                        return line;
+                    }).join('\n');
+                    lines.push(indentedLines);
+                }
+            }
 
             lines.push(`${indent}}`);
         } else {
