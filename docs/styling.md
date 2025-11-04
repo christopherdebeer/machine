@@ -319,15 +319,17 @@ machine "RTL Flow" @style(direction: right-to-left)       // or RL
 machine "Bottom Up" @style(direction: bottom-to-top)      // or BT
 ```
 
-### Column Layout
+### Grid Layout
 
-Control the width of diagrams by distributing nodes across multiple columns. This is especially useful for namespaces with many items:
+Control diagram organization by distributing nodes across a grid. The grid adapts to the diagram direction:
+- **Top-to-bottom (TB) or bottom-to-top (BT)**: Grid positions become columns (vertical stacks)
+- **Left-to-right (LR) or right-to-left (RL)**: Grid positions become rows (horizontal stacks)
 
-```dy examples/styling/column-layout.dygram
-machine "Column Layout Example"
+```dy examples/styling/grid-layout.dygram
+machine "Grid Layout Example" @style(direction: LR)
 
-// Namespace with many items limited to 3 columns
-namespace DataProcessing @style(columns: 3) {
+// Namespace with many items organized in a 3-position grid
+namespace DataProcessing @style(grid: 3) {
     Task fetchData "Fetch Data";
     Task validateData "Validate Data";
     Task transformData "Transform Data";
@@ -336,35 +338,39 @@ namespace DataProcessing @style(columns: 3) {
     Task storeData "Store Data";
 }
 
-// Nodes are auto-distributed across the 3 columns
+// With LR direction, grid creates 3 rows
+// Nodes are auto-distributed across the 3 grid positions
 ```
 
-**Auto-Distribution**: When you specify `columns` or `cols` without explicit column assignments, nodes are automatically distributed evenly across the columns in a round-robin fashion.
+**Auto-Distribution**: When you specify `grid` without explicit position assignments, nodes are automatically distributed evenly in a round-robin fashion.
 
-**Explicit Column Assignment**: You can assign specific nodes to specific columns:
+**Explicit Grid Position Assignment**: You can assign specific nodes to specific grid positions:
 
-```dy examples/styling/explicit-columns.dygram
-machine "Explicit Column Assignment" @style(columns: 3)
+```dy examples/styling/explicit-grid.dygram
+machine "Explicit Grid Assignment" @style(grid: 3)
 
-Task a @style(col: 1) "Column 1 Task A";
-Task b @style(col: 2) "Column 2 Task B";
-Task c @style(col: 3) "Column 3 Task C";
-Task d @style(col: 1) "Column 1 Task D";
+Task a @style(grid-pos: 1) "Position 1 Task A";
+Task b @style(grid-pos: 2) "Position 2 Task B";
+Task c @style(grid-pos: 3) "Position 3 Task C";
+Task d @style(grid-pos: 1) "Position 1 Task D";
 ```
 
-**Column Layout Options**:
-- `columns` or `cols`: Number of columns (e.g., `columns: 5`)
-- `col` or `column`: Assign node to specific column (e.g., `col: 2`)
+**Grid Layout Options**:
+- `grid`: Number of grid positions (e.g., `grid: 5`)
+- `grid-position` or `grid-pos`: Assign node to specific grid position (e.g., `grid-pos: 2`)
 - Works at machine level and within clusters/namespaces
-- Auto-distributes nodes without explicit column assignments
+- Auto-distributes nodes without explicit position assignments
+- Backwards compatible with `columns`/`cols` and `col`/`column` (aliases for `grid` and `grid-pos`)
 
 ### Layout Options Summary
 
 - `direction`: Layout direction with verbose or short format
   - Verbose: `left-to-right`, `right-to-left`, `top-to-bottom`, `bottom-to-top`
   - Short: `LR`, `RL`, `TB`, `BT`
-- `columns` / `cols`: Number of columns for layout
-- `col` / `column`: Assign node to specific column (1-based index)
+- `grid`: Number of grid positions for layout (direction-adaptive)
+- `grid-position` / `grid-pos`: Assign node to specific grid position (1-based index)
+- `columns` / `cols`: Legacy alias for `grid` (backwards compatibility)
+- `col` / `column`: Legacy alias for `grid-pos` (backwards compatibility)
 - `nodesep`: Horizontal spacing between nodes
 - `ranksep`: Vertical spacing between ranks
 

@@ -3,27 +3,35 @@
     "title": "Horizontal Flow",
     "attributes": [
       {
-        "name": "rankdir",
-        "value": "TB"
+        "name": "direction",
+        "value": "LR"
       },
       {
-        "name": "rankdir",
-        "value": "RL"
+        "name": "direction",
+        "value": "top"
       },
       {
-        "name": "rankdir",
-        "value": "BT"
+        "name": "direction",
+        "value": "right"
+      },
+      {
+        "name": "direction",
+        "value": "bottom"
       }
     ],
     "annotations": [
       {
         "name": "style",
         "attributes": {
-          "rankdir": "LR"
+          "direction": "left"
         }
       }
     ],
     "nodes": [
+      {
+        "name": "style",
+        "attributes": []
+      },
       {
         "name": "style",
         "attributes": []
@@ -41,6 +49,6 @@
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Horizontal Flow</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @style</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"rankdir__key\" align=\"left\" balign=\"left\">rankdir</td><td port=\"rankdir__value\" align=\"left\" balign=\"left\">TB</td></tr><tr><td port=\"rankdir__key_1\" align=\"left\" balign=\"left\">rankdir</td><td port=\"rankdir__value_1\" align=\"left\" balign=\"left\">RL</td></tr><tr><td port=\"rankdir__key_2\" align=\"left\" balign=\"left\">rankdir</td><td port=\"rankdir__value_2\" align=\"left\" balign=\"left\">BT</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"LR\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"style\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>style</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"style\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>style</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"style\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>style</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
-  "svgHash": "c6bfc6167ce5e48b7ce3ccfd7a0217af8bd22af912082519c3b84c01fde23860"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Horizontal Flow</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @style</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"direction__key\" align=\"left\" balign=\"left\">direction</td><td port=\"direction__value\" align=\"left\" balign=\"left\">LR</td></tr><tr><td port=\"direction__key_1\" align=\"left\" balign=\"left\">direction</td><td port=\"direction__value_1\" align=\"left\" balign=\"left\">top</td></tr><tr><td port=\"direction__key_2\" align=\"left\" balign=\"left\">direction</td><td port=\"direction__value_2\" align=\"left\" balign=\"left\">right</td></tr><tr><td port=\"direction__key_3\" align=\"left\" balign=\"left\">direction</td><td port=\"direction__value_3\" align=\"left\" balign=\"left\">bottom</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"left\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"style\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>style</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"style\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>style</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"style\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>style</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"style\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>style</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
+  "svgHash": "da830231f9e5876ff4ba36d6f7c6b7d70495f18c4179b13cf9583f9733f3046d"
 }

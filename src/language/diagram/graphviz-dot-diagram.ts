@@ -94,17 +94,18 @@ function normalizeDirectionValue(value: string): string {
 }
 
 /**
- * Extract column count from style attributes
+ * Extract grid size from style attributes
+ * Supports: grid, columns, cols (for backwards compatibility)
  */
-function extractColumnCount(node: any): number | undefined {
+function extractGridSize(node: any): number | undefined {
     // Check @style annotations
     const annotations = node.annotations || [];
     for (const ann of annotations) {
         if (ann.name === 'style') {
             if (ann.attributes) {
-                const cols = ann.attributes['columns'] || ann.attributes['cols'];
-                if (cols !== undefined) {
-                    const count = parseInt(String(cols), 10);
+                const grid = ann.attributes['grid'] || ann.attributes['columns'] || ann.attributes['cols'];
+                if (grid !== undefined) {
+                    const count = parseInt(String(grid), 10);
                     return isNaN(count) ? undefined : count;
                 }
             } else if (ann.value) {
@@ -112,7 +113,7 @@ function extractColumnCount(node: any): number | undefined {
                 for (const attr of styleAttrs) {
                     const [key, ...valueParts] = attr.split(':');
                     const normalizedKey = key.trim().toLowerCase();
-                    if (normalizedKey === 'columns' || normalizedKey === 'cols') {
+                    if (normalizedKey === 'grid' || normalizedKey === 'columns' || normalizedKey === 'cols') {
                         const count = parseInt(valueParts.join(':').trim(), 10);
                         return isNaN(count) ? undefined : count;
                     }
@@ -124,9 +125,9 @@ function extractColumnCount(node: any): number | undefined {
     // Check style attribute
     const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
     if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
-        const cols = styleAttr.value['columns'] || styleAttr.value['cols'];
-        if (cols !== undefined) {
-            const count = parseInt(String(cols), 10);
+        const grid = styleAttr.value['grid'] || styleAttr.value['columns'] || styleAttr.value['cols'];
+        if (grid !== undefined) {
+            const count = parseInt(String(grid), 10);
             return isNaN(count) ? undefined : count;
         }
     }
@@ -135,27 +136,30 @@ function extractColumnCount(node: any): number | undefined {
 }
 
 /**
- * Extract column assignment from node style attributes
+ * Extract grid position assignment from node style attributes
+ * Supports: grid-position, grid-pos, column, col (for backwards compatibility)
  */
-function extractNodeColumn(node: any): number | undefined {
+function extractNodeGridPosition(node: any): number | undefined {
     // Check @style annotations
     const annotations = node.annotations || [];
     for (const ann of annotations) {
         if (ann.name === 'style') {
             if (ann.attributes) {
-                const col = ann.attributes['column'] || ann.attributes['col'];
-                if (col !== undefined) {
-                    const colNum = parseInt(String(col), 10);
-                    return isNaN(colNum) ? undefined : colNum;
+                const pos = ann.attributes['grid-position'] || ann.attributes['grid-pos'] ||
+                           ann.attributes['column'] || ann.attributes['col'];
+                if (pos !== undefined) {
+                    const posNum = parseInt(String(pos), 10);
+                    return isNaN(posNum) ? undefined : posNum;
                 }
             } else if (ann.value) {
                 const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
                 for (const attr of styleAttrs) {
                     const [key, ...valueParts] = attr.split(':');
                     const normalizedKey = key.trim().toLowerCase();
-                    if (normalizedKey === 'column' || normalizedKey === 'col') {
-                        const colNum = parseInt(valueParts.join(':').trim(), 10);
-                        return isNaN(colNum) ? undefined : colNum;
+                    if (normalizedKey === 'grid-position' || normalizedKey === 'grid-pos' ||
+                        normalizedKey === 'column' || normalizedKey === 'col') {
+                        const posNum = parseInt(valueParts.join(':').trim(), 10);
+                        return isNaN(posNum) ? undefined : posNum;
                     }
                 }
             }
@@ -165,10 +169,11 @@ function extractNodeColumn(node: any): number | undefined {
     // Check style attribute
     const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
     if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
-        const col = styleAttr.value['column'] || styleAttr.value['col'];
-        if (col !== undefined) {
-            const colNum = parseInt(String(col), 10);
-            return isNaN(colNum) ? undefined : colNum;
+        const pos = styleAttr.value['grid-position'] || styleAttr.value['grid-pos'] ||
+                   styleAttr.value['column'] || styleAttr.value['col'];
+        if (pos !== undefined) {
+            const posNum = parseInt(String(pos), 10);
+            return isNaN(posNum) ? undefined : posNum;
         }
     }
 
@@ -176,63 +181,66 @@ function extractNodeColumn(node: any): number | undefined {
 }
 
 /**
- * Generate column layout infrastructure with invisible rail nodes and edges
+ * Generate grid layout infrastructure with invisible rail nodes and edges
+ * The grid adapts to the diagram direction (rankdir):
+ * - TB/BT: grid positions become columns (vertical stacks)
+ * - LR/RL: grid positions become rows (horizontal stacks)
  */
-function generateColumnLayout(nodes: any[], columnCount: number, prefix: string = ''): string {
+function generateGridLayout(nodes: any[], gridSize: number, prefix: string = ''): string {
     const lines: string[] = [];
 
-    // Generate invisible rail nodes for each column
+    // Generate invisible rail nodes for each grid position
     const railNodes: string[] = [];
-    for (let i = 1; i <= columnCount; i++) {
-        const railName = `${prefix}__col_rail_${i}`;
+    for (let i = 1; i <= gridSize; i++) {
+        const railName = `${prefix}__grid_rail_${i}`;
         railNodes.push(railName);
         lines.push(`  "${railName}" [shape=point, width=0.01, height=0.01, label="", style=invis, fixedsize=true];`);
     }
 
-    // Create invisible edges to enforce column ordering
+    // Create invisible edges to enforce grid position ordering
     if (railNodes.length > 1) {
         for (let i = 0; i < railNodes.length - 1; i++) {
             lines.push(`  "${railNodes[i]}" -> "${railNodes[i + 1]}" [style=invis];`);
         }
     }
 
-    // Assign nodes to columns
-    const nodesByColumn = new Map<number, string[]>();
-    const nodesWithoutColumn: string[] = [];
+    // Assign nodes to grid positions
+    const nodesByPosition = new Map<number, string[]>();
+    const nodesWithoutPosition: string[] = [];
 
-    // First pass: collect nodes with explicit column assignments
+    // First pass: collect nodes with explicit grid position assignments
     for (const node of nodes) {
-        const col = extractNodeColumn(node);
-        if (col !== undefined && col >= 1 && col <= columnCount) {
-            if (!nodesByColumn.has(col)) {
-                nodesByColumn.set(col, []);
+        const pos = extractNodeGridPosition(node);
+        if (pos !== undefined && pos >= 1 && pos <= gridSize) {
+            if (!nodesByPosition.has(pos)) {
+                nodesByPosition.set(pos, []);
             }
-            nodesByColumn.get(col)!.push(node.name);
-        } else if (col === undefined) {
-            nodesWithoutColumn.push(node.name);
+            nodesByPosition.get(pos)!.push(node.name);
+        } else if (pos === undefined) {
+            nodesWithoutPosition.push(node.name);
         }
     }
 
-    // Auto-distribute nodes without explicit column assignment
-    if (nodesWithoutColumn.length > 0) {
-        let currentCol = 1;
-        for (const nodeName of nodesWithoutColumn) {
-            if (!nodesByColumn.has(currentCol)) {
-                nodesByColumn.set(currentCol, []);
+    // Auto-distribute nodes without explicit grid position assignment
+    if (nodesWithoutPosition.length > 0) {
+        let currentPos = 1;
+        for (const nodeName of nodesWithoutPosition) {
+            if (!nodesByPosition.has(currentPos)) {
+                nodesByPosition.set(currentPos, []);
             }
-            nodesByColumn.get(currentCol)!.push(nodeName);
-            currentCol = (currentCol % columnCount) + 1;
+            nodesByPosition.get(currentPos)!.push(nodeName);
+            currentPos = (currentPos % gridSize) + 1;
         }
     }
 
     // Generate invisible edges from rail nodes to assigned nodes
-    for (let col = 1; col <= columnCount; col++) {
-        const colNodes = nodesByColumn.get(col);
-        if (colNodes && colNodes.length > 0) {
-            const railName = `${prefix}__col_rail_${col}`;
-            lines.push(`  // Column ${col}`);
-            // Create rank group for this column
-            const nodesList = [railName, ...colNodes].map(n => buildEndpointIdentifier(n)).join('; ');
+    for (let pos = 1; pos <= gridSize; pos++) {
+        const posNodes = nodesByPosition.get(pos);
+        if (posNodes && posNodes.length > 0) {
+            const railName = `${prefix}__grid_rail_${pos}`;
+            lines.push(`  // Grid position ${pos}`);
+            // Create rank group for this grid position
+            const nodesList = [railName, ...posNodes].map(n => buildEndpointIdentifier(n)).join('; ');
             lines.push(`  { rank=same; ${nodesList}; }`);
         }
     }
@@ -929,8 +937,25 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
                 if (ann.attributes) {
                     // Apply each attribute as a graphviz graph property
                     Object.keys(ann.attributes).forEach(key => {
-                        const value = ann.attributes[key];
-                        lines.push(`  ${key}="${value}";`);
+                        let value = ann.attributes[key];
+                        const normalizedKey = key.trim().toLowerCase();
+
+                        // Skip grid layout properties - these are handled separately
+                        if (['grid', 'grid-position', 'grid-pos', 'columns', 'cols', 'col', 'column'].includes(normalizedKey)) {
+                            return;
+                        }
+
+                        // Map CSS properties to Graphviz equivalents
+                        const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+
+                        // Normalize direction values
+                        if (graphvizKey === 'rankdir' || normalizedKey === 'direction') {
+                            value = normalizeDirectionValue(value);
+                            lines.push(`  rankdir="${value}";`);
+                            return;
+                        }
+
+                        lines.push(`  ${graphvizKey}="${value}";`);
                     });
                 } else if (ann.value) {
                     // Parse string value for inline styles
@@ -939,15 +964,20 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
                         const [key, ...valueParts] = attr.split(':');
                         if (key && valueParts.length > 0) {
                             let value = valueParts.join(':').trim();
-                            const graphvizKey = mapCssPropertyToGraphviz(key.trim());
-                            // Normalize direction values
-                            if (graphvizKey === 'rankdir' || key.trim().toLowerCase() === 'direction') {
-                                value = normalizeDirectionValue(value);
-                            }
-                            // Skip layout properties (columns, cols, col, column) - these are handled separately
-                            if (['columns', 'cols', 'col', 'column'].includes(key.trim().toLowerCase())) {
+                            const normalizedKey = key.trim().toLowerCase();
+
+                            // Skip grid layout properties - these are handled separately
+                            if (['grid', 'grid-position', 'grid-pos', 'columns', 'cols', 'col', 'column'].includes(normalizedKey)) {
                                 return;
                             }
+
+                            const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+
+                            // Normalize direction values
+                            if (graphvizKey === 'rankdir' || normalizedKey === 'direction') {
+                                value = normalizeDirectionValue(value);
+                            }
+
                             lines.push(`  ${graphvizKey}="${value}";`);
                         }
                     });
@@ -972,11 +1002,11 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, styleNodes, validationContext, options, wrappingConfig, nodeStates));
     lines.push('');
 
-    // Check for column layout at machine level
-    const machineColumnCount = extractColumnCount(machineJson);
-    if (machineColumnCount && machineColumnCount > 0) {
-        lines.push('  // Column layout');
-        lines.push(generateColumnLayout(rootNodes, machineColumnCount, 'root'));
+    // Check for grid layout at machine level
+    const machineGridSize = extractGridSize(machineJson);
+    if (machineGridSize && machineGridSize > 0) {
+        lines.push('  // Grid layout');
+        lines.push(generateGridLayout(rootNodes, machineGridSize, 'root'));
         lines.push('');
     }
 
@@ -1616,19 +1646,19 @@ function generateSemanticHierarchy(
             const childNodes = children.map(childName => hierarchy[childName].node);
             lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1, styleNodes, validationContext, options, wrappingConfig, nodeStates));
 
-            // Check for column layout within this cluster
-            const clusterColumnCount = extractColumnCount(node);
-            if (clusterColumnCount && clusterColumnCount > 0) {
+            // Check for grid layout within this cluster
+            const clusterGridSize = extractGridSize(node);
+            if (clusterGridSize && clusterGridSize > 0) {
                 const leafChildren = childNodes.filter(child => {
                     const childHierarchy = hierarchy[child.name];
                     return !childHierarchy || childHierarchy.children.length === 0;
                 });
                 if (leafChildren.length > 0) {
                     lines.push('');
-                    lines.push(`${indent}  // Column layout for cluster ${node.name}`);
-                    const columnLayoutLines = generateColumnLayout(leafChildren, clusterColumnCount, `cluster_${node.name}`);
+                    lines.push(`${indent}  // Grid layout for cluster ${node.name}`);
+                    const gridLayoutLines = generateGridLayout(leafChildren, clusterGridSize, `cluster_${node.name}`);
                     // Add proper indentation to each line
-                    const indentedLines = columnLayoutLines.split('\n').map(line => {
+                    const indentedLines = gridLayoutLines.split('\n').map(line => {
                         if (line.trim()) {
                             return `${indent}${line}`;
                         }
