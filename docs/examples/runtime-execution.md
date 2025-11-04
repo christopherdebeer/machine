@@ -280,8 +280,8 @@ state WaitPoint "Wait for both"
 state MergeAndContinue "Merge and continue"
 
 // Both paths must reach WaitPoint before continuing
-FetchData -@barrier("sync_point");-> WaitPoint
-FetchConfig -@barrier("sync_point");-> WaitPoint
+FetchData -@barrier("sync_point")-> WaitPoint
+FetchConfig -@barrier("sync_point")-> WaitPoint
 WaitPoint -> MergeAndContinue
 ```
 
@@ -306,7 +306,7 @@ state ProcessDefault "Default processing"
 // Higher priority evaluated first
 CheckData -@priority(1), when: "Data.itemCount > 100";-> ProcessUrgent
 CheckData -@priority(2), when: "Data.itemCount > 0";-> ProcessNormal
-CheckData -@priority(3);-> ProcessDefault
+CheckData -@priority(3)-> ProcessDefault
 ```
 
 ## State Management
