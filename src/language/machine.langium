@@ -151,7 +151,7 @@ Node<isRoot>:
 
 EdgeAttributeValue returns string: EXTID|STRING|ID|NUMBER;
 
-// Note: Order matters here to resolve ambiguity.
+// Note: Pattern order matters here to resolve parsing ambiguity.
 // Array syntax must come first, then name:value pairs, then standalone values.
 EdgeAttribute:
     '[' (params+=EdgeAttributeValue (',' params+=EdgeAttributeValue)*)? ']'
@@ -166,10 +166,10 @@ EdgeAnnotation:
     '@' name=ID ('(' (value=STRING | attributes=AnnotationAttributes) ')')?
 ;
 
+// EdgeType allows annotations and attributes in any order
+// At least one must be present (enforced by + quantifier)
 EdgeType:
-    ((annotations+=EdgeAnnotation)*
-    value+=EdgeAttribute+) | ((annotations+=EdgeAnnotation)+
-    value+=EdgeAttribute*);
+    (annotations+=EdgeAnnotation | value+=EdgeAttribute)+;
 
 EdgeSegment:
     (sourceMultiplicity=STRING)?
