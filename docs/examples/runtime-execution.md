@@ -98,7 +98,7 @@ state ProcessResponse "Process API response"
 state HandleError "Handle API error"
 
 FetchAPI -> ProcessResponse
-FetchAPI -[when: "error"]-> HandleError
+FetchAPI -when: "error";-> HandleError
 ```
 
 ### Timeout Annotation
@@ -115,7 +115,7 @@ state Success "Task completed"
 state Timeout "Task timed out"
 
 LongRunningTask -> Success
-LongRunningTask -[when: "timeout"]-> Timeout
+LongRunningTask -when: "timeout";-> Timeout
 ```
 
 ### Checkpoint Annotation
@@ -235,7 +235,7 @@ state CircuitOpen "Circuit breaker open"
 
 // After 5 consecutive failures, circuit opens for 10 seconds
 CallService -> ProcessResult
-CallService -[when: "circuitOpen"]-> CircuitOpen
+CallService -when: "circuitOpen";-> CircuitOpen
 ```
 
 ### Example: Resource Limits
@@ -280,8 +280,8 @@ state WaitPoint "Wait for both"
 state MergeAndContinue "Merge and continue"
 
 // Both paths must reach WaitPoint before continuing
-FetchData -[@barrier("sync_point")]-> WaitPoint
-FetchConfig -[@barrier("sync_point")]-> WaitPoint
+FetchData -@barrier("sync_point");-> WaitPoint
+FetchConfig -@barrier("sync_point");-> WaitPoint
 WaitPoint -> MergeAndContinue
 ```
 
@@ -304,9 +304,9 @@ state ProcessUrgent "Urgent processing"
 state ProcessDefault "Default processing"
 
 // Higher priority evaluated first
-CheckData -[@priority(1), when: "Data.itemCount > 100"]-> ProcessUrgent
-CheckData -[@priority(2), when: "Data.itemCount > 0"]-> ProcessNormal
-CheckData -[@priority(3)]-> ProcessDefault
+CheckData -@priority(1), when: "Data.itemCount > 100";-> ProcessUrgent
+CheckData -@priority(2), when: "Data.itemCount > 0";-> ProcessNormal
+CheckData -@priority(3);-> ProcessDefault
 ```
 
 ## State Management
@@ -377,8 +377,8 @@ state Check "Check value"
 state Done "Done"
 
 Increment -> Check
-Check -[when: "Counter.value < 10"]-> Increment
-Check -[when: "Counter.value >= 10"]-> Done
+Check -when: "Counter.value < 10";-> Increment
+Check -when: "Counter.value >= 10";-> Done
 ```
 
 With `logLevel: "debug"`, the execution log shows:

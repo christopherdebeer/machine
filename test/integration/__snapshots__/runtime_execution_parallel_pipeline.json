@@ -1,0 +1,68 @@
+{
+  "json": {
+    "title": "Parallel Pipeline",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 100
+      }
+    ],
+    "nodes": [
+      {
+        "name": "DataIngestion",
+        "type": "init",
+        "attributes": [],
+        "title": "Ingest data from source"
+      },
+      {
+        "name": "HealthMonitor",
+        "type": "init",
+        "attributes": [],
+        "title": "Monitor system health"
+      },
+      {
+        "name": "ProcessData",
+        "type": "state",
+        "attributes": [],
+        "title": "Process ingested data"
+      },
+      {
+        "name": "StoreResults",
+        "type": "state",
+        "attributes": [],
+        "title": "Store processed results"
+      },
+      {
+        "name": "AlertOnIssue",
+        "type": "state",
+        "attributes": [],
+        "title": "Alert if health issue detected"
+      }
+    ],
+    "edges": [
+      {
+        "source": "DataIngestion",
+        "target": "ProcessData",
+        "arrowType": "->"
+      },
+      {
+        "source": "ProcessData",
+        "target": "StoreResults",
+        "arrowType": "->"
+      },
+      {
+        "source": "HealthMonitor",
+        "target": "AlertOnIssue",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Parallel Pipeline</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">100</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"DataIngestion\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DataIngestion</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Ingest data from source</td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"HealthMonitor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HealthMonitor</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Monitor system health</td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"ProcessData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process ingested data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"StoreResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreResults</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Store processed results</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"AlertOnIssue\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AlertOnIssue</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Alert if health issue detected</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"DataIngestion\" -> \"ProcessData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessData\" -> \"StoreResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"HealthMonitor\" -> \"AlertOnIssue\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "a27182d881f5490559d7d744bb5900f1d6e078833122e096b69db6038877f60a"
+}

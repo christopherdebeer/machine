@@ -1,0 +1,98 @@
+{
+  "json": {
+    "title": "Priority Edges",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "Data",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "itemCount",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "name": "CheckData",
+        "type": "state",
+        "attributes": [],
+        "title": "Check data"
+      },
+      {
+        "name": "ProcessNormal",
+        "type": "state",
+        "attributes": [],
+        "title": "Normal processing"
+      },
+      {
+        "name": "ProcessUrgent",
+        "type": "state",
+        "attributes": [],
+        "title": "Urgent processing"
+      },
+      {
+        "name": "ProcessDefault",
+        "type": "state",
+        "attributes": [],
+        "title": "Default processing"
+      }
+    ],
+    "edges": [
+      {
+        "source": "CheckData",
+        "target": "ProcessUrgent",
+        "annotations": [
+          {
+            "name": "priority"
+          }
+        ],
+        "arrowType": "->",
+        "value": {
+          "when": "Data.itemCount > 100"
+        },
+        "attributes": {
+          "when": "Data.itemCount > 100"
+        }
+      },
+      {
+        "source": "CheckData",
+        "target": "ProcessNormal",
+        "annotations": [
+          {
+            "name": "priority"
+          }
+        ],
+        "arrowType": "->",
+        "value": {
+          "when": "Data.itemCount > 0"
+        },
+        "attributes": {
+          "when": "Data.itemCount > 0"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "CheckData",
+        "target": "Data",
+        "reason": "condition references Data",
+        "path": "Data.itemCount > 100"
+      },
+      {
+        "source": "CheckData",
+        "target": "Data",
+        "reason": "condition references Data",
+        "path": "Data.itemCount > 0"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Priority Edges</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Data\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Data</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"itemCount__key\" align=\"left\" balign=\"left\">itemCount</td><td port=\"itemCount__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"CheckData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CheckData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Check data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessNormal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessNormal</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Normal processing</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessUrgent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessUrgent</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Urgent processing</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessDefault\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessDefault</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Default processing</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"CheckData\" -> \"ProcessUrgent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">@priority when=Data.itemCount &gt; 100</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"CheckData\" -> \"ProcessNormal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">@priority when=Data.itemCount &gt; 0</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", style=solid, color=\"#4CAF50\", penwidth=2];\n\n  // Inferred Dependencies\n  \"CheckData\" -> \"Data\" [label=\"condition references Data\", style=dashed, color=blue];\n  \"CheckData\" -> \"Data\" [label=\"condition references Data\", style=dashed, color=blue];\n}",
+  "svgHash": "bf4e221345fdbeaa11b5d401e254470a8e5859d1724ae1361c0ac071b5295fe9"
+}
