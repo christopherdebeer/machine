@@ -941,6 +941,9 @@ class JSONGenerator extends BaseGenerator {
         }
 
         const value: Record<string, any> = {};
+        let hasExplicitTextAttribute = false;
+        let cstDerivedTextKey: string | null = null;
+
         labels.forEach((label) => {
             // Check if the label itself has text content in its CST node
             if (label.$cstNode && 'text' in label.$cstNode) {
@@ -952,12 +955,14 @@ class JSONGenerator extends BaseGenerator {
                     // Check if it's a simple label (just the text)
                     if (!labelText.includes('-') && !labelText.includes('=') && !labelText.includes('>')) {
                         value['text'] = labelText.trim();
+                        cstDerivedTextKey = 'text'; // Mark this as CST-derived
                     } else {
                         // Try to extract from complex patterns like "-feeds->" or "--compute-->" or "=finalize=>"
                         const match = labelText.match(/^-+([^-]+)-+>?$|^=+([^=]+)=+>?$/);
                         if (match) {
                             const extractedLabel = match[1] || match[2];
                             value['text'] = extractedLabel;
+                            cstDerivedTextKey = 'text'; // Mark this as CST-derived
                         }
                     }
                 }
@@ -982,6 +987,8 @@ class JSONGenerator extends BaseGenerator {
                     }
 
                     value['text'] = textValue;
+                    hasExplicitTextAttribute = true;
+                    cstDerivedTextKey = null; // This overrides any CST-derived text
                 } else if (attr.name && attr.value) {
                     // Extract the actual value, handling nested value property
                     let attrValue = attr.value;
@@ -1007,12 +1014,11 @@ class JSONGenerator extends BaseGenerator {
             });
         });
 
-        // If we have named attributes (other than 'text'), remove the CST-derived 'text' field
-        // The 'text' field from CST includes the entire label content including all attributes
-        // which would cause round-trip issues when regenerating DSL
+        // Only remove CST-derived text when we have named attributes AND the text is from CST (not explicit)
+        // This allows explicit text labels to coexist with other attributes
         const hasNamedAttributes = Object.keys(value).some(key => key !== 'text');
-        if (hasNamedAttributes && value['text']) {
-            delete value['text'];
+        if (hasNamedAttributes && cstDerivedTextKey && !hasExplicitTextAttribute) {
+            delete value[cstDerivedTextKey];
         }
 
         return Object.keys(value).length > 0 ? value : undefined;

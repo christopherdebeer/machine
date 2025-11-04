@@ -1,0 +1,43 @@
+{
+  "json": {
+    "title": "Multiple Annotations + Text Test",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Start",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "End",
+        "type": "state",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "Start",
+        "target": "End",
+        "annotations": [
+          {
+            "name": "async"
+          },
+          {
+            "name": "retry"
+          }
+        ],
+        "arrowType": "->",
+        "value": {
+          "text": "retryable async task"
+        },
+        "attributes": {
+          "text": "retryable async task"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Multiple Annotations + Text Test</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Start\" -> \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">@async @retry retryable async task</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "74d38a5a97c651c6a3928c6a55abf82ee89b295b11215f19c7ec52bbc816f8b1"
+}

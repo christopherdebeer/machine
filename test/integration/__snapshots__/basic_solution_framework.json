@@ -100,9 +100,11 @@
         "target": "solution",
         "arrowType": "->",
         "value": {
+          "text": "confidence: 0.9",
           "confidence": "0.9"
         },
         "attributes": {
+          "text": "confidence: 0.9",
           "confidence": "0.9"
         }
       },

@@ -54,9 +54,11 @@
         ],
         "arrowType": "->",
         "value": {
+          "text": "1",
           "when": "Data.itemCount > 100"
         },
         "attributes": {
+          "text": "1",
           "when": "Data.itemCount > 100"
         }
       },
@@ -70,9 +72,11 @@
         ],
         "arrowType": "->",
         "value": {
+          "text": "2",
           "when": "Data.itemCount > 0"
         },
         "attributes": {
+          "text": "2",
           "when": "Data.itemCount > 0"
         }
       },
