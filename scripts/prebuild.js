@@ -609,14 +609,69 @@ async function transformMarkdownToMdx(projectRoot) {
                 // Non-dygram code block content, pass through
                 output.push(line);
             } else {
-                // Regular content - rewrite README.md links
+                // Regular content - rewrite all markdown links to match output URL structure
                 let processedLine = line;
 
-                // Rewrite links: folder/README.md → folder/ or folder/index.html
-                processedLine = processedLine.replace(/\]\(([^)]+\/README\.md)\)/g, (match, path) => {
-                    // Remove README.md and add trailing slash or index.html
-                    const folderPath = path.replace(/\/README\.md$/, '/');
-                    return `](${folderPath})`;
+                // Rewrite markdown/MDX links to their final URL structure
+                processedLine = processedLine.replace(/\]\(([^):#]+\.(md|mdx)(?:#[^)]+)?)\)/g, (match, fullPath) => {
+                    // Extract path and hash separately
+                    const [linkPath, hash] = fullPath.split('#');
+                    const hashPart = hash ? `#${hash}` : '';
+
+                    // Skip external links (http://, https://, //)
+                    if (linkPath.match(/^(https?:)?\/\//)) {
+                        return match;
+                    }
+
+                    // Determine if this is an absolute or relative path
+                    const isAbsolute = linkPath.startsWith('/');
+
+                    // Calculate the base path for this file
+                    // relativePath is like "syntax/machines.mdx" or "README.mdx"
+                    const currentDir = dirname(relativePath);
+
+                    // Resolve the target path
+                    let targetPath;
+                    if (isAbsolute) {
+                        // Absolute path from docs root
+                        targetPath = linkPath.substring(1); // Remove leading /
+                    } else {
+                        // Relative path - resolve against current directory
+                        targetPath = join(currentDir, linkPath).replace(/\\/g, '/');
+                    }
+
+                    // Normalize the path (remove ..)
+                    const pathParts = targetPath.split('/').filter(p => p && p !== '.');
+                    const normalizedParts = [];
+                    for (const part of pathParts) {
+                        if (part === '..') {
+                            normalizedParts.pop();
+                        } else {
+                            normalizedParts.push(part);
+                        }
+                    }
+                    targetPath = normalizedParts.join('/');
+
+                    // Convert to URL structure matching what generateEntries creates
+                    // Remove .md/.mdx extension
+                    let urlPath = targetPath.replace(/\.(md|mdx)$/, '');
+
+                    // Handle README files -> parent directory
+                    if (urlPath.endsWith('/README') || urlPath === 'README') {
+                        urlPath = urlPath.replace(/\/README$/, '').replace(/^README$/, '');
+                    }
+
+                    // Convert to folder-based URL with trailing slash
+                    // docs/syntax/annotations.md -> /syntax/annotations/
+                    // docs/README.md -> /
+                    // docs/examples/README.md -> /examples/
+                    if (urlPath === '') {
+                        urlPath = baseUrl;
+                    } else {
+                        urlPath = `${baseUrl}${urlPath}/`;
+                    }
+
+                    return `](${urlPath}${hashPart})`;
                 });
 
                 output.push(processedLine);
