@@ -1,4 +1,0 @@
-All documentation is authored in ./docs as markdown files. These are converted to mdx at build time, and examples are extracted for use in playground and tests.
-When making changes to implementation make sure to keep documentation up to date. 
-Documentation should consist of objective descriptions and overviews of project grammar, semantics, and use etc and all speculative development plans and designs should be restricted to ./docs/development.
-Always run `CI=1 npm ci && npm run build`  or `CI=1 npm ci && npm run build:with-tests` after commit and push to understand if we have outstanding isseus to address. Consider always using a tmp file to capture outputs and tail/grep to reduce cluttering context.
