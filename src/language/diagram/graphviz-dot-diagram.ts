@@ -2136,6 +2136,85 @@ function formatEdgeLabelAsHtml(labelText: string): string {
 }
 
 /**
+ * Generate enhanced HTML label for edge showing title, annotations, and attributes in table format
+ * Similar to how machine, cluster, and node attributes are displayed
+ */
+function generateEdgeLabel(
+    edge: any,
+    edgeValue: any,
+    showAnnotation: boolean,
+    edgeState?: RuntimeEdgeState,
+    options?: DiagramOptions,
+    wrappingConfig?: TextWrappingConfig
+): string {
+    const textValue = edgeValue.text;
+    const keys = Object.keys(edgeValue);
+    const otherProps = keys.filter(k => k !== 'text' && !EDGE_METADATA_KEYS.has(k));
+
+    // Check if we have anything to display
+    const hasText = !!textValue;
+    const hasAnnotations = showAnnotation && edge.annotations && edge.annotations.length > 0;
+    const hasAttributes = otherProps.length > 0;
+    const hasVisitCount = edgeState && options?.showVisitCounts !== false && edgeState.traversalCount > 0;
+
+    // If nothing to display, return empty
+    if (!hasText && !hasAnnotations && !hasAttributes && !hasVisitCount) {
+        return '';
+    }
+
+    let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="2" align="left">';
+
+    // Title/text row (if present)
+    if (hasText) {
+        const maxEdgeLabelLength = wrappingConfig?.maxEdgeLabelLength ?? 40;
+        const wrappedLines = breakLongText(textValue, maxEdgeLabelLength);
+        const htmlText = wrappedLines.map(line => processMarkdown(line)).join('<br/>');
+        htmlLabel += `<tr><td align="left" balign="left"><b>${htmlText}</b></td></tr>`;
+    }
+
+    // Annotations row (if present, excluding @style)
+    if (hasAnnotations) {
+        const displayAnnotations = edge.annotations.filter((ann: any) => ann.name !== 'style');
+        if (displayAnnotations.length > 0) {
+            const annotationLabels = displayAnnotations.map((ann: any) => {
+                if (ann.value) {
+                    return '@' + escapeHtml(ann.name) + '("' + escapeHtml(ann.value) + '")';
+                } else {
+                    return '@' + escapeHtml(ann.name);
+                }
+            }).join(' ');
+            htmlLabel += `<tr><td align="left" balign="left"><i>${annotationLabels}</i></td></tr>`;
+        }
+    }
+
+    // Attributes table (if present)
+    if (hasAttributes) {
+        htmlLabel += '<tr><td align="left">';
+        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2" align="left">';
+
+        otherProps.forEach(key => {
+            const value = edgeValue[key];
+            const displayValue = typeof value === 'string' ? escapeHtml(value) : escapeHtml(String(value));
+            htmlLabel += '<tr>';
+            htmlLabel += `<td align="left" balign="left">${escapeHtml(key)}</td>`;
+            htmlLabel += `<td align="left" balign="left">${displayValue}</td>`;
+            htmlLabel += '</tr>';
+        });
+
+        htmlLabel += '</table>';
+        htmlLabel += '</td></tr>';
+    }
+
+    // Visit count (if present)
+    if (hasVisitCount) {
+        htmlLabel += `<tr><td align="left" balign="left"><i>[${edgeState.traversalCount}x]</i></td></tr>`;
+    }
+
+    htmlLabel += '</table>';
+    return htmlLabel;
+}
+
+/**
  * Generate edges section with support for compound edges between clusters
  * Now includes static evaluation of edge conditions for visual indication
  * and runtime edge state decorations when available
@@ -2179,53 +2258,17 @@ function generateEdges(
     // Process all edges, including parent-to-parent edges using compound edge features
     machineJson.edges.forEach((edge, edgeIndex) => {
         const edgeValue = edge.value || {};
-        const keys = Object.keys(edgeValue);
         const showAnnotation = shouldShowEdgeAnnotation(edge);
 
-        // Build label from edge value (without multiplicity)
-        let label = '';
-        const textValue = edgeValue.text;
-        const otherProps = keys.filter(k => k !== 'text' && !EDGE_METADATA_KEYS.has(k));
-
-        if (otherProps.length > 0) {
-            label = otherProps.map(key => `${key}=${edgeValue[key]}`).join(', ');
-        } else if (textValue) {
-            label = textValue;
-        }
-
-        // Add annotation names to label if showAnnotation is true
-        // Filter out @style annotations as they are applied visually, not displayed
-        if (showAnnotation && edge.annotations && edge.annotations.length > 0) {
-            const displayAnnotations = edge.annotations.filter((ann: any) => ann.name !== 'style');
-            if (displayAnnotations.length > 0) {
-                const annotationLabels = displayAnnotations.map((ann: any) =>
-                    ann.value ? `@${ann.name}("${ann.value}")` : `@${ann.name}`
-                ).join(' ');
-                if (label) {
-                    label = `${annotationLabels} ${label}`;
-                } else {
-                    label = annotationLabels;
-                }
-            }
-        }
-
         // Use wrappingConfig values or defaults
-        const maxEdgeLabelLength = wrappingConfig?.maxEdgeLabelLength ?? 40;
         const maxMultiplicityLength = wrappingConfig?.maxMultiplicityLength ?? 20;
 
-        // Add runtime visit count to label if edge states are available
+        // Get edge state for runtime information
         const edgeKey = `${edge.source}->${edge.target}`;
         const edgeState = edgeStateMap?.get(edgeKey);
 
-        if (edgeState && options?.showVisitCounts !== false && edgeState.traversalCount > 0) {
-            label += (label ? ' ' : '') + `[${edgeState.traversalCount}x]`;
-        }
-
-        // Apply text wrapping to edge label
-        if (label) {
-            const wrappedLines = breakLongText(label, maxEdgeLabelLength);
-            label = wrappedLines.join('\n');
-        }
+        // Generate enhanced edge label with table format
+        const htmlLabel = generateEdgeLabel(edge, edgeValue, showAnnotation, edgeState, options, wrappingConfig);
 
         // Get arrow style based on arrow type
         const arrowStyle = getArrowStyle(edge.arrowType || '->');
@@ -2236,9 +2279,7 @@ function generateEdges(
         // Build edge attributes array
         const edgeAttrs: string[] = [];
 
-        if (label) {
-            // Format label as HTML table with left alignment
-            const htmlLabel = formatEdgeLabelAsHtml(label);
+        if (htmlLabel) {
             edgeAttrs.push(`label=<${htmlLabel}>`);
         }
 

@@ -37,11 +37,22 @@
         "source": "FetchAPI",
         "target": "ProcessResponse",
         "arrowType": "->"
+      },
+      {
+        "source": "FetchAPI",
+        "target": "HandleError",
+        "arrowType": "->",
+        "value": {
+          "when": "error"
+        },
+        "attributes": {
+          "when": "error"
+        }
       }
     ],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Retry Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"FetchAPI\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchAPI</b> <i>&lt;state&gt;</i> <i>@retry</i></td></tr><tr><td align=\"left\">Call external API</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessResponse\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessResponse</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process API response</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HandleError</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Handle API error</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"FetchAPI\" -> \"ProcessResponse\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "23e23251026a09eed43ebf6b976be9c07439e5922351a0bedd06367a8fb3e84c"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Retry Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"FetchAPI\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchAPI</b> <i>&lt;state&gt;</i> <i>@retry</i></td></tr><tr><td align=\"left\">Call external API</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessResponse\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessResponse</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process API response</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HandleError</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Handle API error</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"FetchAPI\" -> \"ProcessResponse\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"FetchAPI\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">error</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", style=solid, color=\"#4CAF50\", penwidth=2];\n}",
+  "svgHash": "556cb2466df26e0943f08f83d13cc44f4d2ce3fd28d0e405b7e42809f27ac238"
 }
