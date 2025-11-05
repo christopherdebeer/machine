@@ -232,8 +232,7 @@ async function generateHierarchy(projectRoot) {
             return `${baseUrl}${basename(dir)}/`; // Folder-based URL with base URL
         }
         const baseName = basename(path);
-        const kebabName = baseName.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
-        return `${baseUrl}${kebabName}/`; // Folder-based URL with base URL
+        return `${baseUrl}${baseName}/`; // Folder-based URL with base URL
 
     }
 
