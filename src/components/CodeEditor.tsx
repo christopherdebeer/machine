@@ -87,33 +87,33 @@ const Output = styled.div<{ $fitToView?: boolean }>`
     border-radius: 0.3em;
     box-shadow: 0 0 1em black;
     position: relative;
-
-    & > svg {
-        width: ${props => props.$fitToView ? '100%' : 'auto'} !important;
-        height: ${props => props.$fitToView ? 'auto' : 'auto'} !important;
-        max-height: ${props => props.$fitToView ? 'none' : '500px'};
-    }
+    overflow: auto;
+    align-items: center;
+    max-height: 500px;
+    
 `;
 
 const OverlayButton = styled.button<{ $success?: boolean }>`
     position: absolute;
-    top: 8px;
-    right: 8px;
-    padding: 6px 12px;
+    top: 0.3em;
+    right: 0.3em;
+    padding: 0.2em;
     background: ${props => props.$success ? '#10b981' : 'rgba(0, 0, 0, 0.6)'};
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 0.8em;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.2em;
     z-index: 10;
     transition: all 0.2s;
+    opacity: 0.4;
 
     &:hover {
         background: ${props => props.$success ? '#10b981' : 'rgba(0, 0, 0, 0.8)'};
+        opacity: 1;
     }
 
     &:active {
@@ -123,11 +123,15 @@ const OverlayButton = styled.button<{ $success?: boolean }>`
 
 const OverlayButtonGroup = styled.div`
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 0.3em;
+    right: 0.3em;
     display: flex;
-    gap: 8px;
+    gap: 0.3em;
     z-index: 10;
+
+    & > button {
+      position: relative;
+    }
 `;
 
 const Wrapper = styled.div`
@@ -139,6 +143,20 @@ const Wrapper = styled.div`
 const CodeEditorWrapper = styled.div`
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
     position: relative;
+`
+
+const SVGWrapper = styled.div<{ $fitToView?: boolean }>`
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    align-items: ${props => props.$fitToView ? 'center' : 'normal'};
+
+    & > svg {
+        width: ${props => props.$fitToView ? 'auto' : 'min-content'} !important;
+        height: ${props => props.$fitToView ? 'auto' : 'min-content'} !important;
+        max-height: ${props => props.$fitToView ? '100%' : 'none'};
+        max-width: ${props => props.$fitToView ? '100%' : 'none'};
+    }
 `
 
 /**
@@ -426,7 +444,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 $success={copyCodeSuccess}
                                 title="Copy code to clipboard"
                             >
-                                {copyCodeSuccess ? '✓ Copied!' : '📋 Copy'}
+                                {copyCodeSuccess ? '✓ Copied!' : 'Copy'}
                             </OverlayButton>
                         </CodeEditorWrapper>
                         {showOutput && outputSvg && (
@@ -435,20 +453,20 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 className="output"
                                 $fitToView={fitToView}
                             >
-                                <div dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
                                 <OverlayButtonGroup>
                                     <OverlayButton
                                         onClick={() => setFitToView(!fitToView)}
                                         title="Toggle fit to view"
                                     >
-                                        {fitToView ? '🔍 Zoom' : '📐 Fit'}
+                                        {fitToView ? 'Zoom' : 'Fit'}
                                     </OverlayButton>
                                     <OverlayButton
                                         onClick={copySvgToClipboard}
                                         $success={copyVisualSuccess}
                                         title="Copy diagram as image"
                                     >
-                                        {copyVisualSuccess ? '✓ Copied!' : '📋 Copy'}
+                                        {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                                     </OverlayButton>
                                 </OverlayButtonGroup>
                             </Output>
@@ -463,20 +481,20 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                         className="output"
                         $fitToView={fitToView}
                     >
-                        <div dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                        <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
                         <OverlayButtonGroup>
                             <OverlayButton
                                 onClick={() => setFitToView(!fitToView)}
                                 title="Toggle fit to view"
                             >
-                                {fitToView ? '🔍 Zoom' : '📐 Fit'}
+                                {fitToView ? 'Zoom' : 'Fit'}
                             </OverlayButton>
                             <OverlayButton
                                 onClick={copySvgToClipboard}
                                 $success={copyVisualSuccess}
                                 title="Copy diagram as image"
                             >
-                                {copyVisualSuccess ? '✓ Copied!' : '📋 Copy'}
+                                {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                             </OverlayButton>
                         </OverlayButtonGroup>
                     </Output>
@@ -500,7 +518,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 $success={copyCodeSuccess}
                                 title="Copy code to clipboard"
                             >
-                                {copyCodeSuccess ? '✓ Copied!' : '📋 Copy'}
+                                {copyCodeSuccess ? '✓ Copied!' : 'Copy'}
                             </OverlayButton>
                         </CodeEditorWrapper>
                         {showOutput && (
@@ -510,20 +528,20 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 $fitToView={fitToView}
                                 style={{ flex: '1 1 45%' }}
                             >
-                                <div dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
                                 <OverlayButtonGroup>
                                     <OverlayButton
                                         onClick={() => setFitToView(!fitToView)}
                                         title="Toggle fit to view"
                                     >
-                                        {fitToView ? '🔍 Zoom' : '📐 Fit'}
+                                        {fitToView ? 'Zoom' : 'Fit'}
                                     </OverlayButton>
                                     <OverlayButton
                                         onClick={copySvgToClipboard}
                                         $success={copyVisualSuccess}
                                         title="Copy diagram as image"
                                     >
-                                        {copyVisualSuccess ? '✓ Copied!' : '📋 Copy'}
+                                        {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                                     </OverlayButton>
                                 </OverlayButtonGroup>
                             </Output>
@@ -576,7 +594,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                     $success={copyCodeSuccess}
                                     title="Copy code to clipboard"
                                 >
-                                    {copyCodeSuccess ? '✓ Copied!' : '📋 Copy'}
+                                    {copyCodeSuccess ? '✓ Copied!' : 'Copy'}
                                 </OverlayButton>
                             </CodeEditorWrapper>
                         ) : (
@@ -585,20 +603,20 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 className="output"
                                 $fitToView={fitToView}
                             >
-                                <div dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
                                 <OverlayButtonGroup>
                                     <OverlayButton
                                         onClick={() => setFitToView(!fitToView)}
                                         title="Toggle fit to view"
                                     >
-                                        {fitToView ? '🔍 Zoom' : '📐 Fit'}
+                                        {fitToView ? 'Zoom' : 'Fit'}
                                     </OverlayButton>
                                     <OverlayButton
                                         onClick={copySvgToClipboard}
                                         $success={copyVisualSuccess}
                                         title="Copy diagram as image"
                                     >
-                                        {copyVisualSuccess ? '✓ Copied!' : '📋 Copy'}
+                                        {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                                     </OverlayButton>
                                 </OverlayButtonGroup>
                             </Output>
