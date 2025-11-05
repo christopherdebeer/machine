@@ -82,16 +82,52 @@ export interface CodeEditorProps {
     id?: string;
 }
 
-const Output = styled.div`
+const Output = styled.div<{ $fitToView?: boolean }>`
     min-width: 300px;
     border-radius: 0.3em;
     box-shadow: 0 0 1em black;
+    position: relative;
 
     & > svg {
-        width: auto !important;
-        height: auto !important;
-        max-height: 500px;
+        width: ${props => props.$fitToView ? '100%' : 'auto'} !important;
+        height: ${props => props.$fitToView ? 'auto' : 'auto'} !important;
+        max-height: ${props => props.$fitToView ? 'none' : '500px'};
     }
+`;
+
+const OverlayButton = styled.button<{ $success?: boolean }>`
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 6px 12px;
+    background: ${props => props.$success ? '#10b981' : 'rgba(0, 0, 0, 0.6)'};
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    z-index: 10;
+    transition: all 0.2s;
+
+    &:hover {
+        background: ${props => props.$success ? '#10b981' : 'rgba(0, 0, 0, 0.8)'};
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+`;
+
+const OverlayButtonGroup = styled.div`
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
 `;
 
 const Wrapper = styled.div`
@@ -102,6 +138,7 @@ const Wrapper = styled.div`
 
 const CodeEditorWrapper = styled.div`
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    position: relative;
 `
 
 /**
@@ -130,6 +167,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     const editorViewRef = useRef<EditorView | null>(null);
     const [currentView, setCurrentView] = useState<'code' | 'visual'>(defaultView);
     const [outputSvg, setOutputSvg] = useState<string>('');
+    const [fitToView, setFitToView] = useState<boolean>(true);
+    const [copyCodeSuccess, setCopyCodeSuccess] = useState<boolean>(false);
+    const [copyVisualSuccess, setCopyVisualSuccess] = useState<boolean>(false);
 
     // Generate playground link using shared encoding utility
     const playgroundLink = useMemo(() => {
@@ -300,6 +340,73 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         }
     };
 
+    // Copy code to clipboard
+    const copyCodeToClipboard = async () => {
+        if (!editorViewRef.current) return;
+
+        const code = editorViewRef.current.state.doc.toString();
+        try {
+            await navigator.clipboard.writeText(code);
+            setCopyCodeSuccess(true);
+            setTimeout(() => setCopyCodeSuccess(false), 2000);
+        } catch (error) {
+            console.error('Failed to copy code:', error);
+        }
+    };
+
+    // Copy SVG to clipboard as PNG data URL
+    const copySvgToClipboard = async () => {
+        if (!outputRef.current) return;
+
+        try {
+            const svgElement = outputRef.current.querySelector('svg');
+            if (!svgElement) return;
+
+            // Serialize SVG to string
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+
+            // Create canvas to convert to PNG
+            const img = new Image();
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = async () => {
+                const canvas = document.createElement('canvas');
+                const bbox = svgElement.getBBox();
+                canvas.width = bbox.width || svgElement.clientWidth;
+                canvas.height = bbox.height || svgElement.clientHeight;
+
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+
+                    try {
+                        // Convert to blob and copy to clipboard
+                        canvas.toBlob(async (blob) => {
+                            if (blob) {
+                                await navigator.clipboard.write([
+                                    new ClipboardItem({ 'image/png': blob })
+                                ]);
+                                setCopyVisualSuccess(true);
+                                setTimeout(() => setCopyVisualSuccess(false), 2000);
+                            }
+                        }, 'image/png');
+                    } catch (error) {
+                        console.error('Failed to copy image:', error);
+                    }
+                }
+
+                URL.revokeObjectURL(url);
+            };
+
+            img.src = url;
+        } catch (error) {
+            console.error('Failed to copy SVG:', error);
+        }
+    };
+
     // Render based on mode
     const renderContent = () => {
         switch (mode) {
@@ -313,16 +420,66 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 maxHeight: height || '500px',
                                 overflowY: 'auto'
                             }}
-                        />
+                        >
+                            <OverlayButton
+                                onClick={copyCodeToClipboard}
+                                $success={copyCodeSuccess}
+                                title="Copy code to clipboard"
+                            >
+                                {copyCodeSuccess ? '✓ Copied!' : '📋 Copy'}
+                            </OverlayButton>
+                        </CodeEditorWrapper>
                         {showOutput && outputSvg && (
-                            <Output ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                            <Output
+                                ref={outputRef}
+                                className="output"
+                                $fitToView={fitToView}
+                                dangerouslySetInnerHTML={{ __html: outputSvg }}
+                            >
+                                <OverlayButtonGroup>
+                                    <OverlayButton
+                                        onClick={() => setFitToView(!fitToView)}
+                                        title="Toggle fit to view"
+                                    >
+                                        {fitToView ? '🔍 Zoom' : '📐 Fit'}
+                                    </OverlayButton>
+                                    <OverlayButton
+                                        onClick={copySvgToClipboard}
+                                        $success={copyVisualSuccess}
+                                        title="Copy diagram as image"
+                                    >
+                                        {copyVisualSuccess ? '✓ Copied!' : '📋 Copy'}
+                                    </OverlayButton>
+                                </OverlayButtonGroup>
+                            </Output>
                         )}
                     </Wrapper>
                 );
 
             case 'visual-only':
                 return (
-                    <Output ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                    <Output
+                        ref={outputRef}
+                        className="output"
+                        $fitToView={fitToView}
+                        dangerouslySetInnerHTML={{ __html: outputSvg }}
+                    >
+                        <OverlayButtonGroup>
+                            <OverlayButton
+                                onClick={() => setFitToView(!fitToView)}
+                                title="Toggle fit to view"
+                            >
+                                {fitToView ? '🔍 Zoom' : '📐 Fit'}
+                            </OverlayButton>
+                            <OverlayButton
+                                onClick={copySvgToClipboard}
+                                $success={copyVisualSuccess}
+                                title="Copy diagram as image"
+                            >
+                                {copyVisualSuccess ? '✓ Copied!' : '📋 Copy'}
+                            </OverlayButton>
+                        </OverlayButtonGroup>
+                    </Output>
                 );
 
             case 'split':
@@ -337,14 +494,39 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 maxHeight: height || '500px',
                                 overflowY: 'auto'
                             }}
-                        />
+                        >
+                            <OverlayButton
+                                onClick={copyCodeToClipboard}
+                                $success={copyCodeSuccess}
+                                title="Copy code to clipboard"
+                            >
+                                {copyCodeSuccess ? '✓ Copied!' : '📋 Copy'}
+                            </OverlayButton>
+                        </CodeEditorWrapper>
                         {showOutput && (
                             <Output
                                 ref={outputRef}
                                 className="output"
+                                $fitToView={fitToView}
                                 style={{ flex: '1 1 45%' }}
                                 dangerouslySetInnerHTML={{ __html: outputSvg }}
-                            />
+                            >
+                                <OverlayButtonGroup>
+                                    <OverlayButton
+                                        onClick={() => setFitToView(!fitToView)}
+                                        title="Toggle fit to view"
+                                    >
+                                        {fitToView ? '🔍 Zoom' : '📐 Fit'}
+                                    </OverlayButton>
+                                    <OverlayButton
+                                        onClick={copySvgToClipboard}
+                                        $success={copyVisualSuccess}
+                                        title="Copy diagram as image"
+                                    >
+                                        {copyVisualSuccess ? '✓ Copied!' : '📋 Copy'}
+                                    </OverlayButton>
+                                </OverlayButtonGroup>
+                            </Output>
                         )}
                     </Wrapper>
                 );
@@ -388,9 +570,38 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                     maxHeight: height || '500px',
                                     overflowY: 'auto'
                                 }}
-                            />
+                            >
+                                <OverlayButton
+                                    onClick={copyCodeToClipboard}
+                                    $success={copyCodeSuccess}
+                                    title="Copy code to clipboard"
+                                >
+                                    {copyCodeSuccess ? '✓ Copied!' : '📋 Copy'}
+                                </OverlayButton>
+                            </CodeEditorWrapper>
                         ) : (
-                            <Output ref={outputRef} className="output" dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                            <Output
+                                ref={outputRef}
+                                className="output"
+                                $fitToView={fitToView}
+                                dangerouslySetInnerHTML={{ __html: outputSvg }}
+                            >
+                                <OverlayButtonGroup>
+                                    <OverlayButton
+                                        onClick={() => setFitToView(!fitToView)}
+                                        title="Toggle fit to view"
+                                    >
+                                        {fitToView ? '🔍 Zoom' : '📐 Fit'}
+                                    </OverlayButton>
+                                    <OverlayButton
+                                        onClick={copySvgToClipboard}
+                                        $success={copyVisualSuccess}
+                                        title="Copy diagram as image"
+                                    >
+                                        {copyVisualSuccess ? '✓ Copied!' : '📋 Copy'}
+                                    </OverlayButton>
+                                </OverlayButtonGroup>
+                            </Output>
                         )}
                     </Wrapper>
                 );
