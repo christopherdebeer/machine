@@ -300,41 +300,108 @@ This generates: `label="done"` (no "@critical" shown) but still applies `color="
 
 ## Layout Control
 
-Use `@style` annotations at the machine level to control diagram layout:
+Use `@style` annotations at the machine or namespace level to control diagram layout:
+
+### Direction Control
+
+The `direction` property provides an easier way to control layout direction, supporting verbose, short, and CSS flex-inspired formats:
 
 ```dy examples/styling/layout-control.dygram
-// Left-to-right layout
-machine "Horizontal Flow" @style(rankdir: LR)
+// Direction property supports multiple formats:
+// - Verbose: left-to-right, right-to-left, top-to-bottom, bottom-to-top
+// - Short: LR, RL, TB, BT
+// - CSS Flex: column (LR), row (TB)
 
-// Top-to-bottom layout (default)
-machine "Vertical Flow" @style(rankdir: TB)
+machine "Layout Control Example" @style(direction: column)
 
-// Right-to-left layout
-machine "RTL Flow" @style(rankdir: RL)
+state Start;
+state Process;
+state End;
 
-// Bottom-to-top layout
-machine "Bottom Up" @style(rankdir: BT)
+Start -> Process;
+Process -> End;
 ```
 
-You can also control node grouping and alignment:
+**Direction Formats:**
+- **Verbose**: `left-to-right`, `right-to-left`, `top-to-bottom`, `bottom-to-top`
+- **Short**: `LR`, `RL`, `TB`, `BT`
+- **CSS Flex**: `column` (equivalent to LR), `row` (equivalent to TB)
 
-```dy examples/styling/aligned-layout.dygram
-machine "Aligned Layout"
+#### Cluster-Level Direction Control
 
-Task start @style(rank: min) "Start";
-Task a @style(rank: "same:group1") "Task A";
-Task b @style(rank: "same:group1") "Task B";
-Task end @style(rank: max) "End";
+While Graphviz's `rankdir` can only be set at the root graph level, you can use the `direction` property on namespaces/clusters to control how grid layout positions are interpreted within that cluster:
 
-start -> a;
-start -> b;
-a -> end;
-b -> end;
+```dy !no-extract
+namespace DataProcessing @style(direction: column; grid: 3) {
+    // With direction: column (LR), grid positions create rows
+    Task a;
+    Task b;
+    Task c;
+}
+
+namespace OtherProcessing @style(direction: row; grid: 2) {
+    // With direction: row (TB), grid positions create columns
+    Task x;
+    Task y;
+}
 ```
 
-**Layout Options**:
-- `rankdir`: Direction (LR, RL, TB, BT)
-- `rank`: Node alignment (min/max for top/bottom, same:name for grouping)
+This enables effective cluster-level layout control by adapting the grid rail/ranking strategy to the specified direction, even though the root-level `rankdir` remains unchanged.
+
+### Grid Layout
+
+Control diagram organization by distributing nodes across a grid. The grid adapts to the diagram direction:
+- **Top-to-bottom (TB) or bottom-to-top (BT)**: Grid positions become columns (vertical stacks)
+- **Left-to-right (LR) or right-to-left (RL)**: Grid positions become rows (horizontal stacks)
+
+```dy examples/styling/grid-layout.dygram
+machine "Grid Layout Example" @style(direction: LR)
+
+// Namespace with many items organized in a 3-position grid
+namespace DataProcessing @style(grid: 3) {
+    Task fetchData "Fetch Data";
+    Task validateData "Validate Data";
+    Task transformData "Transform Data";
+    Task filterData "Filter Data";
+    Task aggregateData "Aggregate Data";
+    Task storeData "Store Data";
+}
+
+// With LR direction, grid creates 3 rows
+// Nodes are auto-distributed across the 3 grid positions
+```
+
+**Auto-Distribution**: When you specify `grid` without explicit position assignments, nodes are automatically distributed evenly in a round-robin fashion.
+
+**Explicit Grid Position Assignment**: You can assign specific nodes to specific grid positions:
+
+```dy examples/styling/explicit-grid.dygram
+machine "Explicit Grid Assignment" @style(grid: 3)
+
+Task a @style(grid-pos: 1) "Position 1 Task A";
+Task b @style(grid-pos: 2) "Position 2 Task B";
+Task c @style(grid-pos: 3) "Position 3 Task C";
+Task d @style(grid-pos: 1) "Position 1 Task D";
+```
+
+**Grid Layout Options**:
+- `grid`: Number of grid positions (e.g., `grid: 5`)
+- `grid-position` or `grid-pos`: Assign node to specific grid position (e.g., `grid-pos: 2`)
+- Works at machine level and within clusters/namespaces
+- Auto-distributes nodes without explicit position assignments
+- Backwards compatible with `columns`/`cols` and `col`/`column` (aliases for `grid` and `grid-pos`)
+
+### Layout Options Summary
+
+- `direction`: Layout direction with multiple format options
+  - Verbose: `left-to-right`, `right-to-left`, `top-to-bottom`, `bottom-to-top`
+  - Short: `LR`, `RL`, `TB`, `BT`
+  - CSS Flex: `column` (LR), `row` (TB)
+  - Works at machine level (sets root `rankdir`) and cluster level (affects grid interpretation)
+- `grid`: Number of grid positions for layout (direction-adaptive)
+- `grid-position` / `grid-pos`: Assign node to specific grid position (1-based index)
+- `columns` / `cols`: Legacy alias for `grid` (backwards compatibility)
+- `col` / `column`: Legacy alias for `grid-pos` (backwards compatibility)
 - `nodesep`: Horizontal spacing between nodes
 - `ranksep`: Vertical spacing between ranks
 

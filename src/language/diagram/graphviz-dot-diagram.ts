@@ -66,11 +66,243 @@ function mapCssPropertyToGraphviz(cssProperty: string): string {
         'background-color': 'fillcolor',
         'border-color': 'color',
         'border-width': 'penwidth',
-        'opacity': 'alpha'
+        'opacity': 'alpha',
+        'direction': 'rankdir'
     };
 
     const normalized = cssProperty.toLowerCase().trim();
     return propertyMap[normalized] || cssProperty;
+}
+
+/**
+ * Normalize direction value to Graphviz rankdir format
+ * Supports both verbose (left-to-right) and short (LR) formats
+ * Also supports CSS flex-inspired shorthand: "row" (TB) and "column" (LR)
+ */
+function normalizeDirectionValue(value: string): string {
+    const normalized = value.toLowerCase().trim();
+    const directionMap: Record<string, string> = {
+        'left-to-right': 'LR',
+        'right-to-left': 'RL',
+        'top-to-bottom': 'TB',
+        'bottom-to-top': 'BT',
+        'lr': 'LR',
+        'rl': 'RL',
+        'tb': 'TB',
+        'bt': 'BT',
+        // CSS flex-inspired shorthand
+        'row': 'TB',      // row flows top-to-bottom
+        'column': 'LR'    // column flows left-to-right
+    };
+    return directionMap[normalized] || value;
+}
+
+/**
+ * Extract direction from style attributes
+ * Supports: direction property in @style annotations and style attributes
+ * Returns normalized direction value (LR, RL, TB, BT) or undefined if not set
+ */
+function extractDirection(node: any): string | undefined {
+    // Check @style annotations
+    const annotations = node.annotations || [];
+    for (const ann of annotations) {
+        if (ann.name === 'style') {
+            if (ann.attributes) {
+                const direction = ann.attributes['direction'];
+                if (direction !== undefined) {
+                    return normalizeDirectionValue(String(direction));
+                }
+            } else if (ann.value) {
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                for (const attr of styleAttrs) {
+                    const [key, ...valueParts] = attr.split(':');
+                    const normalizedKey = key.trim().toLowerCase();
+                    if (normalizedKey === 'direction') {
+                        return normalizeDirectionValue(valueParts.join(':').trim());
+                    }
+                }
+            }
+        }
+    }
+
+    // Check style attribute
+    const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
+    if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
+        const direction = styleAttr.value['direction'];
+        if (direction !== undefined) {
+            return normalizeDirectionValue(String(direction));
+        }
+    }
+
+    return undefined;
+}
+
+/**
+ * Extract grid size from style attributes
+ * Supports: grid, columns, cols (for backwards compatibility)
+ */
+function extractGridSize(node: any): number | undefined {
+    // Check @style annotations
+    const annotations = node.annotations || [];
+    for (const ann of annotations) {
+        if (ann.name === 'style') {
+            if (ann.attributes) {
+                const grid = ann.attributes['grid'] || ann.attributes['columns'] || ann.attributes['cols'];
+                if (grid !== undefined) {
+                    const count = parseInt(String(grid), 10);
+                    return isNaN(count) ? undefined : count;
+                }
+            } else if (ann.value) {
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                for (const attr of styleAttrs) {
+                    const [key, ...valueParts] = attr.split(':');
+                    const normalizedKey = key.trim().toLowerCase();
+                    if (normalizedKey === 'grid' || normalizedKey === 'columns' || normalizedKey === 'cols') {
+                        const count = parseInt(valueParts.join(':').trim(), 10);
+                        return isNaN(count) ? undefined : count;
+                    }
+                }
+            }
+        }
+    }
+
+    // Check style attribute
+    const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
+    if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
+        const grid = styleAttr.value['grid'] || styleAttr.value['columns'] || styleAttr.value['cols'];
+        if (grid !== undefined) {
+            const count = parseInt(String(grid), 10);
+            return isNaN(count) ? undefined : count;
+        }
+    }
+
+    return undefined;
+}
+
+/**
+ * Extract grid position assignment from node style attributes
+ * Supports: grid-position, grid-pos, column, col (for backwards compatibility)
+ */
+function extractNodeGridPosition(node: any): number | undefined {
+    // Check @style annotations
+    const annotations = node.annotations || [];
+    for (const ann of annotations) {
+        if (ann.name === 'style') {
+            if (ann.attributes) {
+                const pos = ann.attributes['grid-position'] || ann.attributes['grid-pos'] ||
+                           ann.attributes['column'] || ann.attributes['col'];
+                if (pos !== undefined) {
+                    const posNum = parseInt(String(pos), 10);
+                    return isNaN(posNum) ? undefined : posNum;
+                }
+            } else if (ann.value) {
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                for (const attr of styleAttrs) {
+                    const [key, ...valueParts] = attr.split(':');
+                    const normalizedKey = key.trim().toLowerCase();
+                    if (normalizedKey === 'grid-position' || normalizedKey === 'grid-pos' ||
+                        normalizedKey === 'column' || normalizedKey === 'col') {
+                        const posNum = parseInt(valueParts.join(':').trim(), 10);
+                        return isNaN(posNum) ? undefined : posNum;
+                    }
+                }
+            }
+        }
+    }
+
+    // Check style attribute
+    const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
+    if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
+        const pos = styleAttr.value['grid-position'] || styleAttr.value['grid-pos'] ||
+                   styleAttr.value['column'] || styleAttr.value['col'];
+        if (pos !== undefined) {
+            const posNum = parseInt(String(pos), 10);
+            return isNaN(posNum) ? undefined : posNum;
+        }
+    }
+
+    return undefined;
+}
+
+/**
+ * Generate grid layout infrastructure with invisible rail nodes and edges
+ * The grid adapts to the specified direction (or defaults to parent):
+ * - TB/BT: grid positions become columns (vertical stacks)
+ * - LR/RL: grid positions become rows (horizontal stacks)
+ *
+ * @param nodes - Nodes to organize in the grid
+ * @param gridSize - Number of grid positions
+ * @param prefix - Prefix for rail node names
+ * @param direction - Optional direction override (LR, RL, TB, BT)
+ */
+function generateGridLayout(nodes: any[], gridSize: number, prefix: string = '', direction?: string): string {
+    const lines: string[] = [];
+
+    // Note: The direction parameter affects how grid positions are interpreted:
+    // - TB/BT or undefined: grid positions become columns (vertical stacks)
+    // - LR/RL: grid positions become rows (horizontal stacks)
+    //
+    // While Graphviz rankdir can only be set at the root graph level, we can use the
+    // cluster-local direction to inform our rail/ranking strategy within subgraphs.
+    // This enables cluster-level control of layout orientation through grid positioning.
+
+    // Generate invisible rail nodes for each grid position
+    const railNodes: string[] = [];
+    for (let i = 1; i <= gridSize; i++) {
+        const railName = `${prefix}__grid_rail_${i}`;
+        railNodes.push(railName);
+        lines.push(`  "${railName}" [shape=point, width=0.01, height=0.01, label="", style=invis, fixedsize=true];`);
+    }
+
+    // Create invisible edges to enforce grid position ordering
+    if (railNodes.length > 1) {
+        for (let i = 0; i < railNodes.length - 1; i++) {
+            lines.push(`  "${railNodes[i]}" -> "${railNodes[i + 1]}" [style=invis];`);
+        }
+    }
+
+    // Assign nodes to grid positions
+    const nodesByPosition = new Map<number, string[]>();
+    const nodesWithoutPosition: string[] = [];
+
+    // First pass: collect nodes with explicit grid position assignments
+    for (const node of nodes) {
+        const pos = extractNodeGridPosition(node);
+        if (pos !== undefined && pos >= 1 && pos <= gridSize) {
+            if (!nodesByPosition.has(pos)) {
+                nodesByPosition.set(pos, []);
+            }
+            nodesByPosition.get(pos)!.push(node.name);
+        } else if (pos === undefined) {
+            nodesWithoutPosition.push(node.name);
+        }
+    }
+
+    // Auto-distribute nodes without explicit grid position assignment
+    if (nodesWithoutPosition.length > 0) {
+        let currentPos = 1;
+        for (const nodeName of nodesWithoutPosition) {
+            if (!nodesByPosition.has(currentPos)) {
+                nodesByPosition.set(currentPos, []);
+            }
+            nodesByPosition.get(currentPos)!.push(nodeName);
+            currentPos = (currentPos % gridSize) + 1;
+        }
+    }
+
+    // Generate invisible edges from rail nodes to assigned nodes
+    for (let pos = 1; pos <= gridSize; pos++) {
+        const posNodes = nodesByPosition.get(pos);
+        if (posNodes && posNodes.length > 0) {
+            const railName = `${prefix}__grid_rail_${pos}`;
+            lines.push(`  // Grid position ${pos}`);
+            // Create rank group for this grid position
+            const nodesList = [railName, ...posNodes].map(n => buildEndpointIdentifier(n)).join('; ');
+            lines.push(`  { rank=same; ${nodesList}; }`);
+        }
+    }
+
+    return lines.join('\n');
 }
 
 /**
@@ -475,9 +707,13 @@ function getNodeStyle(node: any, edges?: any[], styleNodes?: any[], validationCo
                 styleAttrs.forEach((attr: string) => {
                     const [key, ...valueParts] = attr.split(':');
                     if (key && valueParts.length > 0) {
-                        const value = valueParts.join(':').trim();
+                        let value = valueParts.join(':').trim();
                         // Map CSS properties to Graphviz equivalents
                         const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                        // Normalize direction values
+                        if (graphvizKey === 'rankdir' || key.trim().toLowerCase() === 'direction') {
+                            value = normalizeDirectionValue(value);
+                        }
                         baseStyle += `, ${graphvizKey}="${value}"`;
                     }
                 });
@@ -708,118 +944,7 @@ function getTextWrappingConfig(machineJson: MachineJSON): TextWrappingConfig {
     };
 }
 
-interface RankCollections {
-    min: Set<string>;
-    max: Set<string>;
-    same: Map<string, Set<string>>;
-}
-
-function extractRankHint(node: any): string | undefined {
-    const rankAnnotation = node.annotations?.find((ann: any) => ann.name === 'rank');
-    if (rankAnnotation) {
-        const value = rankAnnotation.value ?? '';
-        const normalized = normalizeHandleValue(value);
-        if (normalized) {
-            return normalized;
-        }
-    }
-
-    const rankAttribute = node.attributes?.find((attr: any) => attr.name === 'rank');
-    if (rankAttribute) {
-        const rawValue = rankAttribute.value?.value ?? rankAttribute.value;
-        if (rawValue !== undefined && rawValue !== null) {
-            if (typeof rawValue === 'string') {
-                const normalized = normalizeHandleValue(rawValue);
-                if (normalized) {
-                    return normalized;
-                }
-            } else {
-                return String(rawValue);
-            }
-        }
-    }
-
-    return undefined;
-}
-
-function resolveRankTarget(node: any): string {
-    if (Array.isArray(node.nodes) && node.nodes.length > 0) {
-        return getClusterAnchorName(node.name);
-    }
-    return node.name;
-}
-
-function collectRankCollections(nodes: any[]): RankCollections {
-    const result: RankCollections = {
-        min: new Set<string>(),
-        max: new Set<string>(),
-        same: new Map<string, Set<string>>()
-    };
-
-    nodes.forEach(node => {
-        const hint = extractRankHint(node);
-        if (!hint) {
-            return;
-        }
-
-        const trimmed = hint.trim();
-        if (!trimmed) {
-            return;
-        }
-
-        const normalized = trimmed.toLowerCase();
-        const target = resolveRankTarget(node);
-
-        if (['min', 'top', 'header', 'source'].includes(normalized)) {
-            result.min.add(target);
-            return;
-        }
-
-        if (['max', 'bottom', 'footer', 'sink'].includes(normalized)) {
-            result.max.add(target);
-            return;
-        }
-
-        const sameMatch = trimmed.match(/^(?:same|group|align)[:=](.+)$/i);
-        const groupName = sameMatch ? sameMatch[1] : trimmed;
-        const sanitizedGroup = sanitizePortId(groupName);
-        if (!sanitizedGroup) {
-            return;
-        }
-
-        const groupSet = result.same.get(sanitizedGroup) ?? new Set<string>();
-        groupSet.add(target);
-        result.same.set(sanitizedGroup, groupSet);
-    });
-
-    return result;
-}
-
-function renderRankStatements(nodes: any[]): string {
-    const collections = collectRankCollections(nodes);
-    const lines: string[] = [];
-
-    const formatGroup = (rank: string, members: Set<string>, comment?: string) => {
-        if (members.size === 0) {
-            return;
-        }
-        const nodesList = Array.from(members).map(name => buildEndpointIdentifier(name)).join('; ');
-        if (comment) {
-            lines.push(`  // ${comment}`);
-        }
-        lines.push(`  { rank=${rank}; ${nodesList}; }`);
-    };
-
-    formatGroup('min', collections.min, 'Rank: top/header nodes');
-    formatGroup('max', collections.max, 'Rank: bottom/footer nodes');
-
-    collections.same.forEach((members, groupName) => {
-        const comment = groupName ? `Rank group ${groupName}` : undefined;
-        formatGroup('same', members, comment);
-    });
-
-    return lines.join('\n');
-}
+// @rank annotation support removed in favor of column layout system
 
 /**
  * Generate a DOT diagram from MachineJSON with optional runtime state
@@ -869,8 +994,25 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
                 if (ann.attributes) {
                     // Apply each attribute as a graphviz graph property
                     Object.keys(ann.attributes).forEach(key => {
-                        const value = ann.attributes[key];
-                        lines.push(`  ${key}="${value}";`);
+                        let value = ann.attributes[key];
+                        const normalizedKey = key.trim().toLowerCase();
+
+                        // Skip grid layout properties - these are handled separately
+                        if (['grid', 'grid-position', 'grid-pos', 'columns', 'cols', 'col', 'column'].includes(normalizedKey)) {
+                            return;
+                        }
+
+                        // Map CSS properties to Graphviz equivalents
+                        const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+
+                        // Normalize direction values
+                        if (graphvizKey === 'rankdir' || normalizedKey === 'direction') {
+                            value = normalizeDirectionValue(value);
+                            lines.push(`  rankdir="${value}";`);
+                            return;
+                        }
+
+                        lines.push(`  ${graphvizKey}="${value}";`);
                     });
                 } else if (ann.value) {
                     // Parse string value for inline styles
@@ -878,8 +1020,22 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
                     styleAttrs.forEach((attr: string) => {
                         const [key, ...valueParts] = attr.split(':');
                         if (key && valueParts.length > 0) {
-                            const value = valueParts.join(':').trim();
-                            lines.push(`  ${key.trim()}="${value}";`);
+                            let value = valueParts.join(':').trim();
+                            const normalizedKey = key.trim().toLowerCase();
+
+                            // Skip grid layout properties - these are handled separately
+                            if (['grid', 'grid-position', 'grid-pos', 'columns', 'cols', 'col', 'column'].includes(normalizedKey)) {
+                                return;
+                            }
+
+                            const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+
+                            // Normalize direction values
+                            if (graphvizKey === 'rankdir' || normalizedKey === 'direction') {
+                                value = normalizeDirectionValue(value);
+                            }
+
+                            lines.push(`  ${graphvizKey}="${value}";`);
                         }
                     });
                 }
@@ -903,10 +1059,12 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, styleNodes, validationContext, options, wrappingConfig, nodeStates));
     lines.push('');
 
-    const rankStatements = renderRankStatements(renderableNodes);
-    if (rankStatements) {
-        lines.push('  // Rank directives');
-        lines.push(rankStatements);
+    // Check for grid layout at machine level
+    const machineGridSize = extractGridSize(machineJson);
+    if (machineGridSize && machineGridSize > 0) {
+        lines.push('  // Grid layout');
+        const machineDirection = extractDirection(machineJson);
+        lines.push(generateGridLayout(rootNodes, machineGridSize, 'root', machineDirection));
         lines.push('');
     }
 
@@ -1406,9 +1564,17 @@ function getClusterStyle(node: any, styleNodes: any[] = [], validationContext?: 
                 styleAttrs.forEach((attr: string) => {
                     const [key, ...valueParts] = attr.split(':');
                     if (key && valueParts.length > 0) {
-                        const value = valueParts.join(':').trim();
+                        let value = valueParts.join(':').trim();
                         // Map CSS properties to Graphviz equivalents
                         const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                        // Normalize direction values
+                        if (graphvizKey === 'rankdir' || key.trim().toLowerCase() === 'direction') {
+                            value = normalizeDirectionValue(value);
+                        }
+                        // Skip layout properties (columns, cols, col, column) - these are handled separately
+                        if (['columns', 'cols', 'col', 'column'].includes(key.trim().toLowerCase())) {
+                            return;
+                        }
                         styleLines.push(`${graphvizKey}="${value}";`);
                     }
                 });
@@ -1537,6 +1703,29 @@ function generateSemanticHierarchy(
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);
             lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1, styleNodes, validationContext, options, wrappingConfig, nodeStates));
+
+            // Check for grid layout within this cluster
+            const clusterGridSize = extractGridSize(node);
+            if (clusterGridSize && clusterGridSize > 0) {
+                const leafChildren = childNodes.filter(child => {
+                    const childHierarchy = hierarchy[child.name];
+                    return !childHierarchy || childHierarchy.children.length === 0;
+                });
+                if (leafChildren.length > 0) {
+                    lines.push('');
+                    lines.push(`${indent}  // Grid layout for cluster ${node.name}`);
+                    const clusterDirection = extractDirection(node);
+                    const gridLayoutLines = generateGridLayout(leafChildren, clusterGridSize, `cluster_${node.name}`, clusterDirection);
+                    // Add proper indentation to each line
+                    const indentedLines = gridLayoutLines.split('\n').map(line => {
+                        if (line.trim()) {
+                            return `${indent}${line}`;
+                        }
+                        return line;
+                    }).join('\n');
+                    lines.push(indentedLines);
+                }
+            }
 
             lines.push(`${indent}}`);
         } else {

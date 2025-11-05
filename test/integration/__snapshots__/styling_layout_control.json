@@ -1,46 +1,47 @@
 {
   "json": {
-    "title": "Horizontal Flow",
-    "attributes": [
-      {
-        "name": "rankdir",
-        "value": "TB"
-      },
-      {
-        "name": "rankdir",
-        "value": "RL"
-      },
-      {
-        "name": "rankdir",
-        "value": "BT"
-      }
-    ],
+    "title": "Layout Control Example",
+    "attributes": [],
     "annotations": [
       {
         "name": "style",
         "attributes": {
-          "rankdir": "LR"
+          "direction": "column"
         }
       }
     ],
     "nodes": [
       {
-        "name": "style",
+        "name": "Start",
+        "type": "state",
         "attributes": []
       },
       {
-        "name": "style",
+        "name": "Process",
+        "type": "state",
         "attributes": []
       },
       {
-        "name": "style",
+        "name": "End",
+        "type": "state",
         "attributes": []
       }
     ],
-    "edges": [],
+    "edges": [
+      {
+        "source": "Start",
+        "target": "Process",
+        "arrowType": "->"
+      },
+      {
+        "source": "Process",
+        "target": "End",
+        "arrowType": "->"
+      }
+    ],
     "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Horizontal Flow</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @style</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"rankdir__key\" align=\"left\" balign=\"left\">rankdir</td><td port=\"rankdir__value\" align=\"left\" balign=\"left\">TB</td></tr><tr><td port=\"rankdir__key_1\" align=\"left\" balign=\"left\">rankdir</td><td port=\"rankdir__value_1\" align=\"left\" balign=\"left\">RL</td></tr><tr><td port=\"rankdir__key_2\" align=\"left\" balign=\"left\">rankdir</td><td port=\"rankdir__value_2\" align=\"left\" balign=\"left\">BT</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"LR\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"style\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>style</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"style\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>style</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"style\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>style</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
-  "svgHash": "c6bfc6167ce5e48b7ce3ccfd7a0217af8bd22af912082519c3b84c01fde23860"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Layout Control Example</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @style</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"LR\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Start\" -> \"Process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"End\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "7f49f6473c78263613e93d20416ddf3dbda3bf058301fd1630195beb613c708b"
 }
