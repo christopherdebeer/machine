@@ -286,8 +286,6 @@ async function generateHierarchy(projectRoot) {
                     children
                 });
             } else if (entry.isFile() && (entry.name.endsWith('.md') || entry.name.endsWith('.mdx'))) {
-                if (entry.name === 'README.md' || entry.name === 'index.mdx') continue;
-
                 const title = await extractTitle(fullPath) || toTitleCase(basename(entry.name, entry.name.endsWith('.md') ? '.md' : '.mdx'));
                 const htmlUrl = toHtmlFilename(relativePath);
 
@@ -413,9 +411,8 @@ async function generateDocumentationIndex(projectRoot) {
                 // Recursively scan subdirectory
                 const subSections = await scanDirectory(fullPath, relativePath, level + 1);
                 sections.push(...subSections);
-            } else if (entry.isFile() && entry.name.endsWith('.
-
-                const title = await extractTitle(fullPath) || toTitleCase(basename(entry.name, '.md'));
+            } else if (entry.isFile() && (entry.name.endsWith('.md') || entry.name.endsWith('.mdx'))) {
+                const title = await extractTitle(fullPath) || toTitleCase(basename(entry.name, entry.name.endsWith('.md') ? '.md' : '.mdx'));
                 const indent = '  '.repeat(level);
                 const linkPath = relativePath.replace(/\\/g, '/');
 
@@ -770,32 +767,27 @@ async function generateEntries(projectRoot) {
                         title = 'DyGram';
                     } else {
                         // Preserve directory path for README files
-                        // examples/README.mdx → examples-index
-                        const dirPath = dirname(relativePath);
-                        const pathWithoutDocs = dirPath.replace(/\\/g, '/');
-                        pageName = `${pathWithoutDocs.replace(/\//g, '-')}-index`;
+                        // examples/README.mdx → index (pageName will be combined with dirPath)
+                        pageName = 'index';
                         title = toTitleCase(parentDir);
                     }
                 } else {
                     // Preserve directory path for regular files
-                    // examples/basic.mdx → examples-basic (pageName) + examples/ (dirPath)
-                    const dirPath = dirname(relativePath);
-                    if (dirPath && dirPath !== '.') {
-                        const pathPrefix = dirPath.replace(/\\/g, '/').replace(/\//g, '-');
-                        pageName = `${pathPrefix}-${baseName}`;
-                    } else {
-                        pageName = baseName;
-                    }
+                    // examples/basic.mdx → basic (pageName will be combined with dirPath examples/)
+                    pageName = baseName;
                     title = toTitleCase(baseName);
                 }
 
                 const dirPath = dirname(relativePath).replace(/\\/g, '/');
-                pages.set(pageName, {
+                // Use the full relative path as the key to avoid collisions
+                const pageKey = dirPath && dirPath !== '.' ? `${dirPath}/${pageName}` : pageName;
+                pages.set(pageKey, {
                     htmlFile: `${pageName}.html`,
                     tsxFile: `${pageName}.tsx`,
                     mdxPath: relative(projectRoot, fullPath),
                     title,
-                    dirPath: dirPath === '.' ? '' : dirPath
+                    dirPath: dirPath === '.' ? '' : dirPath,
+                    pageName // Store the actual basename separately
                 });
             }
         }
@@ -807,30 +799,23 @@ async function generateEntries(projectRoot) {
 
     logSubsection('Generating page files');
 
-    for (const [pageName, page] of pages.entries()) {
+    for (const [pageKey, page] of pages.entries()) {
         // Determine HTML file path - create folder structure
+        // page.pageName is the actual file basename (e.g., 'index', 'basic')
+        // page.dirPath is the directory path (e.g., 'examples', '')
         let htmlFilePath;
-        if (pageName === 'index') {
-            // Root index.html
-            htmlFilePath = join(projectRoot, 'index.html');
-        } else if (pageName.endsWith('-index')) {
-            // Section index: getting-started-index → getting-started/index.html
-            // or examples-index → examples/index.html
-            // Use stored dirPath to avoid parsing issues
+        const fileName = page.pageName;
+
+        if (fileName === 'index') {
+            // Index file: create as directory index
             if (page.dirPath) {
                 htmlFilePath = join(projectRoot, page.dirPath, 'index.html');
             } else {
-                const sectionPath = pageName.replace(/-index$/, '').replace(/-/g, '/');
-                htmlFilePath = join(projectRoot, sectionPath, 'index.html');
+                // Root index.html
+                htmlFilePath = join(projectRoot, 'index.html');
             }
         } else {
-            // Regular page: some-page → some-page/index.html
-            // or examples-basic → examples/basic/index.html
-            // Extract just the filename part (after the last hyphen that's part of dir path)
-            const fileName = page.dirPath
-                ? pageName.substring(page.dirPath.replace(/\//g, '-').length + 1)
-                : pageName;
-
+            // Regular page: create as subdirectory with index.html
             if (page.dirPath) {
                 htmlFilePath = join(projectRoot, page.dirPath, fileName, 'index.html');
             } else {
@@ -855,7 +840,7 @@ async function generateEntries(projectRoot) {
 </head>
 <body>
     <div id="root"></div>
-    <script type="module" src="${baseUrl}src/pages/${pageName}.tsx"></script>
+    <script type="module" src="${baseUrl}src/pages/${page.tsxFile}"></script>
 </body>
 </html>
 `;
@@ -873,7 +858,7 @@ import Content from '${relativeMdxPath}';
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
     <React.StrictMode>
-        <PageLayout title="${importName}" backLink={${pageName !== 'index'}}>
+        <PageLayout title="${importName}" backLink={${fileName !== 'index'}}>
             <Content />
         </PageLayout>
     </React.StrictMode>
@@ -882,7 +867,7 @@ root.render(
         await writeFile(join(pagesDir, page.tsxFile), tsxContent, 'utf-8');
 
         const relativeHtmlPath = relative(projectRoot, htmlFilePath);
-        log(`  ${pageName}: ${relativeHtmlPath} + ${page.tsxFile}`);
+        log(`  ${pageKey}: ${relativeHtmlPath} + ${page.tsxFile}`);
     }
 
     log(`Generated ${pages.size} HTML files and ${pages.size} TSX files`, 'success');
