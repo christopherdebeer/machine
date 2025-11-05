@@ -153,7 +153,7 @@ function buildValidationContext(machine: Machine): ValidationContext {
                 // Check if warnings should be shown for this node
                 if (shouldShowWarningsForNode(nodeName, machine.nodes, machine)) {
                     context.addError(createValidationError(
-                        `Node cannot be reached from entry points`,
+                        `Node cannot be reached from entry points. `,
                         {
                             severity: ValidationSeverity.WARNING,
                             category: ValidationCategory.GRAPH,
@@ -220,10 +220,12 @@ function buildValidationContext(machine: Machine): ValidationContext {
                     if (attr.type) {
                         const result = typeChecker.validateAttributeType(attr);
                         if (!result.valid && result.message) {
+
+                            if (!typeChecker.isStrictMode) return;
                             context.addError(createValidationError(
                                 result.message,
                                 {
-                                    severity: ValidationSeverity.ERROR,
+                                    severity: ValidationSeverity.WARNING,
                                     category: ValidationCategory.TYPE,
                                     code: 'TYPE_MISMATCH',
                                     location: {

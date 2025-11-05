@@ -111,7 +111,7 @@ export class GraphValidator {
                 entryPoints.push(nodeName);
             }
         });
-
+        console.log({entryPoints})
         return entryPoints;
     }
 

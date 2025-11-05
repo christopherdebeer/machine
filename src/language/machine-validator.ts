@@ -281,6 +281,8 @@ export class MachineValidator {
         const machine = this.getMachineFromAttribute(attr);
         if (!machine) return;
 
+        
+
         // Skip validation for attributes in type definition nodes
         // Type definitions are structural schemas and don't need values
         const parentNode = this.getNodeFromAttribute(attr);

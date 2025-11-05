@@ -31,11 +31,16 @@ export class TypeChecker {
     private machine: Machine;
     private nodeMap: Map<string, Node>;
     private typeRegistry: TypeRegistry;
+    public isStrictMode: boolean;
 
     constructor(machine: Machine, typeRegistry?: TypeRegistry) {
         this.machine = machine;
         this.nodeMap = this.buildNodeMap();
         this.typeRegistry = typeRegistry || new TypeRegistry();
+
+        // Check if @StrictMode annotation is present
+        this.isStrictMode = machine.annotations?.some(ann => ann.name === 'StrictMode') ?? false;
+
 
         // Register all nodes as potential types
         this.registerNodesAsTypes();
@@ -552,6 +557,7 @@ export class TypeChecker {
         if (!attr.type) {
             return { valid: true };
         }
+
 
         // Convert TypeDef to string
         const typeStr = this.typeDefToString(attr.type);
