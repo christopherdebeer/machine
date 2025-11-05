@@ -291,6 +291,9 @@ Programmatic integration and library API
 ### [Examples](examples/README.md)
 Practical patterns organized by use case
 
+### [Documentation Index](docs.md)
+Complete reference to all documentation organized by topic
+
 ### [Documentation Archive](archived/README.md)
 Previous versions and legacy content
 

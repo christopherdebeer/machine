@@ -357,11 +357,113 @@ export default hierarchy;
 }
 
 // ============================================================================
-// STEP 4: Transform Markdown to MDX with CodeEditor Components
+// STEP 4: Generate Documentation Index
+// ============================================================================
+
+async function generateDocumentationIndex(projectRoot) {
+    logSection('STEP 4: Generate Documentation Index');
+
+    const docsDir = join(projectRoot, 'docs');
+    const outputFile = join(docsDir, 'docs.md');
+
+    log(`Scanning docs directory: ${relative(projectRoot, docsDir)}`);
+
+    function toTitleCase(str) {
+        return str.replace(/([A-Z])/g, ' $1').replace(/[-_]/g, ' ').split(' ').filter(w => w.length > 0).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    async function extractTitle(filePath) {
+        try {
+            const content = await readFile(filePath, 'utf-8');
+            for (const line of content.split('\n')) {
+                if (line.startsWith('# ')) return line.substring(2).trim();
+            }
+        } catch (error) {
+            // ignore
+        }
+        return null;
+    }
+
+    async function scanDirectory(dir, basePath = '', level = 0) {
+        const entries = await readdir(dir, { withFileTypes: true });
+        const sections = [];
+
+        // Sort: directories first, then files, alphabetically
+        entries.sort((a, b) => {
+            if (a.isDirectory() !== b.isDirectory()) {
+                return a.isDirectory() ? -1 : 1;
+            }
+            return a.name.localeCompare(b.name);
+        });
+
+        for (const entry of entries) {
+            const fullPath = join(dir, entry.name);
+            const relativePath = join(basePath, entry.name);
+
+            if (entry.isDirectory()) {
+                // Skip archived directory at root level
+                if (entry.name === 'archived' && level === 0) continue;
+
+                const sectionTitle = toTitleCase(entry.name);
+                const indent = '  '.repeat(level);
+
+                // Add section header
+                sections.push(`${indent}### ${sectionTitle}`);
+                sections.push('');
+
+                // Recursively scan subdirectory
+                const subSections = await scanDirectory(fullPath, relativePath, level + 1);
+                sections.push(...subSections);
+            } else if (entry.isFile() && entry.name.endsWith('.md')) {
+                // Skip README.md and index files at root level, and the docs.md file itself
+                if (entry.name === 'README.md' || entry.name === 'index.md' || entry.name === 'docs.md') {
+                    continue;
+                }
+
+                const title = await extractTitle(fullPath) || toTitleCase(basename(entry.name, '.md'));
+                const indent = '  '.repeat(level);
+                const linkPath = relativePath.replace(/\\/g, '/');
+
+                sections.push(`${indent}- [${title}](${linkPath})`);
+            }
+        }
+
+        // Add blank line after each directory section
+        if (sections.length > 0 && level > 0) {
+            sections.push('');
+        }
+
+        return sections;
+    }
+
+    const sections = await scanDirectory(docsDir);
+
+    // Build the complete documentation index
+    const indexContent = [
+        '# Documentation Index',
+        '',
+        'Complete reference to all DyGram documentation organized by topic.',
+        '',
+        ...sections
+    ].join('\n');
+
+    await writeFile(outputFile, indexContent, 'utf-8');
+
+    // Count total documents
+    const docCount = (indexContent.match(/\]\(/g) || []).length;
+
+    log(`Generated documentation index: ${relative(projectRoot, outputFile)}`, 'success');
+    log(`Indexed ${docCount} documentation files`, 'info');
+
+    return { count: docCount };
+}
+
+// ============================================================================
+// STEP 5: Transform Markdown to MDX with CodeEditor Components
 // ============================================================================
 
 async function transformMarkdownToMdx(projectRoot) {
-    logSection('STEP 4: Transform Markdown to MDX');
+    logSection('STEP 5: Transform Markdown to MDX');
 
     const docsDir = join(projectRoot, 'docs');
 
@@ -576,11 +678,11 @@ async function transformMarkdownToMdx(projectRoot) {
 }
 
 // ============================================================================
-// STEP 5: Generate Page Entries (HTML + TSX)
+// STEP 6: Generate Page Entries (HTML + TSX)
 // ============================================================================
 
 async function generateEntries(projectRoot) {
-    logSection('STEP 5: Generate Page Entries');
+    logSection('STEP 6: Generate Page Entries');
 
     const docsDir = join(projectRoot, 'docs');
     const pagesDir = join(projectRoot, 'src', 'pages');
@@ -740,11 +842,11 @@ root.render(
 }
 
 // ============================================================================
-// STEP 6: Validate Links
+// STEP 7: Validate Links
 // ============================================================================
 
 async function validateLinks(projectRoot) {
-    logSection('STEP 6: Validate Links');
+    logSection('STEP 7: Validate Links');
 
     const docsDir = join(projectRoot, 'docs');
 
@@ -846,13 +948,16 @@ async function main() {
         // Step 3: Generate hierarchy
         const hierarchy = await generateHierarchy(projectRoot);
 
-        // Step 4: Transform markdown to MDX
+        // Step 4: Generate documentation index
+        const docIndex = await generateDocumentationIndex(projectRoot);
+
+        // Step 5: Transform markdown to MDX
         const transform = await transformMarkdownToMdx(projectRoot);
 
-        // Step 5: Generate entries
+        // Step 6: Generate entries
         const entries = await generateEntries(projectRoot);
 
-        // Step 6: Validate links
+        // Step 7: Validate links
         const validation = await validateLinks(projectRoot);
 
         // Summary
@@ -862,6 +967,7 @@ async function main() {
         log(`Examples extracted: ${examples.count}`, 'success');
         log(`Examples cataloged: ${examplesList.count} (${examplesList.categories} categories)`, 'success');
         log(`Documentation hierarchy: ${hierarchy.sections} sections, ${hierarchy.pages} pages`, 'success');
+        log(`Documentation index: ${docIndex.count} files indexed`, 'success');
         log(`Markdown transformed: ${transform.count} files to MDX`, 'success');
         log(`Generated entries: ${entries.count} pages`, 'success');
         log(`Link validation: ${validation.total} links (${validation.broken} broken)`, validation.broken > 0 ? 'warn' : 'success');
