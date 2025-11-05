@@ -413,11 +413,7 @@ async function generateDocumentationIndex(projectRoot) {
                 // Recursively scan subdirectory
                 const subSections = await scanDirectory(fullPath, relativePath, level + 1);
                 sections.push(...subSections);
-            } else if (entry.isFile() && entry.name.endsWith('.md')) {
-                // Skip README.md and index files at root level, and the docs.md file itself
-                if (entry.name === 'README.md' || entry.name === 'index.md' || entry.name === 'docs.md') {
-                    continue;
-                }
+            } else if (entry.isFile() && entry.name.endsWith('.
 
                 const title = await extractTitle(fullPath) || toTitleCase(basename(entry.name, '.md'));
                 const indent = '  '.repeat(level);
@@ -784,12 +780,11 @@ async function generateEntries(projectRoot) {
                     // Preserve directory path for regular files
                     // examples/basic.mdx → examples-basic (pageName) + examples/ (dirPath)
                     const dirPath = dirname(relativePath);
-                    const kebabName = baseName.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
                     if (dirPath && dirPath !== '.') {
                         const pathPrefix = dirPath.replace(/\\/g, '/').replace(/\//g, '-');
-                        pageName = `${pathPrefix}-${kebabName}`;
+                        pageName = `${pathPrefix}-${baseName}`;
                     } else {
-                        pageName = kebabName;
+                        pageName = baseName;
                     }
                     title = toTitleCase(baseName);
                 }
