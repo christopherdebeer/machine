@@ -147,15 +147,18 @@ const CodeEditorWrapper = styled.div`
 
 const SVGWrapper = styled.div<{ $fitToView?: boolean }>`
     height: 100%;
-    overflow: auto;
-    display: flex;
-    align-items: ${props => props.$fitToView ? 'center' : 'normal'};
+    width: 100%;
+
+    display: ${props => props.$fitToView ? 'flex' : 'display'};
+    align-items: center;
 
     & > svg {
-        width: ${props => props.$fitToView ? 'auto' : 'min-content'} !important;
-        height: ${props => props.$fitToView ? 'auto' : 'min-content'} !important;
+        width: ${props => props.$fitToView ? 'auto' : 'revert-layer'} !important;
+        height: ${props => props.$fitToView ? 'auto' : 'revert-layer'} !important;
         max-height: ${props => props.$fitToView ? '100%' : 'none'};
         max-width: ${props => props.$fitToView ? '100%' : 'none'};
+        margin: auto;
+        display: block;
     }
 `
 
