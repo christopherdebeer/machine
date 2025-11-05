@@ -83,14 +83,12 @@ export interface CodeEditorProps {
 }
 
 const Output = styled.div<{ $fitToView?: boolean }>`
-    min-width: 300px;
     border-radius: 0.3em;
     box-shadow: 0 0 1em black;
-    position: relative;
     overflow: auto;
     align-items: center;
     max-height: 500px;
-    
+    display: block;
 `;
 
 const OverlayButton = styled.button<{ $success?: boolean }>`
@@ -122,12 +120,17 @@ const OverlayButton = styled.button<{ $success?: boolean }>`
 `;
 
 const OverlayButtonGroup = styled.div`
-    position: absolute;
-    top: 0.3em;
-    right: 0.3em;
+    position: sticky;
+    top: 1.4em;
+    right: 0.4em;
     display: flex;
     gap: 0.3em;
     z-index: 10;
+    width: 100%;
+    height: 0;
+    align-items: flex-end;
+    justify-content: end;
+    overflow: visible;
 
     & > button {
       position: relative;
@@ -143,6 +146,9 @@ const Wrapper = styled.div`
 const CodeEditorWrapper = styled.div`
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
     position: relative;
+    padding-bottom: 0.6em;
+    min-width: 200px;
+    max-height: 80vh;
 `
 
 const SVGWrapper = styled.div<{ $fitToView?: boolean }>`
@@ -441,7 +447,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 maxHeight: height || '500px',
                                 overflowY: 'auto'
                             }}
-                        >
+                        ><OverlayButtonGroup>
                             <OverlayButton
                                 onClick={copyCodeToClipboard}
                                 $success={copyCodeSuccess}
@@ -449,6 +455,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                             >
                                 {copyCodeSuccess ? '✓ Copied!' : 'Copy'}
                             </OverlayButton>
+                            </OverlayButtonGroup>
                         </CodeEditorWrapper>
                         {showOutput && outputSvg && (
                             <Output
@@ -456,7 +463,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 className="output"
                                 $fitToView={fitToView}
                             >
-                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                                
                                 <OverlayButtonGroup>
                                     <OverlayButton
                                         onClick={() => setFitToView(!fitToView)}
@@ -472,6 +479,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                         {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                                     </OverlayButton>
                                 </OverlayButtonGroup>
+                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
                             </Output>
                         )}
                     </Wrapper>
@@ -484,7 +492,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                         className="output"
                         $fitToView={fitToView}
                     >
-                        <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                        
                         <OverlayButtonGroup>
                             <OverlayButton
                                 onClick={() => setFitToView(!fitToView)}
@@ -500,6 +508,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                             </OverlayButton>
                         </OverlayButtonGroup>
+                        <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
                     </Output>
                 );
 
@@ -511,11 +520,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                             className="code-editor-container"
                             style={{
                                 flex: '1 1 45%',
-                                minWidth: '300px',
-                                maxHeight: height || '500px',
+                                maxHeight: height,
                                 overflowY: 'auto'
                             }}
                         >
+                            <OverlayButtonGroup>
                             <OverlayButton
                                 onClick={copyCodeToClipboard}
                                 $success={copyCodeSuccess}
@@ -523,6 +532,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                             >
                                 {copyCodeSuccess ? '✓ Copied!' : 'Copy'}
                             </OverlayButton>
+                            </OverlayButtonGroup>
                         </CodeEditorWrapper>
                         {showOutput && (
                             <Output
@@ -531,7 +541,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 $fitToView={fitToView}
                                 style={{ flex: '1 1 45%' }}
                             >
-                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                                
                                 <OverlayButtonGroup>
                                     <OverlayButton
                                         onClick={() => setFitToView(!fitToView)}
@@ -547,6 +557,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                         {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                                     </OverlayButton>
                                 </OverlayButtonGroup>
+                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
                             </Output>
                         )}
                     </Wrapper>
@@ -592,6 +603,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                     overflowY: 'auto'
                                 }}
                             >
+                                <OverlayButtonGroup>
                                 <OverlayButton
                                     onClick={copyCodeToClipboard}
                                     $success={copyCodeSuccess}
@@ -599,6 +611,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 >
                                     {copyCodeSuccess ? '✓ Copied!' : 'Copy'}
                                 </OverlayButton>
+                                </OverlayButtonGroup>
                             </CodeEditorWrapper>
                         ) : (
                             <Output
@@ -606,7 +619,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 className="output"
                                 $fitToView={fitToView}
                             >
-                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
                                 <OverlayButtonGroup>
                                     <OverlayButton
                                         onClick={() => setFitToView(!fitToView)}
@@ -622,6 +634,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                         {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                                     </OverlayButton>
                                 </OverlayButtonGroup>
+                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
                             </Output>
                         )}
                     </Wrapper>
