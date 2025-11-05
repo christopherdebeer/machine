@@ -434,8 +434,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 ref={outputRef}
                                 className="output"
                                 $fitToView={fitToView}
-                                dangerouslySetInnerHTML={{ __html: outputSvg }}
                             >
+                                <div dangerouslySetInnerHTML={{ __html: outputSvg }} />
                                 <OverlayButtonGroup>
                                     <OverlayButton
                                         onClick={() => setFitToView(!fitToView)}
@@ -462,8 +462,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                         ref={outputRef}
                         className="output"
                         $fitToView={fitToView}
-                        dangerouslySetInnerHTML={{ __html: outputSvg }}
                     >
+                        <div dangerouslySetInnerHTML={{ __html: outputSvg }} />
                         <OverlayButtonGroup>
                             <OverlayButton
                                 onClick={() => setFitToView(!fitToView)}
@@ -509,8 +509,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 className="output"
                                 $fitToView={fitToView}
                                 style={{ flex: '1 1 45%' }}
-                                dangerouslySetInnerHTML={{ __html: outputSvg }}
                             >
+                                <div dangerouslySetInnerHTML={{ __html: outputSvg }} />
                                 <OverlayButtonGroup>
                                     <OverlayButton
                                         onClick={() => setFitToView(!fitToView)}
@@ -584,8 +584,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 ref={outputRef}
                                 className="output"
                                 $fitToView={fitToView}
-                                dangerouslySetInnerHTML={{ __html: outputSvg }}
                             >
+                                <div dangerouslySetInnerHTML={{ __html: outputSvg }} />
                                 <OverlayButtonGroup>
                                     <OverlayButton
                                         onClick={() => setFitToView(!fitToView)}
