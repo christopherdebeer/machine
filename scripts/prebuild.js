@@ -411,11 +411,23 @@ async function generateDocumentationIndex(projectRoot) {
                 sections.push(`${indent}### ${sectionTitle}`);
                 sections.push('');
 
+                // Check for README.md in this directory to add as section overview
+                const readmePath = join(fullPath, 'README.md');
+                try {
+                    await stat(readmePath);
+                    const readmeRelativePath = join(relativePath, 'README.md').replace(/\\/g, '/');
+                    const readmeTitle = await extractTitle(readmePath) || `${sectionTitle} Overview`;
+                    sections.push(`${indent}  - [${readmeTitle}](${readmeRelativePath})`);
+                    sections.push('');
+                } catch (error) {
+                    // No README.md in this directory, that's fine
+                }
+
                 // Recursively scan subdirectory
                 const subSections = await scanDirectory(fullPath, relativePath, level + 1);
                 sections.push(...subSections);
             } else if (entry.isFile() && entry.name.endsWith('.md')) {
-                // Skip README.md and index files at root level, and the docs.md file itself
+                // Skip README.md (handled above), index files, and the docs.md file itself
                 if (entry.name === 'README.md' || entry.name === 'index.md' || entry.name === 'docs.md') {
                     continue;
                 }
@@ -661,8 +673,20 @@ async function transformMarkdownToMdx(projectRoot) {
                         urlPath = urlPath.replace(/\/README$/, '').replace(/^README$/, '');
                     }
 
+                    // Apply kebab-case conversion to match directory generation logic (line 788)
+                    // Split path into directory and filename parts
+                    const urlParts = urlPath.split('/');
+                    if (urlParts.length > 0 && urlParts[urlParts.length - 1]) {
+                        const filename = urlParts[urlParts.length - 1];
+                        // Convert filename to kebab-case: CamelCase -> -camel-case, handle underscores
+                        const kebabName = filename.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
+                        urlParts[urlParts.length - 1] = kebabName;
+                        urlPath = urlParts.join('/');
+                    }
+
                     // Convert to folder-based URL with trailing slash
                     // docs/syntax/annotations.md -> /syntax/annotations/
+                    // docs/IMPORT_SYSTEM.md -> /import-system/
                     // docs/README.md -> /
                     // docs/examples/README.md -> /examples/
                     if (urlPath === '') {

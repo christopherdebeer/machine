@@ -4,7 +4,11 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Api
 
+  - [API Reference](api/README.md)
+
 ### Cli
+
+  - [CLI Reference](cli/README.md)
 
 ### Development
 
@@ -22,6 +26,8 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Examples
 
+  - [Examples](examples/README.md)
+
   - [Advanced Features](examples/advanced-features.md)
   - [Attributes and Types](examples/attributes-and-types.md)
   - [Basic Examples](examples/basic.md)
@@ -38,7 +44,11 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Getting Started
 
+  - [Getting Started](getting-started/README.md)
+
 ### Syntax
+
+  - [Language Reference](syntax/README.md)
 
   - [Annotations](syntax/annotations.md)
   - [Attributes](syntax/attributes.md)
