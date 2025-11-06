@@ -56,7 +56,7 @@ export class NodeTypeChecker {
         if (node.type) {
             const type = node.type.toLowerCase();
             // Normalize context aliases to 'context' for backward compatibility
-            if (type === 'data' || type === 'input' || type === 'output' || type === 'result') {
+            if (type === 'data' || type === 'input' || type === 'output' || type === 'result' || type === 'entity' || type === 'resource') {
                 return 'context';
             }
             return type as InferredNodeType;
