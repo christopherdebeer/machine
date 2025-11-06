@@ -1,0 +1,40 @@
+{
+  "json": {
+    "title": "User API",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "fetchUser",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "id",
+            "type": "number",
+            "value": 1
+          }
+        ]
+      },
+      {
+        "name": "processUser",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "data",
+            "value": "{}"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "fetchUser",
+        "target": "processUser",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>User API</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"fetchUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchUser</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"id__key\" align=\"left\" balign=\"left\">id : number</td><td port=\"id__value\" align=\"left\" balign=\"left\">1</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processUser</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"data__key\" align=\"left\" balign=\"left\">data</td><td port=\"data__value\" align=\"left\" balign=\"left\">{}</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"fetchUser\" -> \"processUser\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "acad0941a4837cfd11f9d82cc1337c714cef0043329d04f244ffc6583cf3cbcb"
+}

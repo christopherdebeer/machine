@@ -1,0 +1,309 @@
+{
+  "json": {
+    "title": "CI/CD Pipeline",
+    "attributes": [],
+    "annotations": [
+      {
+        "name": "Version",
+        "value": "1.0"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "trigger",
+        "type": "input",
+        "attributes": [
+          {
+            "name": "event",
+            "value": "push"
+          },
+          {
+            "name": "branch",
+            "value": "main"
+          },
+          {
+            "name": "commit",
+            "value": ""
+          }
+        ]
+      },
+      {
+        "name": "build",
+        "type": "process",
+        "attributes": []
+      },
+      {
+        "name": "checkout",
+        "type": "task",
+        "attributes": [],
+        "parent": "build",
+        "title": "Checkout code"
+      },
+      {
+        "name": "installDeps",
+        "type": "task",
+        "attributes": [],
+        "parent": "build",
+        "title": "Install dependencies"
+      },
+      {
+        "name": "compile",
+        "type": "task",
+        "attributes": [],
+        "parent": "build",
+        "title": "Compile"
+      },
+      {
+        "name": "lint",
+        "type": "task",
+        "attributes": [],
+        "parent": "build",
+        "title": "Run linter"
+      },
+      {
+        "name": "test",
+        "type": "process",
+        "attributes": []
+      },
+      {
+        "name": "unitTest",
+        "type": "task",
+        "attributes": [],
+        "parent": "test",
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Run unit tests"
+      },
+      {
+        "name": "integrationTest",
+        "type": "task",
+        "attributes": [],
+        "parent": "test",
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Run integration tests"
+      },
+      {
+        "name": "securityScan",
+        "type": "task",
+        "attributes": [],
+        "parent": "test",
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Security scan"
+      },
+      {
+        "name": "testsPass",
+        "type": "state",
+        "attributes": [],
+        "title": "Tests Pass"
+      },
+      {
+        "name": "testsFail",
+        "type": "state",
+        "attributes": [],
+        "title": "Tests Fail"
+      },
+      {
+        "name": "deploy",
+        "type": "process",
+        "attributes": []
+      },
+      {
+        "name": "buildImage",
+        "type": "task",
+        "attributes": [],
+        "parent": "deploy",
+        "title": "Build Docker image"
+      },
+      {
+        "name": "pushImage",
+        "type": "task",
+        "attributes": [],
+        "parent": "deploy",
+        "title": "Push to registry"
+      },
+      {
+        "name": "deployStaging",
+        "type": "task",
+        "attributes": [],
+        "parent": "deploy",
+        "title": "Deploy to staging"
+      },
+      {
+        "name": "runSmokeTests",
+        "type": "task",
+        "attributes": [],
+        "parent": "deploy",
+        "title": "Run smoke tests"
+      },
+      {
+        "name": "stagingOk",
+        "type": "state",
+        "attributes": [],
+        "parent": "deploy",
+        "title": "Staging OK"
+      },
+      {
+        "name": "stagingFail",
+        "type": "state",
+        "attributes": [],
+        "parent": "deploy",
+        "title": "Staging Fail"
+      },
+      {
+        "name": "deployProduction",
+        "type": "task",
+        "attributes": [],
+        "parent": "deploy",
+        "title": "Deploy to production"
+      },
+      {
+        "name": "healthCheck",
+        "type": "task",
+        "attributes": [],
+        "parent": "deploy",
+        "title": "Health check"
+      },
+      {
+        "name": "result",
+        "type": "output",
+        "attributes": [
+          {
+            "name": "success",
+            "type": "boolean",
+            "value": false
+          },
+          {
+            "name": "version",
+            "value": ""
+          },
+          {
+            "name": "deployedAt",
+            "value": ""
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "trigger",
+        "target": "checkout",
+        "arrowType": "->"
+      },
+      {
+        "source": "lint",
+        "target": "unitTest",
+        "arrowType": "->"
+      },
+      {
+        "source": "lint",
+        "target": "integrationTest",
+        "arrowType": "->"
+      },
+      {
+        "source": "lint",
+        "target": "securityScan",
+        "arrowType": "->"
+      },
+      {
+        "source": "unitTest",
+        "target": "testsPass",
+        "arrowType": "->"
+      },
+      {
+        "source": "integrationTest",
+        "target": "testsPass",
+        "arrowType": "->"
+      },
+      {
+        "source": "securityScan",
+        "target": "testsPass",
+        "arrowType": "->"
+      },
+      {
+        "source": "testsPass",
+        "target": "buildImage",
+        "arrowType": "->"
+      },
+      {
+        "source": "testsFail",
+        "target": "result",
+        "arrowType": "->"
+      },
+      {
+        "source": "stagingFail",
+        "target": "result",
+        "arrowType": "->"
+      },
+      {
+        "source": "healthCheck",
+        "target": "result",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkout",
+        "target": "installDeps",
+        "arrowType": "->"
+      },
+      {
+        "source": "installDeps",
+        "target": "compile",
+        "arrowType": "->"
+      },
+      {
+        "source": "compile",
+        "target": "lint",
+        "arrowType": "->"
+      },
+      {
+        "source": "buildImage",
+        "target": "pushImage",
+        "arrowType": "->"
+      },
+      {
+        "source": "pushImage",
+        "target": "deployStaging",
+        "arrowType": "->"
+      },
+      {
+        "source": "deployStaging",
+        "target": "runSmokeTests",
+        "arrowType": "->"
+      },
+      {
+        "source": "runSmokeTests",
+        "target": "stagingOk",
+        "arrowType": "->"
+      },
+      {
+        "source": "runSmokeTests",
+        "target": "stagingFail",
+        "arrowType": "->"
+      },
+      {
+        "source": "stagingOk",
+        "target": "deployProduction",
+        "arrowType": "->"
+      },
+      {
+        "source": "deployProduction",
+        "target": "healthCheck",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>CI/CD Pipeline</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @Version(&quot;1.0&quot;)</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"trigger\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>trigger</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"event__key\" align=\"left\" balign=\"left\">event</td><td port=\"event__value\" align=\"left\" balign=\"left\">push</td></tr><tr><td port=\"branch__key\" align=\"left\" balign=\"left\">branch</td><td port=\"branch__value\" align=\"left\" balign=\"left\">main</td></tr><tr><td port=\"commit__key\" align=\"left\" balign=\"left\">commit</td><td port=\"commit__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  subgraph cluster_build {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>build</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"build__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"checkout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkout</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Checkout code</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"installDeps\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>installDeps</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Install dependencies</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"compile\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>compile</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Compile</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"lint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>lint</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Run linter</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_test {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>test</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"test__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"unitTest\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>unitTest</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Run unit tests</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"integrationTest\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>integrationTest</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Run integration tests</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"securityScan\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>securityScan</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Security scan</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"testsPass\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>testsPass</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Tests Pass</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"testsFail\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>testsFail</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Tests Fail</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  subgraph cluster_deploy {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>deploy</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"deploy__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"buildImage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>buildImage</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Build Docker image</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"pushImage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pushImage</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Push to registry</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"deployStaging\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>deployStaging</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deploy to staging</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"runSmokeTests\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runSmokeTests</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Run smoke tests</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"stagingOk\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>stagingOk</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Staging OK</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"stagingFail\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>stagingFail</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Staging Fail</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"deployProduction\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>deployProduction</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deploy to production</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"healthCheck\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>healthCheck</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Health check</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>result</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"success__key\" align=\"left\" balign=\"left\">success : boolean</td><td port=\"success__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version</td><td port=\"version__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"deployedAt__key\" align=\"left\" balign=\"left\">deployedAt</td><td port=\"deployedAt__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"trigger\" -> \"checkout\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"lint\" -> \"unitTest\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"lint\" -> \"integrationTest\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"lint\" -> \"securityScan\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"unitTest\" -> \"testsPass\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"integrationTest\" -> \"testsPass\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"securityScan\" -> \"testsPass\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"testsPass\" -> \"buildImage\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"testsFail\" -> \"result\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"stagingFail\" -> \"result\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"healthCheck\" -> \"result\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkout\" -> \"installDeps\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"installDeps\" -> \"compile\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"compile\" -> \"lint\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"buildImage\" -> \"pushImage\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"pushImage\" -> \"deployStaging\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"deployStaging\" -> \"runSmokeTests\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"runSmokeTests\" -> \"stagingOk\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"runSmokeTests\" -> \"stagingFail\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"stagingOk\" -> \"deployProduction\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"deployProduction\" -> \"healthCheck\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "476ab2f8348744e3307ae9ea04397323b98a5690d24b51e9f93469b675f7317c"
+}

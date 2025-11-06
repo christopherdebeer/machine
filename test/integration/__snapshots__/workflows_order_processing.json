@@ -1,0 +1,197 @@
+{
+  "json": {
+    "title": "E-Commerce Order Processing",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "type": "init",
+        "attributes": []
+      },
+      {
+        "name": "new_order",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Order received"
+          },
+          {
+            "name": "priority",
+            "type": "number",
+            "value": 1
+          }
+        ]
+      },
+      {
+        "name": "payment_pending",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Awaiting payment"
+          }
+        ]
+      },
+      {
+        "name": "payment_confirmed",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Payment successful"
+          }
+        ]
+      },
+      {
+        "name": "preparing",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Order being prepared"
+          }
+        ]
+      },
+      {
+        "name": "shipped",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Order shipped to customer"
+          }
+        ]
+      },
+      {
+        "name": "delivered",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Order delivered"
+          }
+        ]
+      },
+      {
+        "name": "cancelled",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Order cancelled"
+          }
+        ]
+      },
+      {
+        "name": "refunded",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Order refunded"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "new_order",
+        "arrowType": "->"
+      },
+      {
+        "source": "new_order",
+        "target": "payment_pending",
+        "arrowType": "->",
+        "value": {
+          "text": "create"
+        },
+        "attributes": {
+          "text": "create"
+        }
+      },
+      {
+        "source": "payment_pending",
+        "target": "payment_confirmed",
+        "arrowType": "->",
+        "value": {
+          "text": "pay"
+        },
+        "attributes": {
+          "text": "pay"
+        }
+      },
+      {
+        "source": "payment_confirmed",
+        "target": "preparing",
+        "arrowType": "->",
+        "value": {
+          "text": "prepare"
+        },
+        "attributes": {
+          "text": "prepare"
+        }
+      },
+      {
+        "source": "preparing",
+        "target": "shipped",
+        "arrowType": "->",
+        "value": {
+          "text": "ship"
+        },
+        "attributes": {
+          "text": "ship"
+        }
+      },
+      {
+        "source": "shipped",
+        "target": "delivered",
+        "arrowType": "->",
+        "value": {
+          "text": "deliver"
+        },
+        "attributes": {
+          "text": "deliver"
+        }
+      },
+      {
+        "source": "payment_pending",
+        "target": "cancelled",
+        "arrowType": "->",
+        "value": {
+          "timeout": "900"
+        },
+        "attributes": {
+          "timeout": "900"
+        }
+      },
+      {
+        "source": "payment_confirmed",
+        "target": "refunded",
+        "arrowType": "->",
+        "value": {
+          "text": "cancel_request"
+        },
+        "attributes": {
+          "text": "cancel_request"
+        }
+      },
+      {
+        "source": "preparing",
+        "target": "refunded",
+        "arrowType": "->",
+        "value": {
+          "text": "cancel_request"
+        },
+        "attributes": {
+          "text": "cancel_request"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>E-Commerce Order Processing</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;init&gt;</i></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"new_order\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>new_order</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order received</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority : number</td><td port=\"priority__value\" align=\"left\" balign=\"left\">1</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"payment_pending\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>payment_pending</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Awaiting payment</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"payment_confirmed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>payment_confirmed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Payment successful</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"preparing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>preparing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order being prepared</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"shipped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>shipped</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order shipped to customer</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"delivered\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>delivered</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order delivered</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"cancelled\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cancelled</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order cancelled</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"refunded\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>refunded</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order refunded</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"start\" -> \"new_order\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"new_order\" -> \"payment_pending\" [label=\"create\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"payment_pending\" -> \"payment_confirmed\" [label=\"pay\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"payment_confirmed\" -> \"preparing\" [label=\"prepare\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"preparing\" -> \"shipped\" [label=\"ship\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"shipped\" -> \"delivered\" [label=\"deliver\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"payment_pending\" -> \"cancelled\" [label=\"timeout=900\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"payment_confirmed\" -> \"refunded\" [label=\"cancel_request\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"preparing\" -> \"refunded\" [label=\"cancel_request\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "105409d2639cab3c4224d487d0b3f5c0264230cc5fb973f88248ca6d6f2833bf"
+}

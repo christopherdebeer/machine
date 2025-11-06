@@ -1,0 +1,278 @@
+{
+  "json": {
+    "title": "Monitoring System",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "checkInterval",
+            "type": "number",
+            "value": 60
+          },
+          {
+            "name": "alertThreshold",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "retentionDays",
+            "type": "number",
+            "value": 30
+          }
+        ]
+      },
+      {
+        "name": "collectMetrics",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "sources",
+            "value": [
+              "prometheus",
+              "cloudwatch",
+              "datadog"
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Collect metrics"
+      },
+      {
+        "name": "collectLogs",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "sources",
+            "value": [
+              "elasticsearch",
+              "splunk"
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Collect logs"
+      },
+      {
+        "name": "collectTraces",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "source",
+            "value": "jaeger"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Collect traces"
+      },
+      {
+        "name": "analyzeMetrics",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "prompt",
+            "value": "Analyze metrics for anomalies: {{ collectMetrics.data }}"
+          }
+        ],
+        "title": "Analyze metrics"
+      },
+      {
+        "name": "correlateLogs",
+        "type": "task",
+        "attributes": [],
+        "title": "Correlate logs with metrics"
+      },
+      {
+        "name": "normal",
+        "type": "state",
+        "attributes": [],
+        "title": "Normal Operation"
+      },
+      {
+        "name": "warning",
+        "type": "state",
+        "attributes": [],
+        "title": "Warning Level"
+      },
+      {
+        "name": "critical",
+        "type": "state",
+        "attributes": [],
+        "title": "Critical Level"
+      },
+      {
+        "name": "createAlert",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "severity",
+            "value": "{{ state }}"
+          }
+        ],
+        "title": "Create alert"
+      },
+      {
+        "name": "notifyTeam",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "channels",
+            "value": [
+              "pagerduty",
+              "slack"
+            ]
+          }
+        ],
+        "title": "Notify team"
+      },
+      {
+        "name": "createTicket",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "system",
+            "value": "jira"
+          }
+        ],
+        "title": "Create incident ticket"
+      },
+      {
+        "name": "autoRemediate",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "actions",
+            "value": "#remediationPlaybook"
+          }
+        ],
+        "title": "Auto-remediate"
+      },
+      {
+        "name": "status",
+        "type": "output",
+        "attributes": [
+          {
+            "name": "health",
+            "value": "unknown"
+          },
+          {
+            "name": "alerts",
+            "type": "Array<string>",
+            "value": []
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "collectMetrics",
+        "target": "analyzeMetrics",
+        "arrowType": "->"
+      },
+      {
+        "source": "collectLogs",
+        "target": "correlateLogs",
+        "arrowType": "->"
+      },
+      {
+        "source": "collectTraces",
+        "target": "correlateLogs",
+        "arrowType": "->"
+      },
+      {
+        "source": "analyzeMetrics",
+        "target": "correlateLogs",
+        "arrowType": "->"
+      },
+      {
+        "source": "correlateLogs",
+        "target": "normal",
+        "arrowType": "->"
+      },
+      {
+        "source": "correlateLogs",
+        "target": "warning",
+        "arrowType": "->"
+      },
+      {
+        "source": "correlateLogs",
+        "target": "critical",
+        "arrowType": "->"
+      },
+      {
+        "source": "warning",
+        "target": "createAlert",
+        "arrowType": "->"
+      },
+      {
+        "source": "createAlert",
+        "target": "notifyTeam",
+        "arrowType": "->"
+      },
+      {
+        "source": "notifyTeam",
+        "target": "status",
+        "arrowType": "->"
+      },
+      {
+        "source": "critical",
+        "target": "createAlert",
+        "arrowType": "->"
+      },
+      {
+        "source": "createAlert",
+        "target": "notifyTeam",
+        "arrowType": "->"
+      },
+      {
+        "source": "notifyTeam",
+        "target": "createTicket",
+        "arrowType": "->"
+      },
+      {
+        "source": "createTicket",
+        "target": "autoRemediate",
+        "arrowType": "->"
+      },
+      {
+        "source": "autoRemediate",
+        "target": "status",
+        "arrowType": "->"
+      },
+      {
+        "source": "normal",
+        "target": "status",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "analyzeMetrics",
+        "target": "collectMetrics",
+        "reason": "reads prompt",
+        "path": "collectMetrics.data"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Monitoring System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"checkInterval__key\" align=\"left\" balign=\"left\">checkInterval : number</td><td port=\"checkInterval__value\" align=\"left\" balign=\"left\">60</td></tr><tr><td port=\"alertThreshold__key\" align=\"left\" balign=\"left\">alertThreshold : number</td><td port=\"alertThreshold__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"retentionDays__key\" align=\"left\" balign=\"left\">retentionDays : number</td><td port=\"retentionDays__value\" align=\"left\" balign=\"left\">30</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"collectMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>collectMetrics</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Collect metrics</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"sources__key\" align=\"left\" balign=\"left\">sources</td><td port=\"sources__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;prometheus&quot;,<br align=\"left\"/>  &quot;cloudwatch&quot;,<br align=\"left\"/>  &quot;datadog&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"collectLogs\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>collectLogs</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Collect logs</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"sources__key\" align=\"left\" balign=\"left\">sources</td><td port=\"sources__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;elasticsearch&quot;,<br align=\"left\"/>  &quot;splunk&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"collectTraces\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>collectTraces</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Collect traces</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">jaeger</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"analyzeMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyzeMetrics</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze metrics</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"correlateLogs\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>correlateLogs</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Correlate logs with metrics</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"normal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>normal</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Normal Operation</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"warning\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>warning</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Warning Level</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>critical</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Critical Level</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"createAlert\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>createAlert</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create alert</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"severity__key\" align=\"left\" balign=\"left\">severity</td><td port=\"severity__value\" align=\"left\" balign=\"left\">{{ state }}</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"notifyTeam\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>notifyTeam</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Notify team</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"channels__key\" align=\"left\" balign=\"left\">channels</td><td port=\"channels__value\" align=\"left\" balign=\"left\">[\n  &quot;pagerduty&quot;,\n  &quot;slack&quot;\n]</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"createTicket\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>createTicket</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create incident ticket</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"system__key\" align=\"left\" balign=\"left\">system</td><td port=\"system__value\" align=\"left\" balign=\"left\">jira</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"autoRemediate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>autoRemediate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Auto-remediate</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"actions__key\" align=\"left\" balign=\"left\">actions</td><td port=\"actions__value\" align=\"left\" balign=\"left\">#remediationPlaybook</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"status\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>status</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"health__key\" align=\"left\" balign=\"left\">health</td><td port=\"health__value\" align=\"left\" balign=\"left\">unknown</td></tr><tr><td port=\"alerts__key\" align=\"left\" balign=\"left\">alerts : Array&lt;string&gt;</td><td port=\"alerts__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"collectMetrics\" -> \"analyzeMetrics\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"collectLogs\" -> \"correlateLogs\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"collectTraces\" -> \"correlateLogs\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyzeMetrics\" -> \"correlateLogs\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"correlateLogs\" -> \"normal\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"correlateLogs\" -> \"warning\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"correlateLogs\" -> \"critical\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"warning\" -> \"createAlert\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"createAlert\" -> \"notifyTeam\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"notifyTeam\" -> \"status\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"critical\" -> \"createAlert\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"createAlert\" -> \"notifyTeam\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"notifyTeam\" -> \"createTicket\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"createTicket\" -> \"autoRemediate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"autoRemediate\" -> \"status\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"normal\" -> \"status\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"analyzeMetrics\" -> \"collectMetrics\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "808a53c1b7bffe6606f49a81fd47822367ab7f26c3b14bb1889a0b20669db5b3"
+}

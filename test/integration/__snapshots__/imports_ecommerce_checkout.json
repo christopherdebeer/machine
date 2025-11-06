@@ -1,0 +1,92 @@
+{
+  "json": {
+    "title": "Checkout Process",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "ShippingAddress",
+        "type": "state",
+        "attributes": [],
+        "title": "Shipping Address"
+      },
+      {
+        "name": "ShippingMethod",
+        "type": "state",
+        "attributes": [],
+        "title": "Shipping Method"
+      },
+      {
+        "name": "PaymentInfo",
+        "type": "state",
+        "attributes": [],
+        "title": "Payment Information"
+      },
+      {
+        "name": "ReviewOrder",
+        "type": "state",
+        "attributes": [],
+        "title": "Review Order"
+      },
+      {
+        "name": "ProcessPayment",
+        "type": "state",
+        "attributes": [],
+        "title": "Process Payment"
+      },
+      {
+        "name": "OrderConfirmation",
+        "type": "state",
+        "attributes": [],
+        "title": "Order Confirmation"
+      }
+    ],
+    "edges": [
+      {
+        "source": "ShippingAddress",
+        "target": "ShippingMethod",
+        "arrowType": "-->"
+      },
+      {
+        "source": "ShippingMethod",
+        "target": "PaymentInfo",
+        "arrowType": "-->"
+      },
+      {
+        "source": "PaymentInfo",
+        "target": "ReviewOrder",
+        "arrowType": "-->"
+      },
+      {
+        "source": "ReviewOrder",
+        "target": "ProcessPayment",
+        "arrowType": "-->"
+      },
+      {
+        "source": "ProcessPayment",
+        "target": "OrderConfirmation",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "ProcessPayment",
+        "target": "PaymentInfo",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Checkout Process</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ShippingAddress\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShippingAddress</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Shipping Address</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ShippingMethod\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShippingMethod</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Shipping Method</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"PaymentInfo\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PaymentInfo</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Payment Information</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ReviewOrder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ReviewOrder</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Review Order</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessPayment</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process Payment</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"OrderConfirmation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>OrderConfirmation</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order Confirmation</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"ShippingAddress\" -> \"ShippingMethod\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ShippingMethod\" -> \"PaymentInfo\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"PaymentInfo\" -> \"ReviewOrder\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ReviewOrder\" -> \"ProcessPayment\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessPayment\" -> \"OrderConfirmation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>success</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessPayment\" -> \"PaymentInfo\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>failure</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "0a4b829bf3ab93c8ee95b58cb388359e8d4c977e411773e3b0636c4c19a1c2dc"
+}

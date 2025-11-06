@@ -1,0 +1,64 @@
+{
+  "json": {
+    "title": "Frontend Components",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "LandingPage",
+        "type": "state",
+        "attributes": [],
+        "title": "Landing Page"
+      },
+      {
+        "name": "NavigationBar",
+        "type": "state",
+        "attributes": [],
+        "title": "Navigation Bar"
+      },
+      {
+        "name": "SearchInterface",
+        "type": "state",
+        "attributes": [],
+        "title": "Search Interface"
+      },
+      {
+        "name": "ProductDisplay",
+        "type": "state",
+        "attributes": [],
+        "title": "Product Display"
+      },
+      {
+        "name": "UserDashboard",
+        "type": "state",
+        "attributes": [],
+        "title": "User Dashboard"
+      }
+    ],
+    "edges": [
+      {
+        "source": "LandingPage",
+        "target": "NavigationBar",
+        "arrowType": "-->"
+      },
+      {
+        "source": "LandingPage",
+        "target": "SearchInterface",
+        "arrowType": "-->"
+      },
+      {
+        "source": "SearchInterface",
+        "target": "ProductDisplay",
+        "arrowType": "-->"
+      },
+      {
+        "source": "LandingPage",
+        "target": "UserDashboard",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Frontend Components</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"LandingPage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LandingPage</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Landing Page</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"NavigationBar\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>NavigationBar</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Navigation Bar</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"SearchInterface\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SearchInterface</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Search Interface</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProductDisplay\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProductDisplay</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Product Display</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"UserDashboard\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UserDashboard</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User Dashboard</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"LandingPage\" -> \"NavigationBar\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LandingPage\" -> \"SearchInterface\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"SearchInterface\" -> \"ProductDisplay\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LandingPage\" -> \"UserDashboard\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "505cde7659ee5c687f28561c0d2bb29c02fd48298108a836e667a7fd13f426b6"
+}

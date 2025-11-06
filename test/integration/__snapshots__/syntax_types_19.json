@@ -1,0 +1,67 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Address",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "street",
+            "type": "string"
+          },
+          {
+            "name": "city",
+            "type": "string"
+          },
+          {
+            "name": "zipCode",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "User",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "name": "address",
+            "type": "Address"
+          }
+        ]
+      },
+      {
+        "name": "userService",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "currentUser",
+            "type": "User",
+            "value": {
+              "name": "Alice",
+              "email": "alice@example.com",
+              "address": {
+                "street": "123 Main St",
+                "city": "Springfield",
+                "zipCode": 12345
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Address\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Address</b> <i>&lt;type&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"street__key\" align=\"left\" balign=\"left\">street : string</td><td port=\"street__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"city__key\" align=\"left\" balign=\"left\">city : string</td><td port=\"city__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"zipCode__key\" align=\"left\" balign=\"left\">zipCode : string</td><td port=\"zipCode__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 3 issues</b><br/>Attribute 'street' has type string but no value pr...<br/>Attribute 'city' has type string but no value prov...<br/><i>... and 1 more</i></font></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", penwidth=3, color=\"#D32F2F\"];\n  \"User\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>User</b> <i>&lt;type&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"name__key\" align=\"left\" balign=\"left\">name : string</td><td port=\"name__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"email__key\" align=\"left\" balign=\"left\">email : string</td><td port=\"email__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"address__key\" align=\"left\" balign=\"left\">address : Address</td><td port=\"address__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 3 issues</b><br/>Attribute 'name' has type string but no value prov...<br/>Attribute 'email' has type string but no value pro...<br/><i>... and 1 more</i></font></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", penwidth=3, color=\"#D32F2F\"];\n  \"userService\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userService</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"currentUser__key\" align=\"left\" balign=\"left\">currentUser : User</td><td port=\"currentUser__value\" align=\"left\" balign=\"left\">{<br align=\"left\"/>  &quot;name&quot;: &quot;Alice&quot;,<br align=\"left\"/>&quot;email&quot;: &quot;alice@example.com&quot;,<br align=\"left\"/>  &quot;address&quot;: {<br align=\"left\"/>    &quot;street&quot;: &quot;123 Main St&quot;,<br align=\"left\"/>    &quot;city&quot;: &quot;Springfield&quot;,<br align=\"left\"/>    &quot;zipCode&quot;: 12345<br align=\"left\"/>  }<br align=\"left\"/>}</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Validation Warnings\n  \"warning_Address_0\" [label=<🔴 Attribute 'street' has type string<br/>but no value provided>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_Address_0\" -> \"Address\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_Address_1\" [label=<🔴 Attribute 'city' has type string but<br/>no value provided>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_Address_1\" -> \"Address\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_Address_2\" [label=<🔴 Attribute 'zipCode' has type string<br/>but no value provided>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_Address_2\" -> \"Address\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_User_0\" [label=<🔴 Attribute 'name' has type string but<br/>no value provided>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_User_0\" -> \"User\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_User_1\" [label=<🔴 Attribute 'email' has type string but<br/>no value provided>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_User_1\" -> \"User\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_User_2\" [label=<🔴 Attribute 'address' has type Address<br/>but no value provided>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_User_2\" -> \"User\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "94068c097ec6605490bdcb32ad05228d11831392eb317e9529cec37381b4b9a0"
+}

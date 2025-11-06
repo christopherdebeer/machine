@@ -1,0 +1,69 @@
+{
+  "json": {
+    "title": "Notifications",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "PrepareMessage",
+        "type": "state",
+        "attributes": [],
+        "title": "Prepare Message"
+      },
+      {
+        "name": "SendEmail",
+        "type": "state",
+        "attributes": [],
+        "title": "Send Email"
+      },
+      {
+        "name": "SendSlack",
+        "type": "state",
+        "attributes": [],
+        "title": "Send Slack Message"
+      },
+      {
+        "name": "LogNotification",
+        "type": "state",
+        "attributes": [],
+        "title": "Log Notification"
+      },
+      {
+        "name": "UpdateDashboard",
+        "type": "state",
+        "attributes": [],
+        "title": "Update Dashboard"
+      }
+    ],
+    "edges": [
+      {
+        "source": "PrepareMessage",
+        "target": "SendEmail",
+        "arrowType": "-->"
+      },
+      {
+        "source": "SendEmail",
+        "target": "LogNotification",
+        "arrowType": "-->"
+      },
+      {
+        "source": "PrepareMessage",
+        "target": "SendSlack",
+        "arrowType": "-->"
+      },
+      {
+        "source": "SendSlack",
+        "target": "LogNotification",
+        "arrowType": "-->"
+      },
+      {
+        "source": "LogNotification",
+        "target": "UpdateDashboard",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Notifications</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"PrepareMessage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PrepareMessage</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Prepare Message</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"SendEmail\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SendEmail</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Send Email</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"SendSlack\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SendSlack</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Send Slack Message</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"LogNotification\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LogNotification</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Log Notification</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"UpdateDashboard\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UpdateDashboard</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Update Dashboard</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"PrepareMessage\" -> \"SendEmail\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"SendEmail\" -> \"LogNotification\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"PrepareMessage\" -> \"SendSlack\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"SendSlack\" -> \"LogNotification\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LogNotification\" -> \"UpdateDashboard\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "199a0cc01934687486268b03ca9ee997fdc5d5d022e152faa6bbd7450a3966e3"
+}

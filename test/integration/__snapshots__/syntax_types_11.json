@@ -1,0 +1,29 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "tags",
+        "type": "Array<string>",
+        "value": [
+          "api",
+          "production"
+        ]
+      },
+      {
+        "name": "ports",
+        "type": "Array<number>",
+        "value": [
+          8080,
+          8081,
+          8082
+        ]
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"tags__key\" align=\"left\" balign=\"left\">tags : Array&lt;string&gt;</td><td port=\"tags__value\" align=\"left\" balign=\"left\">[<br/>  &quot;api&quot;,<br/>  &quot;production&quot;<br/>]</td></tr><tr><td port=\"ports__key\" align=\"left\" balign=\"left\">ports : Array&lt;number&gt;</td><td port=\"ports__value\" align=\"left\" balign=\"left\">[<br/>  8080,<br/>  8081,<br/>  8082<br/>]</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "cd7ef55bccd1b6b2cf761f640f84a2f95939078eb9a918e59ae699f54cb08fdb"
+}

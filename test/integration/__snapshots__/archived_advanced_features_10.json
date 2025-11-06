@@ -1,0 +1,31 @@
+{
+  "json": {
+    "title": "Many-to-Many",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Student",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "Course",
+        "type": "task",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "Student",
+        "target": "Course",
+        "arrowType": "->",
+        "sourceMultiplicity": "*",
+        "targetMultiplicity": "*"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Many-to-Many</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Student\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Student</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Course\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Course</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"Student\" -> \"Course\" [taillabel=\"*\", headlabel=\"*\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "11bdd9fcf26f20fb9e3c69fe01b18a87b6314c25cd6e444ad57d4e73d69224d0"
+}

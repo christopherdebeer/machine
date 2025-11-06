@@ -1,0 +1,47 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Start",
+        "attributes": []
+      },
+      {
+        "name": "Primary",
+        "attributes": []
+      },
+      {
+        "name": "Fallback",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "Start",
+        "target": "Primary",
+        "arrowType": "->",
+        "value": {
+          "weight": "0.8"
+        },
+        "attributes": {
+          "weight": "0.8"
+        }
+      },
+      {
+        "source": "Start",
+        "target": "Fallback",
+        "arrowType": "->",
+        "value": {
+          "weight": "0.2"
+        },
+        "attributes": {
+          "weight": "0.2"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Primary\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Primary</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Fallback\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Fallback</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Start\" -> \"Primary\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">weight</td><td align=\"left\" balign=\"left\">0.8</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Start\" -> \"Fallback\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">weight</td><td align=\"left\" balign=\"left\">0.2</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "a0060487dd0769608bf99454980a92015ee2db396b9a270314739d00936df718"
+}

@@ -1,0 +1,180 @@
+{
+  "json": {
+    "title": "Research Assistant",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "query",
+        "type": "input",
+        "attributes": [
+          {
+            "name": "question",
+            "value": ""
+          }
+        ]
+      },
+      {
+        "name": "quickAnalysis",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "model",
+            "value": "claude-3-5-haiku-20241022"
+          },
+          {
+            "name": "temperature",
+            "value": 0.3
+          },
+          {
+            "name": "prompt",
+            "value": "Quick analysis: {{ query.question }}"
+          }
+        ]
+      },
+      {
+        "name": "simpleQuery",
+        "type": "state",
+        "attributes": [],
+        "title": "Simple Query"
+      },
+      {
+        "name": "complexQuery",
+        "type": "state",
+        "attributes": [],
+        "title": "Complex Query"
+      },
+      {
+        "name": "deepAnalysis",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "temperature",
+            "value": 0.7
+          },
+          {
+            "name": "max_tokens",
+            "value": 4096
+          },
+          {
+            "name": "prompt",
+            "value": "Deep analysis: {{ query.question }}. Previous: {{ quickAnalysis.result }}"
+          }
+        ]
+      },
+      {
+        "name": "synthesize",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "temperature",
+            "value": 0.5
+          },
+          {
+            "name": "prompt",
+            "value": "Synthesize findings from: {{ deepAnalysis.result }}"
+          }
+        ]
+      },
+      {
+        "name": "answer",
+        "type": "output",
+        "attributes": [
+          {
+            "name": "summary",
+            "value": ""
+          },
+          {
+            "name": "detail",
+            "value": ""
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "query",
+        "target": "quickAnalysis",
+        "arrowType": "->"
+      },
+      {
+        "source": "quickAnalysis",
+        "target": "simpleQuery",
+        "arrowType": "->",
+        "value": {
+          "text": "simple"
+        },
+        "attributes": {
+          "text": "simple"
+        }
+      },
+      {
+        "source": "simpleQuery",
+        "target": "answer",
+        "arrowType": "->"
+      },
+      {
+        "source": "quickAnalysis",
+        "target": "complexQuery",
+        "arrowType": "->",
+        "value": {
+          "text": "complex"
+        },
+        "attributes": {
+          "text": "complex"
+        }
+      },
+      {
+        "source": "complexQuery",
+        "target": "deepAnalysis",
+        "arrowType": "->"
+      },
+      {
+        "source": "deepAnalysis",
+        "target": "synthesize",
+        "arrowType": "->"
+      },
+      {
+        "source": "synthesize",
+        "target": "answer",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "quickAnalysis",
+        "target": "query",
+        "reason": "reads prompt",
+        "path": "query.question"
+      },
+      {
+        "source": "deepAnalysis",
+        "target": "query",
+        "reason": "reads prompt",
+        "path": "query.question"
+      },
+      {
+        "source": "deepAnalysis",
+        "target": "quickAnalysis",
+        "reason": "reads prompt",
+        "path": "quickAnalysis.result"
+      },
+      {
+        "source": "synthesize",
+        "target": "deepAnalysis",
+        "reason": "reads prompt",
+        "path": "deepAnalysis.result"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Research Assistant</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"query\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>query</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"question__key\" align=\"left\" balign=\"left\">question</td><td port=\"question__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"quickAnalysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>quickAnalysis</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Quick analysis: {{ query.question }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-haiku-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.3</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"simpleQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>simpleQuery</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Simple Query</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"complexQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complexQuery</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complex Query</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"deepAnalysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>deepAnalysis</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deep analysis: {{ query.question }}.<br/>Previous: {{ quickAnalysis.result }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"max_tokens__key\" align=\"left\" balign=\"left\">max_tokens</td><td port=\"max_tokens__value\" align=\"left\" balign=\"left\">4096</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"synthesize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>synthesize</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Synthesize findings from: {{<br/>deepAnalysis.result }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.5</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"answer\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>answer</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"summary__key\" align=\"left\" balign=\"left\">summary</td><td port=\"summary__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"detail__key\" align=\"left\" balign=\"left\">detail</td><td port=\"detail__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"query\" -> \"quickAnalysis\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"quickAnalysis\" -> \"simpleQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>simple</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"simpleQuery\" -> \"answer\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"quickAnalysis\" -> \"complexQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>complex</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"complexQuery\" -> \"deepAnalysis\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"deepAnalysis\" -> \"synthesize\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"synthesize\" -> \"answer\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"quickAnalysis\" -> \"query\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"deepAnalysis\" -> \"query\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"deepAnalysis\" -> \"quickAnalysis\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"synthesize\" -> \"deepAnalysis\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "bdb7f5127f9085d612cca8c7ef13bf757d5f77e406cf672e84e8cad311373275"
+}

@@ -1,0 +1,51 @@
+{
+  "json": {
+    "title": "Organized Structure",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Data",
+        "attributes": []
+      },
+      {
+        "name": "Store",
+        "attributes": [],
+        "parent": "Data"
+      },
+      {
+        "name": "Transform",
+        "attributes": [],
+        "parent": "Data"
+      },
+      {
+        "name": "Fetch",
+        "attributes": [],
+        "parent": "Data"
+      },
+      {
+        "name": "Auth",
+        "attributes": []
+      },
+      {
+        "name": "Logout",
+        "attributes": [],
+        "parent": "Auth"
+      },
+      {
+        "name": "Verify",
+        "attributes": [],
+        "parent": "Auth"
+      },
+      {
+        "name": "Login",
+        "attributes": [],
+        "parent": "Auth"
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Organized Structure</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Data {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Data</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Data__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Store\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Store</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"Transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Transform</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"Fetch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Fetch</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  }\n  subgraph cluster_Auth {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Auth</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Auth__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Logout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Logout</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"Verify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Verify</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"Login\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Login</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  }\n\n}",
+  "svgHash": "6ee1e353a1ef50c469abb3941cdcd457896902f39c8db3a166bff14f4158e443"
+}

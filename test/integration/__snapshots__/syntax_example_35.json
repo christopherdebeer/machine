@@ -1,0 +1,22 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "_private",
+        "type": "validname",
+        "attributes": []
+      },
+      {
+        "name": "handle_event",
+        "type": "user123",
+        "attributes": []
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"_private\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>_private</b> <i>&lt;validname&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"handle_event\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handle_event</b> <i>&lt;user123&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
+  "svgHash": "aff1d318c0eea63315d7cd3f60390443895e323275e00f69e9b4c77a95807741"
+}

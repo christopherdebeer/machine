@@ -1,0 +1,103 @@
+{
+  "json": {
+    "title": "Attribute Inheritance",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "baseTaskConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 30
+          },
+          {
+            "name": "retries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "logLevel",
+            "value": "info"
+          }
+        ]
+      },
+      {
+        "name": "llmTaskConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "base",
+            "value": "#baseTaskConfig"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "temperature",
+            "value": 0.7
+          },
+          {
+            "name": "max_tokens",
+            "value": 2048
+          }
+        ]
+      },
+      {
+        "name": "criticalTaskConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "base",
+            "value": "#baseTaskConfig"
+          },
+          {
+            "name": "priority",
+            "type": "number",
+            "value": 10
+          },
+          {
+            "name": "alerting",
+            "type": "bool",
+            "value": true
+          }
+        ]
+      },
+      {
+        "name": "analyze",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "config",
+            "value": "#llmTaskConfig"
+          },
+          {
+            "name": "prompt",
+            "value": "Analyze data"
+          }
+        ]
+      },
+      {
+        "name": "monitor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "config",
+            "value": "#criticalTaskConfig"
+          },
+          {
+            "name": "prompt",
+            "value": "Monitor system"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Attribute Inheritance</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"baseTaskConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>baseTaskConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">30</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : number</td><td port=\"retries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">info</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"llmTaskConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>llmTaskConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"base__key\" align=\"left\" balign=\"left\">base</td><td port=\"base__value\" align=\"left\" balign=\"left\">#baseTaskConfig</td></tr><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"max_tokens__key\" align=\"left\" balign=\"left\">max_tokens</td><td port=\"max_tokens__value\" align=\"left\" balign=\"left\">2048</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"criticalTaskConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>criticalTaskConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"base__key\" align=\"left\" balign=\"left\">base</td><td port=\"base__value\" align=\"left\" balign=\"left\">#baseTaskConfig</td></tr><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority : number</td><td port=\"priority__value\" align=\"left\" balign=\"left\">10</td></tr><tr><td port=\"alerting__key\" align=\"left\" balign=\"left\">alerting : bool</td><td port=\"alerting__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected bool, got boolean<br/></font></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", penwidth=3, color=\"#D32F2F\"];\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"config__key\" align=\"left\" balign=\"left\">config</td><td port=\"config__value\" align=\"left\" balign=\"left\">#llmTaskConfig</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"monitor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>monitor</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Monitor system</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"config__key\" align=\"left\" balign=\"left\">config</td><td port=\"config__value\" align=\"left\" balign=\"left\">#criticalTaskConfig</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Validation Warnings\n  \"warning_criticalTaskConfig_0\" [label=<🔴 Type mismatch: expected bool, got<br/>boolean>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_criticalTaskConfig_0\" -> \"criticalTaskConfig\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "17e929a6d7a50dc30db9baebde49627fe8bb746b2db97981741ca3051262f520"
+}

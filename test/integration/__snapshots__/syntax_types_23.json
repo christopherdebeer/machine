@@ -1,0 +1,37 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "user",
+        "attributes": [
+          {
+            "name": "email",
+            "type": "Email",
+            "value": "user@example.com"
+          },
+          {
+            "name": "phone",
+            "type": "PhoneNumber",
+            "value": 1234567890
+          },
+          {
+            "name": "completion",
+            "type": "Percentage",
+            "value": 75.5
+          },
+          {
+            "name": "themeColor",
+            "type": "HexColor",
+            "value": "#3B82F6"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"user\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>user</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"email__key\" align=\"left\" balign=\"left\">email : Email</td><td port=\"email__value\" align=\"left\" balign=\"left\">user@example.com</td></tr><tr><td port=\"phone__key\" align=\"left\" balign=\"left\">phone : PhoneNumber</td><td port=\"phone__value\" align=\"left\" balign=\"left\">1234567890</td></tr><tr><td port=\"completion__key\" align=\"left\" balign=\"left\">completion : Percentage</td><td port=\"completion__value\" align=\"left\" balign=\"left\">75.5</td></tr><tr><td port=\"themeColor__key\" align=\"left\" balign=\"left\">themeColor : HexColor</td><td port=\"themeColor__value\" align=\"left\" balign=\"left\">#3B82F6</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 4 issues</b><br/>Type mismatch: expected Email, got string<br/>Type mismatch: expected PhoneNumber, got string<br/><i>... and 2 more</i></font></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", penwidth=3, color=\"#D32F2F\"];\n\n\n  // Validation Warnings\n  \"warning_user_0\" [label=<🔴 Type mismatch: expected Email, got<br/>string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_user_0\" -> \"user\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_user_1\" [label=<🔴 Type mismatch: expected PhoneNumber,<br/>got string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_user_1\" -> \"user\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_user_2\" [label=<🔴 Type mismatch: expected Percentage,<br/>got number>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_user_2\" -> \"user\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_user_3\" [label=<🔴 Type mismatch: expected HexColor, got<br/>string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_user_3\" -> \"user\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "9e45b168620bc653ab99248508b591f1d65224cdebc480fe6b950cbc66ea3e80"
+}

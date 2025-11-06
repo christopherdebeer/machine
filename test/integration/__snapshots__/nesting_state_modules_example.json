@@ -1,0 +1,333 @@
+{
+  "json": {
+    "title": "State Modules Example - ETL Pipeline",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "globalConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "apiUrl",
+            "value": "https://api.example.com"
+          },
+          {
+            "name": "timeout",
+            "value": 5000
+          },
+          {
+            "name": "environment",
+            "value": "production"
+          }
+        ]
+      },
+      {
+        "name": "Extract",
+        "type": "state",
+        "attributes": [],
+        "title": "Data Extraction Module"
+      },
+      {
+        "name": "fetchData",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Fetch data from the API endpoint"
+          }
+        ],
+        "parent": "Extract",
+        "title": "Fetch from API"
+      },
+      {
+        "name": "validateSource",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate that source data is complete and well-formed"
+          }
+        ],
+        "parent": "Extract",
+        "title": "Validate Source Data"
+      },
+      {
+        "name": "Transform",
+        "type": "state",
+        "attributes": [],
+        "title": "Data Transformation Module"
+      },
+      {
+        "name": "transformConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "batchSize",
+            "value": 1000
+          },
+          {
+            "name": "parallelism",
+            "value": 4
+          }
+        ],
+        "parent": "Transform"
+      },
+      {
+        "name": "cleanData",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Remove invalid entries and normalize data"
+          }
+        ],
+        "parent": "Transform",
+        "title": "Clean Data"
+      },
+      {
+        "name": "enrichData",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Add calculated fields and enrichments"
+          }
+        ],
+        "parent": "Transform",
+        "title": "Enrich Data"
+      },
+      {
+        "name": "aggregate",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Aggregate data by specified dimensions"
+          }
+        ],
+        "parent": "Transform",
+        "title": "Aggregate Results"
+      },
+      {
+        "name": "Load",
+        "type": "state",
+        "attributes": [],
+        "title": "Data Loading Module"
+      },
+      {
+        "name": "loadConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "targetDatabase",
+            "value": "warehouse"
+          },
+          {
+            "name": "writeMode",
+            "value": "append"
+          }
+        ],
+        "parent": "Load"
+      },
+      {
+        "name": "prepareTarget",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Ensure target table exists and is ready"
+          }
+        ],
+        "parent": "Load",
+        "title": "Prepare Target"
+      },
+      {
+        "name": "writeData",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Write processed data to target"
+          }
+        ],
+        "parent": "Load",
+        "title": "Write Data"
+      },
+      {
+        "name": "verifyLoad",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Verify all data was loaded correctly"
+          }
+        ],
+        "parent": "Load",
+        "title": "Verify Load"
+      },
+      {
+        "name": "start",
+        "type": "init",
+        "attributes": []
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "failed",
+        "type": "state",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "Extract",
+        "arrowType": "->"
+      },
+      {
+        "source": "Extract",
+        "target": "Transform",
+        "arrowType": "->"
+      },
+      {
+        "source": "Transform",
+        "target": "Load",
+        "arrowType": "->"
+      },
+      {
+        "source": "Load",
+        "target": "complete",
+        "arrowType": "->"
+      },
+      {
+        "source": "fetchData",
+        "target": "failed",
+        "arrowType": "->",
+        "value": {
+          "text": "error"
+        },
+        "attributes": {
+          "text": "error"
+        }
+      },
+      {
+        "source": "cleanData",
+        "target": "failed",
+        "arrowType": "->",
+        "value": {
+          "text": "error"
+        },
+        "attributes": {
+          "text": "error"
+        }
+      },
+      {
+        "source": "writeData",
+        "target": "failed",
+        "arrowType": "->",
+        "value": {
+          "text": "error"
+        },
+        "attributes": {
+          "text": "error"
+        }
+      },
+      {
+        "source": "Extract",
+        "target": "globalConfig",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "Transform",
+        "target": "globalConfig",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "Load",
+        "target": "globalConfig",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "fetchData",
+        "target": "validateSource",
+        "arrowType": "->"
+      },
+      {
+        "source": "cleanData",
+        "target": "enrichData",
+        "arrowType": "->"
+      },
+      {
+        "source": "enrichData",
+        "target": "aggregate",
+        "arrowType": "->"
+      },
+      {
+        "source": "prepareTarget",
+        "target": "writeData",
+        "arrowType": "->"
+      },
+      {
+        "source": "writeData",
+        "target": "verifyLoad",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [
+      {
+        "target": "Extract",
+        "content": "State module with automatic entry at fetchData. Terminal node validateSource inherits parent's exit edge to Transform.",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "Transform",
+        "content": "Nested state module with internal context. Entry at cleanData, exit from aggregate to Load module.",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "Load",
+        "content": "State module demonstrating context inheritance. Child nodes inherit access to both globalConfig and loadConfig.",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "start",
+        "content": "Pipeline starts here and enters the Extract module at its first child (fetchData).",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "validateSource",
+        "content": "Terminal node within Extract module. No explicit outbound edge, so it inherits the module-level exit to Transform.",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>State Modules Example - ETL Pipeline</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"globalConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>globalConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiUrl__key\" align=\"left\" balign=\"left\">apiUrl</td><td port=\"apiUrl__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">5000</td></tr><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">production</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  subgraph cluster_Extract {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Extract\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>Extract</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\"><b>Data Extraction Module</b><i></i></td></tr></table>>, shape=plain, margin=0];\n    \"Extract__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Fetch from API</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"validateSource\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateSource</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate Source Data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  }\n  subgraph cluster_Transform {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>Transform</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\"><b>Data Transformation Module</b><i></i></td></tr></table>>, shape=plain, margin=0];\n    \"Transform__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"transformConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transformConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"batchSize__key\" align=\"left\" balign=\"left\">batchSize</td><td port=\"batchSize__value\" align=\"left\" balign=\"left\">1000</td></tr><tr><td port=\"parallelism__key\" align=\"left\" balign=\"left\">parallelism</td><td port=\"parallelism__value\" align=\"left\" balign=\"left\">4</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"cleanData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cleanData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Clean Data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"enrichData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>enrichData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Enrich Data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"aggregate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>aggregate</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Aggregate Results</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  }\n  subgraph cluster_Load {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Load\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>Load</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\"><b>Data Loading Module</b><i></i></td></tr></table>>, shape=plain, margin=0];\n    \"Load__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"loadConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>loadConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"targetDatabase__key\" align=\"left\" balign=\"left\">targetDatabase</td><td port=\"targetDatabase__value\" align=\"left\" balign=\"left\">warehouse</td></tr><tr><td port=\"writeMode__key\" align=\"left\" balign=\"left\">writeMode</td><td port=\"writeMode__value\" align=\"left\" balign=\"left\">append</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"prepareTarget\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prepareTarget</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Prepare Target</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"writeData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>writeData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Write Data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"verifyLoad\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>verifyLoad</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Verify Load</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  }\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;init&gt;</i></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>failed</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"start\" -> \"Extract__cluster_anchor\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", lhead=\"cluster_Extract\"];\n  \"Extract__cluster_anchor\" -> \"Transform__cluster_anchor\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Extract\", lhead=\"cluster_Transform\"];\n  \"Transform__cluster_anchor\" -> \"Load__cluster_anchor\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Transform\", lhead=\"cluster_Load\"];\n  \"Load__cluster_anchor\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Load\"];\n  \"fetchData\" -> \"failed\" [label=\"error\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"cleanData\" -> \"failed\" [label=\"error\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"writeData\" -> \"failed\" [label=\"error\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Extract__cluster_anchor\" -> \"globalConfig\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Extract\"];\n  \"Transform__cluster_anchor\" -> \"globalConfig\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Transform\"];\n  \"Load__cluster_anchor\" -> \"globalConfig\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Load\"];\n  \"fetchData\" -> \"validateSource\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"cleanData\" -> \"enrichData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"enrichData\" -> \"aggregate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"prepareTarget\" -> \"writeData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"writeData\" -> \"verifyLoad\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_Extract\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">State module with automatic entry at<br/>fetchData. Terminal node validateSource<br/>inherits parent's exit edge to<br/>Transform.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_Extract\" -> \"Extract\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_Transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Nested state module with internal<br/>context. Entry at cleanData, exit from<br/>aggregate to Load module.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_Transform\" -> \"Transform\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_2_Load\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">State module demonstrating context<br/>inheritance. Child nodes inherit access<br/>to both globalConfig and loadConfig.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_2_Load\" -> \"Load\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_3_start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Pipeline starts here and enters the<br/>Extract module at its first child<br/>(fetchData).</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_3_start\" -> \"start\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_4_validateSource\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Terminal node within Extract module. No<br/>explicit outbound edge, so it inherits<br/>the module-level exit to Transform.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_4_validateSource\" -> \"validateSource\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "bfa98619408138aac7a45056f4173669b578bb8e213b2bf4752872716df9060a"
+}

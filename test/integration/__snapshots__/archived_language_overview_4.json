@@ -1,0 +1,95 @@
+{
+  "json": {
+    "title": "User Authentication System",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "maxRetries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 30000
+          }
+        ]
+      },
+      {
+        "name": "landing",
+        "type": "init",
+        "attributes": [],
+        "title": "Landing Page"
+      },
+      {
+        "name": "authenticate",
+        "type": "task",
+        "attributes": [],
+        "title": "Verify Credentials"
+      },
+      {
+        "name": "authenticated",
+        "type": "state",
+        "attributes": [],
+        "title": "User Authenticated"
+      },
+      {
+        "name": "locked",
+        "type": "state",
+        "attributes": [],
+        "title": "Account Locked"
+      },
+      {
+        "name": "maxRetries",
+        "attributes": []
+      },
+      {
+        "name": "timeout",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "landing",
+        "target": "authenticate",
+        "arrowType": "->",
+        "value": {
+          "text": "user login"
+        },
+        "attributes": {
+          "text": "user login"
+        }
+      },
+      {
+        "source": "authenticate",
+        "target": "authenticated",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "authenticate",
+        "target": "landing",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>User Authentication System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : number</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">30000</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"landing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>landing</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Landing Page</td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"authenticate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Verify Credentials</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"authenticated\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticated</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User Authenticated</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"locked\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>locked</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Account Locked</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"maxRetries\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>maxRetries</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"timeout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>timeout</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"landing\" -> \"authenticate\" [label=\"user login\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"authenticate\" -> \"authenticated\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"authenticate\" -> \"landing\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "0b21f34024bae4e99da687ce28c08752809b8ead73ca14e780f6be2b101da05d"
+}

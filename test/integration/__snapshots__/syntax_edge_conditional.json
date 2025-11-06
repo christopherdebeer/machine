@@ -1,0 +1,76 @@
+{
+  "json": {
+    "title": "Conditional Edges Example",
+    "attributes": [
+      {
+        "name": "status",
+        "value": "valid"
+      },
+      {
+        "name": "errorCount",
+        "value": 0
+      }
+    ],
+    "nodes": [
+      {
+        "name": "Processing",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "Success",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "Failure",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "Continue",
+        "type": "task",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "Processing",
+        "target": "Success",
+        "arrowType": "->",
+        "value": {
+          "when": "status == \"valid"
+        },
+        "attributes": {
+          "when": "status == \"valid"
+        }
+      },
+      {
+        "source": "Processing",
+        "target": "Failure",
+        "arrowType": "->",
+        "value": {
+          "when": "status == \"invalid"
+        },
+        "attributes": {
+          "when": "status == \"invalid"
+        }
+      },
+      {
+        "source": "Processing",
+        "target": "Continue",
+        "arrowType": "->",
+        "value": {
+          "unless": "errorCount > 0"
+        },
+        "attributes": {
+          "unless": "errorCount > 0"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Conditional Edges Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"status__key\" align=\"left\" balign=\"left\">status</td><td port=\"status__value\" align=\"left\" balign=\"left\">valid</td></tr><tr><td port=\"errorCount__key\" align=\"left\" balign=\"left\">errorCount</td><td port=\"errorCount__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Processing</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Success</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Failure\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Failure</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Continue\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Continue</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"Processing\" -> \"Success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">status == &quot;valid</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", style=dashed, color=\"#9E9E9E\", penwidth=1];\n  \"Processing\" -> \"Failure\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">status == &quot;invalid</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", style=dashed, color=\"#9E9E9E\", penwidth=1];\n  \"Processing\" -> \"Continue\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">unless</td><td align=\"left\" balign=\"left\">errorCount &gt; 0</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", style=solid, color=\"#4CAF50\", penwidth=2];\n}",
+  "svgHash": "ef178f9314e22490368be19c0cd6c9ed53c79e32c01b780af1444b2f93ef0e00"
+}

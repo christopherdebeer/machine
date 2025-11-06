@@ -1,0 +1,69 @@
+{
+  "json": {
+    "title": "Edges Machine",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "node1",
+        "attributes": []
+      },
+      {
+        "name": "node2",
+        "attributes": []
+      },
+      {
+        "name": "node3",
+        "attributes": []
+      },
+      {
+        "name": "node4",
+        "attributes": []
+      },
+      {
+        "name": "node5",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "node1",
+        "target": "node2",
+        "arrowType": "->"
+      },
+      {
+        "source": "node2",
+        "target": "node3",
+        "arrowType": "->"
+      },
+      {
+        "source": "node3",
+        "target": "node4",
+        "arrowType": "->"
+      },
+      {
+        "source": "node4",
+        "target": "node5",
+        "arrowType": "->"
+      },
+      {
+        "source": "node5",
+        "target": "node1",
+        "arrowType": "->"
+      },
+      {
+        "source": "node1",
+        "target": "node3",
+        "arrowType": "->"
+      },
+      {
+        "source": "node2",
+        "target": "node4",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Edges Machine</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"node1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>node1</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"node2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>node2</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"node3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>node3</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"node4\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>node4</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"node5\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>node5</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"node1\" -> \"node2\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"node2\" -> \"node3\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"node3\" -> \"node4\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"node4\" -> \"node5\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"node5\" -> \"node1\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"node1\" -> \"node3\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"node2\" -> \"node4\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "8ce6763591e7da40d97ebae3ab54037b26d0082e9f3801e3318cef40201f0d66"
+}

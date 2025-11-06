@@ -1,0 +1,40 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "a",
+        "attributes": []
+      },
+      {
+        "name": "b",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "a",
+        "target": "b",
+        "annotations": [
+          {
+            "name": "Critical"
+          },
+          {
+            "name": "Async"
+          }
+        ],
+        "arrowType": "->",
+        "value": {
+          "text": "@Critical @Async"
+        },
+        "attributes": {
+          "text": "@Critical @Async"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"a\" -> \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>@Critical @Async</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@Critical @Async</i></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "201cacd690f0898f42ec7c42fc331e448dcc8c7c38983aec3663f87aa3e3d2e5"
+}

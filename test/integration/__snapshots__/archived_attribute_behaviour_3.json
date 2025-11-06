@@ -1,0 +1,45 @@
+{
+  "json": {
+    "title": "System",
+    "attributes": [
+      {
+        "name": "modelId",
+        "value": "claude-3-5-haiku-20241022"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "ComplexAnalysis",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "modelId",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ]
+      },
+      {
+        "name": "quickCheck",
+        "type": "task",
+        "attributes": [],
+        "parent": "ComplexAnalysis"
+      },
+      {
+        "name": "deepAnalysis",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "modelId",
+            "value": "claude-4-sonnet-latest"
+          }
+        ],
+        "parent": "ComplexAnalysis"
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>System</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"modelId__key\" align=\"left\" balign=\"left\">modelId</td><td port=\"modelId__value\" align=\"left\" balign=\"left\">claude-3-5-haiku-20241022</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_ComplexAnalysis {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"ComplexAnalysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>ComplexAnalysis</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"modelId__key\" align=\"left\" balign=\"left\">modelId</td><td port=\"modelId__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, shape=plain, margin=0];\n    \"ComplexAnalysis__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"quickCheck\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>quickCheck</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"deepAnalysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>deepAnalysis</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"modelId__key\" align=\"left\" balign=\"left\">modelId</td><td port=\"modelId__value\" align=\"left\" balign=\"left\">claude-4-sonnet-latest</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n\n}",
+  "svgHash": "bc7d78361b94b3c871962315684446acd5c7cf9f6193b6dacb8cffb2821ed0ba"
+}

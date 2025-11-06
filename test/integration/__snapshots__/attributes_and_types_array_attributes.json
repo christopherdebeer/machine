@@ -1,0 +1,66 @@
+{
+  "json": {
+    "title": "Array Attributes",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "processor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "inputs",
+            "type": "Array<string>",
+            "value": [
+              "input1",
+              "input2",
+              "input3"
+            ]
+          },
+          {
+            "name": "stages",
+            "type": "Array<string>",
+            "value": [
+              "validate",
+              "transform",
+              "load"
+            ]
+          },
+          {
+            "name": "priorities",
+            "type": "Array<number>",
+            "value": [
+              1,
+              2,
+              3,
+              5,
+              8
+            ]
+          },
+          {
+            "name": "flags",
+            "type": "Array<boolean>",
+            "value": [
+              true,
+              false,
+              true
+            ]
+          },
+          {
+            "name": "schemas",
+            "type": "Array<ref>",
+            "value": [
+              "#schema1",
+              "#schema2",
+              "#schema3"
+            ]
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Array Attributes</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"processor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processor</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"inputs__key\" align=\"left\" balign=\"left\">inputs : Array&lt;string&gt;</td><td port=\"inputs__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;input1&quot;,<br align=\"left\"/>  &quot;input2&quot;,<br align=\"left\"/>  &quot;input3&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"stages__key\" align=\"left\" balign=\"left\">stages : Array&lt;string&gt;</td><td port=\"stages__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;validate&quot;,<br align=\"left\"/>  &quot;transform&quot;,<br align=\"left\"/>  &quot;load&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"priorities__key\" align=\"left\" balign=\"left\">priorities : Array&lt;number&gt;</td><td port=\"priorities__value\" align=\"left\" balign=\"left\">[<br/>  1,<br/>  2,<br/>  3,<br/>  5,<br/>  8<br/>]</td></tr><tr><td port=\"flags__key\" align=\"left\" balign=\"left\">flags : Array&lt;boolean&gt;</td><td port=\"flags__value\" align=\"left\" balign=\"left\">[<br/>  true,<br/>  false,<br/>  true<br/>]</td></tr><tr><td port=\"schemas__key\" align=\"left\" balign=\"left\">schemas : Array&lt;ref&gt;</td><td port=\"schemas__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;#schema1&quot;,<br align=\"left\"/>  &quot;#schema2&quot;,<br align=\"left\"/>  &quot;#schema3&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "bf64282427f698e86d53225870e15fda50c0c331ccbb9b44fbd59af7c57a725d"
+}

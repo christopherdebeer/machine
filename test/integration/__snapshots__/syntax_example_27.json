@@ -1,0 +1,33 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Abstract",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Singleton"
+          },
+          {
+            "name": "Async"
+          },
+          {
+            "name": "Deprecated"
+          },
+          {
+            "name": "Critical"
+          },
+          {
+            "name": "ReadOnly"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Abstract\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Abstract</b> <i>@Singleton @Async @Deprecated @Critical @ReadOnly</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=\"filled,dashed\", color=\"#000000\", fontcolor=\"#999999\", penwidth=3, peripheries=2];\n\n}",
+  "svgHash": "1b96ac7dc208883bae0eae2e1c4936aaf7bf773532746b2722431316418189e9"
+}

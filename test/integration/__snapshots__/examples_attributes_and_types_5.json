@@ -1,0 +1,78 @@
+{
+  "json": {
+    "title": "Node Attributes",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "analyze",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "temperature",
+            "value": 0.7
+          },
+          {
+            "name": "max_tokens",
+            "value": 2048
+          },
+          {
+            "name": "prompt",
+            "value": "Analyze the data"
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 30
+          },
+          {
+            "name": "retries",
+            "type": "number",
+            "value": 3
+          }
+        ]
+      },
+      {
+        "name": "processing",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 120
+          },
+          {
+            "name": "persistence",
+            "value": "memory"
+          }
+        ]
+      },
+      {
+        "name": "data",
+        "type": "input",
+        "attributes": [
+          {
+            "name": "format",
+            "value": "json"
+          },
+          {
+            "name": "schema",
+            "value": "#dataSchema"
+          },
+          {
+            "name": "validation",
+            "value": "strict"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Node Attributes</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze the data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"max_tokens__key\" align=\"left\" balign=\"left\">max_tokens</td><td port=\"max_tokens__value\" align=\"left\" balign=\"left\">2048</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">30</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : number</td><td port=\"retries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">120</td></tr><tr><td port=\"persistence__key\" align=\"left\" balign=\"left\">persistence</td><td port=\"persistence__value\" align=\"left\" balign=\"left\">memory</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"data\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>data</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"format__key\" align=\"left\" balign=\"left\">format</td><td port=\"format__value\" align=\"left\" balign=\"left\">json</td></tr><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#dataSchema</td></tr><tr><td port=\"validation__key\" align=\"left\" balign=\"left\">validation</td><td port=\"validation__value\" align=\"left\" balign=\"left\">strict</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n}",
+  "svgHash": "4c3117cbea88dad014233ed8201f2d109d641ba9dbe5bcd67ba69542b13edc24"
+}

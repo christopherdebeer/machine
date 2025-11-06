@@ -1,0 +1,22 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "count",
+        "type": "Integer",
+        "value": 42
+      },
+      {
+        "name": "retries",
+        "type": "Integer",
+        "value": 3
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count : Integer</td><td port=\"count__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : Integer</td><td port=\"retries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "ef1b9ddce253e1bb757af503dbc0b0a376077c2ffb606d0808f6f7ac23c2fcdf"
+}

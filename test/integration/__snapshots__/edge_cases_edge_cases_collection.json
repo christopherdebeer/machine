@@ -1,0 +1,73 @@
+{
+  "json": {
+    "title": "Edge Cases Collection",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "empty",
+        "attributes": []
+      },
+      {
+        "name": "singleChar",
+        "attributes": [
+          {
+            "name": "a",
+            "value": "x"
+          }
+        ]
+      },
+      {
+        "name": "multipleEdges",
+        "attributes": []
+      },
+      {
+        "name": "target1",
+        "attributes": []
+      },
+      {
+        "name": "target2",
+        "attributes": []
+      },
+      {
+        "name": "target3",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "multipleEdges",
+        "target": "target1",
+        "arrowType": "->"
+      },
+      {
+        "source": "multipleEdges",
+        "target": "target2",
+        "arrowType": "->"
+      },
+      {
+        "source": "multipleEdges",
+        "target": "target3",
+        "arrowType": "->"
+      },
+      {
+        "source": "target1",
+        "target": "target2",
+        "arrowType": "->"
+      },
+      {
+        "source": "target2",
+        "target": "target3",
+        "arrowType": "->"
+      },
+      {
+        "source": "target3",
+        "target": "empty",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Edge Cases Collection</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"empty\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>empty</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"singleChar\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>singleChar</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"a__key\" align=\"left\" balign=\"left\">a</td><td port=\"a__value\" align=\"left\" balign=\"left\">x</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"multipleEdges\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>multipleEdges</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"target1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>target1</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"target2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>target2</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"target3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>target3</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"multipleEdges\" -> \"target1\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"multipleEdges\" -> \"target2\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"multipleEdges\" -> \"target3\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"target1\" -> \"target2\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"target2\" -> \"target3\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"target3\" -> \"empty\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "ef144aaa0f55e18f5f4dbb38e076731012dc5990b4bc360da78a26e839d2f66b"
+}

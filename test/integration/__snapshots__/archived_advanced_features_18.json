@@ -1,0 +1,28 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "processRecords",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "data",
+            "type": "Array<Record>",
+            "value": []
+          },
+          {
+            "name": "lookup",
+            "type": "Map<string, User>",
+            "value": []
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"processRecords\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processRecords</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"data__key\" align=\"left\" balign=\"left\">data : Array&lt;Record&gt;</td><td port=\"data__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"lookup__key\" align=\"left\" balign=\"left\">lookup : Map&lt;string, User&gt;</td><td port=\"lookup__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 2 issues</b><br/>Type mismatch: expected Array&lt;Record&gt;, got Array&lt;R...<br/>Type mismatch: expected Map&lt;string, User&gt;, got Map...<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n\n\n  // Validation Warnings\n  \"warning_processRecords_0\" [label=<🔴 Type mismatch: expected<br/>Array&lt;Record&gt;, got Array&lt;Record&gt;.<br/>Expected array, received string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_processRecords_0\" -> \"processRecords\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_processRecords_1\" [label=<🔴 Type mismatch: expected Map&lt;string,<br/>User&gt;, got Map&lt;string, User&gt;. Expected<br/>object, received string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_processRecords_1\" -> \"processRecords\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "c706169b83811ee578dc43cd27adba2a5d4edb3ed9febc240f92be81a7c21c6e"
+}

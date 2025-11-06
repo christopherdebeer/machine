@@ -1,0 +1,60 @@
+machine "Comprehensive Demo" @StrictMode @Version("1.0")
+
+// Machine-level configuration
+Context config {
+    model: "claude-3-5-sonnet-20241022";
+    temperature: 0.7;
+    endpoints<Array<string>>: ["api1.com", "api2.com"];
+};
+
+// Input with schema reference
+Input userRequest {
+    query: "Sample query";
+    schema: #requestSchema;
+};
+
+// Nested process with hierarchy
+Process analysis {
+    Task preprocess "Clean data" @Async {
+        priority<number>: 10;
+        timeout: "30s";
+    };
+
+    Task analyze "Analyze content" {
+        prompt: "Analyze: {{ userRequest.query }}";
+        model: "claude-3-5-sonnet-20241022";
+    };
+
+    State processing "Processing State";
+
+    preprocess -> analyze -> processing;
+};
+
+// Parallel processing
+Task taskA "Path A" @Async;
+Task taskB "Path B" @Async;
+Task merge "Merge Results";
+
+// Output node
+Output result {
+    status: "pending";
+    data: #outputData;
+};
+
+// Complex edges with different arrow types
+userRequest -> analysis;
+analysis.processing -> taskA, taskB;
+taskA -> merge;
+taskB -> merge;
+merge => result;
+
+// Relationship arrows
+Task parent;
+Task child;
+child <|-- parent;  // Inheritance
+
+// Documentation
+note analysis "This process handles the main analysis pipeline" @Documentation {
+    complexity: "O(n)";
+    author: "System";
+};

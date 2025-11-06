@@ -1,0 +1,31 @@
+{
+  "json": {
+    "title": "One-to-Many",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "User",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "Order",
+        "type": "task",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "User",
+        "target": "Order",
+        "arrowType": "->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "*"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>One-to-Many</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"User\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>User</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Order\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Order</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"User\" -> \"Order\" [taillabel=\"1\", headlabel=\"*\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "5527a9bbcf581e39e69e4228e3a811bf662bbc569b6b38cc1fd96649e353e7e0"
+}

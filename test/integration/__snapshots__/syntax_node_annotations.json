@@ -1,0 +1,36 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "critical",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Critical"
+          },
+          {
+            "name": "Async"
+          }
+        ]
+      },
+      {
+        "name": "legacy",
+        "type": "resource",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Deprecated",
+            "value": "Use newResource instead"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>critical</b> <i>&lt;task&gt;</i> <i>@Critical @Async</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"legacy\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>legacy</b> <i>&lt;resource&gt;</i> <i>@Deprecated(\"Use newResource instead\")</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=\"filled,dashed\", color=\"#000000\", fontcolor=\"#999999\"];\n\n}",
+  "svgHash": "02e52f5bb9b8aac13bebd6ebf790b3508dff20a965522f40b779a6a7701e999e"
+}

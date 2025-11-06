@@ -1,0 +1,45 @@
+{
+  "json": {
+    "title": "MyApp",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "LoginTask",
+        "attributes": []
+      },
+      {
+        "name": "AuthContext",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "LoginTask",
+        "arrowType": "->"
+      },
+      {
+        "source": "LoginTask",
+        "target": "AuthContext",
+        "arrowType": "->"
+      },
+      {
+        "source": "AuthContext",
+        "target": "end",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>MyApp</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"LoginTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoginTask</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"AuthContext\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AuthContext</b></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"LoginTask\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoginTask\" -> \"AuthContext\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"AuthContext\" -> \"end\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "ea9a4404e08af66acf0d7ee35aba86660810bfa037f1888261cd34db8e263c01"
+}

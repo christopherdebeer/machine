@@ -1,0 +1,61 @@
+{
+  "json": {
+    "title": "Unicode Machine 🔄",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Starting point 开始"
+          }
+        ],
+        "title": "開始"
+      },
+      {
+        "name": "process",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Processing 处理"
+          }
+        ],
+        "title": "処理"
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "終了"
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "process",
+        "arrowType": "->",
+        "value": {
+          "text": "ユーザーイベント"
+        },
+        "attributes": {
+          "text": "ユーザーイベント"
+        }
+      },
+      {
+        "source": "process",
+        "target": "end",
+        "arrowType": "->",
+        "value": {
+          "text": "完成"
+        },
+        "attributes": {
+          "text": "完成"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Unicode Machine 🔄</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">開始</td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b></td></tr><tr><td align=\"left\">処理</td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">終了</td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"process\" [label=\"ユーザーイベント\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"end\" [label=\"完成\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "ee038abb165675436ee6e3e269a210eeda149cae6abd71e098e5f8c29bfadaa2"
+}

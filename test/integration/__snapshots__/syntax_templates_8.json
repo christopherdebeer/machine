@@ -1,0 +1,26 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "myTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "endpoint",
+            "value": "{{ config.url }}"
+          },
+          {
+            "name": "description",
+            "value": "Config is at {{ config.key }}"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"myTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>myTask</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">{{ config.url }}</td></tr><tr><td port=\"description__key\" align=\"left\" balign=\"left\">description</td><td port=\"description__value\" align=\"left\" balign=\"left\">Config is at {{ config.key }}</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "f78e48c70047dee0c7d3f5592e3d80d5b07fc72c36a21f81f228b70705ea82e6"
+}

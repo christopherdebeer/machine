@@ -1,0 +1,23 @@
+{
+  "json": {
+    "title": "My Machine",
+    "attributes": [
+      {
+        "name": "environment",
+        "value": "production"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "Version",
+        "value": "1.0"
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>My Machine</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @Version(&quot;1.0&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">production</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "bed3c6deea4028a01b2de422758664e99630fc632daf52becb2e37cc54e0f544"
+}

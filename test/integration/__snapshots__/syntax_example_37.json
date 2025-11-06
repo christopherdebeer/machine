@@ -1,0 +1,16 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "title",
+        "value": "Hello World"
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Hello World</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "7092c66bccfaca11d020ccb41c6b4b0a867b0092084e61407b5ad5b8bbb03b91"
+}

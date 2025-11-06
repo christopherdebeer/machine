@@ -1,0 +1,44 @@
+{
+  "json": {
+    "title": "Cycles",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "taskA",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "taskB",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "taskC",
+        "type": "task",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "taskA",
+        "target": "taskB",
+        "arrowType": "->"
+      },
+      {
+        "source": "taskB",
+        "target": "taskC",
+        "arrowType": "->"
+      },
+      {
+        "source": "taskC",
+        "target": "taskA",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Cycles</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"taskA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskA</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"taskB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskB</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"taskC\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskC</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"taskA\" -> \"taskB\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"taskB\" -> \"taskC\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"taskC\" -> \"taskA\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "4238defa0978fe92343bf4c8a20fc0fd3284c0a7ea3ec5e1732b2c4badabbd3e"
+}

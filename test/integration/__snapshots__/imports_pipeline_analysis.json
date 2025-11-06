@@ -1,0 +1,64 @@
+{
+  "json": {
+    "title": "Data Analysis",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "LoadProcessed",
+        "type": "state",
+        "attributes": [],
+        "title": "Load Processed Data"
+      },
+      {
+        "name": "ComputeMetrics",
+        "type": "state",
+        "attributes": [],
+        "title": "Compute Metrics"
+      },
+      {
+        "name": "GenerateInsights",
+        "type": "state",
+        "attributes": [],
+        "title": "Generate Insights"
+      },
+      {
+        "name": "CreateVisualizations",
+        "type": "state",
+        "attributes": [],
+        "title": "Create Visualizations"
+      },
+      {
+        "name": "PublishResults",
+        "type": "state",
+        "attributes": [],
+        "title": "Publish Results"
+      }
+    ],
+    "edges": [
+      {
+        "source": "LoadProcessed",
+        "target": "ComputeMetrics",
+        "arrowType": "-->"
+      },
+      {
+        "source": "ComputeMetrics",
+        "target": "GenerateInsights",
+        "arrowType": "-->"
+      },
+      {
+        "source": "GenerateInsights",
+        "target": "CreateVisualizations",
+        "arrowType": "-->"
+      },
+      {
+        "source": "CreateVisualizations",
+        "target": "PublishResults",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Analysis</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"LoadProcessed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoadProcessed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Load Processed Data</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ComputeMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ComputeMetrics</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Compute Metrics</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"GenerateInsights\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>GenerateInsights</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Generate Insights</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"CreateVisualizations\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CreateVisualizations</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Create Visualizations</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"PublishResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PublishResults</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Publish Results</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"LoadProcessed\" -> \"ComputeMetrics\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ComputeMetrics\" -> \"GenerateInsights\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"GenerateInsights\" -> \"CreateVisualizations\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"CreateVisualizations\" -> \"PublishResults\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "13dc494cc561788cb7281df4dbfb2b09c2a3c04ed552349e3dc2bd57a4ce132b"
+}

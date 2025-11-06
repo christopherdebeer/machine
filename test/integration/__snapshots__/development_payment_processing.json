@@ -1,0 +1,66 @@
+{
+  "json": {
+    "title": "Payment Processing",
+    "attributes": [
+      {
+        "name": "prompt",
+        "value": "Process payment with payment gateway"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "ProcessPayment",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "RefundPayment",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Issue refund to customer"
+          }
+        ]
+      },
+      {
+        "name": "PaymentResult",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "success",
+            "value": "boolean"
+          },
+          {
+            "name": "transactionId",
+            "value": "string"
+          },
+          {
+            "name": "amount",
+            "value": "number"
+          }
+        ]
+      },
+      {
+        "name": "llm",
+        "attributes": []
+      },
+      {
+        "name": "temperature",
+        "attributes": [],
+        "parent": "llm"
+      }
+    ],
+    "edges": [
+      {
+        "source": "ProcessPayment",
+        "target": "PaymentResult",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Payment Processing</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"prompt__key\" align=\"left\" balign=\"left\">prompt</td><td port=\"prompt__value\" align=\"left\" balign=\"left\">Process payment with payment<br align=\"left\"/>gateway</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ProcessPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessPayment</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"RefundPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>RefundPayment</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Issue refund to customer</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"PaymentResult\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PaymentResult</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"success__key\" align=\"left\" balign=\"left\">success</td><td port=\"success__value\" align=\"left\" balign=\"left\">boolean</td></tr><tr><td port=\"transactionId__key\" align=\"left\" balign=\"left\">transactionId</td><td port=\"transactionId__value\" align=\"left\" balign=\"left\">string</td></tr><tr><td port=\"amount__key\" align=\"left\" balign=\"left\">amount</td><td port=\"amount__value\" align=\"left\" balign=\"left\">number</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  subgraph cluster_llm {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>llm</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"llm__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"temperature\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>temperature</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  }\n\n  // Edges\n  \"ProcessPayment\" -> \"PaymentResult\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "9fd6c703c04951b4ecec92cc9a88af50f99dcc1d20352eda58f219ca1f4a76a0"
+}

@@ -1,0 +1,143 @@
+{
+  "json": {
+    "title": "Game Session",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "session",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "score",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "lives",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "level",
+            "type": "number",
+            "value": 1
+          }
+        ]
+      },
+      {
+        "name": "playing",
+        "type": "state",
+        "attributes": [],
+        "title": "Playing"
+      },
+      {
+        "name": "paused",
+        "type": "state",
+        "attributes": [],
+        "title": "Paused"
+      },
+      {
+        "name": "gameOver",
+        "type": "state",
+        "attributes": [],
+        "title": "Game Over"
+      },
+      {
+        "name": "victory",
+        "type": "state",
+        "attributes": [],
+        "title": "Victory"
+      },
+      {
+        "name": "updateScore",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Current score: {{ session.score }}"
+          }
+        ],
+        "title": "Update score"
+      },
+      {
+        "name": "checkWinCondition",
+        "type": "task",
+        "attributes": [],
+        "title": "Check win"
+      },
+      {
+        "name": "checkLoseCondition",
+        "type": "task",
+        "attributes": [],
+        "title": "Check lose"
+      }
+    ],
+    "edges": [
+      {
+        "source": "playing",
+        "target": "updateScore",
+        "arrowType": "->"
+      },
+      {
+        "source": "updateScore",
+        "target": "checkWinCondition",
+        "arrowType": "->"
+      },
+      {
+        "source": "checkWinCondition",
+        "target": "victory",
+        "arrowType": "->",
+        "value": {
+          "text": "score >= 1000"
+        },
+        "attributes": {
+          "text": "score >= 1000"
+        }
+      },
+      {
+        "source": "checkWinCondition",
+        "target": "checkLoseCondition",
+        "arrowType": "->",
+        "value": {
+          "text": "score < 1000"
+        },
+        "attributes": {
+          "text": "score < 1000"
+        }
+      },
+      {
+        "source": "checkLoseCondition",
+        "target": "gameOver",
+        "arrowType": "->",
+        "value": {
+          "text": "lives <= 0"
+        },
+        "attributes": {
+          "text": "lives <= 0"
+        }
+      },
+      {
+        "source": "checkLoseCondition",
+        "target": "playing",
+        "arrowType": "->",
+        "value": {
+          "text": "lives > 0"
+        },
+        "attributes": {
+          "text": "lives > 0"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "updateScore",
+        "target": "session",
+        "reason": "reads prompt",
+        "path": "session.score"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Game Session</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"session\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>session</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"score__key\" align=\"left\" balign=\"left\">score : number</td><td port=\"score__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"lives__key\" align=\"left\" balign=\"left\">lives : number</td><td port=\"lives__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"level__key\" align=\"left\" balign=\"left\">level : number</td><td port=\"level__value\" align=\"left\" balign=\"left\">1</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"playing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>playing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Playing</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>paused</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Paused</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"gameOver\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>gameOver</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Game Over</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"victory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>victory</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Victory</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"updateScore\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>updateScore</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Update score</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"checkWinCondition\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkWinCondition</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check win</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"checkLoseCondition\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkLoseCondition</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check lose</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"playing\" -> \"updateScore\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"updateScore\" -> \"checkWinCondition\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkWinCondition\" -> \"victory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">score &gt;= 1000</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkWinCondition\" -> \"checkLoseCondition\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">score &lt; 1000</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkLoseCondition\" -> \"gameOver\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">lives &lt;= 0</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkLoseCondition\" -> \"playing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">lives &gt; 0</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"updateScore\" -> \"session\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "611a3692ffaa58f2e829b83af94b3b234d7f325b413f9a9921f39534ab1d993b"
+}

@@ -1,0 +1,24 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "value",
+        "value": "{{ config.count + 1 }}"
+      },
+      {
+        "name": "value",
+        "value": "{{ config.enabled ? 'yes' : 'no' }}"
+      },
+      {
+        "name": "value",
+        "value": "#computedValue"
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"value__key\" align=\"left\" balign=\"left\">value</td><td port=\"value__value\" align=\"left\" balign=\"left\">{{ config.count + 1 }}</td></tr><tr><td port=\"value__key_1\" align=\"left\" balign=\"left\">value</td><td port=\"value__value_1\" align=\"left\" balign=\"left\">{{ config.enabled ? 'yes' :<br align=\"left\"/>'no' }}</td></tr><tr><td port=\"value__key_2\" align=\"left\" balign=\"left\">value</td><td port=\"value__value_2\" align=\"left\" balign=\"left\">#computedValue</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "3f8172b17b0be01351f43e73aa7aea8dd3c9c80ef7ed6144e82b7e19ff461107"
+}

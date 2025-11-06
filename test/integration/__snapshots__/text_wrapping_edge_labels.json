@@ -1,0 +1,38 @@
+{
+  "json": {
+    "title": "EdgeWrappingExample",
+    "attributes": [
+      {
+        "name": "maxEdgeLabelLength",
+        "value": 20
+      }
+    ],
+    "nodes": [
+      {
+        "name": "nodeA",
+        "attributes": []
+      },
+      {
+        "name": "nodeB",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "nodeA",
+        "target": "nodeB",
+        "arrowType": "->",
+        "value": {
+          "text": "This is a very long edge label that will be wrapped"
+        },
+        "attributes": {
+          "text": "This is a very long edge label that will be wrapped"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>EdgeWrappingExample</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxEdgeLabelLength__key\" align=\"left\" balign=\"left\">maxEdgeLabelLength</td><td port=\"maxEdgeLabelLength__value\" align=\"left\" balign=\"left\">20</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"nodeA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>nodeA</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"nodeB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>nodeB</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"nodeA\" -> \"nodeB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>This is a very long<br/>edge label that will<br/>be wrapped</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "1923bd22e8e195f8621215f30f85143016db4453ee8ce655e69348ea48532bdf"
+}

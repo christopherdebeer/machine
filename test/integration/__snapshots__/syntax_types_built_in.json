@@ -1,0 +1,48 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "myTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "value": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          {
+            "name": "createdAt",
+            "type": "Date",
+            "value": "2025-10-22T13:30:00Z"
+          },
+          {
+            "name": "endpoint",
+            "type": "URL",
+            "value": "https://api.example.com"
+          },
+          {
+            "name": "timeout",
+            "type": "Duration",
+            "value": "PT1H30M"
+          },
+          {
+            "name": "count",
+            "type": "Integer",
+            "value": 42
+          },
+          {
+            "name": "price",
+            "type": "Float",
+            "value": 19.99
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"myTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>myTask</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"id__key\" align=\"left\" balign=\"left\">id : UUID</td><td port=\"id__value\" align=\"left\" balign=\"left\">550e8400-e29b-41d4-a716-446655<br align=\"left\"/>440000</td></tr><tr><td port=\"createdAt__key\" align=\"left\" balign=\"left\">createdAt : Date</td><td port=\"createdAt__value\" align=\"left\" balign=\"left\">2025-10-22T13:30:00Z</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint : URL</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT1H30M</td></tr><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count : Integer</td><td port=\"count__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"price__key\" align=\"left\" balign=\"left\">price : Float</td><td port=\"price__value\" align=\"left\" balign=\"left\">19.99</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "303ebb8395b39ef861c95bded162c3de364541b203f0b6e4e3a5541720a9abc5"
+}

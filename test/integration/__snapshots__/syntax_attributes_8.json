@@ -1,0 +1,22 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "count",
+        "type": "Integer",
+        "value": 42
+      },
+      {
+        "name": "price",
+        "type": "Float",
+        "value": 19.99
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count : Integer</td><td port=\"count__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"price__key\" align=\"left\" balign=\"left\">price : Float</td><td port=\"price__value\" align=\"left\" balign=\"left\">19.99</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "4b4d5ff86f7d04231e1a6acbadee12060679a3635d230ae8aa44856158c81cff"
+}

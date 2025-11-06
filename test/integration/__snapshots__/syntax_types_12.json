@@ -1,0 +1,22 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "config",
+        "type": "Map<string, number>",
+        "value": "#configMap"
+      },
+      {
+        "name": "headers",
+        "type": "Map<string, string>",
+        "value": "#httpHeaders"
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"config__key\" align=\"left\" balign=\"left\">config : Map&lt;string, number&gt;</td><td port=\"config__value\" align=\"left\" balign=\"left\">#configMap</td></tr><tr><td port=\"headers__key\" align=\"left\" balign=\"left\">headers : Map&lt;string, string&gt;</td><td port=\"headers__value\" align=\"left\" balign=\"left\">#httpHeaders</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "e5d4d5713cd75970e38f3e7ad870fbe66413ab0c17bd7bc3ffb469483f81ffca"
+}

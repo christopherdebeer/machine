@@ -1,0 +1,164 @@
+{
+  "json": {
+    "title": "Data Pipeline Orchestrator",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Initialize",
+        "type": "state",
+        "attributes": [],
+        "title": "Initialize Pipeline"
+      },
+      {
+        "name": "Monitor",
+        "type": "state",
+        "attributes": [],
+        "title": "Monitor Progress"
+      },
+      {
+        "name": "HandleError",
+        "type": "state",
+        "attributes": [],
+        "title": "Handle Error"
+      },
+      {
+        "name": "Complete",
+        "type": "state",
+        "attributes": [],
+        "title": "Pipeline Complete"
+      },
+      {
+        "name": "Archive",
+        "type": "state",
+        "attributes": [],
+        "title": "Archive Results"
+      },
+      {
+        "name": "FetchExternal",
+        "attributes": []
+      },
+      {
+        "name": "StoreRaw",
+        "attributes": []
+      },
+      {
+        "name": "LoadRaw",
+        "attributes": []
+      },
+      {
+        "name": "StoreProcessed",
+        "attributes": []
+      },
+      {
+        "name": "LoadProcessed",
+        "attributes": []
+      },
+      {
+        "name": "PublishResults",
+        "attributes": []
+      },
+      {
+        "name": "PrepareMessage",
+        "attributes": []
+      },
+      {
+        "name": "UpdateDashboard",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "Initialize",
+        "target": "FetchExternal",
+        "arrowType": "-->"
+      },
+      {
+        "source": "FetchExternal",
+        "target": "StoreRaw",
+        "arrowType": "-->"
+      },
+      {
+        "source": "StoreRaw",
+        "target": "LoadRaw",
+        "arrowType": "-->"
+      },
+      {
+        "source": "LoadRaw",
+        "target": "StoreProcessed",
+        "arrowType": "-->"
+      },
+      {
+        "source": "StoreProcessed",
+        "target": "LoadProcessed",
+        "arrowType": "-->"
+      },
+      {
+        "source": "LoadProcessed",
+        "target": "PublishResults",
+        "arrowType": "-->"
+      },
+      {
+        "source": "PublishResults",
+        "target": "PrepareMessage",
+        "arrowType": "-->"
+      },
+      {
+        "source": "PrepareMessage",
+        "target": "UpdateDashboard",
+        "arrowType": "-->"
+      },
+      {
+        "source": "UpdateDashboard",
+        "target": "Complete",
+        "arrowType": "-->"
+      },
+      {
+        "source": "Complete",
+        "target": "Archive",
+        "arrowType": "-->"
+      },
+      {
+        "source": "FetchExternal",
+        "target": "HandleError",
+        "arrowType": "->",
+        "value": {
+          "text": "error"
+        },
+        "attributes": {
+          "text": "error"
+        }
+      },
+      {
+        "source": "LoadRaw",
+        "target": "HandleError",
+        "arrowType": "->",
+        "value": {
+          "text": "error"
+        },
+        "attributes": {
+          "text": "error"
+        }
+      },
+      {
+        "source": "LoadProcessed",
+        "target": "HandleError",
+        "arrowType": "->",
+        "value": {
+          "text": "error"
+        },
+        "attributes": {
+          "text": "error"
+        }
+      },
+      {
+        "source": "HandleError",
+        "target": "PrepareMessage",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Pipeline Orchestrator</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Initialize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Initialize</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Initialize Pipeline</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Monitor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Monitor</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Monitor Progress</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HandleError</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Handle Error</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Pipeline Complete</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Archive\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Archive</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Archive Results</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"FetchExternal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchExternal</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"StoreRaw\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreRaw</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"LoadRaw\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoadRaw</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"StoreProcessed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreProcessed</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"LoadProcessed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoadProcessed</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"PublishResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PublishResults</b></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"PrepareMessage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PrepareMessage</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"UpdateDashboard\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UpdateDashboard</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Initialize\" -> \"FetchExternal\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"FetchExternal\" -> \"StoreRaw\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"StoreRaw\" -> \"LoadRaw\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoadRaw\" -> \"StoreProcessed\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"StoreProcessed\" -> \"LoadProcessed\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoadProcessed\" -> \"PublishResults\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"PublishResults\" -> \"PrepareMessage\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"PrepareMessage\" -> \"UpdateDashboard\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"UpdateDashboard\" -> \"Complete\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Complete\" -> \"Archive\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"FetchExternal\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoadRaw\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoadProcessed\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"HandleError\" -> \"PrepareMessage\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "633cf6e1a96268383eb65b1095b48b4246e5511a27feae2f645f13bb84f84f35"
+}
