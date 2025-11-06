@@ -1,0 +1,65 @@
+{
+  "json": {
+    "title": "Traffic Light",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "red",
+        "type": "state",
+        "attributes": [],
+        "title": "Red Light"
+      },
+      {
+        "name": "yellow",
+        "type": "state",
+        "attributes": [],
+        "title": "Yellow Light"
+      },
+      {
+        "name": "green",
+        "type": "state",
+        "attributes": [],
+        "title": "Green Light"
+      }
+    ],
+    "edges": [
+      {
+        "source": "red",
+        "target": "green",
+        "arrowType": "->",
+        "value": {
+          "text": "s"
+        },
+        "attributes": {
+          "text": "s"
+        }
+      },
+      {
+        "source": "green",
+        "target": "yellow",
+        "arrowType": "->",
+        "value": {
+          "text": "s"
+        },
+        "attributes": {
+          "text": "s"
+        }
+      },
+      {
+        "source": "yellow",
+        "target": "red",
+        "arrowType": "->",
+        "value": {
+          "text": "s"
+        },
+        "attributes": {
+          "text": "s"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Traffic Light</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"red\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>red</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Red Light</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"yellow\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>yellow</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Yellow Light</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"green\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>green</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Green Light</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"red\" -> \"green\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"green\" -> \"yellow\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"yellow\" -> \"red\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "34887e824b4ae928efdede5403ae99e149ca2b69679f89e01f219fcbf71d1ea9"
+}

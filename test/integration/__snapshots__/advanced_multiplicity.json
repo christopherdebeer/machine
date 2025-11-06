@@ -1,0 +1,204 @@
+{
+  "json": {
+    "title": "Multiplicity Examples",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "User",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "name",
+            "type": "string",
+            "value": "John Doe"
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "value": "john@example.com"
+          }
+        ],
+        "title": "User Account"
+      },
+      {
+        "name": "Order",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "orderId",
+            "type": "number",
+            "value": 1
+          },
+          {
+            "name": "total",
+            "type": "number",
+            "value": 99.99
+          }
+        ],
+        "title": "Customer Order"
+      },
+      {
+        "name": "LineItem",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "productId",
+            "type": "string",
+            "value": "P123"
+          },
+          {
+            "name": "quantity",
+            "type": "number",
+            "value": 1
+          }
+        ],
+        "title": "Order Line Item"
+      },
+      {
+        "name": "Payment",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "paymentId",
+            "type": "string",
+            "value": "PAY123"
+          },
+          {
+            "name": "amount",
+            "type": "number",
+            "value": 99.99
+          }
+        ],
+        "title": "Payment Details"
+      },
+      {
+        "name": "ShippingAddress",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "street",
+            "type": "string",
+            "value": "123 Main St"
+          },
+          {
+            "name": "city",
+            "type": "string",
+            "value": "Springfield"
+          }
+        ],
+        "title": "Shipping Address"
+      },
+      {
+        "name": "Product",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "productId",
+            "type": "string",
+            "value": "P123"
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "value": "Widget"
+          }
+        ],
+        "title": "Product"
+      },
+      {
+        "name": "Category",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "categoryId",
+            "type": "string",
+            "value": "C1"
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "value": "Electronics"
+          }
+        ],
+        "title": "Product Category"
+      },
+      {
+        "name": "Team",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "teamName",
+            "type": "string",
+            "value": "Backend Team"
+          }
+        ],
+        "title": "Development Team"
+      },
+      {
+        "name": "Developer",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "name",
+            "type": "string",
+            "value": "Jane Smith"
+          },
+          {
+            "name": "role",
+            "type": "string",
+            "value": "Developer"
+          }
+        ],
+        "title": "Team Member"
+      }
+    ],
+    "edges": [
+      {
+        "source": "User",
+        "target": "Order",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "*"
+      },
+      {
+        "source": "Order",
+        "target": "LineItem",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1..*"
+      },
+      {
+        "source": "Order",
+        "target": "Payment",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "User",
+        "target": "ShippingAddress",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "0..1"
+      },
+      {
+        "source": "Product",
+        "target": "Category",
+        "arrowType": "-->",
+        "sourceMultiplicity": "*",
+        "targetMultiplicity": "*"
+      },
+      {
+        "source": "Team",
+        "target": "Developer",
+        "arrowType": "-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "3..10"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Multiplicity Examples</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"User\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>User</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">User Account</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"name__key\" align=\"left\" balign=\"left\">name : string</td><td port=\"name__value\" align=\"left\" balign=\"left\">John Doe</td></tr><tr><td port=\"email__key\" align=\"left\" balign=\"left\">email : string</td><td port=\"email__value\" align=\"left\" balign=\"left\">john@example.com</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Order\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Order</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Customer Order</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"orderId__key\" align=\"left\" balign=\"left\">orderId : number</td><td port=\"orderId__value\" align=\"left\" balign=\"left\">1</td></tr><tr><td port=\"total__key\" align=\"left\" balign=\"left\">total : number</td><td port=\"total__value\" align=\"left\" balign=\"left\">99.99</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"LineItem\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LineItem</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Order Line Item</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"productId__key\" align=\"left\" balign=\"left\">productId : string</td><td port=\"productId__value\" align=\"left\" balign=\"left\">P123</td></tr><tr><td port=\"quantity__key\" align=\"left\" balign=\"left\">quantity : number</td><td port=\"quantity__value\" align=\"left\" balign=\"left\">1</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Payment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Payment</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Payment Details</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"paymentId__key\" align=\"left\" balign=\"left\">paymentId : string</td><td port=\"paymentId__value\" align=\"left\" balign=\"left\">PAY123</td></tr><tr><td port=\"amount__key\" align=\"left\" balign=\"left\">amount : number</td><td port=\"amount__value\" align=\"left\" balign=\"left\">99.99</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"ShippingAddress\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShippingAddress</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Shipping Address</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"street__key\" align=\"left\" balign=\"left\">street : string</td><td port=\"street__value\" align=\"left\" balign=\"left\">123 Main St</td></tr><tr><td port=\"city__key\" align=\"left\" balign=\"left\">city : string</td><td port=\"city__value\" align=\"left\" balign=\"left\">Springfield</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Product\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Product</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"productId__key\" align=\"left\" balign=\"left\">productId : string</td><td port=\"productId__value\" align=\"left\" balign=\"left\">P123</td></tr><tr><td port=\"name__key\" align=\"left\" balign=\"left\">name : string</td><td port=\"name__value\" align=\"left\" balign=\"left\">Widget</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Category\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Category</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Product Category</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"categoryId__key\" align=\"left\" balign=\"left\">categoryId : string</td><td port=\"categoryId__value\" align=\"left\" balign=\"left\">C1</td></tr><tr><td port=\"name__key\" align=\"left\" balign=\"left\">name : string</td><td port=\"name__value\" align=\"left\" balign=\"left\">Electronics</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Team\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Team</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Development Team</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"teamName__key\" align=\"left\" balign=\"left\">teamName : string</td><td port=\"teamName__value\" align=\"left\" balign=\"left\">Backend Team</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Developer\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Developer</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Team Member</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"name__key\" align=\"left\" balign=\"left\">name : string</td><td port=\"name__value\" align=\"left\" balign=\"left\">Jane Smith</td></tr><tr><td port=\"role__key\" align=\"left\" balign=\"left\">role : string</td><td port=\"role__value\" align=\"left\" balign=\"left\">Developer</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"User\" -> \"Order\" [taillabel=\"1\", headlabel=\"*\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Order\" -> \"LineItem\" [taillabel=\"1\", headlabel=\"1..*\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Order\" -> \"Payment\" [taillabel=\"1\", headlabel=\"1\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"User\" -> \"ShippingAddress\" [taillabel=\"1\", headlabel=\"0..1\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Product\" -> \"Category\" [taillabel=\"*\", headlabel=\"*\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Team\" -> \"Developer\" [taillabel=\"1\", headlabel=\"3..10\", style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "8c0487ac2132ebefe0b917bed4b5c32208a251aec8c6a01eb92dc9b1570c6eaa"
+}

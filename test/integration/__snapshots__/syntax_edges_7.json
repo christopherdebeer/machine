@@ -1,0 +1,73 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Idle",
+        "attributes": []
+      },
+      {
+        "name": "Processing",
+        "attributes": []
+      },
+      {
+        "name": "Complete",
+        "attributes": []
+      },
+      {
+        "name": "Failed",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "Idle",
+        "target": "Processing",
+        "arrowType": "->",
+        "value": {
+          "text": "start"
+        },
+        "attributes": {
+          "text": "start"
+        }
+      },
+      {
+        "source": "Processing",
+        "target": "Complete",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "Processing",
+        "target": "Failed",
+        "arrowType": "->",
+        "value": {
+          "text": "error"
+        },
+        "attributes": {
+          "text": "error"
+        }
+      },
+      {
+        "source": "Failed",
+        "target": "Processing",
+        "arrowType": "->",
+        "value": {
+          "text": "retry"
+        },
+        "attributes": {
+          "text": "retry"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Idle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Idle</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Processing</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Failed</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Idle\" -> \"Processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>start</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Processing\" -> \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>success</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Processing\" -> \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Failed\" -> \"Processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>retry</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "afff0043acf05dc48d7636f8d4276c2d9c596986191ff593f4869dc91c97fb1d"
+}

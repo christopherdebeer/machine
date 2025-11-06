@@ -1,0 +1,74 @@
+{
+  "json": {
+    "title": "Quoted Labels Machine",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "middle",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      },
+      {
+        "name": "error",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "middle",
+        "arrowType": "->",
+        "value": {
+          "text": "user clicks button"
+        },
+        "attributes": {
+          "text": "user clicks button"
+        }
+      },
+      {
+        "source": "middle",
+        "target": "end",
+        "arrowType": "->",
+        "value": {
+          "text": "validation: passed; retry: 3;"
+        },
+        "attributes": {
+          "text": "validation: passed; retry: 3;"
+        }
+      },
+      {
+        "source": "middle",
+        "target": "error",
+        "arrowType": "->",
+        "value": {
+          "text": "error: timeout"
+        },
+        "attributes": {
+          "text": "error: timeout"
+        }
+      },
+      {
+        "source": "error",
+        "target": "start",
+        "arrowType": "->",
+        "value": {
+          "text": "retry attempt"
+        },
+        "attributes": {
+          "text": "retry attempt"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Quoted Labels Machine</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"middle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>middle</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"error\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>error</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"middle\" [label=\"user clicks button\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"middle\" -> \"end\" [label=\"validation: passed; retry: 3;\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"middle\" -> \"error\" [label=\"error: timeout\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"error\" -> \"start\" [label=\"retry attempt\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "65536a3a21eb42f2c89558807b5d6db9f33f18b4918039cb7a7960f9d3090aba"
+}

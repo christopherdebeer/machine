@@ -1,0 +1,33 @@
+{
+  "json": {
+    "title": "Optional Types",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "example",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "required",
+            "type": "string",
+            "value": "must have value"
+          },
+          {
+            "name": "optional",
+            "type": "string",
+            "value": "null"
+          },
+          {
+            "name": "missing",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Optional Types</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"example\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>example</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"required__key\" align=\"left\" balign=\"left\">required : string</td><td port=\"required__value\" align=\"left\" balign=\"left\">must have value</td></tr><tr><td port=\"optional__key\" align=\"left\" balign=\"left\">optional : string</td><td port=\"optional__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"missing__key\" align=\"left\" balign=\"left\">missing : string</td><td port=\"missing__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Attribute 'missing' has type string but no value p...<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n\n\n  // Validation Warnings\n  \"warning_example_0\" [label=<🔴 Attribute 'missing' has type string<br/>but no value provided>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_example_0\" -> \"example\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "514038fb0b75300fd9cca4074d5e2451f0c953c5df7bcf73a7bddc7dd0df3b69"
+}

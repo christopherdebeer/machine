@@ -1,0 +1,25 @@
+{
+  "json": {
+    "title": "Simple Node Machine",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "node1",
+        "attributes": []
+      },
+      {
+        "name": "node2",
+        "attributes": []
+      },
+      {
+        "name": "node3",
+        "attributes": []
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Simple Node Machine</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"node1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>node1</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"node2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>node2</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"node3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>node3</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
+  "svgHash": "4947d31f6038f405fad874ebb31367d6618f6d125c3af33b0d5a602ffe4748f7"
+}

@@ -1,0 +1,237 @@
+# Context and Schema Management Guide
+
+
+## Overview
+
+The machine language now supports enhanced context value management and schema validation, enabling tasks to generate specific values and store or pass them for later tasks.
+
+## Key Features
+
+### 1. Context Nodes with Typed Attributes
+
+Context nodes can declare typed attributes that serve as data containers:
+
+```dy
+context output {
+  value<string>: "";
+  metadata<object>: "{}";
+  count<number>: 0;
+  isComplete<boolean>: false;
+};
+```
+
+**Supported Types:**
+- `string` - Text values
+- `number` - Numeric values
+- `boolean` - True/false values
+- `object` - JSON objects (stored as strings)
+- `array` - JSON arrays (stored as strings)
+
+### 2. Context Management Tools
+
+Tasks now have access to context management tools:
+
+#### `set_context_value`
+Sets a value in a context node attribute with type validation:
+
+```typescript
+set_context_value(nodeName: "output", attributeName: "value", value: "Hello World")
+```
+
+#### `get_context_value`
+Retrieves a value from a context node attribute:
+
+```typescript
+get_context_value(nodeName: "output", attributeName: "value")
+```
+
+#### `list_context_nodes`
+Lists all context nodes and their current values:
+
+```typescript
+list_context_nodes()
+```
+
+### 3. Template Variable Resolution with CEL
+
+Tasks can reference context values using template syntax powered by Common Expression Language (CEL):
+
+```dy
+Task processData {
+  prompt: "The stored value is {{output.value}}. Process this data and create a summary.";
+};
+```
+
+**Template Syntax:**
+- `{{nodeName.attributeName}}` - References a context node's attribute value
+- `{{nodeName.nested.property}}` - Supports nested object property access
+- `{{count + 1}}` - Supports CEL expressions for calculations
+- `{{firstName + " " + lastName}}` - String concatenation
+- `{{active ? "Online" : "Offline"}}` - Conditional expressions
+- Values are resolved at runtime using CEL (safe, sandboxed evaluation)
+
+**Built-in Variables:**
+- `{{errorCount}}` or `{{errors}}` - Number of errors in execution
+- `{{activeState}}` - Current state of execution
+- `{{title}}`, `{{description}}`, `{{prompt}}` - Task metadata (in prompts)
+
+**CEL Benefits:**
+- **Safe**: No arbitrary code execution, expressions run in sandboxed environment
+- **Type-safe**: Expressions are validated at evaluation time
+- **Powerful**: Supports arithmetic, string operations, conditionals, and more
+- **Consistent**: Same `{{ }}` syntax used throughout (prompts, conditions, templates)
+
+### 4. Enhanced Execution Flow
+
+The execution system now:
+- **Validates types** when setting context values
+- **Resolves template variables** in prompts before LLM execution
+- **Tracks context mutations** in execution history
+- **Preserves context state** across task transitions
+
+## Example Workflows
+
+### Basic Context Storage
+
+```dy
+machine "Data Processing"
+
+Task generate {
+  meta: true;
+  prompt: "Generate a random number and store it using set_context_value";
+};
+
+context data {
+  value<number>: 0;
+};
+
+Task process {
+  prompt: "The number is {{data.value}}. Calculate its square.";
+};
+
+generate -stores-> data;
+data --> process;
+```
+
+### Multi-Context Pipeline
+
+```dy
+machine "Analysis Pipeline"
+
+Task analyze {
+  prompt: "Analyze input data and store results in multiple contexts";
+};
+
+context metrics {
+  count<number>: 0;
+  average<number>: 0.0;
+};
+
+context summary {
+  text<string>: "";
+  confidence<number>: 0.0;
+};
+
+Task report {
+  prompt: "Create report: {{metrics.count}} items, avg {{metrics.average}}, summary: {{summary.text}}";
+};
+
+analyze -populates-> metrics;
+analyze -creates-> summary;
+metrics --> report;
+summary --> report;
+```
+
+### CEL Expressions in Prompts
+
+```dy
+machine "Dynamic Reporting"
+
+context userData {
+  firstName<string>: "John";
+  lastName<string>: "Doe";
+  tasksCompleted<number>: 8;
+  totalTasks<number>: 10;
+};
+
+context config {
+  priority<string>: "high";
+  timeout<number>: 5000;
+};
+
+Task generateReport {
+  prompt: "Generate a report for {{userData.firstName + \" \" + userData.lastName}}.
+
+Progress: {{userData.tasksCompleted}} / {{userData.totalTasks}} tasks completed.
+Priority: {{config.priority}}
+Timeout: {{config.timeout / 1000}} seconds
+
+{{userData.tasksCompleted == userData.totalTasks ? \"All tasks completed!\" : \"Tasks in progress...\"}}";
+};
+
+userData --> generateReport;
+config --> generateReport;
+```
+
+**CEL Expressions Demonstrated:**
+- String concatenation: `firstName + " " + lastName`
+- Arithmetic operations: `timeout / 1000`
+- Comparisons: `tasksCompleted == totalTasks`
+- Ternary operators: `condition ? "true" : "false"`
+
+## Implementation Details
+
+### Type Validation
+- Values are validated against declared types when using `set_context_value`
+- Type mismatches throw descriptive errors
+- Custom types are allowed (validation passes through)
+
+### Value Serialization
+- String values stored directly
+- Complex values (objects, arrays) serialized as JSON strings
+- Values parsed back to original types when retrieved
+
+### Template Resolution with CEL
+- Happens before prompt compilation using Common Expression Language (CEL)
+- Supports dot notation for nested attribute access
+- Evaluates full CEL expressions (arithmetic, string operations, conditionals)
+- Graceful fallback if template variables can't be resolved (preserves original template)
+- **Safe**: No arbitrary code execution, runs in sandboxed environment
+- **Type-safe**: Expression type checking at evaluation time
+- **Performance**: CEL expressions are compiled and optimized
+
+## Benefits
+
+1. **Structured Data Flow**: Clear input/output contracts between tasks
+2. **Type Safety**: Runtime validation prevents type errors
+3. **Reusable Context**: Values can be shared across multiple tasks
+4. **Dynamic Prompts**: Template variables enable context-aware task execution
+5. **Execution Tracking**: Full audit trail of context value changes
+
+## Migration from Previous Version
+
+**Before:**
+
+```dy
+Task process {
+  prompt: "write a haiku";
+};
+// Output only stored in execution history
+```
+
+**After:**
+
+```dy
+Task process {
+  meta: true;
+  prompt: "write a haiku and store it using set_context_value";
+};
+
+context output {
+  haiku<string>: "";
+};
+// Output properly stored in context node for reuse
+```
+
+This enhanced system enables more sophisticated workflows where tasks can build upon each other's outputs in a structured, type-safe manner.
+

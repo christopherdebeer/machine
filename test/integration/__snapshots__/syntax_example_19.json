@@ -1,0 +1,55 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "apiUrl",
+            "type": "URL",
+            "value": "https://api.example.com"
+          },
+          {
+            "name": "timeout",
+            "type": "Duration",
+            "value": "PT30S"
+          }
+        ]
+      },
+      {
+        "name": "apiCall",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "endpoint",
+            "value": "{{ config.apiUrl }}"
+          },
+          {
+            "name": "timeout",
+            "value": "{{ config.timeout }}"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "apiCall",
+        "target": "config",
+        "reason": "reads endpoint",
+        "path": "config.apiUrl"
+      },
+      {
+        "source": "apiCall",
+        "target": "config",
+        "reason": "reads timeout",
+        "path": "config.timeout"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiUrl__key\" align=\"left\" balign=\"left\">apiUrl : URL</td><td port=\"apiUrl__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"apiCall\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiCall</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">{{ config.apiUrl }}</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">{{ config.timeout }}</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Inferred Dependencies\n  \"apiCall\" -> \"config\" [label=\"reads endpoint\", style=dashed, color=blue];\n  \"apiCall\" -> \"config\" [label=\"reads timeout\", style=dashed, color=blue];\n}",
+  "svgHash": "4f374ca6f383a1215349cc14c22e8866d89dc9afc89697041dac1aed9db8ceea"
+}

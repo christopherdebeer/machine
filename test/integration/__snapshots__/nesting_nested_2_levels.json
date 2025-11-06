@@ -1,0 +1,27 @@
+{
+  "json": {
+    "title": "Nested Machine",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "level1",
+        "attributes": []
+      },
+      {
+        "name": "level2a",
+        "attributes": [],
+        "parent": "level1"
+      },
+      {
+        "name": "level2b",
+        "attributes": [],
+        "parent": "level1"
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Nested Machine</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_level1 {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"level1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>level1</b></td></tr></table>>, shape=plain, margin=0];\n    \"level1__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"level2a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>level2a</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"level2b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>level2b</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  }\n\n}",
+  "svgHash": "4e13a0f2bca2cee6344ac22f84cf315c3d38b48a9f460e78632d69e76caaa1aa"
+}

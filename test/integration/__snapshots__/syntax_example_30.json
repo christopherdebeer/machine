@@ -1,0 +1,62 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      },
+      {
+        "name": "a",
+        "attributes": []
+      },
+      {
+        "name": "b",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "end",
+        "annotations": [
+          {
+            "name": "style",
+            "value": "color: blue"
+          }
+        ],
+        "arrowType": "->",
+        "value": {
+          "text": "@style(\"color: blue\")"
+        },
+        "attributes": {
+          "text": "@style(\"color: blue\")"
+        }
+      },
+      {
+        "source": "a",
+        "target": "b",
+        "annotations": [
+          {
+            "name": "weight"
+          }
+        ],
+        "arrowType": "->",
+        "value": {
+          "text": "5"
+        },
+        "attributes": {
+          "text": "5"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">@style(&quot;color: blue&quot;)</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"blue\"];\n  \"a\" -> \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">@weight 5</td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "a7509c648e4b2cbb423eb6f82caabd8a2b06f1eead6a575c75568ddcabf0d4aa"
+}

@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build dygram",
+            "command": "npm run langium:generate && npm run build",
+            "type": "shell",
+            "group": {
+                "kind": "build"
+            },
+            "detail": "Langium: Generate grammar and build the machine language",
+            "icon": {
+                "color": "terminal.ansiGreen",
+                "id": "server-process"
+            }
+        },
+        {
+            "label": "DyGram: Generate and Preview Mermaid",
+            "type": "shell",
+            "command": "${command:extension.generateAndPreview}",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

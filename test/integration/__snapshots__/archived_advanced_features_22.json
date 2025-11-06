@@ -1,0 +1,33 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "example",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "name",
+            "type": "string",
+            "value": "Alice"
+          },
+          {
+            "name": "count",
+            "type": "number",
+            "value": 42
+          },
+          {
+            "name": "enabled",
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"example\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>example</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"name__key\" align=\"left\" balign=\"left\">name : string</td><td port=\"name__value\" align=\"left\" balign=\"left\">Alice</td></tr><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count : number</td><td port=\"count__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"enabled__key\" align=\"left\" balign=\"left\">enabled : boolean</td><td port=\"enabled__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "71fbb1d317c4df955eab010822956650926663066f3d3b34d3dffebadf0cc438"
+}

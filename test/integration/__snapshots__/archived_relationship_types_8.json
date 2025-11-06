@@ -1,0 +1,74 @@
+{
+  "json": {
+    "title": "Comprehensive Relationship Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "BaseProcessor",
+        "type": "task",
+        "attributes": [],
+        "title": "Base Processor"
+      },
+      {
+        "name": "DataProcessor",
+        "type": "task",
+        "attributes": [],
+        "title": "Data Processor"
+      },
+      {
+        "name": "Validator",
+        "type": "task",
+        "attributes": [],
+        "title": "Data Validator"
+      },
+      {
+        "name": "Config",
+        "type": "context",
+        "attributes": [],
+        "title": "Configuration"
+      },
+      {
+        "name": "Storage",
+        "type": "state",
+        "attributes": [],
+        "title": "Data Storage"
+      }
+    ],
+    "edges": [
+      {
+        "source": "BaseProcessor",
+        "target": "DataProcessor",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "DataProcessor",
+        "target": "Validator",
+        "arrowType": "*-->"
+      },
+      {
+        "source": "DataProcessor",
+        "target": "Storage",
+        "arrowType": "o-->"
+      },
+      {
+        "source": "DataProcessor",
+        "target": "Config",
+        "arrowType": "-->"
+      },
+      {
+        "source": "Validator",
+        "target": "Storage",
+        "arrowType": "->"
+      },
+      {
+        "source": "DataProcessor",
+        "target": "Storage",
+        "arrowType": "<-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Comprehensive Relationship Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"BaseProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>BaseProcessor</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Base Processor</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"DataProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DataProcessor</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data Processor</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Validator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validator</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data Validator</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Config</b> <i>&lt;context&gt;</i></td></tr><tr><td align=\"left\">Configuration</td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"Storage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Storage</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Data Storage</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"BaseProcessor\" -> \"DataProcessor\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"DataProcessor\" -> \"Validator\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"DataProcessor\" -> \"Storage\" [arrowhead=odiamond, arrowtail=none, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"DataProcessor\" -> \"Config\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Validator\" -> \"Storage\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"DataProcessor\" -> \"Storage\" [dir=both, arrowhead=normal, arrowtail=normal, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "e8cf60e6b7dd9d72621ac86a7fd6b553e50677b4063d755347371c3a178a423e"
+}

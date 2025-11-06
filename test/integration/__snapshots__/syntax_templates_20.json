@@ -1,0 +1,41 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "port",
+            "type": "Integer",
+            "value": 8080
+          }
+        ]
+      },
+      {
+        "name": "server",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "endpoint",
+            "type": "string",
+            "value": "{{ config.port }}"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "server",
+        "target": "config",
+        "reason": "reads endpoint",
+        "path": "config.port"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"port__key\" align=\"left\" balign=\"left\">port : Integer</td><td port=\"port__value\" align=\"left\" balign=\"left\">8080</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"server\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>server</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint : string</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">{{ config.port }}</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Inferred Dependencies\n  \"server\" -> \"config\" [label=\"reads endpoint\", style=dashed, color=blue];\n}",
+  "svgHash": "9c2cc3a81454a5f3266c6a65e4caf7b1a583872a2485e234b57c6e1d4b7595a5"
+}

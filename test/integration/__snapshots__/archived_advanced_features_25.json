@@ -1,0 +1,34 @@
+{
+  "json": {
+    "title": "Unreachable Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "type": "init",
+        "attributes": []
+      },
+      {
+        "name": "reachable",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "orphan",
+        "type": "task",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "reachable",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Unreachable Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;init&gt;</i></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"reachable\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>reachable</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"orphan\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>orphan</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"start\" -> \"reachable\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "347b5f21ba3a87944e5c085cb1eccfa0a9cd7432e9d1757f4463673308f72500"
+}

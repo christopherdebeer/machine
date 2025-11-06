@@ -1,0 +1,29 @@
+{
+  "json": {
+    "title": "Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "type": "state",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "end",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"start\" -> \"end\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "558d424cf83213969676fff280d0c0cb53dd6e681cae3f644caba18846defa3e"
+}

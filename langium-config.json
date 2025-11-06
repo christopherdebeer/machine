@@ -1,0 +1,15 @@
+{
+    "projectName": "Machine",
+    "languages": [{
+        "id": "machine",
+        "grammar": "src/language/machine.langium",
+        "fileExtensions": [".dy", ".dygram", ".mach"],
+        "textMate": {
+            "out": "syntaxes/machine.tmLanguage.json"
+        },
+        "monarch": {
+            "out": "src/syntaxes/machine.monarch.ts"
+        }
+    }],
+    "out": "src/language/generated"
+}

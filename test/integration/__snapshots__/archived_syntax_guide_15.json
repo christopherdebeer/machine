@@ -1,0 +1,177 @@
+{
+  "json": {
+    "title": "Complete Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "env",
+            "type": "string",
+            "value": "production"
+          },
+          {
+            "name": "maxRetries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "debug",
+            "type": "boolean",
+            "value": false
+          },
+          {
+            "name": "tags",
+            "value": [
+              "generated",
+              "test"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "startup",
+        "type": "init",
+        "attributes": [
+          {
+            "name": "priority",
+            "value": "high"
+          },
+          {
+            "name": "timeout",
+            "value": 10000
+          }
+        ],
+        "title": "System Start"
+      },
+      {
+        "name": "process1",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "parallelism",
+            "value": 4
+          }
+        ]
+      },
+      {
+        "name": "process2",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "batchSize",
+            "value": 100
+          }
+        ]
+      },
+      {
+        "name": "validation",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "cleanup",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "recovery",
+        "type": "workflow",
+        "attributes": []
+      },
+      {
+        "name": "detect",
+        "attributes": [],
+        "parent": "recovery"
+      },
+      {
+        "name": "analyze",
+        "attributes": [],
+        "parent": "recovery"
+      },
+      {
+        "name": "fix",
+        "attributes": [],
+        "parent": "recovery"
+      }
+    ],
+    "edges": [
+      {
+        "source": "startup",
+        "target": "process1",
+        "arrowType": "->"
+      },
+      {
+        "source": "process1",
+        "target": "process2",
+        "arrowType": "->"
+      },
+      {
+        "source": "process2",
+        "target": "validation",
+        "arrowType": "->"
+      },
+      {
+        "source": "validation",
+        "target": "cleanup",
+        "arrowType": "->"
+      },
+      {
+        "source": "process1",
+        "target": "recovery",
+        "arrowType": "->",
+        "value": {
+          "on": "error"
+        },
+        "attributes": {
+          "on": "error"
+        }
+      },
+      {
+        "source": "recovery",
+        "target": "process1",
+        "arrowType": "->",
+        "value": {
+          "timeout": "30000"
+        },
+        "attributes": {
+          "timeout": "30000"
+        }
+      },
+      {
+        "source": "cleanup",
+        "target": "startup",
+        "arrowType": "->",
+        "value": {
+          "if": "(config.debug == true)"
+        },
+        "attributes": {
+          "if": "(config.debug == true)"
+        }
+      },
+      {
+        "source": "detect",
+        "target": "analyze",
+        "arrowType": "->"
+      },
+      {
+        "source": "analyze",
+        "target": "fix",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": [
+      {
+        "source": "cleanup",
+        "target": "config",
+        "reason": "condition references config",
+        "path": "(config.debug == true)"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complete Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"env__key\" align=\"left\" balign=\"left\">env : string</td><td port=\"env__value\" align=\"left\" balign=\"left\">production</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : number</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"debug__key\" align=\"left\" balign=\"left\">debug : boolean</td><td port=\"debug__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"tags__key\" align=\"left\" balign=\"left\">tags</td><td port=\"tags__value\" align=\"left\" balign=\"left\">[\n  &quot;generated&quot;,\n  &quot;test&quot;\n]</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"startup\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>startup</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">System Start</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority</td><td port=\"priority__value\" align=\"left\" balign=\"left\">high</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">10000</td></tr></table></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"process1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process1</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"parallelism__key\" align=\"left\" balign=\"left\">parallelism</td><td port=\"parallelism__value\" align=\"left\" balign=\"left\">4</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"process2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process2</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"batchSize__key\" align=\"left\" balign=\"left\">batchSize</td><td port=\"batchSize__value\" align=\"left\" balign=\"left\">100</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validation</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"cleanup\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cleanup</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  subgraph cluster_recovery {\n    label=\"\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"recovery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\" port=\"cluster_header\"><b>recovery</b> <i>&lt;workflow&gt;</i></td></tr></table>>, shape=plain, margin=0];\n    \"recovery__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"detect\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>detect</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n    \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"fix\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fix</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  }\n\n  // Edges\n  \"startup\" -> \"process1\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process1\" -> \"process2\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process2\" -> \"validation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validation\" -> \"cleanup\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process1\" -> \"recovery__cluster_anchor\" [label=\"on=error\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", lhead=\"cluster_recovery\"];\n  \"recovery__cluster_anchor\" -> \"process1\" [label=\"timeout=30000\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_recovery\"];\n  \"cleanup\" -> \"startup\" [label=\"if=(config.debug == true)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"detect\" -> \"analyze\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyze\" -> \"fix\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"cleanup\" -> \"config\" [label=\"condition references config\", style=dashed, color=blue];\n}",
+  "svgHash": "7ab8761748bb9e2590a94ab5d84ce53b0f805f42ad1c475742635138bbbebf28"
+}

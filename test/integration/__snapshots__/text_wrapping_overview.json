@@ -1,0 +1,37 @@
+{
+  "json": {
+    "title": "MyMachine",
+    "attributes": [
+      {
+        "name": "maxEdgeLabelLength",
+        "value": 50
+      },
+      {
+        "name": "maxMultiplicityLength",
+        "value": 25
+      },
+      {
+        "name": "maxAttributeKeyLength",
+        "value": 30
+      },
+      {
+        "name": "maxAttributeValueLength",
+        "value": 40
+      },
+      {
+        "name": "maxNodeTitleLength",
+        "value": 50
+      },
+      {
+        "name": "maxNoteContentLength",
+        "value": 50
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>MyMachine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxEdgeLabelLength__key\" align=\"left\" balign=\"left\">maxEdgeLabelLength</td><td port=\"maxEdgeLabelLength__value\" align=\"left\" balign=\"left\">50</td></tr><tr><td port=\"maxMultiplicityLength__key\" align=\"left\" balign=\"left\">maxMultiplicityLength</td><td port=\"maxMultiplicityLength__value\" align=\"left\" balign=\"left\">25</td></tr><tr><td port=\"maxAttributeKeyLength__key\" align=\"left\" balign=\"left\">maxAttributeKeyLength</td><td port=\"maxAttributeKeyLength__value\" align=\"left\" balign=\"left\">30</td></tr><tr><td port=\"maxAttributeValueLength__key\" align=\"left\" balign=\"left\">maxAttributeValueLength</td><td port=\"maxAttributeValueLength__value\" align=\"left\" balign=\"left\">40</td></tr><tr><td port=\"maxNodeTitleLength__key\" align=\"left\" balign=\"left\">maxNodeTitleLength</td><td port=\"maxNodeTitleLength__value\" align=\"left\" balign=\"left\">50</td></tr><tr><td port=\"maxNoteContentLength__key\" align=\"left\" balign=\"left\">maxNoteContentLength</td><td port=\"maxNoteContentLength__value\" align=\"left\" balign=\"left\">50</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "1b425e57412bddbcbd5dc6a7f277cc84ed295046fbfbcca84cb1cb7116633da1"
+}

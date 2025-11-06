@@ -1,0 +1,140 @@
+
+### `basic-edges.dygram`
+
+Edges Machine
+
+```dy examples/edges/basic-edges.dygram
+machine "Edges Machine"
+node1;
+node2;
+node3;
+node4;
+node5;
+
+node1 -> node2;
+node2 -> node3;
+node3 -> node4;
+node4 -> node5;
+node5 -> node1;
+node1 -> node3;
+node2 -> node4;
+```
+
+### `relationship-types.dygram`
+
+Relationship Types Demonstration
+
+```dy examples/edges/relationship-types.dygram
+machine "Relationship Types Demonstration"
+
+// This example demonstrates all relationship types in DyGram
+// and their semantic meanings
+
+// ASSOCIATION (->)
+// Standard connection or transition between nodes
+// Use for: workflow transitions, basic relationships
+task requestHandler "Request Handler";
+task responseBuilder "Response Builder";
+requestHandler -> responseBuilder;  // Standard workflow transition
+
+// DEPENDENCY (-->)
+// Source depends on target but doesn't own it
+// Use for: configuration dependencies, optional references
+task apiService "API Service";
+context apiConfig "API Configuration" {
+    endpoint<string>: "https://api.example.com";
+    timeout<number>: 5000;
+}
+apiService --> apiConfig;  // apiService depends on apiConfig
+
+// INHERITANCE (<|--)
+// "is-a" relationship where child inherits from parent
+// Use for: type hierarchies, specialized behaviors
+task BaseHandler @Abstract {
+    retries<number>: 3;
+}
+task HTTPHandler "HTTP Handler" {
+    protocol<string>: "HTTP/1.1";
+}
+task WebSocketHandler "WebSocket Handler" {
+    protocol<string>: "WS";
+}
+BaseHandler <|-- HTTPHandler;  // HTTPHandler is a BaseHandler
+BaseHandler <|-- WebSocketHandler;  // WebSocketHandler is a BaseHandler
+
+// COMPOSITION (*-->)
+// Strong ownership where components cannot exist independently
+// Use for: lifecycle-bound components, required parts
+task OrderWorkflow "Order Workflow";
+task ValidateOrder "Validate Order";
+task ProcessPayment "Process Payment";
+task FulfillOrder "Fulfill Order";
+OrderWorkflow *--> ValidateOrder;  // OrderWorkflow owns ValidateOrder
+OrderWorkflow *--> ProcessPayment;  // OrderWorkflow owns ProcessPayment
+OrderWorkflow *--> FulfillOrder;  // OrderWorkflow owns FulfillOrder
+
+// AGGREGATION (o-->)
+// Weak ownership where parts can exist independently
+// Use for: shared resources, reusable components
+task Team "Development Team";
+task Developer "Team Member" {
+    role<string>: "Engineer";
+}
+task SharedLibrary "Shared Library" {
+    name<string>: "utils";
+}
+Team o--> Developer;  // Team has members, but members can exist independently
+Team o--> SharedLibrary;  // Team uses library, library can be used by others
+
+// BIDIRECTIONAL (<-->)
+// Two-way relationship or mutual dependency
+// Use for: peer relationships, circular references
+task Client "Client";
+task Server "Server";
+Client <--> Server;  // Client and Server know each other
+
+// FAT ARROW (=>)
+// Strong transition or emphasis
+// Use for: primary flow, critical paths
+init start "Start";
+task criticalPath "Critical Operation" @Critical;
+state end "End State";
+start => criticalPath;  // Critical path emphasis
+criticalPath -> end;  // Standard transition to end
+
+// COMPLETE EXAMPLE: E-Commerce System
+// Showing multiple relationship types working together
+
+context systemConfig @Singleton {
+    maxRetries<number>: 3;
+    timeout<number>: 30000;
+}
+
+task BaseService @Abstract;
+task AuthService "Authentication Service";
+task CartService "Shopping Cart Service";
+
+BaseService <|-- AuthService;  // Inheritance
+BaseService <|-- CartService;  // Inheritance
+
+task UserSession "User Session";
+task ShoppingCart "Shopping Cart";
+
+AuthService -> UserSession;  // Creates session
+UserSession <--> ShoppingCart;  // Bidirectional: session tracks cart, cart knows session
+
+task CheckoutWorkflow "Checkout Workflow";
+task ValidateCart "Validate Cart";
+task CalculateTotal "Calculate Total";
+task ChargePayment "Charge Payment";
+
+CheckoutWorkflow *--> ValidateCart;  // Composition: owned by workflow
+CheckoutWorkflow *--> CalculateTotal;  // Composition: owned by workflow
+CheckoutWorkflow *--> ChargePayment;  // Composition: owned by workflow
+
+CheckoutWorkflow --> systemConfig;  // Dependency: uses configuration
+
+// Primary checkout flow
+ShoppingCart => CheckoutWorkflow;  // Fat arrow: critical path
+
+```

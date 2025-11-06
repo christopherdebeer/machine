@@ -1,0 +1,27 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "AppConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "apiKey",
+            "value": "secret"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"AppConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AppConfig</b> <i>&lt;context&gt;</i> <i>@Singleton</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiKey__key\" align=\"left\" balign=\"left\">apiKey</td><td port=\"apiKey__value\" align=\"left\" balign=\"left\">secret</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", peripheries=2];\n\n}",
+  "svgHash": "1cf87e4cf18c3553e977142ad97a55fd35707815fe8cc25224b6d0e0c5833f23"
+}

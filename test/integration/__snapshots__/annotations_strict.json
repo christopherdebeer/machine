@@ -1,0 +1,37 @@
+{
+  "json": {
+    "title": "MyMachine",
+    "attributes": [],
+    "annotations": [
+      {
+        "name": "StrictMode"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "problem",
+        "attributes": []
+      },
+      {
+        "name": "solution",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "problem",
+        "target": "solution",
+        "arrowType": "->"
+      },
+      {
+        "source": "one",
+        "target": "two",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>MyMachine</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @StrictMode</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"problem\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>problem</b></td></tr><tr><td align=\"left\" bgcolor=\"#FFF4CC\"><font point-size=\"8\"><b>⚠️ 1 issue</b><br/>Node cannot be reached from entry points<br/></font></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", penwidth=2, color=\"#FFA726\"];\n  \"solution\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>solution</b></td></tr><tr><td align=\"left\" bgcolor=\"#FFF4CC\"><font point-size=\"8\"><b>⚠️ 1 issue</b><br/>Node cannot be reached from entry points<br/></font></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"problem\" -> \"solution\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"one\" -> \"two\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Validation Warnings\n  \"warning_problem_0\" [label=<⚠️ Node cannot be reached from entry<br/>points\n\nSuggestion: Add an edge from an<br/>entry point or init node to this node>, shape=note, fillcolor=\"#FFF4CC\", style=filled, fontsize=9];\n  \"warning_problem_0\" -> \"problem\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_solution_0\" [label=<⚠️ Node cannot be reached from entry<br/>points\n\nSuggestion: Add an edge from an<br/>entry point or init node to this node>, shape=note, fillcolor=\"#FFF4CC\", style=filled, fontsize=9];\n  \"warning_solution_0\" -> \"solution\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "f211f95201f8c33fabcda434d732baf6936d33cc280e2d3c62d7aad62ec934fb"
+}

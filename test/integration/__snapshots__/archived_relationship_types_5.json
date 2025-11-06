@@ -1,0 +1,29 @@
+{
+  "json": {
+    "title": "Aggregation Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Team",
+        "type": "task",
+        "attributes": []
+      },
+      {
+        "name": "Member",
+        "type": "task",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "Team",
+        "target": "Member",
+        "arrowType": "o-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Aggregation Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Team\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Team</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Member\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Member</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"Team\" -> \"Member\" [arrowhead=odiamond, arrowtail=none, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "21d9e32a218db62c002cf8b8b2760df61d5335d9799567f9bebecf4be699ac2a"
+}

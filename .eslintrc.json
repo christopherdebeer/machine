@@ -1,0 +1,34 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "no-restricted-imports": ["error", {
+            "patterns": [{
+                "group": ["**/anthropic-client", "**/bedrock-client"],
+                "message": "Use ClaudeClient with appropriate transport instead"
+            }]
+        }],
+        "no-restricted-syntax": [
+            "error",
+            {
+                "selector": "CallExpression[callee.object.type='ThisExpression'][callee.property.name='extractValueFromAST']",
+                "message": "Use extractValueFromAST from utils/ast-helpers.js instead of deprecated wrapper"
+            },
+            {
+                "selector": "CallExpression[callee.object.type='ThisExpression'][callee.property.name='isSimpleCondition']",
+                "message": "Use EdgeConditionParser.isSimpleCondition() from utils/edge-conditions.js instead"
+            },
+            {
+                "selector": "CallExpression[callee.object.type='ThisExpression'][callee.property.name='isStateNode']",
+                "message": "Use NodeTypeChecker.isState() from node-type-checker.js instead"
+            }
+        ]
+    }
+}

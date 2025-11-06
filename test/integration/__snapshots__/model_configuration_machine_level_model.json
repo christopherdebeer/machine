@@ -1,0 +1,103 @@
+{
+  "json": {
+    "title": "Cost-Optimized System",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "config",
+        "attributes": [
+          {
+            "name": "modelId",
+            "value": "claude-3-5-haiku-20241022"
+          },
+          {
+            "name": "desc",
+            "value": "Use haiku by default for cost optimization"
+          }
+        ]
+      },
+      {
+        "name": "start",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "task1",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Perform a simple classification task."
+          }
+        ]
+      },
+      {
+        "name": "task2",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Generate a short summary."
+          }
+        ]
+      },
+      {
+        "name": "complex_task",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "modelId",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "prompt",
+            "value": "Perform complex reasoning that requires more capable model."
+          }
+        ]
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "task1",
+        "arrowType": "->"
+      },
+      {
+        "source": "task1",
+        "target": "task2",
+        "arrowType": "->"
+      },
+      {
+        "source": "task2",
+        "target": "complex_task",
+        "arrowType": "->"
+      },
+      {
+        "source": "complex_task",
+        "target": "complete",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Cost-Optimized System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b></td></tr><tr><td align=\"left\">Use haiku by default for cost<br/>optimization</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"modelId__key\" align=\"left\" balign=\"left\">modelId</td><td port=\"modelId__value\" align=\"left\" balign=\"left\">claude-3-5-haiku-20241022</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"task1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>task1</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Perform a simple classification task.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"task2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>task2</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate a short summary.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"complex_task\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complex_task</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Perform complex reasoning that requires<br/>more capable model.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"modelId__key\" align=\"left\" balign=\"left\">modelId</td><td port=\"modelId__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"start\" -> \"task1\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"task1\" -> \"task2\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"task2\" -> \"complex_task\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"complex_task\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "cd383ba62690c485dabaf518f0c7c966d3affbcbe4dc952a14f578457925bd14"
+}

@@ -1,0 +1,73 @@
+{
+  "json": {
+    "title": "Advanced Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "apiKey",
+            "type": "string",
+            "value": "secret"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      },
+      {
+        "name": "BaseHandler",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Abstract"
+          }
+        ]
+      },
+      {
+        "name": "APIHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "response",
+            "type": "Promise<Response>",
+            "value": "null"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "BaseHandler",
+        "target": "APIHandler",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "APIHandler",
+        "target": "Config",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [
+      {
+        "target": "APIHandler",
+        "content": "Handles API requests asynchronously.\nUses {{ Config.apiKey }} for authentication.",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Advanced Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Config</b> <i>&lt;context&gt;</i> <i>@Singleton</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiKey__key\" align=\"left\" balign=\"left\">apiKey : string</td><td port=\"apiKey__value\" align=\"left\" balign=\"left\">secret</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", peripheries=2];\n  \"BaseHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>BaseHandler</b> <i>&lt;task&gt;</i> <i>@Abstract</i></td></tr></table>>, shape=egg, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\"];\n  \"APIHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>APIHandler</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"response__key\" align=\"left\" balign=\"left\">response : Promise&lt;Response&gt;</td><td port=\"response__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected Promise&lt;Response&gt;, got nul...<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n\n  // Edges\n  \"BaseHandler\" -> \"APIHandler\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"APIHandler\" -> \"Config\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_APIHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Handles API requests<br/>asynchronously.\nUses {{ Config.apiKey }}<br/>for authentication.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_APIHandler\" -> \"APIHandler\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Validation Warnings\n  \"warning_APIHandler_0\" [label=<🔴 Type mismatch: expected<br/>Promise&lt;Response&gt;, got null>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_APIHandler_0\" -> \"APIHandler\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "bbf2864b509df7947c931f0f76066e955e2381ba2e9331deec2a12bbcaf402a7"
+}

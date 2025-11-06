@@ -1,0 +1,38 @@
+{
+  "json": {
+    "title": "Basic Attributes",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "process",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 30
+          },
+          {
+            "name": "retries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "priority",
+            "value": "high"
+          },
+          {
+            "name": "enabled",
+            "type": "bool",
+            "value": true
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Basic Attributes</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">30</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : number</td><td port=\"retries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority</td><td port=\"priority__value\" align=\"left\" balign=\"left\">high</td></tr><tr><td port=\"enabled__key\" align=\"left\" balign=\"left\">enabled : bool</td><td port=\"enabled__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected bool, got boolean<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n\n\n  // Validation Warnings\n  \"warning_process_0\" [label=<🔴 Type mismatch: expected bool, got<br/>boolean>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_process_0\" -> \"process\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "959c5bc42e7dd5a7a93ee47ed17ae9062d4948648bda263db741e48e5f4f0f6e"
+}

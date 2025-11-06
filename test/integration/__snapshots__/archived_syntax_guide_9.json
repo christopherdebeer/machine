@@ -1,0 +1,49 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "error",
+        "attributes": []
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "error",
+        "target": "start",
+        "arrowType": "->",
+        "value": {
+          "retry": "3",
+          "timeout": "5000"
+        },
+        "attributes": {
+          "retry": "3",
+          "timeout": "5000"
+        }
+      },
+      {
+        "source": "end",
+        "target": "start",
+        "arrowType": "->",
+        "value": {
+          "if": "(count > 10)"
+        },
+        "attributes": {
+          "if": "(count > 10)"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"error\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>error</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n\n  // Edges\n  \"error\" -> \"start\" [label=\"retry=3, timeout=5000\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"end\" -> \"start\" [label=\"if=(count > 10)\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "089c61a7f85726b024a10d1d3a386511a453fc8e783f03bf7f2dbfdc8d8a6486"
+}

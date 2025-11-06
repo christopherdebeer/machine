@@ -1,0 +1,22 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "promise",
+        "type": "Promise<Result>",
+        "value": "#pending"
+      },
+      {
+        "name": "result",
+        "type": "Result<Data, Error>",
+        "value": "#outcome"
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"promise__key\" align=\"left\" balign=\"left\">promise : Promise&lt;Result&gt;</td><td port=\"promise__value\" align=\"left\" balign=\"left\">#pending</td></tr><tr><td port=\"result__key\" align=\"left\" balign=\"left\">result : Result&lt;Data, Error&gt;</td><td port=\"result__value\" align=\"left\" balign=\"left\">#outcome</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "fa8eda221a193e2eddc19559544ab48ebe6c84307106c55f5ba94000cb5942af"
+}

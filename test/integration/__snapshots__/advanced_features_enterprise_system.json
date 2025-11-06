@@ -1,0 +1,138 @@
+{
+  "json": {
+    "title": "Enterprise System",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "backend",
+        "type": "process",
+        "attributes": []
+      },
+      {
+        "name": "api",
+        "type": "process",
+        "attributes": [],
+        "parent": "backend"
+      },
+      {
+        "name": "authenticate",
+        "type": "task",
+        "attributes": [],
+        "parent": "api",
+        "title": "Auth"
+      },
+      {
+        "name": "validate",
+        "type": "task",
+        "attributes": [],
+        "parent": "api",
+        "title": "Validate"
+      },
+      {
+        "name": "process",
+        "type": "task",
+        "attributes": [],
+        "parent": "api",
+        "title": "Process"
+      },
+      {
+        "name": "database",
+        "type": "process",
+        "attributes": [],
+        "parent": "backend"
+      },
+      {
+        "name": "read",
+        "type": "task",
+        "attributes": [],
+        "parent": "database",
+        "title": "Read DB"
+      },
+      {
+        "name": "write",
+        "type": "task",
+        "attributes": [],
+        "parent": "database",
+        "title": "Write DB"
+      },
+      {
+        "name": "frontend",
+        "type": "process",
+        "attributes": []
+      },
+      {
+        "name": "render",
+        "type": "task",
+        "attributes": [],
+        "parent": "frontend",
+        "title": "Render UI"
+      },
+      {
+        "name": "handleInput",
+        "type": "task",
+        "attributes": [],
+        "parent": "frontend",
+        "title": "Handle Input"
+      },
+      {
+        "name": "api",
+        "attributes": []
+      },
+      {
+        "name": "process",
+        "attributes": [],
+        "parent": "api"
+      },
+      {
+        "name": "database",
+        "attributes": []
+      },
+      {
+        "name": "read",
+        "attributes": [],
+        "parent": "database"
+      }
+    ],
+    "edges": [
+      {
+        "source": "handleInput",
+        "target": "authenticate",
+        "arrowType": "->"
+      },
+      {
+        "source": "write",
+        "target": "render",
+        "arrowType": "->"
+      },
+      {
+        "source": "process",
+        "target": "read",
+        "arrowType": "->"
+      },
+      {
+        "source": "authenticate",
+        "target": "validate",
+        "arrowType": "->"
+      },
+      {
+        "source": "validate",
+        "target": "process",
+        "arrowType": "->"
+      },
+      {
+        "source": "read",
+        "target": "write",
+        "arrowType": "->"
+      },
+      {
+        "source": "render",
+        "target": "handleInput",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Enterprise System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_backend {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>backend</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"backend__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    subgraph cluster_api {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>api</b></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      \"api__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"authenticate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Auth</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n      \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n      \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n      \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    }\n    subgraph cluster_database {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>database</b></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      \"database__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"read\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>read</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n      \"write\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>write</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Write DB</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n      \"read\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>read</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    }\n  }\n  subgraph cluster_frontend {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>frontend</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"frontend__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"render\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>render</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Render UI</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"handleInput\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleInput</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Handle Input</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_api {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>api</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"api__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"authenticate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Auth</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  }\n  subgraph cluster_database {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>database</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"database__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"read\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>read</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"write\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>write</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Write DB</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"read\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>read</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  }\n\n  // Edges\n  \"handleInput\" -> \"authenticate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"write\" -> \"render\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"read\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"authenticate\" -> \"validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validate\" -> \"process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"read\" -> \"write\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"render\" -> \"handleInput\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "8cd20cd328b47a8888e7e2965e0cf72296bc9ce8527d0cb467b8411239f606c5"
+}

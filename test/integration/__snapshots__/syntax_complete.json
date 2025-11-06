@@ -1,0 +1,178 @@
+{
+  "json": {
+    "title": "Complete Syntax Demo",
+    "attributes": [
+      {
+        "name": "environment",
+        "value": "demo"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "Version",
+        "value": "1.0"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "apiKey",
+            "type": "string",
+            "value": "secret"
+          },
+          {
+            "name": "maxRetries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "timeout",
+            "type": "Duration",
+            "value": "30s"
+          },
+          {
+            "name": "endpoints",
+            "type": "Array<string>",
+            "value": [
+              "api.example.com"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "fetchData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "temperature",
+            "value": 0.7
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          },
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "ready",
+        "type": "state",
+        "attributes": [],
+        "title": "Ready State"
+      },
+      {
+        "name": "processing",
+        "type": "state",
+        "attributes": [],
+        "title": "Processing"
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [],
+        "title": "Complete"
+      },
+      {
+        "name": "workflow",
+        "type": "process",
+        "attributes": [],
+        "title": "Main Workflow"
+      },
+      {
+        "name": "validate",
+        "type": "task",
+        "attributes": [],
+        "parent": "workflow",
+        "title": "Validate Input"
+      },
+      {
+        "name": "transform",
+        "type": "task",
+        "attributes": [],
+        "parent": "workflow",
+        "title": "Transform Data"
+      },
+      {
+        "name": "save",
+        "type": "task",
+        "attributes": [],
+        "parent": "workflow",
+        "title": "Save Results"
+      }
+    ],
+    "edges": [
+      {
+        "source": "ready",
+        "target": "fetchData",
+        "arrowType": "->"
+      },
+      {
+        "source": "fetchData",
+        "target": "processing",
+        "arrowType": "-->"
+      },
+      {
+        "source": "processing",
+        "target": "complete",
+        "arrowType": "=>"
+      },
+      {
+        "source": "config",
+        "target": "workflow",
+        "arrowType": "->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "*",
+        "value": {
+          "text": "provides"
+        },
+        "attributes": {
+          "text": "provides"
+        }
+      },
+      {
+        "source": "validate",
+        "target": "transform",
+        "arrowType": "->"
+      },
+      {
+        "source": "transform",
+        "target": "save",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [
+      {
+        "target": "fetchData",
+        "content": "Fetches data from external API",
+        "annotations": [
+          {
+            "name": "Documentation"
+          }
+        ],
+        "attributes": [
+          {
+            "name": "complexity",
+            "value": "O(1)"
+          },
+          {
+            "name": "author",
+            "value": "System"
+          }
+        ]
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complete Syntax Demo</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @Version(&quot;1.0&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">demo</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiKey__key\" align=\"left\" balign=\"left\">apiKey : string</td><td port=\"apiKey__value\" align=\"left\" balign=\"left\">secret</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : number</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">30s</td></tr><tr><td port=\"endpoints__key\" align=\"left\" balign=\"left\">endpoints : Array&lt;string&gt;</td><td port=\"endpoints__value\" align=\"left\" balign=\"left\">[\n  &quot;api.example.com&quot;\n]</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchData</b> <i>&lt;task&gt;</i> <i>@Async @Critical</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"ready\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ready</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Ready State</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complete</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  subgraph cluster_workflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>workflow</b> <i>&lt;process&gt;</i></td></tr><tr><td align=\"center\"><b>Main Workflow</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"workflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate Input</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transform</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Transform Data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"save\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>save</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Save Results</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n\n  // Edges\n  \"ready\" -> \"fetchData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"fetchData\" -> \"processing\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processing\" -> \"complete\" [penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"config\" -> \"workflow__cluster_anchor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">provides</td></tr></table>>, taillabel=\"1\", headlabel=\"*\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", lhead=\"cluster_workflow\"];\n  \"validate\" -> \"transform\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transform\" -> \"save\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><i>@Documentation</i></td></tr><tr><td align=\"left\">Fetches data from external API</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"complexity__key\" align=\"left\" balign=\"left\">complexity</td><td port=\"complexity__value\" align=\"left\" balign=\"left\">O(1)</td></tr><tr><td port=\"author__key\" align=\"left\" balign=\"left\">author</td><td port=\"author__value\" align=\"left\" balign=\"left\">System</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_fetchData\" -> \"fetchData\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "361b178713a97e103aff5e9ae4bef0acd352ea74765b3a1fe9b2cbd9489e9335"
+}

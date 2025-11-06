@@ -1,0 +1,260 @@
+{
+  "json": {
+    "title": "Annotation System Examples",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "BaseProcessor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Base processor that all processors must extend"
+          },
+          {
+            "name": "version",
+            "type": "string",
+            "value": "1.0.0"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Abstract"
+          }
+        ]
+      },
+      {
+        "name": "ConfigManager",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Manages application configuration"
+          },
+          {
+            "name": "configPath",
+            "type": "string",
+            "value": "/etc/app/config.json"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      },
+      {
+        "name": "LegacyAPI",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Old API endpoint - do not use in new code"
+          },
+          {
+            "name": "endpoint",
+            "type": "string",
+            "value": "/api/v1/legacy"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Deprecated",
+            "value": "Use ModernAPI instead - will be removed in v2.0"
+          }
+        ]
+      },
+      {
+        "name": "ModernAPI",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "New API endpoint with better performance"
+          },
+          {
+            "name": "endpoint",
+            "type": "string",
+            "value": "/api/v2/modern"
+          }
+        ]
+      },
+      {
+        "name": "PaymentProcessor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Processes payments - requires high availability"
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 30000
+          },
+          {
+            "name": "retries",
+            "type": "number",
+            "value": 5
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Critical"
+          },
+          {
+            "name": "Async"
+          }
+        ]
+      },
+      {
+        "name": "DataValidator",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Validates critical data before processing"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Abstract"
+          },
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "JSONValidator",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Validates JSON data"
+          },
+          {
+            "name": "schema",
+            "type": "string",
+            "value": "schema.json"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      },
+      {
+        "name": "XMLValidator",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Validates XML data - legacy system"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Deprecated",
+            "value": "Use JSONValidator instead"
+          }
+        ]
+      },
+      {
+        "name": "FetchData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Asynchronously fetches data from external source"
+          },
+          {
+            "name": "url",
+            "type": "string",
+            "value": "https://api.example.com/data"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ]
+      },
+      {
+        "name": "ProcessData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Processes fetched data asynchronously"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          },
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "StoreData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Stores processed data in database"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "BaseProcessor",
+        "target": "DataValidator",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "DataValidator",
+        "target": "JSONValidator",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "DataValidator",
+        "target": "XMLValidator",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "FetchData",
+        "target": "ProcessData",
+        "arrowType": "->"
+      },
+      {
+        "source": "ProcessData",
+        "target": "StoreData",
+        "arrowType": "->"
+      },
+      {
+        "source": "ConfigManager",
+        "target": "PaymentProcessor",
+        "arrowType": "-->"
+      },
+      {
+        "source": "ConfigManager",
+        "target": "FetchData",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Annotation System Examples</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"BaseProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>BaseProcessor</b> <i>&lt;task&gt;</i> <i>@Abstract</i></td></tr><tr><td align=\"left\">Base processor that all processors must<br/>extend</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version : string</td><td port=\"version__value\" align=\"left\" balign=\"left\">1.0.0</td></tr></table></td></tr></table>>, shape=egg, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\"];\n  \"ConfigManager\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ConfigManager</b> <i>&lt;task&gt;</i> <i>@Singleton</i></td></tr><tr><td align=\"left\">Manages application configuration</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"configPath__key\" align=\"left\" balign=\"left\">configPath : string</td><td port=\"configPath__value\" align=\"left\" balign=\"left\">/etc/app/config.json</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", peripheries=2];\n  \"LegacyAPI\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LegacyAPI</b> <i>&lt;task&gt;</i> <i>@Deprecated(\"Use ModernAPI instead - will be removed in v2.0\")</i></td></tr><tr><td align=\"left\">Old API endpoint - do not use in new<br/>code</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint : string</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/api/v1/legacy</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\", fontcolor=\"#999999\"];\n  \"ModernAPI\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ModernAPI</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">New API endpoint with better performance</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint : string</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/api/v2/modern</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"PaymentProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PaymentProcessor</b> <i>&lt;task&gt;</i> <i>@Critical @Async</i></td></tr><tr><td align=\"left\">Processes payments - requires high<br/>availability</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">30000</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : number</td><td port=\"retries__value\" align=\"left\" balign=\"left\">5</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"DataValidator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DataValidator</b> <i>&lt;task&gt;</i> <i>@Abstract @Critical</i></td></tr><tr><td align=\"left\">Validates critical data before<br/>processing</td></tr></table>>, shape=egg, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\", penwidth=3];\n  \"JSONValidator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>JSONValidator</b> <i>&lt;task&gt;</i> <i>@Singleton</i></td></tr><tr><td align=\"left\">Validates JSON data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema : string</td><td port=\"schema__value\" align=\"left\" balign=\"left\">schema.json</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", peripheries=2];\n  \"XMLValidator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>XMLValidator</b> <i>&lt;task&gt;</i> <i>@Deprecated(\"Use JSONValidator instead\")</i></td></tr><tr><td align=\"left\">Validates XML data - legacy system</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\", fontcolor=\"#999999\"];\n  \"FetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchData</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Asynchronously fetches data from<br/>external source</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"url__key\" align=\"left\" balign=\"left\">url : string</td><td port=\"url__value\" align=\"left\" balign=\"left\">https://api.example.com/data</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"ProcessData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessData</b> <i>&lt;task&gt;</i> <i>@Async @Critical</i></td></tr><tr><td align=\"left\">Processes fetched data asynchronously</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"StoreData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreData</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Stores processed data in database</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n\n  // Edges\n  \"BaseProcessor\" -> \"DataValidator\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"DataValidator\" -> \"JSONValidator\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"DataValidator\" -> \"XMLValidator\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"FetchData\" -> \"ProcessData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessData\" -> \"StoreData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ConfigManager\" -> \"PaymentProcessor\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ConfigManager\" -> \"FetchData\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "23b1faf44b5b37b1789cb6c1d515366b51ae20ee53effe5c0154d46b5b296bb9"
+}

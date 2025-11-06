@@ -1,0 +1,23 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "fetchData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "response",
+            "type": "Promise<Response>",
+            "value": "pending"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchData</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"response__key\" align=\"left\" balign=\"left\">response : Promise&lt;Response&gt;</td><td port=\"response__value\" align=\"left\" balign=\"left\">pending</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected Promise&lt;Response&gt;, got str...<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n\n\n  // Validation Warnings\n  \"warning_fetchData_0\" [label=<🔴 Type mismatch: expected<br/>Promise&lt;Response&gt;, got string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_fetchData_0\" -> \"fetchData\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "299b541a4bd1983324fcba2d3f68b1d1f20911eedbd5c4561d9766836ff6acf8"
+}

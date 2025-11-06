@@ -1,0 +1,22 @@
+{
+  "json": {
+    "attributes": [
+      {
+        "name": "timeout",
+        "type": "Duration",
+        "value": "PT1H30M"
+      },
+      {
+        "name": "waitTime",
+        "type": "Duration",
+        "value": "P1Y2M3D"
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT1H30M</td></tr><tr><td port=\"waitTime__key\" align=\"left\" balign=\"left\">waitTime : Duration</td><td port=\"waitTime__value\" align=\"left\" balign=\"left\">P1Y2M3D</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "e533fcef151e4cb7715ae21b55999ff4c3819e4bb94e5a2dc40093bb3b836d47"
+}

@@ -1,0 +1,259 @@
+{
+  "json": {
+    "title": "Code Generation Workflow",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "start",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "define_requirements",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "You are generating a simple JavaScript utility function. Create requirements for a function that validates email addresses. Use set_context_value to store the requirements in the 'requirements' context node with key 'spec' as a string describing: function name, parameters, return value, and test cases."
+          }
+        ]
+      },
+      {
+        "name": "requirements",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "spec",
+            "type": "string",
+            "value": ""
+          }
+        ]
+      },
+      {
+        "name": "generate_code",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Read the requirements from the 'requirements' context using get_context_value. Generate JavaScript code for the email validation function. Use set_context_value to store the generated code in the 'code' context node with key 'implementation' as a string containing the complete function implementation."
+          }
+        ]
+      },
+      {
+        "name": "code",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "implementation",
+            "type": "string",
+            "value": ""
+          },
+          {
+            "name": "language",
+            "type": "string",
+            "value": "javascript"
+          }
+        ]
+      },
+      {
+        "name": "generate_tests",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Read the requirements from 'requirements' context and the implementation from 'code' context using get_context_value. Generate comprehensive test cases using a simple testing approach (no framework needed). Use set_context_value to store the test code in the 'tests' context node with key 'testCode' as a string."
+          }
+        ]
+      },
+      {
+        "name": "tests",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "testCode",
+            "type": "string",
+            "value": ""
+          },
+          {
+            "name": "framework",
+            "type": "string",
+            "value": "vanilla"
+          }
+        ]
+      },
+      {
+        "name": "generate_documentation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Read the requirements, code implementation, and tests from their respective context nodes using get_context_value. Generate markdown documentation including: function signature, description, parameters, return value, examples, and how to run tests. Use set_context_value to store the documentation in the 'documentation' context node with key 'markdown' as a string."
+          }
+        ]
+      },
+      {
+        "name": "documentation",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "markdown",
+            "type": "string",
+            "value": ""
+          },
+          {
+            "name": "format",
+            "type": "string",
+            "value": "markdown"
+          }
+        ]
+      },
+      {
+        "name": "validation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Review the generated code, tests, and documentation from their context nodes using get_context_value. Check for completeness and quality. If everything looks good, use set_context_value to store a validation summary in 'validation_result' context with key 'status' as 'passed' and 'summary' with any notes. Then use the transition tool to move to 'complete'."
+          }
+        ]
+      },
+      {
+        "name": "validation_result",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "status",
+            "type": "string",
+            "value": "pending"
+          },
+          {
+            "name": "summary",
+            "type": "string",
+            "value": ""
+          }
+        ]
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Code generation workflow completed successfully"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "define_requirements",
+        "arrowType": "->"
+      },
+      {
+        "source": "define_requirements",
+        "target": "requirements",
+        "arrowType": "->",
+        "value": {
+          "text": "specified"
+        },
+        "attributes": {
+          "text": "specified"
+        }
+      },
+      {
+        "source": "requirements",
+        "target": "generate_code",
+        "arrowType": "->"
+      },
+      {
+        "source": "generate_code",
+        "target": "code",
+        "arrowType": "->",
+        "value": {
+          "text": "generated"
+        },
+        "attributes": {
+          "text": "generated"
+        }
+      },
+      {
+        "source": "code",
+        "target": "generate_tests",
+        "arrowType": "->"
+      },
+      {
+        "source": "generate_tests",
+        "target": "tests",
+        "arrowType": "->",
+        "value": {
+          "text": "created"
+        },
+        "attributes": {
+          "text": "created"
+        }
+      },
+      {
+        "source": "tests",
+        "target": "generate_documentation",
+        "arrowType": "->"
+      },
+      {
+        "source": "generate_documentation",
+        "target": "documentation",
+        "arrowType": "->",
+        "value": {
+          "text": "documented"
+        },
+        "attributes": {
+          "text": "documented"
+        }
+      },
+      {
+        "source": "documentation",
+        "target": "validation",
+        "arrowType": "->"
+      },
+      {
+        "source": "validation",
+        "target": "validation_result",
+        "arrowType": "->",
+        "value": {
+          "text": "validated"
+        },
+        "attributes": {
+          "text": "validated"
+        }
+      },
+      {
+        "source": "validation_result",
+        "target": "complete",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Code Generation Workflow</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"define_requirements\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>define_requirements</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">You are generating a simple JavaScript<br/>utility function. Create requirements<br/>for a function that validates email<br/>addresses. Use set_context_value to<br/>store the requirements in the<br/>'requirements' context node with key<br/>'spec' as a string describing: function<br/>name, parameters, return value, and test<br/>cases.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"requirements\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>requirements</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"spec__key\" align=\"left\" balign=\"left\">spec : string</td><td port=\"spec__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"generate_code\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generate_code</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Read the requirements from the<br/>'requirements' context using<br/>get_context_value. Generate JavaScript<br/>code for the email validation function.<br/>Use set_context_value to store the<br/>generated code in the 'code' context<br/>node with key 'implementation' as a<br/>string containing the complete function<br/>implementation.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"code\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>code</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"implementation__key\" align=\"left\" balign=\"left\">implementation : string</td><td port=\"implementation__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"language__key\" align=\"left\" balign=\"left\">language : string</td><td port=\"language__value\" align=\"left\" balign=\"left\">javascript</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"generate_tests\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generate_tests</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Read the requirements from<br/>'requirements' context and the<br/>implementation from 'code' context using<br/>get_context_value. Generate<br/>comprehensive test cases using a simple<br/>testing approach (no framework needed).<br/>Use set_context_value to store the test<br/>code in the 'tests' context node with<br/>key 'testCode' as a string.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"tests\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>tests</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"testCode__key\" align=\"left\" balign=\"left\">testCode : string</td><td port=\"testCode__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"framework__key\" align=\"left\" balign=\"left\">framework : string</td><td port=\"framework__value\" align=\"left\" balign=\"left\">vanilla</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"generate_documentation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generate_documentation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Read the requirements, code<br/>implementation, and tests from their<br/>respective context nodes using<br/>get_context_value. Generate markdown<br/>documentation including: function<br/>signature, description, parameters,<br/>return value, examples, and how to run<br/>tests. Use set_context_value to store<br/>the documentation in the 'documentation'<br/>context node with key 'markdown' as a<br/>string.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"documentation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>documentation</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"markdown__key\" align=\"left\" balign=\"left\">markdown : string</td><td port=\"markdown__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"format__key\" align=\"left\" balign=\"left\">format : string</td><td port=\"format__value\" align=\"left\" balign=\"left\">markdown</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"validation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Review the generated code, tests, and<br/>documentation from their context nodes<br/>using get_context_value. Check for<br/>completeness and quality. If everything<br/>looks good, use set_context_value to<br/>store a validation summary in<br/>'validation_result' context with key<br/>'status' as 'passed' and 'summary' with<br/>any notes. Then use the transition tool<br/>to move to 'complete'.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validation_result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validation_result</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"status__key\" align=\"left\" balign=\"left\">status : string</td><td port=\"status__value\" align=\"left\" balign=\"left\">pending</td></tr><tr><td port=\"summary__key\" align=\"left\" balign=\"left\">summary : string</td><td port=\"summary__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Code generation workflow completed<br/>successfully</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"start\" -> \"define_requirements\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"define_requirements\" -> \"requirements\" [label=\"specified\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"requirements\" -> \"generate_code\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"generate_code\" -> \"code\" [label=\"generated\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"code\" -> \"generate_tests\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"generate_tests\" -> \"tests\" [label=\"created\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"tests\" -> \"generate_documentation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"generate_documentation\" -> \"documentation\" [label=\"documented\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"documentation\" -> \"validation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validation\" -> \"validation_result\" [label=\"validated\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validation_result\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "f67d3b7c9cbd6fb842ec943316a78c83ca3998efb2c805c6807dd785a021a8e9"
+}

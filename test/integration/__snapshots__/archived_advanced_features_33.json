@@ -1,0 +1,165 @@
+{
+  "json": {
+    "title": "Advanced E-Commerce System",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "AppConfig",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "apiEndpoint",
+            "type": "string",
+            "value": "https://api.example.com"
+          },
+          {
+            "name": "maxRetries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 5000
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      },
+      {
+        "name": "BaseHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "retries",
+            "type": "number",
+            "value": 0
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Abstract"
+          }
+        ]
+      },
+      {
+        "name": "AuthHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Authenticate user"
+          }
+        ]
+      },
+      {
+        "name": "OrderHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process order with {{ AppConfig.maxRetries }} retries"
+          },
+          {
+            "name": "orderData",
+            "type": "Promise<Order>",
+            "value": "null"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ]
+      },
+      {
+        "name": "start",
+        "type": "init",
+        "attributes": [],
+        "title": "User Session Start"
+      },
+      {
+        "name": "authenticated",
+        "type": "state",
+        "attributes": [],
+        "title": "Authenticated State"
+      },
+      {
+        "name": "error",
+        "type": "state",
+        "attributes": [],
+        "title": "Error State"
+      }
+    ],
+    "edges": [
+      {
+        "source": "BaseHandler",
+        "target": "AuthHandler",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "BaseHandler",
+        "target": "OrderHandler",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "start",
+        "target": "AuthHandler",
+        "arrowType": "->"
+      },
+      {
+        "source": "AuthHandler",
+        "target": "AppConfig",
+        "arrowType": "-->"
+      },
+      {
+        "source": "AuthHandler",
+        "target": "authenticated",
+        "arrowType": "->",
+        "value": {
+          "text": "success"
+        },
+        "attributes": {
+          "text": "success"
+        }
+      },
+      {
+        "source": "AuthHandler",
+        "target": "error",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "authenticated",
+        "target": "OrderHandler",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [
+      {
+        "target": "AuthHandler",
+        "content": "Authenticates user credentials.\nUses JWT tokens with {{ AppConfig.timeout }}ms timeout.\nRetries up to {{ AppConfig.maxRetries }} times on failure.",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "OrderHandler",
+        "target": "AppConfig",
+        "reason": "reads prompt",
+        "path": "AppConfig.maxRetries"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Advanced E-Commerce System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"AppConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AppConfig</b> <i>&lt;context&gt;</i> <i>@Singleton</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiEndpoint__key\" align=\"left\" balign=\"left\">apiEndpoint : string</td><td port=\"apiEndpoint__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : number</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">5000</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", peripheries=2];\n  \"BaseHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>BaseHandler</b> <i>&lt;task&gt;</i> <i>@Abstract</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : number</td><td port=\"retries__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=egg, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\"];\n  \"AuthHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AuthHandler</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Authenticate user</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"OrderHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>OrderHandler</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Process order with {{<br/>AppConfig.maxRetries }} retries</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"orderData__key\" align=\"left\" balign=\"left\">orderData : Promise&lt;Order&gt;</td><td port=\"orderData__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected Promise&lt;Order&gt;, got null<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">User Session Start</td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"authenticated\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticated</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Authenticated State</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"error\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>error</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Error State</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"BaseHandler\" -> \"AuthHandler\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"BaseHandler\" -> \"OrderHandler\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"start\" -> \"AuthHandler\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"AuthHandler\" -> \"AppConfig\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"AuthHandler\" -> \"authenticated\" [label=\"success\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"AuthHandler\" -> \"error\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"authenticated\" -> \"OrderHandler\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_AuthHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Authenticates user credentials.\nUses JWT<br/>tokens with {{ AppConfig.timeout }}ms<br/>timeout.\nRetries up to {{<br/>AppConfig.maxRetries }} times on<br/>failure.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_AuthHandler\" -> \"AuthHandler\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Validation Warnings\n  \"warning_OrderHandler_0\" [label=<🔴 Type mismatch: expected<br/>Promise&lt;Order&gt;, got null>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_OrderHandler_0\" -> \"OrderHandler\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Inferred Dependencies\n  \"OrderHandler\" -> \"AppConfig\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "211b6f44043489a88f0a912b30418ff52806aaedfee637d83815441e07879389"
+}

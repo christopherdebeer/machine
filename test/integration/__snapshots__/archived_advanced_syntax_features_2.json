@@ -1,0 +1,76 @@
+{
+  "json": {
+    "title": "Documentation Example",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "fetchData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "url",
+            "type": "string",
+            "value": "https://api.example.com"
+          }
+        ]
+      },
+      {
+        "name": "processData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "transform",
+            "type": "string",
+            "value": "normalize"
+          }
+        ]
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "status",
+            "type": "string",
+            "value": "success"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "fetchData",
+        "target": "processData",
+        "arrowType": "->"
+      },
+      {
+        "source": "processData",
+        "target": "complete",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [
+      {
+        "target": "fetchData",
+        "content": "Fetches data from the external API. Includes retry logic with exponential backoff.",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "processData",
+        "content": "Processes and normalizes the fetched data. Applies schema validation and type checking.",
+        "annotations": [],
+        "attributes": []
+      },
+      {
+        "target": "complete",
+        "content": "Final state indicating successful completion of the entire workflow.",
+        "annotations": [],
+        "attributes": []
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Documentation Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchData</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"url__key\" align=\"left\" balign=\"left\">url : string</td><td port=\"url__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processData</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"transform__key\" align=\"left\" balign=\"left\">transform : string</td><td port=\"transform__value\" align=\"left\" balign=\"left\">normalize</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"status__key\" align=\"left\" balign=\"left\">status : string</td><td port=\"status__value\" align=\"left\" balign=\"left\">success</td></tr></table></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"fetchData\" -> \"processData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processData\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Fetches data from the external API.<br/>Includes retry logic with exponential<br/>backoff.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_fetchData\" -> \"fetchData\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_processData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Processes and normalizes the fetched<br/>data. Applies schema validation and type<br/>checking.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_processData\" -> \"processData\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_2_complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Final state indicating successful<br/>completion of the entire workflow.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_2_complete\" -> \"complete\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "6b92727b82c4282107cb8796684f8a0d1dad81705efcb142ad3fe50fcd95f6b1"
+}

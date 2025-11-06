@@ -1,0 +1,72 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "myTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "Array",
+            "type": "Date"
+          },
+          {
+            "name": "Array",
+            "type": "Integer"
+          }
+        ]
+      },
+      {
+        "name": "Array",
+        "attributes": [],
+        "parent": "myTask"
+      },
+      {
+        "name": "are",
+        "type": "elements",
+        "attributes": [],
+        "parent": "myTask"
+      },
+      {
+        "name": "as",
+        "type": "validated",
+        "attributes": [],
+        "parent": "myTask"
+      },
+      {
+        "name": "dates",
+        "type": "dates",
+        "attributes": [],
+        "parent": "myTask"
+      },
+      {
+        "name": "Array",
+        "attributes": [],
+        "parent": "myTask"
+      },
+      {
+        "name": "are",
+        "type": "elements",
+        "attributes": [],
+        "parent": "myTask"
+      },
+      {
+        "name": "as",
+        "type": "validated",
+        "attributes": [],
+        "parent": "myTask"
+      },
+      {
+        "name": "counts",
+        "type": "integers",
+        "attributes": [],
+        "parent": "myTask"
+      }
+    ],
+    "edges": [],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_myTask {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>myTask</b> <i>&lt;task&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    penwidth=3;\n    color=\"#D32F2F\";\n    \"myTask\" [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"Array__key\" align=\"left\" balign=\"left\">Array : Date</td><td port=\"Array__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"Array__key_1\" align=\"left\" balign=\"left\">Array : Integer</td><td port=\"Array__value_1\" align=\"left\" balign=\"left\">null</td></tr></table>>, shape=plain, margin=0];\n    \"myTask__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Array\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Array</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"are\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>are</b> <i>&lt;elements&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"as\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>as</b> <i>&lt;validated&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"dates\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dates</b> <i>&lt;dates&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"Array\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Array</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"are\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>are</b> <i>&lt;elements&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"as\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>as</b> <i>&lt;validated&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"counts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>counts</b> <i>&lt;integers&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  }\n\n\n  // Validation Warnings\n  \"warning_myTask_0\" [label=<🔴 Attribute 'Array' has type Date but<br/>no value provided>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_myTask_0\" -> \"myTask\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"warning_myTask_1\" [label=<🔴 Attribute 'Array' has type Integer<br/>but no value provided>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_myTask_1\" -> \"myTask\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
+  "svgHash": "7ac8aad3ce1a30e1c0834680382ee40cf8778166228851dd7a1bc86f0193e396"
+}

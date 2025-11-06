@@ -1,0 +1,127 @@
+{
+  "json": {
+    "title": "Conditional Evolution System",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "mode",
+            "type": "string",
+            "value": "production"
+          },
+          {
+            "name": "maxRetries",
+            "type": "number",
+            "value": 3
+          },
+          {
+            "name": "enableLogging",
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      },
+      {
+        "name": "performance",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "avgResponseTime",
+            "type": "number",
+            "value": 0
+          },
+          {
+            "name": "peakMemory",
+            "type": "number",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "name": "start",
+        "type": "state",
+        "attributes": []
+      },
+      {
+        "name": "adapter",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "meta",
+            "value": true
+          },
+          {
+            "name": "prompt",
+            "value": "Read the config and performance contexts. Use get_machine_definition to see the current structure. Based on conditions, modify the machine:\n    - If mode='production' and maxRetries > 1: add retry logic with exponential backoff\n    - If avgResponseTime > 1000ms: add caching layer\n    - If enableLogging=true: add logging nodes at key points\n    Use update_definition to apply changes."
+          }
+        ]
+      },
+      {
+        "name": "processing",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Main processing logic"
+          }
+        ]
+      },
+      {
+        "name": "complete",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "System operation complete"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "adapter",
+        "arrowType": "->"
+      },
+      {
+        "source": "adapter",
+        "target": "config",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "adapter",
+        "target": "performance",
+        "arrowType": "->",
+        "value": {
+          "text": "reads"
+        },
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "adapter",
+        "target": "processing",
+        "arrowType": "->"
+      },
+      {
+        "source": "processing",
+        "target": "complete",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Conditional Evolution System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"mode__key\" align=\"left\" balign=\"left\">mode : string</td><td port=\"mode__value\" align=\"left\" balign=\"left\">production</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : number</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"enableLogging__key\" align=\"left\" balign=\"left\">enableLogging : boolean</td><td port=\"enableLogging__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"performance\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>performance</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"avgResponseTime__key\" align=\"left\" balign=\"left\">avgResponseTime : number</td><td port=\"avgResponseTime__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"peakMemory__key\" align=\"left\" balign=\"left\">peakMemory : number</td><td port=\"peakMemory__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;state&gt;</i></td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"adapter\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>adapter</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Read the config and performance<br/>contexts. Use get_machine_definition to<br/>see the current structure. Based on<br/>conditions, modify the machine:\n    - If<br/>mode='production' and maxRetries &gt; 1:<br/>add retry logic with exponential<br/>backoff\n    - If avgResponseTime &gt;<br/>1000ms: add caching layer\n    - If<br/>enableLogging=true: add logging nodes at<br/>key points\n    Use update_definition to<br/>apply changes.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Main processing logic</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">System operation complete</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"start\" -> \"adapter\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"adapter\" -> \"config\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"adapter\" -> \"performance\" [label=\"reads\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"adapter\" -> \"processing\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processing\" -> \"complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "429045acb86aa7882a5a0da01fafb118e49e0b86084611cde1094d9a715899e9"
+}

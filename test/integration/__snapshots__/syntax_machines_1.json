@@ -1,0 +1,35 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Start",
+        "attributes": []
+      },
+      {
+        "name": "Process",
+        "attributes": []
+      },
+      {
+        "name": "End",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "Start",
+        "target": "Process",
+        "arrowType": "->"
+      },
+      {
+        "source": "Process",
+        "target": "End",
+        "arrowType": "->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Start\" -> \"Process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"End\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "9d02490e51d21197eabc1a26c07ae4bb9c51cd40ac7cb4b9d740428d2f312d77"
+}

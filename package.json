@@ -1,0 +1,171 @@
+{
+    "name": "dygram",
+    "description": "Dynamic state machine prototyping language",
+    "version": "0.4.0",
+    "displayName": "DyGram",
+    "icon": "icon.jpg",
+    "publisher": "c15r",
+    "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/christopherdebeer/machine"
+    },
+    "activationEvents": [
+        "onLanguage:machine",
+        "onCommand:extension.generateAndPreview"
+    ],
+    "scripts": {
+        "clean": "rm -rf ./dist ./test-output ./out",
+        "prebuild": "node scripts/prebuild.js && npm run langium:generate",
+        "build": "npm run build:all",
+        "build:all": "npm run prebuild && npm run build:web",
+        "build:extension": "tsc -b tsconfig.src.json && node esbuild.mjs",
+        "build:web": "vite build && node scripts/generate-sitemap.js",
+        "watch": "npm run prebuild && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild.mjs --watch\"",
+        "dev": "npm run prebuild && concurrently -n watch,web -c blue,yellow \"npm run watch:extension\" \"npm run dev:web\"",
+        "watch:extension": "concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild.mjs --watch\"",
+        "dev:web": "vite",
+        "lint": "eslint src --ext ts",
+        "langium:generate": "langium generate",
+        "langium:generate:production": "langium generate --mode=production",
+        "langium:watch": "langium generate --watch",
+        "vscode:prepublish": "npm run build:extension && npm run lint",
+        "vscode:package": "vsce package",
+        "bundle": "npm run build:web",
+        "bundle:serve": "http-server ./dist --port 5175",
+        "dev:debug": "vite --debug --force",
+        "serve": "npm run dev",
+        "test": "npm run prebuild && vitest run",
+        "test:coverage": "npm run prebuild && vitest run --coverage",
+        "test:runtime": "npm run prebuild && vitest run test/integration/runtime-visualization.test.ts",
+        "test:env": "npm run prebuild && vitest run test/scripts/test-with-env.ts",
+        "test:e2e": "npm run prebuild && playwright test",
+        "test:e2e:ci": "npm run prebuild && npx playwright install --with-deps chromium && playwright test",
+        "test:e2e:ui": "npm run prebuild && playwright test --ui",
+        "test:e2e:headed": "npm run prebuild && playwright test --headed",
+        "test:all": "npm run prebuild && vitest run --coverage && vitest run test/integration/runtime-visualization.test.ts && playwright test",
+        "test:reports": "npm run prebuild && (vitest run --coverage || true) && (playwright test || true) && node scripts/generate-test-index.js",
+        "build:with-tests": "(npm run test:reports || true) && npm run build",
+        "snapshots:update": "node scripts/update-snapshots.js",
+        "snapshots:list": "node scripts/update-snapshots.js --list",
+        "snapshots:review": "node scripts/update-snapshots.js --review"
+    },
+    "dependencies": {
+        "@anthropic-ai/claude-agent-sdk": "^0.1.25",
+        "@anthropic-ai/sdk": "^0.67.0",
+        "@aws-sdk/client-bedrock-runtime": "^3.535.0",
+        "@bufbuild/cel": "^0.3.0",
+        "@codemirror/autocomplete": "^6.12.0",
+        "@codemirror/commands": "^6.3.3",
+        "@codemirror/language": "^6.10.0",
+        "@codemirror/lint": "^6.5.0",
+        "@codemirror/search": "^6.5.5",
+        "@codemirror/state": "^6.4.0",
+        "@codemirror/theme-one-dark": "^6.1.2",
+        "@codemirror/view": "^6.23.0",
+        "@codingame/monaco-vscode-editor-service-override": "~3.2.3",
+        "@codingame/monaco-vscode-keybindings-service-override": "~3.2.3",
+        "@hpcc-js/wasm": "^2.26.3",
+        "async-mutex": "^0.5.0",
+        "chalk": "~5.3.0",
+        "codemirror": "^6.0.1",
+        "commander": "~11.0.0",
+        "glob": "^11.0.3",
+        "langium": "~3.4.0",
+        "marked": "^16.4.1",
+        "monaco-editor": "npm:@codingame/monaco-vscode-editor-api@~3.2.3",
+        "monaco-editor-wrapper": "~4.0.2",
+        "monaco-languageclient": "~8.1.1",
+        "styled-components": "^6.1.19",
+        "vscode-languageclient": "~9.0.1",
+        "vscode-languageserver": "~9.0.1",
+        "zod": "^3.24.1"
+    },
+    "devDependencies": {
+        "@codingame/esbuild-import-meta-url-plugin": "~1.0.2",
+        "@mdx-js/rollup": "^3.1.1",
+        "@playwright/test": "^1.56.0",
+        "@types/node": "^18.0.0",
+        "@types/react": "^19.2.2",
+        "@types/react-dom": "^19.2.1",
+        "@types/styled-components": "^5.1.34",
+        "@types/vscode": "~1.67.0",
+        "@typescript-eslint/eslint-plugin": "~7.3.1",
+        "@typescript-eslint/parser": "~7.3.1",
+        "@vercel/node": "^5.5.3",
+        "@vitejs/plugin-react": "^5.0.4",
+        "@vitest/coverage-v8": "^1.6.1",
+        "@vitest/ui": "^1.6.1",
+        "@vscode/vsce": "^3.2.1",
+        "babel-plugin-styled-components": "^2.1.4",
+        "concurrently": "~8.2.1",
+        "esbuild": "^0.25.10",
+        "eslint": "~8.57.0",
+        "happy-dom": "^20.0.10",
+        "http-server": "~14.1.1",
+        "langium-cli": "~3.4.0",
+        "playwright": "^1.56.0",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
+        "remark-slug": "^7.0.1",
+        "remark-toc": "^9.0.0",
+        "sitemap": "^8.0.1",
+        "typescript": "~5.1.6",
+        "vite": "^5.4.20",
+        "vite-plugin-static-copy": "^2.3.0",
+        "vitest": "^1.6.1",
+        "vscode": "npm:@codingame/monaco-vscode-api@~3.2.3"
+    },
+    "volta": {
+        "node": "18.19.1",
+        "npm": "10.2.4"
+    },
+    "engines": {
+        "vscode": "^1.67.0",
+        "node": ">=18.0.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "machine",
+                "aliases": [
+                    "Machine",
+                    "machine",
+                    "Dygram"
+                ],
+                "extensions": [
+                    ".mach",
+                    ".dygram",
+                    ".dy"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "machine",
+                "scopeName": "source.machine",
+                "path": "syntaxes/machine.tmLanguage.json"
+            },
+            {
+                "language": "DyGram",
+                "scopeName": "source.dygram",
+                "path": "syntaxes/machine.tmLanguage.json"
+            }
+        ],
+        "commands": [
+            {
+                "command": "extension.generateAndPreview",
+                "title": "DyGram: Generate and Preview"
+            }
+        ]
+    },
+    "main": "./out/extension/main.cjs",
+    "bin": {
+        "dygram": "./bin/cli.js",
+        "machine": "./bin/cli.js"
+    }
+}

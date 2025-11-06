@@ -1,0 +1,235 @@
+{
+  "json": {
+    "title": "CI/CD Pipeline",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "source",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Checkout source code"
+          },
+          {
+            "name": "stage",
+            "value": "init"
+          }
+        ]
+      },
+      {
+        "name": "build",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Compile and build"
+          },
+          {
+            "name": "stage",
+            "value": "build"
+          }
+        ]
+      },
+      {
+        "name": "test",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Run test suite"
+          },
+          {
+            "name": "stage",
+            "value": "test"
+          }
+        ]
+      },
+      {
+        "name": "security_scan",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Security vulnerability scan"
+          },
+          {
+            "name": "stage",
+            "value": "security"
+          }
+        ]
+      },
+      {
+        "name": "deploy_staging",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Deploy to staging"
+          },
+          {
+            "name": "stage",
+            "value": "deploy"
+          }
+        ]
+      },
+      {
+        "name": "integration_test",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Run integration tests"
+          },
+          {
+            "name": "stage",
+            "value": "test"
+          }
+        ]
+      },
+      {
+        "name": "deploy_production",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Deploy to production"
+          },
+          {
+            "name": "stage",
+            "value": "deploy"
+          }
+        ]
+      },
+      {
+        "name": "failed",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Pipeline failed"
+          }
+        ]
+      },
+      {
+        "name": "success",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "desc",
+            "value": "Pipeline completed successfully"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "source",
+        "target": "build",
+        "arrowType": "->"
+      },
+      {
+        "source": "build",
+        "target": "test",
+        "arrowType": "->"
+      },
+      {
+        "source": "test",
+        "target": "security_scan",
+        "arrowType": "->",
+        "value": {
+          "text": "pass"
+        },
+        "attributes": {
+          "text": "pass"
+        }
+      },
+      {
+        "source": "security_scan",
+        "target": "deploy_staging",
+        "arrowType": "->",
+        "value": {
+          "text": "clean"
+        },
+        "attributes": {
+          "text": "clean"
+        }
+      },
+      {
+        "source": "deploy_staging",
+        "target": "integration_test",
+        "arrowType": "->",
+        "value": {
+          "text": "ready"
+        },
+        "attributes": {
+          "text": "ready"
+        }
+      },
+      {
+        "source": "integration_test",
+        "target": "deploy_production",
+        "arrowType": "->",
+        "value": {
+          "text": "pass"
+        },
+        "attributes": {
+          "text": "pass"
+        }
+      },
+      {
+        "source": "deploy_production",
+        "target": "success",
+        "arrowType": "->"
+      },
+      {
+        "source": "build",
+        "target": "failed",
+        "arrowType": "->",
+        "value": {
+          "text": "error"
+        },
+        "attributes": {
+          "text": "error"
+        }
+      },
+      {
+        "source": "test",
+        "target": "failed",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      },
+      {
+        "source": "security_scan",
+        "target": "failed",
+        "arrowType": "->",
+        "value": {
+          "text": "vulnerability"
+        },
+        "attributes": {
+          "text": "vulnerability"
+        }
+      },
+      {
+        "source": "integration_test",
+        "target": "failed",
+        "arrowType": "->",
+        "value": {
+          "text": "failure"
+        },
+        "attributes": {
+          "text": "failure"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>CI/CD Pipeline</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"source\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>source</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Checkout source code</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">init</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"build\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>build</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Compile and build</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">build</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"test\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>test</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Run test suite</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">test</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"security_scan\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>security_scan</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Security vulnerability scan</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">security</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"deploy_staging\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>deploy_staging</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deploy to staging</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">deploy</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"integration_test\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>integration_test</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Run integration tests</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">test</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"deploy_production\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>deploy_production</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deploy to production</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">deploy</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>failed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Pipeline failed</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>success</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Pipeline completed successfully</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"source\" -> \"build\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"build\" -> \"test\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"test\" -> \"security_scan\" [label=\"pass\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"security_scan\" -> \"deploy_staging\" [label=\"clean\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"deploy_staging\" -> \"integration_test\" [label=\"ready\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"integration_test\" -> \"deploy_production\" [label=\"pass\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"deploy_production\" -> \"success\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"build\" -> \"failed\" [label=\"error\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"test\" -> \"failed\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"security_scan\" -> \"failed\" [label=\"vulnerability\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"integration_test\" -> \"failed\" [label=\"failure\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "b94fd76fd05a0b7f5ce6a46386e239faf0eba435d00474a00474e08ee33a5dc3"
+}

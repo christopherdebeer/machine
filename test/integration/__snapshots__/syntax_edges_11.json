@@ -1,0 +1,99 @@
+{
+  "json": {
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "Idle",
+        "attributes": []
+      },
+      {
+        "name": "Running",
+        "attributes": []
+      },
+      {
+        "name": "Paused",
+        "attributes": []
+      },
+      {
+        "name": "Stopped",
+        "attributes": []
+      },
+      {
+        "name": "Failed",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "Idle",
+        "target": "Running",
+        "arrowType": "->",
+        "value": {
+          "text": "start"
+        },
+        "attributes": {
+          "text": "start"
+        }
+      },
+      {
+        "source": "Running",
+        "target": "Paused",
+        "arrowType": "->",
+        "value": {
+          "text": "pause"
+        },
+        "attributes": {
+          "text": "pause"
+        }
+      },
+      {
+        "source": "Paused",
+        "target": "Running",
+        "arrowType": "->",
+        "value": {
+          "text": "resume"
+        },
+        "attributes": {
+          "text": "resume"
+        }
+      },
+      {
+        "source": "Running",
+        "target": "Stopped",
+        "arrowType": "->",
+        "value": {
+          "text": "stop"
+        },
+        "attributes": {
+          "text": "stop"
+        }
+      },
+      {
+        "source": "Running",
+        "target": "Failed",
+        "arrowType": "->",
+        "value": {
+          "text": "error"
+        },
+        "attributes": {
+          "text": "error"
+        }
+      },
+      {
+        "source": "Failed",
+        "target": "Running",
+        "arrowType": "->",
+        "value": {
+          "text": "retry"
+        },
+        "attributes": {
+          "text": "retry"
+        }
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Idle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Idle</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Running</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Paused</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Stopped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Stopped</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Failed</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Idle\" -> \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>start</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Running\" -> \"Paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>pause</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Paused\" -> \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>resume</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Running\" -> \"Stopped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>stop</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Running\" -> \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Failed\" -> \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>retry</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "e5b91f16278d5209d715ab4594b1f17470cfe2d2b5c49d5a885662ce0cbf4e05"
+}

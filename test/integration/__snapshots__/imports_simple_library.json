@@ -1,0 +1,42 @@
+{
+  "json": {
+    "title": "Auth Library",
+    "attributes": [],
+    "nodes": [
+      {
+        "name": "LoginPage",
+        "type": "state",
+        "attributes": [],
+        "title": "User Login"
+      },
+      {
+        "name": "AuthService",
+        "type": "state",
+        "attributes": [],
+        "title": "Authentication"
+      },
+      {
+        "name": "UserSession",
+        "type": "state",
+        "attributes": [],
+        "title": "Active Session"
+      }
+    ],
+    "edges": [
+      {
+        "source": "LoginPage",
+        "target": "AuthService",
+        "arrowType": "-->"
+      },
+      {
+        "source": "AuthService",
+        "target": "UserSession",
+        "arrowType": "-->"
+      }
+    ],
+    "notes": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Auth Library</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"LoginPage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoginPage</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User Login</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"AuthService\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AuthService</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Authentication</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"UserSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UserSession</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Active Session</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"LoginPage\" -> \"AuthService\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"AuthService\" -> \"UserSession\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "6b9cbe09d36ef6621ae98acd5f456e847e1a64547c270b314cac1bfa9398ad16"
+}
