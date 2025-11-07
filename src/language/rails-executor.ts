@@ -128,7 +128,8 @@ export class RailsExecutor extends BaseExecutor {
             this.context,
             this.metaToolManager,
             this.toolRegistry,
-            config.agentSDK
+            config.agentSDK,
+            this.logger
         );
 
         // Register dynamic tool patterns with ToolRegistry
@@ -196,7 +197,19 @@ export class RailsExecutor extends BaseExecutor {
         const executor = new RailsExecutor(machineData, config);
 
         if (config.llm) {
-            executor.llmClient = await createLLMClient(config.llm);
+            // Log API key status when in debug mode
+            const apiKey = config.llm.apiKey;
+            const hasApiKey = apiKey && apiKey.trim() !== '';
+            executor.logger.debug('llm-client', `Creating LLM client: provider=${config.llm.provider}, model=${config.llm.modelId}, apiKey=${hasApiKey ? 'SET (non-empty)' : 'NOT SET or EMPTY'}`);
+
+            try {
+                executor.llmClient = await createLLMClient(config.llm);
+                executor.logger.debug('llm-client', 'LLM client created successfully');
+            } catch (error) {
+                const errorMsg = error instanceof Error ? error.message : String(error);
+                executor.logger.error('llm-client', `Failed to create LLM client: ${errorMsg}`);
+                throw error;
+            }
         }
 
         return executor;

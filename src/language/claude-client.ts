@@ -75,13 +75,16 @@ export class ClaudeClient {
 
         if (this.transport === 'api') {
             // Direct API transport
-            if (!config.apiKey && !process.env.ANTHROPIC_API_KEY) {
+            const apiKey = config.apiKey || process.env.ANTHROPIC_API_KEY;
+
+            // Validate API key (check for both missing and empty)
+            if (!apiKey || apiKey.trim() === '') {
                 throw new Error('Anthropic API key is required. Set ANTHROPIC_API_KEY environment variable or pass apiKey in config.');
             }
 
             this.anthropicClient = new Anthropic({
                 dangerouslyAllowBrowser: true,
-                apiKey: config.apiKey || process.env.ANTHROPIC_API_KEY
+                apiKey: apiKey
             });
             // Model ID priority: config > env var > default (haiku)
             this.modelId = config.modelId || process.env.ANTHROPIC_MODEL_ID || 'claude-3-5-haiku-20241022';
