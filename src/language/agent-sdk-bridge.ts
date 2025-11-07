@@ -12,6 +12,7 @@ import type { ToolDefinition, ConversationMessage, ModelResponse, ToolUseBlock }
 import type { MachineData, MachineExecutionContext } from './rails-executor.js';
 import type { MetaToolManager } from './meta-tool-manager.js';
 import type { ToolRegistry } from './tool-registry.js';
+import type { ExecutionLogger } from './execution/index.js';
 import { ClaudeClient } from './claude-client.js';
 import { extractText, extractToolUses } from './llm-utils.js';
 import { Mutex } from 'async-mutex';
@@ -91,6 +92,7 @@ export class AgentSDKBridge {
     private toolExecutor?: (toolName: string, input: any) => Promise<any>;
     private claudeClient?: ClaudeClient;
     private toolRegistry?: ToolRegistry;
+    private logger?: ExecutionLogger;
 
     // Mutexes for protecting shared state
     private invocationMutex = new Mutex();
@@ -104,8 +106,10 @@ export class AgentSDKBridge {
         private _executionContext: MachineExecutionContext,
         private metaToolManager: MetaToolManager,
         toolRegistry?: ToolRegistry,
-        config: AgentSDKBridgeConfig = {}
+        config: AgentSDKBridgeConfig = {},
+        logger?: ExecutionLogger
     ) {
+        this.logger = logger;
         this.toolRegistry = toolRegistry;
         this.config = {
             model: config.model || 'sonnet',
@@ -385,7 +389,11 @@ export class AgentSDKBridge {
                             break;
                         }
                     } catch (error) {
+                        const errorMsg = error instanceof Error ? error.message : String(error);
                         console.error(`❌ Tool execution error: ${toolUse.name}`, error);
+                        if (this.logger) {
+                            this.logger.error('tool-execution', `Tool '${toolUse.name}' failed: ${errorMsg}`);
+                        }
 
                         // Report error to agent
                         messages.push({
@@ -425,7 +433,11 @@ export class AgentSDKBridge {
                     });
                 }
             } catch (error) {
+                const errorMsg = error instanceof Error ? error.message : String(error);
                 console.error('❌ Agent invocation error:', error);
+                if (this.logger) {
+                    this.logger.error('agent-invocation', `Agent invocation failed: ${errorMsg}`);
+                }
                 throw error;
             }
         }

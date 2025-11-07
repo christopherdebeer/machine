@@ -4,7 +4,11 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Api
 
+  - [API Reference](api/README.md)
+
 ### Cli
+
+  - [CLI Reference](cli/README.md)
 
 ### Development
 
@@ -30,6 +34,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Edge Syntax Validation Examples](examples/edge-syntax-validation.md)
   - [Import System Examples](examples/imports.md)
   - [LLM Integration Examples](examples/llm-integration.md)
+  - [Examples](examples/README.md)
   - [Runtime Execution Examples](examples/runtime-execution.md)
   - [State Machine Examples](examples/state-machines.md)
   - [Styling and Validation](examples/styling-and-validation.md)
@@ -37,6 +42,8 @@ Complete reference to all DyGram documentation organized by topic.
   - [Workflow Examples](examples/workflows.md)
 
 ### Getting Started
+
+  - [Getting Started](getting-started/README.md)
 
 ### Syntax
 
@@ -49,8 +56,11 @@ Complete reference to all DyGram documentation organized by topic.
   - [Markdown Formatting](syntax/markdown.md)
   - [Nodes](syntax/nodes.md)
   - [Qualified Names](syntax/qualified-names.md)
+  - [Language Reference](syntax/README.md)
   - [Template Strings](syntax/templates.md)
   - [Types](syntax/types.md)
 
+- [Documentation Index](docs.md)
+- [DyGram | Thought → System](README.md)
 - [Custom Styling](styling.md)
 - [Testing with Mock Claude Client](testing-with-mock-client.md)
