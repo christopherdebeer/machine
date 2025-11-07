@@ -742,6 +742,8 @@ export const CodeMirrorPlayground: React.FC = () => {
         saveSettings(updated.model, updated.apiKey);
         return updated;
       });
+      // Invalidate cached executor when model changes
+      setExecutor(null);
     },
     []
   );
@@ -754,6 +756,8 @@ export const CodeMirrorPlayground: React.FC = () => {
         saveSettings(updated.model, updated.apiKey);
         return updated;
       });
+      // Invalidate cached executor when API key changes
+      setExecutor(null);
     },
     []
   );
