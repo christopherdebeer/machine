@@ -36,6 +36,11 @@ interface GenerateOptions {
     verbose?: boolean;
     quiet?: boolean;
     noImports?: boolean;
+    /**
+     * When true, throw errors instead of exiting the process.
+     * Enables callers like batchAction or tests to gracefully handle failures.
+     */
+    throwOnError?: boolean;
 }
 
 interface BatchOptions {
@@ -82,7 +87,6 @@ function setupLogger(opts: { verbose?: boolean; quiet?: boolean }): void {
 
 async function generateWithImports(fileName: string, opts: GenerateOptions, formats: GenerateFormat[]): Promise<void> {
     const services = createMachineServices(NodeFileSystem).Machine;
-    const workingDir = path.dirname(path.resolve(fileName));
     const resolver = new FileSystemResolver();
     const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
@@ -99,7 +103,9 @@ async function generateWithImports(fileName: string, opts: GenerateOptions, form
         // Get entry document
         const entryDoc = workspace.documents.get(fileUri);
         if (!entryDoc) {
-            logger.error(`Failed to load entry file: ${fileName}`);
+            const error = new Error(`Failed to load entry file: ${fileName}`);
+            logger.error(error.message);
+            if (opts.throwOnError) throw error;
             process.exit(1);
         }
 
@@ -156,9 +162,11 @@ async function generateWithImports(fileName: string, opts: GenerateOptions, form
         if (error instanceof CircularDependencyError) {
             logger.error('✗ Circular dependency detected:');
             logger.error('  ' + error.cycle.map(uri => fileURLToPath(uri)).join(' → '));
+            if (opts.throwOnError) throw error;
             process.exit(1);
         } else if (error instanceof ModuleNotFoundError) {
             logger.error(`✗ ${error.message}`);
+            if (opts.throwOnError) throw error;
             process.exit(1);
         } else {
             throw error;
@@ -249,7 +257,9 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
 async function generateDSLAction(fileName: string, opts: GenerateOptions, formats: GenerateFormat[]): Promise<void> {
     // DSL format requires JSON input
     if (!fileName.endsWith('.json')) {
-        logger.error('DSL format generation requires a JSON input file');
+        const error = new Error('DSL format generation requires a JSON input file');
+        logger.error(error.message);
+        if (opts.throwOnError) throw error;
         process.exit(1);
     }
 
@@ -685,7 +695,8 @@ export const batchAction = async (pattern: string, opts: BatchOptions): Promise<
                 destination: opts.destination,
                 format: opts.format,
                 verbose: opts.verbose,
-                quiet: opts.quiet
+                quiet: opts.quiet,
+                throwOnError: true
             });
 
             results.push({ file, success: true });
