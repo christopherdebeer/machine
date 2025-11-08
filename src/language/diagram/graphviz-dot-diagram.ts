@@ -966,7 +966,11 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
 
     // Separate style nodes from renderable nodes
     const styleNodes = machineJson.nodes.filter(n => NodeTypeChecker.isStyleNode(n));
-    const renderableNodes = machineJson.nodes.filter(n => !NodeTypeChecker.isStyleNode(n));
+    const renderableNodes = machineJson.nodes.filter(n => {
+        const type = n.type?.toLowerCase();
+        return !NodeTypeChecker.isStyleNode(n) && type !== 'note';
+    });
+    const noteNodes = machineJson.nodes.filter(n => n.type?.toLowerCase() === 'note');
 
     // Build runtime node and edge states if context provided
     const nodeStates = runtimeContext ? buildNodeStates(machineJson, runtimeContext) : undefined;
@@ -1075,10 +1079,10 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     }
 
     // Generate notes as edge labels
-    if (machineJson.notes && machineJson.notes.length > 0) {
+    if (noteNodes.length > 0) {
         lines.push('');
         lines.push('  // Notes');
-        lines.push(generateNotes(machineJson.notes, wrappingConfig));
+        lines.push(generateNotes(noteNodes, wrappingConfig));
     }
 
     // Generate validation warning notes if enabled
@@ -2407,13 +2411,32 @@ function getArrowStyle(arrowType: string): string {
 /**
  * Generate notes section
  */
-function generateNotes(notes: any[], wrappingConfig?: TextWrappingConfig): string {
-    if (!notes || notes.length === 0) return '';
+function generateNotes(noteNodes: any[], wrappingConfig?: TextWrappingConfig): string {
+    if (!noteNodes || noteNodes.length === 0) return '';
 
     const lines: string[] = [];
-    notes.forEach((note, index) => {
+    noteNodes.forEach((note, index) => {
+        const target = note.name;
+        if (!target) {
+            return;
+        }
+
         // Create a visible note node connected to the target
-        const noteId = `note_${index}_${note.target}`;
+        const safeTarget = String(target).replace(/[^a-zA-Z0-9_]+/g, '_');
+        const noteId = `note_${index}_${safeTarget}`;
+
+        // Determine main content: prefer explicit title, then description-like attributes
+        let content = note.title;
+        if (!content) {
+            const descAttr = (note.attributes || []).find((attr: any) => attr.name === 'desc' || attr.name === 'prompt');
+            if (descAttr?.value) {
+                content = typeof descAttr.value === 'string' ? descAttr.value : JSON.stringify(descAttr.value);
+            }
+        }
+
+        if (typeof content === 'string') {
+            content = content.replace(/^["']|["']$/g, '');
+        }
 
         // Build HTML label similar to nodes
         let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
@@ -2423,13 +2446,15 @@ function generateNotes(notes: any[], wrappingConfig?: TextWrappingConfig): strin
             const annotationStr = note.annotations
                 .map((ann: any) => ann.value ? `@${ann.name}(${ann.value})` : `@${ann.name}`)
                 .join(' ');
-            htmlLabel += '<tr><td align="left"><i>' + escapeHtml(annotationStr) + '</i></td></tr>';
+            if (annotationStr) {
+                htmlLabel += '<tr><td align="left"><i>' + escapeHtml(annotationStr) + '</i></td></tr>';
+            }
         }
 
         // Second row: Main content
-        if (note.content) {
-            const content = breakLongText(note.content, 40);
-            htmlLabel += '<tr><td align="left">' + content.map(line => processMarkdown(line)).join('<br/>') + '</td></tr>';
+        if (content) {
+            const contentLines = breakLongText(content, 40);
+            htmlLabel += '<tr><td align="left">' + contentLines.map(line => processMarkdown(line)).join('<br/>') + '</td></tr>';
         }
 
         // Attributes table (using shared function)
@@ -2443,7 +2468,7 @@ function generateNotes(notes: any[], wrappingConfig?: TextWrappingConfig): strin
         htmlLabel += '</table>';
 
         lines.push(`  "${noteId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
-        lines.push(`  "${noteId}" -> "${note.target}" [style=dashed, color="#999999", arrowhead=none];`);
+        lines.push(`  "${noteId}" -> "${target}" [style=dashed, color="#999999", arrowhead=none];`);
     });
 
     return lines.join('\n');

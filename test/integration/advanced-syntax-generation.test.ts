@@ -13,6 +13,10 @@ async function generateJSONFromModel(model: Machine, filePath: string, options: 
     return { json: json.content };
 }
 
+function getNoteNodes(machineJson: any) {
+    return (machineJson.nodes || []).filter((n: any) => n.type === 'note');
+}
+
 describe('Note Generation', () => {
     it('should include notes in JSON output', async () => {
         const input = `
@@ -24,12 +28,12 @@ describe('Note Generation', () => {
         const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         expect(json).toBeDefined();
-        // JSON should contain notes array
+        // JSON should contain note nodes embedded in the hierarchy
         const machineJson = JSON.parse(json.json);
-        expect(machineJson.notes).toBeDefined();
-        expect(machineJson.notes).toHaveLength(1);
-        expect(machineJson.notes[0].target).toBe('process');
-        expect(machineJson.notes[0].content).toBe('Test note');
+        const notes = getNoteNodes(machineJson);
+        expect(notes).toHaveLength(1);
+        expect(notes[0].name).toBe('process');
+        expect(notes[0].title).toBe('Test note');
     });
 
     it('should not generate Mermaid output (deprecated)', async () => {
@@ -58,7 +62,7 @@ describe('Note Generation', () => {
         const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(json.json);
-        expect(machineJson.notes).toHaveLength(2);
+        expect(getNoteNodes(machineJson)).toHaveLength(2);
     });
 
     it('should filter out invalid note targets', async () => {
@@ -73,7 +77,7 @@ describe('Note Generation', () => {
 
         const machineJson = JSON.parse(json.json);
         // Should only include notes with valid targets
-        expect(machineJson.notes.length).toBeLessThanOrEqual(2);
+        expect(getNoteNodes(machineJson).length).toBeLessThanOrEqual(2);
     });
 });
 
@@ -185,7 +189,7 @@ describe('Combined Feature Generation', () => {
         expect(output.mermaid).toBeUndefined();
 
         const machineJson = JSON.parse(output.json);
-        expect(machineJson.notes).toHaveLength(1);
+        expect(getNoteNodes(machineJson)).toHaveLength(1);
         expect(machineJson.nodes[0].attributes[0].type).toBe('Promise<Response>');
     });
 
@@ -218,7 +222,7 @@ describe('Combined Feature Generation', () => {
         expect(output.mermaid).toBeUndefined();
 
         // Notes
-        expect(machineJson.notes).toHaveLength(2);
+        expect(getNoteNodes(machineJson)).toHaveLength(2);
     });
 
     it('should work with all features together', async () => {
@@ -272,7 +276,7 @@ describe('Combined Feature Generation', () => {
         )).toBe(true);
 
         // Notes
-        expect(machineJson.notes).toHaveLength(3);
+        expect(getNoteNodes(machineJson)).toHaveLength(3);
     });
 });
 
