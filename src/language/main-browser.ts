@@ -1,7 +1,8 @@
 import { DocumentState, EmptyFileSystem } from 'langium';
 import { startLanguageServer } from 'langium/lsp';
 import { BrowserMessageReader, BrowserMessageWriter, createConnection, Diagnostic, NotificationType } from 'vscode-languageserver/browser.js';
-import { createMachineServices, MachineJSON } from './machine-module.js';
+import { createMachineServices } from './machine-module.js';
+import type { MachineJson } from './types/machine-json.js';
 import { Machine } from './generated/ast.js';
 import { generateJSON, generateGraphviz } from './generator/generator.js';
 
@@ -65,7 +66,7 @@ services.shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, 
     // perform this for every validated document in this build phase batch
     for (const document of documents) {
         const model = document.parseResult.value as Machine;
-        let json: MachineJSON = {title: "", nodes: [], edges: []};
+        let json: MachineJson = {title: "", nodes: [], edges: []};
         let diagram: string = "";
 
         // Filter to only include error-level diagnostics (severity 1)
@@ -86,8 +87,8 @@ services.shared.workspace.DocumentBuilder.onBuildPhase(DocumentState.Validated, 
         // this is safe so long as you careful to not clobber existing properties
         // and is incredibly helpful to enrich the feedback you get from the LS per document
         // Note: Property name kept as $mermaid for backwards compatibility, but now contains DOT/Graphviz format
-        (model as unknown as {$data: MachineJSON, $mermaid: string}).$data = json;
-        (model as unknown as {$data: MachineJSON, $mermaid: string}).$mermaid = diagram;
+        (model as unknown as {$data: MachineJson, $mermaid: string}).$data = json;
+        (model as unknown as {$data: MachineJson, $mermaid: string}).$mermaid = diagram;
 
         // send the notification for this validated document,
         // with the serialized AST + generated commands as the content

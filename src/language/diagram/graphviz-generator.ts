@@ -2,7 +2,7 @@
  * Graphviz Diagram Generator
  *
  * This module provides a unified interface for generating Graphviz DOT diagrams
- * from MachineJSON definitions. It supports both static and runtime visualizations.
+ * from MachineJson definitions. It supports both static and runtime visualizations.
  *
  * Public API:
  * - generateGraphvizFromJSON: Generate static DOT diagram
@@ -10,7 +10,7 @@
  * - renderDotToSVG: Render DOT syntax to SVG using @hpcc-js/wasm
  */
 
-import { MachineJSON, DiagramOptions, RuntimeContext } from './types.js';
+import { MachineJson, DiagramOptions, RuntimeContext } from './types.js';
 import { generateDotDiagram, generateRuntimeDotDiagram } from './graphviz-dot-diagram.js';
 import { Graphviz } from '@hpcc-js/wasm';
 
@@ -28,7 +28,7 @@ async function getGraphviz(): Promise<Awaited<ReturnType<typeof Graphviz.load>>>
 }
 
 /**
- * Generate a Graphviz DOT diagram from MachineJSON
+ * Generate a Graphviz DOT diagram from MachineJson
  *
  * This is the main entry point for static diagram generation.
  *
@@ -44,7 +44,7 @@ async function getGraphviz(): Promise<Awaited<ReturnType<typeof Graphviz.load>>>
  * ```
  */
 export function generateGraphvizFromJSON(
-    json: MachineJSON,
+    json: MachineJson,
     options: DiagramOptions = {}
 ): string {
     return generateDotDiagram(json, options);
@@ -75,7 +75,7 @@ export function generateGraphvizFromJSON(
  * ```
  */
 export function generateRuntimeGraphviz(
-    json: MachineJSON,
+    json: MachineJson,
     context: RuntimeContext,
     options: DiagramOptions = {}
 ): string {
@@ -132,7 +132,7 @@ export async function renderDotToSVG(
 }
 
 /**
- * Generate SVG directly from MachineJSON
+ * Generate SVG directly from MachineJson
  *
  * Convenience function that generates DOT and renders to SVG in one step.
  *
@@ -142,7 +142,7 @@ export async function renderDotToSVG(
  * @returns SVG string
  */
 export async function generateGraphvizSVG(
-    json: MachineJSON,
+    json: MachineJson,
     options: DiagramOptions = {},
     engine: 'dot' | 'neato' | 'fdp' | 'circo' | 'twopi' = 'dot'
 ): Promise<string> {
@@ -151,7 +151,7 @@ export async function generateGraphvizSVG(
 }
 
 /**
- * Generate runtime SVG directly from MachineJSON with execution context
+ * Generate runtime SVG directly from MachineJson with execution context
  *
  * Convenience function that generates runtime DOT and renders to SVG in one step.
  *
@@ -162,7 +162,7 @@ export async function generateGraphvizSVG(
  * @returns SVG string
  */
 export async function generateRuntimeGraphvizSVG(
-    json: MachineJSON,
+    json: MachineJson,
     context: RuntimeContext,
     options: DiagramOptions = {},
     engine: 'dot' | 'neato' | 'fdp' | 'circo' | 'twopi' = 'dot'
@@ -183,7 +183,7 @@ export async function generateRuntimeGraphvizSVG(
  * @returns Mobile-optimized DOT diagram
  */
 export function generateMobileGraphviz(
-    json: MachineJSON,
+    json: MachineJson,
     context?: RuntimeContext,
     options: DiagramOptions = {}
 ): string {
@@ -201,4 +201,4 @@ export function generateMobileGraphviz(
 }
 
 // Re-export types for convenience
-export type { MachineJSON, DiagramOptions, RuntimeContext } from './types.js';
+export type { MachineJson, DiagramOptions, RuntimeContext } from './types.js';

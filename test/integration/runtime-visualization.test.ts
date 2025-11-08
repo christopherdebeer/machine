@@ -2,11 +2,17 @@ import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import { createMachineServices } from '../../src/language/machine-module.js';
-import { Machine } from '../../src/language/generated/ast.js';
+import type { Machine } from '../../src/language/generated/ast.js';
 import { MachineExecutor } from '../../src/language/machine-executor.js';
 import { EvolutionaryExecutor } from '../../src/language/task-evolution.js';
 import { VisualizingMachineExecutor } from '../../src/language/runtime-visualizer.js';
 import { createStorage } from '../../src/language/storage.js';
+import type {
+    MachineJson,
+    MachineJsonAttribute,
+    MachineJsonEdge,
+    MachineJsonNode
+} from '../../src/language/types/machine-json.js';
 
 /**
  * Integration tests for runtime visualization and circular reference prevention
@@ -29,44 +35,47 @@ afterEach(() => {
  * Helper function to convert parsed Machine AST to MachineData format
  * This mirrors the convertToMachineData function from codemirror-setup.ts
  */
-function convertToMachineData(machine: Machine): any {
-    const nodes: any[] = [];
-    const edges: any[] = [];
+function convertToMachineData(machine: Machine): MachineJson {
+    const nodes: MachineJsonNode[] = [];
+    const edges: MachineJsonEdge[] = [];
 
     // Process nodes - safely extract only the data we need
     machine.nodes?.forEach(node => {
-        const nodeData: any = {
-            name: String(node.name || ''),
-            type: String(node.type || 'state')
-        };
+        const attributes: MachineJsonAttribute[] = [];
 
         // Convert attributes safely
         if (node.attributes && node.attributes.length > 0) {
-            nodeData.attributes = [];
             node.attributes.forEach(attr => {
-                const attrData: any = {
+                const attribute: MachineJsonAttribute = {
                     name: String(attr.name || ''),
-                    type: String(attr.type || 'string')
+                    type: attr.type ? String(attr.type) : undefined,
+                    value: ''
                 };
-                
+
                 // Safely extract attribute value
                 if (attr.value) {
                     if (typeof attr.value === 'string') {
-                        attrData.value = attr.value;
+                        attribute.value = attr.value;
                     } else if (attr.value.value !== undefined) {
-                        attrData.value = String(attr.value.value);
+                        attribute.value = String(attr.value.value);
                     } else {
-                        attrData.value = String(attr.value);
+                        attribute.value = String(attr.value);
                     }
-                } else {
-                    attrData.value = '';
                 }
-                
-                nodeData.attributes.push(attrData);
+
+                attributes.push(attribute);
             });
         }
 
-        nodes.push(nodeData);
+        nodes.push({
+            name: String(node.name || ''),
+            type: node.type ? String(node.type) : undefined,
+            title: node.title ? String(node.title) : undefined,
+            parent: node.$container && node.$container.$type === 'Node' && typeof (node.$container as { name?: string }).name === 'string'
+                ? String((node.$container as { name?: string }).name)
+                : undefined,
+            attributes
+        });
     });
 
     // Process edges - safely extract edge data without AST references
@@ -74,7 +83,7 @@ function convertToMachineData(machine: Machine): any {
         edge.segments?.forEach(segment => {
             edge.source?.forEach(sourceRef => {
                 segment.target?.forEach(targetRef => {
-                    const edgeData: any = {
+                    const edgeData: MachineJsonEdge = {
                         source: String(sourceRef.ref?.name || ''),
                         target: String(targetRef.ref?.name || '')
                     };
@@ -107,11 +116,13 @@ function convertToMachineData(machine: Machine): any {
         });
     });
 
-    return {
+    const machineJson: MachineJson = {
         title: String(machine.title || 'Untitled Machine'),
         nodes,
         edges
     };
+
+    return machineJson;
 }
 
 /**

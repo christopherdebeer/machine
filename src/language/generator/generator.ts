@@ -4,7 +4,7 @@ import { expandToNode, joinToNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { extractDestinationAndName } from '../../cli/cli-util.js';
-import { Edge, MachineJSON } from '../machine-module.js';
+import type { Edge, MachineJson } from '../types/machine-json.js';
 import { DependencyAnalyzer } from '../dependency-analyzer.js';
 import { generateGraphvizFromJSON } from '../diagram/index.js';
 import { TypeHierarchy } from '../diagram/types.js';
@@ -343,7 +343,7 @@ class JSONGenerator extends BaseGenerator {
         const inferredDeps = dependencyAnalyzer.inferDependencies();
 
         // Create a serializable object representation of the machine
-        const machineObject : MachineJSON = {
+        const machineObject : MachineJson = {
             title: this.machine.title,
             attributes: this.machine.attributes ? this.serializeMachineAttributes(this.machine.attributes) : undefined,
             annotations: this.machine.annotations && this.machine.annotations.length > 0
@@ -1050,7 +1050,7 @@ class GraphvizGenerator extends BaseGenerator {
         // First generate JSON as intermediate format
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
         const jsonContent = jsonGen.generate();
-        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+        const machineJson: MachineJson = JSON.parse(jsonContent.content);
 
         // Build validation context from the machine AST
         const validationContext = buildValidationContext(this.machine);
@@ -1074,7 +1074,7 @@ class GraphvizGenerator extends BaseGenerator {
         // First generate JSON as intermediate format
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
         const jsonContent = jsonGen.generate();
-        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+        const machineJson: MachineJson = JSON.parse(jsonContent.content);
 
         // Build validation context from the machine AST
         const validationContext = buildValidationContext(this.machine);
@@ -1111,7 +1111,7 @@ class MarkdownGenerator extends BaseGenerator {
         // First generate JSON as intermediate format
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
         const jsonContent = jsonGen.generate();
-        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+        const machineJson: MachineJson = JSON.parse(jsonContent.content);
 
         // Build type hierarchy
         const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
@@ -1161,7 +1161,7 @@ ${JSON.stringify(machineJson, null, 2)}
         // First generate JSON as intermediate format
         const jsonGen = new JSONGenerator(this.machine, this.filePath, this.options);
         const jsonContent = jsonGen.generate();
-        const machineJson: MachineJSON = JSON.parse(jsonContent.content);
+        const machineJson: MachineJson = JSON.parse(jsonContent.content);
 
         // Build type hierarchy
         const hierarchy = this.buildTypeHierarchy(machineJson.nodes);
@@ -1863,7 +1863,7 @@ export function generateGraphviz(machine: Machine, filePath: string, destination
 }
 
 // Backward compiler: JSON -> DyGram DSL
-export function generateDSL(machineJson: MachineJSON): string {
+export function generateDSL(machineJson: MachineJson): string {
     const lines: string[] = [];
 
     // Add machine title with annotations (if present)

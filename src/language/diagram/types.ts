@@ -5,26 +5,17 @@
  * diagrams from JSON machine definitions.
  */
 
+import type {
+    MachineJson,
+    MachineJsonNode
+} from '../types/machine-json.js';
+
+export type { MachineJson } from '../types/machine-json.js';
+
 /**
- * Flexible machine JSON that accepts both Langium AST nodes and simplified runtime nodes
- * We use a flexible structure to support both the Langium AST format and simplified runtime format
+ * Backwards compatible alias while callers migrate to MachineJson nomenclature.
  */
-export interface MachineJSON {
-    title?: string;
-    attributes?: Array<{
-        name: string;
-        value: any;
-        type?: string;
-    }>;
-    annotations?: Array<{
-        name: string;
-        value?: string;
-    }>;
-    nodes: any[]; // Flexible to accept both Node[] from AST and simplified runtime nodes
-    edges: any[]; // Flexible to accept both Edge[] from AST and simplified runtime edges
-    notes?: any[];
-    inferredDependencies?: any[];
-}
+export type MachineJSON = MachineJson;
 
 /**
  * Options for diagram generation
@@ -141,7 +132,7 @@ export interface RuntimeEdgeState {
  */
 export interface TypeHierarchy {
     [key: string]: {
-        nodes: any[];
+        nodes: MachineJsonNode[];
         subtypes: string[];
     };
 }
@@ -152,7 +143,7 @@ export interface TypeHierarchy {
  */
 export interface SemanticHierarchy {
     [nodeName: string]: {
-        node: any;
+        node: MachineJsonNode;
         children: string[];
     };
 }

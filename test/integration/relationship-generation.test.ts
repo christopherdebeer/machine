@@ -4,7 +4,7 @@ import { parseHelper } from 'langium/test';
 import { createMachineServices } from '../../src/language/machine-module.js';
 import { Machine } from '../../src/language/generated/ast.js';
 import { generateJSON } from '../../src/language/generator/generator.js';
-import { MachineJSON } from '../../src/language/machine-module.js';
+import type { MachineJson } from '../../src/language/types/machine-json.js';
 
 const services = createMachineServices(EmptyFileSystem);
 const parse = parseHelper<Machine>(services.Machine);
@@ -20,7 +20,7 @@ describe('Relationship type generation', () => {
 
         const machine = document.parseResult.value;
         const result = generateJSON(machine, 'test.dygram', undefined);
-        const json: MachineJSON = JSON.parse(result.content);
+        const json: MachineJson = JSON.parse(result.content);
 
         expect(json.edges.length).toBe(1);
         expect(json.edges[0].arrowType).toBe('<|--');
@@ -38,7 +38,7 @@ describe('Relationship type generation', () => {
 
         const machine = document.parseResult.value;
         const result = generateJSON(machine, 'test.dygram', undefined);
-        const json: MachineJSON = JSON.parse(result.content);
+        const json: MachineJson = JSON.parse(result.content);
 
         expect(json.edges.length).toBe(1);
         expect(json.edges[0].arrowType).toBe('*-->');
@@ -54,7 +54,7 @@ describe('Relationship type generation', () => {
 
         const machine = document.parseResult.value;
         const result = generateJSON(machine, 'test.dygram', undefined);
-        const json: MachineJSON = JSON.parse(result.content);
+        const json: MachineJson = JSON.parse(result.content);
 
         expect(json.edges.length).toBe(1);
         expect(json.edges[0].arrowType).toBe('o-->');
@@ -70,7 +70,7 @@ describe('Relationship type generation', () => {
 
         const machine = document.parseResult.value;
         const result = generateJSON(machine, 'test.dygram', undefined);
-        const json: MachineJSON = JSON.parse(result.content);
+        const json: MachineJson = JSON.parse(result.content);
 
         expect(json.edges[0].arrowType).toBe('-->');
         // The generator will map this to ..> in Mermaid output
@@ -94,7 +94,7 @@ describe('Relationship type generation', () => {
 
         const machine = document.parseResult.value;
         const result = generateJSON(machine, 'test.dygram', undefined);
-        const json: MachineJSON = JSON.parse(result.content);
+        const json: MachineJson = JSON.parse(result.content);
 
         expect(json.edges.length).toBe(4);
         expect(json.edges[0].arrowType).toBe('<|--');
@@ -115,7 +115,7 @@ describe('Node label generation', () => {
 
         const machine = document.parseResult.value;
         const result = generateJSON(machine, 'test.dygram', undefined);
-        const json: MachineJSON = JSON.parse(result.content);
+        const json: MachineJson = JSON.parse(result.content);
 
         expect(json.nodes.length).toBe(1);
         expect(json.nodes[0].name).toBe('processData');

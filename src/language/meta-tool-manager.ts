@@ -10,6 +10,7 @@
 
 import type { ToolDefinition } from './llm-client.js';
 import type { MachineMutation, MachineData } from './rails-executor.js';
+import type { MachineJson } from './types/machine-json.js';
 import type { ToolRegistry } from './tool-registry.js';
 import { extractValueFromAST } from './utils/ast-helpers.js';
 
@@ -463,26 +464,8 @@ export class MetaToolManager {
 
         const result: any = {};
 
-        // Convert MachineData to MachineJSON format
-        const machineJson = {
-            title: this._machineData.title,
-            nodes: this._machineData.nodes.map(node => ({
-                name: node.name,
-                type: node.type,
-                attributes: node.attributes?.map(attr => ({
-                    name: attr.name,
-                    type: attr.type,
-                    value: attr.value
-                })),
-                annotations: (node as any).annotations
-            })),
-            edges: this._machineData.edges.map(edge => ({
-                source: edge.source,
-                target: edge.target,
-                type: edge.type,
-                label: edge.label
-            }))
-        };
+        // Convert MachineData to MachineJson format
+        const machineJson: MachineJson = JSON.parse(JSON.stringify(this._machineData));
 
         if (format === 'json' || format === 'both') {
             result.json = machineJson;
@@ -491,7 +474,7 @@ export class MetaToolManager {
         if (format === 'dsl' || format === 'both') {
             // Import generateDSL function dynamically
             const { generateDSL } = await import('./generator/generator.js');
-            result.dsl = generateDSL(machineJson as any);
+            result.dsl = generateDSL(machineJson);
         }
 
         return result;

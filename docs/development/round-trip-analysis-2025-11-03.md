@@ -228,7 +228,7 @@ When serializing to JSON, these circular references cause JSON.stringify() to fa
 
 **Option A: Use Visited Set** (Recommended)
 ```typescript
-function generateJSON(machine: Machine): MachineJSON {
+function generateJSON(machine: Machine): MachineJson {
     const visited = new WeakSet();
     // Track visited objects to prevent infinite recursion
 }

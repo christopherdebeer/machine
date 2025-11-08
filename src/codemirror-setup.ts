@@ -19,6 +19,7 @@ import { loadSettings, saveSettings } from './language/shared-settings.js';
 import { renderExampleButtons } from './language/shared-examples.js';
 import { ExecutionControlsWrapper } from './components/ExecutionControlsWrapper.js';
 import { OutputPanel } from './language/playground-output-panel.js';
+import type { MachineJson } from './language/types/machine-json.js';
 
 // Initialize Langium services for parsing
 const services = createMachineServices(EmptyFileSystem);
@@ -430,10 +431,9 @@ export function setupCodeMirrorPlayground(): void {
  * Convert parsed Machine AST to MachineData format for executor
  * This function safely extracts data from the Langium AST without circular references
  */
-function convertToMachineData(machine: Machine): any {
-    const json = generateJSON(machine)
-    console.log("convertToMachineData JSON", json.content)
-    return JSON.parse(json.content);
+function convertToMachineData(machine: Machine): MachineJson {
+    const json = generateJSON(machine);
+    return JSON.parse(json.content) as MachineJson;
 }
 
 /**

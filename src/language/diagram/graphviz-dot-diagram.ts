@@ -1,11 +1,11 @@
 /**
  * Graphviz DOT Diagram Generator
  *
- * Generates DOT syntax from MachineJSON for rendering with Graphviz.
+ * Generates DOT syntax from MachineJson for rendering with Graphviz.
  * Supports both static and runtime visualizations with full nested namespace support.
  */
 
-import { MachineJSON, DiagramOptions, RuntimeContext, RuntimeNodeState, RuntimeEdgeState, SemanticHierarchy } from './types.js';
+import { MachineJson, DiagramOptions, RuntimeContext, RuntimeNodeState, RuntimeEdgeState, SemanticHierarchy } from './types.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
 import { ValidationContext, ValidationSeverity } from '../validation-errors.js';
 import { CelEvaluator } from '../cel-evaluator.js';
@@ -855,7 +855,7 @@ function applyCustomStyles(node: any, styleNodes: any[], baseStyle: string): str
 /**
  * Generate HTML label for machine root showing title, description, version, and attributes
  */
-function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions, wrappingConfig: TextWrappingConfig): string {
+function generateMachineLabel(machineJson: MachineJson, options: DiagramOptions, wrappingConfig: TextWrappingConfig): string {
     let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
     // Title (bold, larger font)
@@ -920,7 +920,7 @@ interface TextWrappingConfig {
 /**
  * Get text wrapping configuration from machine attributes or use defaults
  */
-function getTextWrappingConfig(machineJson: MachineJSON): TextWrappingConfig {
+function getTextWrappingConfig(machineJson: MachineJson): TextWrappingConfig {
     const attrs = machineJson.attributes || [];
     
     const getAttrValue = (name: string, defaultValue: number): number => {
@@ -947,7 +947,7 @@ function getTextWrappingConfig(machineJson: MachineJSON): TextWrappingConfig {
 // @rank annotation support removed in favor of column layout system
 
 /**
- * Generate a DOT diagram from MachineJSON with optional runtime state
+ * Generate a DOT diagram from MachineJson with optional runtime state
  *
  * This unified function generates both static and runtime diagrams based on whether
  * a runtime context is provided. Runtime information is rendered as decorations
@@ -957,7 +957,7 @@ function getTextWrappingConfig(machineJson: MachineJSON): TextWrappingConfig {
  * @param options - Generation options (can include runtimeContext)
  * @returns DOT diagram as a string
  */
-export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOptions = {}): string {
+export function generateDotDiagram(machineJson: MachineJson, options: DiagramOptions = {}): string {
     const lines: string[] = [];
     const runtimeContext = options.runtimeContext;
 
@@ -1127,7 +1127,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
  * This function is maintained for backward compatibility and delegates to the unified generator
  */
 export function generateRuntimeDotDiagram(
-    machineJson: MachineJSON,
+    machineJson: MachineJson,
     context: RuntimeContext,
     options: DiagramOptions = {}
 ): string {
@@ -1147,7 +1147,7 @@ export function generateRuntimeDotDiagram(
  * Kept for reference but not exported
  */
 function generateRuntimeDotDiagramLegacy(
-    machineJson: MachineJSON,
+    machineJson: MachineJson,
     context: RuntimeContext,
     options: DiagramOptions = {}
 ): string {
@@ -1656,7 +1656,7 @@ function getClusterStyle(node: any, styleNodes: any[] = [], validationContext?: 
 function generateSemanticHierarchy(
     hierarchy: SemanticHierarchy,
     nodes: any[],
-    machineJson: MachineJSON,
+    machineJson: MachineJson,
     level = 0,
     styleNodes: any[] = [],
     validationContext?: ValidationContext,
@@ -2220,7 +2220,7 @@ function generateEdgeLabel(
  * and runtime edge state decorations when available
  */
 function generateEdges(
-    machineJson: MachineJSON,
+    machineJson: MachineJson,
     styleNodes: any[] = [],
     wrappingConfig?: TextWrappingConfig,
     options?: DiagramOptions,
@@ -2515,7 +2515,7 @@ function generateInferredDependencies(deps: any[]): string {
 /**
  * Build runtime node states
  */
-function buildNodeStates(machineJson: MachineJSON, context: RuntimeContext): RuntimeNodeState[] {
+function buildNodeStates(machineJson: MachineJson, context: RuntimeContext): RuntimeNodeState[] {
     return machineJson.nodes.map(node => {
         const isCurrent = node.name === context.currentNode;
         const isVisited = context.visitedNodes.has(node.name);
@@ -2557,7 +2557,7 @@ function buildNodeStates(machineJson: MachineJSON, context: RuntimeContext): Run
 /**
  * Build runtime edge states
  */
-function buildEdgeStates(machineJson: MachineJSON, context: RuntimeContext): RuntimeEdgeState[] {
+function buildEdgeStates(machineJson: MachineJson, context: RuntimeContext): RuntimeEdgeState[] {
     return machineJson.edges.map(edge => {
         const traversalCount = context.history.filter(
             h => h.from === edge.source && h.to === edge.target

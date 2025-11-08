@@ -6,7 +6,6 @@ import { MachineScopeProvider } from './machine-scope.js';
 import { MachineSemanticTokenProvider } from './machine-semantic-token-provider.js';
 import { MachineLinker } from './machine-linker.js';
 import { MachineCompletionProvider } from './machine-completion-provider.js';
-import { Node } from './generated/ast.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -17,49 +16,7 @@ export type MachineAddedServices = {
     }
 }
 
-export interface Edge {
-    source: string;
-    value: Record<string, any>;
-    target: string;
-    arrowType?: string;  // Arrow type for relationship mapping
-    sourceMultiplicity?: string;  // Source multiplicity (e.g., "1", "*", "0..1")
-    targetMultiplicity?: string;  // Target multiplicity (e.g., "1", "*", "1..*")
-    annotations?: Array<{ name: string; value?: string }>;  // Edge annotations
-    style?: EdgeStyle;  // Custom styling for the edge
-    roleName?: string;  // Role name for bidirectional relationships
-    sourceAttribute?: string;  // Attribute name to anchor at the source node
-    targetAttribute?: string;  // Attribute name to anchor at the target node
-    sourcePort?: string;  // Explicit port/handle name at the source node
-    targetPort?: string;  // Explicit port/handle name at the target node
-}
-
-export interface EdgeStyle {
-    stroke?: string;  // Stroke color
-    strokeWidth?: string;  // Stroke width
-    strokeDasharray?: string;  // Dash pattern
-}
-
-export interface NoteInfo {
-    target: string;  // Node name
-    content: string;  // Note content
-}
-
-export interface InferredDependency {
-    source: string;
-    target: string;
-    reason: string;
-    path: string;
-}
-
-export interface MachineJSON {
-    title?: string;
-    attributes?: any[];
-    annotations?: any[];
-    nodes: Node[];
-    edges: Edge[];
-    notes?: any[];
-    inferredDependencies?: InferredDependency[];
-}
+export type { MachineJson, MachineJSON, Edge, EdgeStyle, NoteInfo, InferredDependency } from './types/machine-json.js';
 
 /**
  * Union of Langium default services and your custom services - use this as constructor parameter

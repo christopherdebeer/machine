@@ -3,7 +3,7 @@
  *
  * This module encapsulates all diagram generation logic for the Machine language.
  * It provides a clean, minimal public interface for generating Graphviz diagrams
- * from MachineJSON definitions.
+ * from MachineJson definitions.
  *
  * ## Usage
  *
@@ -47,6 +47,7 @@ export {
 
 // Types for public consumption
 export type {
+    MachineJson,
     MachineJSON,
     DiagramOptions,
     RuntimeContext,
