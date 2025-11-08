@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MachineExecutor, MachineData } from '../../src/language/machine-executor.js';
+import { VisualizingMachineExecutor } from '../../src/language/runtime-visualizer.js';
 import {
     ToolDefinition,
     ModelResponse,
@@ -356,70 +357,26 @@ describe('Tool-Based Execution', () => {
     });
 
     describe('Runtime Visualization', () => {
-        it('should throw error when calling deprecated toMermaidRuntime', async () => {
-            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
-                content: [
-                    {
-                        type: 'tool_use',
-                        id: 'tool_1',
-                        name: 'transition',
-                        input: { target: 'pathA', reason: 'test' }
-                    }
-                ],
-                stop_reason: 'tool_use'
-            });
+        it('should generate Graphviz runtime visualization', () => {
+            const visualizingExecutor = new VisualizingMachineExecutor(mockMachineData);
+            const diagram = visualizingExecutor.getRuntimeVisualization();
 
-            await executor.step();
-
-            // toMermaidRuntime() should throw since Mermaid support was removed
-            expect(() => executor.toMermaidRuntime()).toThrow('Mermaid support has been removed');
+            expect(diagram).toBeTypeOf('string');
+            expect(diagram).toContain('digraph');
+            expect(diagram).toContain(mockMachineData.title);
         });
 
-        it('should throw error when calling deprecated toMermaidRuntimeClass', async () => {
-            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
-                content: [
-                    {
-                        type: 'tool_use',
-                        id: 'tool_1',
-                        name: 'transition',
-                        input: { target: 'pathA', reason: 'test' }
-                    }
-                ],
-                stop_reason: 'tool_use'
-            });
+        it('should provide mobile visualization and summary', () => {
+            const visualizingExecutor = new VisualizingMachineExecutor(mockMachineData);
 
-            await executor.step();
+            const mobileDiagram = visualizingExecutor.getMobileRuntimeVisualization();
+            expect(mobileDiagram).toBeTypeOf('string');
+            expect(mobileDiagram).toContain('digraph');
 
-            // toMermaidRuntimeClass() should throw since Mermaid support was removed
-            expect(() => executor.toMermaidRuntimeClass()).toThrow('Mermaid support has been removed');
-        });
-
-        it('should throw error when calling deprecated toMermaidRuntime after multiple steps', async () => {
-            // Execute multiple steps
-            mockClaudeClient.invokeWithTools
-                .mockResolvedValueOnce({
-                    content: [
-                        {
-                            type: 'tool_use',
-                            id: 'tool_1',
-                            name: 'transition',
-                            input: { target: 'pathA', reason: 'test' }
-                        }
-                    ],
-                    stop_reason: 'tool_use'
-                })
-                .mockResolvedValueOnce({
-                    content: [
-                        { type: 'text', text: 'Moving to end' }
-                    ],
-                    stop_reason: 'end_turn'
-                });
-
-            await executor.step();
-            await executor.step();
-
-            // toMermaidRuntime() should throw since Mermaid support was removed
-            expect(() => executor.toMermaidRuntime()).toThrow('Mermaid support has been removed');
+            const summary = visualizingExecutor.getRuntimeSummary();
+            expect(summary.currentNode).toBeDefined();
+            expect(summary.totalSteps).toBe(0);
+            expect(summary.visitedNodes).toBe(0);
         });
     });
 

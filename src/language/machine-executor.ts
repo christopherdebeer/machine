@@ -22,7 +22,8 @@ import {
     MachineMutation,
     MachineExecutorConfig
 } from './base-executor.js';
-import { extractValueFromAST } from './utils/ast-helpers.js';
+import { extractValueFromAST, serializeValue, validateValueType } from './utils/ast-helpers.js';
+import { EdgeConditionParser } from './utils/edge-conditions.js';
 import { NodeTypeChecker } from './node-type-checker.js';
 import { ContextPermissionsResolver } from './utils/context-permissions.js';
 
@@ -530,14 +531,15 @@ export class MachineExecutor extends BaseExecutor {
 
         // Validate type if declared
         if (attribute.type) {
-            const isValidType = this.validateValueType(value, attribute.type);
+            const isValidType = validateValueType(value, attribute.type);
             if (!isValidType) {
                 throw new Error(`Value type mismatch: expected ${attribute.type}, got ${typeof value}`);
             }
         }
 
         // Update the attribute value
-        attribute.value = this.serializeValue(value);
+        const serializedValue = serializeValue(value);
+        attribute.value = serializedValue;
 
         // Record the mutation
         this.recordMutation({
@@ -548,10 +550,10 @@ export class MachineExecutor extends BaseExecutor {
 
         return {
             success: true,
-            message: `Set ${nodeName}.${attributeName} = ${this.serializeValue(value)}`,
+            message: `Set ${nodeName}.${attributeName} = ${serializedValue}`,
             nodeName,
             attributeName,
-            value: this.serializeValue(value),
+            value: serializedValue,
             type: attribute.type
         };
     }
@@ -598,7 +600,7 @@ export class MachineExecutor extends BaseExecutor {
         }
 
         // Parse the value back to its original type
-        const parsedValue = this.parseValue(attribute.value, attribute.type);
+        const parsedValue = this.parseStoredAttributeValue(attribute.value, attribute.type);
 
         return {
             success: true,
@@ -635,7 +637,7 @@ export class MachineExecutor extends BaseExecutor {
             attributes: node.attributes?.map(attr => ({
                 name: attr.name,
                 type: attr.type,
-                value: this.parseValue(attr.value, attr.type),
+                value: this.parseStoredAttributeValue(attr.value, attr.type),
                 rawValue: attr.value
             })) || []
         }));
@@ -660,7 +662,8 @@ export class MachineExecutor extends BaseExecutor {
 
         const nodeName = this.context.currentNode;
         const attributes = this.getCurrentNodeAttributes();
-        const isMeta = attributes.meta === 'true' || attributes.meta === 'True';
+        const metaValue = attributes.meta;
+        const isMeta = metaValue === true || metaValue === 'true' || metaValue === 'True';
 
         // Set current task node for permission checks in tool handlers
         this.context.currentTaskNode = nodeName;
@@ -945,7 +948,7 @@ export class MachineExecutor extends BaseExecutor {
 
             if (!edge) return true; // No edge found, allow transition
 
-            const condition = this.extractEdgeCondition(edge);
+            const condition = EdgeConditionParser.extract(edge);
             const isValid = this.evaluateCondition(condition);
 
             if (condition) {
@@ -1017,27 +1020,4 @@ export class MachineExecutor extends BaseExecutor {
     }
 
 
-    /**
-     * Generate a Mermaid class diagram showing the current execution state
-     * @deprecated Mermaid support has been removed. Use Graphviz instead via the diagram module.
-     */
-    public toMermaidRuntime(): string {
-        throw new Error('Mermaid support has been removed. Use Graphviz for diagram generation.');
-    }
-
-    /**
-     * Generate a Mermaid class diagram showing the current execution state (old implementation)
-     * @deprecated Mermaid support has been removed. Use Graphviz instead via the diagram module.
-     */
-    public toMermaidRuntimeOld(): string {
-        throw new Error('Mermaid support has been removed. Use Graphviz for diagram generation.');
-    }
-
-    /**
-     * Generate a Mermaid class diagram with runtime state overlays
-     * @deprecated Mermaid support has been removed. Use Graphviz instead via the diagram module.
-     */
-    public toMermaidRuntimeClass(): string {
-        throw new Error('Mermaid support has been removed. Use Graphviz for diagram generation.');
-    }
 }

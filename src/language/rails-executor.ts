@@ -352,7 +352,7 @@ export class RailsExecutor extends BaseExecutor {
         // If only one edge and it's a state or init node, auto-transition
         if (outboundEdges.length === 1 && (NodeTypeChecker.isState(node) || NodeTypeChecker.isInit(node))) {
             const edge = outboundEdges[0];
-            const condition = this.extractEdgeCondition(edge);
+            const condition = EdgeConditionParser.extract(edge);
 
             this.logger.debug('transition', `Single edge from ${NodeTypeChecker.isInit(node) ? 'init' : 'state'} node`, {
                 target: edge.target,
@@ -381,7 +381,7 @@ export class RailsExecutor extends BaseExecutor {
         // Check edges with @auto annotation
         for (const edge of outboundEdges) {
             if (this.hasAutoAnnotation(edge)) {
-                const condition = this.extractEdgeCondition(edge);
+                const condition = EdgeConditionParser.extract(edge);
 
                 this.logger.debug('transition', `Evaluating @auto edge: ${nodeName} -> ${edge.target}`, {
                     condition: condition || 'none'
@@ -410,7 +410,7 @@ export class RailsExecutor extends BaseExecutor {
 
         // Check for edges with simple deterministic conditions
         for (const edge of outboundEdges) {
-            const condition = this.extractEdgeCondition(edge);
+            const condition = EdgeConditionParser.extract(edge);
 
             if (condition && EdgeConditionParser.isSimpleCondition(condition)) {
                 this.logger.debug('transition', `Evaluating simple condition edge: ${nodeName} -> ${edge.target}`, {
@@ -455,7 +455,7 @@ export class RailsExecutor extends BaseExecutor {
                 if (this.hasAutoAnnotation(edge)) return false;
 
                 // Skip edges with simple deterministic conditions that would auto-execute
-                const condition = this.extractEdgeCondition(edge);
+                const condition = EdgeConditionParser.extract(edge);
                 if (condition && EdgeConditionParser.isSimpleCondition(condition) && this.evaluateCondition(condition)) {
                     return false;
                 }
@@ -465,7 +465,7 @@ export class RailsExecutor extends BaseExecutor {
             .map(edge => ({
                 target: edge.target,
                 description: edge.label || edge.type,
-                condition: this.extractEdgeCondition(edge)
+                condition: EdgeConditionParser.extract(edge)
             }));
     }
 
@@ -722,7 +722,8 @@ export class RailsExecutor extends BaseExecutor {
         const node = this.machineData.nodes.find(n => n.name === nodeName);
         if (node) {
             const attributes = this.getNodeAttributes(nodeName);
-            if (attributes.meta === 'true' || attributes.meta === 'True') {
+            const metaValue = attributes.meta;
+            if (metaValue === true || metaValue === 'true' || metaValue === 'True') {
                 tools.push(...this.metaToolManager.getMetaTools());
             }
         }

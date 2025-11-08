@@ -7,9 +7,8 @@ import {
     LLMClientConfig
 } from './llm-client.js';
 import { ClaudeClient } from './claude-client.js';
-import { extractValueFromAST, parseAttributeValue, serializeValue, validateValueType } from './utils/ast-helpers.js';
+import { extractValueFromAST, parseAttributeValue, serializeValue } from './utils/ast-helpers.js';
 import { NodeTypeChecker } from './node-type-checker.js';
-import { EdgeConditionParser } from './utils/edge-conditions.js';
 import { CelEvaluator } from './cel-evaluator.js';
 
 // Shared interfaces
@@ -155,22 +154,6 @@ export abstract class BaseExecutor {
     }
 
     /**
-     * Check if a node is a state node
-     * @deprecated Use NodeTypeChecker.isState() instead
-     */
-    protected isStateNode(node: { name: string; type?: string }): boolean {
-        return NodeTypeChecker.isState(node);
-    }
-
-    /**
-     * Extract condition from edge label (when, unless, if)
-     * @deprecated Use EdgeConditionParser.extract() directly for new code
-     */
-    protected extractEdgeCondition(edge: { label?: string; type?: string }): string | undefined {
-        return EdgeConditionParser.extract(edge);
-    }
-
-    /**
      * Evaluate a condition string against current context
      * Uses CEL (Common Expression Language) for safe, sandboxed evaluation
      */
@@ -225,7 +208,7 @@ export abstract class BaseExecutor {
             if (node.attributes && node.attributes.length > 0) {
                 attributes[node.name] = {};
                 for (const attr of node.attributes) {
-                    attributes[node.name][attr.name] = this.parseValue(attr.value, attr.type);
+                    attributes[node.name][attr.name] = this.parseStoredAttributeValue(attr.value, attr.type);
                 }
             }
         }
@@ -261,61 +244,49 @@ export abstract class BaseExecutor {
         }
 
         return node.attributes.reduce((acc, attr) => {
-            // Handle the case where attr.value might be an object (from JSON parsing or AST)
-            let value = extractValueFromAST(attr.value);
-
-            // If the value is a string that looks like JSON, try to parse it
-            if (typeof value === 'string') {
-                try {
-                    // Check if it looks like JSON (starts with { or [)
-                    if ((value.startsWith('{') && value.endsWith('}')) ||
-                        (value.startsWith('[') && value.endsWith(']'))) {
-                        value = JSON.parse(value);
-                    }
-                } catch (error) {
-                    // If parsing fails, keep the original string value
-                }
-            }
-
-            acc[attr.name] = value;
+            acc[attr.name] = this.parseStoredAttributeValue(attr.value, attr.type);
             return acc;
         }, {} as Record<string, any>);
     }
 
     /**
-     * Parse a stored value back to its original type
-     * @deprecated Use parseAttributeValue from utils/ast-helpers.js instead
+     * Parse a stored attribute value back to its original type
      */
-    protected parseValue(rawValue: string, type?: string): any {
-        if (!type) {
-            // Try to auto-detect and parse
-            const cleanValue = rawValue.replace(/^["']|["']$/g, '');
-            try {
-                return JSON.parse(rawValue);
-            } catch {
-                return cleanValue;
-            }
+    protected parseStoredAttributeValue(rawValue: any, type?: string): any {
+        const extracted = extractValueFromAST(rawValue);
+
+        if (type) {
+            const normalized = typeof extracted === 'string'
+                ? extracted
+                : serializeValue(extracted);
+            return parseAttributeValue(normalized, type);
         }
 
-        // Strip quotes before parsing typed values
-        const cleanValue = rawValue.replace(/^["']|["']$/g, '');
-        return parseAttributeValue(cleanValue, type);
-    }
+        if (typeof extracted === 'string') {
+            const cleanValue = extracted.replace(/^["']|["']$/g, '');
+            const trimmed = cleanValue.trim();
 
-    /**
-     * Validate if a value matches the expected type
-     * @deprecated Use validateValueType from utils/ast-helpers.js instead
-     */
-    protected validateValueType(value: any, expectedType: string): boolean {
-        return validateValueType(value, expectedType);
-    }
+            if ((trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+                (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+                try {
+                    return JSON.parse(trimmed);
+                } catch {
+                    return cleanValue;
+                }
+            }
 
-    /**
-     * Serialize a value for storage in machine data
-     * @deprecated Use serializeValue from utils/ast-helpers.js instead
-     */
-    protected serializeValue(value: any): string {
-        return serializeValue(value);
+            if (trimmed === 'true') return true;
+            if (trimmed === 'false') return false;
+
+            const num = Number(trimmed);
+            if (!isNaN(num) && trimmed !== '') {
+                return num;
+            }
+
+            return cleanValue;
+        }
+
+        return extracted;
     }
 
     /**

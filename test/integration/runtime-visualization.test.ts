@@ -251,16 +251,16 @@ describe('Runtime Visualization - Circular Reference Prevention', () => {
                 testJSONSerialization(context, 'visualizing executor context');
             });
 
-            it('should generate runtime Mermaid diagram without circular references', async () => {
+            it('should generate runtime visualization without circular references', async () => {
                 const document = await parse(source);
                 const machine = document.parseResult.value as Machine;
                 const machineData = convertToMachineData(machine);
 
-                const executor = new MachineExecutor(machineData);
+                const executor = new VisualizingMachineExecutor(machineData);
+                const diagram = executor.getRuntimeVisualization();
 
-                // Runtime diagram generation has been migrated to Graphviz
-                // Mermaid methods are deprecated and now throw errors
-                expect(executor).toBeDefined();
+                expect(diagram).toBeTypeOf('string');
+                expect(diagram).toContain('digraph');
             });
 
             it('should handle storage operations without circular references', async () => {
