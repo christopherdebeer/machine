@@ -11,6 +11,7 @@ import { parseHelper } from 'langium/test';
 import { createMachineServices } from '../../src/language/machine-module.js';
 import { Machine } from '../../src/language/generated/ast.js';
 import { MachineExecutor } from '../../src/language/machine-executor.js';
+import { generateJSON } from '../../src/language/generator/generator.js';
 
 const services = createMachineServices(EmptyFileSystem);
 const parse = parseHelper<Machine>(services.Machine);
@@ -19,82 +20,8 @@ const parse = parseHelper<Machine>(services.Machine);
  * Helper function to convert parsed Machine AST to MachineData format
  */
 function convertToMachineData(machine: Machine): any {
-    const nodes: any[] = [];
-    const edges: any[] = [];
-
-    machine.nodes?.forEach(node => {
-        const nodeData: any = {
-            name: String(node.name || ''),
-            type: String(node.type || 'state')
-        };
-
-        if (node.attributes && node.attributes.length > 0) {
-            nodeData.attributes = [];
-            node.attributes.forEach(attr => {
-                const attrData: any = {
-                    name: String(attr.name || ''),
-                    type: String(attr.type || 'string')
-                };
-                
-                if (attr.value) {
-                    if (typeof attr.value === 'string') {
-                        attrData.value = attr.value;
-                    } else if (attr.value.value !== undefined) {
-                        attrData.value = String(attr.value.value);
-                    } else {
-                        attrData.value = String(attr.value);
-                    }
-                } else {
-                    attrData.value = '';
-                }
-                
-                nodeData.attributes.push(attrData);
-            });
-        }
-
-        nodes.push(nodeData);
-    });
-
-    machine.edges?.forEach(edge => {
-        edge.segments?.forEach(segment => {
-            edge.source?.forEach(sourceRef => {
-                segment.target?.forEach(targetRef => {
-                    const edgeData: any = {
-                        source: String(sourceRef.ref?.name || ''),
-                        target: String(targetRef.ref?.name || '')
-                    };
-
-                    if (segment.label && segment.label.length > 0) {
-                        const labelParts: string[] = [];
-                        segment.label.forEach(edgeType => {
-                            edgeType.value?.forEach(attr => {
-                                if (attr.text) {
-                                    labelParts.push(String(attr.text));
-                                } else if (attr.name) {
-                                    labelParts.push(String(attr.name));
-                                }
-                            });
-                        });
-                        if (labelParts.length > 0) {
-                            edgeData.label = labelParts.join(' ');
-                        }
-                    }
-
-                    if (segment.endType) {
-                        edgeData.type = String(segment.endType);
-                    }
-
-                    edges.push(edgeData);
-                });
-            });
-        });
-    });
-
-    return {
-        title: String(machine.title || 'Untitled Machine'),
-        nodes,
-        edges
-    };
+    const jsonResult = generateJSON(machine);
+    return JSON.parse(jsonResult.content);
 }
 
 describe('Environment Variable Integration Tests', () => {
