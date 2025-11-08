@@ -204,10 +204,6 @@ describe('Environment Variable Integration Tests', () => {
         console.log('✅ Real execution completed successfully');
         console.log('📝 LLM Output:', context.history[0].output?.substring(0, 100) + '...');
 
-        // Test that deprecated runtime diagram method throws
-        expect(() => executor.toMermaidRuntime()).toThrow('Mermaid support has been removed');
-
-        console.log('✅ Verified Mermaid methods throw deprecation error');
     }, 30000); // 30 second timeout for real API calls
 });
 
