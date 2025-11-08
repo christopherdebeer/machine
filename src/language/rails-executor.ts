@@ -1152,6 +1152,7 @@ export class RailsExecutor extends BaseExecutor {
 
         // Restore machine data
         this.machineData = checkpoint.machineData;
+        this.updateRenderableNodes();
 
         // Restore execution context from first path (single-path execution)
         if (checkpoint.paths.length > 0) {

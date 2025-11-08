@@ -384,6 +384,7 @@ export class MachineExecutor extends BaseExecutor {
         }
 
         this.machineData.nodes.push(newNode);
+        this.updateRenderableNodes();
         this.recordMutation({
             type: 'add_node',
             timestamp: new Date().toISOString(),
@@ -458,6 +459,7 @@ export class MachineExecutor extends BaseExecutor {
 
         // Remove the node
         this.machineData.nodes.splice(index, 1);
+        this.updateRenderableNodes();
 
         // Remove connected edges
         this.machineData.edges = this.machineData.edges.filter(

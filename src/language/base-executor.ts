@@ -111,6 +111,7 @@ export interface MachineExecutorConfig {
 export abstract class BaseExecutor {
     protected context: MachineExecutionContext;
     protected machineData: MachineData;
+    protected renderableNodes: MachineNode[];
     protected llmClient: ClaudeClient;
     protected mutations: MachineMutation[] = [];
     protected limits: Required<ExecutionLimits>;
@@ -119,10 +120,9 @@ export abstract class BaseExecutor {
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
         // Filter out style nodes from execution (they're metadata only)
-        this.machineData = {
-            ...machineData,
-            nodes: machineData.nodes.filter(n => !NodeTypeChecker.isStyleNode(n))
-        };
+        this.machineData = JSON.parse(JSON.stringify(machineData));
+        this.renderableNodes = [];
+        this.updateRenderableNodes();
 
         // Initialize CEL evaluator
         this.celEvaluator = new CelEvaluator();
@@ -136,7 +136,7 @@ export abstract class BaseExecutor {
         };
 
         this.context = {
-            currentNode: this.machineData.nodes.length > 0 ? this.findStartNode() : '',
+            currentNode: this.renderableNodes.length > 0 ? this.findStartNode() : '',
             errorCount: 0,
             visitedNodes: new Set(),
             attributes: new Map(),
@@ -170,14 +170,14 @@ export abstract class BaseExecutor {
      * By convention, looks for a node named "start" or the first node if none found
      */
     protected findStartNode(): string {
-        const startNode = this.machineData.nodes.find(node => node.name.toLowerCase() === 'start');
+        const startNode = this.renderableNodes.find(node => node.name.toLowerCase() === 'start');
         if (startNode) {
             return startNode.name;
         }
-        if (this.machineData.nodes.length === 0) {
+        if (this.renderableNodes.length === 0) {
             throw new Error('Machine has no nodes');
         }
-        return this.machineData.nodes[0].name;
+        return this.renderableNodes[0].name;
     }
 
     /**
@@ -239,7 +239,7 @@ export abstract class BaseExecutor {
         const attributes: Record<string, any> = {};
 
         // Build nested structure for all nodes
-        for (const node of this.machineData.nodes) {
+        for (const node of this.renderableNodes) {
             // Warn about reserved name collisions
             if (RESERVED_NAMES.includes(node.name)) {
                 console.warn(
@@ -281,7 +281,7 @@ export abstract class BaseExecutor {
      * Get node attributes as a key-value object
      */
     protected getNodeAttributes(nodeName: string): Record<string, any> {
-        const node = this.machineData.nodes.find(n => n.name === nodeName);
+        const node = this.renderableNodes.find(n => n.name === nodeName);
         if (!node?.attributes) {
             return {};
         }
@@ -362,7 +362,7 @@ export abstract class BaseExecutor {
         this.context.nodeInvocationCounts.set(nodeName, currentCount + 1);
 
         // Check node-specific max invocation attribute
-        const node = this.machineData.nodes.find(n => n.name === nodeName);
+        const node = this.renderableNodes.find(n => n.name === nodeName);
         if (node?.attributes) {
             const maxStepsAttr = node.attributes.find(a => a.name === 'maxSteps' || a.name === 'maxInvocations');
             if (maxStepsAttr) {
@@ -389,7 +389,7 @@ export abstract class BaseExecutor {
      * Track state transition for cycle detection
      */
     protected trackStateTransition(nodeName: string): void {
-        const node = this.machineData.nodes.find(n => n.name === nodeName);
+        const node = this.renderableNodes.find(n => n.name === nodeName);
         if (node && NodeTypeChecker.isState(node)) {
             this.context.stateTransitions.push({
                 state: nodeName,
@@ -462,6 +462,10 @@ export abstract class BaseExecutor {
      */
     public getMachineDefinition(): MachineData {
         return JSON.parse(JSON.stringify(this.machineData)); // Deep clone
+    }
+
+    protected updateRenderableNodes(): void {
+        this.renderableNodes = this.machineData.nodes.filter(n => !NodeTypeChecker.isStyleNode(n));
     }
 
     /**
