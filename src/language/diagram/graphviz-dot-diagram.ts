@@ -973,7 +973,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     const renderableNodes = machineJson.nodes.filter(n => !NodeTypeChecker.isStyleNode(n) && (n.type?.toLowerCase() !== 'note'));
     const noteNodes = machineJson.nodes.filter(n => n.type?.toLowerCase() === 'note');
 
-    const notesByTarget = buildNotesByTarget(noteNodes);
+    const notesByParent = buildNotesByParent(noteNodes);
 
     // Build runtime node and edge states if context provided
     const nodeStates = runtimeContext ? buildNodeStates(machineJson, runtimeContext) : undefined;
@@ -1072,10 +1072,20 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
         validationContext,
         options,
         wrappingConfig,
-        notesByTarget,
+        notesByParent,
         nodeStates
     ));
     lines.push('');
+
+    const rootNotes = notesByParent.get(ROOT_NOTE_PARENT);
+    if (rootNotes && rootNotes.length > 0) {
+        lines.push('  // Root-level notes');
+        rootNotes.forEach(noteInfo => {
+            const noteLines = generateNoteDefinition(noteInfo, '  ', wrappingConfig);
+            noteLines.forEach(line => lines.push(line));
+        });
+        lines.push('');
+    }
 
     // Check for grid layout at machine level
     const machineGridSize = extractGridSize(machineJson);
@@ -1312,8 +1322,12 @@ type NoteRenderInfo = {
     dotId: string;
 };
 
-function buildNotesByTarget(noteNodes: any[]): Map<string, NoteRenderInfo[]> {
-    const notesByTarget = new Map<string, NoteRenderInfo[]>();
+const ROOT_NOTE_PARENT = Symbol('root-note-parent');
+
+type NotesByParentMap = Map<string | symbol, NoteRenderInfo[]>;
+
+function buildNotesByParent(noteNodes: any[]): NotesByParentMap {
+    const notesByParent: NotesByParentMap = new Map();
     const counters = new Map<string, number>();
 
     noteNodes.forEach(note => {
@@ -1322,21 +1336,22 @@ function buildNotesByTarget(noteNodes: any[]): Map<string, NoteRenderInfo[]> {
             return;
         }
 
+        const parentKey: string | symbol = note.parent ?? ROOT_NOTE_PARENT;
         const sanitizedTarget = sanitizeForDotId(String(target));
         const currentCount = counters.get(target) ?? 0;
         counters.set(target, currentCount + 1);
 
         const dotId = `note_${sanitizedTarget}_${currentCount}`;
         const entry: NoteRenderInfo = { note, dotId };
-        const existing = notesByTarget.get(target);
+        const existing = notesByParent.get(parentKey);
         if (existing) {
             existing.push(entry);
         } else {
-            notesByTarget.set(target, [entry]);
+            notesByParent.set(parentKey, [entry]);
         }
     });
 
-    return notesByTarget;
+    return notesByParent;
 }
 
 function buildSemanticHierarchy(nodes: any[]): SemanticHierarchy {
@@ -1708,7 +1723,7 @@ function generateSemanticHierarchy(
     validationContext?: ValidationContext,
     options?: DiagramOptions,
     wrappingConfig?: TextWrappingConfig,
-    notesByTarget?: Map<string, NoteRenderInfo[]>,
+    notesByParent?: NotesByParentMap,
     nodeStates?: RuntimeNodeState[]
 ): string {
     const lines: string[] = [];
@@ -1721,7 +1736,7 @@ function generateSemanticHierarchy(
     nodes.forEach(node => {
         const { children } = hierarchy[node.name];
 
-        const noteEntries = notesByTarget?.get(node.name) ?? [];
+        const noteEntries = notesByParent?.get(node.name) ?? [];
 
         if (children.length > 0) {
             // Node has children - create a cluster subgraph with proper label and styling
@@ -1760,7 +1775,7 @@ function generateSemanticHierarchy(
                 validationContext,
                 options,
                 wrappingConfig,
-                notesByTarget,
+                notesByParent,
                 nodeStates
             ));
 

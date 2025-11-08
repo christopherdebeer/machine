@@ -370,6 +370,41 @@ describe('Attribute reference edges', () => {
         expect(clusterBlock).toContain(`"${noteId}" [label=<`);
         expect(clusterBlock).toContain(`"${noteId}" -> "Item" [style=dashed`);
     });
+
+    it('should place notes according to their lexical parent hierarchy', async () => {
+        const input = `
+            machine "Hierarchy"
+
+            task problem;
+            task solution;
+            problem -> solution;
+
+            context one {
+                context two {
+                    task three;
+                    note problem "im in two but a note for problem";
+                }
+
+                note three "im in one but am a note for 3";
+            }
+        `;
+
+        const result = await parse(input);
+        const graphviz = generateGraphviz(result.parseResult.value, '', undefined);
+
+        const noteProblemId = `note_${sanitizeForDotId('problem')}_0`;
+        const noteThreeId = `note_${sanitizeForDotId('three')}_0`;
+
+        const clusterTwo = extractSubgraph(graphviz.content, 'two');
+        expect(clusterTwo).toContain(`"${noteProblemId}" [label=<`);
+        expect(clusterTwo).toContain(`"${noteProblemId}" -> "problem" [style=dashed`);
+
+        const clusterOne = extractSubgraph(graphviz.content, 'one');
+        expect(clusterOne).toContain(`"${noteThreeId}" [label=<`);
+        expect(clusterOne).toContain(`"${noteThreeId}" -> "three" [style=dashed`);
+
+        expect(clusterTwo).not.toContain(`"${noteThreeId}" [label=<`);
+    });
 });
 
 describe('Mermaid Output Quality (deprecated)', () => {
