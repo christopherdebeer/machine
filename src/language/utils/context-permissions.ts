@@ -9,6 +9,7 @@
 
 import type { MachineData } from '../rails-executor.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
+import { getEdgeSearchText } from './edge-utils.js';
 
 /**
  * Context access permissions for a node
@@ -102,10 +103,10 @@ export class ContextPermissionsResolver {
 
                 if (permissionsMode === 'legacy') {
                     // Legacy machine-executor semantics:
-                    // - Write access: edge types containing 'write', 'store', 'create', 'update', 'set', 'calculate'
+                    // - Write access: edge descriptions containing write/store keywords
                     // - Read access: All edges grant read access by default
-                    const edgeType = (edge.type?.toLowerCase() || edge.label?.toLowerCase() || '');
-                    canWrite = /write|store|create|update|set|calculate/.test(edgeType);
+                    const edgeText = getEdgeSearchText(edge as any);
+                    canWrite = /write|store|create|update|set|calculate/.test(edgeText);
                     canRead = true; // All outbound edges grant read access by default
 
                     // Extract canStore separately
@@ -134,7 +135,7 @@ export class ContextPermissionsResolver {
                 accessMap.set(edge.target, finalPermissions);
 
                 if (enableLogging) {
-                    const edgeType = (edge.type?.toLowerCase() || edge.label?.toLowerCase() || '');
+                    const edgeType = getEdgeSearchText(edge as any);
                     console.log(
                         `🔐 Context access: ${taskNodeName} -> ${edge.target} ` +
                         `(read: ${finalPermissions.canRead}, write: ${finalPermissions.canWrite}, ` +
@@ -167,12 +168,12 @@ export class ContextPermissionsResolver {
 
                         accessMap.set(edge.source, finalPermissions);
 
-                        if (enableLogging) {
-                            console.log(
-                                `🔐 Context access: ${edge.source} -> ${taskNodeName} ` +
-                                `(read: true, write: false, fields: ${fields?.join(',') || 'all'})`
-                            );
-                        }
+                if (enableLogging) {
+                    console.log(
+                        `🔐 Context access: ${edge.source} -> ${taskNodeName} ` +
+                        `(read: true, write: false, fields: ${fields?.join(',') || 'all'})`
+                    );
+                }
                     }
                 }
             }

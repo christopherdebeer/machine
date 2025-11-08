@@ -4,6 +4,7 @@
  */
 
 import { EdgeType } from './types.js';
+import { getEdgeSearchText } from '../utils/edge-utils.js';
 
 /**
  * EdgeTypeResolver determines semantic edge types from arrow syntax
@@ -18,9 +19,9 @@ export class EdgeTypeResolver {
      * - '=>'  : transform
      * - '<-->' : bidirectional (treated as data)
      */
-    static resolveEdgeType(edge: { type?: string; label?: string }): EdgeType {
-        const arrowType = edge.type || '';
-        const label = edge.label || '';
+    static resolveEdgeType(edge: { arrowType?: string; type?: string; label?: string; value?: Record<string, any>; attributes?: Record<string, any> }): EdgeType {
+        const arrowType = edge.arrowType || edge.type || '';
+        const searchText = getEdgeSearchText(edge as any);
 
         // Check arrow syntax first
         if (arrowType === '-->' || arrowType.includes('-->')) {
@@ -36,7 +37,7 @@ export class EdgeTypeResolver {
         }
 
         // Check label for explicit type hints
-        const lowerLabel = label.toLowerCase();
+        const lowerLabel = searchText.toLowerCase();
 
         if (lowerLabel.includes('depends') || lowerLabel.includes('dependency')) {
             return 'dependency';

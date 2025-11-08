@@ -469,6 +469,8 @@ export class MetaToolManager {
             nodes: this._machineData.nodes.map(node => ({
                 name: node.name,
                 type: node.type,
+                parent: node.parent,
+                title: (node as any).title,
                 attributes: node.attributes?.map(attr => ({
                     name: attr.name,
                     type: attr.type,
@@ -479,8 +481,16 @@ export class MetaToolManager {
             edges: this._machineData.edges.map(edge => ({
                 source: edge.source,
                 target: edge.target,
-                type: edge.type,
-                label: edge.label
+                arrowType: edge.arrowType,
+                sourceMultiplicity: edge.sourceMultiplicity,
+                targetMultiplicity: edge.targetMultiplicity,
+                sourceAttribute: edge.sourceAttribute,
+                targetAttribute: edge.targetAttribute,
+                roleName: edge.roleName,
+                style: edge.style,
+                annotations: edge.annotations,
+                value: edge.value,
+                attributes: edge.attributes
             }))
         };
 
@@ -516,21 +526,30 @@ export class MetaToolManager {
         this._machineData.nodes = machine.nodes.map((node: any) => ({
             name: node.name,
             type: node.type,
+            parent: node.parent,
+            title: node.title,
             attributes: node.attributes?.map((attr: any) => ({
                 name: attr.name,
                 type: attr.type,
                 value: attr.value
             })),
-            // Preserve annotations if present in the incoming payload
-            ...(node.annotations && { annotations: node.annotations })
+            annotations: node.annotations
         }));
         this._machineData.edges = machine.edges.map((edge: any) => ({
             source: edge.source,
             target: edge.target,
+            arrowType: edge.arrowType,
+            sourceMultiplicity: edge.sourceMultiplicity,
+            targetMultiplicity: edge.targetMultiplicity,
+            sourceAttribute: edge.sourceAttribute,
+            targetAttribute: edge.targetAttribute,
+            roleName: edge.roleName,
+            style: edge.style,
+            annotations: edge.annotations,
+            value: edge.value,
+            attributes: edge.attributes,
             type: edge.type,
-            label: edge.label,
-            // Preserve annotations if present in the incoming payload
-            ...(edge.annotations && { annotations: edge.annotations })
+            label: edge.label
         }));
 
         // Generate DSL version

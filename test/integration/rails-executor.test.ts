@@ -5,6 +5,26 @@
 import { describe, it, expect } from 'vitest';
 import { RailsExecutor, MachineData } from '../../src/language/rails-executor.js';
 
+function edge(source: string, target: string, options: Partial<MachineData['edges'][number]> = {}): MachineData['edges'][number] {
+    const value = options.value;
+    return {
+        source,
+        target,
+        arrowType: options.arrowType ?? '->',
+        annotations: options.annotations,
+        value,
+        attributes: options.attributes ?? (value ? { ...value } : undefined),
+        sourceMultiplicity: options.sourceMultiplicity,
+        targetMultiplicity: options.targetMultiplicity,
+        sourceAttribute: options.sourceAttribute,
+        targetAttribute: options.targetAttribute,
+        roleName: options.roleName,
+        style: options.style,
+        type: options.type,
+        label: options.label
+    };
+}
+
 describe('RailsExecutor - Automated Transitions', () => {
     it('should automatically transition through state nodes', async () => {
         const machineData: MachineData = {
@@ -15,8 +35,8 @@ describe('RailsExecutor - Automated Transitions', () => {
                 { name: 'complete', type: 'state' }
             ],
             edges: [
-                { source: 'start', target: 'processing' },
-                { source: 'processing', target: 'complete' }
+                edge('start', 'processing'),
+                edge('processing', 'complete')
             ]
         };
 
@@ -49,7 +69,10 @@ describe('RailsExecutor - Automated Transitions', () => {
                 { name: 'next', type: 'state' }
             ],
             edges: [
-                { source: 'start', target: 'next', label: '@auto' }
+                edge('start', 'next', {
+                    annotations: [{ name: 'auto' }],
+                    value: { text: '@auto' }
+                })
             ]
         };
 
@@ -72,8 +95,8 @@ describe('RailsExecutor - Automated Transitions', () => {
                 { name: 'successPath', type: 'state' }
             ],
             edges: [
-                { source: 'start', target: 'errorPath', label: 'when: "errorCount > 0"' },
-                { source: 'start', target: 'successPath', label: 'when: "errorCount === 0"' }
+                edge('start', 'errorPath', { value: { when: 'errorCount > 0' } }),
+                edge('start', 'successPath', { value: { when: 'errorCount === 0' } })
             ]
         };
 
@@ -96,8 +119,8 @@ describe('RailsExecutor - Automated Transitions', () => {
                 { name: 'end', type: 'state' }
             ],
             edges: [
-                { source: 'start', target: 'middle' },
-                { source: 'middle', target: 'end' }
+                edge('start', 'middle'),
+                edge('middle', 'end')
             ]
         };
 
@@ -122,7 +145,7 @@ describe('RailsExecutor - Automated Transitions', () => {
                 { name: 'next', type: 'state' }
             ],
             edges: [
-                { source: 'start', target: 'next' }
+                edge('start', 'next')
             ]
         };
 
@@ -143,7 +166,7 @@ describe('RailsExecutor - Automated Transitions', () => {
                 { name: 'processing', type: 'state' }
             ],
             edges: [
-                { source: 'start', target: 'processing' }
+                edge('start', 'processing')
             ]
         };
 

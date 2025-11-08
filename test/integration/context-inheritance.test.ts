@@ -17,6 +17,20 @@ import { generateJSON } from '../../src/language/generator/generator.js';
 let services: ReturnType<typeof createMachineServices>;
 let parse: ReturnType<typeof parseHelper<Machine>>;
 
+const edge = (source: string, target: string, options: Partial<MachineData['edges'][number]> = {}): MachineData['edges'][number] => {
+    const value = options.value ?? (options.label ? { text: options.label } : undefined);
+    return {
+        source,
+        target,
+        arrowType: options.arrowType ?? '->',
+        annotations: options.annotations,
+        value,
+        attributes: options.attributes ?? (value ? { ...value } : undefined),
+        type: options.type,
+        label: options.label
+    };
+};
+
 beforeAll(async () => {
     services = createMachineServices(EmptyFileSystem);
     parse = parseHelper<Machine>(services.Machine);
@@ -45,8 +59,7 @@ describe('Context Inheritance', () => {
                 }
             ],
             edges: [
-                // Parent has access to config
-                { source: 'Pipeline', target: 'config', label: 'reads' }
+                edge('Pipeline', 'config', { value: { text: 'reads' } })
             ]
         };
 
@@ -83,10 +96,8 @@ describe('Context Inheritance', () => {
                 }
             ],
             edges: [
-                // Parent has read access
-                { source: 'Parent', target: 'data', label: 'reads' },
-                // Child explicitly has write access (overrides inherited read-only)
-                { source: 'Child', target: 'data', label: 'writes' }
+                edge('Parent', 'data', { value: { text: 'reads' } }),
+                edge('Child', 'data', { value: { text: 'writes' } })
             ]
         };
 
@@ -129,8 +140,7 @@ describe('Context Inheritance', () => {
                 }
             ],
             edges: [
-                // GrandParent has access to config
-                { source: 'GrandParent', target: 'config', label: 'reads' }
+                edge('GrandParent', 'config', { value: { text: 'reads' } })
             ]
         };
 
@@ -166,7 +176,7 @@ describe('Context Inheritance', () => {
                 }
             ],
             edges: [
-                { source: 'Parent', target: 'config', label: 'reads' }
+                edge('Parent', 'config', { value: { text: 'reads' } })
             ]
         };
 
@@ -199,8 +209,7 @@ describe('Context Inheritance', () => {
                 }
             ],
             edges: [
-                // Parent has write and store access
-                { source: 'Parent', target: 'data', label: 'writes,store' }
+                edge('Parent', 'data', { value: { text: 'writes,store' } })
             ]
         };
 

@@ -5,6 +5,7 @@
 
 import { MachineExecutor, MachineExecutionContext, MachineData } from './machine-executor.js';
 import { generateRuntimeGraphviz, DiagramOptions, RuntimeContext as DiagramRuntimeContext } from './diagram/index.js';
+import { getEdgeText } from './utils/edge-utils.js';
 
 export interface RuntimeVisualizationOptions {
     showRuntimeValues?: boolean;
@@ -350,15 +351,12 @@ export class RuntimeVisualizer {
 
             // Extract runtime data from edge attributes/labels
             const runtimeData: Record<string, any> = {};
-            if (edge.label) {
-                // Parse any runtime-relevant data from labels
-                // This could include conditions, parameters, etc.
-            }
+            const labelText = getEdgeText(edge as any) || '';
 
             return {
                 source: edge.source,
                 target: edge.target,
-                label: edge.label,
+                label: labelText,
                 traversalCount,
                 lastTraversed: lastTraversal?.timestamp,
                 runtimeData: Object.keys(runtimeData).length > 0 ? runtimeData : undefined

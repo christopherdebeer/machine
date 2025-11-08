@@ -6,6 +6,20 @@ import { describe, it, expect } from 'vitest';
 import { AgentContextBuilder } from '../../src/language/agent-context-builder.js';
 import type { MachineData, MachineExecutionContext } from '../../src/language/rails-executor.js';
 
+const edge = (source: string, target: string, options: Partial<MachineData['edges'][number]> = {}): MachineData['edges'][number] => {
+    const value = options.value ?? (options.label ? { text: options.label } : undefined);
+    return {
+        source,
+        target,
+        arrowType: options.arrowType ?? '->',
+        annotations: options.annotations,
+        value,
+        attributes: options.attributes ?? (value ? { ...value } : undefined),
+        type: options.type,
+        label: options.label
+    };
+};
+
 describe('AgentContextBuilder - Dynamic Context System Prompts', () => {
     it('should build basic system prompt with role and position', () => {
         const machineData: MachineData = {
@@ -64,8 +78,8 @@ describe('AgentContextBuilder - Dynamic Context System Prompts', () => {
                 }
             ],
             edges: [
-                { source: 'process', target: 'input', label: 'reads' },
-                { source: 'process', target: 'output', label: 'writes' }
+                edge('process', 'input', { value: { text: 'reads' } }),
+                edge('process', 'output', { value: { text: 'writes' } })
             ]
         };
 
@@ -103,7 +117,7 @@ describe('AgentContextBuilder - Dynamic Context System Prompts', () => {
                 }
             ],
             edges: [
-                { source: 'task1', target: 'context1', label: 'write: field1,field2' }
+                edge('task1', 'context1', { value: { write: 'field1,field2' } })
             ]
         };
 
@@ -130,8 +144,8 @@ describe('AgentContextBuilder - Dynamic Context System Prompts', () => {
                 { name: 'failure', type: 'state' }
             ],
             edges: [
-                { source: 'start', target: 'success', label: 'on success' },
-                { source: 'start', target: 'failure', label: 'on failure' }
+                edge('start', 'success', { value: { text: 'on success' } }),
+                edge('start', 'failure', { value: { text: 'on failure' } })
             ]
         };
 
@@ -220,8 +234,11 @@ describe('AgentContextBuilder - Dynamic Context System Prompts', () => {
                 { name: 'manual_next', type: 'state' }
             ],
             edges: [
-                { source: 'task1', target: 'auto_next', label: '@auto' },
-                { source: 'task1', target: 'manual_next', label: 'manual' }
+                edge('task1', 'auto_next', {
+                    annotations: [{ name: 'auto' }],
+                    value: { text: '@auto' }
+                }),
+                edge('task1', 'manual_next', { value: { text: 'manual' } })
             ]
         };
 
@@ -253,9 +270,9 @@ describe('AgentContextBuilder - Dynamic Context System Prompts', () => {
                 { name: 'storeCtx', type: 'context', attributes: [] }
             ],
             edges: [
-                { source: 'task1', target: 'readCtx', label: 'reads' },
-                { source: 'task1', target: 'writeCtx', label: 'writes' },
-                { source: 'task1', target: 'storeCtx', label: 'stores' }
+                edge('task1', 'readCtx', { value: { text: 'reads' } }),
+                edge('task1', 'writeCtx', { value: { text: 'writes' } }),
+                edge('task1', 'storeCtx', { value: { text: 'stores' } })
             ]
         };
 

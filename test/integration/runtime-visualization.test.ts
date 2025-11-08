@@ -7,6 +7,8 @@ import { MachineExecutor } from '../../src/language/machine-executor.js';
 import { EvolutionaryExecutor } from '../../src/language/task-evolution.js';
 import { VisualizingMachineExecutor } from '../../src/language/runtime-visualizer.js';
 import { createStorage } from '../../src/language/storage.js';
+import { generateJSON } from '../../src/language/generator/generator.js';
+import type { MachineData } from '../../src/language/base-executor.js';
 
 /**
  * Integration tests for runtime visualization and circular reference prevention
@@ -29,89 +31,9 @@ afterEach(() => {
  * Helper function to convert parsed Machine AST to MachineData format
  * This mirrors the convertToMachineData function from codemirror-setup.ts
  */
-function convertToMachineData(machine: Machine): any {
-    const nodes: any[] = [];
-    const edges: any[] = [];
-
-    // Process nodes - safely extract only the data we need
-    machine.nodes?.forEach(node => {
-        const nodeData: any = {
-            name: String(node.name || ''),
-            type: String(node.type || 'state')
-        };
-
-        // Convert attributes safely
-        if (node.attributes && node.attributes.length > 0) {
-            nodeData.attributes = [];
-            node.attributes.forEach(attr => {
-                const attrData: any = {
-                    name: String(attr.name || ''),
-                    type: String(attr.type || 'string')
-                };
-                
-                // Safely extract attribute value
-                if (attr.value) {
-                    if (typeof attr.value === 'string') {
-                        attrData.value = attr.value;
-                    } else if (attr.value.value !== undefined) {
-                        attrData.value = String(attr.value.value);
-                    } else {
-                        attrData.value = String(attr.value);
-                    }
-                } else {
-                    attrData.value = '';
-                }
-                
-                nodeData.attributes.push(attrData);
-            });
-        }
-
-        nodes.push(nodeData);
-    });
-
-    // Process edges - safely extract edge data without AST references
-    machine.edges?.forEach(edge => {
-        edge.segments?.forEach(segment => {
-            edge.source?.forEach(sourceRef => {
-                segment.target?.forEach(targetRef => {
-                    const edgeData: any = {
-                        source: String(sourceRef.ref?.name || ''),
-                        target: String(targetRef.ref?.name || '')
-                    };
-
-                    // Extract label information from segment safely
-                    if (segment.label && segment.label.length > 0) {
-                        const labelParts: string[] = [];
-                        segment.label.forEach(edgeType => {
-                            edgeType.value?.forEach(attr => {
-                                if (attr.text) {
-                                    labelParts.push(String(attr.text));
-                                } else if (attr.name) {
-                                    labelParts.push(String(attr.name));
-                                }
-                            });
-                        });
-                        if (labelParts.length > 0) {
-                            edgeData.label = labelParts.join(' ');
-                        }
-                    }
-
-                    // Set edge type based on arrow type
-                    if (segment.endType) {
-                        edgeData.type = String(segment.endType);
-                    }
-
-                    edges.push(edgeData);
-                });
-            });
-        });
-    });
-
-    return {
-        title: String(machine.title || 'Untitled Machine'),
-        nodes,
-        edges
-    };
+function convertToMachineData(machine: Machine): MachineData {
+    const jsonResult = generateJSON(machine, 'runtime-visualization.test');
+    return JSON.parse(jsonResult.content) as MachineData;
 }
 
 /**
@@ -286,8 +208,16 @@ describe('Runtime Visualization - Circular Reference Prevention', () => {
                     edges: machineData.edges.map((edge: any) => ({
                         source: edge.source,
                         target: edge.target,
-                        label: edge.label,
-                        type: edge.type
+                        arrowType: edge.arrowType,
+                        annotations: edge.annotations,
+                        value: edge.value,
+                        attributes: edge.attributes,
+                        sourceAttribute: edge.sourceAttribute,
+                        targetAttribute: edge.targetAttribute,
+                        sourceMultiplicity: edge.sourceMultiplicity,
+                        targetMultiplicity: edge.targetMultiplicity,
+                        roleName: edge.roleName,
+                        style: edge.style
                     }))
                 };
 

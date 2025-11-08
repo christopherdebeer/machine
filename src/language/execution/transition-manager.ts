@@ -6,6 +6,7 @@
 import { MachineData } from '../base-executor.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
 import { EdgeConditionParser } from '../utils/edge-conditions.js';
+import { edgeHasAnnotation, getEdgeText } from '../utils/edge-utils.js';
 import { EvaluationEngine } from './evaluation-engine.js';
 import { AnnotatedEdge, TransitionEvaluation, EvaluationContext } from './types.js';
 import { EdgeTypeResolver } from './edge-type-resolver.js';
@@ -49,13 +50,22 @@ export class TransitionManager {
      */
     private getAnnotatedEdges(): AnnotatedEdge[] {
         return this.machineData.edges.map(edge => {
-            const annotations = this.extractAnnotationsFromLabel(edge);
+            const parsedAnnotations = this.extractAnnotationsFromLabel(edge);
+            const baseAnnotations = edge.annotations ?? [];
+            const combinedAnnotations = [...baseAnnotations];
+
+            for (const annotation of parsedAnnotations) {
+                if (!combinedAnnotations.some(existing => existing.name === annotation.name && existing.value === annotation.value)) {
+                    combinedAnnotations.push(annotation);
+                }
+            }
+
             const edgeType = EdgeTypeResolver.resolveEdgeType(edge);
-            const processed = AnnotationProcessor.processEdgeAnnotations(annotations);
+            const processed = AnnotationProcessor.processEdgeAnnotations(combinedAnnotations);
 
             return {
                 ...edge,
-                annotations,
+                annotations: combinedAnnotations,
                 edgeType,
                 priority: processed.priority
             };
@@ -66,8 +76,7 @@ export class TransitionManager {
      * Check if edge has @auto annotation
      */
     private hasAutoAnnotation(edge: AnnotatedEdge): boolean {
-        if (!edge.annotations) return false;
-        return edge.annotations.some(a => a.name === 'auto');
+        return edgeHasAnnotation(edge, 'auto');
     }
 
     /**
@@ -312,7 +321,7 @@ export class TransitionManager {
             })
             .map(edge => ({
                 target: edge.target,
-                description: edge.label || edge.type,
+                description: getEdgeText(edge),
                 condition: this.evaluationEngine.extractEdgeCondition(edge)
             }));
     }

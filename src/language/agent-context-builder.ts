@@ -13,6 +13,7 @@ import { NodeTypeChecker } from './node-type-checker.js';
 import { EdgeConditionParser } from './utils/edge-conditions.js';
 import { ContextPermissionsResolver } from './utils/context-permissions.js';
 import { extractValueFromAST } from './utils/ast-helpers.js';
+import { edgeHasAnnotation, getEdgeText } from './utils/edge-utils.js';
 
 
 /**
@@ -46,6 +47,10 @@ interface Edge {
     target: string;
     type?: string;
     label?: string;
+    arrowType?: string;
+    annotations?: Array<{ name: string; value?: any }>;
+    value?: Record<string, any>;
+    attributes?: Record<string, any>;
 }
 
 /**
@@ -290,7 +295,7 @@ export class AgentContextBuilder {
             if (NodeTypeChecker.isContext(targetNode)) continue;
 
             // Skip @auto annotations (handled automatically)
-            if (edge.label?.includes('@auto') || edge.type?.includes('@auto')) continue;
+            if (edgeHasAnnotation(edge as any, 'auto')) continue;
 
             // Extract condition if present
             const condition = this.extractConditionFromLabel(edge);
@@ -300,7 +305,7 @@ export class AgentContextBuilder {
 
             transitions.push({
                 target: edge.target,
-                description: edge.label || edge.type,
+                description: getEdgeText(edge as any),
                 condition
             });
         }

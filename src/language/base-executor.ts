@@ -33,24 +33,50 @@ export interface MachineExecutionContext {
     stateTransitions: Array<{ state: string; timestamp: string }>;
 }
 
+export interface MachineAttribute {
+    name: string;
+    type?: string;
+    value: any;
+}
+
+export interface MachineAnnotation {
+    name: string;
+    value?: any;
+}
+
+export interface MachineNode {
+    name: string;
+    type?: string;
+    parent?: string;
+    title?: string;
+    attributes?: MachineAttribute[];
+    annotations?: MachineAnnotation[];
+}
+
+export interface MachineEdge {
+    source: string;
+    target: string;
+    arrowType?: string;
+    sourceMultiplicity?: string;
+    targetMultiplicity?: string;
+    sourceAttribute?: string;
+    targetAttribute?: string;
+    roleName?: string;
+    style?: Record<string, any>;
+    annotations?: MachineAnnotation[];
+    value?: Record<string, any>;
+    attributes?: Record<string, any>;
+    // Legacy properties kept for backwards compatibility with tests and older JSON payloads
+    type?: string;
+    label?: string;
+}
+
 export interface MachineData {
     title: string;
-    nodes: Array<{
-        name: string;
-        type?: string;
-        parent?: string; // Name of parent node for hierarchy tracking (optional)
-        attributes?: Array<{
-            name: string;
-            type: string;
-            value: string;
-        }>;
-    }>;
-    edges: Array<{
-        source: string;
-        target: string;
-        type?: string;
-        label?: string;
-    }>;
+    attributes?: MachineAttribute[];
+    annotations?: MachineAnnotation[];
+    nodes: MachineNode[];
+    edges: MachineEdge[];
 }
 
 export interface ExecutionLimits {

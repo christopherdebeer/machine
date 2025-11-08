@@ -10,6 +10,7 @@
 
 import type { Node as ASTNode } from './generated/ast.js';
 import { extractValueFromAST } from './utils/ast-helpers.js';
+import { getEdgeSearchText, getEdgeValue } from './utils/edge-utils.js';
 
 /**
  * Minimal node interface that works with both Langium AST nodes and simple objects
@@ -32,6 +33,10 @@ export interface EdgeLike {
     target: string;
     type?: string;
     label?: string;
+    arrowType?: string;
+    annotations?: Array<{ name: string; value?: any }>;
+    value?: Record<string, any>;
+    attributes?: Record<string, any>;
 }
 
 /**
@@ -351,7 +356,8 @@ export class NodeTypeChecker {
         canStore: boolean;
         fields?: string[];
     } {
-        const label = (edge.label || edge.type || '').toLowerCase();
+        const metadata = getEdgeValue(edge as any) ?? {};
+        const searchText = getEdgeSearchText(edge as any);
 
         const permissions = {
             canRead: false,
@@ -360,27 +366,55 @@ export class NodeTypeChecker {
             fields: undefined as string[] | undefined
         };
 
-        // Check for permission keywords
-        if (label.includes('read')) permissions.canRead = true;
-        if (label.includes('write') || label.includes('update') || label.includes('set')) {
+        const lowerSearch = searchText.toLowerCase();
+        const hasKey = (key: string) => Object.prototype.hasOwnProperty.call(metadata, key) ||
+            Object.prototype.hasOwnProperty.call(metadata, key.toLowerCase()) ||
+            Object.prototype.hasOwnProperty.call(metadata, key.charAt(0).toUpperCase() + key.slice(1));
+
+        if (lowerSearch.match(/\bread\b|\bfetch\b|\bget\b|\bload\b/) || hasKey('read')) {
+            permissions.canRead = true;
+        }
+
+        if (lowerSearch.match(/\bwrite\b|\bupdate\b|\bset\b|\bcalculate\b/) ||
+            hasKey('write') || hasKey('update') || hasKey('set') || hasKey('calculate')) {
             permissions.canWrite = true;
         }
-        if (label.includes('store') || label.includes('calculate')) {
+
+        if (lowerSearch.match(/\bstore\b|\bpersist\b|\bsave\b/) || hasKey('store')) {
             permissions.canStore = true;
         }
 
-        // If no specific permissions, default to read-only
+        // If no specific permissions, default to read-only access
         if (!permissions.canRead && !permissions.canWrite && !permissions.canStore) {
             permissions.canRead = true;
         }
 
-        // Extract field list if specified (e.g., "write: field1,field2")
-        const fieldMatch = label.match(/(?:write|read|store|update|set):\s*([a-zA-Z0-9_,\s]+)/i);
-        if (fieldMatch) {
-            permissions.fields = fieldMatch[1]
-                .split(',')
-                .map(f => f.trim())
-                .filter(f => f.length > 0);
+        const fieldSet = new Set<string>();
+        const collectFields = (raw: unknown) => {
+            if (raw === undefined || raw === null) return;
+            if (Array.isArray(raw)) {
+                raw.forEach(value => collectFields(value));
+                return;
+            }
+            const text = String(raw);
+            text.split(',').forEach(part => {
+                const trimmed = part.trim();
+                if (trimmed) {
+                    fieldSet.add(trimmed);
+                }
+            });
+        };
+
+        const candidates = ['write', 'read', 'store', 'update', 'set', 'calculate'];
+        for (const key of candidates) {
+            if (hasKey(key)) {
+                const value = (metadata as any)[key] ?? (metadata as any)[key.toLowerCase()] ?? (metadata as any)[key.charAt(0).toUpperCase() + key.slice(1)];
+                collectFields(value);
+            }
+        }
+
+        if (fieldSet.size > 0) {
+            permissions.fields = Array.from(fieldSet);
         }
 
         return permissions;

@@ -12,6 +12,20 @@ import { describe, it, expect } from 'vitest';
 import { RailsExecutor, MachineData } from '../../src/language/rails-executor.js';
 import { AgentContextBuilder } from '../../src/language/agent-context-builder.js';
 
+const edge = (source: string, target: string, options: Partial<MachineData['edges'][number]> = {}): MachineData['edges'][number] => {
+    const value = options.value ?? (options.label ? { text: options.label } : undefined);
+    return {
+        source,
+        target,
+        arrowType: options.arrowType ?? '->',
+        annotations: options.annotations,
+        value,
+        attributes: options.attributes ?? (value ? { ...value } : undefined),
+        type: options.type,
+        label: options.label
+    };
+};
+
 describe('State Modules', () => {
     describe('Module Entry', () => {
         it('should enter state module at first child task', async () => {
@@ -25,9 +39,9 @@ describe('State Modules', () => {
                     { name: 'end', type: 'task' }
                 ],
                 edges: [
-                    { source: 'start', target: 'Validation' }, // Transition to module
-                    { source: 'check', target: 'sanitize' }, // Within module
-                    { source: 'sanitize', target: 'end' } // Exit module
+                    edge('start', 'Validation'),
+                    edge('check', 'sanitize'),
+                    edge('sanitize', 'end')
                 ]
             };
 
@@ -58,8 +72,8 @@ describe('State Modules', () => {
                     { name: 'end', type: 'task' }
                 ],
                 edges: [
-                    { source: 'start', target: 'Module' },
-                    { source: 'process', target: 'end' }
+                    edge('start', 'Module'),
+                    edge('process', 'end')
                 ]
             };
 
@@ -221,11 +235,11 @@ describe('State Modules', () => {
                     { name: 'end', type: 'task' }
                 ],
                 edges: [
-                    { source: 'start', target: 'Validation' },
-                    { source: 'Validation', target: 'SuccessPath', label: 'success' },
-                    { source: 'Validation', target: 'ErrorPath', label: 'error' },
-                    { source: 'SuccessPath', target: 'end' },
-                    { source: 'ErrorPath', target: 'end' }
+                    edge('start', 'Validation'),
+                    edge('Validation', 'SuccessPath', { value: { text: 'success' } }),
+                    edge('Validation', 'ErrorPath', { value: { text: 'error' } }),
+                    edge('SuccessPath', 'end'),
+                    edge('ErrorPath', 'end')
                 ]
             };
 
@@ -300,10 +314,10 @@ describe('State Modules', () => {
                     { name: 'end', type: 'task' }
                 ],
                 edges: [
-                    { source: 'start', target: 'Pipeline' },
-                    { source: 'Pipeline', target: 'config', label: 'reads' }, // Module reads config
-                    { source: 'task1', target: 'pipelineState', label: 'reads' }, // Task reads pipeline state
-                    { source: 'Pipeline', target: 'end' }
+                    edge('start', 'Pipeline'),
+                    edge('Pipeline', 'config', { value: { text: 'reads' } }),
+                    edge('task1', 'pipelineState', { value: { text: 'reads' } }),
+                    edge('Pipeline', 'end')
                 ]
             };
 

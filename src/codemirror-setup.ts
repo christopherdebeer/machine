@@ -756,8 +756,18 @@ async function executeCode(code: string): Promise<void> {
                 edges: machineData.edges.map((edge: any) => ({
                     source: edge.source,
                     target: edge.target,
-                    label: edge.label,
-                    type: edge.type
+                    arrowType: edge.arrowType,
+                    annotations: edge.annotations,
+                    value: edge.value,
+                    attributes: edge.attributes,
+                    sourceAttribute: edge.sourceAttribute,
+                    targetAttribute: edge.targetAttribute,
+                    sourceMultiplicity: edge.sourceMultiplicity,
+                    targetMultiplicity: edge.targetMultiplicity,
+                    roleName: edge.roleName,
+                    style: edge.style,
+                    type: edge.type,
+                    label: edge.label
                 }))
             };
 

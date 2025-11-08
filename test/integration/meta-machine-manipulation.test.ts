@@ -6,6 +6,20 @@
 import { describe, expect, test } from 'vitest';
 import { RailsExecutor, type MachineData } from '../../src/language/rails-executor.js';
 
+const edge = (source: string, target: string, options: Partial<MachineData['edges'][number]> = {}): MachineData['edges'][number] => {
+    const value = options.value ?? (options.label ? { text: options.label } : undefined);
+    return {
+        source,
+        target,
+        arrowType: options.arrowType ?? '->',
+        annotations: options.annotations,
+        value,
+        attributes: options.attributes ?? (value ? { ...value } : undefined),
+        type: options.type,
+        label: options.label
+    };
+};
+
 describe('Meta-programming: Machine Manipulation', () => {
     test('get_machine_definition returns both JSON and DSL', async () => {
         const machineData: MachineData = {
@@ -24,11 +38,7 @@ describe('Meta-programming: Machine Manipulation', () => {
                 }
             ],
             edges: [
-                {
-                    source: 'start',
-                    target: 'end',
-                    type: 'transition'
-                }
+                edge('start', 'end', { arrowType: 'transition' })
             ]
         };
 
@@ -168,7 +178,7 @@ describe('Meta-programming: Machine Manipulation', () => {
         const updatedMachine = {
             title: 'Updated',
             nodes: [{ name: 'start', type: 'State' }, { name: 'end', type: 'State' }],
-            edges: [{ source: 'start', target: 'end' }]
+            edges: [edge('start', 'end')]
         };
 
         await metaToolManager.updateDefinition({
@@ -273,10 +283,10 @@ describe('Meta-programming: Machine Manipulation', () => {
                     ]
                 }
             ],
-            edges: [
-                { source: 'init', target: 'processor', label: 'start' },
-                { source: 'processor', target: 'data', type: 'writes' }
-            ]
+                edges: [
+                    edge('init', 'processor', { value: { text: 'start' } }),
+                    edge('processor', 'data', { arrowType: 'writes' })
+                ]
         };
 
         const executor = new RailsExecutor(machineData);

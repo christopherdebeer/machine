@@ -2,6 +2,8 @@
  * Shared types for the execution model
  */
 
+import type { MachineEdge } from '../base-executor.js';
+
 /**
  * Edge semantic types
  */
@@ -32,13 +34,8 @@ export type ErrorHandlingStrategy = 'fail-fast' | 'continue' | 'compensate';
 /**
  * Extended edge with annotation support and semantic types
  */
-export interface AnnotatedEdge {
-    source: string;
-    target: string;
-    type?: string;
-    label?: string;
+export interface AnnotatedEdge extends MachineEdge {
     edgeType?: EdgeType;  // Semantic edge type
-    annotations?: EdgeAnnotation[];
     priority?: number;  // For @priority annotation
 }
 

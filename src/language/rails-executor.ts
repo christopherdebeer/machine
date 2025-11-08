@@ -20,11 +20,13 @@ import {
     BaseExecutor,
     MachineExecutionContext,
     MachineData,
+    MachineEdge,
     MachineMutation,
     MachineExecutorConfig as BaseMachineExecutorConfig
 } from './base-executor.js';
 import { EdgeConditionParser } from './utils/edge-conditions.js';
 import { NodeTypeChecker } from './node-type-checker.js';
+import { edgeHasAnnotation, getEdgeText } from './utils/edge-utils.js';
 // Phase 1-3 execution managers
 import {
     TransitionManager,
@@ -51,29 +53,10 @@ export interface MachineExecutorConfig extends BaseMachineExecutorConfig {
 }
 
 /**
- * Edge annotation interface
- */
-interface EdgeAnnotation {
-    name: string;
-    value?: string;
-}
-
-/**
- * Extended edge with annotation support
- */
-interface AnnotatedEdge {
-    source: string;
-    target: string;
-    type?: string;
-    label?: string;
-    annotations?: EdgeAnnotation[];
-}
-
-/**
  * Transition evaluation result
  */
 interface TransitionEvaluation {
-    edge: AnnotatedEdge;
+    edge: MachineEdge;
     target: string;
     condition?: string;
     isAutomatic: boolean;
@@ -219,37 +202,15 @@ export class RailsExecutor extends BaseExecutor {
     /**
      * Check if edge has @auto annotation
      */
-    protected hasAutoAnnotation(edge: AnnotatedEdge): boolean {
-        if (!edge.annotations) return false;
-        return edge.annotations.some(a => a.name === 'auto');
-    }
-
-    /**
-     * Extract @auto annotation from edge label
-     * Labels like "-@auto->" or "- when: x @auto ->"
-     */
-    protected extractAnnotationsFromLabel(edge: { label?: string; type?: string }): EdgeAnnotation[] {
-        const edgeLabel = edge.label || edge.type || '';
-        const annotations: EdgeAnnotation[] = [];
-
-        // Look for @auto annotation
-        if (edgeLabel.includes('@auto')) {
-            annotations.push({ name: 'auto' });
-        }
-
-        // Could add more annotations in the future: @parallel, @conditional, etc.
-
-        return annotations;
+    protected hasAutoAnnotation(edge: MachineEdge): boolean {
+        return edgeHasAnnotation(edge, 'auto');
     }
 
     /**
      * Get annotated edges (edges with extracted annotations)
      */
-    protected getAnnotatedEdges(): AnnotatedEdge[] {
-        return this.machineData.edges.map(edge => ({
-            ...edge,
-            annotations: this.extractAnnotationsFromLabel(edge)
-        }));
+    protected getAnnotatedEdges(): MachineEdge[] {
+        return this.machineData.edges;
     }
 
 
@@ -314,7 +275,7 @@ export class RailsExecutor extends BaseExecutor {
      * Get outbound edges from a node
      * Includes module-level exit edges for terminal nodes within state modules
      */
-    protected getOutboundEdges(nodeName: string): AnnotatedEdge[] {
+    protected getOutboundEdges(nodeName: string): MachineEdge[] {
         const allEdges = this.getAnnotatedEdges();
         const directEdges = allEdges.filter(edge => edge.source === nodeName);
 
@@ -464,7 +425,7 @@ export class RailsExecutor extends BaseExecutor {
             })
             .map(edge => ({
                 target: edge.target,
-                description: edge.label || edge.type,
+                description: getEdgeText(edge),
                 condition: this.extractEdgeCondition(edge)
             }));
     }
@@ -951,7 +912,7 @@ export class RailsExecutor extends BaseExecutor {
         this.logger.debug('execution', `Node has ${outboundEdges.length} outbound edges`, {
             edges: outboundEdges.map(e => ({
                 target: e.target,
-                label: e.label || e.type,
+                label: getEdgeText(e),
                 hasAnnotations: (e.annotations?.length || 0) > 0
             }))
         });
