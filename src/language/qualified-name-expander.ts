@@ -1,5 +1,7 @@
-import { AstNode, AstUtils, CstNode } from 'langium';
-import { Machine, Node, isMachine, isNode } from './generated/ast.js';
+import { AstNode } from 'langium';
+import { Machine, Node } from './generated/ast.js';
+
+type NodeChildProperty = 'annotations' | 'attributes' | 'edges' | 'nodes';
 
 /**
  * Transforms qualified node definitions into nested structures
@@ -16,6 +18,17 @@ import { Machine, Node, isMachine, isNode } from './generated/ast.js';
  * represents the actual nested structure that scope provider expects.
  */
 export class QualifiedNameExpander {
+    private attachChild<T extends AstNode>(
+        child: T,
+        container: Machine | Node,
+        property: NodeChildProperty,
+        index: number
+    ): void {
+        child.$container = container;
+        child.$containerProperty = property;
+        child.$containerIndex = index;
+    }
+
     /**
      * Expand all qualified node names in the machine
      */
@@ -131,9 +144,7 @@ export class QualifiedNameExpander {
         } else {
             // Create: add the leaf node with its simple name
             node.name = leafName; // Update name to simple form
-            node.$container = currentContainer;
-            node.$containerProperty = 'nodes';
-            node.$containerIndex = currentNodes.length;
+            this.attachChild(node, currentContainer, 'nodes', currentNodes.length);
             currentNodes.push(node);
         }
     }
@@ -149,9 +160,6 @@ export class QualifiedNameExpander {
     ): Node {
         const node: Node = {
             $type: 'Node',
-            $container: container,
-            $containerProperty: 'nodes',
-            $containerIndex: index,
             name: name,
             title: undefined,
             type: type, // Inherit type from leaf node
@@ -160,6 +168,7 @@ export class QualifiedNameExpander {
             edges: [],
             attributes: []
         };
+        this.attachChild(node, container, 'nodes', index);
         return node;
     }
 
@@ -222,74 +231,10 @@ export class QualifiedNameExpander {
         // Merge type
         this.mergeNodeType(existingNode, newNode.type, isStrictMode);
 
-        // Merge annotations (avoid duplicates)
-        if (newNode.annotations && newNode.annotations.length > 0) {
-            const existingAnnotationNames = new Set(
-                existingNode.annotations?.map(a => a.name) ?? []
-            );
-
-            for (const annotation of newNode.annotations) {
-                if (!existingAnnotationNames.has(annotation.name)) {
-                    annotation.$container = existingNode;
-                    annotation.$containerProperty = 'annotations';
-                    annotation.$containerIndex = existingNode.annotations.length;
-                    existingNode.annotations.push(annotation);
-                }
-            }
-        }
-
-        // Merge attributes (last wins for same name)
-        if (newNode.attributes && newNode.attributes.length > 0) {
-            for (const newAttr of newNode.attributes) {
-                const existingAttrIndex = existingNode.attributes.findIndex(
-                    a => a.name === newAttr.name
-                );
-
-                if (existingAttrIndex >= 0) {
-                    // Replace existing attribute
-                    newAttr.$container = existingNode;
-                    newAttr.$containerProperty = 'attributes';
-                    newAttr.$containerIndex = existingAttrIndex;
-                    existingNode.attributes[existingAttrIndex] = newAttr;
-                } else {
-                    // Add new attribute
-                    newAttr.$container = existingNode;
-                    newAttr.$containerProperty = 'attributes';
-                    newAttr.$containerIndex = existingNode.attributes.length;
-                    existingNode.attributes.push(newAttr);
-                }
-            }
-        }
-
-        // Merge child nodes (recursively)
-        if (newNode.nodes && newNode.nodes.length > 0) {
-            for (const childNode of newNode.nodes) {
-                const existingChild = existingNode.nodes.find(
-                    n => n.name === childNode.name
-                );
-
-                if (existingChild) {
-                    // Recursively merge child nodes
-                    this.mergeNodes(existingChild, childNode, isStrictMode);
-                } else {
-                    // Add new child node
-                    childNode.$container = existingNode;
-                    childNode.$containerProperty = 'nodes';
-                    childNode.$containerIndex = existingNode.nodes.length;
-                    existingNode.nodes.push(childNode);
-                }
-            }
-        }
-
-        // Merge edges
-        if (newNode.edges && newNode.edges.length > 0) {
-            for (const edge of newNode.edges) {
-                edge.$container = existingNode;
-                edge.$containerProperty = 'edges';
-                edge.$containerIndex = existingNode.edges.length;
-                existingNode.edges.push(edge);
-            }
-        }
+        this.mergeAnnotations(existingNode, newNode);
+        this.mergeAttributes(existingNode, newNode);
+        this.mergeChildNodes(existingNode, newNode, isStrictMode);
+        this.mergeEdges(existingNode, newNode);
     }
 
     /**
@@ -297,5 +242,86 @@ export class QualifiedNameExpander {
      */
     private isStrictMode(machine: Machine): boolean {
         return machine.annotations?.some(ann => ann.name === 'StrictMode') ?? false;
+    }
+
+    private mergeAnnotations(existingNode: Node, newNode: Node): void {
+        if (!newNode.annotations || newNode.annotations.length === 0) {
+            return;
+        }
+
+        const existingAnnotations =
+            existingNode.annotations ?? (existingNode.annotations = []);
+        const existingAnnotationNames = new Set(
+            existingAnnotations.map(annotation => annotation.name)
+        );
+
+        for (const annotation of newNode.annotations) {
+            if (existingAnnotationNames.has(annotation.name)) {
+                continue;
+            }
+
+            this.attachChild(annotation, existingNode, 'annotations', existingAnnotations.length);
+            existingAnnotations.push(annotation);
+            existingAnnotationNames.add(annotation.name);
+        }
+    }
+
+    private mergeAttributes(existingNode: Node, newNode: Node): void {
+        if (!newNode.attributes || newNode.attributes.length === 0) {
+            return;
+        }
+
+        const existingAttributes =
+            existingNode.attributes ?? (existingNode.attributes = []);
+
+        for (const newAttr of newNode.attributes) {
+            const existingAttrIndex = existingAttributes.findIndex(
+                attribute => attribute.name === newAttr.name
+            );
+
+            if (existingAttrIndex >= 0) {
+                this.attachChild(newAttr, existingNode, 'attributes', existingAttrIndex);
+                existingAttributes[existingAttrIndex] = newAttr;
+            } else {
+                this.attachChild(newAttr, existingNode, 'attributes', existingAttributes.length);
+                existingAttributes.push(newAttr);
+            }
+        }
+    }
+
+    private mergeChildNodes(
+        existingNode: Node,
+        newNode: Node,
+        isStrictMode: boolean
+    ): void {
+        if (!newNode.nodes || newNode.nodes.length === 0) {
+            return;
+        }
+
+        const existingChildren = existingNode.nodes ?? (existingNode.nodes = []);
+
+        for (const childNode of newNode.nodes) {
+            const existingChild = existingChildren.find(node => node.name === childNode.name);
+
+            if (existingChild) {
+                this.mergeNodes(existingChild, childNode, isStrictMode);
+            } else {
+                this.attachChild(childNode, existingNode, 'nodes', existingChildren.length);
+                existingChildren.push(childNode);
+            }
+        }
+    }
+
+    private mergeEdges(existingNode: Node, newNode: Node): void {
+        if (!newNode.edges || newNode.edges.length === 0) {
+            return;
+        }
+
+        const existingEdges = existingNode.edges ?? (existingNode.edges = []);
+
+        for (const edge of newNode.edges) {
+            this.attachChild(edge, existingNode, 'edges', existingEdges.length);
+            existingEdges.push(edge);
+        }
     }
 }
