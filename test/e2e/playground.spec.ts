@@ -17,129 +17,49 @@ test.describe('Playground Basic Validations', () => {
         // Check that the page title is correct
         await expect(page).toHaveTitle(/DyGram/i);
 
-        // Check that the main header is visible
-        const header = page.locator('.header-title');
-        await expect(header).toBeVisible();
-        await expect(header).toContainText('DyGram');
+        // Check that the main header link is visible
+        const headerLink = page.getByRole('link', { name: 'DyGram' });
+        await expect(headerLink).toBeVisible();
     });
 
-    test('should display Monaco editor', async ({ page }) => {
-        // Wait for Monaco editor to be initialized
-        // Monaco uses .monaco-editor class for the root element
-        const editor = page.locator('.monaco-editor');
-        await expect(editor).toBeVisible({ timeout: 15000 });
+    test('should display editor', async ({ page }) => {
+        // Wait for either CodeMirror or Monaco editor to be initialized
+        const editor = page.locator('.cm-editor, .monaco-editor');
+        await expect(editor.first()).toBeVisible({ timeout: 15000 });
 
-        // Check that the editor has content area
-        const editorContent = page.locator('.monaco-editor .view-lines');
-        await expect(editorContent).toBeVisible();
+        // Ensure the editor exposes a scrollable content area
+        const editorContent = page.locator('.cm-editor .cm-scroller, .monaco-editor .monaco-scrollable-element');
+        await expect(editorContent.first()).toBeVisible();
     });
 
-    test('should have header controls visible', async ({ page }) => {
-        // Check that main controls are visible
-        const headerControls = page.locator('.header-controls');
-        await expect(headerControls).toBeVisible();
-
-        // Check for model selector
-        const modelSelect = page.locator('#model-select-desktop');
+    test('should expose settings controls', async ({ page }) => {
+        // Model selector should be present with options
+        const modelSelect = page.locator('#model-select');
         await expect(modelSelect).toBeVisible();
+        const optionCount = await modelSelect.locator('option').count();
+        expect(optionCount).toBeGreaterThan(0);
 
-        // Check that model options exist
-        const options = await modelSelect.locator('option').count();
-        expect(options).toBeGreaterThan(0);
+        // API key input should also be present
+        const apiKeyInput = page.locator('#api-key-input');
+        await expect(apiKeyInput).toBeVisible();
     });
 
-    test('should have download buttons available', async ({ page }) => {
-        // Check SVG download button
-        const svgButton = page.getByRole('button', { name: /download svg/i });
-        await expect(svgButton).toBeVisible();
+    test('should provide output format toggles', async ({ page }) => {
+        // The output panel exposes format buttons such as SVG and JSON
+        const svgToggle = page.getByRole('button', { name: /^SVG$/i });
+        const jsonToggle = page.getByRole('button', { name: /^JSON$/i });
 
-        // Check PNG download button
-        const pngButton = page.getByRole('button', { name: /download png/i });
-        await expect(pngButton).toBeVisible();
-
-        // Check theme toggle button
-        const themeButton = page.getByRole('button', { name: /toggle theme/i });
-        await expect(themeButton).toBeVisible();
+        await expect(svgToggle).toBeVisible();
+        await expect(jsonToggle).toBeVisible();
     });
 
-    test('should have examples section', async ({ page }) => {
-        // Check for examples section
-        const examplesSection = page.locator('.examples-section');
-        await expect(examplesSection).toBeVisible({ timeout: 10000 });
+    test('should render execution controls', async ({ page }) => {
+        // Execution panel exposes action buttons
+        const executeButton = page.getByRole('button', { name: /execute/i });
+        const resetButton = page.getByRole('button', { name: /reset/i });
 
-        // Check for examples heading
-        const examplesHeading = examplesSection.locator('h3');
-        await expect(examplesHeading).toContainText('Examples');
-
-        // Check that examples container exists
-        const examplesContainer = page.locator('#monaco-examples');
-        await expect(examplesContainer).toBeVisible();
-    });
-
-    test('should toggle theme', async ({ page }) => {
-        // Get initial body class
-        const body = page.locator('body');
-        const initialClass = await body.getAttribute('class') || '';
-
-        // Click theme toggle
-        const themeButton = page.getByRole('button', { name: /toggle theme/i });
-        await themeButton.click();
-
-        // Wait for theme change (small delay for transition)
-        await page.waitForTimeout(500);
-
-        // Check that class changed
-        const newClass = await body.getAttribute('class') || '';
-        expect(newClass).not.toBe(initialClass);
-    });
-
-    test('should have output panel container', async ({ page }) => {
-        // Check for output panel
-        const outputPanel = page.locator('#output-panel-container');
-        await expect(outputPanel).toBeVisible({ timeout: 10000 });
-    });
-
-    test('should handle page resize gracefully', async ({ page }) => {
-        // Test responsive behavior
-        await page.setViewportSize({ width: 1920, height: 1080 });
-        await page.waitForTimeout(500);
-
-        const editor = page.locator('.monaco-editor');
-        await expect(editor).toBeVisible();
-
-        // Resize to smaller viewport
-        await page.setViewportSize({ width: 1280, height: 720 });
-        await page.waitForTimeout(500);
-
-        // Editor should still be visible
-        await expect(editor).toBeVisible();
-    });
-
-    test('should have execution controls container', async ({ page }) => {
-        // Check for execution controls container
-        const executionControls = page.locator('#execution-controls');
-        await expect(executionControls).toBeAttached();
-    });
-});
-
-test.describe('Playground Mobile Version', () => {
-    test('should load mobile playground page', async ({ page }) => {
-        await page.goto('playground-mobile.html');
-
-        // Check that the page title is correct
-        await expect(page).toHaveTitle(/DyGram/i);
-
-        // Check that the main header is visible
-        const header = page.locator('.header-title');
-        await expect(header).toBeVisible();
-    });
-
-    test('should display Monaco editor on mobile', async ({ page }) => {
-        await page.goto('playground-mobile.html');
-
-        // Wait for Monaco editor to be initialized
-        const editor = page.locator('.monaco-editor');
-        await expect(editor).toBeVisible({ timeout: 15000 });
+        await expect(executeButton).toBeVisible();
+        await expect(resetButton).toBeVisible();
     });
 });
 

@@ -1,7 +1,7 @@
 /**
- * Monaco Playground Entry Point
- * 
- * Renders the Monaco playground React application
+ * Monaco Playground Entry Point (Legacy)
+ *
+ * Provides a Monaco-based playground using the shared playground controller.
  */
 
 import React from 'react';
