@@ -17,6 +17,31 @@ function getNoteNodes(machineJson: any) {
     return (machineJson.nodes || []).filter((n: any) => n.type === 'note');
 }
 
+function sanitizeForDotId(value: string): string {
+    return value.replace(/[^a-zA-Z0-9_]+/g, '_');
+}
+
+function extractSubgraph(content: string, clusterName: string): string {
+    const startToken = `subgraph cluster_${clusterName} {`;
+    const startIndex = content.indexOf(startToken);
+    expect(startIndex).toBeGreaterThanOrEqual(0);
+
+    let depth = 0;
+    for (let i = startIndex; i < content.length; i++) {
+        const char = content[i];
+        if (char === '{') {
+            depth++;
+        } else if (char === '}') {
+            depth--;
+            if (depth === 0) {
+                return content.substring(startIndex, i);
+            }
+        }
+    }
+
+    return content.substring(startIndex);
+}
+
 describe('Note Generation', () => {
     it('should include notes in JSON output', async () => {
         const input = `
@@ -293,6 +318,7 @@ describe('Attribute reference edges', () => {
                 child2 {
                     likes: apples;
                 }
+                note parent "Documenting parent context";
             }
 
             apples;
@@ -319,6 +345,30 @@ describe('Attribute reference edges', () => {
         const graphviz = generateGraphviz(result.parseResult.value, '', undefined);
         expect(graphviz.content).toContain('"parent":"spouse__value" -> "child1"');
         expect(graphviz.content).toContain('"child2":"likes__value" -> "apples"');
+
+        const noteId = `note_${sanitizeForDotId('parent')}_0`;
+        expect(graphviz.content).toContain(`"${noteId}" [label=<`);
+        expect(graphviz.content).toContain(`"${noteId}" -> "parent" [style=dashed`);
+    });
+
+    it('should render note nodes inside namespace clusters', async () => {
+        const input = `
+            machine "Clustered"
+
+            context Group {
+                task Item;
+                note Item "Inline note";
+            }
+        `;
+
+        const result = await parse(input);
+        const graphviz = generateGraphviz(result.parseResult.value, '', undefined);
+
+        const clusterBlock = extractSubgraph(graphviz.content, 'Group');
+        const noteId = `note_${sanitizeForDotId('Item')}_0`;
+
+        expect(clusterBlock).toContain(`"${noteId}" [label=<`);
+        expect(clusterBlock).toContain(`"${noteId}" -> "Item" [style=dashed`);
     });
 });
 
