@@ -1017,27 +1017,4 @@ export class MachineExecutor extends BaseExecutor {
     }
 
 
-    /**
-     * Generate a Mermaid class diagram showing the current execution state
-     * @deprecated Mermaid support has been removed. Use Graphviz instead via the diagram module.
-     */
-    public toMermaidRuntime(): string {
-        throw new Error('Mermaid support has been removed. Use Graphviz for diagram generation.');
-    }
-
-    /**
-     * Generate a Mermaid class diagram showing the current execution state (old implementation)
-     * @deprecated Mermaid support has been removed. Use Graphviz instead via the diagram module.
-     */
-    public toMermaidRuntimeOld(): string {
-        throw new Error('Mermaid support has been removed. Use Graphviz for diagram generation.');
-    }
-
-    /**
-     * Generate a Mermaid class diagram with runtime state overlays
-     * @deprecated Mermaid support has been removed. Use Graphviz instead via the diagram module.
-     */
-    public toMermaidRuntimeClass(): string {
-        throw new Error('Mermaid support has been removed. Use Graphviz for diagram generation.');
-    }
 }
