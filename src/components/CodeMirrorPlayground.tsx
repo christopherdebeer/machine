@@ -964,6 +964,9 @@ export const CodeMirrorPlayground: React.FC = () => {
 
 
   // Helper to convert Machine AST to MachineData
+  // TODO: Replace this bespoke mapper with serializeMachineToJSON so we don't
+  // drop canonical Machine JSON properties (annotations, edge metadata,
+  // inferred dependencies, etc.).
   const convertToMachineData = useCallback((machine: Machine): MachineData => {
     return {
       title: machine.title || "Untitled",

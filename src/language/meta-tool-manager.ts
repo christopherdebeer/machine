@@ -464,6 +464,9 @@ export class MetaToolManager {
         const result: any = {};
 
         // Convert MachineData to MachineJSON format
+        // TODO: Replace this manual projection with serializeMachineToJSON so we
+        // preserve canonical fields like machine-level attributes, annotations,
+        // edge metadata, and inferred dependencies.
         const machineJson = {
             title: this._machineData.title,
             nodes: this._machineData.nodes.map(node => ({

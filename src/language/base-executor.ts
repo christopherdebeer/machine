@@ -34,6 +34,9 @@ export interface MachineExecutionContext {
 }
 
 export interface MachineData {
+    // TODO: Align this structure with MachineJSON so runtime executors can
+    // consume annotations, machine-level attributes, edge metadata and other
+    // canonical fields produced by serializeMachineToJSON.
     title: string;
     nodes: Array<{
         name: string;
