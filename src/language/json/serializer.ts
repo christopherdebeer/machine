@@ -237,16 +237,26 @@ class MachineAstSerializer {
                         return;
                     }
 
+                    const edgeValue: Record<string, unknown> = {
+                        attribute: attr.name,
+                        type: attrType
+                    };
+
                     const edge: MachineEdgeJSON = {
                         source: node.name,
                         target: ref.nodeName,
                         annotations: undefined,
                         arrowType: undefined,
-                        value: {
-                            attribute: attr.name,
-                            type: attrType
-                        }
+                        value: edgeValue
                     };
+
+                    edge.sourceAttribute = attr.name;
+                    edgeValue.sourceAttribute = attr.name;
+
+                    if (ref.attributePath) {
+                        edge.targetAttribute = ref.attributePath;
+                        edgeValue.targetAttribute = ref.attributePath;
+                    }
 
                     attributeEdges.push(edge);
                 });
