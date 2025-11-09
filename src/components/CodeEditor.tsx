@@ -328,6 +328,31 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         }, 500);
     };
 
+    // Synchronize external code updates (e.g. ExampleLoader fetches) with the editor
+    useEffect(() => {
+        const view = editorViewRef.current;
+        if (!view) {
+            return;
+        }
+
+        const currentCode = view.state.doc.toString();
+        if (currentCode === initialCode) {
+            return;
+        }
+
+        view.dispatch({
+            changes: {
+                from: 0,
+                to: currentCode.length,
+                insert: initialCode,
+            },
+        });
+
+        if (showOutput) {
+            scheduleUpdateVisualization(initialCode);
+        }
+    }, [initialCode, scheduleUpdateVisualization, showOutput]);
+
     // Generate and render visualization
     const updateVisualization = async (code: string) => {
         if (!outputRef.current) return;
