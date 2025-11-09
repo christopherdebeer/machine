@@ -13,7 +13,7 @@
  * - Mobile-optimized touch interactions
  */
 
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { EditorState } from '@codemirror/state';
 import {
     EditorView,
@@ -316,17 +316,65 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         };
     }, []);
 
+    const updateVisualization = useCallback(
+        async (code: string) => {
+            if (!outputRef.current) return;
+
+            try {
+                // Get shared services
+                const services = getSharedServices();
+                const parse = parseHelper<Machine>(services);
+
+                // Parse the code
+                const document = await parse(code);
+
+                // Check for errors
+                if (document.parseResult.parserErrors.length > 0) {
+                    console.warn('Parse errors:', document.parseResult.parserErrors);
+                    return;
+                }
+
+                const model = document.parseResult.value as Machine;
+                if (!model) {
+                    console.warn('No machine model parsed');
+                    return;
+                }
+
+                // Generate Graphviz DOT
+                const graphvizResult = generateGraphviz(
+                    model,
+                    filename || 'code-editor.machine',
+                    undefined
+                );
+                const dotCode = graphvizResult.content;
+
+                // Render to temporary div
+                const tempDiv = window.document.createElement('div');
+                await renderGraphviz(dotCode, tempDiv, `editor-${Date.now()}`);
+
+                // Update output
+                setOutputSvg(tempDiv.innerHTML);
+            } catch (error) {
+                console.error('Error generating visualization:', error);
+            }
+        },
+        [filename]
+    );
+
     // Update visualization with debouncing
     const updateTimeout = useRef<number | null>(null);
-    const scheduleUpdateVisualization = (code: string) => {
-        if (updateTimeout.current !== null) {
-            clearTimeout(updateTimeout.current);
-        }
+    const scheduleUpdateVisualization = useCallback(
+        (code: string) => {
+            if (updateTimeout.current !== null) {
+                clearTimeout(updateTimeout.current);
+            }
 
-        updateTimeout.current = window.setTimeout(async () => {
-            await updateVisualization(code);
-        }, 500);
-    };
+            updateTimeout.current = window.setTimeout(async () => {
+                await updateVisualization(code);
+            }, 500);
+        },
+        [updateVisualization]
+    );
 
     // Synchronize external code updates (e.g. ExampleLoader fetches) with the editor
     useEffect(() => {
@@ -353,44 +401,14 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         }
     }, [initialCode, scheduleUpdateVisualization, showOutput]);
 
-    // Generate and render visualization
-    const updateVisualization = async (code: string) => {
-        if (!outputRef.current) return;
-
-        try {
-            // Get shared services
-            const services = getSharedServices();
-            const parse = parseHelper<Machine>(services);
-
-            // Parse the code
-            const document = await parse(code);
-
-            // Check for errors
-            if (document.parseResult.parserErrors.length > 0) {
-                console.warn('Parse errors:', document.parseResult.parserErrors);
-                return;
+    useEffect(() => {
+        return () => {
+            if (updateTimeout.current !== null) {
+                clearTimeout(updateTimeout.current);
+                updateTimeout.current = null;
             }
-
-            const model = document.parseResult.value as Machine;
-            if (!model) {
-                console.warn('No machine model parsed');
-                return;
-            }
-
-            // Generate Graphviz DOT
-            const graphvizResult = generateGraphviz(model, filename || 'code-editor.machine', undefined);
-            const dotCode = graphvizResult.content;
-
-            // Render to temporary div
-            const tempDiv = window.document.createElement('div');
-            await renderGraphviz(dotCode, tempDiv, `editor-${Date.now()}`);
-
-            // Update output
-            setOutputSvg(tempDiv.innerHTML);
-        } catch (error) {
-            console.error('Error generating visualization:', error);
-        }
-    };
+        };
+    }, []);
 
     // Copy code to clipboard
     const copyCodeToClipboard = async () => {
