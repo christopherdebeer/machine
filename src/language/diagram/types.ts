@@ -5,25 +5,7 @@
  * diagrams from JSON machine definitions.
  */
 
-/**
- * Flexible machine JSON that accepts both Langium AST nodes and simplified runtime nodes
- * We use a flexible structure to support both the Langium AST format and simplified runtime format
- */
-export interface MachineJSON {
-    title?: string;
-    attributes?: Array<{
-        name: string;
-        value: any;
-        type?: string;
-    }>;
-    annotations?: Array<{
-        name: string;
-        value?: string;
-    }>;
-    nodes: any[]; // Flexible to accept both Node[] from AST and simplified runtime nodes (including note nodes)
-    edges: any[]; // Flexible to accept both Edge[] from AST and simplified runtime edges
-    inferredDependencies?: any[];
-}
+export type { MachineJSON, MachineNodeJSON, MachineEdgeJSON, MachineAnnotationJSON } from '../json/types.js';
 
 /**
  * Options for diagram generation
