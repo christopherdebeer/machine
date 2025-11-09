@@ -13,6 +13,35 @@ async function generateJSONFromModel(model: Machine, filePath: string, options: 
     return { json: json.content };
 }
 
+function getNoteNodes(machineJson: any) {
+    return (machineJson.nodes || []).filter((n: any) => n.type === 'note');
+}
+
+function sanitizeForDotId(value: string): string {
+    return value.replace(/[^a-zA-Z0-9_]+/g, '_');
+}
+
+function extractSubgraph(content: string, clusterName: string): string {
+    const startToken = `subgraph cluster_${clusterName} {`;
+    const startIndex = content.indexOf(startToken);
+    expect(startIndex).toBeGreaterThanOrEqual(0);
+
+    let depth = 0;
+    for (let i = startIndex; i < content.length; i++) {
+        const char = content[i];
+        if (char === '{') {
+            depth++;
+        } else if (char === '}') {
+            depth--;
+            if (depth === 0) {
+                return content.substring(startIndex, i);
+            }
+        }
+    }
+
+    return content.substring(startIndex);
+}
+
 describe('Note Generation', () => {
     it('should include notes in JSON output', async () => {
         const input = `
@@ -24,12 +53,12 @@ describe('Note Generation', () => {
         const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         expect(json).toBeDefined();
-        // JSON should contain notes array
+        // JSON should contain note nodes embedded in the hierarchy
         const machineJson = JSON.parse(json.json);
-        expect(machineJson.notes).toBeDefined();
-        expect(machineJson.notes).toHaveLength(1);
-        expect(machineJson.notes[0].target).toBe('process');
-        expect(machineJson.notes[0].content).toBe('Test note');
+        const notes = getNoteNodes(machineJson);
+        expect(notes).toHaveLength(1);
+        expect(notes[0].name).toBe('process');
+        expect(notes[0].title).toBe('Test note');
     });
 
     it('should not generate Mermaid output (deprecated)', async () => {
@@ -58,7 +87,7 @@ describe('Note Generation', () => {
         const json = await generateJSONFromModel(result.parseResult.value, '', {});
 
         const machineJson = JSON.parse(json.json);
-        expect(machineJson.notes).toHaveLength(2);
+        expect(getNoteNodes(machineJson)).toHaveLength(2);
     });
 
     it('should filter out invalid note targets', async () => {
@@ -73,7 +102,7 @@ describe('Note Generation', () => {
 
         const machineJson = JSON.parse(json.json);
         // Should only include notes with valid targets
-        expect(machineJson.notes.length).toBeLessThanOrEqual(2);
+        expect(getNoteNodes(machineJson).length).toBeLessThanOrEqual(2);
     });
 });
 
@@ -185,7 +214,7 @@ describe('Combined Feature Generation', () => {
         expect(output.mermaid).toBeUndefined();
 
         const machineJson = JSON.parse(output.json);
-        expect(machineJson.notes).toHaveLength(1);
+        expect(getNoteNodes(machineJson)).toHaveLength(1);
         expect(machineJson.nodes[0].attributes[0].type).toBe('Promise<Response>');
     });
 
@@ -218,7 +247,7 @@ describe('Combined Feature Generation', () => {
         expect(output.mermaid).toBeUndefined();
 
         // Notes
-        expect(machineJson.notes).toHaveLength(2);
+        expect(getNoteNodes(machineJson)).toHaveLength(2);
     });
 
     it('should work with all features together', async () => {
@@ -272,7 +301,7 @@ describe('Combined Feature Generation', () => {
         )).toBe(true);
 
         // Notes
-        expect(machineJson.notes).toHaveLength(3);
+        expect(getNoteNodes(machineJson)).toHaveLength(3);
     });
 });
 
@@ -289,6 +318,7 @@ describe('Attribute reference edges', () => {
                 child2 {
                     likes: apples;
                 }
+                note parent "Documenting parent context";
             }
 
             apples;
@@ -315,6 +345,65 @@ describe('Attribute reference edges', () => {
         const graphviz = generateGraphviz(result.parseResult.value, '', undefined);
         expect(graphviz.content).toContain('"parent":"spouse__value" -> "child1"');
         expect(graphviz.content).toContain('"child2":"likes__value" -> "apples"');
+
+        const noteId = `note_${sanitizeForDotId('parent')}_0`;
+        expect(graphviz.content).toContain(`"${noteId}" [label=<`);
+        expect(graphviz.content).toContain(`"${noteId}" -> "parent" [style=dashed`);
+    });
+
+    it('should render note nodes inside namespace clusters', async () => {
+        const input = `
+            machine "Clustered"
+
+            context Group {
+                task Item;
+                note Item "Inline note";
+            }
+        `;
+
+        const result = await parse(input);
+        const graphviz = generateGraphviz(result.parseResult.value, '', undefined);
+
+        const clusterBlock = extractSubgraph(graphviz.content, 'Group');
+        const noteId = `note_${sanitizeForDotId('Item')}_0`;
+
+        expect(clusterBlock).toContain(`"${noteId}" [label=<`);
+        expect(clusterBlock).toContain(`"${noteId}" -> "Item" [style=dashed`);
+    });
+
+    it('should place notes according to their lexical parent hierarchy', async () => {
+        const input = `
+            machine "Hierarchy"
+
+            task problem;
+            task solution;
+            problem -> solution;
+
+            context one {
+                context two {
+                    task three;
+                    note problem "im in two but a note for problem";
+                }
+
+                note three "im in one but am a note for 3";
+            }
+        `;
+
+        const result = await parse(input);
+        const graphviz = generateGraphviz(result.parseResult.value, '', undefined);
+
+        const noteProblemId = `note_${sanitizeForDotId('problem')}_0`;
+        const noteThreeId = `note_${sanitizeForDotId('three')}_0`;
+
+        const clusterTwo = extractSubgraph(graphviz.content, 'two');
+        expect(clusterTwo).toContain(`"${noteProblemId}" [label=<`);
+        expect(clusterTwo).toContain(`"${noteProblemId}" -> "problem" [style=dashed`);
+
+        const clusterOne = extractSubgraph(graphviz.content, 'one');
+        expect(clusterOne).toContain(`"${noteThreeId}" [label=<`);
+        expect(clusterOne).toContain(`"${noteThreeId}" -> "three" [style=dashed`);
+
+        expect(clusterTwo).not.toContain(`"${noteThreeId}" [label=<`);
     });
 });
 

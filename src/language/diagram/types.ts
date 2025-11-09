@@ -20,9 +20,8 @@ export interface MachineJSON {
         name: string;
         value?: string;
     }>;
-    nodes: any[]; // Flexible to accept both Node[] from AST and simplified runtime nodes
+    nodes: any[]; // Flexible to accept both Node[] from AST and simplified runtime nodes (including note nodes)
     edges: any[]; // Flexible to accept both Edge[] from AST and simplified runtime edges
-    notes?: any[];
     inferredDependencies?: any[];
 }
 

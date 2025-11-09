@@ -13,6 +13,10 @@ beforeAll(async () => {
     parse = parseHelper<Machine>(services.Machine);
 });
 
+function getNoteNodes(machineJson: any) {
+    return (machineJson.nodes || []).filter((n: any) => n.type === 'note');
+}
+
 /**
  * Backward compilation test suite
  * Tests JSON -> DSL backward compilation and round-trip losslessness
@@ -382,14 +386,14 @@ describe('Backward Compilation: JSON -> DSL', () => {
         const jsonResult2 = generateJSON(machine2, 'test.mach', undefined);
         const machineJson2 = JSON.parse(jsonResult2.content);
 
-        expect(machineJson2.notes).toBeDefined();
-        expect(machineJson2.notes.length).toBe(2);
+        const notes = getNoteNodes(machineJson2);
+        expect(notes).toHaveLength(2);
 
-        const note1 = machineJson2.notes.find((n: any) => n.target === 'node1');
-        expect(note1.content).toBe('This is an important node');
+        const note1 = notes.find((n: any) => n.name === 'node1');
+        expect(note1?.title).toBe('This is an important node');
 
-        const note2 = machineJson2.notes.find((n: any) => n.target === 'node2');
-        expect(note2.content).toBe('This node processes data');
+        const note2 = notes.find((n: any) => n.name === 'node2');
+        expect(note2?.title).toBe('This node processes data');
     });
 
     test('Multiplicity: round-trip', async () => {

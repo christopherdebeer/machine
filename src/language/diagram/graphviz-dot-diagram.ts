@@ -74,6 +74,10 @@ function mapCssPropertyToGraphviz(cssProperty: string): string {
     return propertyMap[normalized] || cssProperty;
 }
 
+function sanitizeForDotId(value: string): string {
+    return value.replace(/[^a-zA-Z0-9_]+/g, '_');
+}
+
 /**
  * Normalize direction value to Graphviz rankdir format
  * Supports both verbose (left-to-right) and short (LR) formats
@@ -966,7 +970,10 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
 
     // Separate style nodes from renderable nodes
     const styleNodes = machineJson.nodes.filter(n => NodeTypeChecker.isStyleNode(n));
-    const renderableNodes = machineJson.nodes.filter(n => !NodeTypeChecker.isStyleNode(n));
+    const renderableNodes = machineJson.nodes.filter(n => !NodeTypeChecker.isStyleNode(n) && (n.type?.toLowerCase() !== 'note'));
+    const noteNodes = machineJson.nodes.filter(n => n.type?.toLowerCase() === 'note');
+
+    const notesByParent = buildNotesByParent(noteNodes);
 
     // Build runtime node and edge states if context provided
     const nodeStates = runtimeContext ? buildNodeStates(machineJson, runtimeContext) : undefined;
@@ -1056,8 +1063,29 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
 
     // Generate nodes organized by semantic/lexical nesting
     lines.push('  // Node definitions with nested namespaces');
-    lines.push(generateSemanticHierarchy(hierarchy, rootNodes, machineJson, 1, styleNodes, validationContext, options, wrappingConfig, nodeStates));
+    lines.push(generateSemanticHierarchy(
+        hierarchy,
+        rootNodes,
+        machineJson,
+        1,
+        styleNodes,
+        validationContext,
+        options,
+        wrappingConfig,
+        notesByParent,
+        nodeStates
+    ));
     lines.push('');
+
+    const rootNotes = notesByParent.get(ROOT_NOTE_PARENT);
+    if (rootNotes && rootNotes.length > 0) {
+        lines.push('  // Root-level notes');
+        rootNotes.forEach(noteInfo => {
+            const noteLines = generateNoteDefinition(noteInfo, '  ', wrappingConfig);
+            noteLines.forEach(line => lines.push(line));
+        });
+        lines.push('');
+    }
 
     // Check for grid layout at machine level
     const machineGridSize = extractGridSize(machineJson);
@@ -1075,11 +1103,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     }
 
     // Generate notes as edge labels
-    if (machineJson.notes && machineJson.notes.length > 0) {
-        lines.push('');
-        lines.push('  // Notes');
-        lines.push(generateNotes(machineJson.notes, wrappingConfig));
-    }
+    // Note nodes are rendered alongside their targets within the semantic hierarchy
 
     // Generate validation warning notes if enabled
     const showNotes = options.warningMode === 'notes' || options.warningMode === 'both';
@@ -1293,6 +1317,43 @@ function generateRuntimeDotDiagramLegacy(
 /**
  * Build semantic hierarchy based on parent-child relationships
  */
+type NoteRenderInfo = {
+    note: any;
+    dotId: string;
+};
+
+const ROOT_NOTE_PARENT = Symbol('root-note-parent');
+
+type NotesByParentMap = Map<string | symbol, NoteRenderInfo[]>;
+
+function buildNotesByParent(noteNodes: any[]): NotesByParentMap {
+    const notesByParent: NotesByParentMap = new Map();
+    const counters = new Map<string, number>();
+
+    noteNodes.forEach(note => {
+        const target = note.name;
+        if (!target) {
+            return;
+        }
+
+        const parentKey: string | symbol = note.parent ?? ROOT_NOTE_PARENT;
+        const sanitizedTarget = sanitizeForDotId(String(target));
+        const currentCount = counters.get(target) ?? 0;
+        counters.set(target, currentCount + 1);
+
+        const dotId = `note_${sanitizedTarget}_${currentCount}`;
+        const entry: NoteRenderInfo = { note, dotId };
+        const existing = notesByParent.get(parentKey);
+        if (existing) {
+            existing.push(entry);
+        } else {
+            notesByParent.set(parentKey, [entry]);
+        }
+    });
+
+    return notesByParent;
+}
+
 function buildSemanticHierarchy(nodes: any[]): SemanticHierarchy {
     const hierarchy: SemanticHierarchy = {};
 
@@ -1662,6 +1723,7 @@ function generateSemanticHierarchy(
     validationContext?: ValidationContext,
     options?: DiagramOptions,
     wrappingConfig?: TextWrappingConfig,
+    notesByParent?: NotesByParentMap,
     nodeStates?: RuntimeNodeState[]
 ): string {
     const lines: string[] = [];
@@ -1673,6 +1735,8 @@ function generateSemanticHierarchy(
 
     nodes.forEach(node => {
         const { children } = hierarchy[node.name];
+
+        const noteEntries = notesByParent?.get(node.name) ?? [];
 
         if (children.length > 0) {
             // Node has children - create a cluster subgraph with proper label and styling
@@ -1702,7 +1766,26 @@ function generateSemanticHierarchy(
 
             // Recursively generate children
             const childNodes = children.map(childName => hierarchy[childName].node);
-            lines.push(generateSemanticHierarchy(hierarchy, childNodes, machineJson, level + 1, styleNodes, validationContext, options, wrappingConfig, nodeStates));
+            lines.push(generateSemanticHierarchy(
+                hierarchy,
+                childNodes,
+                machineJson,
+                level + 1,
+                styleNodes,
+                validationContext,
+                options,
+                wrappingConfig,
+                notesByParent,
+                nodeStates
+            ));
+
+            if (noteEntries.length > 0) {
+                lines.push('');
+                noteEntries.forEach(noteInfo => {
+                    const noteLines = generateNoteDefinition(noteInfo, `${indent}  `, wrappingConfig);
+                    noteLines.forEach(line => lines.push(line));
+                });
+            }
 
             // Check for grid layout within this cluster
             const clusterGridSize = extractGridSize(node);
@@ -1732,6 +1815,13 @@ function generateSemanticHierarchy(
             // Leaf node - pass runtime state if available
             const runtimeState = nodeStateMap?.get(node.name);
             lines.push(generateNodeDefinition(node, edges, indent, styleNodes, validationContext, options, wrappingConfig, runtimeState));
+
+            if (noteEntries.length > 0) {
+                noteEntries.forEach(noteInfo => {
+                    const noteLines = generateNoteDefinition(noteInfo, indent, wrappingConfig);
+                    noteLines.forEach(line => lines.push(line));
+                });
+            }
         }
     });
 
@@ -2234,6 +2324,9 @@ function generateEdges(
 
     const nodeLookup = new Map<string, any>();
     machineJson.nodes.forEach(node => {
+        if (node.type?.toLowerCase() === 'note') {
+            return;
+        }
         nodeLookup.set(node.name, node);
     });
 
@@ -2407,46 +2500,54 @@ function getArrowStyle(arrowType: string): string {
 /**
  * Generate notes section
  */
-function generateNotes(notes: any[], wrappingConfig?: TextWrappingConfig): string {
-    if (!notes || notes.length === 0) return '';
+function generateNoteDefinition(noteInfo: NoteRenderInfo, indent: string, wrappingConfig?: TextWrappingConfig): string[] {
+    const { note, dotId } = noteInfo;
+    const target = note.name;
+    if (!target) {
+        return [];
+    }
 
-    const lines: string[] = [];
-    notes.forEach((note, index) => {
-        // Create a visible note node connected to the target
-        const noteId = `note_${index}_${note.target}`;
+    let content = note.title;
+    if (!content) {
+        const descAttr = (note.attributes || []).find((attr: any) => attr.name === 'desc' || attr.name === 'prompt');
+        if (descAttr?.value) {
+            content = typeof descAttr.value === 'string' ? descAttr.value : JSON.stringify(descAttr.value);
+        }
+    }
 
-        // Build HTML label similar to nodes
-        let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
+    if (typeof content === 'string') {
+        content = content.replace(/^["']|["']$/g, '');
+    }
 
-        // First row: Annotations (if present)
-        if (note.annotations && note.annotations.length > 0) {
-            const annotationStr = note.annotations
-                .map((ann: any) => ann.value ? `@${ann.name}(${ann.value})` : `@${ann.name}`)
-                .join(' ');
+    let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
+
+    if (note.annotations && note.annotations.length > 0) {
+        const annotationStr = note.annotations
+            .map((ann: any) => ann.value ? `@${ann.name}(${ann.value})` : `@${ann.name}`)
+            .join(' ');
+        if (annotationStr) {
             htmlLabel += '<tr><td align="left"><i>' + escapeHtml(annotationStr) + '</i></td></tr>';
         }
+    }
 
-        // Second row: Main content
-        if (note.content) {
-            const content = breakLongText(note.content, 40);
-            htmlLabel += '<tr><td align="left">' + content.map(line => processMarkdown(line)).join('<br/>') + '</td></tr>';
-        }
+    if (content) {
+        const contentLines = breakLongText(content, 40);
+        htmlLabel += '<tr><td align="left">' + contentLines.map(line => processMarkdown(line)).join('<br/>') + '</td></tr>';
+    }
 
-        // Attributes table (using shared function)
-        const displayAttrs = getNoteDisplayAttributes(note);
-        if (displayAttrs.length > 0) {
-            htmlLabel += '<tr><td>';
-            htmlLabel += generateAttributesTable(displayAttrs, undefined, wrappingConfig);
-            htmlLabel += '</td></tr>';
-        }
+    const displayAttrs = getNoteDisplayAttributes(note);
+    if (displayAttrs.length > 0) {
+        htmlLabel += '<tr><td>';
+        htmlLabel += generateAttributesTable(displayAttrs, undefined, wrappingConfig);
+        htmlLabel += '</td></tr>';
+    }
 
-        htmlLabel += '</table>';
+    htmlLabel += '</table>';
 
-        lines.push(`  "${noteId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
-        lines.push(`  "${noteId}" -> "${note.target}" [style=dashed, color="#999999", arrowhead=none];`);
-    });
-
-    return lines.join('\n');
+    const lines: string[] = [];
+    lines.push(`${indent}"${dotId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
+    lines.push(`${indent}"${dotId}" -> "${target}" [style=dashed, color="#999999", arrowhead=none];`);
+    return lines;
 }
 
 /**

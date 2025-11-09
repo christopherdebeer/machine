@@ -351,7 +351,6 @@ class JSONGenerator extends BaseGenerator {
                 : undefined,
             nodes: this.serializeNodes(),
             edges: this.serializeEdges(),
-            notes: this.serializeNotes(),
             inferredDependencies: inferredDeps.map(dep => ({
                 source: dep.source,
                 target: dep.target,
@@ -367,17 +366,8 @@ class JSONGenerator extends BaseGenerator {
     }
 
     private serializeNodes(): any[] {
-        // Flatten and transform nodes recursively, excluding note nodes
+        // Flatten and transform nodes recursively, keeping note nodes within the hierarchy
         const flattenNode = (node: Node, parentName?: string): any[] => {
-            // Skip note nodes - they will be processed separately in serializeNotes()
-            if ((node.type ?? '').toLowerCase() === 'note') {
-                // Still process child nodes if any
-                const childNodes = node.nodes.flatMap(child =>
-                    flattenNode(child, node.name)
-                );
-                return childNodes;
-            }
-
             const baseNode: any = {
                 name: node.name,
                 type: node.type?.toLowerCase(),  // Normalize type to lowercase
@@ -399,8 +389,8 @@ class JSONGenerator extends BaseGenerator {
                 baseNode.title = node.title.replace(/^"|"$/g, '');
             }
 
-            // Recursively flatten child nodes
-            const childNodes = node.nodes.flatMap(child =>
+            // Recursively flatten child nodes (notes remain alongside their siblings)
+            const childNodes = (node.nodes ?? []).flatMap(child =>
                 flattenNode(child, node.name)
             );
 
@@ -409,9 +399,6 @@ class JSONGenerator extends BaseGenerator {
 
         return this.machine.nodes.flatMap(node => flattenNode(node));
     }
-    
-    // Map to store note node to unique name mapping
-    private noteNameMap?: Map<Node, string>;
 
     /**
      * Recursively extract primitive value from AST nodes
@@ -533,44 +520,6 @@ class JSONGenerator extends BaseGenerator {
         return result;
     }
 
-    /**
-     * Serialize notes from nodes
-     * Notes are now regular nodes with type="note"
-     * The node name is the target, and the title is the content
-     */
-    private serializeNotes(): any[] {
-        const notes: any[] = [];
-
-        const collectNotes = (nodeList: Node[]) => {
-            nodeList.forEach(node => {
-                // Check if this is a note node (type === "note", case-insensitive)
-                if (node.type?.toLowerCase() === 'note') {
-                    // The node name is the target
-                    const target = node.name || '';
-
-                    notes.push({
-                        target: target,
-                        content: node.title?.replace(/^"|"$/g, '') || '',
-                        annotations: node.annotations?.map((ann: any) => serializeAnnotation(ann)) || [],
-                        attributes: node.attributes?.map((attr: any) => ({
-                            name: attr.name,
-                            type: attr.type,
-                            value: this.extractPrimitiveValue(attr.value)
-                        })) || []
-                    });
-                }
-
-                // Recursively check child nodes
-                if (node.nodes && node.nodes.length > 0) {
-                    collectNotes(node.nodes);
-                }
-            });
-        };
-
-        collectNotes(this.machine.nodes);
-        return notes.filter(n => n.target); // Filter out notes without targets
-    }
-
     private serializeEdges(): any[] {
         const aliasMap = this.buildNodeAliasMap();
         const explicitEdges = this.collectExplicitEdges(aliasMap);
@@ -668,7 +617,7 @@ class JSONGenerator extends BaseGenerator {
                 return;
             }
 
-            // Skip note nodes - they're handled by generateNotes() function
+            // Skip note nodes - they do not participate in inferred attribute edges
             if ((node.type ?? '').toLowerCase() === 'note') {
                 node.nodes?.forEach(visitNode);
                 return;
@@ -1961,14 +1910,6 @@ export function generateDSL(machineJson: MachineJSON): string {
         lines.push('');
     }
 
-    // Generate notes
-    if (machineJson.notes && machineJson.notes.length > 0) {
-        machineJson.notes.forEach(note => {
-            lines.push(generateNoteDSL(note));
-        });
-        lines.push('');
-    }
-
     return lines.join('\n').trim() + '\n';
 }
 
@@ -2291,42 +2232,6 @@ function generateEdgeDSL(edge: Edge): string {
     parts.push(edge.target);
 
     return parts.join(' ') + ';';
-}
-
-function generateNoteDSL(note: any): string {
-    const parts: string[] = ['note', note.target];
-
-    // Add note content as title
-    if (note.content) {
-        parts.push(quoteString(note.content));
-    }
-
-    // Add annotations if present
-    let annotationsStr = '';
-    if (note.annotations && note.annotations.length > 0) {
-        annotationsStr = note.annotations.map((ann: any) => {
-            if (ann.value) {
-                return ` @${ann.name}(${quoteString(ann.value)})`;
-            }
-            return ` @${ann.name}`;
-        }).join('');
-    }
-
-    // Check if note has attributes
-    const hasAttributes = note.attributes && note.attributes.length > 0;
-
-    if (hasAttributes) {
-        // Note with attributes - use block syntax
-        let result = parts.join(' ') + annotationsStr + ' {\n';
-        note.attributes.forEach((attr: any) => {
-            result += '    ' + generateAttributeDSL(attr) + '\n';
-        });
-        result += '}';
-        return result;
-    } else {
-        // Simple note - use inline syntax
-        return parts.join(' ') + annotationsStr + ';';
-    }
 }
 
 function formatValue(value: any): string {
