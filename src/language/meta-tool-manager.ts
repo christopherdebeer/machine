@@ -462,30 +462,7 @@ export class MetaToolManager {
         const { format = 'both' } = input;
 
         const result: any = {};
-
-        // Convert MachineData to MachineJSON format
-        // TODO: Replace this manual projection with serializeMachineToJSON so we
-        // preserve canonical fields like machine-level attributes, annotations,
-        // edge metadata, and inferred dependencies.
-        const machineJson = {
-            title: this._machineData.title,
-            nodes: this._machineData.nodes.map(node => ({
-                name: node.name,
-                type: node.type,
-                attributes: node.attributes?.map(attr => ({
-                    name: attr.name,
-                    type: attr.type,
-                    value: attr.value
-                })),
-                annotations: (node as any).annotations
-            })),
-            edges: this._machineData.edges.map(edge => ({
-                source: edge.source,
-                target: edge.target,
-                type: edge.type,
-                label: edge.label
-            }))
-        };
+        const machineJson: MachineData = JSON.parse(JSON.stringify(this._machineData));
 
         if (format === 'json' || format === 'both') {
             result.json = machineJson;
@@ -494,7 +471,7 @@ export class MetaToolManager {
         if (format === 'dsl' || format === 'both') {
             // Import generateDSL function dynamically
             const { generateDSL } = await import('./generator/generator.js');
-            result.dsl = generateDSL(machineJson as any);
+            result.dsl = generateDSL(machineJson);
         }
 
         return result;
@@ -514,31 +491,24 @@ export class MetaToolManager {
             };
         }
 
-        // Update the machine data
-        this._machineData.title = machine.title;
-        this._machineData.nodes = machine.nodes.map((node: any) => ({
-            name: node.name,
-            type: node.type,
-            attributes: node.attributes?.map((attr: any) => ({
-                name: attr.name,
-                type: attr.type,
-                value: attr.value
-            })),
-            // Preserve annotations if present in the incoming payload
-            ...(node.annotations && { annotations: node.annotations })
-        }));
-        this._machineData.edges = machine.edges.map((edge: any) => ({
-            source: edge.source,
-            target: edge.target,
-            type: edge.type,
-            label: edge.label,
-            // Preserve annotations if present in the incoming payload
-            ...(edge.annotations && { annotations: edge.annotations })
-        }));
+        const updatedMachine = JSON.parse(JSON.stringify(machine)) as MachineData;
+        const canonicalFields: Array<keyof MachineData> = [
+            'title',
+            'attributes',
+            'annotations',
+            'nodes',
+            'edges',
+            'inferredDependencies',
+            'metadata'
+        ];
+
+        canonicalFields.forEach(field => {
+            (this._machineData as any)[field] = (updatedMachine as any)[field];
+        });
 
         // Generate DSL version
         const { generateDSL } = await import('./generator/generator.js');
-        const dsl = generateDSL(machine);
+        const dsl = generateDSL(this._machineData);
 
         // Record mutation
         this.onMutation({
@@ -556,7 +526,7 @@ export class MetaToolManager {
 
         // Notify callback if set (for playground editor update)
         if (this.onMachineUpdate) {
-            this.onMachineUpdate(dsl, this._machineData);
+            this.onMachineUpdate(dsl, JSON.parse(JSON.stringify(this._machineData)));
         }
 
         return {

@@ -55,6 +55,7 @@ import { render as renderGraphviz } from "../language/diagram-controls";
 import { RailsExecutor } from "../language/rails-executor";
 import { RuntimeVisualizer } from "../language/runtime-visualizer";
 import type { MachineData } from "../language/base-executor";
+import { serializeMachineToJSON } from "../language/json/serializer";
 import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples";
 import {
   base64UrlEncode,
@@ -963,40 +964,9 @@ export const CodeMirrorPlayground: React.FC = () => {
   }, [openFiles, activeFileIndex, fileService]);
 
 
-  // Helper to convert Machine AST to MachineData
-  // TODO: Replace this bespoke mapper with serializeMachineToJSON so we don't
-  // drop canonical Machine JSON properties (annotations, edge metadata,
-  // inferred dependencies, etc.).
+  // Helper to convert Machine AST to canonical Machine JSON
   const convertToMachineData = useCallback((machine: Machine): MachineData => {
-    return {
-      title: machine.title || "Untitled",
-      nodes: machine.nodes.map((node) => ({
-        name: node.name,
-        type: node.type || "State",
-        parent:
-          node.$container && node.$container.$type === "Node"
-            ? (node.$container as any).name
-            : undefined,
-        attributes: node.attributes.map((attr) => ({
-          name: attr.name,
-          type: attr.type?.base || "string",
-          value: attr.value ? String(attr.value) : "",
-        })),
-      })),
-      edges: machine.edges.flatMap((edge) =>
-        edge.segments.flatMap((segment) =>
-          segment.target.map((targetRef) => ({
-            source: edge.source[0]?.ref?.name || "",
-            target: targetRef.ref?.name || "",
-            label:
-              segment.label.length > 0
-                ? segment.label[0].value.map((v) => v.text || "").join(" ")
-                : undefined,
-            type: segment.endType,
-          }))
-        )
-      ),
-    };
+    return serializeMachineToJSON(machine);
   }, []);
 
   // Helper to update visualization with runtime state

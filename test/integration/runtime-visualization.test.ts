@@ -7,6 +7,7 @@ import { MachineExecutor } from '../../src/language/machine-executor.js';
 import { EvolutionaryExecutor } from '../../src/language/task-evolution.js';
 import { VisualizingMachineExecutor } from '../../src/language/runtime-visualizer.js';
 import { createStorage } from '../../src/language/storage.js';
+import { convertAstToMachineData, cloneMachineData } from '../utils/ast-to-machine-data.js';
 
 /**
  * Integration tests for runtime visualization and circular reference prevention
@@ -24,95 +25,6 @@ beforeAll(async () => {
 afterEach(() => {
     vi.clearAllMocks();
 });
-
-/**
- * Helper function to convert parsed Machine AST to MachineData format
- * This mirrors the convertToMachineData function from codemirror-setup.ts
- */
-function convertToMachineData(machine: Machine): any {
-    const nodes: any[] = [];
-    const edges: any[] = [];
-
-    // Process nodes - safely extract only the data we need
-    machine.nodes?.forEach(node => {
-        const nodeData: any = {
-            name: String(node.name || ''),
-            type: String(node.type || 'state')
-        };
-
-        // Convert attributes safely
-        if (node.attributes && node.attributes.length > 0) {
-            nodeData.attributes = [];
-            node.attributes.forEach(attr => {
-                const attrData: any = {
-                    name: String(attr.name || ''),
-                    type: String(attr.type || 'string')
-                };
-                
-                // Safely extract attribute value
-                if (attr.value) {
-                    if (typeof attr.value === 'string') {
-                        attrData.value = attr.value;
-                    } else if (attr.value.value !== undefined) {
-                        attrData.value = String(attr.value.value);
-                    } else {
-                        attrData.value = String(attr.value);
-                    }
-                } else {
-                    attrData.value = '';
-                }
-                
-                nodeData.attributes.push(attrData);
-            });
-        }
-
-        nodes.push(nodeData);
-    });
-
-    // Process edges - safely extract edge data without AST references
-    machine.edges?.forEach(edge => {
-        edge.segments?.forEach(segment => {
-            edge.source?.forEach(sourceRef => {
-                segment.target?.forEach(targetRef => {
-                    const edgeData: any = {
-                        source: String(sourceRef.ref?.name || ''),
-                        target: String(targetRef.ref?.name || '')
-                    };
-
-                    // Extract label information from segment safely
-                    if (segment.label && segment.label.length > 0) {
-                        const labelParts: string[] = [];
-                        segment.label.forEach(edgeType => {
-                            edgeType.value?.forEach(attr => {
-                                if (attr.text) {
-                                    labelParts.push(String(attr.text));
-                                } else if (attr.name) {
-                                    labelParts.push(String(attr.name));
-                                }
-                            });
-                        });
-                        if (labelParts.length > 0) {
-                            edgeData.label = labelParts.join(' ');
-                        }
-                    }
-
-                    // Set edge type based on arrow type
-                    if (segment.endType) {
-                        edgeData.type = String(segment.endType);
-                    }
-
-                    edges.push(edgeData);
-                });
-            });
-        });
-    });
-
-    return {
-        title: String(machine.title || 'Untitled Machine'),
-        nodes,
-        edges
-    };
-}
 
 /**
  * Helper function to test JSON serialization without circular references
@@ -189,7 +101,7 @@ describe('Runtime Visualization - Circular Reference Prevention', () => {
                 expect(machine).toBeDefined();
 
                 // Convert to MachineData format (this was causing circular references)
-                const machineData = convertToMachineData(machine);
+                const machineData = convertAstToMachineData(machine);
                 expect(machineData).toBeDefined();
                 expect(machineData.title).toBeDefined();
                 expect(Array.isArray(machineData.nodes)).toBe(true);
@@ -202,7 +114,7 @@ describe('Runtime Visualization - Circular Reference Prevention', () => {
             it('should create MachineExecutor without circular references', async () => {
                 const document = await parse(source);
                 const machine = document.parseResult.value as Machine;
-                const machineData = convertToMachineData(machine);
+                const machineData = convertAstToMachineData(machine);
 
                 const executor = new MachineExecutor(machineData);
                 expect(executor).toBeDefined();
@@ -218,7 +130,7 @@ describe('Runtime Visualization - Circular Reference Prevention', () => {
             it('should create EvolutionaryExecutor without circular references', async () => {
                 const document = await parse(source);
                 const machine = document.parseResult.value as Machine;
-                const machineData = convertToMachineData(machine);
+                const machineData = convertAstToMachineData(machine);
 
                 const storage = createStorage();
                 const executor = new EvolutionaryExecutor(machineData, {}, storage);
@@ -241,7 +153,7 @@ describe('Runtime Visualization - Circular Reference Prevention', () => {
             it('should create VisualizingMachineExecutor without circular references', async () => {
                 const document = await parse(source);
                 const machine = document.parseResult.value as Machine;
-                const machineData = convertToMachineData(machine);
+                const machineData = convertAstToMachineData(machine);
 
                 const executor = new VisualizingMachineExecutor(machineData);
                 expect(executor).toBeDefined();
@@ -254,7 +166,7 @@ describe('Runtime Visualization - Circular Reference Prevention', () => {
             it('should generate runtime Mermaid diagram without circular references', async () => {
                 const document = await parse(source);
                 const machine = document.parseResult.value as Machine;
-                const machineData = convertToMachineData(machine);
+                const machineData = convertAstToMachineData(machine);
 
                 const executor = new MachineExecutor(machineData);
 
@@ -266,30 +178,13 @@ describe('Runtime Visualization - Circular Reference Prevention', () => {
             it('should handle storage operations without circular references', async () => {
                 const document = await parse(source);
                 const machine = document.parseResult.value as Machine;
-                const machineData = convertToMachineData(machine);
+                const machineData = convertAstToMachineData(machine);
 
                 const storage = createStorage();
                 const executor = new EvolutionaryExecutor(machineData, {}, storage);
 
                 // Create safe copies for storage (mimicking the fixed codemirror-setup.ts)
-                const safeMachineData = {
-                    title: machineData.title,
-                    nodes: machineData.nodes.map((node: any) => ({
-                        name: node.name,
-                        type: node.type,
-                        attributes: node.attributes ? node.attributes.map((attr: any) => ({
-                            name: attr.name,
-                            type: attr.type,
-                            value: attr.value
-                        })) : []
-                    })),
-                    edges: machineData.edges.map((edge: any) => ({
-                        source: edge.source,
-                        target: edge.target,
-                        label: edge.label,
-                        type: edge.type
-                    }))
-                };
+                const safeMachineData = cloneMachineData(machineData);
 
                 const mutations = executor.getMutations();
                 const safeMutations = mutations.map((mutation: any) => ({
@@ -356,7 +251,7 @@ describe('Runtime Visualization - Mobile Playground Integration', () => {
         expect(machine).toBeDefined();
 
         // Step 2: Convert to MachineData format
-        const machineData = convertToMachineData(machine);
+        const machineData = convertAstToMachineData(machine);
         testJSONSerialization(machineData, 'mobile playground machine data');
 
         // Step 3: Create executors (like mobile playground does)
@@ -404,7 +299,7 @@ describe('Runtime Visualization - Mobile Playground Integration', () => {
 
         const document = await parse(taskSource);
         const machine = document.parseResult.value as Machine;
-        const machineData = convertToMachineData(machine);
+        const machineData = convertAstToMachineData(machine);
 
         // Mock LLM configuration (without actual API key)
         const mockLlmConfig = {
@@ -459,7 +354,7 @@ describe('Runtime Visualization - Environment Variable Support', () => {
 
         const document = await parse(source);
         const machine = document.parseResult.value as Machine;
-        const machineData = convertToMachineData(machine);
+        const machineData = convertAstToMachineData(machine);
 
         // Create LLM config using environment variable
         const llmConfig = process.env.ANTHROPIC_API_KEY ? {
@@ -523,21 +418,13 @@ describe('Runtime Visualization - Error Recovery', () => {
 
         const document = await parse(source);
         const machine = document.parseResult.value as Machine;
-        const machineData = convertToMachineData(machine);
+        const machineData = convertAstToMachineData(machine);
 
         const storage = createStorage();
         const executor = new EvolutionaryExecutor(machineData, {}, storage);
 
         // Test that even if storage operations fail, we don't get circular references
-        const safeMachineData = {
-            title: machineData.title,
-            nodes: machineData.nodes.map((node: any) => ({
-                name: node.name,
-                type: node.type,
-                attributes: node.attributes || []
-            })),
-            edges: machineData.edges
-        };
+        const safeMachineData = cloneMachineData(machineData);
 
         testJSONSerialization(safeMachineData, 'safe machine data for storage');
     });
