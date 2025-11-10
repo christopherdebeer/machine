@@ -294,21 +294,41 @@ class JSONGenerator extends BaseGenerator {
     }
 }
 
+// Graphviz Generator
+class GraphvizGenerator extends BaseGenerator {
+    protected fileExtension = 'dot';
+
+    protected generateContent(): FileGenerationResult {
+        // Convert Machine AST to JSON and generate Graphviz DOT
+        const machineJson = serializeMachineToJSON(this.machine);
+        const dotCode = generateGraphvizFromJSON(machineJson);
+
+        return {
+            filePath: this.filePath,
+            content: dotCode
+        };
+    }
+}
+
 // Public API
 export function generateJSON(machine: Machine, filePath?: string, destination?: string): FileGenerationResult {
-    return GeneratorFactory.createGenerator('json', machine, filePath, { destination }).generate();
+    const generator = new JSONGenerator(machine, filePath, { destination });
+    return generator.generate();
 }
 
 export function generateMarkdown(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
-    return GeneratorFactory.createGenerator('markdown', machine, filePath, { destination }).generate();
+    // TODO: Implement MarkdownGenerator when needed
+    throw new Error('Markdown generation not yet implemented');
 }
 
 export function generateHTML(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
-    return GeneratorFactory.createGenerator('html', machine, filePath, { destination }).generate();
+    // TODO: Implement HTMLGenerator when needed
+    throw new Error('HTML generation not yet implemented');
 }
 
 export function generateGraphviz(machine: Machine, filePath: string, destination: string | undefined): FileGenerationResult {
-    return GeneratorFactory.createGenerator('graphviz', machine, filePath, { destination }).generate();
+    const generator = new GraphvizGenerator(machine, filePath, { destination });
+    return generator.generate();
 }
 
 // Backward compiler: JSON -> DyGram DSL

@@ -48,14 +48,14 @@ import { EmptyFileSystem } from "langium";
 import { parseHelper } from "langium/test";
 import { Machine } from "../language/generated/ast";
 import {
-  generateGraphviz,
   generateJSON,
 } from "../language/generator/generator";
+import { serializeMachineToJSON } from "../language/json/serializer";
+import { generateGraphvizFromJSON } from "../language/diagram/index";
 import { render as renderGraphviz } from "../language/diagram-controls";
 import { RailsExecutor } from "../language/rails-executor";
 import { RuntimeVisualizer } from "../language/runtime-visualizer";
 import type { MachineData } from "../language/base-executor";
-import { serializeMachineToJSON } from "../language/json/serializer";
 import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples";
 import {
   base64UrlEncode,
@@ -1138,13 +1138,9 @@ export const CodeMirrorPlayground: React.FC = () => {
           return;
         }
 
-        // Generate Graphviz DOT diagram
-        const graphvizResult = generateGraphviz(
-          model,
-          "playground.machine",
-          undefined
-        );
-        const dotCode = graphvizResult.content;
+        // Convert Machine AST to JSON and generate Graphviz DOT
+        const machineJson = serializeMachineToJSON(model);
+        const dotCode = generateGraphvizFromJSON(machineJson);
 
         // Generate JSON representation (handles circular references)
         const jsonResult = generateJSON(model);
@@ -1198,13 +1194,9 @@ export const CodeMirrorPlayground: React.FC = () => {
     // Re-render static diagram
     if (editorViewRef.current && outputData.machine) {
       try {
-        // Generate static Graphviz DOT diagram
-        const graphvizResult = generateGraphviz(
-          outputData.machine,
-          "playground.machine",
-          undefined
-        );
-        const dotCode = graphvizResult.content;
+        // Convert Machine AST to JSON and generate Graphviz DOT
+        const machineJson = serializeMachineToJSON(outputData.machine);
+        const dotCode = generateGraphvizFromJSON(machineJson);
 
         // Generate JSON representation
         const jsonResult = generateJSON(outputData.machine);

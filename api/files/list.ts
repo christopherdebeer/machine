@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { getFileExtensions } from '../../src/language/file-extensions.js';
 
 /**
@@ -37,7 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Check if directory exists
     if (!fs.existsSync(baseDir)) {
-      return res.status(404).json({ error: 'Directory not found', path: workingDir });
+      return res.status(404).json({ error: 'Directory not found', path: workingDir});
     }
 
     const files: Array<{
