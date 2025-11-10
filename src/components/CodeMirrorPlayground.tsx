@@ -1318,13 +1318,13 @@ export const CodeMirrorPlayground: React.FC = () => {
                 <span>Files</span>
                 <ToggleBtn>{filesCollapsed ? '▶' : '▼'}</ToggleBtn>
             </SectionHeader>
-            {!filesCollapsed && (
+            <Section $collapsed={filesCollapsed}>
                 <UnifiedFileTree
                     fileService={fileService}
                     onSelectFile={handleFileSelect}
                     onFilesChanged={() => { /* Trigger re-render if needed */ }}
                 />
-            )}
+            </Section>
 
             <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
                 <SectionHeader onClick={toggleEditor} $sideways={outputCollapsed && editorCollapsed ? false : true}>
