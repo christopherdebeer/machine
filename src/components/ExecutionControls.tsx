@@ -127,6 +127,21 @@ const LogTimestamp = styled.span`
     color: #858585;
 `;
 
+const LogLevelSelector = styled.select`
+    background: rgb(62, 62, 66);
+    color: rgb(212, 212, 212);
+    border: 1px solid rgb(80, 80, 83);
+    padding: 0.25em 0.6em;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+
+    &:focus {
+        outline: none;
+        border-color: #0e639c;
+    }
+`;
+
 // Main Component
 export const ExecutionControls = React.forwardRef<ExecutionControlsRef, ExecutionControlsProps>(({
     onExecute,
@@ -328,21 +343,6 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
             default: return '#d4d4d4';
         }
     };
-
-    const LogLevelSelector = styled.select`
-        background: rgb(62, 62, 66);
-        color: rgb(212, 212, 212);
-        border: 1px solid rgb(80, 80, 83);
-        padding: 0.25em 0.6em;
-        border-radius: 4px;
-        font-size: 12px;
-        cursor: pointer;
-
-        &:focus {
-            outline: none;
-            border-color: #0e639c;
-        }
-    `;
 
     return (
         <Container $mobile={mobile} className="execution-panel">
