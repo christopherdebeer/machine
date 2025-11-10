@@ -65,6 +65,66 @@ describe('Entry Point Detection', () => {
 
         expect(result.missingEntryPoints).toBe(true);
     });
+
+    it('should treat nodes with only context inbound edges as entry points', async () => {
+        const text = `machine "Test"
+            context userRequest {
+                value: "example";
+            }
+            task startTask;
+            task followUp;
+            userRequest -> startTask;
+            startTask -> followUp;`;
+
+        const document = await parse(text);
+        const machine = document.parseResult.value as Machine;
+
+        const graphValidator = new GraphValidator(machine);
+        const entryPoints = graphValidator.findEntryPoints();
+        const unreachable = graphValidator.findUnreachableNodes();
+
+        expect(entryPoints).toContain('startTask');
+        expect(unreachable).not.toContain('startTask');
+    });
+});
+
+describe('Nested graph structures', () => {
+    it('should include nested nodes in reachability analysis', async () => {
+        const text = `machine "Test"
+            Context userRequest {
+                query: "hello";
+            }
+
+            Process analysis {
+                Task preprocess;
+                Task analyze;
+                State processing;
+
+                preprocess -> analyze -> processing;
+            };
+
+            Task taskA;
+            Task taskB;
+            Task merge;
+
+            userRequest -> analysis;
+            analysis.processing -> taskA, taskB;
+            taskA -> merge;
+            taskB -> merge;`;
+
+        const document = await parse(text);
+        const machine = document.parseResult.value as Machine;
+
+        const graphValidator = new GraphValidator(machine);
+        const unreachable = graphValidator.findUnreachableNodes();
+
+        expect(unreachable).not.toContain('preprocess');
+        expect(unreachable).not.toContain('analyze');
+        expect(unreachable).not.toContain('processing');
+        expect(unreachable).not.toContain('taskA');
+        expect(unreachable).not.toContain('taskB');
+        expect(unreachable).not.toContain('merge');
+    });
 });
 
 describe('Exit Point Detection', () => {
@@ -103,12 +163,13 @@ describe('Exit Point Detection', () => {
 });
 
 describe('Unreachable Node Detection', () => {
-    it('should detect unreachable nodes', async () => {
+    it('should detect nodes in components without entry points as unreachable', async () => {
         const text = `machine "Test"
-            init start;
+            task lone;
             task taskA;
             task taskB;
-            start -> taskA;`;
+            taskA -> taskB;
+            taskB -> taskA;`;
 
         const document = await parse(text);
         const machine = document.parseResult.value as Machine;
@@ -116,6 +177,7 @@ describe('Unreachable Node Detection', () => {
         const graphValidator = new GraphValidator(machine);
         const unreachable = graphValidator.findUnreachableNodes();
 
+        expect(unreachable).toContain('taskA');
         expect(unreachable).toContain('taskB');
     });
 
