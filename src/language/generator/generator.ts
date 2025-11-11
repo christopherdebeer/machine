@@ -425,7 +425,7 @@ export function generateDSL(machineJson: MachineJSON): string {
     const rootEdges = getRootLevelEdges(machineJson.edges || [], rootNodes, childrenMap);
     if (rootEdges.length > 0) {
         rootEdges.forEach(edge => {
-            lines.push(generateEdgeDSL(edge));
+            lines.push(generateEdgeDSL(edge, nodeMap));
         });
         lines.push('');
     }
@@ -486,7 +486,10 @@ function generateNodeDSLWithChildren(
 ): string {
     const indent = '    '.repeat(indentLevel);
     const childIndent = '    '.repeat(indentLevel + 1);
-    const children = childrenMap.get(node.name) || [];
+
+    // Notes should never have children - they only have attributes
+    const isNote = node.type && node.type.toLowerCase() === 'note';
+    const children = isNote ? [] : (childrenMap.get(node.name) || []);
     const hasChildren = children.length > 0;
 
     // Find edges that belong to this node's scope (between its children)
@@ -649,11 +652,31 @@ function generateAttributeDSL(attr: any): string {
     return result;
 }
 
-function generateEdgeDSL(edge: MachineEdgeJSON): string {
+function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>): string {
     const parts: string[] = [];
 
-    // Source
-    parts.push(edge.source);
+    // Helper function to get qualified name for a node
+    const getQualifiedName = (nodeName: string): string => {
+        if (!nodeMap) return nodeName;
+
+        const node = nodeMap.get(nodeName);
+        if (!node || !node.parent) return nodeName;
+
+        // Build qualified name by traversing up the parent chain
+        const pathParts: string[] = [nodeName];
+        let currentNode = node;
+
+        while (currentNode.parent) {
+            pathParts.unshift(currentNode.parent);
+            currentNode = nodeMap.get(currentNode.parent);
+            if (!currentNode) break;
+        }
+
+        return pathParts.join('.');
+    };
+
+    // Source (use qualified name if node has parent)
+    parts.push(getQualifiedName(edge.source));
 
     // Add source multiplicity if present
     if (edge.sourceMultiplicity) {
@@ -703,43 +726,82 @@ function generateEdgeDSL(edge: MachineEdgeJSON): string {
     const arrowType = edge.arrowType || '->';
     const edgeValue = edge.value || {};
 
-    // Extract label if present
+    // Extract label or edge attributes
     let label = '';
     let isPlainText = false;
+    let isEdgeAttributes = false;
+
     if (Object.keys(edgeValue).length > 0 && !skipEdgeText) {
-        // Check for 'text' property first
-        if (edgeValue.text) {
-            label = edgeValue.text;
-            isPlainText = true;
-        } else {
-            // Build label from properties
-            const props = Object.keys(edgeValue)
+        // Check if this looks like edge attributes (has properties besides just 'text')
+        const valueKeys = Object.keys(edgeValue);
+        const hasNonTextProps = valueKeys.some(k => k !== 'text');
+
+        if (hasNonTextProps) {
+            // This looks like edge attributes: timeout: 1000, priority: high
+            // Format as comma-separated attributes, excluding 'text' if present
+            const props = valueKeys
+                .filter(key => key !== 'text')  // Skip 'text' property
                 .map(key => `${key}: ${formatValue(edgeValue[key])}`)
-                .join('; ');
+                .join(', ');
             if (props) {
                 label = props;
+                isEdgeAttributes = true;
             }
+        } else if (edgeValue.text) {
+            // Only has 'text' property - treat as plain text label
+            label = edgeValue.text;
+            isPlainText = true;
         }
     }
 
-    // Build arrow with label and annotations
-    // Edge annotations go between source and arrow: a -@Critical-> b
-    const arrowPrefix = edgeAnnotationsStr ? ` -${edgeAnnotationsStr}` : '';
+    // Build arrow with label, annotations, and attributes
+    // Syntax patterns:
+    // - Simple: A -> B
+    // - With annotation: A -@annotation-> B
+    // - With label: A -"label"-> B
+    // - With attributes: A -attr: value-> B
+    // - Combined: A -@annotation, attr: value-> B
 
     if (label) {
-        // Format label (quote if necessary)
-        // Only format plain text labels, not attribute maps (which are already formatted)
-        const formattedLabel = isPlainText ? formatValue(label) : label;
-        // Labeled arrow
-        if (arrowType === '->') {
-            parts.push(`${arrowPrefix}-${formattedLabel}->`);
-        } else if (arrowType === '-->') {
-            parts.push(`${arrowPrefix}--${formattedLabel}-->`);
-        } else if (arrowType === '=>') {
-            parts.push(`${arrowPrefix}=${formattedLabel}=>`);
+        if (isEdgeAttributes) {
+            // Edge attributes: -@annotation, attr: value->
+            if (edgeAnnotationsStr) {
+                // Annotations + attributes: -@annotation, attributes->
+                if (arrowType === '->') {
+                    parts.push(`-${edgeAnnotationsStr}, ${label}->`);
+                } else if (arrowType === '-->') {
+                    parts.push(`-${edgeAnnotationsStr}, ${label}-->`);
+                } else if (arrowType === '=>') {
+                    parts.push(`-${edgeAnnotationsStr}, ${label}=>`);
+                } else {
+                    parts.push(`-${edgeAnnotationsStr}, ${label}${arrowType.substring(1)}`);
+                }
+            } else {
+                // Just attributes: -attr: value->
+                if (arrowType === '->') {
+                    parts.push(`-${label}->`);
+                } else if (arrowType === '-->') {
+                    parts.push(`-${label}-->`);
+                } else if (arrowType === '=>') {
+                    parts.push(`-${label}=>`);
+                } else {
+                    parts.push(`-${label}${arrowType.substring(1)}`);
+                }
+            }
         } else {
-            // For other arrow types, just use the arrow as-is
-            parts.push(edgeAnnotationsStr ? `${arrowPrefix}${arrowType.substring(1)}` : arrowType);
+            // Plain text label: -@annotation-"label"-> or just -"label"->
+            const formattedLabel = isPlainText ? formatValue(label) : label;
+            const arrowPrefix = edgeAnnotationsStr ? ` -${edgeAnnotationsStr}` : '';
+
+            if (arrowType === '->') {
+                parts.push(`${arrowPrefix}-${formattedLabel}->`);
+            } else if (arrowType === '-->') {
+                parts.push(`${arrowPrefix}--${formattedLabel}-->`);
+            } else if (arrowType === '=>') {
+                parts.push(`${arrowPrefix}=${formattedLabel}=>`);
+            } else {
+                parts.push(edgeAnnotationsStr ? `${arrowPrefix}${arrowType.substring(1)}` : arrowType);
+            }
         }
     } else {
         // Simple arrow without label
@@ -765,8 +827,8 @@ function generateEdgeDSL(edge: MachineEdgeJSON): string {
         parts.push(quoteString(edge.targetMultiplicity));
     }
 
-    // Target
-    parts.push(edge.target);
+    // Target (use qualified name if node has parent)
+    parts.push(getQualifiedName(edge.target));
 
     return parts.join(' ') + ';';
 }
