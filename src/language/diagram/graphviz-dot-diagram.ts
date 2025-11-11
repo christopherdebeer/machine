@@ -1056,6 +1056,13 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
 
     // Build semantic hierarchy based on parent-child relationships (using only renderable nodes)
     const hierarchy = buildSemanticHierarchy(renderableNodes);
+    const clusterTargets = new Map<string, string>();
+    renderableNodes.forEach(node => {
+        const entry = hierarchy[node.name];
+        if (entry && entry.children.length > 0) {
+            clusterTargets.set(node.name, getClusterAnchorName(node.name));
+        }
+    });
     const rootNodes = getRootNodes(renderableNodes);
 
     // Extract validation context from options
@@ -1073,6 +1080,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
         options,
         wrappingConfig,
         notesByParent,
+        clusterTargets,
         nodeStates
     ));
     lines.push('');
@@ -1081,7 +1089,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     if (rootNotes && rootNotes.length > 0) {
         lines.push('  // Root-level notes');
         rootNotes.forEach(noteInfo => {
-            const noteLines = generateNoteDefinition(noteInfo, '  ', wrappingConfig);
+            const noteLines = generateNoteDefinition(noteInfo, '  ', wrappingConfig, clusterTargets);
             noteLines.forEach(line => lines.push(line));
         });
         lines.push('');
@@ -1724,6 +1732,7 @@ function generateSemanticHierarchy(
     options?: DiagramOptions,
     wrappingConfig?: TextWrappingConfig,
     notesByParent?: NotesByParentMap,
+    clusterTargets?: Map<string, string>,
     nodeStates?: RuntimeNodeState[]
 ): string {
     const lines: string[] = [];
@@ -1776,13 +1785,14 @@ function generateSemanticHierarchy(
                 options,
                 wrappingConfig,
                 notesByParent,
+                clusterTargets,
                 nodeStates
             ));
 
             if (noteEntries.length > 0) {
                 lines.push('');
                 noteEntries.forEach(noteInfo => {
-                    const noteLines = generateNoteDefinition(noteInfo, `${indent}  `, wrappingConfig);
+                    const noteLines = generateNoteDefinition(noteInfo, `${indent}  `, wrappingConfig, clusterTargets);
                     noteLines.forEach(line => lines.push(line));
                 });
             }
@@ -1818,7 +1828,7 @@ function generateSemanticHierarchy(
 
             if (noteEntries.length > 0) {
                 noteEntries.forEach(noteInfo => {
-                    const noteLines = generateNoteDefinition(noteInfo, indent, wrappingConfig);
+                    const noteLines = generateNoteDefinition(noteInfo, indent, wrappingConfig, clusterTargets);
                     noteLines.forEach(line => lines.push(line));
                 });
             }
@@ -2500,12 +2510,21 @@ function getArrowStyle(arrowType: string): string {
 /**
  * Generate notes section
  */
-function generateNoteDefinition(noteInfo: NoteRenderInfo, indent: string, wrappingConfig?: TextWrappingConfig): string[] {
+function generateNoteDefinition(
+    noteInfo: NoteRenderInfo,
+    indent: string,
+    wrappingConfig?: TextWrappingConfig,
+    clusterTargets?: Map<string, string>
+): string[] {
     const { note, dotId } = noteInfo;
     const target = note.name;
     if (!target) {
         return [];
     }
+
+    const resolvedTarget = typeof target === 'string'
+        ? (clusterTargets?.get(target) ?? target)
+        : target;
 
     let content = note.title;
     if (!content) {
@@ -2546,7 +2565,7 @@ function generateNoteDefinition(noteInfo: NoteRenderInfo, indent: string, wrappi
 
     const lines: string[] = [];
     lines.push(`${indent}"${dotId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
-    lines.push(`${indent}"${dotId}" -> "${target}" [style=dashed, color="#999999", arrowhead=none];`);
+    lines.push(`${indent}"${dotId}" -> "${resolvedTarget}" [style=dashed, color="#999999", arrowhead=none];`);
     return lines;
 }
 
