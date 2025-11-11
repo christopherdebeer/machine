@@ -3,7 +3,7 @@
  * Validates graph structure: reachability, cycles, entry/exit points
  */
 
-import type { Machine, Node } from './generated/ast.js';
+import type { Edge as AstEdge, Machine, Node } from './generated/ast.js';
 import {
     ValidationContext,
     ValidationSeverity,
@@ -12,6 +12,18 @@ import {
     GraphErrorCodes
 } from './validation-errors.js';
 import { NodeTypeChecker } from './node-type-checker.js';
+import type { EdgeLike } from './node-type-checker.js';
+
+interface NodeAliasInfo {
+    node: Node;
+    qualifiedName: string;
+}
+
+interface ResolvedReference {
+    node?: Node;
+    nodeName: string;
+    attributePath?: string;
+}
 
 export interface GraphValidationResult {
     valid: boolean;
@@ -28,12 +40,14 @@ export class GraphValidator {
     private nodeMap: Map<string, Node>;
     private adjacencyList: Map<string, string[]>; // node -> list of reachable nodes
     private reverseAdjacencyList: Map<string, string[]>; // node -> list of nodes that reach it
+    private controlEdges: EdgeLike[];
 
     constructor(machine: Machine) {
         this.machine = machine;
         this.nodeMap = this.buildNodeMap();
         this.adjacencyList = new Map();
         this.reverseAdjacencyList = new Map();
+        this.controlEdges = [];
         this.buildAdjacencyLists();
     }
 
@@ -62,37 +76,181 @@ export class GraphValidator {
             this.reverseAdjacencyList.set(nodeName, []);
         });
 
-        // Process edges
-        this.machine.edges.forEach(edge => {
-            // Get source nodes
-            const sources = edge.source.map(s => s.$refText || s.ref?.name).filter(Boolean) as string[];
+        const aliasMap = this.buildNodeAliasMap();
 
-            // Process each segment
-            edge.segments.forEach(segment => {
-                const targets = segment.target.map(t => t.$refText || t.ref?.name).filter(Boolean) as string[];
+        const processEdgeCollection = (edges: AstEdge[] | undefined) => {
+            edges?.forEach(edge => this.processEdge(edge, aliasMap));
+        };
 
-                // Add edges from all sources to all targets
-                sources.forEach(source => {
-                    targets.forEach(target => {
-                        // Forward adjacency list
-                        const sourceList = this.adjacencyList.get(source);
-                        if (sourceList && !sourceList.includes(target)) {
-                            sourceList.push(target);
-                        }
+        processEdgeCollection(this.machine.edges);
+        this.machine.nodes.forEach(node => this.traverseChildEdges(node, aliasMap));
+    }
 
-                        // Reverse adjacency list
-                        const targetList = this.reverseAdjacencyList.get(target);
-                        if (targetList && !targetList.includes(source)) {
-                            targetList.push(source);
-                        }
+    private traverseChildEdges(node: Node, aliasMap: Map<string, NodeAliasInfo>): void {
+        if (node.edges && node.edges.length > 0) {
+            node.edges.forEach(edge => this.processEdge(edge, aliasMap));
+        }
+
+        node.nodes?.forEach(child => this.traverseChildEdges(child, aliasMap));
+    }
+
+    private processEdge(edge: AstEdge, aliasMap: Map<string, NodeAliasInfo>): void {
+        const sourceRefs = (edge.source ?? [])
+            .map(reference => this.resolveEdgeReference(reference, aliasMap))
+            .filter((ref): ref is ResolvedReference => !!ref && !!ref.nodeName);
+
+        if (sourceRefs.length === 0) {
+            return;
+        }
+
+        let activeSources = sourceRefs;
+
+        edge.segments.forEach(segment => {
+            const targetRefs = (segment.target ?? [])
+                .map(reference => this.resolveEdgeReference(reference, aliasMap))
+                .filter((ref): ref is ResolvedReference => !!ref && !!ref.nodeName);
+
+            if (targetRefs.length === 0) {
+                activeSources = targetRefs;
+                return;
+            }
+
+            activeSources.forEach(sourceRef => {
+                targetRefs.forEach(targetRef => {
+                    this.registerEdge(sourceRef, targetRef);
+                });
+            });
+
+            activeSources = targetRefs;
+        });
+    }
+
+    private registerEdge(sourceRef: ResolvedReference, targetRef: ResolvedReference): void {
+        const sourceName = sourceRef.nodeName;
+        const targetName = targetRef.nodeName;
+
+        if (!this.nodeMap.has(sourceName) || !this.nodeMap.has(targetName)) {
+            return;
+        }
+
+        const edge: EdgeLike = {
+            source: sourceName,
+            target: targetName
+        };
+
+        if (this.isDataEdge(edge, sourceRef, targetRef)) {
+            return;
+        }
+
+        const sourceList = this.adjacencyList.get(sourceName);
+        if (sourceList && !sourceList.includes(targetName)) {
+            sourceList.push(targetName);
+        }
+
+        const targetList = this.reverseAdjacencyList.get(targetName);
+        if (targetList && !targetList.includes(sourceName)) {
+            targetList.push(sourceName);
+        }
+
+        this.controlEdges.push(edge);
+    }
+
+    private isDataEdge(edge: EdgeLike, sourceRef: ResolvedReference, targetRef: ResolvedReference): boolean {
+        const sourceNode = this.nodeMap.get(edge.source);
+        const targetNode = this.nodeMap.get(edge.target);
+
+        if (!sourceNode || !targetNode) {
+            return false;
+        }
+
+        if (sourceRef.attributePath || targetRef.attributePath) {
+            return true;
+        }
+
+        if (NodeTypeChecker.isContext(sourceNode) || NodeTypeChecker.isContext(targetNode)) {
+            return true;
+        }
+
+        return NodeTypeChecker.isContextAccessEdge(edge, sourceNode, targetNode);
+    }
+
+    private buildNodeAliasMap(): Map<string, NodeAliasInfo> {
+        const aliasMap = new Map<string, NodeAliasInfo>();
+
+        const processNode = (node: Node, parentQualifiedName?: string) => {
+            const qualifiedName = parentQualifiedName ? `${parentQualifiedName}.${node.name}` : node.name;
+            aliasMap.set(node.name, { node, qualifiedName });
+            aliasMap.set(qualifiedName, { node, qualifiedName });
+
+            if (node.attributes) {
+                node.attributes.forEach(attr => {
+                    aliasMap.set(`${qualifiedName}.${attr.name}`, {
+                        node,
+                        qualifiedName: `${qualifiedName}.${attr.name}`
                     });
                 });
+            }
 
-                // Update sources for next segment (targets become sources)
-                sources.length = 0;
-                sources.push(...targets);
-            });
-        });
+            node.nodes?.forEach(child => processNode(child, qualifiedName));
+        };
+
+        this.machine.nodes.forEach(node => processNode(node));
+        return aliasMap;
+    }
+
+    private resolveEdgeReference(reference: any, aliasMap: Map<string, NodeAliasInfo>): ResolvedReference | undefined {
+        if (!reference) {
+            return undefined;
+        }
+
+        if (reference.ref) {
+            const node = reference.ref as Node;
+            return {
+                node,
+                nodeName: node.name
+            };
+        }
+
+        const rawText = reference.$cstNode?.text?.replace(/["']/g, '');
+        if (!rawText) {
+            return undefined;
+        }
+
+        const resolved = this.resolveReferencePath(rawText, aliasMap);
+        if (resolved) {
+            return resolved;
+        }
+
+        return {
+            nodeName: rawText
+        };
+    }
+
+    private resolveReferencePath(refText: string, aliasMap: Map<string, NodeAliasInfo>): ResolvedReference | undefined {
+        if (!refText) {
+            return undefined;
+        }
+
+        const sanitized = refText.trim().replace(/;$/, '');
+        if (!sanitized) {
+            return undefined;
+        }
+
+        const parts = sanitized.split('.');
+        for (let i = parts.length; i > 0; i--) {
+            const candidate = parts.slice(0, i).join('.');
+            const info = aliasMap.get(candidate);
+            if (info) {
+                const attributePath = parts.slice(i).join('.');
+                return {
+                    node: info.node,
+                    nodeName: info.node.name,
+                    attributePath: attributePath.length > 0 ? attributePath : undefined
+                };
+            }
+        }
+
+        return undefined;
     }
 
     /**
@@ -104,14 +262,17 @@ export class GraphValidator {
         this.nodeMap.forEach((node, nodeName) => {
             const incomingEdges = this.reverseAdjacencyList.get(nodeName) || [];
 
-            // Entry point if:
-            // 1. It's an init node, OR
-            // 2. It has no incoming edges
-            if (NodeTypeChecker.isInit(node) || incomingEdges.length === 0) {
-                entryPoints.push(nodeName);
+            if (NodeTypeChecker.isContext(node, this.controlEdges)) {
+                return;
+            }
+
+            if (NodeTypeChecker.isInit(node, this.controlEdges) || incomingEdges.length === 0) {
+                if (!entryPoints.includes(nodeName)) {
+                    entryPoints.push(nodeName);
+                }
             }
         });
-        console.log({entryPoints})
+
         return entryPoints;
     }
 
@@ -126,7 +287,7 @@ export class GraphValidator {
 
             // Exit point if it has no outgoing edges
             // (but exclude context nodes which shouldn't have outgoing edges)
-            if (outgoingEdges.length === 0 && !NodeTypeChecker.isContext(node)) {
+            if (outgoingEdges.length === 0 && !NodeTypeChecker.isContext(node, this.controlEdges)) {
                 exitPoints.push(nodeName);
             }
         });
@@ -138,18 +299,11 @@ export class GraphValidator {
      * Find unreachable nodes (nodes that cannot be reached from entry points)
      */
     public findUnreachableNodes(): string[] {
-        // For reachability, we only consider init nodes as entry points
-        // (not all nodes without incoming edges, as those might be orphaned)
-        const initNodes: string[] = [];
-        this.nodeMap.forEach((node, nodeName) => {
-            if (NodeTypeChecker.isInit(node)) {
-                initNodes.push(nodeName);
-            }
-        });
+        const entryPoints = this.findEntryPoints();
 
-        // BFS from all init nodes
+        // BFS from all entry nodes
         const visited = new Set<string>();
-        const queue: string[] = [...initNodes];
+        const queue: string[] = [...entryPoints];
 
         while (queue.length > 0) {
             const current = queue.shift()!;
@@ -169,7 +323,7 @@ export class GraphValidator {
         const unreachable: string[] = [];
         this.nodeMap.forEach((node, nodeName) => {
             // Exclude context nodes from reachability check
-            if (!visited.has(nodeName) && !NodeTypeChecker.isContext(node)) {
+            if (!visited.has(nodeName) && !NodeTypeChecker.isContext(node, this.controlEdges)) {
                 unreachable.push(nodeName);
             }
         });
@@ -192,7 +346,7 @@ export class GraphValidator {
             // 2. Not an init node (init nodes can have no incoming edges)
             // 3. Not a context node (context nodes typically don't have edges)
             if (incoming.length === 0 && outgoing.length === 0 &&
-                !NodeTypeChecker.isInit(node) && !NodeTypeChecker.isContext(node)) {
+                !NodeTypeChecker.isInit(node, this.controlEdges) && !NodeTypeChecker.isContext(node, this.controlEdges)) {
                 orphaned.push(nodeName);
             }
         });
