@@ -183,9 +183,9 @@ export default defineConfig(() => {
                 'node:fs/promises': path.resolve(__dirname, 'src/shims/node-fs-promises.ts'),
                 'node:fs': path.resolve(__dirname, 'src/shims/node-fs.ts'),
                 'node:path': path.resolve(__dirname, 'src/shims/node-path.ts'),
-                'fs/promises': path.resolve(__dirname, 'src/shims/node-fs-promises.ts'),
-                'fs': path.resolve(__dirname, 'src/shims/node-fs.ts'),
-                'path': path.resolve(__dirname, 'src/shims/node-path.ts')
+                // 'fs/promises': path.resolve(__dirname, 'src/shims/node-fs-promises.ts'),
+                // 'fs': path.resolve(__dirname, 'src/shims/node-fs.ts'),
+                // 'path': path.resolve(__dirname, 'src/shims/node-path.ts')
             }
         },
         optimizeDeps: {

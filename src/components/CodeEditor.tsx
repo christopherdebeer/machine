@@ -46,7 +46,8 @@ import { getSharedServices, registerFile, unregisterFile, updateFile } from '../
 import { base64UrlEncode } from '../utils/url-encoding';
 import { Machine } from '../language/generated/ast';
 import { parseHelper } from 'langium/test';
-import { generateGraphviz } from '../language/generator/generator';
+import { generateGraphvizFromJSON } from '../language/diagram/index';
+import { serializeMachineToJSON } from '../language/json/serializer';
 import { render as renderGraphviz } from '../language/diagram-controls';
 import styled from 'styled-components';
 
@@ -352,9 +353,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                 return;
             }
 
-            // Generate Graphviz DOT
-            const graphvizResult = generateGraphviz(model, filename || 'code-editor.machine', undefined);
-            const dotCode = graphvizResult.content;
+            // Convert Machine AST to JSON and generate Graphviz DOT
+            const machineJson = serializeMachineToJSON(model);
+            const dotCode = generateGraphvizFromJSON(machineJson);
 
             // Render to temporary div
             const tempDiv = window.document.createElement('div');

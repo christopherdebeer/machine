@@ -28,6 +28,7 @@ export class ExecutionLogger {
     private entries: LogEntry[] = [];
     private maxEntries: number;
     private onLog?: (entry: LogEntry) => void;
+    private externalOnLog?: (entry: LogEntry) => void;
 
     // Log level hierarchy for filtering
     private static readonly LEVELS: Record<LogLevel, number> = {
@@ -66,6 +67,13 @@ export class ExecutionLogger {
     }
 
     /**
+     * Set external log callback for reactive updates
+     */
+    setOnLogCallback(callback?: (entry: LogEntry) => void): void {
+        this.externalOnLog = callback;
+    }
+
+    /**
      * Log a message at the specified level
      */
     private log(level: LogLevel, category: LogCategory, message: string, data?: Record<string, any>): void {
@@ -87,9 +95,13 @@ export class ExecutionLogger {
             this.entries.shift();
         }
 
-        // Call external handler if provided
+        // Call external handlers if provided
         if (this.onLog) {
             this.onLog(entry);
+        }
+        
+        if (this.externalOnLog) {
+            this.externalOnLog(entry);
         }
     }
 

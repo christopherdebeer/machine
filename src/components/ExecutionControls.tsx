@@ -162,10 +162,11 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const logContentRef = useRef<HTMLDivElement>(null);
 
-    // Sync executor logs periodically
+    // Sync executor logs reactively using onLog callback
     useEffect(() => {
         if (!executor) return;
 
+        // Initial sync of existing logs
         const syncLogs = () => {
             try {
                 const executorLogs = executor.getLogs();
@@ -180,11 +181,33 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
             }
         };
 
-        // Sync immediately and then every 500ms
+        // Sync existing logs immediately
         syncLogs();
-        const interval = setInterval(syncLogs, 500);
 
-        return () => clearInterval(interval);
+        // Set up reactive log callback if executor supports it
+        const logger = executor.getLogger?.();
+        if (logger && typeof logger.setOnLogCallback === 'function') {
+            const handleNewLog = (logEntry: any) => {
+                const formatted: LogEntry = {
+                    timestamp: new Date(logEntry.timestamp).toLocaleTimeString(),
+                    message: `[${logEntry.category}] ${logEntry.message}`,
+                    type: logEntry.level === 'error' ? 'error' : logEntry.level === 'warn' ? 'warning' : logEntry.level === 'debug' ? 'info' : 'info'
+                };
+                setLogs(prev => [...prev, formatted]);
+            };
+
+            logger.setOnLogCallback(handleNewLog);
+
+            return () => {
+                // Clean up callback
+                if (typeof logger.setOnLogCallback === 'function') {
+                    logger.setOnLogCallback(undefined);
+                }
+            };
+        }
+
+        // Fallback: if reactive logging not available, do nothing (no polling)
+        return () => {};
     }, [executor]);
 
     // Auto-scroll to bottom when new logs are added

@@ -80,8 +80,9 @@ export async function render(code: string, containerOveride?: Element, id?: stri
         console.warn('[Playground] No code provided to render');
         return;
     }
-
+    console.groupCollapsed('[Playground] Rendering Diagram...]')
     try {
+        
         console.log('[Playground] Rendering Graphviz diagram...');
         console.log('[Playground] DOT code length:', code.length);
         console.log('[Playground] DOT code:', code);
@@ -99,7 +100,9 @@ export async function render(code: string, containerOveride?: Element, id?: stri
         container.innerHTML = svg;
 
         console.log('[Playground] ✓ Diagram rendered successfully as SVG');
+        console.groupEnd();
     } catch (error) {
+        console.groupEnd();
         console.error('[Playground] Error rendering diagram:', error);
         const container = containerOveride || document.querySelector('#diagram');
         if (container) {

@@ -125,6 +125,7 @@ const FileItem = styled.div<{ $level: number; $active?: boolean; $source?: 'api'
     display: flex;
     align-items: center;
     gap: 6px;
+    min-height: 1.6em;
 
     &:hover {
         background: ${props => props.$active ? '#1177bb' : '#2a2d2e'};
@@ -205,6 +206,13 @@ const BreadcrumbItem = styled.span<{ $clickable?: boolean }>`
 
 const BreadcrumbSeparator = styled.span`
     color: #858585;
+`;
+
+
+const DirectoryWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 `;
 
 export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
@@ -410,7 +418,7 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
             );
         }
 
-        return nodes;
+        return <DirectoryWrapper>{nodes}</DirectoryWrapper>;
     };
 
     const renderBreadcrumbs = (): React.ReactNode => {
@@ -460,11 +468,6 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
 
     return (
         <Container>
-            <StatusBar>
-                <StatusBadge $available={apiAvailable}>
-                    {apiAvailable ? `API: ${apiFileCount} | VFS: ${vfsFileCount}` : `VFS: ${vfsFileCount}`}
-                </StatusBadge>
-            </StatusBar>
             <Content>
                 <ActionBar>
                     <ActionButton onClick={handleNewFile} title="Create new file (VFS)">
@@ -486,6 +489,9 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
                     >
                         💾 Save
                     </ActionButton>
+                    <StatusBadge $available={apiAvailable}>
+                        {apiAvailable ? `API: ${apiFileCount} | VFS: ${vfsFileCount}` : `VFS: ${vfsFileCount}`}
+                    </StatusBadge>
                 </ActionBar>
                 <SearchContainer>
                     <SearchInput

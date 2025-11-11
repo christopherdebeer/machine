@@ -11,6 +11,7 @@ import { extractValueFromAST, parseAttributeValue, serializeValue, validateValue
 import { NodeTypeChecker } from './node-type-checker.js';
 import { EdgeConditionParser } from './utils/edge-conditions.js';
 import { CelEvaluator } from './cel-evaluator.js';
+import type { MachineJSON } from './json/types.js';
 
 // Shared interfaces
 export interface MachineExecutionContext {
@@ -33,25 +34,7 @@ export interface MachineExecutionContext {
     stateTransitions: Array<{ state: string; timestamp: string }>;
 }
 
-export interface MachineData {
-    title: string;
-    nodes: Array<{
-        name: string;
-        type?: string;
-        parent?: string; // Name of parent node for hierarchy tracking (optional)
-        attributes?: Array<{
-            name: string;
-            type: string;
-            value: string;
-        }>;
-    }>;
-    edges: Array<{
-        source: string;
-        target: string;
-        type?: string;
-        label?: string;
-    }>;
-}
+export type MachineData = MachineJSON;
 
 export interface ExecutionLimits {
     maxSteps?: number;              // Maximum total steps (default: 1000)

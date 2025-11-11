@@ -10,6 +10,7 @@ import { NodeTypeChecker } from '../node-type-checker.js';
 import { ValidationContext, ValidationSeverity } from '../validation-errors.js';
 import { CelEvaluator } from '../cel-evaluator.js';
 import { EdgeEvaluator, EdgeEvaluationResult } from './edge-evaluator.js';
+import { mapCssPropertyToGraphviz } from '../utils/style-normalizer.js';
 import { marked } from 'marked';
 
 /**
@@ -50,30 +51,6 @@ function interpolateValue(value: string, context?: RuntimeContext): string {
     }
 }
 
-/**
- * Map CSS property names to Graphviz DOT property names
- * This allows users to use familiar CSS properties that get converted to Graphviz equivalents
- */
-function mapCssPropertyToGraphviz(cssProperty: string): string {
-    const propertyMap: Record<string, string> = {
-        'stroke-width': 'penwidth',
-        'stroke': 'color',
-        'fill': 'fillcolor',
-        'font-family': 'fontname',
-        'font-size': 'fontsize',
-        'font-weight': 'fontweight',
-        'text-align': 'labeljust',
-        'background-color': 'fillcolor',
-        'border-color': 'color',
-        'border-width': 'penwidth',
-        'opacity': 'alpha',
-        'direction': 'rankdir'
-    };
-
-    const normalized = cssProperty.toLowerCase().trim();
-    return propertyMap[normalized] || cssProperty;
-}
-
 function sanitizeForDotId(value: string): string {
     return value.replace(/[^a-zA-Z0-9_]+/g, '_');
 }
@@ -107,6 +84,15 @@ function normalizeDirectionValue(value: string): string {
  * Returns normalized direction value (LR, RL, TB, BT) or undefined if not set
  */
 function extractDirection(node: any): string | undefined {
+    if (node.style) {
+        if (node.style.rankdir !== undefined) {
+            return normalizeDirectionValue(String(node.style.rankdir));
+        }
+        if (node.style.direction !== undefined) {
+            return normalizeDirectionValue(String(node.style.direction));
+        }
+    }
+
     // Check @style annotations
     const annotations = node.annotations || [];
     for (const ann of annotations) {
@@ -141,11 +127,48 @@ function extractDirection(node: any): string | undefined {
     return undefined;
 }
 
+function appendStyleAttributes(
+    baseStyle: string,
+    style?: Record<string, unknown>,
+    skipKeys: Set<string> = new Set()
+): string {
+    if (!style) {
+        return baseStyle;
+    }
+
+    let result = baseStyle;
+
+    Object.entries(style).forEach(([key, value]) => {
+        if (value === undefined || value === null) {
+            return;
+        }
+
+        if (skipKeys.has(key)) {
+            return;
+        }
+
+        const formattedValue = String(value).replace(/"/g, '\\"');
+        result += `, ${key}="${formattedValue}"`;
+    });
+
+    return result;
+}
+
 /**
  * Extract grid size from style attributes
  * Supports: grid, columns, cols (for backwards compatibility)
  */
 function extractGridSize(node: any): number | undefined {
+    if (node.style) {
+        const gridStyle = node.style.grid ?? node.style.columns ?? node.style.cols;
+        if (gridStyle !== undefined) {
+            const count = parseInt(String(gridStyle), 10);
+            if (!isNaN(count)) {
+                return count;
+            }
+        }
+    }
+
     // Check @style annotations
     const annotations = node.annotations || [];
     for (const ann of annotations) {
@@ -188,6 +211,17 @@ function extractGridSize(node: any): number | undefined {
  * Supports: grid-position, grid-pos, column, col (for backwards compatibility)
  */
 function extractNodeGridPosition(node: any): number | undefined {
+    if (node.style) {
+        const posStyle = node.style['grid-position'] || node.style['grid-pos'] ||
+            node.style['column'] || node.style['col'];
+        if (posStyle !== undefined) {
+            const posNum = parseInt(String(posStyle), 10);
+            if (!isNaN(posNum)) {
+                return posNum;
+            }
+        }
+    }
+
     // Check @style annotations
     const annotations = node.annotations || [];
     for (const ann of annotations) {
@@ -695,51 +729,11 @@ function getNodeStyle(node: any, edges?: any[], styleNodes?: any[], validationCo
         }
     }
 
-    // Apply @style annotations directly (inline styles)
-    annotations.forEach((ann: any) => {
-        if (ann.name === 'style') {
-            // Check if annotation has attribute-style parameters
-            if (ann.attributes) {
-                // Apply each attribute as a graphviz property
-                Object.keys(ann.attributes).forEach(key => {
-                    const value = ann.attributes[key];
-                    baseStyle += `, ${key}="${value}"`;
-                });
-            } else if (ann.value) {
-                // Parse string value for inline styles (e.g., @style("color: red; stroke-width: 3px;"))
-                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
-                styleAttrs.forEach((attr: string) => {
-                    const [key, ...valueParts] = attr.split(':');
-                    if (key && valueParts.length > 0) {
-                        let value = valueParts.join(':').trim();
-                        // Map CSS properties to Graphviz equivalents
-                        const graphvizKey = mapCssPropertyToGraphviz(key.trim());
-                        // Normalize direction values
-                        if (graphvizKey === 'rankdir' || key.trim().toLowerCase() === 'direction') {
-                            value = normalizeDirectionValue(value);
-                        }
-                        baseStyle += `, ${graphvizKey}="${value}"`;
-                    }
-                });
-            }
-        }
-    });
+    baseStyle = appendStyleAttributes(baseStyle, node.style);
 
     // Apply custom styles from style nodes
     if (styleNodes && styleNodes.length > 0) {
         baseStyle = applyCustomStyles(node, styleNodes, baseStyle);
-    }
-
-    // Apply style attribute (e.g., style: { color: blue; })
-    const styleAttr = node.attributes?.find((a: any) => a.name === 'style');
-    if (styleAttr && styleAttr.value && typeof styleAttr.value === 'object') {
-        // If style attribute is an object, apply each property
-        Object.keys(styleAttr.value).forEach(key => {
-            const value = styleAttr.value[key];
-            if (value !== undefined && value !== null) {
-                baseStyle += `, ${key}="${value}"`;
-            }
-        });
     }
 
     // Add validation warning styling if validation context is provided
@@ -830,26 +824,29 @@ function applyCustomStyles(node: any, styleNodes: any[], baseStyle: string): str
         const styleAnnotations = styleNode.annotations || [];
 
         // Check if any of the node's annotations match the style node's selector annotation
-        for (const styleAnnotation of styleAnnotations) {
-            const hasMatchingAnnotation = nodeAnnotations.some(
-                (nodeAnn: any) => nodeAnn.name === styleAnnotation.name
-            );
+        const hasMatchingAnnotation = styleAnnotations.some((styleAnnotation: any) =>
+            nodeAnnotations.some((nodeAnn: any) => nodeAnn.name === styleAnnotation.name)
+        );
 
-            if (hasMatchingAnnotation) {
-                // Apply all attributes from the style node as graphviz properties
-                const styleAttrs = styleNode.attributes || [];
-                for (const attr of styleAttrs) {
-                    let attrValue = attr.value;
+        if (!hasMatchingAnnotation) {
+            continue;
+        }
 
-                    // Clean up string values (remove quotes)
-                    if (typeof attrValue === 'string') {
-                        attrValue = attrValue.replace(/^["']|["']$/g, '');
-                    }
+        if (styleNode.style) {
+            finalStyle = appendStyleAttributes(finalStyle, styleNode.style);
+            continue;
+        }
 
-                    // Append to style string
-                    finalStyle += `, ${attr.name}="${attrValue}"`;
+        if (styleNode.attributes) {
+            const inlineStyle: Record<string, unknown> = {};
+            for (const attr of styleNode.attributes) {
+                let attrValue = attr.value;
+                if (typeof attrValue === 'string') {
+                    attrValue = attrValue.replace(/^["']|["']$/g, '');
                 }
+                inlineStyle[attr.name] = attrValue;
             }
+            finalStyle = appendStyleAttributes(finalStyle, inlineStyle);
         }
     }
 
@@ -926,14 +923,28 @@ interface TextWrappingConfig {
  */
 function getTextWrappingConfig(machineJson: MachineJSON): TextWrappingConfig {
     const attrs = machineJson.attributes || [];
-    
+    const styleConfig = machineJson.style || {};
+
     const getAttrValue = (name: string, defaultValue: number): number => {
+        const styleValue = styleConfig[name];
+        if (styleValue !== undefined) {
+            const numeric = typeof styleValue === 'number'
+                ? styleValue
+                : Number(String(styleValue));
+            if (!isNaN(numeric)) {
+                return numeric;
+            }
+        }
+
         const attr = attrs.find(a => a.name === name);
         if (attr?.value !== undefined) {
-            const value = typeof attr.value === 'string' 
-                ? parseInt(attr.value.replace(/^["']|["']$/g, ''), 10)
-                : Number(attr.value);
-            return isNaN(value) ? defaultValue : value;
+            const rawValue = typeof attr.value === 'string'
+                ? attr.value.replace(/^["']|["']$/g, '')
+                : attr.value;
+            const numeric = typeof rawValue === 'number'
+                ? rawValue
+                : Number(rawValue);
+            return isNaN(numeric) ? defaultValue : numeric;
         }
         return defaultValue;
     };
@@ -993,59 +1004,81 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     lines.push('  rankdir=TB;');
     lines.push('  pad=0.25;');
 
-    // Apply machine-level @style annotations to graph attributes
-    if (machineJson.annotations) {
+    const skipGraphStyleKeys = new Set([
+        'grid',
+        'grid-position',
+        'grid-pos',
+        'columns',
+        'cols',
+        'col',
+        'column',
+        'maxedgelabellength',
+        'maxmultiplicitylength',
+        'maxattributekeylength',
+        'maxattributevaluelength',
+        'maxnodetitlelength',
+        'maxnotecontentlength'
+    ]);
+
+    if (machineJson.style) {
+        Object.entries(machineJson.style).forEach(([key, value]) => {
+            if (value === undefined || value === null) {
+                return;
+            }
+
+            const normalizedKey = key.trim().toLowerCase();
+            if (skipGraphStyleKeys.has(normalizedKey)) {
+                return;
+            }
+
+            let graphvizKey = mapCssPropertyToGraphviz(key.trim());
+            let graphvizValue = typeof value === 'boolean' ? (value ? 'true' : 'false') : String(value);
+
+            if (graphvizKey === 'rankdir' || normalizedKey === 'direction') {
+                graphvizValue = normalizeDirectionValue(graphvizValue);
+            }
+
+            lines.push(`  ${graphvizKey}="${graphvizValue}";`);
+        });
+    } else if (machineJson.annotations) {
         machineJson.annotations.forEach((ann: any) => {
-            if (ann.name === 'style') {
-                // Check if annotation has attribute-style parameters
-                if (ann.attributes) {
-                    // Apply each attribute as a graphviz graph property
-                    Object.keys(ann.attributes).forEach(key => {
-                        let value = ann.attributes[key];
-                        const normalizedKey = key.trim().toLowerCase();
+            if (ann.name !== 'style') {
+                return;
+            }
 
-                        // Skip grid layout properties - these are handled separately
-                        if (['grid', 'grid-position', 'grid-pos', 'columns', 'cols', 'col', 'column'].includes(normalizedKey)) {
-                            return;
-                        }
+            if (ann.attributes) {
+                Object.keys(ann.attributes).forEach(key => {
+                    const normalizedKey = key.trim().toLowerCase();
+                    if (skipGraphStyleKeys.has(normalizedKey)) {
+                        return;
+                    }
 
-                        // Map CSS properties to Graphviz equivalents
-                        const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                    let value = ann.attributes[key];
+                    const graphvizKey = mapCssPropertyToGraphviz(key.trim());
+                    if (graphvizKey === 'rankdir' || normalizedKey === 'direction') {
+                        value = normalizeDirectionValue(String(value));
+                    }
+                    lines.push(`  ${graphvizKey}="${value}";`);
+                });
+            } else if (ann.value) {
+                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
+                styleAttrs.forEach((attr: string) => {
+                    const [rawKey, ...valueParts] = attr.split(':');
+                    if (!rawKey || valueParts.length === 0) {
+                        return;
+                    }
+                    const normalizedKey = rawKey.trim().toLowerCase();
+                    if (skipGraphStyleKeys.has(normalizedKey)) {
+                        return;
+                    }
 
-                        // Normalize direction values
-                        if (graphvizKey === 'rankdir' || normalizedKey === 'direction') {
-                            value = normalizeDirectionValue(value);
-                            lines.push(`  rankdir="${value}";`);
-                            return;
-                        }
-
-                        lines.push(`  ${graphvizKey}="${value}";`);
-                    });
-                } else if (ann.value) {
-                    // Parse string value for inline styles
-                    const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
-                    styleAttrs.forEach((attr: string) => {
-                        const [key, ...valueParts] = attr.split(':');
-                        if (key && valueParts.length > 0) {
-                            let value = valueParts.join(':').trim();
-                            const normalizedKey = key.trim().toLowerCase();
-
-                            // Skip grid layout properties - these are handled separately
-                            if (['grid', 'grid-position', 'grid-pos', 'columns', 'cols', 'col', 'column'].includes(normalizedKey)) {
-                                return;
-                            }
-
-                            const graphvizKey = mapCssPropertyToGraphviz(key.trim());
-
-                            // Normalize direction values
-                            if (graphvizKey === 'rankdir' || normalizedKey === 'direction') {
-                                value = normalizeDirectionValue(value);
-                            }
-
-                            lines.push(`  ${graphvizKey}="${value}";`);
-                        }
-                    });
-                }
+                    let value = valueParts.join(':').trim();
+                    const graphvizKey = mapCssPropertyToGraphviz(rawKey.trim());
+                    if (graphvizKey === 'rankdir' || normalizedKey === 'direction') {
+                        value = normalizeDirectionValue(value);
+                    }
+                    lines.push(`  ${graphvizKey}="${value}";`);
+                });
             }
         });
     }
@@ -1056,6 +1089,13 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
 
     // Build semantic hierarchy based on parent-child relationships (using only renderable nodes)
     const hierarchy = buildSemanticHierarchy(renderableNodes);
+    const clusterTargets = new Map<string, string>();
+    renderableNodes.forEach(node => {
+        const entry = hierarchy[node.name];
+        if (entry && entry.children.length > 0) {
+            clusterTargets.set(node.name, getClusterAnchorName(node.name));
+        }
+    });
     const rootNodes = getRootNodes(renderableNodes);
 
     // Extract validation context from options
@@ -1073,6 +1113,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
         options,
         wrappingConfig,
         notesByParent,
+        clusterTargets,
         nodeStates
     ));
     lines.push('');
@@ -1081,7 +1122,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     if (rootNotes && rootNotes.length > 0) {
         lines.push('  // Root-level notes');
         rootNotes.forEach(noteInfo => {
-            const noteLines = generateNoteDefinition(noteInfo, '  ', wrappingConfig);
+            const noteLines = generateNoteDefinition(noteInfo, '  ', wrappingConfig, clusterTargets);
             noteLines.forEach(line => lines.push(line));
         });
         lines.push('');
@@ -1724,6 +1765,7 @@ function generateSemanticHierarchy(
     options?: DiagramOptions,
     wrappingConfig?: TextWrappingConfig,
     notesByParent?: NotesByParentMap,
+    clusterTargets?: Map<string, string>,
     nodeStates?: RuntimeNodeState[]
 ): string {
     const lines: string[] = [];
@@ -1776,13 +1818,14 @@ function generateSemanticHierarchy(
                 options,
                 wrappingConfig,
                 notesByParent,
+                clusterTargets,
                 nodeStates
             ));
 
             if (noteEntries.length > 0) {
                 lines.push('');
                 noteEntries.forEach(noteInfo => {
-                    const noteLines = generateNoteDefinition(noteInfo, `${indent}  `, wrappingConfig);
+                    const noteLines = generateNoteDefinition(noteInfo, `${indent}  `, wrappingConfig, clusterTargets);
                     noteLines.forEach(line => lines.push(line));
                 });
             }
@@ -1818,7 +1861,7 @@ function generateSemanticHierarchy(
 
             if (noteEntries.length > 0) {
                 noteEntries.forEach(noteInfo => {
-                    const noteLines = generateNoteDefinition(noteInfo, indent, wrappingConfig);
+                    const noteLines = generateNoteDefinition(noteInfo, indent, wrappingConfig, clusterTargets);
                     noteLines.forEach(line => lines.push(line));
                 });
             }
@@ -2092,64 +2135,39 @@ function getClusterAnchorName(clusterName: string): string {
  * Apply custom styles from style nodes to edges based on annotation matching
  */
 function applyCustomEdgeStyles(edge: any, styleNodes: any[]): string {
-    let customStyles = '';
+    let customStyles = appendStyleAttributes('', edge.style);
     const edgeAnnotations = edge.annotations || [];
 
-    if (edgeAnnotations.length === 0) {
+    if (!styleNodes || styleNodes.length === 0) {
         return customStyles;
     }
-
-    // Apply @style annotations directly (inline styles on edges)
-    edgeAnnotations.forEach((ann: any) => {
-        if (ann.name === 'style') {
-            // Check if annotation has attribute-style parameters
-            if (ann.attributes) {
-                // Apply each attribute as a graphviz property
-                Object.keys(ann.attributes).forEach(key => {
-                    const value = ann.attributes[key];
-                    customStyles += `, ${key}="${value}"`;
-                });
-            } else if (ann.value) {
-                // Parse string value for inline styles (e.g., @style("color: red; stroke-width: 3px;"))
-                const styleAttrs = ann.value.split(';').map((s: string) => s.trim()).filter((s: string) => s);
-                styleAttrs.forEach((attr: string) => {
-                    const [key, ...valueParts] = attr.split(':');
-                    if (key && valueParts.length > 0) {
-                        const value = valueParts.join(':').trim();
-                        // Map CSS properties to Graphviz equivalents
-                        const graphvizKey = mapCssPropertyToGraphviz(key.trim());
-                        customStyles += `, ${graphvizKey}="${value}"`;
-                    }
-                });
-            }
-        }
-    });
 
     // Find matching style nodes
     for (const styleNode of styleNodes) {
         const styleAnnotations = styleNode.annotations || [];
+        const hasMatchingAnnotation = styleAnnotations.some((styleAnnotation: any) =>
+            edgeAnnotations.some((edgeAnn: any) => edgeAnn.name === styleAnnotation.name)
+        );
 
-        // Check if any of the edge's annotations match the style node's selector annotation
-        for (const styleAnnotation of styleAnnotations) {
-            const hasMatchingAnnotation = edgeAnnotations.some(
-                (edgeAnn: any) => edgeAnn.name === styleAnnotation.name
-            );
+        if (!hasMatchingAnnotation) {
+            continue;
+        }
 
-            if (hasMatchingAnnotation) {
-                // Apply all attributes from the style node as graphviz properties
-                const styleAttrs = styleNode.attributes || [];
-                for (const attr of styleAttrs) {
-                    let attrValue = attr.value;
+        if (styleNode.style) {
+            customStyles = appendStyleAttributes(customStyles, styleNode.style);
+            continue;
+        }
 
-                    // Clean up string values (remove quotes)
-                    if (typeof attrValue === 'string') {
-                        attrValue = attrValue.replace(/^["']|["']$/g, '');
-                    }
-
-                    // Append to custom styles
-                    customStyles += `, ${attr.name}="${attrValue}"`;
+        if (styleNode.attributes) {
+            const inlineStyle: Record<string, unknown> = {};
+            for (const attr of styleNode.attributes) {
+                let attrValue = attr.value;
+                if (typeof attrValue === 'string') {
+                    attrValue = attrValue.replace(/^["']|["']$/g, '');
                 }
+                inlineStyle[attr.name] = attrValue;
             }
+            customStyles = appendStyleAttributes(customStyles, inlineStyle);
         }
     }
 
@@ -2500,12 +2518,21 @@ function getArrowStyle(arrowType: string): string {
 /**
  * Generate notes section
  */
-function generateNoteDefinition(noteInfo: NoteRenderInfo, indent: string, wrappingConfig?: TextWrappingConfig): string[] {
+function generateNoteDefinition(
+    noteInfo: NoteRenderInfo,
+    indent: string,
+    wrappingConfig?: TextWrappingConfig,
+    clusterTargets?: Map<string, string>
+): string[] {
     const { note, dotId } = noteInfo;
     const target = note.name;
     if (!target) {
         return [];
     }
+
+    const resolvedTarget = typeof target === 'string'
+        ? (clusterTargets?.get(target) ?? target)
+        : target;
 
     let content = note.title;
     if (!content) {
@@ -2546,7 +2573,7 @@ function generateNoteDefinition(noteInfo: NoteRenderInfo, indent: string, wrappi
 
     const lines: string[] = [];
     lines.push(`${indent}"${dotId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
-    lines.push(`${indent}"${dotId}" -> "${target}" [style=dashed, color="#999999", arrowhead=none];`);
+    lines.push(`${indent}"${dotId}" -> "${resolvedTarget}" [style=dashed, color="#999999", arrowhead=none];`);
     return lines;
 }
 

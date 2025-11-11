@@ -5,6 +5,8 @@
  */
 
 import { Machine, Node, Edge, Attribute, ImportStatement, isNode } from '../generated/ast.js';
+import { serializeMachineToJSON } from '../json/serializer.js';
+import type { MachineJSON } from '../json/types.js';
 import { WorkspaceManager } from './workspace-manager.js';
 import { LangiumDocument } from 'langium';
 
@@ -294,16 +296,13 @@ export class MultiFileGenerator {
 /**
  * Helper to create a merged machine JSON representation
  */
-export function createMergedMachineJSON(merged: MergedMachine): any {
-    const machine = merged.machine;
+export function createMergedMachineJSON(merged: MergedMachine): MachineJSON {
+    const machineJson = serializeMachineToJSON(merged.machine);
 
     return {
-        title: machine.title,
-        annotations: machine.annotations,
-        attributes: machine.attributes,
-        nodes: machine.nodes,
-        edges: machine.edges,
-        _metadata: {
+        ...machineJson,
+        metadata: {
+            ...(machineJson.metadata ?? {}),
             sourceFiles: merged.sourceFiles,
             entryPoint: merged.sourceFiles[0],
             generatedAt: new Date().toISOString(),
