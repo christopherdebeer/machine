@@ -388,9 +388,13 @@ export function generateDSL(machineJson: MachineJSON): string {
     const rootNodes: any[] = [];
 
     // First pass: Build a temporary map by simple name to resolve parent chains
+    // Notes are excluded as their "name" is actually the target they document, not a unique node ID
     const tempNodesByName = new Map<string, any>();
     machineJson.nodes.forEach(node => {
-        tempNodesByName.set(node.name, node);
+        const isNote = node.type && node.type.toLowerCase() === 'note';
+        if (!isNote) {
+            tempNodesByName.set(node.name, node);
+        }
     });
 
     // Helper to build fully qualified path for a node by walking up parent chain
@@ -399,8 +403,17 @@ export function generateDSL(machineJson: MachineJSON): string {
 
         const pathParts: string[] = [node.name];
         let currentParent = node.parent;
+        const visited = new Set<string>();
+        visited.add(node.name);
 
         while (currentParent) {
+            // Prevent infinite loops from circular parent references
+            if (visited.has(currentParent)) {
+                console.warn(`Circular parent reference detected for node: ${node.name}`);
+                break;
+            }
+            visited.add(currentParent);
+
             pathParts.unshift(currentParent);
             const parentNode = tempNodesByName.get(currentParent);
             if (!parentNode) break;
@@ -411,15 +424,20 @@ export function generateDSL(machineJson: MachineJSON): string {
     };
 
     // Second pass: Create node map and identify children using qualified paths
+    // Notes are excluded from nodeMap as they don't participate in edge relationships
     machineJson.nodes.forEach(node => {
-        const qualifiedPath = buildQualifiedPath(node);
-        nodeMap.set(qualifiedPath, node);
+        const isNote = node.type && node.type.toLowerCase() === 'note';
 
-        // Store all qualified paths for this simple name (handles duplicates)
-        if (!simpleNameToQualified.has(node.name)) {
-            simpleNameToQualified.set(node.name, []);
+        if (!isNote) {
+            const qualifiedPath = buildQualifiedPath(node);
+            nodeMap.set(qualifiedPath, node);
+
+            // Store all qualified paths for this simple name (handles duplicates)
+            if (!simpleNameToQualified.has(node.name)) {
+                simpleNameToQualified.set(node.name, []);
+            }
+            simpleNameToQualified.get(node.name)!.push(qualifiedPath);
         }
-        simpleNameToQualified.get(node.name)!.push(qualifiedPath);
 
         if (node.parent) {
             // This node has a parent - add to children map
