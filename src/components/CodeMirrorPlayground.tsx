@@ -49,6 +49,7 @@ import { parseHelper } from "langium/test";
 import { Machine } from "../language/generated/ast";
 import {
   generateJSON,
+  generateDSL,
 } from "../language/generator/generator";
 import { serializeMachineToJSON } from "../language/json/serializer";
 import { generateGraphvizFromJSON } from "../language/diagram/index";
@@ -410,6 +411,57 @@ const SaveButton = styled.button`
   }
 `;
 
+const OverlayButton = styled.button<{ $success?: boolean }>`
+    position: absolute;
+    top: 0.3em;
+    right: 0.3em;
+    padding: 0.2em 0.4em;
+    background: ${props => props.$success ? '#10b981' : 'rgba(0, 0, 0, 0.6)'};
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    gap: 0.2em;
+    z-index: 10;
+    transition: all 0.2s;
+    opacity: 0.4;
+
+    &:hover {
+        background: ${props => props.$success ? '#10b981' : 'rgba(0, 0, 0, 0.8)'};
+        opacity: 1;
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+`;
+
+const OverlayButtonGroup = styled.div`
+    position: absolute;
+    top: 1.4em;
+    right: 0.4em;
+    display: flex;
+    gap: 0.3em;
+    z-index: 10;
+    width: 100%;
+    height: 0;
+    align-items: flex-end;
+    justify-content: end;
+    overflow: visible;
+
+    & > button {
+      position: relative;
+    }
+`;
+
 const MainContainer = styled.div<{ $collapsed?: boolean }>`
     flex: 1;
     display: flex;
@@ -461,6 +513,7 @@ const EditorContainer = styled.div`
   flex: 1 1 0;
   min-height: 0;
   overflow: auto;
+  position: relative;
 
   .cm-editor {
     height: 100%;
@@ -513,6 +566,7 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
     const [fitToContainer, setFitToContainer] = useState(true);
     const [logLevel, setLogLevel] = useState<string>('info');
+    const [isFormatting, setIsFormatting] = useState(false);
 
     // Multi-file editor state
     const [openFiles, setOpenFiles] = useState<Array<{ path: string; content: string; name: string }>>([]);
@@ -629,6 +683,15 @@ export const CodeMirrorPlayground: React.FC = () => {
         highlightActiveLine(),
         highlightSelectionMatches(),
         keymap.of([
+          // Custom format keymap
+          {
+            key: "Ctrl-Shift-f",
+            mac: "Cmd-Shift-f",
+            run: () => {
+              handleFormatDocument();
+              return true;
+            },
+          },
           ...closeBracketsKeymap,
           ...defaultKeymap,
           ...searchKeymap,
@@ -963,6 +1026,83 @@ export const CodeMirrorPlayground: React.FC = () => {
     }
   }, [openFiles, activeFileIndex, fileService]);
 
+  // Handle format document
+  const handleFormatDocument = useCallback(async () => {
+    if (!editorViewRef.current || isFormatting) {
+      return;
+    }
+
+    try {
+      setIsFormatting(true);
+
+      // Get current editor content
+      const currentCode = editorViewRef.current.state.doc.toString();
+
+      if (!currentCode.trim()) {
+        console.warn("No content to format");
+        return;
+      }
+
+      // Initialize Langium services for parsing
+      const services = createMachineServices(EmptyFileSystem);
+      const parse = parseHelper<Machine>(services.Machine);
+
+      // Parse the current code
+      const document = await parse(currentCode);
+
+      // Check for parser errors
+      if (document.parseResult.parserErrors.length > 0) {
+        console.error("Cannot format document with parse errors:", document.parseResult.parserErrors);
+        // alert("Cannot format document: Please fix syntax errors first");
+        // return;
+      }
+
+      // Get the machine model
+      const model = document.parseResult.value as Machine;
+      if (!model) {
+        console.error("No machine model parsed");
+        alert("Cannot format document: Invalid machine definition");
+        return;
+      }
+
+      // Convert to JSON and back to DSL for formatting
+      const machineJson = serializeMachineToJSON(model);
+      const formattedDSL = generateDSL(machineJson);
+
+      // Update editor with formatted content
+      editorViewRef.current.dispatch({
+        changes: {
+          from: 0,
+          to: editorViewRef.current.state.doc.length,
+          insert: formattedDSL,
+        },
+      });
+
+      // Update content in open files array
+      setOpenFiles(prev => {
+        const currentIndex = activeFileIndexRef.current;
+        if (prev.length > 0 && currentIndex < prev.length) {
+          const updated = [...prev];
+          updated[currentIndex] = {
+            ...updated[currentIndex],
+            content: formattedDSL
+          };
+          return updated;
+        }
+        return prev;
+      });
+
+      // Mark as dirty since content changed
+      setIsDirty(true);
+
+      console.log("Document formatted successfully");
+    } catch (error) {
+      console.error("Error formatting document:", error);
+      alert(`Failed to format document: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsFormatting(false);
+    }
+  }, [isFormatting]);
 
   // Helper to convert Machine AST to canonical Machine JSON
   const convertToMachineData = useCallback((machine: Machine): MachineData => {
@@ -1387,7 +1527,19 @@ export const CodeMirrorPlayground: React.FC = () => {
                         </TabBar>
                     )}
                     <SectionContent $collapsed={editorCollapsed}>
-                        <EditorContainer ref={editorRef} />
+                        <EditorContainer ref={editorRef}>
+                            {!editorCollapsed && (
+                                <OverlayButtonGroup>
+                                    <OverlayButton
+                                        onClick={handleFormatDocument}
+                                        disabled={isFormatting}
+                                        title="Format document (DSL > JSON > DSL)"
+                                    >
+                                        {isFormatting ? '⏳' : '🎨'} Format
+                                    </OverlayButton>
+                                </OverlayButtonGroup>
+                            )}
+                        </EditorContainer>
                     </SectionContent>
                 </EditorSection>
 
