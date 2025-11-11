@@ -11,6 +11,7 @@
         "value": "prod"
       }
     ],
+    "annotations": [],
     "nodes": [
       {
         "name": "dataProcessing",
@@ -53,7 +54,6 @@
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "fetchData",

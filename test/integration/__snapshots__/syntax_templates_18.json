@@ -1,6 +1,7 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "userRequest",
@@ -55,7 +56,6 @@
         "arrowType": "->"
       }
     ],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "research",

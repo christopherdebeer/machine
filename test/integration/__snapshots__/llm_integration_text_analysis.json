@@ -2,6 +2,7 @@
   "json": {
     "title": "Text Analysis",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "config",
@@ -64,7 +65,6 @@
         "arrowType": "->"
       }
     ],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "analyze",

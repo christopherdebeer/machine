@@ -1,51 +1,45 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
-        "name": "apiClient",
+        "name": "Task",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": ""
+          },
+          {
+            "name": "priority",
+            "type": ""
+          }
+        ]
+      },
+      {
+        "name": "myTask",
         "type": "task",
         "attributes": [
           {
-            "name": "baseUrl",
-            "type": "URL",
-            "value": "https://api.example.com"
-          },
-          {
-            "name": "timeout",
-            "type": "Duration",
-            "value": "PT30S"
-          },
-          {
-            "name": "retries",
-            "type": "Integer",
-            "value": 3
-          },
-          {
-            "name": "endpoints",
-            "type": "Array<URL>",
-            "value": [
-              "https://api.example.com/users",
-              "https://api.example.com/posts"
-            ]
-          },
-          {
-            "name": "headers",
-            "type": "Map<string, string>",
-            "value": "#defaultHeaders"
-          },
-          {
-            "name": "createdAt",
-            "type": "Date",
-            "value": "2025-10-22T13:30:00Z"
+            "name": "item",
+            "type": "Task",
+            "value": {
+              "id": "task-1",
+              "status": "idle",
+              "priority": "high"
+            }
           }
         ]
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"apiClient\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiClient</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"baseUrl__key\" align=\"left\" balign=\"left\">baseUrl : URL</td><td port=\"baseUrl__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : Integer</td><td port=\"retries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"endpoints__key\" align=\"left\" balign=\"left\">endpoints : Array&lt;URL&gt;</td><td port=\"endpoints__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>&quot;https://api.example.com/users<br align=\"left\"/>&quot;,<br align=\"left\"/>&quot;https://api.example.com/posts<br align=\"left\"/>&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"headers__key\" align=\"left\" balign=\"left\">headers : Map&lt;string, string&gt;</td><td port=\"headers__value\" align=\"left\" balign=\"left\">#defaultHeaders</td></tr><tr><td port=\"createdAt__key\" align=\"left\" balign=\"left\">createdAt : Date</td><td port=\"createdAt__value\" align=\"left\" balign=\"left\">2025-10-22T13:30:00Z</td></tr></table></td></tr><tr><td align=\"left\" bgcolor=\"#FFCCCC\"><font point-size=\"8\"><b>🔴 1 issue</b><br/>Type mismatch: expected Map&lt;string, string&gt;, got s...<br/></font></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, color=\"#D32F2F\"];\n\n\n  // Validation Warnings\n  \"warning_apiClient_0\" [label=<🔴 Type mismatch: expected Map&lt;string,<br/>string&gt;, got string. Expected object,<br/>received string>, shape=note, fillcolor=\"#FFCCCC\", style=filled, fontsize=9];\n  \"warning_apiClient_0\" -> \"apiClient\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
-  "svgHash": "7a124a53ffcef06b641e8c5248de800ca344d75b69a649ede4cda0cc6c62430b"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Task\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task</b> <i>&lt;type&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"id__key\" align=\"left\" balign=\"left\">id : string</td><td port=\"id__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"status__key\" align=\"left\" balign=\"left\">status</td><td port=\"status__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority</td><td port=\"priority__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"myTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>myTask</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"item__key\" align=\"left\" balign=\"left\">item : Task</td><td port=\"item__value\" align=\"left\" balign=\"left\">{<br align=\"left\"/>  &quot;id&quot;: &quot;task-1&quot;,<br align=\"left\"/>  &quot;status&quot;: &quot;idle&quot;,<br align=\"left\"/>  &quot;priority&quot;: &quot;high&quot;<br align=\"left\"/>}</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
+  "svgHash": "85051a866444276d9c5d463068cf34665951c27ec1c9645e3f0dd6ae45e567c5"
 }

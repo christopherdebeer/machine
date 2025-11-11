@@ -2,6 +2,7 @@
   "json": {
     "title": "Customer Support Bot",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "agent",
@@ -175,7 +176,6 @@
         "arrowType": "->"
       }
     ],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "understand",

@@ -1,6 +1,7 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "DataProcessing",
@@ -14,7 +15,11 @@
               "grid": "3"
             }
           }
-        ]
+        ],
+        "style": {
+          "rankdir": "column",
+          "grid": 3
+        }
       },
       {
         "name": "a",
@@ -46,7 +51,11 @@
               "grid": "2"
             }
           }
-        ]
+        ],
+        "style": {
+          "rankdir": "row",
+          "grid": 2
+        }
       },
       {
         "name": "x",
@@ -62,7 +71,6 @@
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_DataProcessing {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>DataProcessing</b> <i>&lt;namespace&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    direction=\"column\";\n    grid=\"3\";\n    \"DataProcessing__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>c</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n    // Grid layout for cluster DataProcessing\n    \"cluster_DataProcessing__grid_rail_1\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n    \"cluster_DataProcessing__grid_rail_2\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n    \"cluster_DataProcessing__grid_rail_3\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n    \"cluster_DataProcessing__grid_rail_1\" -> \"cluster_DataProcessing__grid_rail_2\" [style=invis];\n    \"cluster_DataProcessing__grid_rail_2\" -> \"cluster_DataProcessing__grid_rail_3\" [style=invis];\n    // Grid position 1\n    { rank=same; \"cluster_DataProcessing__grid_rail_1\"; \"a\"; }\n    // Grid position 2\n    { rank=same; \"cluster_DataProcessing__grid_rail_2\"; \"b\"; }\n    // Grid position 3\n    { rank=same; \"cluster_DataProcessing__grid_rail_3\"; \"c\"; }\n  }\n  subgraph cluster_OtherProcessing {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>OtherProcessing</b> <i>&lt;namespace&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    direction=\"row\";\n    grid=\"2\";\n    \"OtherProcessing__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"x\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>x</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"y\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>y</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n    // Grid layout for cluster OtherProcessing\n    \"cluster_OtherProcessing__grid_rail_1\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n    \"cluster_OtherProcessing__grid_rail_2\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n    \"cluster_OtherProcessing__grid_rail_1\" -> \"cluster_OtherProcessing__grid_rail_2\" [style=invis];\n    // Grid position 1\n    { rank=same; \"cluster_OtherProcessing__grid_rail_1\"; \"x\"; }\n    // Grid position 2\n    { rank=same; \"cluster_OtherProcessing__grid_rail_2\"; \"y\"; }\n  }\n\n}",

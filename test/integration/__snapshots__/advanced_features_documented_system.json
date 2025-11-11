@@ -1,0 +1,85 @@
+{
+  "json": {
+    "title": "Documented System",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "process",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process data"
+          }
+        ]
+      },
+      {
+        "name": "process",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "complexity",
+            "value": "O(n)"
+          },
+          {
+            "name": "author",
+            "value": "Team A"
+          },
+          {
+            "name": "updated",
+            "value": "2024-01-15"
+          },
+          {
+            "name": "rationale",
+            "value": "Optimized for throughput"
+          },
+          {
+            "name": "target",
+            "value": "process"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Documentation"
+          }
+        ],
+        "title": "This task processes incoming requests"
+      },
+      {
+        "name": "active",
+        "type": "state",
+        "attributes": [],
+        "title": "Active State"
+      },
+      {
+        "name": "active",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "entry_conditions",
+            "value": "All prerequisites met"
+          },
+          {
+            "name": "exit_conditions",
+            "value": "Processing complete or timeout"
+          },
+          {
+            "name": "timeout",
+            "type": "number",
+            "value": 300
+          },
+          {
+            "name": "target",
+            "value": "active"
+          }
+        ],
+        "title": "Active processing state"
+      }
+    ],
+    "edges": [],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Documented System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"active\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>active</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Active State</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Root-level notes\n  \"note_process_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><i>@Documentation</i></td></tr><tr><td align=\"left\">This task processes incoming requests</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"complexity__key\" align=\"left\" balign=\"left\">complexity</td><td port=\"complexity__value\" align=\"left\" balign=\"left\">O(n)</td></tr><tr><td port=\"author__key\" align=\"left\" balign=\"left\">author</td><td port=\"author__value\" align=\"left\" balign=\"left\">Team A</td></tr><tr><td port=\"updated__key\" align=\"left\" balign=\"left\">updated</td><td port=\"updated__value\" align=\"left\" balign=\"left\">2024-01-15</td></tr><tr><td port=\"rationale__key\" align=\"left\" balign=\"left\">rationale</td><td port=\"rationale__value\" align=\"left\" balign=\"left\">Optimized for throughput</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_process_0\" -> \"process\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_active_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Active processing state</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"entry_conditions__key\" align=\"left\" balign=\"left\">entry_conditions</td><td port=\"entry_conditions__value\" align=\"left\" balign=\"left\">All prerequisites met</td></tr><tr><td port=\"exit_conditions__key\" align=\"left\" balign=\"left\">exit_conditions</td><td port=\"exit_conditions__value\" align=\"left\" balign=\"left\">Processing complete or timeout</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">300</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_active_0\" -> \"active\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n}",
+  "svgHash": "b87edf7c253d77fda6aad819b52c656c23312d07efbce63a4b3639ee75fd1ada"
+}

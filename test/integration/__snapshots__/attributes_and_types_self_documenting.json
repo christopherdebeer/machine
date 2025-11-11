@@ -2,6 +2,7 @@
   "json": {
     "title": "Self-Documenting",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "complexTask",
@@ -60,7 +61,6 @@
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Self-Documenting</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"complexTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complexTask</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Complex processing</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">60</td></tr><tr><td port=\"description__key\" align=\"left\" balign=\"left\">description</td><td port=\"description__value\" align=\"left\" balign=\"left\">Handles complex multi-step<br align=\"left\"/>processing</td></tr><tr><td port=\"usage__key\" align=\"left\" balign=\"left\">usage</td><td port=\"usage__value\" align=\"left\" balign=\"left\">Called when input meets<br align=\"left\"/>criteria X</td></tr><tr><td port=\"examples__key\" align=\"left\" balign=\"left\">examples</td><td port=\"examples__value\" align=\"left\" balign=\"left\">[<br/>  &quot;example1&quot;,<br/>  &quot;example2&quot;<br/>]</td></tr><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version</td><td port=\"version__value\" align=\"left\" balign=\"left\">2.1.0</td></tr><tr><td port=\"deprecated__key\" align=\"left\" balign=\"left\">deprecated : boolean</td><td port=\"deprecated__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"seeAlso__key\" align=\"left\" balign=\"left\">seeAlso</td><td port=\"seeAlso__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;relatedTask1&quot;,<br align=\"left\"/>  &quot;relatedTask2&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"tags__key\" align=\"left\" balign=\"left\">tags : Array&lt;string&gt;</td><td port=\"tags__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;critical&quot;,<br align=\"left\"/>  &quot;async&quot;,<br align=\"left\"/>  &quot;monitored&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",

@@ -1,24 +1,23 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "process",
         "type": "task",
         "attributes": []
+      },
+      {
+        "name": "process",
+        "type": "note",
+        "attributes": [],
+        "title": "This task handles data processing"
       }
     ],
     "edges": [],
-    "notes": [
-      {
-        "target": "process",
-        "content": "This task handles data processing",
-        "annotations": [],
-        "attributes": []
-      }
-    ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Notes\n  \"note_0_process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">This task handles data processing</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_process\" -> \"process\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
-  "svgHash": "3776371ee825b8d420b17a0ac75f26a35d615bc430044683bfdf7c4bf1ab0754"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Root-level notes\n  \"note_process_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">This task handles data processing</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_process_0\" -> \"process\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n}",
+  "svgHash": "cfaedf28c3cd8f754325d2ee95c0a849bf5f3fc8388b450adde0fc042e540e84"
 }

@@ -1,6 +1,7 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "appConfig",
@@ -41,7 +42,6 @@
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "fetchData",

@@ -2,6 +2,7 @@
   "json": {
     "title": "JsonExample",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "configNode",
@@ -14,7 +15,6 @@
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>JsonExample</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"configNode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>configNode</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"settings__key\" align=\"left\" balign=\"left\">settings</td><td port=\"settings__value\" align=\"left\" balign=\"left\">{<br align=\"left\"/>  &quot;theme&quot;: &quot;dark&quot;,<br align=\"left\"/>  &quot;features&quot;: {<br align=\"left\"/>    &quot;notifications&quot;: true,<br align=\"left\"/>    &quot;analytics&quot;: false<br align=\"left\"/>  }<br align=\"left\"/>}</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n}",

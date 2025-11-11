@@ -2,6 +2,7 @@
   "json": {
     "title": "Content Generator",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "generation",
@@ -180,7 +181,6 @@
         "arrowType": "->"
       }
     ],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "generate",

@@ -2,6 +2,7 @@
   "json": {
     "title": "Game Session",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "session",
@@ -128,7 +129,6 @@
         }
       }
     ],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "updateScore",
