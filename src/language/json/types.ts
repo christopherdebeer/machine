@@ -22,11 +22,15 @@ export interface MachineAnnotationJSON {
     attributes?: Record<string, unknown>;
 }
 
+/** Normalized style attributes for machines, nodes, or edges */
+export type StyleAttributesJSON = Record<string, unknown>;
+
 /** Styling information attached to an edge */
 export interface EdgeStyleJSON {
     stroke?: string;
     strokeWidth?: string;
     strokeDasharray?: string;
+    [key: string]: unknown;
 }
 
 /** Serialized edge */
@@ -61,6 +65,7 @@ export interface MachineNodeJSON {
     attributes?: MachineAttributeJSON[];
     nodes?: MachineNodeJSON[];
     edges?: MachineEdgeJSON[];
+    style?: StyleAttributesJSON;
     /** Additional metadata preserved for consumers */
     [key: string]: unknown;
 }
@@ -81,6 +86,7 @@ export interface MachineJSON {
     nodes: MachineNodeJSON[];
     edges: MachineEdgeJSON[];
     inferredDependencies?: InferredDependencyJSON[];
+    style?: StyleAttributesJSON;
     metadata?: Record<string, unknown>;
 }
 

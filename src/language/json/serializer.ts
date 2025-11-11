@@ -6,8 +6,10 @@ import type {
     MachineNodeJSON,
     MachineEdgeJSON,
     MachineAnnotationJSON,
-    MachineAttributeJSON
+    MachineAttributeJSON,
+    StyleAttributesJSON
 } from './types.js';
+import { normalizeStyleKey } from '../utils/style-normalizer.js';
 
 interface NodeAliasInfo {
     node: Node;
@@ -34,11 +36,14 @@ class MachineAstSerializer {
     serialize(): MachineJSON {
         const dependencyAnalyzer = new DependencyAnalyzer(this.machine);
         const inferredDeps = dependencyAnalyzer.inferDependencies();
+        const machineAttributes = this.serializeMachineAttributes(this.machine.attributes ?? []);
+        const machineAnnotations = this.machine.annotations?.map(serializeAnnotation);
+        const machineStyle = this.computeMachineStyle(machineAttributes, machineAnnotations);
 
         return {
             title: this.machine.title,
-            attributes: this.serializeMachineAttributes(this.machine.attributes ?? []),
-            annotations: this.machine.annotations?.map(serializeAnnotation),
+            attributes: machineAttributes,
+            annotations: machineAnnotations,
             nodes: this.serializeNodes(),
             edges: this.serializeEdges(),
             inferredDependencies: inferredDeps.map(dep => ({
@@ -46,28 +51,37 @@ class MachineAstSerializer {
                 target: dep.target,
                 reason: dep.reason,
                 path: dep.path
-            }))
+            })),
+            style: machineStyle
         };
     }
 
     private serializeNodes(): MachineNodeJSON[] {
         const flattenNode = (node: Node, parentName?: string): MachineNodeJSON[] => {
+            const serializedAttributes = this.serializeAttributes(node);
+            const serializedAnnotations = node.annotations?.map(serializeAnnotation);
+            const nodeStyle = this.computeNodeStyle(node, serializedAttributes, serializedAnnotations);
+
             const baseNode: MachineNodeJSON = {
                 name: node.name,
                 type: node.type?.toLowerCase(),
-                attributes: this.serializeAttributes(node)
+                attributes: serializedAttributes
             };
 
             if (parentName) {
                 baseNode.parent = parentName;
             }
 
-            if (node.annotations && node.annotations.length > 0) {
-                baseNode.annotations = node.annotations.map(serializeAnnotation);
+            if (serializedAnnotations && serializedAnnotations.length > 0) {
+                baseNode.annotations = serializedAnnotations;
             }
 
             if (node.title) {
                 baseNode.title = node.title.replace(/^"|"$/g, '');
+            }
+
+            if (nodeStyle && Object.keys(nodeStyle).length > 0) {
+                baseNode.style = nodeStyle;
             }
 
             const childNodes = (node.nodes ?? []).flatMap(child =>
@@ -78,6 +92,77 @@ class MachineAstSerializer {
         };
 
         return this.machine.nodes.flatMap(node => flattenNode(node));
+    }
+
+    private computeMachineStyle(
+        attributes: MachineAttributeJSON[],
+        annotations?: MachineAnnotationJSON[]
+    ): StyleAttributesJSON | undefined {
+        const styles: Array<StyleAttributesJSON | undefined> = [];
+
+        styles.push(this.extractStyleFromAnnotations(annotations));
+
+        const styleAttribute = attributes.find(attr => attr.name === 'style');
+        if (styleAttribute) {
+            styles.push(this.normalizeStyleRecord(styleAttribute.value));
+        }
+
+        const wrappingKeys = [
+            'maxEdgeLabelLength',
+            'maxMultiplicityLength',
+            'maxAttributeKeyLength',
+            'maxAttributeValueLength',
+            'maxNodeTitleLength',
+            'maxNoteContentLength'
+        ];
+
+        const wrappingStyle: StyleAttributesJSON = {};
+        wrappingKeys.forEach(key => {
+            const attr = attributes.find(a => a.name === key);
+            if (attr && attr.value !== undefined) {
+                const normalized = this.normalizeWrappingValue(attr.value);
+                if (normalized !== undefined) {
+                    wrappingStyle[key] = normalized;
+                }
+            }
+        });
+
+        if (Object.keys(wrappingStyle).length > 0) {
+            styles.push(wrappingStyle);
+        }
+
+        return this.mergeStyles(...styles);
+    }
+
+    private computeNodeStyle(
+        node: Node,
+        attributes: MachineAttributeJSON[],
+        annotations?: MachineAnnotationJSON[]
+    ): StyleAttributesJSON | undefined {
+        const styles: Array<StyleAttributesJSON | undefined> = [];
+
+        styles.push(this.extractStyleFromAnnotations(annotations));
+
+        const styleAttribute = attributes.find(attr => attr.name === 'style');
+        if (styleAttribute) {
+            styles.push(this.normalizeStyleRecord(styleAttribute.value));
+        }
+
+        if ((node.type ?? '').toLowerCase() === 'style') {
+            const styleNodeAttributes: StyleAttributesJSON = {};
+            attributes.forEach(attr => {
+                if (attr.name === 'style') {
+                    return;
+                }
+                this.assignStyleValue(styleNodeAttributes, attr.name, attr.value);
+            });
+
+            if (Object.keys(styleNodeAttributes).length > 0) {
+                styles.push(styleNodeAttributes);
+            }
+        }
+
+        return this.mergeStyles(...styles);
     }
 
     private serializeAttributes(node: Node): MachineAttributeJSON[] {
@@ -102,6 +187,179 @@ class MachineAstSerializer {
                 value
             };
         }) ?? [];
+    }
+
+    private extractStyleFromAnnotations(annotations?: MachineAnnotationJSON[]): StyleAttributesJSON | undefined {
+        if (!annotations || annotations.length === 0) {
+            return undefined;
+        }
+
+        const style: StyleAttributesJSON = {};
+
+        annotations.forEach(annotation => {
+            if (annotation.name?.toLowerCase() !== 'style') {
+                return;
+            }
+
+            if (annotation.attributes) {
+                Object.entries(annotation.attributes).forEach(([key, value]) => {
+                    this.assignStyleValue(style, key, value);
+                });
+            }
+
+            if (annotation.value) {
+                const parsed = this.parseStyleString(annotation.value);
+                if (parsed) {
+                    Object.entries(parsed).forEach(([key, value]) => {
+                        style[key] = value;
+                    });
+                }
+            }
+        });
+
+        return Object.keys(style).length > 0 ? style : undefined;
+    }
+
+    private normalizeStyleRecord(value: unknown): StyleAttributesJSON | undefined {
+        if (value === undefined || value === null) {
+            return undefined;
+        }
+
+        if (typeof value === 'string') {
+            return this.parseStyleString(value);
+        }
+
+        if (Array.isArray(value)) {
+            return undefined;
+        }
+
+        if (typeof value === 'object') {
+            const record: StyleAttributesJSON = {};
+            Object.entries(value as Record<string, unknown>).forEach(([key, nestedValue]) => {
+                this.assignStyleValue(record, key, nestedValue);
+            });
+            return Object.keys(record).length > 0 ? record : undefined;
+        }
+
+        return undefined;
+    }
+
+    private parseStyleString(styleText: string): StyleAttributesJSON | undefined {
+        if (!styleText) {
+            return undefined;
+        }
+
+        const parts = styleText
+            .split(';')
+            .map(part => part.trim())
+            .filter(part => part.length > 0);
+
+        if (parts.length === 0) {
+            return undefined;
+        }
+
+        const style: StyleAttributesJSON = {};
+        parts.forEach(part => {
+            const [rawKey, ...valueParts] = part.split(':');
+            if (!rawKey || valueParts.length === 0) {
+                return;
+            }
+            const rawValue = valueParts.join(':').trim();
+            this.assignStyleValue(style, rawKey, rawValue);
+        });
+
+        return Object.keys(style).length > 0 ? style : undefined;
+    }
+
+    private assignStyleValue(target: StyleAttributesJSON, key: string, value: unknown): void {
+        if (!key) {
+            return;
+        }
+
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+            Object.entries(value as Record<string, unknown>).forEach(([nestedKey, nestedValue]) => {
+                this.assignStyleValue(target, nestedKey, nestedValue);
+            });
+            return;
+        }
+
+        const normalizedValue = this.normalizeStylePrimitive(value);
+        if (normalizedValue === undefined) {
+            return;
+        }
+
+        const normalizedKey = normalizeStyleKey(key);
+        target[normalizedKey] = normalizedValue;
+    }
+
+    private normalizeStylePrimitive(value: unknown): unknown {
+        if (value === undefined || value === null) {
+            return undefined;
+        }
+
+        if (typeof value === 'number' || typeof value === 'boolean') {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (trimmed.length === 0) {
+                return undefined;
+            }
+
+            const unquoted = trimmed.replace(/^["']|["']$/g, '');
+            const lower = unquoted.toLowerCase();
+            if (lower === 'true') {
+                return true;
+            }
+            if (lower === 'false') {
+                return false;
+            }
+
+            const numeric = Number(unquoted);
+            if (!isNaN(numeric) && unquoted !== '') {
+                return numeric;
+            }
+
+            return unquoted;
+        }
+
+        return value;
+    }
+
+    private normalizeWrappingValue(value: unknown): number | undefined {
+        if (typeof value === 'number') {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            const cleaned = value.replace(/^["']|["']$/g, '').trim();
+            if (cleaned.length === 0) {
+                return undefined;
+            }
+            const parsed = Number(cleaned);
+            return isNaN(parsed) ? undefined : parsed;
+        }
+
+        return undefined;
+    }
+
+    private mergeStyles(...styles: Array<StyleAttributesJSON | undefined>): StyleAttributesJSON | undefined {
+        const merged: StyleAttributesJSON = {};
+
+        styles.forEach(style => {
+            if (!style) {
+                return;
+            }
+
+            Object.entries(style).forEach(([key, value]) => {
+                if (value !== undefined) {
+                    merged[key] = value;
+                }
+            });
+        });
+
+        return Object.keys(merged).length > 0 ? merged : undefined;
     }
 
     private serializeType(typeDef: TypeDef | string): string {
@@ -148,8 +406,8 @@ class MachineAstSerializer {
                         return;
                     }
 
-                    const edgeValue = this.serializeEdgeValue(segment.label);
                     const edgeAnnotations = this.serializeEdgeAnnotations(segment.label);
+                    const { value: edgeValue, style: edgeStyle } = this.serializeEdgePayload(segment.label, edgeAnnotations);
                     const arrowType = segment.endType;
                     const sourceMultiplicity = segment.sourceMultiplicity?.replace(/"/g, '');
                     const targetMultiplicity = segment.targetMultiplicity?.replace(/"/g, '');
@@ -187,6 +445,10 @@ class MachineAstSerializer {
                             if (valueWithMetadata && Object.keys(valueWithMetadata).length > 0) {
                                 record.value = valueWithMetadata;
                                 record.attributes = valueWithMetadata;
+                            }
+
+                            if (edgeStyle && Object.keys(edgeStyle).length > 0) {
+                                record.style = edgeStyle;
                             }
 
                             segmentEdges.push(record);
@@ -370,12 +632,17 @@ class MachineAstSerializer {
         return annotations.length > 0 ? annotations : undefined;
     }
 
-    private serializeEdgeValue(labels?: EdgeType[]): Record<string, unknown> | undefined {
+    private serializeEdgePayload(
+        labels: EdgeType[] | undefined,
+        annotations?: MachineAnnotationJSON[]
+    ): { value?: Record<string, unknown>; style?: StyleAttributesJSON } {
         if (!labels || labels.length === 0) {
-            return undefined;
+            return {};
         }
 
         const value: Record<string, unknown> = {};
+        const inlineStyle: StyleAttributesJSON = {};
+
         labels.forEach(label => {
             if (label.$cstNode && 'text' in label.$cstNode) {
                 const labelText = label.$cstNode.text;
@@ -397,13 +664,29 @@ class MachineAstSerializer {
                     const textValue = (attr as any).text.replace(/^["']|["']$/g, '');
                     value['text'] = textValue;
                 } else if (attr.name) {
-                    const attrValue = (attr.value ?? '').replace?.(/^["']|["']$/g, '') ?? attr.value;
-                    value[attr.name] = attrValue;
+                    let attrValue: unknown = attr.value;
+                    if (typeof attrValue === 'string') {
+                        attrValue = attrValue.replace(/^["']|["']$/g, '');
+                    }
+
+                    if (attrValue !== undefined) {
+                        value[attr.name] = attrValue;
+                        this.assignStyleValue(inlineStyle, attr.name, attrValue);
+                    }
                 }
             });
         });
 
-        return Object.keys(value).length > 0 ? value : undefined;
+        const annotationStyle = this.extractStyleFromAnnotations(annotations);
+        const combinedStyle = this.mergeStyles(
+            Object.keys(inlineStyle).length > 0 ? inlineStyle : undefined,
+            annotationStyle
+        );
+
+        return {
+            value: Object.keys(value).length > 0 ? value : undefined,
+            style: combinedStyle
+        };
     }
 
     private resolveReferencePath(refText: string, aliasMap: Map<string, NodeAliasInfo>): ResolvedReference | undefined {
