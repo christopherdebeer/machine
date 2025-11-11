@@ -381,13 +381,45 @@ export function generateDSL(machineJson: MachineJSON): string {
     }
 
     // Build a tree structure from flat nodes list
+    // Key nodeMap by qualified path to handle nodes with duplicate simple names
     const nodeMap = new Map<string, any>();
+    const simpleNameToQualified = new Map<string, string[]>();
     const childrenMap = new Map<string, any[]>();
     const rootNodes: any[] = [];
 
-    // First pass: Create node map and identify children
+    // First pass: Build a temporary map by simple name to resolve parent chains
+    const tempNodesByName = new Map<string, any>();
     machineJson.nodes.forEach(node => {
-        nodeMap.set(node.name, node);
+        tempNodesByName.set(node.name, node);
+    });
+
+    // Helper to build fully qualified path for a node by walking up parent chain
+    const buildQualifiedPath = (node: any): string => {
+        if (!node.parent) return node.name;
+
+        const pathParts: string[] = [node.name];
+        let currentParent = node.parent;
+
+        while (currentParent) {
+            pathParts.unshift(currentParent);
+            const parentNode = tempNodesByName.get(currentParent);
+            if (!parentNode) break;
+            currentParent = parentNode.parent;
+        }
+
+        return pathParts.join('.');
+    };
+
+    // Second pass: Create node map and identify children using qualified paths
+    machineJson.nodes.forEach(node => {
+        const qualifiedPath = buildQualifiedPath(node);
+        nodeMap.set(qualifiedPath, node);
+
+        // Store all qualified paths for this simple name (handles duplicates)
+        if (!simpleNameToQualified.has(node.name)) {
+            simpleNameToQualified.set(node.name, []);
+        }
+        simpleNameToQualified.get(node.name)!.push(qualifiedPath);
 
         if (node.parent) {
             // This node has a parent - add to children map
@@ -425,7 +457,7 @@ export function generateDSL(machineJson: MachineJSON): string {
     const rootEdges = getRootLevelEdges(machineJson.edges || [], rootNodes, childrenMap);
     if (rootEdges.length > 0) {
         rootEdges.forEach(edge => {
-            lines.push(generateEdgeDSL(edge, nodeMap));
+            lines.push(generateEdgeDSL(edge, nodeMap, simpleNameToQualified));
         });
         lines.push('');
     }
@@ -652,27 +684,43 @@ function generateAttributeDSL(attr: any): string {
     return result;
 }
 
-function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>): string {
+function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simpleNameMap?: Map<string, string[]>): string {
     const parts: string[] = [];
 
     // Helper function to get qualified name for a node
     const getQualifiedName = (nodeName: string): string => {
-        if (!nodeMap) return nodeName;
+        if (!nodeMap || !simpleNameMap) return nodeName;
 
-        const node = nodeMap.get(nodeName);
-        if (!node || !node.parent) return nodeName;
-
-        // Build qualified name by traversing up the parent chain
-        const pathParts: string[] = [nodeName];
-        let currentNode = node;
-
-        while (currentNode.parent) {
-            pathParts.unshift(currentNode.parent);
-            currentNode = nodeMap.get(currentNode.parent);
-            if (!currentNode) break;
+        // First check if this is already a qualified name (contains a dot)
+        if (nodeName.includes('.')) {
+            const node = nodeMap.get(nodeName);
+            return node ? nodeName : nodeName; // Return as-is if qualified
         }
 
-        return pathParts.join('.');
+        // Look up the qualified path(s) for this simple name
+        const qualifiedPaths = simpleNameMap.get(nodeName);
+        if (!qualifiedPaths || qualifiedPaths.length === 0) {
+            return nodeName; // No mapping found, return simple name
+        }
+
+        // If there's only one node with this simple name, check if it needs qualification
+        if (qualifiedPaths.length === 1) {
+            const qualifiedPath = qualifiedPaths[0];
+            const node = nodeMap.get(qualifiedPath);
+
+            if (!node || !node.parent) {
+                return nodeName; // Root-level node, use simple name
+            }
+
+            // Nested node, return qualified path
+            return qualifiedPath;
+        }
+
+        // Multiple nodes with the same simple name exist - ambiguous!
+        // We need to pick the right one, but we don't have enough context.
+        // For now, use the first one (this case shouldn't happen in well-formed edges)
+        const qualifiedPath = qualifiedPaths[0];
+        return qualifiedPath;
     };
 
     // Source (use qualified name if node has parent)
