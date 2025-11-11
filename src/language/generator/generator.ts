@@ -662,24 +662,41 @@ function generateEdgeDSL(edge: MachineEdgeJSON): string {
 
     // Build edge annotations string (goes between source and arrow)
     let edgeAnnotationsStr = '';
+    let skipEdgeText = false;  // Flag to skip edge text if it was used as annotation value
+
     if (edge.annotations && edge.annotations.length > 0) {
-        edgeAnnotationsStr = edge.annotations.map((ann: any) => {
-            if (ann.value) {
-                return `@${ann.name}(${quoteString(ann.value)})`;
-            } else if (ann.attributes) {
-                // Annotation with attribute-style parameters
-                const attrs = Object.entries(ann.attributes)
-                    .map(([key, val]) => {
-                        if (typeof val === 'string' && (val.includes(':') || val.includes(' '))) {
-                            return `${key}: ${quoteString(val as string)}`;
-                        }
-                        return `${key}: ${val}`;
-                    })
-                    .join('; ');
-                return `@${ann.name}(${attrs})`;
-            }
-            return `@${ann.name}`;
-        }).join(' ');
+        // Check if we have a single annotation without a value and edge has only text property
+        // This handles the case where @priority(1) is parsed as @priority + text:"1"
+        const edgeValue = edge.value || {};
+        const onlyHasText = Object.keys(edgeValue).length === 1 && edgeValue.text !== undefined;
+        const singleAnnWithoutValue = edge.annotations.length === 1 &&
+                                      !edge.annotations[0].value &&
+                                      !edge.annotations[0].attributes;
+
+        if (singleAnnWithoutValue && onlyHasText) {
+            // Use the text as the annotation value
+            const ann = edge.annotations[0];
+            edgeAnnotationsStr = `@${ann.name}(${quoteString(String(edgeValue.text))})`;
+            skipEdgeText = true;  // Don't include text in the label
+        } else {
+            edgeAnnotationsStr = edge.annotations.map((ann: any) => {
+                if (ann.value) {
+                    return `@${ann.name}(${quoteString(ann.value)})`;
+                } else if (ann.attributes) {
+                    // Annotation with attribute-style parameters
+                    const attrs = Object.entries(ann.attributes)
+                        .map(([key, val]) => {
+                            if (typeof val === 'string' && (val.includes(':') || val.includes(' '))) {
+                                return `${key}: ${quoteString(val as string)}`;
+                            }
+                            return `${key}: ${val}`;
+                        })
+                        .join('; ');
+                    return `@${ann.name}(${attrs})`;
+                }
+                return `@${ann.name}`;
+            }).join(' ');
+        }
     }
 
     // Determine arrow type and label
@@ -689,7 +706,7 @@ function generateEdgeDSL(edge: MachineEdgeJSON): string {
     // Extract label if present
     let label = '';
     let isPlainText = false;
-    if (Object.keys(edgeValue).length > 0) {
+    if (Object.keys(edgeValue).length > 0 && !skipEdgeText) {
         // Check for 'text' property first
         if (edgeValue.text) {
             label = edgeValue.text;
@@ -791,8 +808,9 @@ function formatValue(value: any): string {
             return quoteString(value);
         }
 
-        // Simple identifier-like strings don't need quotes
-        return value;
+        // By default, quote all string values to ensure they are treated as literals
+        // Only unquoted values should be: references (#foo), booleans (true/false), and numbers
+        return quoteString(value);
     } else if (typeof value === 'number') {
         return String(value);
     } else if (typeof value === 'boolean') {
