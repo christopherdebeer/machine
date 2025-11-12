@@ -449,7 +449,7 @@ class MachineAstSerializer {
 
                             // Serialize edge block attributes (new block syntax)
                             if (edge.attributes && edge.attributes.length > 0) {
-                                const edgeAttrs = this.serializeAttributes(edge.attributes);
+                                const edgeAttrs = this.serializeMachineAttributes(edge.attributes);
                                 if (edgeAttrs.length > 0) {
                                     record.attributes = edgeAttrs;
                                 }

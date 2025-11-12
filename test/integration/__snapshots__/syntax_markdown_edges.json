@@ -19,7 +19,13 @@
       {
         "source": "Start",
         "target": "End",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "attributes": [
+          {
+            "name": "text",
+            "value": "**Success** with `status=200`"
+          }
+        ]
       }
     ],
     "inferredDependencies": []
