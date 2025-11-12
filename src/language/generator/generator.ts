@@ -335,12 +335,16 @@ export function generateGraphviz(machine: Machine, filePath: string, destination
 export function generateDSL(machineJson: MachineJSON): string {
     const lines: string[] = [];
 
-    // Add machine title with annotations (if present)
+    // Check for machine-level attributes and annotations
+    const hasMachineAttributes = machineJson.attributes && machineJson.attributes.length > 0;
+    const hasMachineAnnotations = machineJson.annotations && machineJson.annotations.length > 0;
+
+    // Add machine declaration if title, annotations, or attributes are present
     if (machineJson.title) {
         let machineLine = `machine ${quoteString(machineJson.title)}`;
 
         // Add machine-level annotations
-        if (machineJson.annotations && machineJson.annotations.length > 0) {
+        if (hasMachineAnnotations) {
             const annotationsStr = machineJson.annotations.map((ann: any) => {
                 if (ann.value) {
                     return ` @${ann.name}(${quoteString(ann.value)})`;
@@ -361,9 +365,6 @@ export function generateDSL(machineJson: MachineJSON): string {
             machineLine += annotationsStr;
         }
 
-        // Check if machine has attributes
-        const hasMachineAttributes = machineJson.attributes && machineJson.attributes.length > 0;
-
         if (hasMachineAttributes) {
             // Machine with attributes - use block syntax
             machineLine += ' {';
@@ -377,6 +378,12 @@ export function generateDSL(machineJson: MachineJSON): string {
             lines.push(machineLine);
         }
 
+        lines.push('');
+    } else if (hasMachineAttributes) {
+        // No machine title, but has top-level attributes - output them standalone
+        machineJson.attributes.forEach((attr: any) => {
+            lines.push(generateAttributeDSL(attr));
+        });
         lines.push('');
     }
 
@@ -896,7 +903,21 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
     // Target (use qualified name if node has parent)
     parts.push(getQualifiedName(edge.target));
 
-    return parts.join(' ') + ';';
+    // Check if edge has structured attributes (for block syntax)
+    const hasStructuredAttributes = edge.attributes && Array.isArray(edge.attributes) && edge.attributes.length > 0;
+
+    if (hasStructuredAttributes) {
+        // Edge has attribute block - use block syntax
+        let result = parts.join(' ') + ' {\n';
+        edge.attributes.forEach((attr: any) => {
+            result += '    ' + generateAttributeDSL(attr) + '\n';
+        });
+        result += '};';
+        return result;
+    } else {
+        // Simple edge - inline syntax
+        return parts.join(' ') + ';';
+    }
 }
 
 function formatValue(value: any): string {

@@ -447,6 +447,14 @@ class MachineAstSerializer {
                                 record.attributes = valueWithMetadata;
                             }
 
+                            // Serialize edge block attributes (new block syntax)
+                            if (edge.attributes && edge.attributes.length > 0) {
+                                const edgeAttrs = this.serializeAttributes(edge.attributes);
+                                if (edgeAttrs.length > 0) {
+                                    record.attributes = edgeAttrs;
+                                }
+                            }
+
                             if (edgeStyle && Object.keys(edgeStyle).length > 0) {
                                 record.style = edgeStyle;
                             }
