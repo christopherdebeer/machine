@@ -549,15 +549,19 @@ class MachineAstSerializer {
                         target: ref.nodeName,
                         annotations: undefined,
                         arrowType: undefined,
-                        value: edgeValue
+                        value: edgeValue,
+                        attributes: { ...edgeValue }, // Copy value to attributes for renderer/runtime access
+                        type: 'inferred' // Mark as inferred to skip during DSL generation
                     };
 
                     edge.sourceAttribute = attr.name;
                     edgeValue.sourceAttribute = attr.name;
+                    edge.attributes.sourceAttribute = attr.name;
 
                     if (ref.attributePath) {
                         edge.targetAttribute = ref.attributePath;
                         edgeValue.targetAttribute = ref.attributePath;
+                        edge.attributes.targetAttribute = ref.attributePath;
                     }
 
                     attributeEdges.push(edge);

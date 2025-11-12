@@ -482,7 +482,10 @@ export function generateDSL(machineJson: MachineJSON): string {
     const rootEdges = getRootLevelEdges(machineJson.edges || [], rootNodes, childrenMap);
     if (rootEdges.length > 0) {
         rootEdges.forEach(edge => {
-            lines.push(generateEdgeDSL(edge, nodeMap, simpleNameToQualified));
+            // Skip inferred edges during DSL generation (they're auto-generated from attributes)
+            if (edge.type !== 'inferred') {
+                lines.push(generateEdgeDSL(edge, nodeMap, simpleNameToQualified));
+            }
         });
         lines.push('');
     }
@@ -614,7 +617,10 @@ function generateNodeDSLWithChildren(
                 result += '\n'; // Blank line before edges
             }
             scopeEdges.forEach(edge => {
-                result += childIndent + generateEdgeDSL(edge) + '\n';
+                // Skip inferred edges during DSL generation (they're auto-generated from attributes)
+                if (edge.type !== 'inferred') {
+                    result += childIndent + generateEdgeDSL(edge) + '\n';
+                }
             });
         }
 
@@ -814,16 +820,27 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
         const hasNonTextProps = valueKeys.some(k => k !== 'text');
 
         if (hasNonTextProps) {
-            // This looks like edge attributes: timeout: 1000, priority: high
-            // Format as comma-separated attributes, excluding 'text' if present
-            const props = valueKeys
-                .filter(key => key !== 'text')  // Skip 'text' property
+            // This looks like edge attributes with possibly a text label
+            // Format text as bare value first, then other attributes: text, attr1: val1, attr2: val2
+            const parts: string[] = [];
+
+            // Add text as bare value first if present
+            if (inlineSource.text !== undefined) {
+                parts.push(formatValue(inlineSource.text));
+            }
+
+            // Add other attributes as name:value pairs
+            const otherProps = valueKeys
+                .filter(key => key !== 'text')
                 .map(key => `${key}: ${formatValue(inlineSource[key])}`)
                 .join(', ');
-            if (props) {
-                label = props;
-                isEdgeAttributes = true;
+
+            if (otherProps) {
+                parts.push(otherProps);
             }
+
+            label = parts.join(', ');
+            isEdgeAttributes = true;
         } else if (inlineSource.text) {
             // Only has 'text' property - treat as plain text label
             label = inlineSource.text;
