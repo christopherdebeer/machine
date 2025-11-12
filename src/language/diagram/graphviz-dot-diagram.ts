@@ -873,10 +873,11 @@ function generateMachineLabel(machineJson: MachineJSON, options: DiagramOptions,
                 : String(versionAttr.value);
         }
         // Annotations (if present)
-        const annText = machineJson.annotations?.map(ann =>
+        const annText = machineJson.annotations?.filter( ann => ann.name !== 'style').map(ann =>
             ann.value ? '@' + ann.name + '("' + ann.value + '")' : '@' + ann.name
         ).join(' ');
-        htmlLabel += '<tr><td align="center"><font point-size="10">v' + escapeHtml(versionValue) + ' ' + escapeHtml(annText || '') + '</font></td></tr>';
+        const content = `${versionAttr ? ("v" + escapeHtml(versionValue)) : '' } ${ escapeHtml(annText || "")}`.trim()
+        htmlLabel += content ? `<tr><td align="center"><font point-size="10">${content}</font></td></tr>` : '';
     }
 
     // Description (if present in attributes)
