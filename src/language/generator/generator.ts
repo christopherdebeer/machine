@@ -640,6 +640,104 @@ function generateNodeDSLWithChildren(
     }
 }
 
+// Helper functions for formatting values in DSL syntax
+
+function formatAttributeValue(value: any, indent: string = ''): string {
+    if (value === null || value === undefined) {
+        return '""';
+    } else if (typeof value === 'object' && !Array.isArray(value)) {
+        // Object value: format as { attr1: value1; attr2: value2; }
+        const entries = Object.entries(value);
+        if (entries.length === 0) {
+            return '{}';
+        }
+        const childIndent = indent + '    ';
+        let result = '{\n';
+        for (const [key, val] of entries) {
+            result += childIndent + key + ': ' + formatAttributeValue(val, childIndent) + ';\n';
+        }
+        result += indent + '}';
+        return result;
+    } else if (Array.isArray(value)) {
+        // Array value: format as [value1, value2, value3]
+        if (value.length === 0) {
+            return '[]';
+        }
+        const arrayValues = value.map((v: any) => {
+            if (typeof v === 'string') {
+                return quoteString(v);
+            } else if (typeof v === 'object') {
+                // Nested object or array in array
+                return formatAttributeValue(v, indent);
+            } else {
+                return formatValue(v);
+            }
+        });
+        return '[' + arrayValues.join(', ') + ']';
+    } else {
+        // Primitive value: use existing formatValue
+        return formatValue(value);
+    }
+}
+
+function formatValue(value: any): string {
+    if (typeof value === 'string') {
+        // Check if it looks like a reference (starts with #)
+        if (value.startsWith('#')) {
+            return value;
+        }
+
+        // Check if it's a boolean string
+        if (value === 'true' || value === 'false') {
+            return value;
+        }
+
+        // Try to parse as number to preserve numeric types
+        // But be careful with version strings like "1.0.0"
+        const numValue = Number(value);
+        if (!isNaN(numValue) && value.trim() !== '') {
+            // Only treat as number if string representation exactly matches
+            // This avoids "1.0.0" -> 1 or "042" -> 42
+            const numStr = String(numValue);
+            if (numStr === value || numStr === value.trim()) {
+                // Extra check: if it has leading zeros or multiple dots, quote it
+                if (!/^0\d|\..*\./.test(value)) {
+                    return numStr;
+                }
+            }
+        }
+
+        // Check if it needs quoting (contains spaces, special characters, or looks like a path/URL)
+        if (/[\s;,{}()\[\]]/.test(value) || value.length === 0 || value.includes('/') || value.includes(':') && !value.startsWith('#')) {
+            return quoteString(value);
+        }
+
+        // Quote if it contains dots (likely a version number, domain, etc.)
+        if (value.includes('.')) {
+            return quoteString(value);
+        }
+
+        // By default, quote all string values to ensure they are treated as literals
+        // Only unquoted values should be: references (#foo), booleans (true/false), and numbers
+        return quoteString(value);
+    } else if (typeof value === 'number') {
+        return String(value);
+    } else if (typeof value === 'boolean') {
+        return String(value);
+    } else if (value === null || value === undefined) {
+        return '""';
+    } else {
+        // Fallback for complex types
+        return quoteString(JSON.stringify(value));
+    }
+}
+
+function quoteString(str: string): string {
+    // Escape internal quotes and return quoted string
+    const escaped = str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    return `"${escaped}"`;
+}
+
 function generateNodeDSL(node: any): string {
     const parts: string[] = [];
 
@@ -695,20 +793,8 @@ function generateAttributeDSL(attr: any): string {
     // Add value if present
     if (attr.value !== undefined && attr.value !== null) {
         result += ': ';
-        if (Array.isArray(attr.value)) {
-            // Array value - each element needs proper formatting
-            const arrayValues = attr.value.map((v: any) => {
-                // For array elements, always quote strings
-                if (typeof v === 'string') {
-                    return quoteString(v);
-                } else {
-                    return formatValue(v);
-                }
-            });
-            result += '[' + arrayValues.join(', ') + ']';
-        } else {
-            result += formatValue(attr.value);
-        }
+        // Use formatAttributeValue to handle complex nested structures properly
+        result += formatAttributeValue(attr.value);
     }
 
     result += ';';
@@ -927,25 +1013,39 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
     // Check if edge has block attributes (attributes not in inline label)
     // edge.value contains inline attributes (defined earlier), edge.attributes contains ALL attributes (inline + block merged)
     //
-    // Handle two cases:
-    // 1. If edge.value is empty but edge.attributes has data (e.g., from JSON without value field),
-    //    treat edge.attributes as the source for inline generation (they should have been inline)
-    // 2. If edge.value has data, only put NEW/CHANGED attributes in the block
+    // Handle three cases:
+    // 1. If edge.value is empty but edge.attributes has complex/nested data,
+    //    those should be rendered in block form (not JSON-stringified inline)
+    // 2. If edge.value is empty but edge.attributes only has primitives,
+    //    treat edge.attributes as the source for inline generation
+    // 3. If edge.value has data, only put NEW/CHANGED attributes in the block
     const edgeAttrs = edge.attributes || {};
     const hasInlineValue = Object.keys(edgeValue).length > 0;
     const blockOnlyAttrs: Record<string, any> = {};
 
+    // Helper to check if a value is complex (should be in block, not inline)
+    const isComplexValue = (val: any): boolean => {
+        if (val === null || val === undefined) return false;
+        if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') return false;
+        if (Array.isArray(val)) {
+            // Simple array of primitives can be inline, but arrays of objects should be in block
+            return val.some(item => typeof item === 'object' && item !== null);
+        }
+        // Any other object is complex
+        return typeof val === 'object';
+    };
+
     if (!hasInlineValue && Object.keys(edgeAttrs).length > 0) {
-        // edge.value is empty but attributes exist - this can happen when:
-        // - JSON was hand-written without a value field
-        // - Older JSON format that didn't duplicate inline attrs to value
-        // In this case, DON'T put simple text/attributes in block - the inline
-        // generation above will handle them by reading from edge.attributes
-        // via the 'value' vs 'attributes' check
-        //
-        // Only use block syntax for complex structured attributes that can't be inline
-        // For now, skip block generation if we already processed these as inline above
-        // (the inline generation already handled attributes from edge.value OR edge.attributes)
+        // edge.value is empty but attributes exist
+        // Check if any attributes are complex - those MUST go in a block
+        // to preserve their structure (otherwise formatValue JSON-stringifies them)
+        for (const [key, val] of Object.entries(edgeAttrs)) {
+            if (isComplexValue(val)) {
+                blockOnlyAttrs[key] = val;
+            }
+        }
+        // Note: simple primitive attributes were already handled inline above
+        // via the fallback to edge.attributes when edge.value is empty
     } else if (hasInlineValue) {
         // edge.value has data - compare to find block-only attributes
         for (const [key, val] of Object.entries(edgeAttrs)) {
@@ -963,7 +1063,8 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
         let result = parts.join(' ') + ' {\n';
         for (const [key, val] of Object.entries(blockOnlyAttrs)) {
             // Convert Record entries back to attribute DSL format
-            result += '    ' + key + ': ' + formatValue(val) + ';\n';
+            // Use formatAttributeValue to handle complex nested structures
+            result += '    ' + key + ': ' + formatAttributeValue(val) + ';\n';
         }
         result += '};';
         return result;
@@ -971,62 +1072,4 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
         // Simple edge - inline syntax only
         return parts.join(' ') + ';';
     }
-}
-
-function formatValue(value: any): string {
-    if (typeof value === 'string') {
-        // Check if it looks like a reference (starts with #)
-        if (value.startsWith('#')) {
-            return value;
-        }
-
-        // Check if it's a boolean string
-        if (value === 'true' || value === 'false') {
-            return value;
-        }
-
-        // Try to parse as number to preserve numeric types
-        // But be careful with version strings like "1.0.0"
-        const numValue = Number(value);
-        if (!isNaN(numValue) && value.trim() !== '') {
-            // Only treat as number if string representation exactly matches
-            // This avoids "1.0.0" -> 1 or "042" -> 42
-            const numStr = String(numValue);
-            if (numStr === value || numStr === value.trim()) {
-                // Extra check: if it has leading zeros or multiple dots, quote it
-                if (!/^0\d|\..*\./.test(value)) {
-                    return numStr;
-                }
-            }
-        }
-
-        // Check if it needs quoting (contains spaces, special characters, or looks like a path/URL)
-        if (/[\s;,{}()\[\]]/.test(value) || value.length === 0 || value.includes('/') || value.includes(':') && !value.startsWith('#')) {
-            return quoteString(value);
-        }
-
-        // Quote if it contains dots (likely a version number, domain, etc.)
-        if (value.includes('.')) {
-            return quoteString(value);
-        }
-
-        // By default, quote all string values to ensure they are treated as literals
-        // Only unquoted values should be: references (#foo), booleans (true/false), and numbers
-        return quoteString(value);
-    } else if (typeof value === 'number') {
-        return String(value);
-    } else if (typeof value === 'boolean') {
-        return String(value);
-    } else if (value === null || value === undefined) {
-        return '""';
-    } else {
-        // Fallback for complex types
-        return quoteString(JSON.stringify(value));
-    }
-}
-
-function quoteString(str: string): string {
-    // Escape internal quotes and return quoted string
-    const escaped = str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    return `"${escaped}"`;
 }
