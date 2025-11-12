@@ -1,0 +1,339 @@
+{
+  "json": {
+    "title": "Product Development System",
+    "attributes": [],
+    "annotations": [
+      {
+        "name": "Version",
+        "value": "1.0"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "budget",
+            "type": "number",
+            "value": 50000
+          },
+          {
+            "name": "timeline",
+            "type": "Duration",
+            "value": "P3M"
+          },
+          {
+            "name": "model",
+            "type": "string",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "reviewers",
+            "type": "Array<string>",
+            "value": [
+              "product",
+              "engineering",
+              "design"
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      },
+      {
+        "name": "Discovery",
+        "type": "process",
+        "attributes": []
+      },
+      {
+        "name": "idea",
+        "type": "input",
+        "attributes": [
+          {
+            "name": "concept",
+            "value": "Mobile app for task management"
+          },
+          {
+            "name": "target",
+            "value": "productivity users"
+          }
+        ],
+        "parent": "Discovery"
+      },
+      {
+        "name": "analyze",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Analyze '{{ idea.concept }}' for {{ idea.target }}. Budget: {{ config.budget }}, Timeline: {{ config.timeline }}. Recommend critical features."
+          },
+          {
+            "name": "model",
+            "value": "{{ config.model }}"
+          }
+        ],
+        "parent": "Discovery",
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "research",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "sources",
+            "value": [
+              "market reports",
+              "user surveys",
+              "competitor analysis"
+            ]
+          },
+          {
+            "name": "input",
+            "value": "{{ analyze.output }}"
+          }
+        ],
+        "parent": "Discovery"
+      },
+      {
+        "name": "Execution",
+        "type": "process",
+        "attributes": []
+      },
+      {
+        "name": "design",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "deliverables",
+            "value": [
+              "wireframes",
+              "user flows",
+              "design system"
+            ]
+          }
+        ],
+        "parent": "Execution",
+        "title": "Create Designs"
+      },
+      {
+        "name": "build",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "type",
+            "value": "technical spike"
+          },
+          {
+            "name": "technologies",
+            "value": [
+              "React Native",
+              "TypeScript",
+              "Supabase"
+            ]
+          }
+        ],
+        "parent": "Execution",
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "Build Prototype"
+      },
+      {
+        "name": "test",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "methods",
+            "value": [
+              "user testing",
+              "technical review",
+              "accessibility audit"
+            ]
+          }
+        ],
+        "parent": "Execution",
+        "title": "Validate Prototype"
+      },
+      {
+        "name": "Review",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "reviewers",
+            "value": "{{ config.reviewers }}"
+          },
+          {
+            "name": "criteria",
+            "value": [
+              "user value",
+              "technical feasibility",
+              "market fit"
+            ]
+          }
+        ],
+        "title": "Stakeholder Review"
+      },
+      {
+        "name": "Approved",
+        "type": "output",
+        "attributes": [],
+        "title": "Go to Production"
+      },
+      {
+        "name": "Rejected",
+        "type": "output",
+        "attributes": [],
+        "title": "Back to Discovery"
+      },
+      {
+        "name": "Discovery",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Discovery"
+          }
+        ],
+        "title": "Discovery phase uses LLM reasoning to adaptively analyze concepts and recommend features based on constraints."
+      },
+      {
+        "name": "Execution",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Execution"
+          }
+        ],
+        "title": "Execution phase combines design thinking with technical prototyping. Build task is async for parallel work."
+      },
+      {
+        "name": "Review",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Review"
+          }
+        ],
+        "title": "Review gates production deployment. Failures loop back to discovery with learnings, demonstrating iterative evolution."
+      }
+    ],
+    "edges": [
+      {
+        "source": "research",
+        "target": "design",
+        "arrowType": "->"
+      },
+      {
+        "source": "test",
+        "target": "Review",
+        "arrowType": "->"
+      },
+      {
+        "source": "Review",
+        "target": "Approved",
+        "arrowType": "->",
+        "value": {
+          "text": "approved"
+        },
+        "attributes": {
+          "text": "approved"
+        }
+      },
+      {
+        "source": "Review",
+        "target": "Rejected",
+        "arrowType": "->",
+        "value": {
+          "text": "needs_work"
+        },
+        "attributes": {
+          "text": "needs_work"
+        }
+      },
+      {
+        "source": "Rejected",
+        "target": "analyze",
+        "arrowType": "-->"
+      },
+      {
+        "source": "idea",
+        "target": "analyze",
+        "arrowType": "->"
+      },
+      {
+        "source": "analyze",
+        "target": "research",
+        "arrowType": "->"
+      },
+      {
+        "source": "design",
+        "target": "build",
+        "arrowType": "->"
+      },
+      {
+        "source": "build",
+        "target": "test",
+        "arrowType": "->"
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "analyze",
+        "target": "idea",
+        "reason": "reads prompt",
+        "path": "idea.concept"
+      },
+      {
+        "source": "analyze",
+        "target": "idea",
+        "reason": "reads prompt",
+        "path": "idea.target"
+      },
+      {
+        "source": "analyze",
+        "target": "config",
+        "reason": "reads prompt",
+        "path": "config.budget"
+      },
+      {
+        "source": "analyze",
+        "target": "config",
+        "reason": "reads prompt",
+        "path": "config.timeline"
+      },
+      {
+        "source": "analyze",
+        "target": "config",
+        "reason": "reads model",
+        "path": "config.model"
+      },
+      {
+        "source": "research",
+        "target": "analyze",
+        "reason": "reads input",
+        "path": "analyze.output"
+      },
+      {
+        "source": "Review",
+        "target": "config",
+        "reason": "reads reviewers",
+        "path": "config.reviewers"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Product Development System</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version(&quot;1.0&quot;)</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i> <i>@Singleton</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"budget__key\" align=\"left\" balign=\"left\">budget : number</td><td port=\"budget__value\" align=\"left\" balign=\"left\">50000</td></tr><tr><td port=\"timeline__key\" align=\"left\" balign=\"left\">timeline : Duration</td><td port=\"timeline__value\" align=\"left\" balign=\"left\">P3M</td></tr><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model : string</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"reviewers__key\" align=\"left\" balign=\"left\">reviewers : Array&lt;string&gt;</td><td port=\"reviewers__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;product&quot;,<br align=\"left\"/>  &quot;engineering&quot;,<br align=\"left\"/>  &quot;design&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", peripheries=2];\n  subgraph cluster_Discovery {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Discovery</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Discovery__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"idea\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idea</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"concept__key\" align=\"left\" balign=\"left\">concept</td><td port=\"concept__value\" align=\"left\" balign=\"left\">Mobile app for task management</td></tr><tr><td port=\"target__key\" align=\"left\" balign=\"left\">target</td><td port=\"target__value\" align=\"left\" balign=\"left\">productivity users</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Analyze '{{ idea.concept }}' for {{<br/>idea.target }}. Budget: {{ config.budget<br/>}}, Timeline: {{ config.timeline }}.<br/>Recommend critical features.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">{{ config.model }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n    \"research\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>research</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"sources__key\" align=\"left\" balign=\"left\">sources</td><td port=\"sources__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;market reports&quot;,<br align=\"left\"/>  &quot;user surveys&quot;,<br align=\"left\"/>  &quot;competitor analysis&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input</td><td port=\"input__value\" align=\"left\" balign=\"left\">{{ analyze.output }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_Execution {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Execution</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Execution__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"design\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>design</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create Designs</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"deliverables__key\" align=\"left\" balign=\"left\">deliverables</td><td port=\"deliverables__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;wireframes&quot;,<br align=\"left\"/>  &quot;user flows&quot;,<br align=\"left\"/>  &quot;design system&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"build\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>build</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Build Prototype</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"type__key\" align=\"left\" balign=\"left\">type</td><td port=\"type__value\" align=\"left\" balign=\"left\">technical spike</td></tr><tr><td port=\"technologies__key\" align=\"left\" balign=\"left\">technologies</td><td port=\"technologies__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;React Native&quot;,<br align=\"left\"/>  &quot;TypeScript&quot;,<br align=\"left\"/>  &quot;Supabase&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"test\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>test</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate Prototype</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"methods__key\" align=\"left\" balign=\"left\">methods</td><td port=\"methods__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user testing&quot;,<br align=\"left\"/>  &quot;technical review&quot;,<br align=\"left\"/>  &quot;accessibility audit&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"Review\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Review</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Stakeholder Review</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"reviewers__key\" align=\"left\" balign=\"left\">reviewers</td><td port=\"reviewers__value\" align=\"left\" balign=\"left\">{{ config.reviewers }}</td></tr><tr><td port=\"criteria__key\" align=\"left\" balign=\"left\">criteria</td><td port=\"criteria__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user value&quot;,<br align=\"left\"/>  &quot;technical feasibility&quot;,<br align=\"left\"/>  &quot;market fit&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Approved</b> <i>&lt;output&gt;</i></td></tr><tr><td align=\"left\">Go to Production</td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"Rejected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Rejected</b> <i>&lt;output&gt;</i></td></tr><tr><td align=\"left\">Back to Discovery</td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Root-level notes\n  \"note_Discovery_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Discovery phase uses LLM reasoning to<br/>adaptively analyze concepts and<br/>recommend features based on constraints.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Discovery_0\" -> \"Discovery__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_Execution_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Execution phase combines design thinking<br/>with technical prototyping. Build task<br/>is async for parallel work.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Execution_0\" -> \"Execution__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_Review_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Review gates production deployment.<br/>Failures loop back to discovery with<br/>learnings, demonstrating iterative<br/>evolution.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Review_0\" -> \"Review\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"research\" -> \"design\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"test\" -> \"Review\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Review\" -> \"Approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>approved</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Review\" -> \"Rejected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>needs_work</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Rejected\" -> \"analyze\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"idea\" -> \"analyze\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyze\" -> \"research\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"design\" -> \"build\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"build\" -> \"test\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"analyze\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"config\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"config\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"config\" [label=\"reads model\", style=dashed, color=blue];\n  \"research\" -> \"analyze\" [label=\"reads input\", style=dashed, color=blue];\n  \"Review\" -> \"config\" [label=\"reads reviewers\", style=dashed, color=blue];\n}",
+  "svgHash": "c19ad5d90ff35e88898860a23e8b3aedf48e92bf9cc72c2686a088dea32eee17"
+}
