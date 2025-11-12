@@ -273,7 +273,7 @@ function extractNodeGridPosition(node: any): number | undefined {
  * @param prefix - Prefix for rail node names
  * @param direction - Optional direction override (LR, RL, TB, BT)
  */
-function generateGridLayout(nodes: any[], gridSize: number, prefix: string = '', direction?: string): string {
+function generateGridLayout(nodes: any[], gridSize: number, prefix: string = '', direction?: string, debug: boolean = false): string {
     const lines: string[] = [];
 
     // Note: The direction parameter affects how grid positions are interpreted:
@@ -289,13 +289,13 @@ function generateGridLayout(nodes: any[], gridSize: number, prefix: string = '',
     for (let i = 1; i <= gridSize; i++) {
         const railName = `${prefix}__grid_rail_${i}`;
         railNodes.push(railName);
-        lines.push(`  "${railName}" [shape=point, width=0.01, height=0.01, label="", style=invis, fixedsize=true];`);
+        lines.push(`  "${railName}" [shape=point, width=0, height=0, label="", style=${debug ? 'filled' : 'invis'}, fixedsize=true];`);
     }
 
     // Create invisible edges to enforce grid position ordering
     if (railNodes.length > 1) {
         for (let i = 0; i < railNodes.length - 1; i++) {
-            lines.push(`  "${railNodes[i]}" -> "${railNodes[i + 1]}" [style=invis];`);
+            lines.push(`  "${railNodes[i]}" -> "${railNodes[i + 1]}" [style=${debug ? 'filled' : 'invis'}];`);
         }
     }
 
@@ -1133,7 +1133,7 @@ export function generateDotDiagram(machineJson: MachineJSON, options: DiagramOpt
     if (machineGridSize && machineGridSize > 0) {
         lines.push('  // Grid layout');
         const machineDirection = extractDirection(machineJson);
-        lines.push(generateGridLayout(rootNodes, machineGridSize, 'root', machineDirection));
+        lines.push(generateGridLayout(rootNodes, machineGridSize, 'root', machineDirection, isVisualDebug(machineJson)));
         lines.push('');
     }
 
@@ -1752,6 +1752,10 @@ function getClusterStyle(node: any, styleNodes: any[] = [], validationContext?: 
     return styleLines;
 }
 
+function isVisualDebug(machineJson: MachineJSON) {
+    return machineJson.attributes?.some(attr => attr.name === 'debugVisual' && attr.value === true);
+}
+
 /**
  * Generate DOT syntax with true nested subgraphs
  */
@@ -1802,8 +1806,10 @@ function generateSemanticHierarchy(
                 lines.push(`${indent}  "${node.name}" [label=<${namespaceLabel}>, shape=plain, margin=0];`);
             }
 
+            const debug = isVisualDebug(machineJson);
+
             const anchorName = getClusterAnchorName(node.name);
-            lines.push(`${indent}  "${anchorName}" [shape=point, width=0.01, height=0.01, label="", style=invis, fixedsize=true];`);
+            lines.push(`${indent}  "${anchorName}" [shape=point, width=0.01, height=0.01, label="", style=${debug ? 'filled' : 'invis'}, fixedsize=true];`);
             lines.push('');
 
             // Recursively generate children
@@ -1841,7 +1847,7 @@ function generateSemanticHierarchy(
                     lines.push('');
                     lines.push(`${indent}  // Grid layout for cluster ${node.name}`);
                     const clusterDirection = extractDirection(node);
-                    const gridLayoutLines = generateGridLayout(leafChildren, clusterGridSize, `cluster_${node.name}`, clusterDirection);
+                    const gridLayoutLines = generateGridLayout(leafChildren, clusterGridSize, `cluster_${node.name}`, clusterDirection, isVisualDebug(machineJson));
                     // Add proper indentation to each line
                     const indentedLines = gridLayoutLines.split('\n').map(line => {
                         if (line.trim()) {
@@ -2051,7 +2057,7 @@ function generateNodeDefinition(
         style = runtimeStyle;
     }
 
-    return `${indent}"${node.name}" [label=<${htmlLabel}>, shape=${shape}, ${style}];`;
+    return `${indent}"${node.name}" [label=<${htmlLabel}>, pad=0.5, shape=${shape}, ${style}];`;
 }
 
 /**
