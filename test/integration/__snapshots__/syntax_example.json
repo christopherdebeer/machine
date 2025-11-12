@@ -22,9 +22,9 @@
         "type": "number"
       }
     ],
+    "annotations": [],
     "nodes": [],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count : number</td><td port=\"count__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"price__key\" align=\"left\" balign=\"left\">price : number</td><td port=\"price__value\" align=\"left\" balign=\"left\">19.99</td></tr><tr><td port=\"scientific__key\" align=\"left\" balign=\"left\">scientific : number</td><td port=\"scientific__value\" align=\"left\" balign=\"left\">15000000000</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature : number</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",

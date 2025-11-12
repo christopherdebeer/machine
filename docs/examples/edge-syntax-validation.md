@@ -87,7 +87,7 @@ machine "Simple Annotation Test"
 state A "Start"
 state B "End"
 
-A -@priority(3)-> B
+A -@priority("3")-> B
 ```
 
 ### Annotation with String Value
@@ -120,7 +120,7 @@ machine "Multiple Annotations Test"
 state A "Start"
 state B "End"
 
-A -@priority(1), @async, @retry(3)-> B
+A -@priority("1"), @async, @retry("3")-> B
 ```
 
 ## Annotation + Text Label
@@ -131,7 +131,7 @@ machine "Annotation with Text Test"
 state A "Start"
 state B "End"
 
-A -@priority(1), "high priority transition"-> B
+A -@priority("1"), "high priority transition"-> B
 ```
 
 ## Annotation + Attribute
@@ -175,7 +175,7 @@ machine "Full Combination Test"
 state A "Start"
 state B "End"
 
-A -@priority(1), "critical path", timeout: 5000-> B
+A -@priority("1"), "critical path", timeout: 5000-> B
 ```
 
 ## Multiple Annotations + Multiple Attributes
@@ -186,7 +186,7 @@ machine "Complex Combination Test"
 state A "Start"
 state B "End"
 
-A -@async, @retry(3), timeout: 5000, maxRetries: 5-> B
+A -@async, @retry("3"), timeout: 5000, maxRetries: 5-> B
 ```
 
 ## Annotation with Attributes + Edge Attributes
@@ -208,7 +208,7 @@ machine "Kitchen Sink Test"
 state A "Start"
 state B "End"
 
-A -@priority(1), @async, @style(color: green), "main flow", timeout: 5000, retries: 3-> B
+A -@priority("1"), @async, @style(color: green), "main flow", timeout: 5000, retries: 3-> B
 ```
 
 ## Semicolon Rules
@@ -243,7 +243,7 @@ machine "Annotation No Semicolon Test"
 state A "Start"
 state B "End"
 
-A -@priority(1)-> B
+A -@priority("1")-> B
 ```
 
 ## Multiple Targets
@@ -255,7 +255,7 @@ state A "Start"
 state B "End1"
 state C "End2"
 
-A -@priority(1), "broadcast", timeout: 1000-> B, C
+A -@priority("1"), "broadcast", timeout: 1000-> B, C
 ```
 
 ## Chained Edges
@@ -267,5 +267,5 @@ state A "Start"
 state B "Middle"
 state C "End"
 
-A -@async, "first"-> B -@priority(2), "second"-> C
+A -@async, "first"-> B -@priority("2"), "second"-> C
 ```

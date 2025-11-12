@@ -17,9 +17,9 @@
         "value": "PT30S"
       }
     ],
+    "annotations": [],
     "nodes": [],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT1H30M</td></tr><tr><td port=\"cacheTTL__key\" align=\"left\" balign=\"left\">cacheTTL : Duration</td><td port=\"cacheTTL__value\" align=\"left\" balign=\"left\">P1D</td></tr><tr><td port=\"interval__key\" align=\"left\" balign=\"left\">interval : Duration</td><td port=\"interval__value\" align=\"left\" balign=\"left\">PT30S</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",

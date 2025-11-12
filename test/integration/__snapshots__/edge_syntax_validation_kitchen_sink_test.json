@@ -2,6 +2,7 @@
   "json": {
     "title": "Kitchen Sink Test",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "A",
@@ -22,7 +23,8 @@
         "target": "B",
         "annotations": [
           {
-            "name": "priority"
+            "name": "priority",
+            "value": "1"
           },
           {
             "name": "async"
@@ -36,18 +38,24 @@
         ],
         "arrowType": "->",
         "value": {
+          "text": "retries: 3",
           "timeout": "5000",
           "retries": "3"
         },
         "attributes": {
+          "text": "retries: 3",
           "timeout": "5000",
           "retries": "3"
+        },
+        "style": {
+          "timeout": 5000,
+          "retries": 3,
+          "color": "green"
         }
       }
     ],
-    "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Kitchen Sink Test</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"A\" -> \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@priority @async</i></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">timeout</td><td align=\"left\" balign=\"left\">5000</td></tr><tr><td align=\"left\" balign=\"left\">retries</td><td align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"green\"];\n}",
-  "svgHash": "ec0eea9816be0c17ecf220187c289f7185f2b638aaefeec81a767dfce67efb37"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Kitchen Sink Test</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"A\" -> \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>retries: 3</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@priority(\"1\") @async</i></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">timeout</td><td align=\"left\" balign=\"left\">5000</td></tr><tr><td align=\"left\" balign=\"left\">retries</td><td align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", timeout=\"5000\", retries=\"3\", color=\"green\"];\n}",
+  "svgHash": "d177a6d99e90203236b8ca6d793728ee13c880dfdb81ba98b2a7cafd4ac1933e"
 }

@@ -2,6 +2,7 @@
   "json": {
     "title": "Schema References",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "request",
@@ -62,7 +63,6 @@
         "arrowType": "->"
       }
     ],
-    "notes": [],
     "inferredDependencies": []
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Schema References</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"request\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>request</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#requestSchema</td></tr><tr><td port=\"payload__key\" align=\"left\" balign=\"left\">payload</td><td port=\"payload__value\" align=\"left\" balign=\"left\">#sampleData</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate against schema</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"inputSchema__key\" align=\"left\" balign=\"left\">inputSchema</td><td port=\"inputSchema__value\" align=\"left\" balign=\"left\">#requestSchema</td></tr><tr><td port=\"outputSchema__key\" align=\"left\" balign=\"left\">outputSchema</td><td port=\"outputSchema__value\" align=\"left\" balign=\"left\">#responseSchema</td></tr></table></td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"response\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>response</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#responseSchema</td></tr><tr><td port=\"result__key\" align=\"left\" balign=\"left\">result</td><td port=\"result__value\" align=\"left\" balign=\"left\">#emptyResult</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"request\" -> \"validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validate\" -> \"response\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",

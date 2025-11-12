@@ -2,6 +2,7 @@
   "json": {
     "title": "Research Assistant",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "query",
@@ -147,7 +148,6 @@
         "arrowType": "->"
       }
     ],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "quickAnalysis",

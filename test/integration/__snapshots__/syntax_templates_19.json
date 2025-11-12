@@ -1,6 +1,7 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "environment",
@@ -32,7 +33,6 @@
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "startup",

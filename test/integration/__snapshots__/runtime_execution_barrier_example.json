@@ -7,6 +7,7 @@
         "value": "debug"
       }
     ],
+    "annotations": [],
     "nodes": [
       {
         "name": "FetchData",
@@ -74,7 +75,6 @@
         "arrowType": "->"
       }
     ],
-    "notes": [],
     "inferredDependencies": []
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Barrier Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"FetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchData</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Fetch data</td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"FetchConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchConfig</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Fetch config</td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"WaitPoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>WaitPoint</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Wait for both</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"MergeAndContinue\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>MergeAndContinue</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Merge and continue</td></tr></table>>, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"FetchData\" -> \"WaitPoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>@barrier(&quot;sync_point&quot;)</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@barrier(\"sync_point\")</i></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"FetchConfig\" -> \"WaitPoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>@barrier(&quot;sync_point&quot;)</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@barrier(\"sync_point\")</i></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"WaitPoint\" -> \"MergeAndContinue\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",

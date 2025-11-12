@@ -7,6 +7,7 @@
         "value": 25
       }
     ],
+    "annotations": [],
     "nodes": [
       {
         "name": "longTitleNode",
@@ -20,8 +21,10 @@
       }
     ],
     "edges": [],
-    "notes": [],
-    "inferredDependencies": []
+    "inferredDependencies": [],
+    "style": {
+      "maxNodeTitleLength": 25
+    }
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>NodeTitleExample</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxNodeTitleLength__key\" align=\"left\" balign=\"left\">maxNodeTitleLength</td><td port=\"maxNodeTitleLength__value\" align=\"left\" balign=\"left\">25</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"longTitleNode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>longTitleNode</b></td></tr><tr><td align=\"left\">This is a very long node title that will<br/>be wrapped</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"description__key\" align=\"left\" balign=\"left\">description</td><td port=\"description__value\" align=\"left\" balign=\"left\">And this is a long description<br align=\"left\"/>that will also be wrapped</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n}",
   "svgHash": "cb071708fdc30ae9e2b08a553e629e62c2e26609c1b0cde0a7b432763a037c73"

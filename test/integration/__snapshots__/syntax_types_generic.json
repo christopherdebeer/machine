@@ -21,9 +21,9 @@
         "value": "#pending"
       }
     ],
+    "annotations": [],
     "nodes": [],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"results__key\" align=\"left\" balign=\"left\">results : Array&lt;string&gt;</td><td port=\"results__value\" align=\"left\" balign=\"left\">[<br/>  &quot;a&quot;,<br/>  &quot;b&quot;,<br/>  &quot;c&quot;<br/>]</td></tr><tr><td port=\"data__key\" align=\"left\" balign=\"left\">data : Map&lt;string, number&gt;</td><td port=\"data__value\" align=\"left\" balign=\"left\">#dataMap</td></tr><tr><td port=\"promise__key\" align=\"left\" balign=\"left\">promise : Promise&lt;Result&gt;</td><td port=\"promise__value\" align=\"left\" balign=\"left\">#pending</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",

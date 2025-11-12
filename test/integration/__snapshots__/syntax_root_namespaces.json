@@ -2,12 +2,59 @@
   "json": {
     "title": "Root Namespaces",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "Orchestrator",
         "type": "task",
         "attributes": [],
         "title": "Main orchestrator"
+      },
+      {
+        "name": "Services",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Services"
+          }
+        ]
+      },
+      {
+        "name": "Cache",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Cache"
+          }
+        ],
+        "parent": "Services",
+        "title": "Caching layer"
+      },
+      {
+        "name": "Data",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Data"
+          }
+        ],
+        "parent": "Services",
+        "title": "Data access service"
+      },
+      {
+        "name": "Auth",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Auth"
+          }
+        ],
+        "parent": "Services",
+        "title": "Authentication service"
       }
     ],
     "edges": [
@@ -27,54 +74,8 @@
         "arrowType": "->"
       }
     ],
-    "notes": [
-      {
-        "target": "Services",
-        "content": "",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Services"
-          }
-        ]
-      },
-      {
-        "target": "Cache",
-        "content": "Caching layer",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Cache"
-          }
-        ]
-      },
-      {
-        "target": "Data",
-        "content": "Data access service",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Data"
-          }
-        ]
-      },
-      {
-        "target": "Auth",
-        "content": "Authentication service",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Auth"
-          }
-        ]
-      }
-    ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Root Namespaces</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Orchestrator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Orchestrator</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Main orchestrator</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"Orchestrator\" -> \"Auth\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Orchestrator\" -> \"Data\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Orchestrator\" -> \"Cache\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_Services\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_Services\" -> \"Services\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_Cache\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Caching layer</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_Cache\" -> \"Cache\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_2_Data\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Data access service</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_2_Data\" -> \"Data\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_3_Auth\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Authentication service</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_3_Auth\" -> \"Auth\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
-  "svgHash": "2ce60947a2314278abe17016a5964e44bcf2ba3cf058b1caef05170f9588d9a4"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Root Namespaces</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Orchestrator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Orchestrator</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Main orchestrator</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Root-level notes\n  \"note_Services_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Services_0\" -> \"Services\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"Orchestrator\" -> \"Auth\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Orchestrator\" -> \"Data\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Orchestrator\" -> \"Cache\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "450f02e914c03bead017c02c391aa395a67258035e067207ecbb0ba97dee721c"
 }

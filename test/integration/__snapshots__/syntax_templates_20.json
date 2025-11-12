@@ -1,6 +1,7 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "config",
@@ -26,7 +27,6 @@
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "server",

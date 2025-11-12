@@ -2,6 +2,7 @@
   "json": {
     "title": "Data Analyst",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "config",
@@ -102,7 +103,6 @@
         "arrowType": "->"
       }
     ],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "analyzeRequest",

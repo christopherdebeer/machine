@@ -381,13 +381,63 @@ export function generateDSL(machineJson: MachineJSON): string {
     }
 
     // Build a tree structure from flat nodes list
+    // Key nodeMap by qualified path to handle nodes with duplicate simple names
     const nodeMap = new Map<string, any>();
+    const simpleNameToQualified = new Map<string, string[]>();
     const childrenMap = new Map<string, any[]>();
     const rootNodes: any[] = [];
 
-    // First pass: Create node map and identify children
+    // First pass: Build a temporary map by simple name to resolve parent chains
+    // Notes are excluded as their "name" is actually the target they document, not a unique node ID
+    const tempNodesByName = new Map<string, any>();
     machineJson.nodes.forEach(node => {
-        nodeMap.set(node.name, node);
+        const isNote = node.type && node.type.toLowerCase() === 'note';
+        if (!isNote) {
+            tempNodesByName.set(node.name, node);
+        }
+    });
+
+    // Helper to build fully qualified path for a node by walking up parent chain
+    const buildQualifiedPath = (node: any): string => {
+        if (!node.parent) return node.name;
+
+        const pathParts: string[] = [node.name];
+        let currentParent = node.parent;
+        const visited = new Set<string>();
+        visited.add(node.name);
+
+        while (currentParent) {
+            // Prevent infinite loops from circular parent references
+            if (visited.has(currentParent)) {
+                console.warn(`Circular parent reference detected for node: ${node.name}`);
+                break;
+            }
+            visited.add(currentParent);
+
+            pathParts.unshift(currentParent);
+            const parentNode = tempNodesByName.get(currentParent);
+            if (!parentNode) break;
+            currentParent = parentNode.parent;
+        }
+
+        return pathParts.join('.');
+    };
+
+    // Second pass: Create node map and identify children using qualified paths
+    // Notes are excluded from nodeMap as they don't participate in edge relationships
+    machineJson.nodes.forEach(node => {
+        const isNote = node.type && node.type.toLowerCase() === 'note';
+
+        if (!isNote) {
+            const qualifiedPath = buildQualifiedPath(node);
+            nodeMap.set(qualifiedPath, node);
+
+            // Store all qualified paths for this simple name (handles duplicates)
+            if (!simpleNameToQualified.has(node.name)) {
+                simpleNameToQualified.set(node.name, []);
+            }
+            simpleNameToQualified.get(node.name)!.push(qualifiedPath);
+        }
 
         if (node.parent) {
             // This node has a parent - add to children map
@@ -425,7 +475,7 @@ export function generateDSL(machineJson: MachineJSON): string {
     const rootEdges = getRootLevelEdges(machineJson.edges || [], rootNodes, childrenMap);
     if (rootEdges.length > 0) {
         rootEdges.forEach(edge => {
-            lines.push(generateEdgeDSL(edge));
+            lines.push(generateEdgeDSL(edge, nodeMap, simpleNameToQualified));
         });
         lines.push('');
     }
@@ -486,7 +536,10 @@ function generateNodeDSLWithChildren(
 ): string {
     const indent = '    '.repeat(indentLevel);
     const childIndent = '    '.repeat(indentLevel + 1);
-    const children = childrenMap.get(node.name) || [];
+
+    // Notes should never have children - they only have attributes
+    const isNote = node.type && node.type.toLowerCase() === 'note';
+    const children = isNote ? [] : (childrenMap.get(node.name) || []);
     const hasChildren = children.length > 0;
 
     // Find edges that belong to this node's scope (between its children)
@@ -649,11 +702,47 @@ function generateAttributeDSL(attr: any): string {
     return result;
 }
 
-function generateEdgeDSL(edge: MachineEdgeJSON): string {
+function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simpleNameMap?: Map<string, string[]>): string {
     const parts: string[] = [];
 
-    // Source
-    parts.push(edge.source);
+    // Helper function to get qualified name for a node
+    const getQualifiedName = (nodeName: string): string => {
+        if (!nodeMap || !simpleNameMap) return nodeName;
+
+        // First check if this is already a qualified name (contains a dot)
+        if (nodeName.includes('.')) {
+            const node = nodeMap.get(nodeName);
+            return node ? nodeName : nodeName; // Return as-is if qualified
+        }
+
+        // Look up the qualified path(s) for this simple name
+        const qualifiedPaths = simpleNameMap.get(nodeName);
+        if (!qualifiedPaths || qualifiedPaths.length === 0) {
+            return nodeName; // No mapping found, return simple name
+        }
+
+        // If there's only one node with this simple name, check if it needs qualification
+        if (qualifiedPaths.length === 1) {
+            const qualifiedPath = qualifiedPaths[0];
+            const node = nodeMap.get(qualifiedPath);
+
+            if (!node || !node.parent) {
+                return nodeName; // Root-level node, use simple name
+            }
+
+            // Nested node, return qualified path
+            return qualifiedPath;
+        }
+
+        // Multiple nodes with the same simple name exist - ambiguous!
+        // We need to pick the right one, but we don't have enough context.
+        // For now, use the first one (this case shouldn't happen in well-formed edges)
+        const qualifiedPath = qualifiedPaths[0];
+        return qualifiedPath;
+    };
+
+    // Source (use qualified name if node has parent)
+    parts.push(getQualifiedName(edge.source));
 
     // Add source multiplicity if present
     if (edge.sourceMultiplicity) {
@@ -662,67 +751,123 @@ function generateEdgeDSL(edge: MachineEdgeJSON): string {
 
     // Build edge annotations string (goes between source and arrow)
     let edgeAnnotationsStr = '';
+    let skipEdgeText = false;  // Flag to skip edge text if it was used as annotation value
+
     if (edge.annotations && edge.annotations.length > 0) {
-        edgeAnnotationsStr = edge.annotations.map((ann: any) => {
-            if (ann.value) {
-                return `@${ann.name}(${quoteString(ann.value)})`;
-            } else if (ann.attributes) {
-                // Annotation with attribute-style parameters
-                const attrs = Object.entries(ann.attributes)
-                    .map(([key, val]) => {
-                        if (typeof val === 'string' && (val.includes(':') || val.includes(' '))) {
-                            return `${key}: ${quoteString(val as string)}`;
-                        }
-                        return `${key}: ${val}`;
-                    })
-                    .join('; ');
-                return `@${ann.name}(${attrs})`;
-            }
-            return `@${ann.name}`;
-        }).join(' ');
+        // Check if we have a single annotation without a value and edge has only text property
+        // This handles the case where @priority(1) is parsed as @priority + text:"1"
+        const edgeValue = edge.value || {};
+        const onlyHasText = Object.keys(edgeValue).length === 1 && edgeValue.text !== undefined;
+        const singleAnnWithoutValue = edge.annotations.length === 1 &&
+                                      !edge.annotations[0].value &&
+                                      !edge.annotations[0].attributes;
+
+        if (singleAnnWithoutValue && onlyHasText) {
+            // Use the text as the annotation value
+            const ann = edge.annotations[0];
+            edgeAnnotationsStr = `@${ann.name}(${quoteString(String(edgeValue.text))})`;
+            skipEdgeText = true;  // Don't include text in the label
+        } else {
+            edgeAnnotationsStr = edge.annotations.map((ann: any) => {
+                if (ann.value) {
+                    return `@${ann.name}(${quoteString(ann.value)})`;
+                } else if (ann.attributes) {
+                    // Annotation with attribute-style parameters
+                    const attrs = Object.entries(ann.attributes)
+                        .map(([key, val]) => {
+                            if (typeof val === 'string' && (val.includes(':') || val.includes(' '))) {
+                                return `${key}: ${quoteString(val as string)}`;
+                            }
+                            return `${key}: ${val}`;
+                        })
+                        .join('; ');
+                    return `@${ann.name}(${attrs})`;
+                }
+                return `@${ann.name}`;
+            }).join(' ');
+        }
     }
 
     // Determine arrow type and label
     const arrowType = edge.arrowType || '->';
     const edgeValue = edge.value || {};
 
-    // Extract label if present
+    // Extract label or edge attributes
     let label = '';
     let isPlainText = false;
-    if (Object.keys(edgeValue).length > 0) {
-        // Check for 'text' property first
-        if (edgeValue.text) {
-            label = edgeValue.text;
-            isPlainText = true;
-        } else {
-            // Build label from properties
-            const props = Object.keys(edgeValue)
+    let isEdgeAttributes = false;
+
+    if (Object.keys(edgeValue).length > 0 && !skipEdgeText) {
+        // Check if this looks like edge attributes (has properties besides just 'text')
+        const valueKeys = Object.keys(edgeValue);
+        const hasNonTextProps = valueKeys.some(k => k !== 'text');
+
+        if (hasNonTextProps) {
+            // This looks like edge attributes: timeout: 1000, priority: high
+            // Format as comma-separated attributes, excluding 'text' if present
+            const props = valueKeys
+                .filter(key => key !== 'text')  // Skip 'text' property
                 .map(key => `${key}: ${formatValue(edgeValue[key])}`)
-                .join('; ');
+                .join(', ');
             if (props) {
                 label = props;
+                isEdgeAttributes = true;
             }
+        } else if (edgeValue.text) {
+            // Only has 'text' property - treat as plain text label
+            label = edgeValue.text;
+            isPlainText = true;
         }
     }
 
-    // Build arrow with label and annotations
-    // Edge annotations go between source and arrow: a -@Critical-> b
-    const arrowPrefix = edgeAnnotationsStr ? ` -${edgeAnnotationsStr}` : '';
+    // Build arrow with label, annotations, and attributes
+    // Syntax patterns:
+    // - Simple: A -> B
+    // - With annotation: A -@annotation-> B
+    // - With label: A -"label"-> B
+    // - With attributes: A -attr: value-> B
+    // - Combined: A -@annotation, attr: value-> B
 
     if (label) {
-        // Format label (quote if necessary)
-        // Only format plain text labels, not attribute maps (which are already formatted)
-        const formattedLabel = isPlainText ? formatValue(label) : label;
-        // Labeled arrow
-        if (arrowType === '->') {
-            parts.push(`${arrowPrefix}-${formattedLabel}->`);
-        } else if (arrowType === '-->') {
-            parts.push(`${arrowPrefix}--${formattedLabel}-->`);
-        } else if (arrowType === '=>') {
-            parts.push(`${arrowPrefix}=${formattedLabel}=>`);
+        if (isEdgeAttributes) {
+            // Edge attributes: -@annotation, attr: value->
+            if (edgeAnnotationsStr) {
+                // Annotations + attributes: -@annotation, attributes->
+                if (arrowType === '->') {
+                    parts.push(`-${edgeAnnotationsStr}, ${label}->`);
+                } else if (arrowType === '-->') {
+                    parts.push(`-${edgeAnnotationsStr}, ${label}-->`);
+                } else if (arrowType === '=>') {
+                    parts.push(`-${edgeAnnotationsStr}, ${label}=>`);
+                } else {
+                    parts.push(`-${edgeAnnotationsStr}, ${label}${arrowType.substring(1)}`);
+                }
+            } else {
+                // Just attributes: -attr: value->
+                if (arrowType === '->') {
+                    parts.push(`-${label}->`);
+                } else if (arrowType === '-->') {
+                    parts.push(`-${label}-->`);
+                } else if (arrowType === '=>') {
+                    parts.push(`-${label}=>`);
+                } else {
+                    parts.push(`-${label}${arrowType.substring(1)}`);
+                }
+            }
         } else {
-            // For other arrow types, just use the arrow as-is
-            parts.push(edgeAnnotationsStr ? `${arrowPrefix}${arrowType.substring(1)}` : arrowType);
+            // Plain text label: -@annotation-"label"-> or just -"label"->
+            const formattedLabel = isPlainText ? formatValue(label) : label;
+            const arrowPrefix = edgeAnnotationsStr ? ` -${edgeAnnotationsStr}` : '';
+
+            if (arrowType === '->') {
+                parts.push(`${arrowPrefix}-${formattedLabel}->`);
+            } else if (arrowType === '-->') {
+                parts.push(`${arrowPrefix}--${formattedLabel}-->`);
+            } else if (arrowType === '=>') {
+                parts.push(`${arrowPrefix}=${formattedLabel}=>`);
+            } else {
+                parts.push(edgeAnnotationsStr ? `${arrowPrefix}${arrowType.substring(1)}` : arrowType);
+            }
         }
     } else {
         // Simple arrow without label
@@ -748,8 +893,8 @@ function generateEdgeDSL(edge: MachineEdgeJSON): string {
         parts.push(quoteString(edge.targetMultiplicity));
     }
 
-    // Target
-    parts.push(edge.target);
+    // Target (use qualified name if node has parent)
+    parts.push(getQualifiedName(edge.target));
 
     return parts.join(' ') + ';';
 }
@@ -791,8 +936,9 @@ function formatValue(value: any): string {
             return quoteString(value);
         }
 
-        // Simple identifier-like strings don't need quotes
-        return value;
+        // By default, quote all string values to ensure they are treated as literals
+        // Only unquoted values should be: references (#foo), booleans (true/false), and numbers
+        return quoteString(value);
     } else if (typeof value === 'number') {
         return String(value);
     } else if (typeof value === 'boolean') {

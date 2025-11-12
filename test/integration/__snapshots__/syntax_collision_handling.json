@@ -2,6 +2,7 @@
   "json": {
     "title": "Collision Handling",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "Group",
@@ -13,6 +14,29 @@
         "attributes": [],
         "parent": "Group",
         "title": "Simple child"
+      },
+      {
+        "name": "Group",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Group"
+          }
+        ],
+        "parent": "Group"
+      },
+      {
+        "name": "Child",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Child"
+          }
+        ],
+        "parent": "Group",
+        "title": "Explicit qualified child"
       },
       {
         "name": "Start",
@@ -40,32 +64,8 @@
         "arrowType": "->"
       }
     ],
-    "notes": [
-      {
-        "target": "Group",
-        "content": "",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Group"
-          }
-        ]
-      },
-      {
-        "target": "Child",
-        "content": "Explicit qualified child",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Child"
-          }
-        ]
-      }
-    ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Collision Handling</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Group {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Group</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Group__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Child</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Simple child</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Start\" -> \"Child\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Child\" -> \"Child\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Child\" -> \"End\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_Group\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_Group\" -> \"Group\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_Child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Explicit qualified child</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_Child\" -> \"Child\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
-  "svgHash": "a89f64df3f718778611d9cbb4ada25147df03291f696c5c2f0220f14fa9277ba"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Collision Handling</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Group {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Group</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Group__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Child</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Simple child</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n    \"note_Group_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n    \"note_Group_0\" -> \"Group__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n    \"note_Child_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Explicit qualified child</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n    \"note_Child_0\" -> \"Child\" [style=dashed, color=\"#999999\", arrowhead=none];\n  }\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Start\" -> \"Child\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Child\" -> \"Child\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Child\" -> \"End\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "7b4e546115cf3348b0715ff0e77a617f6e36b7654f07df1f68e9abe52ad79cec"
 }

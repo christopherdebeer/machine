@@ -93,7 +93,7 @@ machine "Retry Example" {
   logLevel: "debug"
 }
 
-state FetchAPI "Call external API" @retry(3)
+state FetchAPI "Call external API" @retry("3")
 state ProcessResponse "Process API response"
 state HandleError "Handle API error"
 
@@ -110,7 +110,7 @@ machine "Timeout Example" {
   logLevel: "debug"
 }
 
-state LongRunningTask "Long operation" @timeout(5000)
+state LongRunningTask "Long operation" @timeout("5000")
 state Success "Task completed"
 state Timeout "Task timed out"
 
@@ -241,7 +241,7 @@ CallService -when: "circuitOpen";-> CircuitOpen
 ### Example: Resource Limits
 
 ```dygram
-machine "Resource Limits" @concurrent(4) {
+machine "Resource Limits" @concurrent("4") {
   logLevel: "info"
   maxSteps: 1000
   maxConcurrentPaths: 4
@@ -304,9 +304,9 @@ state ProcessUrgent "Urgent processing"
 state ProcessDefault "Default processing"
 
 // Higher priority evaluated first
-CheckData -@priority(1), when: "Data.itemCount > 100";-> ProcessUrgent
-CheckData -@priority(2), when: "Data.itemCount > 0";-> ProcessNormal
-CheckData -@priority(3)-> ProcessDefault
+CheckData -@priority("1"), when: "Data.itemCount > 100";-> ProcessUrgent
+CheckData -@priority("2"), when: "Data.itemCount > 0";-> ProcessNormal
+CheckData -@priority("3")-> ProcessDefault
 ```
 
 ## State Management

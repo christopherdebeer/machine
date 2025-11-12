@@ -2,6 +2,7 @@
   "json": {
     "title": "Complex Attributes",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "config",
@@ -39,7 +40,6 @@
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complex Attributes</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"database__key\" align=\"left\" balign=\"left\">database</td><td port=\"database__value\" align=\"left\" balign=\"left\">{<br align=\"left\"/>  &quot;host&quot;: &quot;localhost&quot;,<br align=\"left\"/>  &quot;port&quot;: 5432,<br align=\"left\"/>  &quot;credentials&quot;: {<br align=\"left\"/>    &quot;username&quot;: &quot;admin&quot;,<br align=\"left\"/>    &quot;password&quot;: &quot;#dbPassword&quot;<br align=\"left\"/>  },<br align=\"left\"/>  &quot;pool&quot;: {<br align=\"left\"/>    &quot;min&quot;: 5,<br align=\"left\"/>    &quot;max&quot;: 20,<br align=\"left\"/>    &quot;idle&quot;: 10000<br align=\"left\"/>  }<br align=\"left\"/>}</td></tr><tr><td port=\"cache__key\" align=\"left\" balign=\"left\">cache</td><td port=\"cache__value\" align=\"left\" balign=\"left\">{<br align=\"left\"/>  &quot;enabled&quot;: true,<br align=\"left\"/>  &quot;ttl&quot;: 300,<br align=\"left\"/>  &quot;provider&quot;: &quot;redis&quot;,<br align=\"left\"/>  &quot;nodes&quot;: [<br align=\"left\"/>    &quot;cache1&quot;,<br align=\"left\"/>    &quot;cache2&quot;<br align=\"left\"/>  ]<br align=\"left\"/>}</td></tr></table></td></tr></table>>, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n}",

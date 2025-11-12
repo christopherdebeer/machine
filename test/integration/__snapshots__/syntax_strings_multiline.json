@@ -6,9 +6,9 @@
         "value": "This is a long prompt\nthat spans multiple lines\nand preserves formatting"
       }
     ],
+    "annotations": [],
     "nodes": [],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
   "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"prompt__key\" align=\"left\" balign=\"left\">prompt</td><td port=\"prompt__value\" align=\"left\" balign=\"left\">This is a long prompt<br align=\"left\"/>that spans multiple lines<br align=\"left\"/>and preserves formatting</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",

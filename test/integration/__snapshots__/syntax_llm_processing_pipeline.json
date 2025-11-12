@@ -2,6 +2,7 @@
   "json": {
     "title": "LLM Processing Pipeline",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "llmConfig",
@@ -92,7 +93,6 @@
         "arrowType": "->"
       }
     ],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "analyze",

@@ -2,11 +2,46 @@
   "json": {
     "title": "Documented System",
     "attributes": [],
+    "annotations": [],
     "nodes": [
+      {
+        "name": "Processor",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Processor"
+          }
+        ]
+      },
       {
         "name": "Input",
         "attributes": [],
         "parent": "Processor"
+      },
+      {
+        "name": "Validate",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Validate"
+          }
+        ],
+        "parent": "Processor",
+        "title": "Validates input against schema. Throws ValidationError on failure."
+      },
+      {
+        "name": "Transform",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Transform"
+          }
+        ],
+        "parent": "Processor",
+        "title": "Applies transformation rules from config.rules array."
       },
       {
         "name": "Output",
@@ -49,43 +84,8 @@
         "arrowType": "->"
       }
     ],
-    "notes": [
-      {
-        "target": "Processor",
-        "content": "",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Processor"
-          }
-        ]
-      },
-      {
-        "target": "Validate",
-        "content": "Validates input against schema. Throws ValidationError on failure.",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Validate"
-          }
-        ]
-      },
-      {
-        "target": "Transform",
-        "content": "Applies transformation rules from config.rules array.",
-        "annotations": [],
-        "attributes": [
-          {
-            "name": "target",
-            "value": "Transform"
-          }
-        ]
-      }
-    ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Documented System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Start\" -> \"Input\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Input\" -> \"Validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Validate\" -> \"Transform\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Transform\" -> \"Output\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Output\" -> \"End\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Notes\n  \"note_0_Processor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_0_Processor\" -> \"Processor\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_1_Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Validates input against schema. Throws<br/>ValidationError on failure.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_1_Validate\" -> \"Validate\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_2_Transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Applies transformation rules from<br/>config.rules array.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_2_Transform\" -> \"Transform\" [style=dashed, color=\"#999999\", arrowhead=none];\n}",
-  "svgHash": "be32e642a0f523cf143773eb9844d8044c5152f5ba4fec9abbf3a6ee29104439"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Documented System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Root-level notes\n  \"note_Processor_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Processor_0\" -> \"Processor\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"Start\" -> \"Input\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Input\" -> \"Validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Validate\" -> \"Transform\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Transform\" -> \"Output\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Output\" -> \"End\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "6561f4e9d8c5765432ef0af64a3c8e719a60796198db3747b6d42cb7bc9649ce"
 }

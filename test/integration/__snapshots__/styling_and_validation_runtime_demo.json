@@ -2,6 +2,7 @@
   "json": {
     "title": "Runtime Demo",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "state",
@@ -74,7 +75,6 @@
         }
       }
     ],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "increment",

@@ -2,6 +2,7 @@
   "json": {
     "title": "Monitoring System",
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "config",
@@ -263,7 +264,6 @@
         "arrowType": "->"
       }
     ],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "analyzeMetrics",

@@ -1,6 +1,7 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
         "name": "apiConfig",
@@ -34,7 +35,6 @@
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": [
       {
         "source": "setup",
