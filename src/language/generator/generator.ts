@@ -799,14 +799,18 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
     const arrowType = edge.arrowType || '->';
     const edgeValue = edge.value || {};
 
+    // Fallback to edge.attributes if edge.value is empty (for JSON without value field)
+    // This handles cases where JSON was hand-written or from older format
+    const inlineSource = Object.keys(edgeValue).length > 0 ? edgeValue : (edge.attributes || {});
+
     // Extract label or edge attributes
     let label = '';
     let isPlainText = false;
     let isEdgeAttributes = false;
 
-    if (Object.keys(edgeValue).length > 0 && !skipEdgeText) {
+    if (Object.keys(inlineSource).length > 0 && !skipEdgeText) {
         // Check if this looks like edge attributes (has properties besides just 'text')
-        const valueKeys = Object.keys(edgeValue);
+        const valueKeys = Object.keys(inlineSource);
         const hasNonTextProps = valueKeys.some(k => k !== 'text');
 
         if (hasNonTextProps) {
@@ -814,15 +818,15 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
             // Format as comma-separated attributes, excluding 'text' if present
             const props = valueKeys
                 .filter(key => key !== 'text')  // Skip 'text' property
-                .map(key => `${key}: ${formatValue(edgeValue[key])}`)
+                .map(key => `${key}: ${formatValue(inlineSource[key])}`)
                 .join(', ');
             if (props) {
                 label = props;
                 isEdgeAttributes = true;
             }
-        } else if (edgeValue.text) {
+        } else if (inlineSource.text) {
             // Only has 'text' property - treat as plain text label
-            label = edgeValue.text;
+            label = inlineSource.text;
             isPlainText = true;
         }
     }
@@ -905,14 +909,33 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
 
     // Check if edge has block attributes (attributes not in inline label)
     // edge.value contains inline attributes (defined earlier), edge.attributes contains ALL attributes (inline + block merged)
-    // So block-only attributes are those in edge.attributes but not in edge.value
+    //
+    // Handle two cases:
+    // 1. If edge.value is empty but edge.attributes has data (e.g., from JSON without value field),
+    //    treat edge.attributes as the source for inline generation (they should have been inline)
+    // 2. If edge.value has data, only put NEW/CHANGED attributes in the block
     const edgeAttrs = edge.attributes || {};
+    const hasInlineValue = Object.keys(edgeValue).length > 0;
     const blockOnlyAttrs: Record<string, any> = {};
 
-    for (const [key, val] of Object.entries(edgeAttrs)) {
-        // Include in block if not in value, OR if value differs (block overrides inline)
-        if (!(key in edgeValue) || edgeValue[key] !== val) {
-            blockOnlyAttrs[key] = val;
+    if (!hasInlineValue && Object.keys(edgeAttrs).length > 0) {
+        // edge.value is empty but attributes exist - this can happen when:
+        // - JSON was hand-written without a value field
+        // - Older JSON format that didn't duplicate inline attrs to value
+        // In this case, DON'T put simple text/attributes in block - the inline
+        // generation above will handle them by reading from edge.attributes
+        // via the 'value' vs 'attributes' check
+        //
+        // Only use block syntax for complex structured attributes that can't be inline
+        // For now, skip block generation if we already processed these as inline above
+        // (the inline generation already handled attributes from edge.value OR edge.attributes)
+    } else if (hasInlineValue) {
+        // edge.value has data - compare to find block-only attributes
+        for (const [key, val] of Object.entries(edgeAttrs)) {
+            // Include in block if not in value, OR if value differs (block overrides inline)
+            if (!(key in edgeValue) || edgeValue[key] !== val) {
+                blockOnlyAttrs[key] = val;
+            }
         }
     }
 

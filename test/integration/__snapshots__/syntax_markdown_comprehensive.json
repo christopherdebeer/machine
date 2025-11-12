@@ -67,34 +67,25 @@
         "source": "Config",
         "target": "Authenticate",
         "arrowType": "-->",
-        "attributes": [
-          {
-            "name": "text",
-            "value": "**POST** to `/auth`"
-          }
-        ]
+        "attributes": {
+          "text": "**POST** to `/auth`"
+        }
       },
       {
         "source": "Authenticate",
         "target": "FetchData",
         "arrowType": "-->",
-        "attributes": [
-          {
-            "name": "text",
-            "value": "*Authenticated* request"
-          }
-        ]
+        "attributes": {
+          "text": "*Authenticated* request"
+        }
       },
       {
         "source": "FetchData",
         "target": "Error",
         "arrowType": "-->",
-        "attributes": [
-          {
-            "name": "text",
-            "value": "On **failure**"
-          }
-        ]
+        "attributes": {
+          "text": "On **failure**"
+        }
       }
     ],
     "inferredDependencies": []
