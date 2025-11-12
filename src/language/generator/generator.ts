@@ -891,14 +891,28 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
     const arrowType = edge.arrowType || '->';
     const edgeValue = edge.value || {};
 
-    // Fallback to edge.attributes if edge.value is empty (for JSON without value field)
-    // This handles cases where JSON was hand-written or from older format
-    const inlineSource = Object.keys(edgeValue).length > 0 ? edgeValue : (edge.attributes || {});
+    // Merge edge.value and edge.attributes to get all relevant properties
+    // edge.value may contain metadata (sourceAttribute, targetAttribute)
+    // edge.attributes contains the real attributes (when, unless, if, text, etc.)
+    // We need to check both to avoid losing conditions when metadata is present
+    const inlineSource = { ...edgeValue, ...(edge.attributes || {}) };
 
     // Extract label or edge attributes
     let label = '';
     let isPlainText = false;
     let isEdgeAttributes = false;
+
+    // Helper to check if a value is complex (should be in block, not inline)
+    const isComplexValue = (val: any): boolean => {
+        if (val === null || val === undefined) return false;
+        if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') return false;
+        if (Array.isArray(val)) {
+            // Simple array of primitives can be inline, but arrays of objects should be in block
+            return val.some(item => typeof item === 'object' && item !== null);
+        }
+        // Any other object is complex
+        return typeof val === 'object';
+    };
 
     if (Object.keys(inlineSource).length > 0 && !skipEdgeText) {
         // Check if this looks like edge attributes (has properties besides just 'text')
@@ -908,6 +922,7 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
         if (hasNonTextProps) {
             // This looks like edge attributes with possibly a text label
             // Format text as bare value first, then other attributes: text, attr1: val1, attr2: val2
+            // BUT skip complex values - those will go in the block
             const parts: string[] = [];
 
             // Add text as bare value first if present
@@ -915,9 +930,9 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
                 parts.push(formatValue(inlineSource.text));
             }
 
-            // Add other attributes as name:value pairs
+            // Add other attributes as name:value pairs, but skip complex values
             const otherProps = valueKeys
-                .filter(key => key !== 'text')
+                .filter(key => key !== 'text' && !isComplexValue(inlineSource[key]))
                 .map(key => `${key}: ${formatValue(inlineSource[key])}`)
                 .join(', ');
 
@@ -1011,50 +1026,23 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
     parts.push(getQualifiedName(edge.target));
 
     // Check if edge has block attributes (attributes not in inline label)
-    // edge.value contains inline attributes (defined earlier), edge.attributes contains ALL attributes (inline + block merged)
+    // inlineSource contains merged attributes from edge.value and edge.attributes
+    // We need to identify complex values that should be in blocks instead of inline
     //
-    // Handle three cases:
-    // 1. If edge.value is empty but edge.attributes has complex/nested data,
-    //    those should be rendered in block form (not JSON-stringified inline)
-    // 2. If edge.value is empty but edge.attributes only has primitives,
-    //    treat edge.attributes as the source for inline generation
-    // 3. If edge.value has data, only put NEW/CHANGED attributes in the block
-    const edgeAttrs = edge.attributes || {};
-    const hasInlineValue = Object.keys(edgeValue).length > 0;
+    // Strategy: Check if any attributes in the merged set are complex objects/arrays
+    // that would lose structure if rendered inline (they'd get JSON-stringified)
     const blockOnlyAttrs: Record<string, any> = {};
 
-    // Helper to check if a value is complex (should be in block, not inline)
-    const isComplexValue = (val: any): boolean => {
-        if (val === null || val === undefined) return false;
-        if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') return false;
-        if (Array.isArray(val)) {
-            // Simple array of primitives can be inline, but arrays of objects should be in block
-            return val.some(item => typeof item === 'object' && item !== null);
-        }
-        // Any other object is complex
-        return typeof val === 'object';
-    };
-
-    if (!hasInlineValue && Object.keys(edgeAttrs).length > 0) {
-        // edge.value is empty but attributes exist
-        // Check if any attributes are complex - those MUST go in a block
-        // to preserve their structure (otherwise formatValue JSON-stringifies them)
-        for (const [key, val] of Object.entries(edgeAttrs)) {
-            if (isComplexValue(val)) {
-                blockOnlyAttrs[key] = val;
-            }
-        }
-        // Note: simple primitive attributes were already handled inline above
-        // via the fallback to edge.attributes when edge.value is empty
-    } else if (hasInlineValue) {
-        // edge.value has data - compare to find block-only attributes
-        for (const [key, val] of Object.entries(edgeAttrs)) {
-            // Include in block if not in value, OR if value differs (block overrides inline)
-            if (!(key in edgeValue) || edgeValue[key] !== val) {
-                blockOnlyAttrs[key] = val;
-            }
+    // Check all attributes (from merged source) for complex values
+    // Complex values must go in block syntax to preserve structure
+    for (const [key, val] of Object.entries(inlineSource)) {
+        if (isComplexValue(val)) {
+            blockOnlyAttrs[key] = val;
         }
     }
+
+    // Note: Simple primitive attributes were already rendered inline above
+    // from inlineSource, which now correctly merges both edge.value and edge.attributes
 
     const hasBlockAttributes = Object.keys(blockOnlyAttrs).length > 0;
 
