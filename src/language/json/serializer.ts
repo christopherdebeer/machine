@@ -442,9 +442,10 @@ class MachineAstSerializer {
                                 record.targetAttribute = targetRef.attributePath;
                             }
 
+                            // Initialize attributes with inline edge attributes
+                            let finalAttributes: Record<string, unknown> = {};
                             if (valueWithMetadata && Object.keys(valueWithMetadata).length > 0) {
-                                record.value = valueWithMetadata;
-                                record.attributes = valueWithMetadata;
+                                finalAttributes = { ...valueWithMetadata };
                             }
 
                             // Serialize edge block attributes (new block syntax)
@@ -459,10 +460,30 @@ class MachineAstSerializer {
                                     });
 
                                     // Merge with existing inline attributes, block attributes take precedence
-                                    record.attributes = {
-                                        ...(record.attributes ?? {}),
+                                    finalAttributes = {
+                                        ...finalAttributes,
                                         ...blockAttrsRecord
                                     };
+                                }
+                            }
+
+                            // Set attributes as the single source of truth
+                            if (Object.keys(finalAttributes).length > 0) {
+                                record.attributes = finalAttributes;
+                            }
+
+                            // Keep value for backward compatibility, but only with metadata (no conflicting content)
+                            if (valueWithMetadata && Object.keys(valueWithMetadata).length > 0) {
+                                // Only include non-attribute metadata in value
+                                const metadataOnly: Record<string, unknown> = {};
+                                if (valueWithMetadata.sourceAttribute) {
+                                    metadataOnly.sourceAttribute = valueWithMetadata.sourceAttribute;
+                                }
+                                if (valueWithMetadata.targetAttribute) {
+                                    metadataOnly.targetAttribute = valueWithMetadata.targetAttribute;
+                                }
+                                if (Object.keys(metadataOnly).length > 0) {
+                                    record.value = metadataOnly;
                                 }
                             }
 
@@ -663,21 +684,6 @@ class MachineAstSerializer {
         const inlineStyle: StyleAttributesJSON = {};
 
         labels.forEach(label => {
-            if (label.$cstNode && 'text' in label.$cstNode) {
-                const labelText = label.$cstNode.text;
-                if (labelText && labelText.trim()) {
-                    if (!labelText.includes('-') && !labelText.includes('=') && !labelText.includes('>')) {
-                        value['text'] = labelText.trim();
-                    } else {
-                        const match = labelText.match(/^-+([^-]+)-+>?$|^=+([^=]+)=+>?$/);
-                        if (match) {
-                            const extractedLabel = match[1] || match[2];
-                            value['text'] = extractedLabel;
-                        }
-                    }
-                }
-            }
-
             label.value.forEach(attr => {
                 if (!attr.name && (attr as any).text) {
                     const textValue = (attr as any).text.replace(/^["']|["']$/g, '');
@@ -695,6 +701,14 @@ class MachineAstSerializer {
                 }
             });
         });
+
+        // If no explicit text was found in attributes, check for annotation text as fallback
+        if (!value['text'] && annotations && annotations.length > 0) {
+            const styleAnnotation = annotations.find(ann => ann.name?.toLowerCase() === 'style');
+            if (styleAnnotation && styleAnnotation.value) {
+                value['text'] = styleAnnotation.value;
+            }
+        }
 
         const annotationStyle = this.extractStyleFromAnnotations(annotations);
         const combinedStyle = this.mergeStyles(
