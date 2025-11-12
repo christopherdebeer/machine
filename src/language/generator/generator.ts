@@ -903,19 +903,32 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
     // Target (use qualified name if node has parent)
     parts.push(getQualifiedName(edge.target));
 
-    // Check if edge has structured attributes (for block syntax)
-    const hasStructuredAttributes = edge.attributes && Array.isArray(edge.attributes) && edge.attributes.length > 0;
+    // Check if edge has block attributes (attributes not in inline label)
+    // edge.value contains inline attributes (defined earlier), edge.attributes contains ALL attributes (inline + block merged)
+    // So block-only attributes are those in edge.attributes but not in edge.value
+    const edgeAttrs = edge.attributes || {};
+    const blockOnlyAttrs: Record<string, any> = {};
 
-    if (hasStructuredAttributes) {
-        // Edge has attribute block - use block syntax
+    for (const [key, val] of Object.entries(edgeAttrs)) {
+        // Include in block if not in value, OR if value differs (block overrides inline)
+        if (!(key in edgeValue) || edgeValue[key] !== val) {
+            blockOnlyAttrs[key] = val;
+        }
+    }
+
+    const hasBlockAttributes = Object.keys(blockOnlyAttrs).length > 0;
+
+    if (hasBlockAttributes) {
+        // Edge has block attributes - use block syntax
         let result = parts.join(' ') + ' {\n';
-        edge.attributes.forEach((attr: any) => {
-            result += '    ' + generateAttributeDSL(attr) + '\n';
-        });
+        for (const [key, val] of Object.entries(blockOnlyAttrs)) {
+            // Convert Record entries back to attribute DSL format
+            result += '    ' + key + ': ' + formatValue(val) + ';\n';
+        }
         result += '};';
         return result;
     } else {
-        // Simple edge - inline syntax
+        // Simple edge - inline syntax only
         return parts.join(' ') + ';';
     }
 }

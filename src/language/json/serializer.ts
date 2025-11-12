@@ -448,10 +448,21 @@ class MachineAstSerializer {
                             }
 
                             // Serialize edge block attributes (new block syntax)
+                            // Convert structured attributes to Record format and merge with inline attributes
                             if (edge.attributes && edge.attributes.length > 0) {
                                 const edgeAttrs = this.serializeMachineAttributes(edge.attributes);
                                 if (edgeAttrs.length > 0) {
-                                    record.attributes = edgeAttrs;
+                                    // Convert array of structured attributes to Record format
+                                    const blockAttrsRecord: Record<string, unknown> = {};
+                                    edgeAttrs.forEach(attr => {
+                                        blockAttrsRecord[attr.name] = attr.value;
+                                    });
+
+                                    // Merge with existing inline attributes, block attributes take precedence
+                                    record.attributes = {
+                                        ...(record.attributes ?? {}),
+                                        ...blockAttrsRecord
+                                    };
                                 }
                             }
 
