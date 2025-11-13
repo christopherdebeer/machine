@@ -151,11 +151,10 @@ Node<isRoot>:
 
 EdgeAttributeValue returns string: EXTID|STRING|ID|NUMBER;
 
-// Note: Pattern order matters here to resolve parsing ambiguity.
-// Array syntax must come first, then name:value pairs, then standalone values.
+// Edge attributes support name:value pairs, standalone IDs, or standalone values
+// Removed confusing square bracket array syntax - use block syntax on edges instead
 EdgeAttribute:
-    '[' (params+=EdgeAttributeValue (',' params+=EdgeAttributeValue)*)? ']'
-    | (name=ID ':' value=EdgeAttributeValue ';'?)
+    (name=ID ':' value=EdgeAttributeValue ';'?)
     | (name=ID ';')
     | (text=EdgeAttributeValue)
 ;
@@ -198,4 +197,5 @@ EdgeSegment:
 
 Edge<isRoot>:
     (<isRoot> (source+=[Node:QualifiedName] (',' source+=[Node:QualifiedName])*)?)
-    segments+=EdgeSegment+ ';'?;
+    segments+=EdgeSegment+
+    ('{' (attributes+=Attribute<false>)* '}' ';'? | ';'?);  // Support attribute blocks on edges

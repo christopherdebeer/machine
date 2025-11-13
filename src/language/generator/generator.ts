@@ -335,12 +335,16 @@ export function generateGraphviz(machine: Machine, filePath: string, destination
 export function generateDSL(machineJson: MachineJSON): string {
     const lines: string[] = [];
 
-    // Add machine title with annotations (if present)
+    // Check for machine-level attributes and annotations
+    const hasMachineAttributes = machineJson.attributes && machineJson.attributes.length > 0;
+    const hasMachineAnnotations = machineJson.annotations && machineJson.annotations.length > 0;
+
+    // Add machine declaration if title, annotations, or attributes are present
     if (machineJson.title) {
         let machineLine = `machine ${quoteString(machineJson.title)}`;
 
         // Add machine-level annotations
-        if (machineJson.annotations && machineJson.annotations.length > 0) {
+        if (hasMachineAnnotations) {
             const annotationsStr = machineJson.annotations.map((ann: any) => {
                 if (ann.value) {
                     return ` @${ann.name}(${quoteString(ann.value)})`;
@@ -361,9 +365,6 @@ export function generateDSL(machineJson: MachineJSON): string {
             machineLine += annotationsStr;
         }
 
-        // Check if machine has attributes
-        const hasMachineAttributes = machineJson.attributes && machineJson.attributes.length > 0;
-
         if (hasMachineAttributes) {
             // Machine with attributes - use block syntax
             machineLine += ' {';
@@ -377,6 +378,12 @@ export function generateDSL(machineJson: MachineJSON): string {
             lines.push(machineLine);
         }
 
+        lines.push('');
+    } else if (hasMachineAttributes) {
+        // No machine title, but has top-level attributes - output them standalone
+        machineJson.attributes.forEach((attr: any) => {
+            lines.push(generateAttributeDSL(attr));
+        });
         lines.push('');
     }
 
@@ -475,7 +482,10 @@ export function generateDSL(machineJson: MachineJSON): string {
     const rootEdges = getRootLevelEdges(machineJson.edges || [], rootNodes, childrenMap);
     if (rootEdges.length > 0) {
         rootEdges.forEach(edge => {
-            lines.push(generateEdgeDSL(edge, nodeMap, simpleNameToQualified));
+            // Skip inferred edges during DSL generation (they're auto-generated from attributes)
+            if (edge.type !== 'inferred') {
+                lines.push(generateEdgeDSL(edge, nodeMap, simpleNameToQualified));
+            }
         });
         lines.push('');
     }
@@ -607,7 +617,10 @@ function generateNodeDSLWithChildren(
                 result += '\n'; // Blank line before edges
             }
             scopeEdges.forEach(edge => {
-                result += childIndent + generateEdgeDSL(edge) + '\n';
+                // Skip inferred edges during DSL generation (they're auto-generated from attributes)
+                if (edge.type !== 'inferred') {
+                    result += childIndent + generateEdgeDSL(edge) + '\n';
+                }
             });
         }
 
@@ -625,6 +638,104 @@ function generateNodeDSLWithChildren(
         // Simple node - use inline syntax
         return indent + parts.join(' ') + annotationsStr + ';\n';
     }
+}
+
+// Helper functions for formatting values in DSL syntax
+
+function formatAttributeValue(value: any, indent: string = ''): string {
+    if (value === null || value === undefined) {
+        return '""';
+    } else if (typeof value === 'object' && !Array.isArray(value)) {
+        // Object value: format as { attr1: value1; attr2: value2; }
+        const entries = Object.entries(value);
+        if (entries.length === 0) {
+            return '{}';
+        }
+        const childIndent = indent + '    ';
+        let result = '{\n';
+        for (const [key, val] of entries) {
+            result += childIndent + key + ': ' + formatAttributeValue(val, childIndent) + ';\n';
+        }
+        result += indent + '}';
+        return result;
+    } else if (Array.isArray(value)) {
+        // Array value: format as [value1, value2, value3]
+        if (value.length === 0) {
+            return '[]';
+        }
+        const arrayValues = value.map((v: any) => {
+            if (typeof v === 'string') {
+                return quoteString(v);
+            } else if (typeof v === 'object') {
+                // Nested object or array in array
+                return formatAttributeValue(v, indent);
+            } else {
+                return formatValue(v);
+            }
+        });
+        return '[' + arrayValues.join(', ') + ']';
+    } else {
+        // Primitive value: use existing formatValue
+        return formatValue(value);
+    }
+}
+
+function formatValue(value: any): string {
+    if (typeof value === 'string') {
+        // Check if it looks like a reference (starts with #)
+        if (value.startsWith('#')) {
+            return value;
+        }
+
+        // Check if it's a boolean string
+        if (value === 'true' || value === 'false') {
+            return value;
+        }
+
+        // Try to parse as number to preserve numeric types
+        // But be careful with version strings like "1.0.0"
+        const numValue = Number(value);
+        if (!isNaN(numValue) && value.trim() !== '') {
+            // Only treat as number if string representation exactly matches
+            // This avoids "1.0.0" -> 1 or "042" -> 42
+            const numStr = String(numValue);
+            if (numStr === value || numStr === value.trim()) {
+                // Extra check: if it has leading zeros or multiple dots, quote it
+                if (!/^0\d|\..*\./.test(value)) {
+                    return numStr;
+                }
+            }
+        }
+
+        // Check if it needs quoting (contains spaces, special characters, or looks like a path/URL)
+        if (/[\s;,{}()\[\]]/.test(value) || value.length === 0 || value.includes('/') || value.includes(':') && !value.startsWith('#')) {
+            return quoteString(value);
+        }
+
+        // Quote if it contains dots (likely a version number, domain, etc.)
+        if (value.includes('.')) {
+            return quoteString(value);
+        }
+
+        // By default, quote all string values to ensure they are treated as literals
+        // Only unquoted values should be: references (#foo), booleans (true/false), and numbers
+        return quoteString(value);
+    } else if (typeof value === 'number') {
+        return String(value);
+    } else if (typeof value === 'boolean') {
+        return String(value);
+    } else if (value === null || value === undefined) {
+        return '""';
+    } else {
+        // Fallback for complex types
+        return quoteString(JSON.stringify(value));
+    }
+}
+
+function quoteString(str: string): string {
+    // Escape internal quotes and return quoted string
+    const escaped = str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    return `"${escaped}"`;
 }
 
 function generateNodeDSL(node: any): string {
@@ -682,20 +793,8 @@ function generateAttributeDSL(attr: any): string {
     // Add value if present
     if (attr.value !== undefined && attr.value !== null) {
         result += ': ';
-        if (Array.isArray(attr.value)) {
-            // Array value - each element needs proper formatting
-            const arrayValues = attr.value.map((v: any) => {
-                // For array elements, always quote strings
-                if (typeof v === 'string') {
-                    return quoteString(v);
-                } else {
-                    return formatValue(v);
-                }
-            });
-            result += '[' + arrayValues.join(', ') + ']';
-        } else {
-            result += formatValue(attr.value);
-        }
+        // Use formatAttributeValue to handle complex nested structures properly
+        result += formatAttributeValue(attr.value);
     }
 
     result += ';';
@@ -792,30 +891,60 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
     const arrowType = edge.arrowType || '->';
     const edgeValue = edge.value || {};
 
+    // Merge edge.value and edge.attributes to get all relevant properties
+    // edge.value may contain metadata (sourceAttribute, targetAttribute)
+    // edge.attributes contains the real attributes (when, unless, if, text, etc.)
+    // We need to check both to avoid losing conditions when metadata is present
+    const inlineSource = { ...edgeValue, ...(edge.attributes || {}) };
+
     // Extract label or edge attributes
     let label = '';
     let isPlainText = false;
     let isEdgeAttributes = false;
 
-    if (Object.keys(edgeValue).length > 0 && !skipEdgeText) {
+    // Helper to check if a value is complex (should be in block, not inline)
+    const isComplexValue = (val: any): boolean => {
+        if (val === null || val === undefined) return false;
+        if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') return false;
+        if (Array.isArray(val)) {
+            // Simple array of primitives can be inline, but arrays of objects should be in block
+            return val.some(item => typeof item === 'object' && item !== null);
+        }
+        // Any other object is complex
+        return typeof val === 'object';
+    };
+
+    if (Object.keys(inlineSource).length > 0 && !skipEdgeText) {
         // Check if this looks like edge attributes (has properties besides just 'text')
-        const valueKeys = Object.keys(edgeValue);
+        const valueKeys = Object.keys(inlineSource);
         const hasNonTextProps = valueKeys.some(k => k !== 'text');
 
         if (hasNonTextProps) {
-            // This looks like edge attributes: timeout: 1000, priority: high
-            // Format as comma-separated attributes, excluding 'text' if present
-            const props = valueKeys
-                .filter(key => key !== 'text')  // Skip 'text' property
-                .map(key => `${key}: ${formatValue(edgeValue[key])}`)
-                .join(', ');
-            if (props) {
-                label = props;
-                isEdgeAttributes = true;
+            // This looks like edge attributes with possibly a text label
+            // Format text as bare value first, then other attributes: text, attr1: val1, attr2: val2
+            // BUT skip complex values - those will go in the block
+            const parts: string[] = [];
+
+            // Add text as bare value first if present
+            if (inlineSource.text !== undefined) {
+                parts.push(formatValue(inlineSource.text));
             }
-        } else if (edgeValue.text) {
+
+            // Add other attributes as name:value pairs, but skip complex values
+            const otherProps = valueKeys
+                .filter(key => key !== 'text' && !isComplexValue(inlineSource[key]))
+                .map(key => `${key}: ${formatValue(inlineSource[key])}`)
+                .join(', ');
+
+            if (otherProps) {
+                parts.push(otherProps);
+            }
+
+            label = parts.join(', ');
+            isEdgeAttributes = true;
+        } else if (inlineSource.text) {
             // Only has 'text' property - treat as plain text label
-            label = edgeValue.text;
+            label = inlineSource.text;
             isPlainText = true;
         }
     }
@@ -896,63 +1025,39 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
     // Target (use qualified name if node has parent)
     parts.push(getQualifiedName(edge.target));
 
-    return parts.join(' ') + ';';
-}
+    // Check if edge has block attributes (attributes not in inline label)
+    // inlineSource contains merged attributes from edge.value and edge.attributes
+    // We need to identify complex values that should be in blocks instead of inline
+    //
+    // Strategy: Check if any attributes in the merged set are complex objects/arrays
+    // that would lose structure if rendered inline (they'd get JSON-stringified)
+    const blockOnlyAttrs: Record<string, any> = {};
 
-function formatValue(value: any): string {
-    if (typeof value === 'string') {
-        // Check if it looks like a reference (starts with #)
-        if (value.startsWith('#')) {
-            return value;
+    // Check all attributes (from merged source) for complex values
+    // Complex values must go in block syntax to preserve structure
+    for (const [key, val] of Object.entries(inlineSource)) {
+        if (isComplexValue(val)) {
+            blockOnlyAttrs[key] = val;
         }
-
-        // Check if it's a boolean string
-        if (value === 'true' || value === 'false') {
-            return value;
-        }
-
-        // Try to parse as number to preserve numeric types
-        // But be careful with version strings like "1.0.0"
-        const numValue = Number(value);
-        if (!isNaN(numValue) && value.trim() !== '') {
-            // Only treat as number if string representation exactly matches
-            // This avoids "1.0.0" -> 1 or "042" -> 42
-            const numStr = String(numValue);
-            if (numStr === value || numStr === value.trim()) {
-                // Extra check: if it has leading zeros or multiple dots, quote it
-                if (!/^0\d|\..*\./.test(value)) {
-                    return numStr;
-                }
-            }
-        }
-
-        // Check if it needs quoting (contains spaces, special characters, or looks like a path/URL)
-        if (/[\s;,{}()\[\]]/.test(value) || value.length === 0 || value.includes('/') || value.includes(':') && !value.startsWith('#')) {
-            return quoteString(value);
-        }
-
-        // Quote if it contains dots (likely a version number, domain, etc.)
-        if (value.includes('.')) {
-            return quoteString(value);
-        }
-
-        // By default, quote all string values to ensure they are treated as literals
-        // Only unquoted values should be: references (#foo), booleans (true/false), and numbers
-        return quoteString(value);
-    } else if (typeof value === 'number') {
-        return String(value);
-    } else if (typeof value === 'boolean') {
-        return String(value);
-    } else if (value === null || value === undefined) {
-        return '""';
-    } else {
-        // Fallback for complex types
-        return quoteString(JSON.stringify(value));
     }
-}
 
-function quoteString(str: string): string {
-    // Escape internal quotes and return quoted string
-    const escaped = str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    return `"${escaped}"`;
+    // Note: Simple primitive attributes were already rendered inline above
+    // from inlineSource, which now correctly merges both edge.value and edge.attributes
+
+    const hasBlockAttributes = Object.keys(blockOnlyAttrs).length > 0;
+
+    if (hasBlockAttributes) {
+        // Edge has block attributes - use block syntax
+        let result = parts.join(' ') + ' {\n';
+        for (const [key, val] of Object.entries(blockOnlyAttrs)) {
+            // Convert Record entries back to attribute DSL format
+            // Use formatAttributeValue to handle complex nested structures
+            result += '    ' + key + ': ' + formatAttributeValue(val) + ';\n';
+        }
+        result += '};';
+        return result;
+    } else {
+        // Simple edge - inline syntax only
+        return parts.join(' ') + ';';
+    }
 }

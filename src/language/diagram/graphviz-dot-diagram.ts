@@ -2375,7 +2375,7 @@ function generateEdges(
 
     // Process all edges, including parent-to-parent edges using compound edge features
     machineJson.edges.forEach((edge, edgeIndex) => {
-        const edgeValue = edge.value || {};
+        const edgeValue = edge.attributes || {};
         const showAnnotation = shouldShowEdgeAnnotation(edge);
 
         // Use wrappingConfig values or defaults
@@ -2702,7 +2702,7 @@ function buildEdgeStates(machineJson: MachineJSON, context: RuntimeContext): Run
             .filter(h => h.from === edge.source && h.to === edge.target)
             .pop();
 
-        const edgeValue = edge.value || {};
+        const edgeValue = edge.attributes || {};
         const label = edgeValue.text || '';
 
         return {
