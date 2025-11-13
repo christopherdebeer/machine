@@ -206,7 +206,7 @@ export class DependencyAnalyzer {
                 dependencies.push({
                     source: nodeName,
                     target: targetNode,
-                    reason: `reads ${attr.name}`,
+                    reason: `reads ${ref}`,
                     path: ref
                 });
             }
