@@ -1,6 +1,6 @@
 # DyGram | Thought → System
 
-A lean, executable DSL for rapid prototyping that evolves from unstructured sketches to complete systems through iterative execution and generative prompting.
+A lean, executable DSL that transforms unstructured ideas into complete systems through iterative refinement and intelligent execution.
 
 ## Table of Contents
 
@@ -12,91 +12,237 @@ A lean, executable DSL for rapid prototyping that evolves from unstructured sket
 
 ## What is DyGram?
 
-DyGram starts broad and unstructured but is immediately executable, evolving toward more structured and complex systems through feedback and iteration.
+DyGram bridges the gap between thought and implementation. Start with the simplest expression of an idea—immediately executable—then evolve it toward structure and complexity as your understanding deepens.
 
-### Lean Core DSL
+### Start Simple, Stay Executable
 
-Begin with a minimal, intuitive language that captures domain concepts without unnecessary complexity.
+Every DyGram, from a single arrow to a complex system, is immediately executable. No boilerplate, no ceremony—just capture the thought.
 
-### Iterative Evolution
+### Evolve Through Execution
 
-Refine your model through execution, generative prompting, and continuous feedback loops.
+Run your model. See what it does. Refine it. DyGram grows with your understanding, from sketch to structure through continuous feedback.
 
-### Structured Emergence
+### Intelligent by Design
 
-Watch your system naturally evolve from explorative sketches to structured implementations as requirements clarify.
+Leverage LLM reasoning at decision points while deterministic paths execute instantly. Your machine rides the rails—fast where it can be, thoughtful where it needs to be.
 
-## Evolution in Action
+## From Thought to System
 
-### Stage 1: Initial Exploration
+Watch how DyGram evolves from the simplest expression to a complete system. Each stage is executable and builds naturally on the previous one.
 
-Start with an immediately executable, unstructured representation of your domain.
+### Stage 1: Capture the Thought
 
-```dy examples/basic/simple-flow.dygram
-problem -> solution;
+Start with the essence. The absolute minimum to express an idea.
+
+```dy examples/homepage/01-essence.dygram
+idea -> prototype;
 ```
 
-Or add more structure:
+This is valid, executable DyGram. Two nodes, one transition. It runs.
 
-```dy examples/basic/solution-sketch.dygram
-machine "Solution Sketch"
+Add just enough detail to make it yours:
 
-Input problem {
-    query<string>: "TBD";
-};
+```dy examples/homepage/02-named.dygram
+machine "New Product Concept"
 
-Task process {
-    prompt: "Given the problem statement {{ problem.query }} identify a plan to achieve a solution.";
+idea -> research -> prototype;
+```
+
+**What changed:** Named the machine, added an intermediate step. Still lean, still clear.
+
+### Stage 2: Add Structure
+
+Give your nodes identity and attributes as the concept solidifies.
+
+```dy examples/homepage/03-structured.dygram
+machine "Product Development"
+
+Input idea {
+    concept: "Mobile app for task management";
+    target: "productivity users";
 }
 
-Result solution {
-    value: "TBD";
-};
+Task research {
+    activities: ["market analysis", "competitor review"];
+}
 
-problem -necessitates-> solution;
+Task prototype {
+    deliverables: ["wireframes", "tech spike"];
+}
+
+Output validation {
+    criteria: ["user feedback", "technical feasibility"];
+}
+
+idea -> research -> prototype -> validation;
 ```
 
-### Stage 2: Iterative Refinement
+**What changed:** Nodes have types (Input, Task, Output) and attributes. The workflow tells a story. Still simple, but more expressive.
 
-Through execution and feedback, add context and structure to your prototype.
+### Stage 3: Make it Intelligent
 
-```dy examples/basic/solution-framework.dygram
-machine "Solution Framework"
+Add LLM-powered reasoning where you need adaptability.
 
-Concept problem "User Authentication" {
-    domain: "Security";
-    priority<number>: 9;
-    constraints: ["GDPR Compliance", "Low Latency"];
-    stakeholders: ["Security Team", "UX Team"];
-    risks: ["Token Theft", "Session Hijacking"];
-};
+```dy examples/homepage/04-intelligent.dygram
+machine "AI-Powered Product Development"
 
-Concept solution "Token-based Auth" {
-    status: "Testing";
-    approach: "JWT Implementation";
-    metrics: ["Security", "Performance", "UX"];
-    components: ["JWT Generator", "Token Validator", "Refresh Logic"];
-    tests: ["Penetration Testing", "Load Testing"];
-};
+Input idea {
+    concept: "Mobile app for task management";
+    target: "productivity users";
+    constraints: ["budget: $50k", "timeline: 3 months"];
+}
 
-Resource documentation "Auth Flow Diagram" {
-    url: "https://repo.example.com/auth-flow.pdf";
-    access: "Internal";
-};
+Task analyze @Critical {
+    prompt: "Given the concept '{{ idea.concept }}' for {{ idea.target }}, with constraints {{ idea.constraints }}, identify the 3 most critical features to prototype first. Consider market viability and technical complexity.";
+    model: "claude-3-5-sonnet-20241022";
+}
 
-problem -addresses, confidence: 0.9-> solution;
-solution -documented_by-> documentation;
+Task research {
+    activities: ["market analysis", "competitor review"];
+    input: "{{ analyze.output }}";
+}
+
+Task prototype {
+    prompt: "Create detailed wireframes and technical architecture for: {{ analyze.output }}. Ensure designs address {{ idea.target }} needs.";
+}
+
+State review "Stakeholder Review" {
+    reviewers: ["product", "engineering", "design"];
+}
+
+Output decision {
+    criteria: ["user feedback", "technical feasibility", "market fit"];
+}
+
+idea -> analyze -> research -> prototype -> review -> decision;
 ```
 
-### Stage 3: Structured System
+**What changed:** Tasks can have `prompt` attributes—LLM reasoning on demand. Template strings (`{{ idea.concept }}`) create dynamic context. The `@Critical` annotation highlights importance. This machine thinks.
 
-Evolve into a comprehensive executable model that bridges conceptual and technical domains.
+### Stage 4: Organize Complexity
 
-```dy examples/advanced-features/dygram-system.dygram
-machine "DyGram: Dynamic State Machine DSL" @Version("0.3.7")
+As systems grow, use hierarchy and rich semantics to maintain clarity.
+
+```dy examples/homepage/05-organized.dygram
+machine "Product Development System" @Version("1.0")
 
 // ═══════════════════════════════════════════════════════════
-// CONFIGURATION & FOUNDATION
+// CONFIGURATION
+// ═══════════════════════════════════════════════════════════
+
+Context config @Singleton {
+    budget<number>: 50000;
+    timeline<Duration>: "P3M";
+    model<string>: "claude-3-5-sonnet-20241022";
+    reviewers<Array<string>>: ["product", "engineering", "design"];
+}
+
+// ═══════════════════════════════════════════════════════════
+// DISCOVERY PHASE
+// ═══════════════════════════════════════════════════════════
+
+Process Discovery {
+    Input idea {
+        concept: "Mobile app for task management";
+        target: "productivity users";
+    }
+
+    Task analyze @Critical {
+        prompt: "Analyze '{{ idea.concept }}' for {{ idea.target }}. Budget: {{ config.budget }}, Timeline: {{ config.timeline }}. Recommend critical features.";
+        model: "{{ config.model }}";
+    }
+
+    Task research {
+        sources: ["market reports", "user surveys", "competitor analysis"];
+        input: "{{ analyze.output }}";
+    }
+
+    idea -> analyze -> research;
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXECUTION PHASE
+// ═══════════════════════════════════════════════════════════
+
+Process Execution {
+    Task design "Create Designs" {
+        deliverables: ["wireframes", "user flows", "design system"];
+    }
+
+    Task build "Build Prototype" @Async {
+        type: "technical spike";
+        technologies: ["React Native", "TypeScript", "Supabase"];
+    }
+
+    Task test "Validate Prototype" {
+        methods: ["user testing", "technical review", "accessibility audit"];
+    }
+
+    design -> build -> test;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DECISION PHASE
+// ═══════════════════════════════════════════════════════════
+
+State Review "Stakeholder Review" {
+    reviewers: "{{ config.reviewers }}";
+    criteria: ["user value", "technical feasibility", "market fit"];
+}
+
+Output Approved "Go to Production";
+Output Rejected "Back to Discovery";
+
+// ═══════════════════════════════════════════════════════════
+// FLOW
+// ═══════════════════════════════════════════════════════════
+
+// Connect phases
+Discovery.research -> Execution.design;
+Execution.test -> Review;
+
+// Branch based on review
+Review -approved-> Approved;
+Review -needs_work-> Rejected;
+
+// Feedback loop
+Rejected --> Discovery.analyze;
+
+// ═══════════════════════════════════════════════════════════
+// RELATIONSHIPS
+// ═══════════════════════════════════════════════════════════
+
+// Configuration context is automatically available to all nodes
+// through semantic nesting - no explicit edges needed
+
+// Documentation
+note Discovery "Discovery phase uses LLM reasoning to adaptively analyze concepts and recommend features based on constraints.";
+
+note Execution "Execution phase combines design thinking with technical prototyping. Build task is async for parallel work.";
+
+note Review "Review gates production deployment. Failures loop back to discovery with learnings, demonstrating iterative evolution.";
+```
+
+**What changed:**
+- **Nested processes** organize related nodes (Discovery, Execution, Decision)
+- **Qualified names** reference nested nodes (`Discovery.research`, `Execution.design`)
+- **Context nodes** share configuration across the system
+- **Template references** pull config dynamically (`{{ config.model }}`)
+- **Annotations** add semantic metadata (`@Singleton`, `@Critical`, `@Async`)
+- **Feedback loops** show iteration (`Rejected --> Discovery.analyze`)
+- **Comments** structure the model into clear sections
+
+The complexity is organized, not overwhelming.
+
+### Stage 5: Full Expressiveness
+
+A complete system leveraging DyGram's rich type system and semantic arrows.
+
+```dy examples/homepage/06-complete.dygram
+machine "DyGram Language System" @Version("0.3.7") @Production
+
+// ═══════════════════════════════════════════════════════════
+// CONFIGURATION
 // ═══════════════════════════════════════════════════════════
 
 context config @Singleton {
@@ -104,92 +250,37 @@ context config @Singleton {
     framework<string>: "Langium";
     version<string>: "0.3.7";
     editors<Array<string>>: ["Monaco", "CodeMirror"];
+    formats<Array<string>>: ["json", "html", "dot", "svg"];
 }
 
 // ═══════════════════════════════════════════════════════════
-// CORE ARCHITECTURE PIPELINE
+// LANGUAGE ARCHITECTURE
 // ═══════════════════════════════════════════════════════════
 
-State SourceCode "User's .dygram file" @Entry;
+Concept Language "DSL for Dynamic Systems" @Abstract {
 
-Task Parse "Parse via Langium" @Critical {
-    input<string>: "{{ SourceCode }}";
-    output<Record<string,any>>: {Abstract: ["Syntax", "Tree"]};
-}
-
-Task Validate "Validate graph structure" {
-    checks<Array<string>>: ["cycles", "references", "types"];
-}
-
-Task Transform "Build semantic model" @Async {
-    phase<string>: "type-checking";
-}
-
-Process Generate "Generate outputs" {
-    formats<Array<string>>: ["json", "html", "dot", "dsl"];
-}
-
-Task Execute "Rails-based execution" @Meta {
-    prompt: "Ride the machine rails with automated + agent-driven transitions";
-    model<string>: "claude-3-5-sonnet";
-}
-
-Result Visualization "Interactive diagram" {
-    renderer<string>: "Graphviz";
-}
-
-Result Runtime "Executing system" {
-    agent<string>: "Claude";
-}
-
-// ═══════════════════════════════════════════════════════════
-// PIPELINE FLOW (demonstrating arrow types)
-// ═══════════════════════════════════════════════════════════
-
-// Standard transitions
-SourceCode -> Parse -> Validate -> Transform;
-
-// Parallel branching
-Transform -> Generate, Execute;
-
-// Results
-Generate => Visualization;
-Execute => Runtime;
-
-// ═══════════════════════════════════════════════════════════
-// LANGUAGE FEATURES (nested semantic structure)
-// ═══════════════════════════════════════════════════════════
-
-Concept Language "DyGram Language System" {
-
-    Concept Grammar @Abstract {
+    Concept Grammar "Langium-based Parser" {
         terminals<number>: 15;
         rules<number>: 25;
+        file<string>: "machine.langium";
     }
 
-    Concept NodeTypes "15+ node types" {
-        Task taskType "Generative LLM tasks";
-        State stateType "Workflow states";
-        Input inputType "Entry points";
-        Output outputType "Exit points";
-        Context contextType "Shared data";
-        Resource resourceType "External resources";
-        Process processType "Sub-processes";
-        Concept conceptType "Domain concepts";
-        Implementation implType "Implementations";
+    Concept NodeTypes "Semantic Building Blocks" {
+        count<number>: 15;
+        categories<Array<string>>: ["workflow", "domain", "structure"];
     }
 
-    Concept ArrowSemantics "7 arrow types" {
-        basic: "->";      // Basic flow
-        double: "-->";    // Dependency
-        fat: "=>";        // Strong causation
-        inherit: "<|--";  // Inheritance
-        compose: "*-->";  // Composition
-        aggregate: "o-->"; // Aggregation
-        bidirectional: "<-->"; // Bidirectional
+    Concept ArrowTypes "Relationship Semantics" {
+        basic: "->";           // Flow/transition
+        strong: "-->";         // Dependency
+        transform: "=>";       // Transformation/causation
+        inherit: "<|--";       // Inheritance
+        compose: "*-->";       // Composition (part-of)
+        aggregate: "o-->";     // Aggregation (has-a)
+        bidirectional: "<-->"; // Mutual dependency
     }
 
-    Concept TypeSystem {
+    Concept TypeSystem "Rich Type Support" {
         primitives<Array<string>>: ["string", "number", "boolean"];
         generics<Array<string>>: ["Array", "Map", "Promise", "Result"];
         specialized<Array<string>>: ["Date", "UUID", "URL", "Duration"];
@@ -197,82 +288,200 @@ Concept Language "DyGram Language System" {
 }
 
 // ═══════════════════════════════════════════════════════════
-// EXECUTION MODEL (demonstrating rails pattern)
+// COMPILATION PIPELINE
 // ═══════════════════════════════════════════════════════════
 
-Concept ExecutionModel "Rails-Based Execution" {
+Process Compilation {
 
-    State deterministic "Automated Transition" {
-        speed<string>: "instant";
-        llm<boolean>: false;
+    State SourceCode "User .dygram file" @Entry;
+
+    Task Parse "Langium Parser" @Critical {
+        input<string>: "{{ SourceCode }}";
+        output<string>: "Abstract Syntax Tree";
+        references: "{{ Language.Grammar }}";
     }
 
-    State intelligent "Agent Decision" {
-        reasoning<boolean>: true;
-        llm<boolean>: true;
+    Task Validate "Semantic Validator" {
+        checks<Array<string>>: ["cycles", "references", "types", "scoping"];
     }
 
-    Task metaProgramming @Meta {
-        prompt: "Agent constructs tools dynamically";
-        capability<string>: "self-modification";
+    Task Transform "AST Transformer" @Async {
+        phase<string>: "type-checking and inference";
+    }
+
+    Task Generate "Multi-format Generator" {
+        formats: "{{ config.formats }}";
+    }
+
+    SourceCode -> Parse -> Validate -> Transform -> Generate;
+}
+
+// ═══════════════════════════════════════════════════════════
+// RUNTIME EXECUTION
+// ═══════════════════════════════════════════════════════════
+
+Process Runtime {
+
+    Task Initialize "Load Machine" {
+        input<string>: "compiled JSON";
+    }
+
+    Task Execute "Rails-Based Executor" @Meta {
+        prompt: "Execute machine: ride deterministic rails instantly, engage LLM reasoning at decision points, construct tools dynamically when needed.";
+        model: "claude-3-5-sonnet-20241022";
+        capabilities<Array<string>>: ["automated_transitions", "agent_decisions", "meta_programming"];
+    }
+
+    State Running "Execution in Progress" {
+        mode<string>: "hybrid";  // deterministic + intelligent
+    }
+
+    Initialize -> Execute -> Running;
+}
+
+// ═══════════════════════════════════════════════════════════
+// OUTPUT & VISUALIZATION
+// ═══════════════════════════════════════════════════════════
+
+Process Output {
+
+    Result Json "Machine Graph" {
+        format<string>: "application/json";
+        schema: "DyGram AST";
+    }
+
+    Result Visualization "Interactive Diagram" {
+        renderer<string>: "Graphviz";
+        formats<Array<string>>: ["svg", "html"];
+    }
+
+    Result RuntimeState "Execution State" {
+        live<boolean>: true;
+        agent<string>: "Claude";
     }
 }
 
 // ═══════════════════════════════════════════════════════════
-// TECHNOLOGY STACK
+// TOOLING & INTEGRATION
 // ═══════════════════════════════════════════════════════════
 
-Implementation Stack "Technology Stack" {
-    langium<string>: "Language Framework";
-    monaco<string>: "Desktop Editor";
-    codemirror<string>: "Mobile Editor";
-    vite<string>: "Build Tool";
-    graphviz<string>: "Visualization";
-    anthropic<string>: "LLM Runtime";
+Implementation Tooling "Development Tools" {
+
+    Implementation CLI "Command Line Interface" {
+        commands<Array<string>>: ["generate", "execute", "validate", "parse"];
+        language<string>: "TypeScript";
+    }
+
+    Implementation Playground "Browser IDE" {
+        editors: "{{ config.editors }}";
+        features<Array<string>>: ["syntax highlighting", "error diagnostics", "live preview"];
+    }
+
+    Resource Documentation "Official Docs" {
+        url<URL>: "https://dygram.dev/docs";
+        sections<Array<string>>: ["syntax", "examples", "api", "cli"];
+    }
 }
 
 // ═══════════════════════════════════════════════════════════
-// RELATIONSHIPS (demonstrating relationship semantics)
+// FLOW ORCHESTRATION
 // ═══════════════════════════════════════════════════════════
 
-// Core pipeline reads configuration
-Parse -reads-> config;
-Generate -reads-> config;
-Execute -reads-> config;
+// Compilation outputs branch to runtime and output
+Compilation.Generate -> Runtime.Initialize;
+Compilation.Generate -> Output.Json;
 
-// Language composition relationships
-Language *--> Language.Grammar;          // Grammar is part of Language
-Language *--> Language.NodeTypes;        // NodeTypes are part of Language
-Language *--> Language.ArrowSemantics;   // ArrowSemantics are part of Language
-Language *--> Language.TypeSystem;       // TypeSystem is part of Language
+// Runtime execution produces live state
+Runtime.Running => Output.RuntimeState;
 
-// Inheritance relationships
-Language.NodeTypes.taskType <|-- Execute;  // Execute is a Task
-Language.NodeTypes.stateType <|-- SourceCode; // SourceCode is a State
+// Generation also creates visualization
+Compilation.Generate => Output.Visualization;
 
-// Implementation drives concepts
-Stack -implements-> Language;
-Stack -implements-> ExecutionModel;
+// ═══════════════════════════════════════════════════════════
+// SEMANTIC RELATIONSHIPS
+// ═══════════════════════════════════════════════════════════
 
-// Execution model relationships with multiplicity
-ExecutionModel "1" *--> "1" ExecutionModel.deterministic;
-ExecutionModel "1" *--> "1" ExecutionModel.intelligent;
-ExecutionModel "1" o--> "0..*" ExecutionModel.metaProgramming;
+// Language composition (part-of relationships)
+Language "1" *--> "1" Language.Grammar;
+Language "1" *--> "1" Language.NodeTypes;
+Language "1" *--> "1" Language.ArrowTypes;
+Language "1" *--> "1" Language.TypeSystem;
 
-// Bidirectional dependencies
-Runtime <--> Execute;
-Visualization <--> Generate;
+// Tooling composition
+Tooling "1" *--> "1" Tooling.CLI;
+Tooling "1" *--> "1" Tooling.Playground;
+Tooling "1" o--> "1" Tooling.Documentation;  // aggregation: docs are referenced, not owned
+
+// Implementation relationships
+Tooling.CLI -implements-> Compilation;
+Tooling.CLI -implements-> Runtime;
+Tooling.Playground -implements-> Compilation;
+Tooling.Playground -implements-> Output.Visualization;
+
+// Parser inherits from language grammar
+Compilation.Parse <|-- Language.Grammar;
+
+// Executor uses node types and arrow semantics
+Runtime.Execute -reads-> Language.NodeTypes;
+Runtime.Execute -reads-> Language.ArrowTypes;
+
+// Bidirectional runtime dependencies
+Runtime.Running <--> Runtime.Execute;
+Output.Visualization <--> Compilation.Generate;
+
+// Configuration propagation (automatic through context)
+Compilation.Parse -reads-> config;
+Compilation.Generate -reads-> config;
+Runtime.Execute -reads-> config;
 
 // ═══════════════════════════════════════════════════════════
 // DOCUMENTATION
 // ═══════════════════════════════════════════════════════════
 
-note Language "DyGram is a DSL for dynamic state machines that bridges conceptual thinking and structured implementation. It features rails-based execution where deterministic paths execute instantly while complex decisions leverage Claude's reasoning.";
+note Language "DyGram bridges thought and system. Its lean syntax captures concepts instantly, while its rich semantics enable complex system modeling. The language evolves with your understanding." @Philosophy;
 
-note Execute "The Execute task demonstrates meta-programming: agents ride machine rails, make intelligent decisions at branching points, and can construct tools dynamically during execution." @Critical;
+note Runtime.Execute "Rails-based execution: deterministic paths run at machine speed, decision points engage Claude's reasoning, meta-programming enables self-modification. This hybrid approach balances predictability with adaptability." @Critical;
 
-note config "Configuration context is inherited by all tasks through semantic nesting - no explicit edges needed. This showcases DyGram's automatic context propagation.";
+note Language.ArrowTypes "Seven arrow types convey relationship semantics: transitions, dependencies, transformations, inheritance, composition, aggregation, and bidirectionality. The syntax mirrors the mental model." @KeyFeature;
+
+note config "Configuration context is singleton and automatically inherited by all nested nodes through semantic scoping. No explicit wiring needed—DyGram understands structure." @Pattern;
 ```
+
+**What changed:**
+- **Rich type annotations** (`<number>`, `<Array<string>>`, `<URL>`, `<boolean>`)
+- **All seven arrow types** demonstrating different relationship semantics
+- **Multiplicity** on relationships (`"1" *--> "1"`)
+- **Deep nesting** showing complex hierarchical organization
+- **Inheritance** (`<|--`) showing type relationships
+- **Composition vs. aggregation** (`*-->` vs `o-->`) showing ownership semantics
+- **Bidirectional edges** (`<-->`) for mutual dependencies
+- **Multiple annotations** (`@Meta`, `@Critical`, `@Philosophy`, `@KeyFeature`)
+- **Context propagation** through semantic nesting
+- **Meta-programming** with LLM-powered execution
+
+This is DyGram at full power—expressive, executable, and elegant.
+
+## The DyGram Philosophy
+
+### Thought Comes First
+
+The barrier between idea and implementation should be zero. DyGram starts with how you think, not how computers execute.
+
+### Execution Drives Evolution
+
+You learn by running, not planning. Every DyGram runs immediately, giving you feedback to guide the next iteration.
+
+### Structure Emerges
+
+Don't impose structure prematurely. Start simple, add detail as understanding grows. DyGram grows with you.
+
+### Intelligence Where It Matters
+
+Deterministic paths execute instantly. Complex decisions leverage LLM reasoning. Your system is fast where it can be, thoughtful where it needs to be.
+
+### Semantics Over Syntax
+
+Seven arrow types. Fifteen node types. Rich type system. Not because syntax is cool—because these semantics map to how we think about systems.
 
 ## Documentation
 
@@ -308,4 +517,4 @@ Found an issue or want to improve DyGram? Visit our [GitHub repository](https://
 
 ---
 
-**Exploration → Implementation** - Start sketching your systems today.
+**Thought → System** - Start with the essence, evolve through execution.
