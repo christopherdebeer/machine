@@ -1,0 +1,741 @@
+{
+  "json": {
+    "title": "DyGram Language System",
+    "attributes": [],
+    "annotations": [
+      {
+        "name": "Version",
+        "value": "0.3.7"
+      },
+      {
+        "name": "Production"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "config",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "language",
+            "type": "string",
+            "value": "DyGram"
+          },
+          {
+            "name": "framework",
+            "type": "string",
+            "value": "Langium"
+          },
+          {
+            "name": "version",
+            "type": "string",
+            "value": "0.3.7"
+          },
+          {
+            "name": "editors",
+            "type": "Array<string>",
+            "value": [
+              "Monaco",
+              "CodeMirror"
+            ]
+          },
+          {
+            "name": "formats",
+            "type": "Array<string>",
+            "value": [
+              "json",
+              "html",
+              "dot",
+              "svg"
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Singleton"
+          }
+        ]
+      },
+      {
+        "name": "Language",
+        "type": "concept",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Abstract"
+          }
+        ],
+        "title": "DSL for Dynamic Systems"
+      },
+      {
+        "name": "Grammar",
+        "type": "concept",
+        "attributes": [
+          {
+            "name": "terminals",
+            "type": "number",
+            "value": 15
+          },
+          {
+            "name": "rules",
+            "type": "number",
+            "value": 25
+          },
+          {
+            "name": "file",
+            "type": "string",
+            "value": "machine.langium"
+          }
+        ],
+        "parent": "Language",
+        "title": "Langium-based Parser"
+      },
+      {
+        "name": "NodeTypes",
+        "type": "concept",
+        "attributes": [
+          {
+            "name": "count",
+            "type": "number",
+            "value": 15
+          },
+          {
+            "name": "categories",
+            "type": "Array<string>",
+            "value": [
+              "workflow",
+              "domain",
+              "structure"
+            ]
+          }
+        ],
+        "parent": "Language",
+        "title": "Semantic Building Blocks"
+      },
+      {
+        "name": "ArrowTypes",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "basic",
+            "value": "->"
+          },
+          {
+            "name": "strong",
+            "value": "-->"
+          },
+          {
+            "name": "transform",
+            "value": "=>"
+          },
+          {
+            "name": "inherit",
+            "value": "<|--"
+          },
+          {
+            "name": "compose",
+            "value": "*-->"
+          },
+          {
+            "name": "aggregate",
+            "value": "o-->"
+          },
+          {
+            "name": "bidirectional",
+            "value": "<-->"
+          },
+          {
+            "name": "target",
+            "value": "ArrowTypes"
+          }
+        ],
+        "parent": "Language",
+        "annotations": [
+          {
+            "name": "KeyFeature"
+          }
+        ],
+        "title": "Seven arrow types convey relationship semantics: transitions, dependencies, transformations, inheritance, composition, aggregation, and bidirectionality. The syntax mirrors the mental model."
+      },
+      {
+        "name": "TypeSystem",
+        "type": "concept",
+        "attributes": [
+          {
+            "name": "primitives",
+            "type": "Array<string>",
+            "value": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          },
+          {
+            "name": "generics",
+            "type": "Array<string>",
+            "value": [
+              "Array",
+              "Map",
+              "Promise",
+              "Result"
+            ]
+          },
+          {
+            "name": "specialized",
+            "type": "Array<string>",
+            "value": [
+              "Date",
+              "UUID",
+              "URL",
+              "Duration"
+            ]
+          }
+        ],
+        "parent": "Language",
+        "title": "Rich Type Support"
+      },
+      {
+        "name": "Compilation",
+        "type": "process",
+        "attributes": []
+      },
+      {
+        "name": "SourceCode",
+        "type": "state",
+        "attributes": [],
+        "parent": "Compilation",
+        "annotations": [
+          {
+            "name": "Entry"
+          }
+        ],
+        "title": "User .dygram file"
+      },
+      {
+        "name": "Parse",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "input",
+            "type": "string",
+            "value": "{{ SourceCode }}"
+          },
+          {
+            "name": "output",
+            "type": "string",
+            "value": "Abstract Syntax Tree"
+          },
+          {
+            "name": "references",
+            "value": "{{ Language.Grammar }}"
+          }
+        ],
+        "parent": "Compilation",
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ],
+        "title": "Langium Parser"
+      },
+      {
+        "name": "Validate",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "checks",
+            "type": "Array<string>",
+            "value": [
+              "cycles",
+              "references",
+              "types",
+              "scoping"
+            ]
+          }
+        ],
+        "parent": "Compilation",
+        "title": "Semantic Validator"
+      },
+      {
+        "name": "Transform",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "phase",
+            "type": "string",
+            "value": "type-checking and inference"
+          }
+        ],
+        "parent": "Compilation",
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "title": "AST Transformer"
+      },
+      {
+        "name": "Generate",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "formats",
+            "value": "{{ config.formats }}"
+          }
+        ],
+        "parent": "Compilation",
+        "title": "Multi-format Generator"
+      },
+      {
+        "name": "Runtime",
+        "type": "process",
+        "attributes": []
+      },
+      {
+        "name": "Initialize",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "input",
+            "type": "string",
+            "value": "compiled JSON"
+          }
+        ],
+        "parent": "Runtime",
+        "title": "Load Machine"
+      },
+      {
+        "name": "Execute",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute machine: ride deterministic rails instantly, engage LLM reasoning at decision points, construct tools dynamically when needed."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "capabilities",
+            "type": "Array<string>",
+            "value": [
+              "automated_transitions",
+              "agent_decisions",
+              "meta_programming"
+            ]
+          },
+          {
+            "name": "target",
+            "value": "Execute"
+          }
+        ],
+        "parent": "Runtime",
+        "annotations": [
+          {
+            "name": "Meta"
+          },
+          {
+            "name": "Critical"
+          }
+        ],
+        "title": "Rails-based execution: deterministic paths run at machine speed, decision points engage Claude's reasoning, meta-programming enables self-modification. This hybrid approach balances predictability with adaptability."
+      },
+      {
+        "name": "Running",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "mode",
+            "type": "string",
+            "value": "hybrid"
+          }
+        ],
+        "parent": "Runtime",
+        "title": "Execution in Progress"
+      },
+      {
+        "name": "Output",
+        "type": "process",
+        "attributes": []
+      },
+      {
+        "name": "Json",
+        "type": "result",
+        "attributes": [
+          {
+            "name": "format",
+            "type": "string",
+            "value": "application/json"
+          },
+          {
+            "name": "schema",
+            "value": "DyGram AST"
+          }
+        ],
+        "parent": "Output",
+        "title": "Machine Graph"
+      },
+      {
+        "name": "Visualization",
+        "type": "result",
+        "attributes": [
+          {
+            "name": "renderer",
+            "type": "string",
+            "value": "Graphviz"
+          },
+          {
+            "name": "formats",
+            "type": "Array<string>",
+            "value": [
+              "svg",
+              "html"
+            ]
+          }
+        ],
+        "parent": "Output",
+        "title": "Interactive Diagram"
+      },
+      {
+        "name": "RuntimeState",
+        "type": "result",
+        "attributes": [
+          {
+            "name": "live",
+            "type": "boolean",
+            "value": true
+          },
+          {
+            "name": "agent",
+            "type": "string",
+            "value": "Claude"
+          }
+        ],
+        "parent": "Output",
+        "title": "Execution State"
+      },
+      {
+        "name": "Tooling",
+        "type": "implementation",
+        "attributes": [],
+        "title": "Development Tools"
+      },
+      {
+        "name": "CLI",
+        "type": "implementation",
+        "attributes": [
+          {
+            "name": "commands",
+            "type": "Array<string>",
+            "value": [
+              "generate",
+              "execute",
+              "validate",
+              "parse"
+            ]
+          },
+          {
+            "name": "language",
+            "type": "string",
+            "value": "TypeScript"
+          }
+        ],
+        "parent": "Tooling",
+        "title": "Command Line Interface"
+      },
+      {
+        "name": "Playground",
+        "type": "implementation",
+        "attributes": [
+          {
+            "name": "editors",
+            "value": "{{ config.editors }}"
+          },
+          {
+            "name": "features",
+            "type": "Array<string>",
+            "value": [
+              "syntax highlighting",
+              "error diagnostics",
+              "live preview"
+            ]
+          }
+        ],
+        "parent": "Tooling",
+        "title": "Browser IDE"
+      },
+      {
+        "name": "Documentation",
+        "type": "resource",
+        "attributes": [
+          {
+            "name": "url",
+            "type": "URL",
+            "value": "https://dygram.dev/docs"
+          },
+          {
+            "name": "sections",
+            "type": "Array<string>",
+            "value": [
+              "syntax",
+              "examples",
+              "api",
+              "cli"
+            ]
+          }
+        ],
+        "parent": "Tooling",
+        "title": "Official Docs"
+      },
+      {
+        "name": "Language",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "Language"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Philosophy"
+          }
+        ],
+        "title": "DyGram bridges thought and system. Its lean syntax captures concepts instantly, while its rich semantics enable complex system modeling. The language evolves with your understanding."
+      },
+      {
+        "name": "config",
+        "type": "note",
+        "attributes": [
+          {
+            "name": "target",
+            "value": "config"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Pattern"
+          }
+        ],
+        "title": "Configuration context is singleton and automatically inherited by all nested nodes through semantic scoping. No explicit wiring needed—DyGram understands structure."
+      }
+    ],
+    "edges": [
+      {
+        "source": "Generate",
+        "target": "Initialize",
+        "arrowType": "->"
+      },
+      {
+        "source": "Generate",
+        "target": "Json",
+        "arrowType": "->"
+      },
+      {
+        "source": "Running",
+        "target": "RuntimeState",
+        "arrowType": "=>"
+      },
+      {
+        "source": "Generate",
+        "target": "Visualization",
+        "arrowType": "=>"
+      },
+      {
+        "source": "Language",
+        "target": "Grammar",
+        "arrowType": "*-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "Language",
+        "target": "NodeTypes",
+        "arrowType": "*-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "Language",
+        "target": "ArrowTypes",
+        "arrowType": "*-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "Language",
+        "target": "TypeSystem",
+        "arrowType": "*-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "Tooling",
+        "target": "CLI",
+        "arrowType": "*-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "Tooling",
+        "target": "Playground",
+        "arrowType": "*-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "Tooling",
+        "target": "Documentation",
+        "arrowType": "o-->",
+        "sourceMultiplicity": "1",
+        "targetMultiplicity": "1"
+      },
+      {
+        "source": "CLI",
+        "target": "Compilation",
+        "arrowType": "->",
+        "attributes": {
+          "text": "implements"
+        }
+      },
+      {
+        "source": "CLI",
+        "target": "Runtime",
+        "arrowType": "->",
+        "attributes": {
+          "text": "implements"
+        }
+      },
+      {
+        "source": "Playground",
+        "target": "Compilation",
+        "arrowType": "->",
+        "attributes": {
+          "text": "implements"
+        }
+      },
+      {
+        "source": "Playground",
+        "target": "Visualization",
+        "arrowType": "->",
+        "attributes": {
+          "text": "implements"
+        }
+      },
+      {
+        "source": "Parse",
+        "target": "Grammar",
+        "arrowType": "<|--"
+      },
+      {
+        "source": "Execute",
+        "target": "NodeTypes",
+        "arrowType": "->",
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "Execute",
+        "target": "ArrowTypes",
+        "arrowType": "->",
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "Running",
+        "target": "Execute",
+        "arrowType": "<-->"
+      },
+      {
+        "source": "Visualization",
+        "target": "Generate",
+        "arrowType": "<-->"
+      },
+      {
+        "source": "Parse",
+        "target": "config",
+        "arrowType": "->",
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "Generate",
+        "target": "config",
+        "arrowType": "->",
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "Execute",
+        "target": "config",
+        "arrowType": "->",
+        "attributes": {
+          "text": "reads"
+        }
+      },
+      {
+        "source": "SourceCode",
+        "target": "Parse",
+        "arrowType": "->"
+      },
+      {
+        "source": "Parse",
+        "target": "Validate",
+        "arrowType": "->"
+      },
+      {
+        "source": "Validate",
+        "target": "Transform",
+        "arrowType": "->"
+      },
+      {
+        "source": "Transform",
+        "target": "Generate",
+        "arrowType": "->"
+      },
+      {
+        "source": "Initialize",
+        "target": "Execute",
+        "arrowType": "->"
+      },
+      {
+        "source": "Execute",
+        "target": "Running",
+        "arrowType": "->"
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "Parse",
+        "target": "SourceCode",
+        "reason": "reads input",
+        "path": "SourceCode"
+      },
+      {
+        "source": "Parse",
+        "target": "Language",
+        "reason": "reads references",
+        "path": "Language.Grammar"
+      },
+      {
+        "source": "Generate",
+        "target": "config",
+        "reason": "reads formats",
+        "path": "config.formats"
+      },
+      {
+        "source": "Playground",
+        "target": "config",
+        "reason": "reads editors",
+        "path": "config.editors"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>DyGram Language System</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version(&quot;0.3.7&quot;) @Production</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i> <i>@Singleton</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"language__key\" align=\"left\" balign=\"left\">language : string</td><td port=\"language__value\" align=\"left\" balign=\"left\">DyGram</td></tr><tr><td port=\"framework__key\" align=\"left\" balign=\"left\">framework : string</td><td port=\"framework__value\" align=\"left\" balign=\"left\">Langium</td></tr><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version : string</td><td port=\"version__value\" align=\"left\" balign=\"left\">0.3.7</td></tr><tr><td port=\"editors__key\" align=\"left\" balign=\"left\">editors : Array&lt;string&gt;</td><td port=\"editors__value\" align=\"left\" balign=\"left\">[<br/>  &quot;Monaco&quot;,<br/>  &quot;CodeMirror&quot;<br/>]</td></tr><tr><td port=\"formats__key\" align=\"left\" balign=\"left\">formats : Array&lt;string&gt;</td><td port=\"formats__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;json&quot;,<br align=\"left\"/>  &quot;html&quot;,<br align=\"left\"/>  &quot;dot&quot;,<br align=\"left\"/>  &quot;svg&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", peripheries=2];\n  subgraph cluster_Language {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Language</b> <i>&lt;concept&gt;</i> <i>@Abstract</i></td></tr><tr><td align=\"center\"><b>DSL for Dynamic Systems</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Language__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Grammar\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Grammar</b> <i>&lt;concept&gt;</i></td></tr><tr><td align=\"left\">Langium-based Parser</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"terminals__key\" align=\"left\" balign=\"left\">terminals : number</td><td port=\"terminals__value\" align=\"left\" balign=\"left\">15</td></tr><tr><td port=\"rules__key\" align=\"left\" balign=\"left\">rules : number</td><td port=\"rules__value\" align=\"left\" balign=\"left\">25</td></tr><tr><td port=\"file__key\" align=\"left\" balign=\"left\">file : string</td><td port=\"file__value\" align=\"left\" balign=\"left\">machine.langium</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"NodeTypes\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>NodeTypes</b> <i>&lt;concept&gt;</i></td></tr><tr><td align=\"left\">Semantic Building Blocks</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count : number</td><td port=\"count__value\" align=\"left\" balign=\"left\">15</td></tr><tr><td port=\"categories__key\" align=\"left\" balign=\"left\">categories : Array&lt;string&gt;</td><td port=\"categories__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;workflow&quot;,<br align=\"left\"/>  &quot;domain&quot;,<br align=\"left\"/>  &quot;structure&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"TypeSystem\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>TypeSystem</b> <i>&lt;concept&gt;</i></td></tr><tr><td align=\"left\">Rich Type Support</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"primitives__key\" align=\"left\" balign=\"left\">primitives : Array&lt;string&gt;</td><td port=\"primitives__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;string&quot;,<br align=\"left\"/>  &quot;number&quot;,<br align=\"left\"/>  &quot;boolean&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"generics__key\" align=\"left\" balign=\"left\">generics : Array&lt;string&gt;</td><td port=\"generics__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;Array&quot;,<br align=\"left\"/>  &quot;Map&quot;,<br align=\"left\"/>  &quot;Promise&quot;,<br align=\"left\"/>  &quot;Result&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"specialized__key\" align=\"left\" balign=\"left\">specialized : Array&lt;string&gt;</td><td port=\"specialized__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;Date&quot;,<br align=\"left\"/>  &quot;UUID&quot;,<br align=\"left\"/>  &quot;URL&quot;,<br align=\"left\"/>  &quot;Duration&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n    \"note_ArrowTypes_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><i>@KeyFeature</i></td></tr><tr><td align=\"left\">Seven arrow types convey relationship<br/>semantics: transitions, dependencies,<br/>transformations, inheritance,<br/>composition, aggregation, and<br/>bidirectionality. The syntax mirrors the<br/>mental model.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"basic__key\" align=\"left\" balign=\"left\">basic</td><td port=\"basic__value\" align=\"left\" balign=\"left\">-&gt;</td></tr><tr><td port=\"strong__key\" align=\"left\" balign=\"left\">strong</td><td port=\"strong__value\" align=\"left\" balign=\"left\">--&gt;</td></tr><tr><td port=\"transform__key\" align=\"left\" balign=\"left\">transform</td><td port=\"transform__value\" align=\"left\" balign=\"left\">=&gt;</td></tr><tr><td port=\"inherit__key\" align=\"left\" balign=\"left\">inherit</td><td port=\"inherit__value\" align=\"left\" balign=\"left\">&lt;|--</td></tr><tr><td port=\"compose__key\" align=\"left\" balign=\"left\">compose</td><td port=\"compose__value\" align=\"left\" balign=\"left\">*--&gt;</td></tr><tr><td port=\"aggregate__key\" align=\"left\" balign=\"left\">aggregate</td><td port=\"aggregate__value\" align=\"left\" balign=\"left\">o--&gt;</td></tr><tr><td port=\"bidirectional__key\" align=\"left\" balign=\"left\">bidirectional</td><td port=\"bidirectional__value\" align=\"left\" balign=\"left\">&lt;--&gt;</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n    \"note_ArrowTypes_0\" -> \"ArrowTypes\" [style=dashed, color=\"#999999\", arrowhead=none];\n  }\n  subgraph cluster_Compilation {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Compilation</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Compilation__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"SourceCode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SourceCode</b> <i>&lt;state&gt;</i> <i>@Entry</i></td></tr><tr><td align=\"left\">User .dygram file</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"Parse\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Parse</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Langium Parser</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input : string</td><td port=\"input__value\" align=\"left\" balign=\"left\">{{ SourceCode }}</td></tr><tr><td port=\"output__key\" align=\"left\" balign=\"left\">output : string</td><td port=\"output__value\" align=\"left\" balign=\"left\">Abstract Syntax Tree</td></tr><tr><td port=\"references__key\" align=\"left\" balign=\"left\">references</td><td port=\"references__value\" align=\"left\" balign=\"left\">{{ Language.Grammar }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n    \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Semantic Validator</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"checks__key\" align=\"left\" balign=\"left\">checks : Array&lt;string&gt;</td><td port=\"checks__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;cycles&quot;,<br align=\"left\"/>  &quot;references&quot;,<br align=\"left\"/>  &quot;types&quot;,<br align=\"left\"/>  &quot;scoping&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Transform</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">AST Transformer</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"phase__key\" align=\"left\" balign=\"left\">phase : string</td><td port=\"phase__value\" align=\"left\" balign=\"left\">type-checking and inference</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Generate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Generate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Multi-format Generator</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"formats__key\" align=\"left\" balign=\"left\">formats</td><td port=\"formats__value\" align=\"left\" balign=\"left\">{{ config.formats }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_Runtime {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Runtime</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Runtime__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Initialize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Initialize</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Load Machine</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input : string</td><td port=\"input__value\" align=\"left\" balign=\"left\">compiled JSON</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Running</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Execution in Progress</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"mode__key\" align=\"left\" balign=\"left\">mode : string</td><td port=\"mode__value\" align=\"left\" balign=\"left\">hybrid</td></tr></table></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n    \"note_Execute_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><i>@Meta @Critical</i></td></tr><tr><td align=\"left\">Rails-based execution: deterministic<br/>paths run at machine speed, decision<br/>points engage Claude's reasoning,<br/>meta-programming enables<br/>self-modification. This hybrid approach<br/>balances predictability with<br/>adaptability.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"capabilities__key\" align=\"left\" balign=\"left\">capabilities : Array&lt;string&gt;</td><td port=\"capabilities__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;automated_transitions&quot;,<br align=\"left\"/>  &quot;agent_decisions&quot;,<br align=\"left\"/>  &quot;meta_programming&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n    \"note_Execute_0\" -> \"Execute\" [style=dashed, color=\"#999999\", arrowhead=none];\n  }\n  subgraph cluster_Output {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Output</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Output__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Json\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Json</b> <i>&lt;result&gt;</i></td></tr><tr><td align=\"left\">Machine Graph</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"format__key\" align=\"left\" balign=\"left\">format : string</td><td port=\"format__value\" align=\"left\" balign=\"left\">application/json</td></tr><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">DyGram AST</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"Visualization\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Visualization</b> <i>&lt;result&gt;</i></td></tr><tr><td align=\"left\">Interactive Diagram</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"renderer__key\" align=\"left\" balign=\"left\">renderer : string</td><td port=\"renderer__value\" align=\"left\" balign=\"left\">Graphviz</td></tr><tr><td port=\"formats__key\" align=\"left\" balign=\"left\">formats : Array&lt;string&gt;</td><td port=\"formats__value\" align=\"left\" balign=\"left\">[<br/>  &quot;svg&quot;,<br/>  &quot;html&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"RuntimeState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>RuntimeState</b> <i>&lt;result&gt;</i></td></tr><tr><td align=\"left\">Execution State</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"live__key\" align=\"left\" balign=\"left\">live : boolean</td><td port=\"live__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"agent__key\" align=\"left\" balign=\"left\">agent : string</td><td port=\"agent__value\" align=\"left\" balign=\"left\">Claude</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  }\n  subgraph cluster_Tooling {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Tooling</b> <i>&lt;implementation&gt;</i></td></tr><tr><td align=\"center\"><b>Development Tools</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Tooling__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"CLI\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CLI</b> <i>&lt;implementation&gt;</i></td></tr><tr><td align=\"left\">Command Line Interface</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"commands__key\" align=\"left\" balign=\"left\">commands : Array&lt;string&gt;</td><td port=\"commands__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;generate&quot;,<br align=\"left\"/>  &quot;execute&quot;,<br align=\"left\"/>  &quot;validate&quot;,<br align=\"left\"/>  &quot;parse&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"language__key\" align=\"left\" balign=\"left\">language : string</td><td port=\"language__value\" align=\"left\" balign=\"left\">TypeScript</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"Playground\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Playground</b> <i>&lt;implementation&gt;</i></td></tr><tr><td align=\"left\">Browser IDE</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"editors__key\" align=\"left\" balign=\"left\">editors</td><td port=\"editors__value\" align=\"left\" balign=\"left\">{{ config.editors }}</td></tr><tr><td port=\"features__key\" align=\"left\" balign=\"left\">features : Array&lt;string&gt;</td><td port=\"features__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;syntax highlighting&quot;,<br align=\"left\"/>  &quot;error diagnostics&quot;,<br align=\"left\"/>  &quot;live preview&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n    \"Documentation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Documentation</b> <i>&lt;resource&gt;</i></td></tr><tr><td align=\"left\">Official Docs</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"url__key\" align=\"left\" balign=\"left\">url : URL</td><td port=\"url__value\" align=\"left\" balign=\"left\">https://dygram.dev/docs</td></tr><tr><td port=\"sections__key\" align=\"left\" balign=\"left\">sections : Array&lt;string&gt;</td><td port=\"sections__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;syntax&quot;,<br align=\"left\"/>  &quot;examples&quot;,<br align=\"left\"/>  &quot;api&quot;,<br align=\"left\"/>  &quot;cli&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  }\n\n  // Root-level notes\n  \"note_Language_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><i>@Philosophy</i></td></tr><tr><td align=\"left\">DyGram bridges thought and system. Its<br/>lean syntax captures concepts instantly,<br/>while its rich semantics enable complex<br/>system modeling. The language evolves<br/>with your understanding.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Language_0\" -> \"Language__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_config_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><i>@Pattern</i></td></tr><tr><td align=\"left\">Configuration context is singleton and<br/>automatically inherited by all nested<br/>nodes through semantic scoping. No<br/>explicit wiring needed—DyGram<br/>understands structure.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_config_0\" -> \"config\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"Generate\" -> \"Initialize\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Generate\" -> \"Json\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Running\" -> \"RuntimeState\" [penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Generate\" -> \"Visualization\" [penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Language__cluster_anchor\" -> \"Grammar\" [taillabel=\"1\", headlabel=\"1\", arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Language\"];\n  \"Language__cluster_anchor\" -> \"NodeTypes\" [taillabel=\"1\", headlabel=\"1\", arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Language\"];\n  \"Language__cluster_anchor\" -> \"ArrowTypes\" [taillabel=\"1\", headlabel=\"1\", arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Language\"];\n  \"Language__cluster_anchor\" -> \"TypeSystem\" [taillabel=\"1\", headlabel=\"1\", arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Language\"];\n  \"Tooling__cluster_anchor\" -> \"CLI\" [taillabel=\"1\", headlabel=\"1\", arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Tooling\"];\n  \"Tooling__cluster_anchor\" -> \"Playground\" [taillabel=\"1\", headlabel=\"1\", arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Tooling\"];\n  \"Tooling__cluster_anchor\" -> \"Documentation\" [taillabel=\"1\", headlabel=\"1\", arrowhead=odiamond, arrowtail=none, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_Tooling\"];\n  \"CLI\" -> \"Compilation__cluster_anchor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>implements</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", lhead=\"cluster_Compilation\"];\n  \"CLI\" -> \"Runtime__cluster_anchor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>implements</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", lhead=\"cluster_Runtime\"];\n  \"Playground\" -> \"Compilation__cluster_anchor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>implements</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", lhead=\"cluster_Compilation\"];\n  \"Playground\" -> \"Visualization\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>implements</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Parse\" -> \"Grammar\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Execute\" -> \"NodeTypes\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>reads</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Execute\" -> \"ArrowTypes\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>reads</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Running\" -> \"Execute\" [dir=both, arrowhead=normal, arrowtail=normal, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Visualization\" -> \"Generate\" [dir=both, arrowhead=normal, arrowtail=normal, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Parse\" -> \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>reads</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Generate\" -> \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>reads</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Execute\" -> \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>reads</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"SourceCode\" -> \"Parse\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Parse\" -> \"Validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Validate\" -> \"Transform\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Transform\" -> \"Generate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Initialize\" -> \"Execute\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Execute\" -> \"Running\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"Parse\" -> \"SourceCode\" [label=\"reads input\", style=dashed, color=blue];\n  \"Parse\" -> \"Language\" [label=\"reads references\", style=dashed, color=blue];\n  \"Generate\" -> \"config\" [label=\"reads formats\", style=dashed, color=blue];\n  \"Playground\" -> \"config\" [label=\"reads editors\", style=dashed, color=blue];\n}",
+  "svgHash": "b75952cfd1660114ea54131c19ad0f93a3e816960e01daa55c7009a4d12ad245"
+}

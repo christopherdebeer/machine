@@ -1,0 +1,172 @@
+{
+  "json": {
+    "title": "AI-Powered Product Development",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "idea",
+        "type": "input",
+        "attributes": [
+          {
+            "name": "concept",
+            "value": "Mobile app for task management"
+          },
+          {
+            "name": "target",
+            "value": "productivity users"
+          },
+          {
+            "name": "constraints",
+            "value": [
+              "budget: $50k",
+              "timeline: 3 months"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "analyze",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Given the concept '{{ idea.concept }}' for {{ idea.target }}, with constraints {{ idea.constraints }}, identify the 3 most critical features to prototype first. Consider market viability and technical complexity."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ]
+      },
+      {
+        "name": "research",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "activities",
+            "value": [
+              "market analysis",
+              "competitor review"
+            ]
+          },
+          {
+            "name": "input",
+            "value": "{{ analyze.output }}"
+          }
+        ]
+      },
+      {
+        "name": "prototype",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Create detailed wireframes and technical architecture for: {{ analyze.output }}. Ensure designs address {{ idea.target }} needs."
+          }
+        ]
+      },
+      {
+        "name": "review",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "reviewers",
+            "value": [
+              "product",
+              "engineering",
+              "design"
+            ]
+          }
+        ],
+        "title": "Stakeholder Review"
+      },
+      {
+        "name": "decision",
+        "type": "output",
+        "attributes": [
+          {
+            "name": "criteria",
+            "value": [
+              "user feedback",
+              "technical feasibility",
+              "market fit"
+            ]
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "idea",
+        "target": "analyze",
+        "arrowType": "->"
+      },
+      {
+        "source": "analyze",
+        "target": "research",
+        "arrowType": "->"
+      },
+      {
+        "source": "research",
+        "target": "prototype",
+        "arrowType": "->"
+      },
+      {
+        "source": "prototype",
+        "target": "review",
+        "arrowType": "->"
+      },
+      {
+        "source": "review",
+        "target": "decision",
+        "arrowType": "->"
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "analyze",
+        "target": "idea",
+        "reason": "reads prompt",
+        "path": "idea.concept"
+      },
+      {
+        "source": "analyze",
+        "target": "idea",
+        "reason": "reads prompt",
+        "path": "idea.target"
+      },
+      {
+        "source": "analyze",
+        "target": "idea",
+        "reason": "reads prompt",
+        "path": "idea.constraints"
+      },
+      {
+        "source": "research",
+        "target": "analyze",
+        "reason": "reads input",
+        "path": "analyze.output"
+      },
+      {
+        "source": "prototype",
+        "target": "analyze",
+        "reason": "reads prompt",
+        "path": "analyze.output"
+      },
+      {
+        "source": "prototype",
+        "target": "idea",
+        "reason": "reads prompt",
+        "path": "idea.target"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>AI-Powered Product Development</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"idea\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idea</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"concept__key\" align=\"left\" balign=\"left\">concept</td><td port=\"concept__value\" align=\"left\" balign=\"left\">Mobile app for task management</td></tr><tr><td port=\"target__key\" align=\"left\" balign=\"left\">target</td><td port=\"target__value\" align=\"left\" balign=\"left\">productivity users</td></tr><tr><td port=\"constraints__key\" align=\"left\" balign=\"left\">constraints</td><td port=\"constraints__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;budget: $50k&quot;,<br align=\"left\"/>  &quot;timeline: 3 months&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Given the concept '{{ idea.concept }}'<br/>for {{ idea.target }}, with constraints<br/>{{ idea.constraints }}, identify the 3<br/>most critical features to prototype<br/>first. Consider market viability and<br/>technical complexity.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"research\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>research</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"activities__key\" align=\"left\" balign=\"left\">activities</td><td port=\"activities__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;market analysis&quot;,<br align=\"left\"/>  &quot;competitor review&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input</td><td port=\"input__value\" align=\"left\" balign=\"left\">{{ analyze.output }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"prototype\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prototype</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create detailed wireframes and technical<br/>architecture for: {{ analyze.output }}.<br/>Ensure designs address {{ idea.target }}<br/>needs.</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"review\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>review</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Stakeholder Review</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"reviewers__key\" align=\"left\" balign=\"left\">reviewers</td><td port=\"reviewers__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;product&quot;,<br align=\"left\"/>  &quot;engineering&quot;,<br align=\"left\"/>  &quot;design&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"decision\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>decision</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"criteria__key\" align=\"left\" balign=\"left\">criteria</td><td port=\"criteria__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user feedback&quot;,<br align=\"left\"/>  &quot;technical feasibility&quot;,<br align=\"left\"/>  &quot;market fit&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"idea\" -> \"analyze\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyze\" -> \"research\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"research\" -> \"prototype\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"prototype\" -> \"review\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"review\" -> \"decision\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"analyze\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"research\" -> \"analyze\" [label=\"reads input\", style=dashed, color=blue];\n  \"prototype\" -> \"analyze\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"prototype\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "eb797ec7c47a66f83773017df8df7e3c2e69581d509a79d2b940a1977b486fda"
+}
