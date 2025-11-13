@@ -90,12 +90,6 @@
           }
         ],
         "arrowType": "->",
-        "value": {
-          "text": "@style(color: green; penwidth: 2;)"
-        },
-        "attributes": {
-          "text": "@style(color: green; penwidth: 2;)"
-        },
         "style": {
           "color": "green",
           "penwidth": 2
@@ -107,6 +101,6 @@
       "rankdir": "LR"
     }
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complete Styling Demo</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v @style</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"LR\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process data</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", color=\"blue\", shape=\"box\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i> <i>@critical</i></td></tr><tr><td align=\"left\">Validate</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", fillcolor=\"#ffcccc\", penwidth=\"3\", color=\"#cc0000\"];\n\n  // Edges\n  \"process\" -> \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>@style(color: green; penwidth: 2;)</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"green\", penwidth=\"2\"];\n}",
-  "svgHash": "a6e81b8dfe9504e468bbb4ef909e372a8251605034978e6e05748a5f1625c8a3"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complete Styling Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"LR\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", color=\"blue\", shape=\"box\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i> <i>@critical</i></td></tr><tr><td align=\"left\">Validate</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", fillcolor=\"#ffcccc\", penwidth=\"3\", color=\"#cc0000\"];\n\n  // Edges\n  \"process\" -> \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"green\", penwidth=\"2\"];\n}",
+  "svgHash": "a614f7e045f93c16531da12c13819efce812eca552fec2d700a8d3f6f7906cd8"
 }

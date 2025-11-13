@@ -43,12 +43,6 @@
           }
         ],
         "arrowType": "->",
-        "value": {
-          "text": "@style(color: red; penwidth: 4;)"
-        },
-        "attributes": {
-          "text": "@style(color: red; penwidth: 4;)"
-        },
         "style": {
           "color": "red",
           "penwidth": 4
@@ -67,12 +61,6 @@
           }
         ],
         "arrowType": "->",
-        "value": {
-          "text": "@style(color: gray; style: dashed;)"
-        },
-        "attributes": {
-          "text": "@style(color: gray; style: dashed;)"
-        },
         "style": {
           "color": "gray",
           "style": "dashed"
@@ -91,6 +79,6 @@
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Styled Edges</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>critical</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Critical Path</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"optional\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>optional</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Optional</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">End</td></tr></table>>, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"start\" -> \"critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>@style(color: red; penwidth: 4;)</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"red\", penwidth=\"4\"];\n  \"start\" -> \"optional\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>@style(color: gray; style: dashed;)</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"gray\", style=\"dashed\"];\n  \"critical\" -> \"end\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"optional\" -> \"end\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "9f0da99d8c4b349163dcb86db5db587353bf30dbeed21e29d00f7338a9d37d8f"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Styled Edges</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>critical</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Critical Path</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"optional\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>optional</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Optional</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">End</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"start\" -> \"critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"red\", penwidth=\"4\"];\n  \"start\" -> \"optional\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"gray\", style=\"dashed\"];\n  \"critical\" -> \"end\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"optional\" -> \"end\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
+  "svgHash": "dcfe5b049e6c0d6453ed19b5d99fc3982cb4cf9ff7642dff952248123955f591"
 }
