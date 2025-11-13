@@ -1,0 +1,36 @@
+// Test: Template Reference Validation
+// This file demonstrates the new template reference validator
+
+machine "Template Reference Tests"
+
+// ✅ Valid: Template references existing node and attribute
+Input idea {
+    concept: "Mobile app";
+}
+
+Task analyze {
+    prompt: "Analyze {{ idea.concept }} for feasibility";
+}
+
+idea -> analyze;
+
+// ❌ Error: Template references non-existent node
+Task broken {
+    prompt: "Use data from {{ market.trends }}";
+    // Should error: Node 'market' not found
+}
+
+// ❌ Error: Template references non-existent attribute
+Task broken2 {
+    prompt: "Check {{ idea.priority }}";
+    // Should error: Node 'idea' does not have attribute 'priority'
+}
+
+// ✅ Valid: Adding the missing node fixes validation
+Context market {
+    trends: "Growing demand";
+}
+
+Task fixed {
+    prompt: "Use data from {{ market.trends }}";
+}

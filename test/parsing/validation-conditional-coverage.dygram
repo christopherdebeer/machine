@@ -1,0 +1,47 @@
+// Test: Conditional Edge Coverage Validation
+// This file demonstrates the new conditional edge validator
+
+machine "Conditional Coverage Tests"
+
+// ⚠️ Warning: All edges are conditional - machine could get stuck
+Input idea {
+    risk: "medium";
+}
+
+State evaluate;
+State build;
+State pivot;
+
+// Only handles "low" and "high" - what about "medium"?
+evaluate -when: "idea.risk == 'low'"-> build;
+evaluate -when: "idea.risk == 'high'"-> pivot;
+
+// ✅ Fixed: Add unconditional fallback
+State research;
+evaluate -> research;  // Fallback for unmatched conditions
+
+// ℹ️ Info: Multiple conditions on same variable
+Context data {
+    status: "pending";
+}
+
+State process;
+State success;
+State failure;
+State retry;
+
+// All conditional branches on 'data.status'
+process -when: "data.status == 'ready'"-> success;
+process -when: "data.status == 'error'"-> failure;
+process -when: "data.status == 'pending'"-> retry;
+// Should suggest: Verify all possible values of 'data.status' are covered
+
+// ✅ Best practice: Mix of conditional and unconditional
+State check;
+State priority_path;
+State normal_path;
+State default_path;
+
+check -when: "data.priority > 5"-> priority_path;
+check -when: "data.priority > 0"-> normal_path;
+check -> default_path;  // Unconditional fallback ensures machine never gets stuck

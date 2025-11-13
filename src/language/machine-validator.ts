@@ -5,6 +5,8 @@ import { TypeChecker } from './type-checker.js';
 import { GraphValidator } from './graph-validator.js';
 import { DependencyAnalyzer } from './dependency-analyzer.js';
 import { ImportValidator } from './import-system/import-validator.js';
+import { parseTemplateString } from './template-parser.js';
+import { EdgeConditionParser } from './utils/edge-conditions.js';
 
 /**
  * Registry for validation checks.
@@ -27,6 +29,10 @@ export class MachineValidationRegistry extends ValidationRegistry {
                 validator.checkRelationshipSemantics.bind(validator),
                 // Context access validation
                 validator.checkContextAccess.bind(validator),
+                // Template and dependency validation
+                validator.checkTemplateReferences.bind(validator),
+                validator.checkConditionalEdgeCoverage.bind(validator),
+                validator.checkExecutionCompleteness.bind(validator),
                 // Import validation
                 validator.checkImports.bind(validator),
             ],
@@ -674,6 +680,314 @@ export class MachineValidator {
         }
 
         return '->';  // Default to association
+    }
+
+    // ========== Validation: Template and Dependency Validation ==========
+
+    /**
+     * Validate template references in attributes
+     * Checks that {{ }} references point to existing nodes and attributes
+     */
+    checkTemplateReferences(machine: Machine, accept: ValidationAcceptor): void {
+        // Build node map for quick lookup
+        const nodeMap = new Map<string, Node>();
+        const nodeAttributes = new Map<string, Set<string>>();
+
+        const collectNodes = (node: Node) => {
+            nodeMap.set(node.name, node);
+
+            // Collect attribute names
+            const attrNames = new Set<string>();
+            node.attributes?.forEach(attr => {
+                if (attr.name) {
+                    attrNames.add(attr.name);
+                }
+            });
+            nodeAttributes.set(node.name, attrNames);
+
+            // Recursively process children
+            node.nodes.forEach(child => collectNodes(child));
+        };
+
+        machine.nodes.forEach(node => collectNodes(node));
+
+        // Helper to resolve a template reference
+        const resolveReference = (reference: string): { node: Node | null; attribute: string | null; error: string | null } => {
+            const parts = reference.split('.');
+
+            if (parts.length === 0) {
+                return { node: null, attribute: null, error: 'Empty reference' };
+            }
+
+            // First part should be a node name
+            const nodeName = parts[0];
+            const node = nodeMap.get(nodeName);
+
+            if (!node) {
+                return {
+                    node: null,
+                    attribute: null,
+                    error: `Node '${nodeName}' not found. Did you mean to add a node with this name?`
+                };
+            }
+
+            // If there's a second part, it should be an attribute
+            if (parts.length === 2) {
+                const attrName = parts[1];
+                const attrs = nodeAttributes.get(nodeName);
+
+                if (!attrs || !attrs.has(attrName)) {
+                    return {
+                        node,
+                        attribute: null,
+                        error: `Node '${nodeName}' does not have attribute '${attrName}'. Available attributes: ${attrs ? Array.from(attrs).join(', ') : 'none'}`
+                    };
+                }
+
+                return { node, attribute: attrName, error: null };
+            }
+
+            // More than 2 parts or just node name
+            if (parts.length > 2) {
+                return {
+                    node,
+                    attribute: null,
+                    error: `Reference '${reference}' has too many parts. Use format: nodeName.attributeName`
+                };
+            }
+
+            // Just node name is OK (might be referencing the whole node)
+            return { node, attribute: null, error: null };
+        };
+
+        // Check each node's attributes for template references
+        const checkNode = (node: Node) => {
+            node.attributes?.forEach(attr => {
+                if (!attr.value) return;
+
+                // Convert attribute value to string
+                let valueStr = '';
+                if (typeof attr.value === 'string') {
+                    valueStr = attr.value;
+                } else if (attr.value && typeof attr.value === 'object') {
+                    if ('value' in attr.value) {
+                        const val = (attr.value as any).value;
+                        valueStr = typeof val === 'string' ? val : '';
+                    }
+                }
+
+                if (!valueStr) return;
+
+                // Parse template string
+                const template = parseTemplateString(valueStr);
+
+                if (!template.isTemplate) return;
+
+                // Check each placeholder
+                template.parts
+                    .filter(part => part.type === 'placeholder')
+                    .forEach(placeholder => {
+                        const reference = placeholder.content;
+                        const result = resolveReference(reference);
+
+                        if (result.error) {
+                            accept('error',
+                                `Template reference '{{ ${reference} }}' is invalid: ${result.error}`,
+                                { node: attr, property: 'value' }
+                            );
+                        }
+                    });
+            });
+
+            // Recursively check children
+            node.nodes.forEach(child => checkNode(child));
+        };
+
+        machine.nodes.forEach(node => checkNode(node));
+    }
+
+    /**
+     * Validate conditional edge coverage
+     * Warns when all edges from a node are conditional (machine could get stuck)
+     */
+    checkConditionalEdgeCoverage(machine: Machine, accept: ValidationAcceptor): void {
+        // Build map of outbound edges per node
+        const outboundEdges = new Map<string, Array<{ edge: any; segment: EdgeSegment; target: string; condition: string | undefined }>>();
+
+        machine.edges.forEach(edge => {
+            edge.source.forEach(source => {
+                const sourceName = source.$refText || source.ref?.name;
+                if (!sourceName) return;
+
+                edge.segments.forEach(segment => {
+                    segment.target.forEach(target => {
+                        const targetName = target.$refText || target.ref?.name;
+                        if (!targetName) return;
+
+                        // Extract condition from edge
+                        const condition = EdgeConditionParser.extract(segment);
+
+                        if (!outboundEdges.has(sourceName)) {
+                            outboundEdges.set(sourceName, []);
+                        }
+
+                        outboundEdges.get(sourceName)!.push({
+                            edge,
+                            segment,
+                            target: targetName,
+                            condition
+                        });
+                    });
+                });
+            });
+        });
+
+        // Check each node's outbound edges
+        outboundEdges.forEach((edges, nodeName) => {
+            if (edges.length === 0) return;
+
+            // Check if ALL edges have conditions
+            const allConditional = edges.every(e => e.condition !== undefined);
+
+            if (allConditional && edges.length > 1) {
+                const node = this.findNodeByName(machine, nodeName);
+                if (!node) return;
+
+                const conditionList = edges.map(e => `'${e.condition}'`).join(', ');
+
+                accept('warning',
+                    `Node '${nodeName}' has ${edges.length} outbound edges, all conditional: ${conditionList}. ` +
+                    `If no condition matches, execution will stop. Consider adding an unconditional fallback edge.`,
+                    { node, property: 'name' }
+                );
+            }
+
+            // Check for potentially overlapping conditions (basic heuristic)
+            if (edges.length > 1) {
+                const conditions = edges.filter(e => e.condition).map(e => e.condition!);
+
+                // Simple check: if multiple conditions reference the same variable with different comparisons,
+                // suggest reviewing for completeness
+                const variables = new Set<string>();
+                conditions.forEach(cond => {
+                    // Extract simple variable names (basic pattern matching)
+                    const matches = cond.match(/\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g);
+                    if (matches) {
+                        matches.forEach(v => variables.add(v));
+                    }
+                });
+
+                if (variables.size === 1 && conditions.length > 1 && allConditional) {
+                    const varName = Array.from(variables)[0];
+                    const node = this.findNodeByName(machine, nodeName);
+                    if (!node) return;
+
+                    accept('info',
+                        `Node '${nodeName}' branches on variable '${varName}' with ${conditions.length} conditions. ` +
+                        `Verify that all possible values are covered.`,
+                        { node, property: 'name' }
+                    );
+                }
+            }
+        });
+    }
+
+    /**
+     * Validate execution completeness
+     * Checks for common patterns that make sketches non-executable in practice
+     */
+    checkExecutionCompleteness(machine: Machine, accept: ValidationAcceptor): void {
+        // Get dependency analyzer
+        const analyzer = new DependencyAnalyzer(machine);
+        const dependencies = analyzer.inferDependencies();
+
+        // Build execution graph (simplified - just looking at explicit edges)
+        const reachableFrom = new Map<string, Set<string>>();
+
+        // Build reachability map
+        machine.edges.forEach(edge => {
+            edge.source.forEach(source => {
+                const sourceName = source.$refText || source.ref?.name;
+                if (!sourceName) return;
+
+                if (!reachableFrom.has(sourceName)) {
+                    reachableFrom.set(sourceName, new Set());
+                }
+
+                edge.segments.forEach(segment => {
+                    segment.target.forEach(target => {
+                        const targetName = target.$refText || target.ref?.name;
+                        if (targetName) {
+                            reachableFrom.get(sourceName)!.add(targetName);
+                        }
+                    });
+                });
+            });
+        });
+
+        // Check each dependency to see if the source can reach the target via execution flow
+        dependencies.forEach(dep => {
+            // Skip context dependencies (already checked elsewhere)
+            const targetNode = this.findNodeByName(machine, dep.target);
+            if (targetNode && targetNode.type?.toLowerCase() === 'context') {
+                return;
+            }
+
+            // Check if there's an execution path
+            const hasExecutionPath = this.hasPath(reachableFrom, dep.source, dep.target);
+
+            if (!hasExecutionPath) {
+                const sourceNode = this.findNodeByName(machine, dep.source);
+                if (!sourceNode) return;
+
+                // Check if target is before source in execution order
+                const targetReachesSource = this.hasPath(reachableFrom, dep.target, dep.source);
+
+                if (!targetReachesSource) {
+                    accept('warning',
+                        `Node '${dep.source}' ${dep.reason} but there's no execution path from '${dep.target}' to '${dep.source}'. ` +
+                        `The reference may be undefined at runtime. Consider adding: ${dep.target} -> ... -> ${dep.source}`,
+                        { node: sourceNode, property: 'name' }
+                    );
+                } else {
+                    // Target comes after source - definitely will be undefined
+                    accept('error',
+                        `Node '${dep.source}' ${dep.reason} but '${dep.target}' comes after it in execution order. ` +
+                        `The reference will be undefined. Reorder the execution flow.`,
+                        { node: sourceNode, property: 'name' }
+                    );
+                }
+            }
+        });
+    }
+
+    /**
+     * Helper to check if there's a path from source to target in a graph
+     */
+    private hasPath(graph: Map<string, Set<string>>, source: string, target: string): boolean {
+        if (source === target) return true;
+
+        const visited = new Set<string>();
+        const queue = [source];
+
+        while (queue.length > 0) {
+            const current = queue.shift()!;
+            if (current === target) return true;
+
+            if (visited.has(current)) continue;
+            visited.add(current);
+
+            const neighbors = graph.get(current);
+            if (neighbors) {
+                neighbors.forEach(neighbor => {
+                    if (!visited.has(neighbor)) {
+                        queue.push(neighbor);
+                    }
+                });
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -22,6 +22,10 @@ Every DyGram, from a single arrow to a complex system, is immediately executable
 
 Run your model. See what it does. Refine it. DyGram grows with your understanding, from sketch to structure through continuous feedback.
 
+### Validation Guides Refinement
+
+Even the simplest sketches receive intelligent validation. Template references are checked, conditional logic is analyzed for gaps, and data flow is validated for consistency. Each validation error reveals a missing piece of your thought process—guiding you from concept to complete system.
+
 ### Intelligent by Design
 
 Leverage LLM reasoning at decision points while deterministic paths execute instantly. Your machine rides the rails—fast where it can be, thoughtful where it needs to be.
@@ -78,6 +82,25 @@ idea -> research -> prototype -> validation;
 ```
 
 **What changed:** Nodes have types (Input, Task, Output) and attributes. The workflow tells a story. Still simple, but more expressive.
+
+**Validation in action:** At this stage, DyGram validates that your structure makes sense—even without LLM prompts. If you write:
+
+```dy
+Task prototype {
+    spec: "{{ research.findings }}";
+}
+```
+
+You'll immediately see: **Error: Node 'research' does not have attribute 'findings'**. The validator guides you to add it:
+
+```dy
+Task research {
+    activities: ["market analysis", "competitor review"];
+    findings: "TBD";  // Validation satisfied
+}
+```
+
+This is more than syntax checking—it's validating your thought process. The validator ensures dependencies make sense before you even add intelligent behavior.
 
 ### Stage 3: Make it Intelligent
 
@@ -470,6 +493,10 @@ The barrier between idea and implementation should be zero. DyGram starts with h
 ### Execution Drives Evolution
 
 You learn by running, not planning. Every DyGram runs immediately, giving you feedback to guide the next iteration.
+
+### Validation Validates Thinking
+
+"Immediately executable" means more than traversing nodes—it means validating the coherence of your mental model. Template references are verified, conditional logic is checked for completeness, data dependencies are traced through execution paths. Every rough sketch reveals gaps in reasoning through intelligent validation.
 
 ### Structure Emerges
 

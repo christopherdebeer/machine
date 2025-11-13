@@ -1,0 +1,81 @@
+// Test: Progressive Refinement with Validation
+// This demonstrates how validation guides sketch evolution
+
+machine "Product Development - Progressive Refinement"
+
+// STAGE 1: Initial Sketch (just structure)
+// ✅ Validates: Syntax correct, graph connected
+// ⚠️ But: No semantic meaning yet
+
+// STAGE 2: Add data dependencies
+// This creates checkable dependencies
+
+Input idea {
+    concept: "Task management app";
+    validated: false;
+}
+
+Task research {
+    focus: "{{ idea.concept }}";
+    // ✅ Template validates: idea.concept exists
+}
+
+Task prototype {
+    spec: "{{ research.findings }}";
+    // ❌ Error: research.findings doesn't exist!
+    // Fix: Add findings attribute to research
+}
+
+State review;
+
+idea -> research -> prototype -> review;
+
+// STAGE 3: Fix validation errors
+// Add missing attributes
+
+Task research_fixed {
+    focus: "{{ idea.concept }}";
+    findings: "Market analysis complete";
+    // ✅ Now research_fixed.findings exists
+}
+
+Task prototype_fixed {
+    spec: "{{ research_fixed.findings }}";
+    // ✅ Template validates correctly
+}
+
+// STAGE 4: Add decision logic
+// ⚠️ Conditional edge validation kicks in
+
+State decision;
+
+// All conditional - machine could get stuck!
+review -when: "idea.validated == true"-> decision;
+review -when: "idea.validated == false"-> research;
+// ⚠️ Warning: All edges conditional, no fallback
+
+// STAGE 5: Fix conditional coverage
+State needs_work;
+
+review -when: "idea.validated == true"-> decision;
+review -when: "idea.validated == false"-> needs_work;
+review -> research;  // ✅ Unconditional fallback added
+
+// STAGE 6: Add missing execution paths
+// ❌ Error: idea.validated is never set to true
+
+Task complete {
+    prompt: "Finalize {{ prototype_fixed.spec }}";
+}
+
+// Fix: Add task that updates validation status
+Task validate {
+    prompt: "Validate {{ idea.concept }}";
+    // This would set idea.validated in real execution
+}
+
+// ✅ Proper flow with validation
+idea -> research_fixed -> validate -> prototype_fixed -> review;
+
+// RESULT: Validation guided us from rough sketch to executable machine
+// Each validation error revealed a missing piece of the thought process

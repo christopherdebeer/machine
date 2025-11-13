@@ -1,0 +1,73 @@
+// Test: Execution Flow Validation
+// This file demonstrates the new execution completeness validator
+
+machine "Execution Flow Tests"
+
+// ✅ Valid: Proper execution order
+Input question {
+    text: "What is X?";
+}
+
+Task search {
+    prompt: "Search for {{ question.text }}";
+}
+
+Task summarize {
+    prompt: "Summarize {{ search.results }}";
+}
+
+// Correct flow: question -> search -> summarize
+question -> search -> summarize;
+
+// ❌ Error: Reference comes after source in execution
+Input idea;
+Task analyze {
+    prompt: "Analyze {{ research.findings }}";
+    // Error: 'research' comes AFTER 'analyze' in execution
+}
+
+Task research {
+    findings: "TBD";
+}
+
+idea -> analyze -> research;
+// Should error: analyze reads research.findings but research comes after it
+
+// ⚠️ Warning: No execution path guarantees reference is set
+Task validate;
+Task compute {
+    prompt: "Compute based on {{ validate.result }}";
+}
+
+Task other;
+
+// Problem: No path from validate to compute
+idea -> validate;
+idea -> compute;
+// Should warn: compute reads validate.result but no path ensures validate runs first
+
+// ✅ Fixed: Add execution dependency
+// Correct approach:
+Input data;
+Task check {
+    status: "checked";
+}
+
+Task use {
+    prompt: "Use {{ check.status }}";
+}
+
+// Proper flow ensures check runs before use
+data -> check -> use;
+
+// ✅ Context nodes work differently (not part of execution flow)
+Context config {
+    apiKey: "secret";
+}
+
+Task callAPI {
+    prompt: "Call API with {{ config.apiKey }}";
+}
+
+// No execution path needed - contexts are always available
+data -> callAPI;
