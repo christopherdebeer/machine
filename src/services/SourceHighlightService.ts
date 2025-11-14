@@ -89,6 +89,8 @@ export class SourceHighlightService {
     private cursorTrackingDisposer: (() => void) | null = null;
     private onCursorChange?: (location: SourceLocation) => void;
     private onClearDiagramHighlights?: () => void;
+    private isProgrammaticMove: boolean = false;
+    private hasActiveSourceHighlight: boolean = false;
 
     /**
      * Register a CodeMirror editor view with this service
@@ -115,6 +117,13 @@ export class SourceHighlightService {
 
         const updateListener = EditorView.updateListener.of((update) => {
             if (update.selectionSet) {
+                // Skip processing if this is a programmatic move (check immediately, not in timeout)
+                if (this.isProgrammaticMove) {
+                    console.log('⏭️ SourceHighlightService: Skipping cursor tracking due to programmatic move');
+                    this.isProgrammaticMove = false; // Reset flag
+                    return;
+                }
+
                 // Debounce cursor position updates
                 if (debounceTimeout) {
                     clearTimeout(debounceTimeout);
@@ -138,11 +147,14 @@ export class SourceHighlightService {
                         endOffset: selection.head
                     };
 
-                    console.log('📍 SourceHighlightService: Cursor moved to', location);
+                    console.log('📍 SourceHighlightService: User cursor moved to', location);
                     
-                    // Clear existing source highlights for mutual exclusivity
-                    console.log('🧹 SourceHighlightService: Clearing source highlights due to cursor movement');
-                    this.clearHighlights();
+                    // Only clear source highlights if we have an active source highlight (from SVG click)
+                    if (this.hasActiveSourceHighlight) {
+                        console.log('🧹 SourceHighlightService: Clearing source highlights due to user cursor movement');
+                        this.clearHighlights();
+                        this.hasActiveSourceHighlight = false;
+                    }
                     
                     // Trigger diagram highlighting
                     this.onCursorChange!(location);
@@ -212,6 +224,9 @@ export class SourceHighlightService {
             effects: addHighlight.of(location)
         });
 
+        // Mark that we have an active source highlight
+        this.hasActiveSourceHighlight = true;
+
         console.log('📜 SourceHighlightService: Scrolling to location');
         // Scroll to the highlighted location
         this.scrollToLocation(location);
@@ -232,6 +247,7 @@ export class SourceHighlightService {
 
     /**
      * Scroll the editor to show a specific source location
+     * Enhanced to show as much of the target range as possible with context
      */
     private scrollToLocation(location: SourceLocation): void {
         if (!this.editorView) {
@@ -240,11 +256,44 @@ export class SourceHighlightService {
 
         const doc = this.editorView.state.doc;
         const startPos = Math.min(location.startOffset, doc.length);
+        const endPos = Math.min(location.endOffset, doc.length);
 
-        // Scroll to the start of the highlighted range
-        this.editorView.dispatch({
-            selection: { anchor: startPos, head: startPos },
-            scrollIntoView: true
+        // Set flag to prevent cursor tracking from clearing highlights
+        this.isProgrammaticMove = true;
+
+        // Calculate the range to show
+        const rangeLength = endPos - startPos;
+        
+        // For single-line or short ranges, use enhanced positioning
+        if (rangeLength <= 100) {
+            // Get line information for context calculation
+            const startLine = doc.lineAt(startPos);
+            const endLine = doc.lineAt(endPos);
+            
+            // Add context lines (2-3 lines before start for readability)
+            const contextLines = 2;
+            const contextStartLine = Math.max(1, startLine.number - contextLines);
+            const contextStartPos = doc.line(contextStartLine).from;
+            
+            // Position cursor at start of range and scroll to show context
+            this.editorView.dispatch({
+                selection: { anchor: startPos, head: startPos },
+                effects: EditorView.scrollIntoView(startPos, { y: "start", yMargin: 20 })
+            });
+        } else {
+            // For longer ranges, try to show as much as possible
+            this.editorView.dispatch({
+                selection: { anchor: startPos, head: startPos },
+                effects: EditorView.scrollIntoView(startPos, { y: "start", yMargin: 10 })
+            });
+        }
+
+        console.log('📜 SourceHighlightService: Enhanced scroll to location', {
+            startPos,
+            endPos,
+            rangeLength,
+            startLine: doc.lineAt(startPos).number,
+            endLine: doc.lineAt(endPos).number
         });
     }
 

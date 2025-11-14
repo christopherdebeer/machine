@@ -114,6 +114,93 @@ function findElementsInRange(sourceMap: SourceElementMap, location: SourceLocati
 }
 
 /**
+ * Scroll SVG container to show highlighted elements when in zoom mode
+ */
+function scrollToHighlightedElements(svgElement: SVGElement, elementIds: string[]): void {
+    if (elementIds.length === 0) return;
+
+    const container = svgElement.parentElement;
+    if (!container) return;
+
+    // Check if we're in zoom mode (container has scrollbars)
+    const hasHorizontalScroll = container.scrollWidth > container.clientWidth;
+    const hasVerticalScroll = container.scrollHeight > container.clientHeight;
+    
+    if (!hasHorizontalScroll && !hasVerticalScroll) {
+        // Not in zoom mode, no need to scroll
+        return;
+    }
+
+    // Calculate bounding box of all highlighted elements
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    let foundElements = 0;
+
+    elementIds.forEach(elementId => {
+        const element = svgElement.querySelector(`#${elementId}`);
+        if (element) {
+            try {
+                const bbox = (element as SVGGraphicsElement).getBBox();
+                minX = Math.min(minX, bbox.x);
+                minY = Math.min(minY, bbox.y);
+                maxX = Math.max(maxX, bbox.x + bbox.width);
+                maxY = Math.max(maxY, bbox.y + bbox.height);
+                foundElements++;
+            } catch (error) {
+                // Some elements might not support getBBox, skip them
+                console.warn('Could not get bounding box for element', elementId, error);
+            }
+        }
+    });
+
+    if (foundElements === 0) return;
+
+    // Calculate center point of highlighted elements
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+
+    // Get SVG viewBox or use SVG dimensions
+    const svgEl = svgElement as SVGSVGElement;
+    const viewBox = svgEl.viewBox?.baseVal;
+    const svgWidth = viewBox?.width || svgElement.clientWidth || 800;
+    const svgHeight = viewBox?.height || svgElement.clientHeight || 600;
+
+    // Calculate scroll position to center the highlighted elements
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    
+    // Convert SVG coordinates to container scroll coordinates
+    const scaleX = container.scrollWidth / svgWidth;
+    const scaleY = container.scrollHeight / svgHeight;
+    
+    const targetScrollX = (centerX * scaleX) - (containerWidth / 2);
+    const targetScrollY = (centerY * scaleY) - (containerHeight / 2);
+
+    // Clamp scroll positions to valid ranges
+    const maxScrollX = container.scrollWidth - containerWidth;
+    const maxScrollY = container.scrollHeight - containerHeight;
+    
+    const scrollX = Math.max(0, Math.min(targetScrollX, maxScrollX));
+    const scrollY = Math.max(0, Math.min(targetScrollY, maxScrollY));
+
+    // Smooth scroll to the calculated position
+    container.scrollTo({
+        left: scrollX,
+        top: scrollY,
+        behavior: 'smooth'
+    });
+
+    console.log('📜 DiagramHighlighter: Auto-scrolled to highlighted elements', {
+        elementIds,
+        centerX,
+        centerY,
+        scrollX,
+        scrollY,
+        containerSize: { width: containerWidth, height: containerHeight },
+        svgSize: { width: svgWidth, height: svgHeight }
+    });
+}
+
+/**
  * Diagram Highlighter Component
  */
 export const DiagramHighlighter: React.FC<DiagramHighlighterProps> = ({
@@ -183,8 +270,8 @@ export const DiagramHighlighter: React.FC<DiagramHighlighterProps> = ({
         style.textContent = `
             .source-cursor-highlight {
                 filter: drop-shadow(0 0 4px rgba(255, 193, 7, 0.8)) !important;
-                stroke: rgba(255, 193, 7, 0.9) !important;
-                stroke-width: 2px !important;
+                /* stroke: rgba(255, 193, 7, 0.9) !important;
+                stroke-width: 2px !important; */
                 animation: pulse-highlight 1.5s ease-in-out infinite alternate;
             }
             
@@ -193,12 +280,7 @@ export const DiagramHighlighter: React.FC<DiagramHighlighterProps> = ({
                 to { filter: drop-shadow(0 0 8px rgba(255, 193, 7, 1.0)); }
             }
             
-            /* Cluster highlighting */
-            .source-cursor-highlight[class*="cluster"] {
-                stroke: rgba(255, 193, 7, 0.7) !important;
-                stroke-width: 3px !important;
-                fill: rgba(255, 193, 7, 0.1) !important;
-            }
+            
             
             /* Note highlighting */  
             .source-cursor-highlight[shape="note"] {
@@ -252,6 +334,9 @@ export const DiagramHighlighter: React.FC<DiagramHighlighterProps> = ({
             console.log('🎯 DiagramHighlighter: Cursor at', location, 'highlighting elements:', elementsToHighlight);
             highlightElements(svgElement, elementsToHighlight, true);
             currentHighlightedElements.current = elementsToHighlight;
+            
+            // Auto-scroll to highlighted elements if they're not visible
+            scrollToHighlightedElements(svgElement, elementsToHighlight);
         }
 
     }, []);
