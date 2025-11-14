@@ -272,24 +272,27 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
         const handleElementClick = (event: Event) => {
             const target = event.target as SVGElement;
 
-            // Find the closest element with source position data
+            // Find the closest element with source position data (in xlink:href or href)
             let element: SVGElement | null = target;
             while (element && element !== svgContainerRef.current) {
-                const lineStart = element.getAttribute('data-line-start');
-                const charStart = element.getAttribute('data-char-start');
-                const lineEnd = element.getAttribute('data-line-end');
-                const charEnd = element.getAttribute('data-char-end');
+                // Check for URL attribute (rendered as xlink:href in SVG)
+                const href = element.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                           element.getAttribute('href');
 
-                if (lineStart && charStart && lineEnd && charEnd) {
-                    onSourceLocationClick?.({
-                        lineStart: parseInt(lineStart, 10),
-                        charStart: parseInt(charStart, 10),
-                        lineEnd: parseInt(lineEnd, 10),
-                        charEnd: parseInt(charEnd, 10)
-                    });
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return;
+                if (href && href.startsWith('#L')) {
+                    // Parse format: #L{startLine}:{startChar}-{endLine}:{endChar}
+                    const match = href.match(/^#L(\d+):(\d+)-(\d+):(\d+)$/);
+                    if (match) {
+                        onSourceLocationClick?.({
+                            lineStart: parseInt(match[1], 10),
+                            charStart: parseInt(match[2], 10),
+                            lineEnd: parseInt(match[3], 10),
+                            charEnd: parseInt(match[4], 10)
+                        });
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return;
+                    }
                 }
 
                 element = element.parentElement as SVGElement | null;
@@ -299,7 +302,8 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
         const svgContainer = svgContainerRef.current;
 
         // Get all interactive SVG elements (nodes and edges with position data)
-        const elements = svgContainer.querySelectorAll('[data-line-start]');
+        // Look for elements with xlink:href or href attributes
+        const elements = svgContainer.querySelectorAll('[href^="#L"], [*|href^="#L"]');
 
         elements.forEach(element => {
             // Desktop: click

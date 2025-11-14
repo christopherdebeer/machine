@@ -603,14 +603,24 @@ export const CodeMirrorPlayground: React.FC = () => {
 
     if (!outputPanelRef.current) return;
 
-    // Find all SVG elements with position data
-    const elements = outputPanelRef.current.querySelectorAll('[data-line-start]');
+    // Find all SVG elements with position data (in xlink:href or href)
+    const elements = outputPanelRef.current.querySelectorAll('[href^="#L"], [*|href^="#L"]');
 
     elements.forEach(element => {
-      const lineStart = parseInt(element.getAttribute('data-line-start') || '0', 10);
-      const charStart = parseInt(element.getAttribute('data-char-start') || '0', 10);
-      const lineEnd = parseInt(element.getAttribute('data-line-end') || '0', 10);
-      const charEnd = parseInt(element.getAttribute('data-char-end') || '0', 10);
+      // Parse position from href attribute: #L{startLine}:{startChar}-{endLine}:{endChar}
+      const svgElement = element as SVGElement;
+      const href = svgElement.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                  svgElement.getAttribute('href');
+
+      if (!href || !href.startsWith('#L')) return;
+
+      const match = href.match(/^#L(\d+):(\d+)-(\d+):(\d+)$/);
+      if (!match) return;
+
+      const lineStart = parseInt(match[1], 10);
+      const charStart = parseInt(match[2], 10);
+      const lineEnd = parseInt(match[3], 10);
+      const charEnd = parseInt(match[4], 10);
 
       // Check if cursor is within this element's range
       if (line >= lineStart && line <= lineEnd) {
@@ -618,7 +628,6 @@ export const CodeMirrorPlayground: React.FC = () => {
         if (line === lineEnd && character > charEnd) return;
 
         // Highlight this element
-        const svgElement = element as SVGElement;
         svgElement.style.filter = 'drop-shadow(0 0 8px rgba(14, 99, 156, 0.8))';
         svgElement.style.opacity = '1';
         currentHighlightedElements.current.push(svgElement);
