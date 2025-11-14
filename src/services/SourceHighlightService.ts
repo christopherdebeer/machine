@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { EditorView, Decoration, DecorationSet } from '@codemirror/view';
-import { StateField, StateEffect, Extension } from '@codemirror/state';
+import { StateField, StateEffect, Extension, Compartment } from '@codemirror/state';
 import type { SourceLocation } from '../components/InteractiveSVG';
 
 // State effect for adding highlights
@@ -87,6 +87,8 @@ export const sourceHighlightExtension: Extension = [
 export class SourceHighlightService {
     private editorView: EditorView | null = null;
     private cursorTrackingDisposer: (() => void) | null = null;
+    private cursorTrackingCompartment = new Compartment();
+    private cursorTrackingInitialized = false;
     private onCursorChange?: (location: SourceLocation) => void;
     private onClearDiagramHighlights?: () => void;
     private isProgrammaticMove: boolean = false;
@@ -162,15 +164,37 @@ export class SourceHighlightService {
             }
         });
 
-        // Add the update listener to the editor
-        this.editorView.dispatch({
-            effects: StateEffect.appendConfig.of(updateListener)
-        });
+        const applyUpdateListener = () => {
+            if (!this.editorView) {
+                return;
+            }
+
+            if (!this.cursorTrackingInitialized) {
+                this.editorView.dispatch({
+                    effects: StateEffect.appendConfig.of(
+                        this.cursorTrackingCompartment.of(updateListener)
+                    )
+                });
+                this.cursorTrackingInitialized = true;
+            } else {
+                this.editorView.dispatch({
+                    effects: this.cursorTrackingCompartment.reconfigure(updateListener)
+                });
+            }
+        };
+
+        applyUpdateListener();
 
         // Store disposer function
         this.cursorTrackingDisposer = () => {
             if (debounceTimeout) {
                 clearTimeout(debounceTimeout);
+            }
+
+            if (this.cursorTrackingInitialized && this.editorView) {
+                this.editorView.dispatch({
+                    effects: this.cursorTrackingCompartment.reconfigure([])
+                });
             }
         };
     }
