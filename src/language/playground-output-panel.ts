@@ -45,6 +45,7 @@ export class OutputPanel {
     private outputData: OutputData = {};
     private toggleContainer?: HTMLElement;
     private contentContainer?: HTMLElement;
+    private onSourceLocationClick?: (location: { lineStart: number; charStart: number; lineEnd: number; charEnd: number }) => void;
 
     constructor(config: OutputPanelConfig) {
         this.container = config.container;
@@ -53,6 +54,13 @@ export class OutputPanel {
         this.mobile = config.mobile || false;
 
         this.initialize();
+    }
+
+    /**
+     * Set callback for source location clicks (SVG → Editor)
+     */
+    setSourceLocationClickHandler(handler: (location: { lineStart: number; charStart: number; lineEnd: number; charEnd: number }) => void): void {
+        this.onSourceLocationClick = handler;
     }
 
     /**
@@ -198,6 +206,9 @@ export class OutputPanel {
 
         if (this.outputData.svg) {
             this.contentContainer.innerHTML = this.outputData.svg;
+
+            // Setup bidirectional highlighting: SVG → Editor
+            this.setupSVGClickHandlers();
         } else {
             this.contentContainer.innerHTML = `
                 <div style="color: #858585; text-align: center; padding: 40px;">
@@ -205,6 +216,51 @@ export class OutputPanel {
                 </div>
             `;
         }
+    }
+
+    /**
+     * Setup click handlers for SVG elements to highlight source code
+     */
+    private setupSVGClickHandlers(): void {
+        if (!this.contentContainer || !this.onSourceLocationClick) return;
+
+        const handleElementClick = (event: Event) => {
+            const target = event.target as SVGElement;
+
+            // Find the closest element with source position data
+            let element: SVGElement | null = target;
+            while (element && element !== this.contentContainer) {
+                const href = element.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                           element.getAttribute('href');
+
+                if (href && href.startsWith('#L')) {
+                    // Parse format: #L{startLine}:{startChar}-{endLine}:{endChar}
+                    const match = href.match(/^#L(\d+):(\d+)-(\d+):(\d+)$/);
+                    if (match) {
+                        this.onSourceLocationClick?.({
+                            lineStart: parseInt(match[1], 10),
+                            charStart: parseInt(match[2], 10),
+                            lineEnd: parseInt(match[3], 10),
+                            charEnd: parseInt(match[4], 10)
+                        });
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return;
+                    }
+                }
+
+                element = element.parentElement as SVGElement | null;
+            }
+        };
+
+        // Get all interactive SVG elements
+        const elements = this.contentContainer.querySelectorAll('[href^="#L"], [*|href^="#L"]');
+
+        elements.forEach(element => {
+            element.addEventListener('click', handleElementClick);
+            element.addEventListener('touchend', handleElementClick, { passive: false } as any);
+            (element as HTMLElement).style.cursor = 'pointer';
+        });
     }
 
     /**
