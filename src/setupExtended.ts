@@ -267,13 +267,94 @@ s1 -catch-> init;
         editor?.layout({} as IDimension);
     };
 
+    // Track highlighted SVG elements for cleanup
+    let currentHighlightedElements: SVGElement[] = [];
+
+    // Setup bidirectional highlighting: Editor cursor → SVG elements
+    editor?.onDidChangeCursorPosition((e) => {
+        if (!outputPanel) return;
+
+        const position = e.position;
+        const line = position.lineNumber - 1; // Monaco is 1-based, our format is 0-based
+        const character = position.column - 1;
+
+        // Clear previous SVG highlights
+        currentHighlightedElements.forEach(element => {
+            element.style.filter = '';
+            element.style.opacity = '';
+        });
+        currentHighlightedElements = [];
+
+        // Find output container
+        const outputContainer = document.getElementById('output-panel-container');
+        if (!outputContainer) return;
+
+        // Find all SVG elements with position data (in xlink:href or href)
+        const elements = outputContainer.querySelectorAll('[href^="#L"], [*|href^="#L"]');
+
+        elements.forEach(element => {
+            const svgElement = element as SVGElement;
+            const href = svgElement.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                        svgElement.getAttribute('href');
+
+            if (!href || !href.startsWith('#L')) return;
+
+            // Parse position from href: #L{startLine}:{startChar}-{endLine}:{endChar}
+            const match = href.match(/^#L(\d+):(\d+)-(\d+):(\d+)$/);
+            if (!match) return;
+
+            const lineStart = parseInt(match[1], 10);
+            const charStart = parseInt(match[2], 10);
+            const lineEnd = parseInt(match[3], 10);
+            const charEnd = parseInt(match[4], 10);
+
+            // Check if cursor is within this element's range
+            if (line >= lineStart && line <= lineEnd) {
+                if (line === lineStart && character < charStart) return;
+                if (line === lineEnd && character > charEnd) return;
+
+                // Highlight this SVG element
+                svgElement.style.filter = 'drop-shadow(0 0 8px rgba(14, 99, 156, 0.8))';
+                svgElement.style.opacity = '1';
+                currentHighlightedElements.push(svgElement);
+            }
+        });
+    });
+
+    // Setup bidirectional highlighting: SVG → Editor cursor
+    if (outputPanel && editor) {
+        outputPanel.setSourceLocationClickHandler((location) => {
+            // Clear SVG highlights when clicking (they'll be reapplied by cursor move)
+            currentHighlightedElements.forEach(element => {
+                element.style.filter = '';
+                element.style.opacity = '';
+            });
+            currentHighlightedElements = [];
+
+            // Move cursor to the clicked location
+            editor.setPosition({
+                lineNumber: location.lineStart + 1, // Monaco is 1-based
+                column: location.charStart + 1
+            });
+
+            // Reveal the position in the center of the editor
+            editor.revealPositionInCenter({
+                lineNumber: location.lineStart + 1,
+                column: location.charStart + 1
+            });
+
+            // Set focus to the editor
+            editor.focus();
+        });
+    }
+
     editor?.addAction({
         // An unique identifier of the contributed action.
         id: "machine-exec",
-    
+
         // A label of the action that will be presented to the user.
         label: "Execute Machine",
-    
+
         // An optional array of keybindings for the action.
         keybindings: [
             KeyMod.CtrlCmd | KeyCode.F10,
@@ -283,17 +364,17 @@ s1 -catch-> init;
                 KeyMod.CtrlCmd | KeyCode.KeyM
             ),
         ],
-    
+
         // A precondition for this action.
         precondition: undefined,
-    
+
         // A rule to evaluate on top of the precondition in order to dispatch the keybindings.
         keybindingContext: undefined,
-    
+
         contextMenuGroupId: "navigation",
-    
+
         contextMenuOrder: 1.5,
-    
+
         // Method that will be executed when the action is triggered.
         // @param editor The editor instance is passed in as a convenience
         run: function (ed) {
