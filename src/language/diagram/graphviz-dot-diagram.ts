@@ -2058,7 +2058,17 @@ function generateNodeDefinition(
         style = runtimeStyle;
     }
 
-    return `${indent}"${node.name}" [label=<${htmlLabel}>, pad=0.5, shape=${shape}, ${style}];`;
+    // Add source position metadata for bidirectional highlighting
+    let sourceMetadata = '';
+    if (node.$sourceRange) {
+        const startLine = node.$sourceRange.start.line;
+        const startChar = node.$sourceRange.start.character;
+        const endLine = node.$sourceRange.end.line;
+        const endChar = node.$sourceRange.end.character;
+        sourceMetadata = `, data-line-start="${startLine}", data-char-start="${startChar}", data-line-end="${endLine}", data-char-end="${endChar}", data-node="${escapeDot(node.name)}"`;
+    }
+
+    return `${indent}"${node.name}" [label=<${htmlLabel}>, pad=0.5, shape=${shape}, ${style}${sourceMetadata}];`;
 }
 
 /**
@@ -2417,7 +2427,21 @@ function generateEdges(
         }
 
         edgeAttrs.push('labelOverlay="75%"');
-        edgeAttrs.push('labelhref="#srcLineTBD"');
+
+        // Add source position metadata for bidirectional highlighting
+        if (edge.$sourceRange) {
+            const startLine = edge.$sourceRange.start.line;
+            const startChar = edge.$sourceRange.start.character;
+            const endLine = edge.$sourceRange.end.line;
+            const endChar = edge.$sourceRange.end.character;
+            edgeAttrs.push(`data-line-start="${startLine}"`);
+            edgeAttrs.push(`data-char-start="${startChar}"`);
+            edgeAttrs.push(`data-line-end="${endLine}"`);
+            edgeAttrs.push(`data-char-end="${endChar}"`);
+            edgeAttrs.push(`data-edge="${escapeDot(edge.source + '->' + edge.target)}"`);
+        } else {
+            edgeAttrs.push('labelhref="#srcLineTBD"');
+        }
 
         // Determine edge styling:
         // 1. If runtime edge state is available, use runtime styling

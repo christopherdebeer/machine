@@ -84,6 +84,23 @@ class MachineAstSerializer {
                 baseNode.style = nodeStyle;
             }
 
+            // Add source position metadata for bidirectional highlighting
+            if (node.$cstNode) {
+                const range = node.$cstNode.range;
+                baseNode.$sourceRange = {
+                    start: {
+                        line: range.start.line,
+                        character: range.start.character,
+                        offset: range.start.offset
+                    },
+                    end: {
+                        line: range.end.line,
+                        character: range.end.character,
+                        offset: range.end.offset
+                    }
+                };
+            }
+
             const childNodes = (node.nodes ?? []).flatMap(child =>
                 flattenNode(child, node.name)
             );
@@ -491,6 +508,23 @@ class MachineAstSerializer {
                                 record.style = edgeStyle;
                             }
 
+                            // Add source position metadata for bidirectional highlighting
+                            if (segment.$cstNode) {
+                                const range = segment.$cstNode.range;
+                                record.$sourceRange = {
+                                    start: {
+                                        line: range.start.line,
+                                        character: range.start.character,
+                                        offset: range.start.offset
+                                    },
+                                    end: {
+                                        line: range.end.line,
+                                        character: range.end.character,
+                                        offset: range.end.offset
+                                    }
+                                };
+                            }
+
                             segmentEdges.push(record);
                         });
                     });
@@ -562,6 +596,23 @@ class MachineAstSerializer {
                         edge.targetAttribute = ref.attributePath;
                         edgeValue.targetAttribute = ref.attributePath;
                         edge.attributes.targetAttribute = ref.attributePath;
+                    }
+
+                    // Add source position metadata for bidirectional highlighting
+                    if (attr.$cstNode) {
+                        const range = attr.$cstNode.range;
+                        edge.$sourceRange = {
+                            start: {
+                                line: range.start.line,
+                                character: range.start.character,
+                                offset: range.start.offset
+                            },
+                            end: {
+                                line: range.end.line,
+                                character: range.end.character,
+                                offset: range.end.offset
+                            }
+                        };
                     }
 
                     attributeEdges.push(edge);

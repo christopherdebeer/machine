@@ -547,6 +547,8 @@ const ExecutionSection = Section;
 export const CodeMirrorPlayground: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const editorViewRef = useRef<EditorView | null>(null);
+  const outputPanelRef = useRef<HTMLDivElement>(null);
+  const currentHighlightedElements = useRef<SVGElement[]>([]);
 
     const [settings, setSettings] = useState(() => loadSettings());
     const [settingsCollapsed, setSettingsCollapsed] = useState(true);
@@ -585,6 +587,65 @@ export const CodeMirrorPlayground: React.FC = () => {
         vfs.loadFromLocalStorage();
         return new FileAccessService(vfs, { workingDir: 'examples' });
     });
+
+  // Helper: Clear all SVG highlighting
+  const clearSVGHighlighting = useCallback(() => {
+    currentHighlightedElements.current.forEach(element => {
+      element.style.filter = '';
+      element.style.opacity = '';
+    });
+    currentHighlightedElements.current = [];
+  }, []);
+
+  // Helper: Highlight SVG elements by source position
+  const highlightSVGElementsAtPosition = useCallback((line: number, character: number) => {
+    clearSVGHighlighting();
+
+    if (!outputPanelRef.current) return;
+
+    // Find all SVG elements with position data
+    const elements = outputPanelRef.current.querySelectorAll('[data-line-start]');
+
+    elements.forEach(element => {
+      const lineStart = parseInt(element.getAttribute('data-line-start') || '0', 10);
+      const charStart = parseInt(element.getAttribute('data-char-start') || '0', 10);
+      const lineEnd = parseInt(element.getAttribute('data-line-end') || '0', 10);
+      const charEnd = parseInt(element.getAttribute('data-char-end') || '0', 10);
+
+      // Check if cursor is within this element's range
+      if (line >= lineStart && line <= lineEnd) {
+        if (line === lineStart && character < charStart) return;
+        if (line === lineEnd && character > charEnd) return;
+
+        // Highlight this element
+        const svgElement = element as SVGElement;
+        svgElement.style.filter = 'drop-shadow(0 0 8px rgba(14, 99, 156, 0.8))';
+        svgElement.style.opacity = '1';
+        currentHighlightedElements.current.push(svgElement);
+      }
+    });
+  }, [clearSVGHighlighting]);
+
+  // Handle SVG element click - navigate editor to source
+  const handleSourceLocationClick = useCallback((location: { lineStart: number; charStart: number; lineEnd: number; charEnd: number }) => {
+    if (!editorViewRef.current) return;
+
+    const view = editorViewRef.current;
+    const doc = view.state.doc;
+
+    // Convert line/char to offset
+    const startOffset = doc.line(location.lineStart + 1).from + location.charStart;
+    const endOffset = doc.line(location.lineEnd + 1).from + location.charEnd;
+
+    // Select the range in the editor
+    view.dispatch({
+      selection: { anchor: startOffset, head: endOffset },
+      scrollIntoView: true
+    });
+
+    // Focus the editor
+    view.focus();
+  }, []);
 
   // Initialize editor
   useEffect(() => {
@@ -722,6 +783,16 @@ export const CodeMirrorPlayground: React.FC = () => {
       parent: editorRef.current,
       dispatch: (transaction) => {
         view.update([transaction]);
+
+        // Update SVG highlighting on selection/cursor changes
+        if (transaction.selection) {
+          const pos = transaction.state.selection.main.head;
+          const line = transaction.state.doc.lineAt(pos);
+          const character = pos - line.from;
+
+          // Highlight SVG elements at cursor position
+          highlightSVGElementsAtPosition(line.number - 1, character);
+        }
 
         // Update output panel on document changes
         if (transaction.docChanged) {
@@ -1572,14 +1643,17 @@ export const CodeMirrorPlayground: React.FC = () => {
                     </HeaderControls>
                 </SectionHeader>
                 <OutputSection $collapsed={outputCollapsed} $size={outputSize}>
-                    
+
                     <SectionContent $collapsed={outputCollapsed}>
-                        <OutputPanel 
-                            defaultFormat={outputFormat}
-                            mobile={true}
-                            data={outputData}
-                            onFormatChange={handleOutputFormatChange}
-                        />
+                        <div ref={outputPanelRef} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <OutputPanel
+                                defaultFormat={outputFormat}
+                                mobile={true}
+                                data={outputData}
+                                onFormatChange={handleOutputFormatChange}
+                                onSourceLocationClick={handleSourceLocationClick}
+                            />
+                        </div>
                     </SectionContent>
                 </OutputSection>
             </MainContainer>
