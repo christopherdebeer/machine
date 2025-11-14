@@ -203,8 +203,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     const [copyVisualSuccess, setCopyVisualSuccess] = useState<boolean>(false);
 
     // Source highlighting integration
-    const { highlightLocation, setEditorView, setCursorChangeCallback } = useSourceHighlightService();
+    const { highlightLocation, setEditorView, setCursorChangeCallback, setClearDiagramHighlightsCallback } = useSourceHighlightService();
     const [diagramCursorCallback, setDiagramCursorCallback] = useState<((location: SourceLocation) => void) | null>(null);
+    const [clearDiagramHighlights, setClearDiagramHighlights] = useState<(() => void) | null>(null);
 
     // Handle SVG element clicks for source highlighting (from InteractiveSVG)
     const handleSVGElementClick = (event: SVGClickEvent) => {
@@ -233,8 +234,23 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             if (diagramCursorCallback) {
                 setCursorChangeCallback(diagramCursorCallback);
             }
+
+            // Set up clear diagram highlights callback for mutual exclusivity
+            if (clearDiagramHighlights) {
+                setClearDiagramHighlightsCallback(clearDiagramHighlights);
+            }
         }
-    }, [editorViewRef.current, setEditorView, setCursorChangeCallback, diagramCursorCallback]);
+    }, [editorViewRef.current, setEditorView, setCursorChangeCallback, setClearDiagramHighlightsCallback, diagramCursorCallback, clearDiagramHighlights]);
+
+    // Handle clear diagram highlights callback registration
+    const handleClearDiagramHighlightsRegistration = (callback: () => void) => {
+        setClearDiagramHighlights(() => callback);
+        
+        // If editor is already initialized, set up clear callback immediately
+        if (editorViewRef.current) {
+            setClearDiagramHighlightsCallback(callback);
+        }
+    };
 
     // Handle diagram cursor callback registration
     const handleDiagramCursorCallbackRegistration = (callback: (location: SourceLocation) => void) => {
@@ -533,6 +549,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                     svgContent={outputSvg}
                                     onRegisterCursorCallback={handleDiagramCursorCallbackRegistration}
                                     onElementClick={handleDiagramElementClick}
+                                    onRegisterClearSourceCallback={handleClearDiagramHighlightsRegistration}
                                     style={{
                                         height: '100%',
                                         width: '100%',

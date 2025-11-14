@@ -32,6 +32,7 @@ interface OutputPanelProps {
     sourceHighlightService?: {
         highlightLocation: (location: SourceLocation) => void;
         setCursorChangeCallback?: (callback: (location: SourceLocation) => void) => void;
+        setClearDiagramHighlightsCallback?: (callback: () => void) => void;
     };
 }
 
@@ -327,6 +328,11 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
                             onRegisterCursorCallback={(callback) => {
                                 if (sourceHighlightService?.setCursorChangeCallback) {
                                     sourceHighlightService.setCursorChangeCallback(callback);
+                                }
+                            }}
+                            onRegisterClearSourceCallback={(callback) => {
+                                if (sourceHighlightService?.setClearDiagramHighlightsCallback) {
+                                    sourceHighlightService.setClearDiagramHighlightsCallback(callback);
                                 }
                             }}
                             className="dygram-svg"

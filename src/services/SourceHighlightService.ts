@@ -88,6 +88,7 @@ export class SourceHighlightService {
     private editorView: EditorView | null = null;
     private cursorTrackingDisposer: (() => void) | null = null;
     private onCursorChange?: (location: SourceLocation) => void;
+    private onClearDiagramHighlights?: () => void;
 
     /**
      * Register a CodeMirror editor view with this service
@@ -138,6 +139,12 @@ export class SourceHighlightService {
                     };
 
                     console.log('📍 SourceHighlightService: Cursor moved to', location);
+                    
+                    // Clear existing source highlights for mutual exclusivity
+                    console.log('🧹 SourceHighlightService: Clearing source highlights due to cursor movement');
+                    this.clearHighlights();
+                    
+                    // Trigger diagram highlighting
                     this.onCursorChange!(location);
                 }, 300); // 300ms debounce
             }
@@ -167,6 +174,13 @@ export class SourceHighlightService {
     }
 
     /**
+     * Set callback for clearing diagram highlights (for mutual exclusivity)
+     */
+    setClearDiagramHighlightsCallback(callback: () => void): void {
+        this.onClearDiagramHighlights = callback;
+    }
+
+    /**
      * Highlight a source location in the registered editor
      */
     highlightLocation(location: SourceLocation): void {
@@ -177,8 +191,14 @@ export class SourceHighlightService {
             return;
         }
 
+        // Clear diagram highlights first (mutual exclusivity)
+        if (this.onClearDiagramHighlights) {
+            console.log('🧹 SourceHighlightService: Clearing diagram highlights for mutual exclusivity');
+            this.onClearDiagramHighlights();
+        }
+
         console.log('✅ SourceHighlightService: Editor view found, clearing existing highlights');
-        // Clear existing highlights first
+        // Clear existing source highlights
         this.clearHighlights();
 
         console.log('🎯 SourceHighlightService: Adding new highlight', {
@@ -300,6 +320,7 @@ export function useSourceHighlightService() {
         clearHighlights: () => service.clearHighlights(),
         setEditorView: (view: EditorView) => service.setEditorView(view),
         setCursorChangeCallback: (callback: (location: SourceLocation) => void) => service.setCursorChangeCallback(callback),
+        setClearDiagramHighlightsCallback: (callback: () => void) => service.setClearDiagramHighlightsCallback(callback),
         hasEditor: () => service.hasEditor(),
         service // Expose the service instance for advanced usage
     };

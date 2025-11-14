@@ -19,6 +19,7 @@ interface DiagramHighlighterProps {
     svgContent: string;
     onRegisterCursorCallback?: (callback: (location: SourceLocation) => void) => void;
     onElementClick?: (location: SourceLocation) => void;
+    onRegisterClearSourceCallback?: (callback: () => void) => void;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -119,12 +120,14 @@ export const DiagramHighlighter: React.FC<DiagramHighlighterProps> = ({
     svgContent,
     onRegisterCursorCallback,
     onElementClick,
+    onRegisterClearSourceCallback,
     className,
     style
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const currentHighlightedElements = useRef<string[]>([]);
     const sourceMappingRef = useRef<{ elementMap: ElementSourceMap; sourceMap: SourceElementMap } | null>(null);
+    const clearSourceHighlights = useRef<(() => void) | null>(null);
 
     // Handle SVG element clicks
     const handleSVGClick = useCallback((event: Event) => {
@@ -259,6 +262,28 @@ export const DiagramHighlighter: React.FC<DiagramHighlighterProps> = ({
             onRegisterCursorCallback(handleCursorChange);
         }
     }, [onRegisterCursorCallback, handleCursorChange]);
+
+    // Register clear source highlights callback
+    useEffect(() => {
+        if (onRegisterClearSourceCallback) {
+            const clearCallback = () => {
+                if (!containerRef.current || !sourceMappingRef.current) return;
+                
+                const svgElement = containerRef.current.querySelector('svg');
+                if (!svgElement) return;
+
+                // Clear all diagram highlights
+                if (currentHighlightedElements.current.length > 0) {
+                    highlightElements(svgElement, currentHighlightedElements.current, false);
+                    currentHighlightedElements.current = [];
+                    console.log('🧹 DiagramHighlighter: Cleared all diagram highlights for mutual exclusivity');
+                }
+            };
+            
+            clearSourceHighlights.current = clearCallback;
+            onRegisterClearSourceCallback(clearCallback);
+        }
+    }, [onRegisterClearSourceCallback]);
 
     return (
         <div
