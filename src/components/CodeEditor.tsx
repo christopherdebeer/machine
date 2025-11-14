@@ -229,6 +229,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     const [copyCodeSuccess, setCopyCodeSuccess] = useState<boolean>(false);
     const [copyVisualSuccess, setCopyVisualSuccess] = useState<boolean>(false);
 
+    // Refs to hold latest callback versions for use in editor dispatch
+    const highlightSVGRef = useRef<(line: number, character: number) => void>(() => {});
+    const clearSVGHighlightRef = useRef<() => void>(() => {});
+
     // Helper: Clear all SVG highlighting
     const clearSVGHighlighting = useCallback(() => {
         currentHighlightedElements.current.forEach(element => {
@@ -275,6 +279,12 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             }
         });
     }, [clearSVGHighlighting]);
+
+    // Update refs with latest callbacks
+    useEffect(() => {
+        highlightSVGRef.current = highlightSVGElementsAtPosition;
+        clearSVGHighlightRef.current = clearSVGHighlighting;
+    }, [highlightSVGElementsAtPosition, clearSVGHighlighting]);
 
     // Handle SVG element click - highlight source location without changing cursor
     const handleSourceLocationClick = useCallback((location: { lineStart: number; charStart: number; lineEnd: number; charEnd: number }) => {
@@ -397,8 +407,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                         });
                     }
 
-                    // Highlight SVG elements at cursor position
-                    highlightSVGElementsAtPosition(line.number - 1, character);
+                    // Highlight SVG elements at cursor position using ref to get latest callback
+                    highlightSVGRef.current(line.number - 1, character);
                 }
 
                 // Handle document changes
