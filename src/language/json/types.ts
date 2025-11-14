@@ -7,6 +7,24 @@
  * JSON objects can be produced in any environment (browser, CLI, server).
  */
 
+/** Source location information for mapping back to original DSL */
+export interface SourceLocationJSON {
+    /** Starting line number (1-based) */
+    startLine: number;
+    /** Starting column number (1-based) */
+    startColumn: number;
+    /** Ending line number (1-based) */
+    endLine: number;
+    /** Ending column number (1-based) */
+    endColumn: number;
+    /** Starting offset in the document (0-based) */
+    startOffset: number;
+    /** Ending offset in the document (0-based) */
+    endOffset: number;
+    /** Source file URI or identifier */
+    fileUri?: string;
+}
+
 /** Machine level attribute entry */
 export interface MachineAttributeJSON {
     name: string;
@@ -51,6 +69,8 @@ export interface MachineEdgeJSON {
     targetPort?: string;
     roleName?: string;
     style?: EdgeStyleJSON;
+    /** Source location for mapping back to DSL */
+    sourceLocation?: SourceLocationJSON;
     /** Additional metadata preserved for consumers */
     [key: string]: unknown;
 }
@@ -66,6 +86,8 @@ export interface MachineNodeJSON {
     nodes?: MachineNodeJSON[];
     edges?: MachineEdgeJSON[];
     style?: StyleAttributesJSON;
+    /** Source location for mapping back to DSL */
+    sourceLocation?: SourceLocationJSON;
     /** Additional metadata preserved for consumers */
     [key: string]: unknown;
 }

@@ -1794,6 +1794,26 @@ function generateSemanticHierarchy(
             lines.push(`${indent}  label=<${clusterLabel}>;`);
             lines.push(`${indent}  labelloc="t";`);
 
+            // Add source mapping via class attribute for click handlers on clusters
+            let clusterClasses = 'cluster-element';
+            if (node.sourceLocation) {
+                const loc = node.sourceLocation;
+                const sourceClass = `src-L${loc.startLine}C${loc.startColumn}-L${loc.endLine}C${loc.endColumn}-O${loc.startOffset}-${loc.endOffset}`;
+                clusterClasses += ` ${sourceClass}`;
+                console.log('✅ DOT Generator: Adding source mapping to cluster', {
+                    clusterName: node.name,
+                    sourceClass,
+                    sourceLocation: loc
+                });
+            } else {
+                console.log('❌ DOT Generator: No source location found for cluster', {
+                    clusterName: node.name,
+                    hasSourceLocation: !!node.sourceLocation,
+                    nodeKeys: Object.keys(node)
+                });
+            }
+            lines.push(`${indent}  class="${clusterClasses}";`);
+
             // Apply cluster styling from node's style attribute
             const clusterStyle = getClusterStyle(node, styleNodes, validationContext);
             clusterStyle.forEach(styleLine => {
@@ -1880,7 +1900,7 @@ function generateSemanticHierarchy(
 
 /**
  * Generate a node definition in DOT format with HTML-like labels for multi-line formatting
- * Now includes optional runtime state decoration
+ * Now includes optional runtime state decoration and source mapping attributes
  */
 function generateNodeDefinition(
     node: any,
@@ -2058,7 +2078,26 @@ function generateNodeDefinition(
         style = runtimeStyle;
     }
 
-    return `${indent}"${node.name}" [label=<${htmlLabel}>, pad=0.5, shape=${shape}, ${style}];`;
+    // Add source mapping via class attribute for click handlers
+    let nodeClasses = 'node-element';
+    if (node.sourceLocation) {
+        const loc = node.sourceLocation;
+        const sourceClass = `src-L${loc.startLine}C${loc.startColumn}-L${loc.endLine}C${loc.endColumn}-O${loc.startOffset}-${loc.endOffset}`;
+        nodeClasses += ` ${sourceClass}`;
+        console.log('✅ DOT Generator: Adding source mapping to node', {
+            nodeName: node.name,
+            sourceClass,
+            sourceLocation: loc
+        });
+    } else {
+        console.log('❌ DOT Generator: No source location found for node', {
+            nodeName: node.name,
+            hasSourceLocation: !!node.sourceLocation,
+            nodeKeys: Object.keys(node)
+        });
+    }
+
+    return `${indent}"${node.name}" [label=<${htmlLabel}>, pad=0.5, shape=${shape}, ${style}, class="${nodeClasses}"];`;
 }
 
 /**
@@ -2417,7 +2456,18 @@ function generateEdges(
         }
 
         edgeAttrs.push('labelOverlay="75%"');
-        edgeAttrs.push('labelhref="#srcLineTBD"');
+        
+        // Add source mapping via class attribute for click handlers
+        let edgeClasses = 'edge-element';
+        if (edge.sourceLocation) {
+            const loc = edge.sourceLocation;
+            const sourceClass = `src-L${loc.startLine}C${loc.startColumn}-L${loc.endLine}C${loc.endColumn}-O${loc.startOffset}-${loc.endOffset}`;
+            edgeClasses += ` ${sourceClass}`;
+            edgeAttrs.push(`href="#edge-${edge.source}-${edge.target}"`);
+        } else {
+            edgeAttrs.push('labelhref="#srcLineTBD"');
+        }
+        edgeAttrs.push(`class="${edgeClasses}"`);
 
         // Determine edge styling:
         // 1. If runtime edge state is available, use runtime styling
@@ -2578,8 +2628,29 @@ function generateNoteDefinition(
 
     htmlLabel += '</table>';
 
+    // Add source mapping via class attribute for click handlers on notes
+    let noteClasses = 'note-element';
+    if (note.sourceLocation) {
+        const loc = note.sourceLocation;
+        const sourceClass = `src-L${loc.startLine}C${loc.startColumn}-L${loc.endLine}C${loc.endColumn}-O${loc.startOffset}-${loc.endOffset}`;
+        noteClasses += ` ${sourceClass}`;
+        console.log('✅ DOT Generator: Adding source mapping to note', {
+            noteName: note.name,
+            dotId,
+            sourceClass,
+            sourceLocation: loc
+        });
+    } else {
+        console.log('❌ DOT Generator: No source location found for note', {
+            noteName: note.name,
+            dotId,
+            hasSourceLocation: !!note.sourceLocation,
+            noteKeys: Object.keys(note)
+        });
+    }
+
     const lines: string[] = [];
-    lines.push(`${indent}"${dotId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9];`);
+    lines.push(`${indent}"${dotId}" [label=<${htmlLabel}>, shape=note, fillcolor="#FFFACD", style=filled, fontsize=9, class="${noteClasses}"];`);
     lines.push(`${indent}"${dotId}" -> "${resolvedTarget}" [style=dashed, color="#999999", arrowhead=none];`);
     return lines;
 }
@@ -2703,7 +2774,7 @@ function buildEdgeStates(machineJson: MachineJSON, context: RuntimeContext): Run
             .pop();
 
         const edgeValue = edge.attributes || {};
-        const label = edgeValue.text || '';
+        const label = String(edgeValue.text || '');
 
         return {
             source: edge.source,

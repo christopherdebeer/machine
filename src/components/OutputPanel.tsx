@@ -8,6 +8,9 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { Machine } from '../language/generated/ast';
+import { DiagramHighlighter } from './DiagramHighlighter';
+import { useSourceHighlightService } from '../services/SourceHighlightService';
+import type { SourceLocation } from './InteractiveSVG';
 
 export type OutputFormat = 'svg' | 'png' | 'dot' | 'json' | 'ast' | 'cst';
 
@@ -26,6 +29,10 @@ interface OutputPanelProps {
     mobile?: boolean;
     onFormatChange?: (format: OutputFormat) => void;
     data?: OutputData;
+    sourceHighlightService?: {
+        highlightLocation: (location: SourceLocation) => void;
+        setCursorChangeCallback?: (callback: (location: SourceLocation) => void) => void;
+    };
 }
 
 // Styled Components
@@ -246,12 +253,21 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
     defaultFormat = 'svg',
     mobile = false,
     onFormatChange,
-    data
+    data,
+    sourceHighlightService
 }) => {
     const [currentFormat, setCurrentFormat] = useState<OutputFormat>(defaultFormat);
     const [outputData, setOutputData] = useState<OutputData>(data || {});
     const [fitToContainer, setFitToContainer] = useState(true);
     const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+
+    // Handle diagram element clicks for source highlighting
+    const handleDiagramElementClick = useCallback((location: SourceLocation) => {
+        console.log('🎯 OutputPanel: Diagram element clicked', location);
+        if (sourceHighlightService) {
+            sourceHighlightService.highlightLocation(location);
+        }
+    }, [sourceHighlightService]);
 
     // Update internal state when data prop changes
     useEffect(() => {
@@ -304,7 +320,24 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
         switch (currentFormat) {
             case 'svg':
                 if (outputData.svg) {
-                    return <SVGWrapper className={'dygram-svg'} dangerouslySetInnerHTML={{ __html: outputData.svg }} />;
+                    return (
+                        <DiagramHighlighter
+                            svgContent={outputData.svg}
+                            onElementClick={handleDiagramElementClick}
+                            onRegisterCursorCallback={(callback) => {
+                                if (sourceHighlightService?.setCursorChangeCallback) {
+                                    sourceHighlightService.setCursorChangeCallback(callback);
+                                }
+                            }}
+                            className="dygram-svg"
+                            style={{
+                                height: '100%',
+                                width: '100%',
+                                display: fitToContainer ? 'flex' : 'block',
+                                alignItems: 'center'
+                            }}
+                        />
+                    );
                 }
                 return <EmptyState>No SVG diagram available</EmptyState>;
 

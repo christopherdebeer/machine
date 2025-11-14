@@ -47,6 +47,7 @@ import { isFileApiAvailable, writeFile } from "../api/files-api";
 import { EmptyFileSystem } from "langium";
 import { parseHelper } from "langium/test";
 import { Machine } from "../language/generated/ast";
+import { useSourceHighlightService, sourceHighlightExtension } from "../services/SourceHighlightService";
 import {
   generateJSON,
   generateDSL,
@@ -548,6 +549,10 @@ export const CodeMirrorPlayground: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const editorViewRef = useRef<EditorView | null>(null);
 
+    // Source highlighting integration
+    const { setEditorView, highlightLocation, setCursorChangeCallback } = useSourceHighlightService();
+    const [diagramCursorCallback, setDiagramCursorCallback] = useState<((location: import('./InteractiveSVG').SourceLocation) => void) | null>(null);
+
     const [settings, setSettings] = useState(() => loadSettings());
     const [settingsCollapsed, setSettingsCollapsed] = useState(true);
     const [filesCollapsed, setFilesCollapsed] = useState(true);
@@ -714,6 +719,8 @@ export const CodeMirrorPlayground: React.FC = () => {
           },
         }),
         ...createLangiumExtensions(),
+        // Source highlighting extension
+        sourceHighlightExtension,
       ],
     });
 
@@ -762,6 +769,9 @@ export const CodeMirrorPlayground: React.FC = () => {
 
     editorViewRef.current = view;
 
+    // Register editor view with source highlighting service
+    setEditorView(view);
+
     // Trigger initial render
     handleDocumentChange(initialCode);
 
@@ -769,6 +779,14 @@ export const CodeMirrorPlayground: React.FC = () => {
       view.destroy();
     };
   }, []);
+
+  // Set up cursor tracking when editor view and diagram callback are available
+  useEffect(() => {
+    if (editorViewRef.current && diagramCursorCallback) {
+      console.log('🔗 CodeMirrorPlayground: Setting up cursor tracking');
+      setCursorChangeCallback(diagramCursorCallback);
+    }
+  }, [editorViewRef.current, diagramCursorCallback, setCursorChangeCallback]);
 
   // Update URL hash when section states change
   useEffect(() => {
@@ -1579,6 +1597,10 @@ export const CodeMirrorPlayground: React.FC = () => {
                             mobile={true}
                             data={outputData}
                             onFormatChange={handleOutputFormatChange}
+                            sourceHighlightService={setEditorView ? { 
+                                highlightLocation,
+                                setCursorChangeCallback 
+                            } : undefined}
                         />
                     </SectionContent>
                 </OutputSection>

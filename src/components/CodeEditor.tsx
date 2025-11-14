@@ -50,6 +50,9 @@ import { generateGraphvizFromJSON } from '../language/diagram/index';
 import { serializeMachineToJSON } from '../language/json/serializer';
 import { render as renderGraphviz } from '../language/diagram-controls';
 import styled from 'styled-components';
+import { InteractiveSVG, type SVGClickEvent, type SourceLocation } from './InteractiveSVG';
+import { DiagramHighlighter } from './DiagramHighlighter';
+import { useSourceHighlightService, sourceHighlightExtension } from '../services/SourceHighlightService';
 
 export type DisplayMode = 'code-only' | 'visual-only' | 'split' | 'toggle';
 export type ThemeMode = 'light' | 'dark' | 'auto';
@@ -199,9 +202,53 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     const [copyCodeSuccess, setCopyCodeSuccess] = useState<boolean>(false);
     const [copyVisualSuccess, setCopyVisualSuccess] = useState<boolean>(false);
 
+    // Source highlighting integration
+    const { highlightLocation, setEditorView, setCursorChangeCallback } = useSourceHighlightService();
+    const [diagramCursorCallback, setDiagramCursorCallback] = useState<((location: SourceLocation) => void) | null>(null);
+
+    // Handle SVG element clicks for source highlighting (from InteractiveSVG)
+    const handleSVGElementClick = (event: SVGClickEvent) => {
+        console.log('🎯 CodeEditor: SVG element clicked', event);
+        
+        if (event.sourceLocation) {
+            console.log('📍 CodeEditor: Highlighting source location', event.sourceLocation);
+            highlightLocation(event.sourceLocation);
+        } else {
+            console.log('❌ CodeEditor: No source location found in click event');
+        }
+    };
+
+    // Handle diagram element clicks for source highlighting (from DiagramHighlighter)
+    const handleDiagramElementClick = (location: SourceLocation) => {
+        console.log('🎯 CodeEditor: Diagram element clicked', location);
+        highlightLocation(location);
+    };
+
+    // Register editor view with source highlight service and set up cursor tracking
+    useEffect(() => {
+        if (editorViewRef.current) {
+            setEditorView(editorViewRef.current);
+            
+            // Set up cursor tracking for reverse highlighting
+            if (diagramCursorCallback) {
+                setCursorChangeCallback(diagramCursorCallback);
+            }
+        }
+    }, [editorViewRef.current, setEditorView, setCursorChangeCallback, diagramCursorCallback]);
+
+    // Handle diagram cursor callback registration
+    const handleDiagramCursorCallbackRegistration = (callback: (location: SourceLocation) => void) => {
+        setDiagramCursorCallback(() => callback);
+        
+        // If editor is already initialized, set up cursor tracking immediately
+        if (editorViewRef.current) {
+            setCursorChangeCallback(callback);
+        }
+    };
+
     // Generate playground link using shared encoding utility
     const playgroundLink = useMemo(() => {
-        const basePath = import.meta.env.BASE_URL || '/';
+        const basePath = (import.meta as any).env?.BASE_URL || '/';
         const playgroundUrl = `${basePath}playground-mobile.html`;
         const encoded = base64UrlEncode(initialCode);
         return `${playgroundUrl}#content=${encoded}`;
@@ -267,6 +314,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             }),
             // Langium LSP integration
             ...createLangiumExtensions(),
+            // Source highlighting extension
+            sourceHighlightExtension,
             // Read-only mode
             EditorView.editable.of(!readOnly),
         ];
@@ -480,7 +529,17 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                         {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                                     </OverlayButton>
                                 </OverlayButtonGroup>
-                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                                <DiagramHighlighter
+                                    svgContent={outputSvg}
+                                    onRegisterCursorCallback={handleDiagramCursorCallbackRegistration}
+                                    onElementClick={handleDiagramElementClick}
+                                    style={{
+                                        height: '100%',
+                                        width: '100%',
+                                        display: fitToView ? 'flex' : 'block',
+                                        alignItems: 'center'
+                                    }}
+                                />
                             </Output>
                         )}
                     </Wrapper>
@@ -509,7 +568,17 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                 {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                             </OverlayButton>
                         </OverlayButtonGroup>
-                        <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                        <DiagramHighlighter
+                            svgContent={outputSvg}
+                            onRegisterCursorCallback={handleDiagramCursorCallbackRegistration}
+                            onElementClick={handleDiagramElementClick}
+                            style={{
+                                height: '100%',
+                                width: '100%',
+                                display: fitToView ? 'flex' : 'block',
+                                alignItems: 'center'
+                            }}
+                        />
                     </Output>
                 );
 
@@ -558,7 +627,17 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                         {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                                     </OverlayButton>
                                 </OverlayButtonGroup>
-                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                                <DiagramHighlighter
+                                    svgContent={outputSvg}
+                                    onRegisterCursorCallback={handleDiagramCursorCallbackRegistration}
+                                    onElementClick={handleDiagramElementClick}
+                                    style={{
+                                        height: '100%',
+                                        width: '100%',
+                                        display: fitToView ? 'flex' : 'block',
+                                        alignItems: 'center'
+                                    }}
+                                />
                             </Output>
                         )}
                     </Wrapper>
@@ -635,7 +714,17 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                                         {copyVisualSuccess ? '✓ Copied!' : 'Copy'}
                                     </OverlayButton>
                                 </OverlayButtonGroup>
-                                <SVGWrapper $fitToView={fitToView} dangerouslySetInnerHTML={{ __html: outputSvg }} />
+                                <DiagramHighlighter
+                                    svgContent={outputSvg}
+                                    onRegisterCursorCallback={handleDiagramCursorCallbackRegistration}
+                                    onElementClick={handleDiagramElementClick}
+                                    style={{
+                                        height: '100%',
+                                        width: '100%',
+                                        display: fitToView ? 'flex' : 'block',
+                                        alignItems: 'center'
+                                    }}
+                                />
                             </Output>
                         )}
                     </Wrapper>
