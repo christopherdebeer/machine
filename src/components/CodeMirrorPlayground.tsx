@@ -7,7 +7,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import styled from "styled-components";
-import { EditorState } from "@codemirror/state";
+import { EditorState, StateField, StateEffect } from "@codemirror/state";
 import {
   EditorView,
   keymap,
@@ -16,6 +16,8 @@ import {
   highlightSpecialChars,
   drawSelection,
   highlightActiveLine,
+  Decoration,
+  DecorationSet,
 } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
@@ -65,6 +67,33 @@ import {
   updateHashParams as updateHashParamsUtil,
   type HashParams as HashParamsType,
 } from "../utils/url-encoding";
+
+// CodeMirror highlighting effect for SVG → Editor navigation
+const setHighlightEffect = StateEffect.define<{from: number; to: number} | null>();
+
+const highlightField = StateField.define<DecorationSet>({
+  create() {
+    return Decoration.none;
+  },
+  update(highlights, tr) {
+    highlights = highlights.map(tr.changes);
+    for (let effect of tr.effects) {
+      if (effect.is(setHighlightEffect)) {
+        if (effect.value === null) {
+          highlights = Decoration.none;
+        } else {
+          const mark = Decoration.mark({
+            class: "cm-svg-highlight",
+            attributes: { style: "background-color: rgba(14, 99, 156, 0.2); border-bottom: 2px solid rgba(14, 99, 156, 0.8);" }
+          });
+          highlights = Decoration.set([mark.range(effect.value.from, effect.value.to)]);
+        }
+      }
+    }
+    return highlights;
+  },
+  provide: f => EditorView.decorations.from(f)
+});
 
 // Types
 type SectionSize = 'small' | 'medium' | 'big';
@@ -547,6 +576,8 @@ const ExecutionSection = Section;
 export const CodeMirrorPlayground: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const editorViewRef = useRef<EditorView | null>(null);
+  const outputPanelRef = useRef<HTMLDivElement>(null);
+  const currentHighlightedElements = useRef<SVGElement[]>([]);
 
     const [settings, setSettings] = useState(() => loadSettings());
     const [settingsCollapsed, setSettingsCollapsed] = useState(true);
@@ -585,6 +616,76 @@ export const CodeMirrorPlayground: React.FC = () => {
         vfs.loadFromLocalStorage();
         return new FileAccessService(vfs, { workingDir: 'examples' });
     });
+
+  // Helper: Clear all SVG highlighting
+  const clearSVGHighlighting = useCallback(() => {
+    currentHighlightedElements.current.forEach(element => {
+      element.style.filter = '';
+      element.style.opacity = '';
+    });
+    currentHighlightedElements.current = [];
+  }, []);
+
+  // Helper: Highlight SVG elements by source position
+  const highlightSVGElementsAtPosition = useCallback((line: number, character: number) => {
+    clearSVGHighlighting();
+
+    if (!outputPanelRef.current) return;
+
+    // Find all SVG elements with position data (in xlink:href or href)
+    const elements = outputPanelRef.current.querySelectorAll('[href^="#L"], [*|href^="#L"]');
+
+    elements.forEach(element => {
+      // Parse position from href attribute: #L{startLine}:{startChar}-{endLine}:{endChar}
+      const svgElement = element as SVGElement;
+      const href = svgElement.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                  svgElement.getAttribute('href');
+
+      if (!href || !href.startsWith('#L')) return;
+
+      const match = href.match(/^#L(\d+):(\d+)-(\d+):(\d+)$/);
+      if (!match) return;
+
+      const lineStart = parseInt(match[1], 10);
+      const charStart = parseInt(match[2], 10);
+      const lineEnd = parseInt(match[3], 10);
+      const charEnd = parseInt(match[4], 10);
+
+      // Check if cursor is within this element's range
+      if (line >= lineStart && line <= lineEnd) {
+        if (line === lineStart && character < charStart) return;
+        if (line === lineEnd && character > charEnd) return;
+
+        // Highlight this element
+        svgElement.style.filter = 'drop-shadow(0 0 8px rgba(14, 99, 156, 0.8))';
+        svgElement.style.opacity = '1';
+        currentHighlightedElements.current.push(svgElement);
+      }
+    });
+  }, [clearSVGHighlighting]);
+
+  // Handle SVG element click - highlight source location without changing cursor
+  const handleSourceLocationClick = useCallback((location: { lineStart: number; charStart: number; lineEnd: number; charEnd: number }) => {
+    if (!editorViewRef.current) return;
+
+    const view = editorViewRef.current;
+    const doc = view.state.doc;
+
+    // Convert line/char to offset
+    const startOffset = doc.line(location.lineStart + 1).from + location.charStart;
+    const endOffset = doc.line(location.lineEnd + 1).from + location.charEnd;
+
+    // Highlight the range without changing selection
+    view.dispatch({
+      effects: setHighlightEffect.of({ from: startOffset, to: endOffset }),
+      scrollIntoView: true
+    });
+
+    // Scroll to the highlighted range
+    view.dispatch({
+      effects: EditorView.scrollIntoView(startOffset, { y: "center" })
+    });
+  }, []);
 
   // Initialize editor
   useEffect(() => {
@@ -682,6 +783,7 @@ export const CodeMirrorPlayground: React.FC = () => {
         autocompletion(),
         highlightActiveLine(),
         highlightSelectionMatches(),
+        highlightField,
         keymap.of([
           // Custom format keymap
           {
@@ -722,6 +824,24 @@ export const CodeMirrorPlayground: React.FC = () => {
       parent: editorRef.current,
       dispatch: (transaction) => {
         view.update([transaction]);
+
+        // Update SVG highlighting on selection/cursor changes
+        if (transaction.selectionSet) {
+          const pos = transaction.state.selection.main.head;
+          const line = transaction.state.doc.lineAt(pos);
+          const character = pos - line.from;
+
+          // Clear any SVG→Editor highlight when user moves cursor
+          const hasHighlightEffect = transaction.effects.some(e => e.is(setHighlightEffect));
+          if (!hasHighlightEffect) {
+            view.dispatch({
+              effects: setHighlightEffect.of(null)
+            });
+          }
+
+          // Highlight SVG elements at cursor position
+          highlightSVGElementsAtPosition(line.number - 1, character);
+        }
 
         // Update output panel on document changes
         if (transaction.docChanged) {
@@ -1572,14 +1692,17 @@ export const CodeMirrorPlayground: React.FC = () => {
                     </HeaderControls>
                 </SectionHeader>
                 <OutputSection $collapsed={outputCollapsed} $size={outputSize}>
-                    
+
                     <SectionContent $collapsed={outputCollapsed}>
-                        <OutputPanel 
-                            defaultFormat={outputFormat}
-                            mobile={true}
-                            data={outputData}
-                            onFormatChange={handleOutputFormatChange}
-                        />
+                        <div ref={outputPanelRef} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <OutputPanel
+                                defaultFormat={outputFormat}
+                                mobile={true}
+                                data={outputData}
+                                onFormatChange={handleOutputFormatChange}
+                                onSourceLocationClick={handleSourceLocationClick}
+                            />
+                        </div>
                     </SectionContent>
                 </OutputSection>
             </MainContainer>

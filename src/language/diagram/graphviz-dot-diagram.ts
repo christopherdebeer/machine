@@ -2058,7 +2058,19 @@ function generateNodeDefinition(
         style = runtimeStyle;
     }
 
-    return `${indent}"${node.name}" [label=<${htmlLabel}>, pad=0.5, shape=${shape}, ${style}];`;
+    // Add source position metadata for bidirectional highlighting via URL attribute
+    let sourceMetadata = '';
+    if (node.$sourceRange) {
+        const startLine = node.$sourceRange.start.line;
+        const startChar = node.$sourceRange.start.character;
+        const endLine = node.$sourceRange.end.line;
+        const endChar = node.$sourceRange.end.character;
+        // Use URL attribute with fragment identifier containing position data
+        // Format: #L{startLine}:{startChar}-{endLine}:{endChar}
+        sourceMetadata = `, URL="#L${startLine}:${startChar}-${endLine}:${endChar}"`;
+    }
+
+    return `${indent}"${node.name}" [label=<${htmlLabel}>, pad=0.5, shape=${shape}, ${style}${sourceMetadata}];`;
 }
 
 /**
@@ -2417,7 +2429,19 @@ function generateEdges(
         }
 
         edgeAttrs.push('labelOverlay="75%"');
-        edgeAttrs.push('labelhref="#srcLineTBD"');
+
+        // Add source position metadata for bidirectional highlighting via edgeURL attribute
+        if (edge.$sourceRange) {
+            const startLine = edge.$sourceRange.start.line;
+            const startChar = edge.$sourceRange.start.character;
+            const endLine = edge.$sourceRange.end.line;
+            const endChar = edge.$sourceRange.end.character;
+            // Use edgeURL attribute with fragment identifier containing position data
+            // Format: #L{startLine}:{startChar}-{endLine}:{endChar}
+            edgeAttrs.push(`edgeURL="#L${startLine}:${startChar}-${endLine}:${endChar}"`);
+        } else {
+            edgeAttrs.push('labelhref="#srcLineTBD"');
+        }
 
         // Determine edge styling:
         // 1. If runtime edge state is available, use runtime styling

@@ -5,7 +5,7 @@
  * Supports: SVG diagram, DOT source, JSON, AST, CST
  */
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 import { Machine } from '../language/generated/ast';
 
@@ -26,6 +26,7 @@ interface OutputPanelProps {
     mobile?: boolean;
     onFormatChange?: (format: OutputFormat) => void;
     data?: OutputData;
+    onSourceLocationClick?: (location: { lineStart: number; charStart: number; lineEnd: number; charEnd: number }) => void;
 }
 
 // Styled Components
@@ -246,12 +247,14 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
     defaultFormat = 'svg',
     mobile = false,
     onFormatChange,
-    data
+    data,
+    onSourceLocationClick
 }) => {
     const [currentFormat, setCurrentFormat] = useState<OutputFormat>(defaultFormat);
     const [outputData, setOutputData] = useState<OutputData>(data || {});
     const [fitToContainer, setFitToContainer] = useState(true);
     const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+    const svgContainerRef = useRef<HTMLDivElement>(null);
 
     // Update internal state when data prop changes
     useEffect(() => {
@@ -259,6 +262,69 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
             setOutputData(data);
         }
     }, [data]);
+
+    // Setup SVG interaction for bidirectional highlighting
+    useEffect(() => {
+        if (!svgContainerRef.current || !outputData.svg || currentFormat !== 'svg') {
+            return;
+        }
+
+        const handleElementClick = (event: Event) => {
+            const target = event.target as SVGElement;
+
+            // Find the closest element with source position data (in xlink:href or href)
+            let element: SVGElement | null = target;
+            while (element && element !== svgContainerRef.current) {
+                // Check for URL attribute (rendered as xlink:href in SVG)
+                const href = element.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                           element.getAttribute('href');
+
+                if (href && href.startsWith('#L')) {
+                    // Parse format: #L{startLine}:{startChar}-{endLine}:{endChar}
+                    const match = href.match(/^#L(\d+):(\d+)-(\d+):(\d+)$/);
+                    if (match) {
+                        onSourceLocationClick?.({
+                            lineStart: parseInt(match[1], 10),
+                            charStart: parseInt(match[2], 10),
+                            lineEnd: parseInt(match[3], 10),
+                            charEnd: parseInt(match[4], 10)
+                        });
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return;
+                    }
+                }
+
+                element = element.parentElement as SVGElement | null;
+            }
+        };
+
+        const svgContainer = svgContainerRef.current;
+
+        // Get all interactive SVG elements (nodes and edges with position data)
+        // Look for elements with xlink:href or href attributes
+        const elements = svgContainer.querySelectorAll('[href^="#L"], [*|href^="#L"]');
+
+        elements.forEach(element => {
+            // Desktop: click
+            element.addEventListener('click', handleElementClick);
+
+            // Mobile: touch (iOS specific handling)
+            element.addEventListener('touchend', handleElementClick, { passive: false });
+
+            // Make elements visually interactive
+            (element as HTMLElement).style.cursor = 'pointer';
+        });
+
+        // Cleanup
+        return () => {
+            elements.forEach(element => {
+                element.removeEventListener('click', handleElementClick);
+                element.removeEventListener('touchend', handleElementClick);
+                (element as HTMLElement).style.cursor = '';
+            });
+        };
+    }, [outputData.svg, currentFormat, onSourceLocationClick]);
 
     // Toggle fit to container
     const toggleFitToContainer = useCallback(() => {
@@ -304,7 +370,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
         switch (currentFormat) {
             case 'svg':
                 if (outputData.svg) {
-                    return <SVGWrapper className={'dygram-svg'} dangerouslySetInnerHTML={{ __html: outputData.svg }} />;
+                    return <SVGWrapper ref={svgContainerRef} className={'dygram-svg'} dangerouslySetInnerHTML={{ __html: outputData.svg }} />;
                 }
                 return <EmptyState>No SVG diagram available</EmptyState>;
 

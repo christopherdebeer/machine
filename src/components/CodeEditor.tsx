@@ -13,8 +13,8 @@
  * - Mobile-optimized touch interactions
  */
 
-import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { EditorState } from '@codemirror/state';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { EditorState, StateField, StateEffect } from '@codemirror/state';
 import {
     EditorView,
     keymap,
@@ -23,6 +23,8 @@ import {
     highlightSpecialChars,
     drawSelection,
     highlightActiveLine,
+    Decoration,
+    DecorationSet,
 } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
@@ -50,6 +52,33 @@ import { generateGraphvizFromJSON } from '../language/diagram/index';
 import { serializeMachineToJSON } from '../language/json/serializer';
 import { render as renderGraphviz } from '../language/diagram-controls';
 import styled from 'styled-components';
+
+// CodeMirror highlighting effect for SVG → Editor navigation
+const setHighlightEffect = StateEffect.define<{from: number; to: number} | null>();
+
+const highlightField = StateField.define<DecorationSet>({
+  create() {
+    return Decoration.none;
+  },
+  update(highlights, tr) {
+    highlights = highlights.map(tr.changes);
+    for (let effect of tr.effects) {
+      if (effect.is(setHighlightEffect)) {
+        if (effect.value === null) {
+          highlights = Decoration.none;
+        } else {
+          const mark = Decoration.mark({
+            class: "cm-svg-highlight",
+            attributes: { style: "background-color: rgba(14, 99, 156, 0.2); border-bottom: 2px solid rgba(14, 99, 156, 0.8);" }
+          });
+          highlights = Decoration.set([mark.range(effect.value.from, effect.value.to)]);
+        }
+      }
+    }
+    return highlights;
+  },
+  provide: f => EditorView.decorations.from(f)
+});
 
 export type DisplayMode = 'code-only' | 'visual-only' | 'split' | 'toggle';
 export type ThemeMode = 'light' | 'dark' | 'auto';
@@ -193,11 +222,82 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     const editorRef = useRef<HTMLDivElement>(null);
     const outputRef = useRef<HTMLDivElement>(null);
     const editorViewRef = useRef<EditorView | null>(null);
+    const currentHighlightedElements = useRef<SVGElement[]>([]);
     const [currentView, setCurrentView] = useState<'code' | 'visual'>(defaultView);
     const [outputSvg, setOutputSvg] = useState<string>('');
     const [fitToView, setFitToView] = useState<boolean>(true);
     const [copyCodeSuccess, setCopyCodeSuccess] = useState<boolean>(false);
     const [copyVisualSuccess, setCopyVisualSuccess] = useState<boolean>(false);
+
+    // Helper: Clear all SVG highlighting
+    const clearSVGHighlighting = useCallback(() => {
+        currentHighlightedElements.current.forEach(element => {
+            element.style.filter = '';
+            element.style.opacity = '';
+        });
+        currentHighlightedElements.current = [];
+    }, []);
+
+    // Helper: Highlight SVG elements by source position
+    const highlightSVGElementsAtPosition = useCallback((line: number, character: number) => {
+        clearSVGHighlighting();
+
+        if (!outputRef.current) return;
+
+        // Find all SVG elements with position data (in xlink:href or href)
+        const elements = outputRef.current.querySelectorAll('[href^="#L"], [*|href^="#L"]');
+
+        elements.forEach(element => {
+            // Parse position from href attribute: #L{startLine}:{startChar}-{endLine}:{endChar}
+            const svgElement = element as SVGElement;
+            const href = svgElement.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                        svgElement.getAttribute('href');
+
+            if (!href || !href.startsWith('#L')) return;
+
+            const match = href.match(/^#L(\d+):(\d+)-(\d+):(\d+)$/);
+            if (!match) return;
+
+            const lineStart = parseInt(match[1], 10);
+            const charStart = parseInt(match[2], 10);
+            const lineEnd = parseInt(match[3], 10);
+            const charEnd = parseInt(match[4], 10);
+
+            // Check if cursor is within this element's range
+            if (line >= lineStart && line <= lineEnd) {
+                if (line === lineStart && character < charStart) return;
+                if (line === lineEnd && character > charEnd) return;
+
+                // Highlight this element
+                svgElement.style.filter = 'drop-shadow(0 0 8px rgba(14, 99, 156, 0.8))';
+                svgElement.style.opacity = '1';
+                currentHighlightedElements.current.push(svgElement);
+            }
+        });
+    }, [clearSVGHighlighting]);
+
+    // Handle SVG element click - highlight source location without changing cursor
+    const handleSourceLocationClick = useCallback((location: { lineStart: number; charStart: number; lineEnd: number; charEnd: number }) => {
+        if (!editorViewRef.current) return;
+
+        const view = editorViewRef.current;
+        const doc = view.state.doc;
+
+        // Convert line/char to offset
+        const startOffset = doc.line(location.lineStart + 1).from + location.charStart;
+        const endOffset = doc.line(location.lineEnd + 1).from + location.charEnd;
+
+        // Highlight the range without changing selection
+        view.dispatch({
+            effects: setHighlightEffect.of({ from: startOffset, to: endOffset }),
+            scrollIntoView: true
+        });
+
+        // Scroll to the highlighted range
+        view.dispatch({
+            effects: EditorView.scrollIntoView(startOffset, { y: "center" })
+        });
+    }, []);
 
     // Generate playground link using shared encoding utility
     const playgroundLink = useMemo(() => {
@@ -241,6 +341,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             autocompletion(),
             highlightActiveLine(),
             highlightSelectionMatches(),
+            highlightField,
             keymap.of([
                 // ...closeBracketsKeymap,
                 ...defaultKeymap,
@@ -281,6 +382,24 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             parent: editorRef.current,
             dispatch: (transaction) => {
                 view.update([transaction]);
+
+                // Update SVG highlighting on selection/cursor changes
+                if (transaction.selectionSet) {
+                    const pos = transaction.state.selection.main.head;
+                    const line = transaction.state.doc.lineAt(pos);
+                    const character = pos - line.from;
+
+                    // Clear any SVG→Editor highlight when user moves cursor
+                    const hasHighlightEffect = transaction.effects.some(e => e.is(setHighlightEffect));
+                    if (!hasHighlightEffect) {
+                        view.dispatch({
+                            effects: setHighlightEffect.of(null)
+                        });
+                    }
+
+                    // Highlight SVG elements at cursor position
+                    highlightSVGElementsAtPosition(line.number - 1, character);
+                }
 
                 // Handle document changes
                 if (transaction.docChanged) {
@@ -367,6 +486,68 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             console.error('Error generating visualization:', error);
         }
     };
+
+    // Setup SVG interaction for bidirectional highlighting
+    useEffect(() => {
+        if (!outputRef.current || !outputSvg) {
+            return;
+        }
+
+        const handleElementClick = (event: Event) => {
+            const target = event.target as SVGElement;
+
+            // Find the closest element with source position data (in xlink:href or href)
+            let element: SVGElement | null = target;
+            while (element && element !== outputRef.current) {
+                // Check for URL attribute (rendered as xlink:href in SVG)
+                const href = element.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                           element.getAttribute('href');
+
+                if (href && href.startsWith('#L')) {
+                    // Parse format: #L{startLine}:{startChar}-{endLine}:{endChar}
+                    const match = href.match(/^#L(\d+):(\d+)-(\d+):(\d+)$/);
+                    if (match) {
+                        handleSourceLocationClick({
+                            lineStart: parseInt(match[1], 10),
+                            charStart: parseInt(match[2], 10),
+                            lineEnd: parseInt(match[3], 10),
+                            charEnd: parseInt(match[4], 10)
+                        });
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return;
+                    }
+                }
+
+                element = element.parentElement as SVGElement | null;
+            }
+        };
+
+        const svgContainer = outputRef.current;
+
+        // Get all interactive SVG elements (nodes and edges with position data)
+        const elements = svgContainer.querySelectorAll('[href^="#L"], [*|href^="#L"]');
+
+        elements.forEach(element => {
+            // Desktop: click
+            element.addEventListener('click', handleElementClick);
+
+            // Mobile: touch (iOS specific handling)
+            element.addEventListener('touchend', handleElementClick, { passive: false });
+
+            // Make elements visually interactive
+            (element as HTMLElement).style.cursor = 'pointer';
+        });
+
+        // Cleanup
+        return () => {
+            elements.forEach(element => {
+                element.removeEventListener('click', handleElementClick);
+                element.removeEventListener('touchend', handleElementClick);
+                (element as HTMLElement).style.cursor = '';
+            });
+        };
+    }, [outputSvg, handleSourceLocationClick]);
 
     // Copy code to clipboard
     const copyCodeToClipboard = async () => {
