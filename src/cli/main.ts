@@ -467,7 +467,8 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
             maxTurns: 50,
             persistHistory: true,
             historyPath: opts.destination ? path.join(opts.destination, 'execution-history.json') : './execution-history.json'
-        }
+        },
+        dygramFilePath: path.resolve(fileName) // For code generation support
     };
 
     // Check if API key is available

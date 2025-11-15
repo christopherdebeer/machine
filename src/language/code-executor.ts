@@ -157,7 +157,7 @@ export class CodeExecutor {
             // Regenerate code
             try {
                 await this.regenerateCodeForTask(task, dygramFilePath, error as Error, input);
-            } catch (regene Error) {
+            } catch (regenError) {
                 console.error(`Failed to regenerate code for ${task.name}:`, regenError);
             }
 

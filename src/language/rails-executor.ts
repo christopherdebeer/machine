@@ -25,6 +25,7 @@ import {
 } from './base-executor.js';
 import { EdgeConditionParser } from './utils/edge-conditions.js';
 import { NodeTypeChecker } from './node-type-checker.js';
+import { CodeExecutor } from './code-executor.js';
 // Phase 1-3 execution managers
 import {
     TransitionManager,
@@ -48,6 +49,8 @@ export type { MachineExecutionContext, MachineData, MachineMutation };
 export interface MachineExecutorConfig extends BaseMachineExecutorConfig {
     // Agent SDK configuration (Agent SDK)
     agentSDK?: AgentSDKBridgeConfig;
+    // .dygram file path (for code generation)
+    dygramFilePath?: string;
 }
 
 /**
@@ -87,6 +90,8 @@ export class RailsExecutor extends BaseExecutor {
     protected metaToolManager: MetaToolManager;
     protected agentSDKBridge: AgentSDKBridge;
     protected toolRegistry: ToolRegistry;
+    protected codeExecutor: CodeExecutor;
+    protected dygramFilePath: string;
 
     // Execution logger
     protected logger: ExecutionLogger;
@@ -104,6 +109,9 @@ export class RailsExecutor extends BaseExecutor {
 
     constructor(machineData: MachineData, config: MachineExecutorConfig = {}) {
         super(machineData, config);
+
+        // Store dygram file path for code generation
+        this.dygramFilePath = config.dygramFilePath || '';
 
         // Initialize execution logger
         // Check for logLevel in machine attributes
@@ -131,6 +139,9 @@ export class RailsExecutor extends BaseExecutor {
             config.agentSDK,
             this.logger
         );
+
+        // Initialize CodeExecutor for @code tasks
+        this.codeExecutor = new CodeExecutor(this.llmClient);
 
         // Register dynamic tool patterns with ToolRegistry
         this.registerDynamicTools();
@@ -968,7 +979,76 @@ export class RailsExecutor extends BaseExecutor {
             return true;
         }
 
-        // Step 2: If no auto-transition, check if agent decision required
+        // Step 2: Check for @code annotation and execute via generated code
+        if (this.codeExecutor.hasCodeAnnotation(node)) {
+            this.logger.info('execution', `Task ${nodeName} has @code annotation, attempting generated code execution`);
+            console.log(`⚡ Executing generated code for ${nodeName}`);
+
+            try {
+                // Execute via CodeExecutor with LLM fallback
+                const codeResult = await this.codeExecutor.executeCodeTask(
+                    node,
+                    attributes,  // Pass attributes as input
+                    this.dygramFilePath,
+                    async () => {
+                        // LLM fallback: invoke agent normally
+                        this.logger.debug('execution', `@code task falling back to LLM for ${nodeName}`);
+                        console.log(`🤖 Using LLM fallback for ${nodeName}`);
+
+                        const systemPrompt = this.buildSystemPrompt(nodeName);
+                        const tools = this.buildPhaseTools(nodeName);
+                        const taskModelId = attributes.modelId ? String(attributes.modelId).replace(/^["']|["']$/g, '') : undefined;
+
+                        const result = await this.agentSDKBridge.invokeAgent(
+                            nodeName,
+                            systemPrompt,
+                            tools,
+                            (toolName: string, input: any) => this.executeTool(toolName, input),
+                            taskModelId
+                        );
+
+                        return result.output;
+                    }
+                );
+
+                // Record in history
+                this.context.history.push({
+                    from: nodeName,
+                    to: nodeName,  // Self-transition for task execution
+                    transition: codeResult.usedGeneratedCode ? 'code_execution' : 'llm_fallback',
+                    timestamp: new Date().toISOString(),
+                    output: String(codeResult.output)
+                });
+
+                this.logger.info('execution', `@code task completed`, {
+                    usedGeneratedCode: codeResult.usedGeneratedCode,
+                    output: codeResult.output
+                });
+
+                console.log(`✓ @code task completed: ${codeResult.usedGeneratedCode ? 'used generated code ⚡' : 'used LLM fallback'}`);
+
+                // After task execution, check for outbound edges
+                const taskOutboundEdges = this.getOutboundEdges(nodeName);
+                if (taskOutboundEdges.length === 1) {
+                    // Single outbound edge - auto-transition
+                    this.transition(taskOutboundEdges[0].target, 'code_task_completion');
+                    return true;
+                } else if (taskOutboundEdges.length > 1) {
+                    // Multiple edges - agent needs to decide
+                    // Let normal flow handle this
+                    this.logger.debug('execution', `@code task has multiple outbound edges, proceeding to agent decision`);
+                } else {
+                    // No outbound edges - terminal
+                    return false;
+                }
+            } catch (error) {
+                this.logger.error('execution', `@code task failed: ${error instanceof Error ? error.message : String(error)}`);
+                console.error(`❌ @code task failed:`, error);
+                throw error;
+            }
+        }
+
+        // Step 3: If no auto-transition and no @code, check if agent decision required
         if (this.requiresAgentDecision(nodeName)) {
             this.logger.info('execution', `Agent decision required for ${nodeName}`, {
                 nonAutomatedTransitions: this.getNonAutomatedTransitions(nodeName).length
