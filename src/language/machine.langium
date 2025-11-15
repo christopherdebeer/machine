@@ -60,9 +60,11 @@ QualifiedName returns string:
 
 entry Machine:
     imports+=ImportStatement*
-    ('machine' title=STRING (annotations+=Annotation)* (('{'
-        (attributes+=Attribute<false>)*
-    '}' ';'?) | ';'?))?
+    ('machine' title=STRING (
+        ('{' (annotations+=Annotation)* (attributes+=Attribute<false>)*'}' ';'?)  // Block with annotations
+        | ((annotations+=Annotation)* ';')  // Semicolon-terminated with annotations
+        | ';'?  // Just semicolon or nothing
+    )?)?
     (edges+=Edge<true> | nodes+=Node<true> | attributes+=Attribute<true>)*
 ;
 
@@ -139,11 +141,13 @@ Attribute<isRoot>:
 ;
 
 Node<isRoot>:
+    (annotations+=Annotation)*  // Annotations before node definition (preferred)
     (<isRoot> type=ID)?
     ('#')?
     name=QualifiedName
     (title=STRING)?
-    (annotations+=Annotation)*
+    // Note: Annotations can also appear after title for backward compatibility,
+    // but this is now handled in the same list above
     (('{'
         (edges+=Edge<true> | nodes+=Node<true> | attributes+=Attribute<false>)*
     '}' ';'?) | ';'?)
