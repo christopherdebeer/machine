@@ -14,6 +14,7 @@ Complete reference to all DyGram documentation organized by topic.
 
   - [Canonical Machine JSON Adoption Review](development/canonical-machine-json-usage.md)
   - [Code Generation Implementation Status](development/code-generation-implementation-status.md)
+  - [Code Generation Troubleshooting Guide](development/code-generation-troubleshooting.md)
   - [DyGram Enhancement Recommendations](development/enhancement-recommendations-2025-11-15.md)
   - [Execution Model Redesign](development/execution-model-redesign.md)
   - [DyGram Focused Recommendations](development/focused-recommendations-2025-11-15.md)
@@ -56,6 +57,7 @@ Complete reference to all DyGram documentation organized by topic.
 
   - [Annotations](syntax/annotations.md)
   - [Attributes](syntax/attributes.md)
+  - [Code Generation with @code](syntax/code-generation.md)
   - [Edges](syntax/edges.md)
   - [Identifiers](syntax/identifiers.md)
   - [Imports](syntax/imports.md)
