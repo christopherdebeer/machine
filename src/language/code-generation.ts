@@ -1,217 +1,276 @@
 /**
- * TypeScript code generation for evolved tasks
+ * Pragmatic Code Generation for DyGram
+ *
+ * Simple @code annotation triggers immediate TypeScript generation.
+ * Code lives alongside .dygram files, uses external references.
+ * Regenerates on errors or schema mismatches.
  */
 
-import { MachineData } from './machine-executor.js';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import type { LLMClient } from './llm-client.js';
 
-export interface GeneratedCodeModule {
-    execute(input: any, context: TaskExecutionContext): Promise<TaskExecutionResult>;
-    getConfidence?(input: any): number;
-}
-
-export interface TaskExecutionContext {
-    attributes: Record<string, any>;
-    history: Array<any>;
-    machineState: MachineData;
-}
-
-export interface TaskExecutionResult {
-    output: any;
-    confidence: number;
-    metadata: {
-        execution_time_ms: number;
-        code_version?: string;
-        used_llm: boolean;
-    };
-}
-
-export interface CodeGenerationOptions {
+export interface CodeGenerationInput {
     taskName: string;
     prompt: string;
-    attributes: Record<string, any>;
-    executionHistory: Array<any>;
-    evolutionStage: EvolutionStage;
+    schema?: {
+        input?: any;
+        output?: any;
+    };
+    dygramFilePath: string;
 }
 
-export type EvolutionStage = 'llm_only' | 'hybrid' | 'code_first' | 'code_only';
+export interface CodeRegenerationInput extends CodeGenerationInput {
+    previousCode: string;
+    error?: Error;
+    schemaErrors?: string[];
+    failedInput?: any;
+}
+
+export interface GeneratedCode {
+    code: string;
+    filePath: string;
+    externalRef: string;
+}
 
 /**
- * Generate TypeScript code for a task based on its execution history
+ * Code Generator - handles TypeScript code generation for tasks
  */
-export function generateTaskCode(options: CodeGenerationOptions): string {
-    const { taskName, prompt, attributes, executionHistory, evolutionStage } = options;
+export class CodeGenerator {
+    constructor(private llmClient: LLMClient) {}
 
-    // Analyze execution history to extract patterns
-    const patterns = analyzeExecutionPatterns(executionHistory);
+    /**
+     * Generate TypeScript code for a task (initial generation)
+     */
+    async generateCode(input: CodeGenerationInput): Promise<GeneratedCode> {
+        const prompt = this.buildInitialGenerationPrompt(input);
+        const code = await this.llmClient.generateCode(prompt);
 
-    // Generate TypeScript code
-    const code = `/**
- * Generated code for ${taskName}
- * Evolution stage: ${evolutionStage}
- * Generated at: ${new Date().toISOString()}
- */
+        // Determine file path: <dygramfile>.<taskname>.ts
+        const baseName = path.basename(input.dygramFilePath, '.dygram');
+        const dirName = path.dirname(input.dygramFilePath);
+        const filePath = path.join(dirName, `${baseName}.${input.taskName}.ts`);
 
-${generateTypeDefinitions(attributes)}
+        // Add metadata header
+        const codeWithMetadata = this.addMetadataHeader(code, {
+            generated: new Date().toISOString(),
+            taskName: input.taskName,
+            prompt: input.prompt
+        });
 
-${generateConfidenceFunction(patterns, evolutionStage)}
+        // Save code file
+        await fs.writeFile(filePath, codeWithMetadata, 'utf-8');
 
-export async function execute(
-    input: any,
-    context: TaskExecutionContext
-): Promise<TaskExecutionResult> {
-    const startTime = Date.now();
+        // External reference (for use in .dygram file)
+        const externalRef = `#${input.taskName}`;
 
-    try {
-        ${generateExecutionLogic(patterns, prompt, attributes)}
-
-        const confidence = getConfidence(input);
+        console.log(`✨ Generated code: ${filePath}`);
 
         return {
-            output: result,
-            confidence: confidence,
-            metadata: {
-                execution_time_ms: Date.now() - startTime,
-                code_version: 'v${Date.now()}',
-                used_llm: false
-            }
-        };
-    } catch (error) {
-        // On error, return low confidence to trigger LLM fallback
-        return {
-            output: null,
-            confidence: 0.0,
-            metadata: {
-                execution_time_ms: Date.now() - startTime,
-                error: error instanceof Error ? error.message : String(error),
-                used_llm: false
-            }
+            code: codeWithMetadata,
+            filePath,
+            externalRef
         };
     }
-}
 
-export default { execute, getConfidence };
+    /**
+     * Regenerate code after error or schema mismatch
+     */
+    async regenerateCode(input: CodeRegenerationInput): Promise<GeneratedCode> {
+        const prompt = this.buildRegenerationPrompt(input);
+        const code = await this.llmClient.generateCode(prompt);
+
+        // Determine file path (same as original)
+        const baseName = path.basename(input.dygramFilePath, '.dygram');
+        const dirName = path.dirname(input.dygramFilePath);
+        const filePath = path.join(dirName, `${baseName}.${input.taskName}.ts`);
+
+        // Add metadata header with regeneration info
+        const codeWithMetadata = this.addMetadataHeader(code, {
+            regenerated: new Date().toISOString(),
+            taskName: input.taskName,
+            reason: input.error?.message || input.schemaErrors?.join(', ') || 'Manual regeneration',
+            prompt: input.prompt
+        });
+
+        // Save code file
+        await fs.writeFile(filePath, codeWithMetadata, 'utf-8');
+
+        const externalRef = `#${input.taskName}`;
+
+        console.log(`🔄 Regenerated code: ${filePath}`);
+
+        return {
+            code: codeWithMetadata,
+            filePath,
+            externalRef
+        };
+    }
+
+    /**
+     * Build prompt for initial code generation
+     */
+    private buildInitialGenerationPrompt(input: CodeGenerationInput): string {
+        const { taskName, prompt, schema } = input;
+
+        let schemaSection = '';
+        if (schema) {
+            schemaSection = `
+Input Schema:
+${JSON.stringify(schema.input, null, 2)}
+
+Output Schema:
+${JSON.stringify(schema.output, null, 2)}
 `;
+        }
 
-    return code;
+        return `Generate TypeScript code for a task.
+
+Task name: ${taskName}
+Description: ${prompt}
+${schemaSection}
+
+Generate a TypeScript module with:
+
+1. Type interfaces matching the schemas (if provided)
+2. An exported async function: execute(input): Promise<output>
+3. Proper error handling
+4. Defensive input validation
+5. Clear, maintainable code
+6. JSDoc comments
+
+Example structure:
+
+\`\`\`typescript
+${schema ? `export interface Input {
+    // Generated from input schema
 }
 
+export interface Output {
+    // Generated from output schema
+}
+` : ''}
 /**
- * Analyze execution history to extract common patterns
+ * ${prompt}
  */
-function analyzeExecutionPatterns(history: Array<any>): any {
-    if (!history || history.length === 0) {
-        return {
-            inputPatterns: [],
-            outputPatterns: [],
-            commonLogic: ''
-        };
+export async function execute(input${schema?.input ? ': Input' : ': any'})${schema?.output ? ': Promise<Output>' : ': Promise<any>'} {
+    // Implementation here
+
+    return result;
+}
+\`\`\`
+
+Return ONLY the TypeScript code, no markdown formatting or explanations.`;
     }
 
-    // Simple pattern analysis
-    // In a real implementation, this would use ML or more sophisticated analysis
-    return {
-        inputPatterns: ['string', 'object'],
-        outputPatterns: ['string'],
-        commonLogic: 'Basic text processing'
-    };
-}
+    /**
+     * Build prompt for code regeneration
+     */
+    private buildRegenerationPrompt(input: CodeRegenerationInput): string {
+        const { taskName, prompt, schema, previousCode, error, schemaErrors, failedInput } = input;
 
-/**
- * Generate TypeScript type definitions based on attributes
- */
-function generateTypeDefinitions(attributes: Record<string, any>): string {
-    return `interface TaskExecutionContext {
-    attributes: Record<string, any>;
-    history: Array<any>;
-    machineState: any;
-}
+        let schemaSection = '';
+        if (schema) {
+            schemaSection = `
+Schemas:
+Input: ${JSON.stringify(schema.input, null, 2)}
+Output: ${JSON.stringify(schema.output, null, 2)}
+`;
+        }
 
-interface TaskExecutionResult {
-    output: any;
-    confidence: number;
-    metadata: {
-        execution_time_ms: number;
-        code_version?: string;
-        used_llm: boolean;
-        error?: string;
-    };
-}`;
-}
+        let errorSection = '';
+        if (error) {
+            errorSection = `
+Runtime error encountered:
+${error.message}
+${error.stack || ''}
+`;
+        }
 
-/**
- * Generate confidence calculation function
- */
-function generateConfidenceFunction(patterns: any, stage: EvolutionStage): string {
-    const baseConfidence = stage === 'hybrid' ? 0.8 : stage === 'code_first' ? 0.9 : 1.0;
+        if (schemaErrors && schemaErrors.length > 0) {
+            errorSection += `
+Schema validation errors:
+${schemaErrors.join('\n')}
+`;
+        }
 
-    return `export function getConfidence(input: any): number {
-    // Heuristic-based confidence calculation
-    if (!input) return 0.0;
+        let inputSection = '';
+        if (failedInput) {
+            inputSection = `
+Input that triggered the error:
+${JSON.stringify(failedInput, null, 2)}
+`;
+        }
 
-    // Higher confidence for known patterns
-    const hasExpectedStructure = typeof input === 'object' || typeof input === 'string';
-    if (!hasExpectedStructure) return 0.5;
-
-    return ${baseConfidence};
-}`;
-}
-
-/**
- * Generate execution logic based on patterns
- */
-function generateExecutionLogic(patterns: any, prompt: string, attributes: Record<string, any>): string {
-    return `        // Extract input data
-        const inputData = input.content || input.text || input;
-
-        // Process based on learned patterns
-        // This is a simplified implementation - in production,
-        // this would be generated based on actual execution patterns
-        let result: any;
-
-        if (typeof inputData === 'string') {
-            // Simple string processing
-            result = inputData.trim();
-
-            // Apply any transformations based on attributes
-            ${Object.entries(attributes).map(([key, value]) => {
-                if (key !== 'prompt' && key !== 'meta') {
-                    return `// Consider attribute: ${key} = ${value}`;
-                }
-                return '';
-            }).filter(Boolean).join('\n            ')}
-        } else {
-            result = inputData;
-        }`;
-}
-
-/**
- * Generate LLM prompt for code generation
- */
-export function generateCodeGenerationPrompt(options: CodeGenerationOptions): string {
-    const { taskName, prompt, executionHistory } = options;
-
-    const historySnippet = executionHistory
-        .slice(-10)
-        .map((h, i) => `${i + 1}. ${JSON.stringify(h, null, 2)}`)
-        .join('\n\n');
-
-    return `You are generating optimized TypeScript code to replace an LLM task.
+        return `Improve TypeScript code that encountered an error.
 
 Task: ${taskName}
 Original prompt: ${prompt}
+${schemaSection}
+Current code:
+\`\`\`typescript
+${previousCode}
+\`\`\`
+${errorSection}${inputSection}
 
-Based on ${executionHistory.length} executions, the most recent being:
+Generate improved code that:
+1. Fixes the identified issue
+2. Maintains existing functionality
+3. Handles edge cases better
+4. Still matches the schemas (if provided)
+5. Uses TypeScript types from schemas
 
-${historySnippet}
+Return ONLY the improved TypeScript code, no markdown formatting or explanations.`;
+    }
 
-Generate a TypeScript module that implements this task efficiently.
+    /**
+     * Add metadata header to generated code
+     */
+    private addMetadataHeader(code: string, metadata: Record<string, any>): string {
+        const lines = [
+            '/**',
+            ...Object.entries(metadata).map(([key, value]) => ` * ${key}: ${value}`),
+            ' * ',
+            ' * DO NOT EDIT - This file is auto-generated',
+            ' * To make changes, update the prompt in the .dygram file',
+            ' */'
+        ];
 
-Requirements:
-- Export a default object with execute() and getConfidence() functions
-- execute(input, context) should process the input and return a TaskExecutionResult
-- getConfidence(input) should return a confidence score between 0 and 1
-- Handle errors gracefully by returning confidence 0.0
-- Be type-safe and follow TypeScript best practices
+        return lines.join('\n') + '\n\n' + code;
+    }
+}
 
-Return ONLY the TypeScript code, no markdown formatting or explanations.`;
+/**
+ * Resolve code file path from external reference
+ */
+export function resolveCodePath(externalRef: string, dygramFilePath: string): string {
+    // #taskname → <dygramfile>.taskname.ts
+    const taskName = externalRef.startsWith('#') ? externalRef.substring(1) : externalRef;
+    const baseName = path.basename(dygramFilePath, '.dygram');
+    const dirName = path.dirname(dygramFilePath);
+
+    // Try <filename>.<taskname>.ts
+    const codePath = path.join(dirName, `${baseName}.${taskName}.ts`);
+    return codePath;
+}
+
+/**
+ * Check if generated code file exists
+ */
+export async function hasGeneratedCode(externalRef: string, dygramFilePath: string): Promise<boolean> {
+    const codePath = resolveCodePath(externalRef, dygramFilePath);
+    try {
+        await fs.access(codePath);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Load generated code
+ */
+export async function loadGeneratedCode(externalRef: string, dygramFilePath: string): Promise<string> {
+    const codePath = resolveCodePath(externalRef, dygramFilePath);
+    return await fs.readFile(codePath, 'utf-8');
 }
