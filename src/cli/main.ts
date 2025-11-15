@@ -16,6 +16,9 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 import { WorkspaceManager, FileSystemResolver, MultiFileGenerator } from '../language/import-system/index.js';
 import { CircularDependencyError, ModuleNotFoundError } from '../language/import-system/import-errors.js';
+import { CodeGenerator, resolveCodePath, hasGeneratedCode, loadGeneratedCode } from '../language/code-generation.js';
+import { CodeExecutor } from '../language/code-executor.js';
+import { ClaudeClient } from '../language/llm-client.js';
 
 // Handle both bundled and unbundled cases
 let __dirname: string;
@@ -801,6 +804,255 @@ export const serverAction = async (directory?: string, opts?: { port?: string; v
     });
 };
 
+// ============================================================================
+// Code Generation CLI Commands
+// ============================================================================
+
+/**
+ * Show code generation status for all tasks in a machine
+ */
+export const codeStatusAction = async (fileName: string, opts: { verbose?: boolean; quiet?: boolean }): Promise<void> => {
+    setupLogger(opts);
+
+    const services = createMachineServices(NodeFileSystem).Machine;
+    const document = await extractDocument(fileName, services);
+    const machine = extractAstNode<Machine>(fileName, services, document);
+
+    const dygramFilePath = path.resolve(fileName);
+
+    console.log(chalk.bold(`\n📊 Code Generation Status: ${path.basename(fileName)}\n`));
+
+    const tasks = machine.elements.filter(el => el.$type === 'TaskNode');
+
+    if (tasks.length === 0) {
+        console.log(chalk.gray('  No tasks found in machine.'));
+        return;
+    }
+
+    const codeExecutor = new CodeExecutor(new ClaudeClient({
+        apiKey: process.env.ANTHROPIC_API_KEY || 'dummy',
+        modelId: 'claude-3-5-haiku-20241022'
+    }));
+
+    for (const task of tasks) {
+        const hasCode = codeExecutor.hasCodeAnnotation(task as any);
+        const codeRef = codeExecutor.getCodeReference(task as any);
+
+        if (hasCode && codeRef) {
+            const codePath = resolveCodePath(codeRef, dygramFilePath);
+            const exists = await hasGeneratedCode(codeRef, dygramFilePath);
+
+            if (exists) {
+                console.log(chalk.green(`  ✓ ${task.name}`) + chalk.gray(` → ${path.basename(codePath)}`));
+            } else {
+                console.log(chalk.yellow(`  ⚠ ${task.name}`) + chalk.gray(` → ${path.basename(codePath)} (not generated yet)`));
+            }
+        } else {
+            console.log(chalk.gray(`  ○ ${task.name} (no @code annotation)`));
+        }
+    }
+
+    console.log();
+};
+
+/**
+ * Manually generate code for a specific task
+ */
+export const generateCodeAction = async (
+    fileName: string,
+    taskName: string,
+    opts: { model?: string; verbose?: boolean; quiet?: boolean }
+): Promise<void> => {
+    setupLogger(opts);
+
+    const services = createMachineServices(NodeFileSystem).Machine;
+    const document = await extractDocument(fileName, services);
+    const machine = extractAstNode<Machine>(fileName, services, document);
+
+    const dygramFilePath = path.resolve(fileName);
+    const task = machine.elements.find(el => el.$type === 'TaskNode' && el.name === taskName);
+
+    if (!task) {
+        logger.error(`Task "${taskName}" not found in ${fileName}`);
+        process.exit(1);
+    }
+
+    const modelId = opts.model || process.env.ANTHROPIC_MODEL_ID || 'claude-3-5-sonnet-20241022';
+    const llmClient = new ClaudeClient({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+        modelId: modelId
+    });
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+        logger.error('ANTHROPIC_API_KEY environment variable not set');
+        process.exit(1);
+    }
+
+    const codeExecutor = new CodeExecutor(llmClient);
+    const codeRef = codeExecutor.getCodeReference(task as any);
+
+    if (!codeRef) {
+        logger.error(`Task "${taskName}" does not have a code reference (@code annotation required)`);
+        process.exit(1);
+    }
+
+    console.log(chalk.bold(`\n⚡ Generating code for task: ${taskName}\n`));
+
+    const codeGenerator = new CodeGenerator(llmClient);
+    const schema = codeExecutor.getTaskSchema(task as any);
+
+    try {
+        const result = await codeGenerator.generateCode({
+            taskName: task.name,
+            prompt: (task as any).attributes?.find((a: any) => a.name === 'prompt')?.value || task.name,
+            schema: schema,
+            externalRef: codeRef,
+            dygramFilePath: dygramFilePath
+        });
+
+        const codePath = resolveCodePath(codeRef, dygramFilePath);
+        console.log(chalk.green(`✓ Code generated successfully!`));
+        console.log(chalk.gray(`  Path: ${codePath}`));
+        console.log(chalk.gray(`  Lines: ${result.code.split('\n').length}`));
+        console.log();
+    } catch (error) {
+        logger.error(`Failed to generate code: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(1);
+    }
+};
+
+/**
+ * Force regeneration of code for a task
+ */
+export const regenerateCodeAction = async (
+    fileName: string,
+    taskName: string,
+    opts: { reason?: string; model?: string; verbose?: boolean; quiet?: boolean }
+): Promise<void> => {
+    setupLogger(opts);
+
+    const services = createMachineServices(NodeFileSystem).Machine;
+    const document = await extractDocument(fileName, services);
+    const machine = extractAstNode<Machine>(fileName, services, document);
+
+    const dygramFilePath = path.resolve(fileName);
+    const task = machine.elements.find(el => el.$type === 'TaskNode' && el.name === taskName);
+
+    if (!task) {
+        logger.error(`Task "${taskName}" not found in ${fileName}`);
+        process.exit(1);
+    }
+
+    const modelId = opts.model || process.env.ANTHROPIC_MODEL_ID || 'claude-3-5-sonnet-20241022';
+    const llmClient = new ClaudeClient({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+        modelId: modelId
+    });
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+        logger.error('ANTHROPIC_API_KEY environment variable not set');
+        process.exit(1);
+    }
+
+    const codeExecutor = new CodeExecutor(llmClient);
+    const codeRef = codeExecutor.getCodeReference(task as any);
+
+    if (!codeRef) {
+        logger.error(`Task "${taskName}" does not have a code reference (@code annotation required)`);
+        process.exit(1);
+    }
+
+    console.log(chalk.bold(`\n🔄 Regenerating code for task: ${taskName}\n`));
+    if (opts.reason) {
+        console.log(chalk.gray(`  Reason: ${opts.reason}\n`));
+    }
+
+    const codeGenerator = new CodeGenerator(llmClient);
+    const schema = codeExecutor.getTaskSchema(task as any);
+
+    try {
+        // Load existing code to show in regeneration context
+        const existingCode = await hasGeneratedCode(codeRef, dygramFilePath)
+            ? await loadGeneratedCode(codeRef, dygramFilePath)
+            : undefined;
+
+        const result = await codeGenerator.regenerateCode({
+            taskName: task.name,
+            prompt: (task as any).attributes?.find((a: any) => a.name === 'prompt')?.value || task.name,
+            schema: schema,
+            externalRef: codeRef,
+            dygramFilePath: dygramFilePath,
+            previousCode: existingCode,
+            error: opts.reason ? new Error(opts.reason) : undefined
+        });
+
+        const codePath = resolveCodePath(codeRef, dygramFilePath);
+        console.log(chalk.green(`✓ Code regenerated successfully!`));
+        console.log(chalk.gray(`  Path: ${codePath}`));
+        console.log(chalk.gray(`  Lines: ${result.code.split('\n').length}`));
+        console.log();
+    } catch (error) {
+        logger.error(`Failed to regenerate code: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(1);
+    }
+};
+
+/**
+ * Display generated code for a task
+ */
+export const showCodeAction = async (
+    fileName: string,
+    taskName: string,
+    opts: { verbose?: boolean; quiet?: boolean }
+): Promise<void> => {
+    setupLogger(opts);
+
+    const services = createMachineServices(NodeFileSystem).Machine;
+    const document = await extractDocument(fileName, services);
+    const machine = extractAstNode<Machine>(fileName, services, document);
+
+    const dygramFilePath = path.resolve(fileName);
+    const task = machine.elements.find(el => el.$type === 'TaskNode' && el.name === taskName);
+
+    if (!task) {
+        logger.error(`Task "${taskName}" not found in ${fileName}`);
+        process.exit(1);
+    }
+
+    const llmClient = new ClaudeClient({
+        apiKey: 'dummy',
+        modelId: 'claude-3-5-haiku-20241022'
+    });
+
+    const codeExecutor = new CodeExecutor(llmClient);
+    const codeRef = codeExecutor.getCodeReference(task as any);
+
+    if (!codeRef) {
+        logger.error(`Task "${taskName}" does not have a code reference (@code annotation required)`);
+        process.exit(1);
+    }
+
+    const exists = await hasGeneratedCode(codeRef, dygramFilePath);
+
+    if (!exists) {
+        const codePath = resolveCodePath(codeRef, dygramFilePath);
+        logger.error(`No generated code found at: ${codePath}`);
+        console.log(chalk.gray('\nRun this command to generate code:'));
+        console.log(chalk.cyan(`  dygram generate-code ${fileName} ${taskName}`));
+        process.exit(1);
+    }
+
+    const code = await loadGeneratedCode(codeRef, dygramFilePath);
+    const codePath = resolveCodePath(codeRef, dygramFilePath);
+
+    console.log(chalk.bold(`\n📄 Generated code for task: ${taskName}`));
+    console.log(chalk.gray(`   Path: ${codePath}\n`));
+    console.log(chalk.gray('─'.repeat(80)));
+    console.log(code);
+    console.log(chalk.gray('─'.repeat(80)));
+    console.log();
+};
+
 // Initialize CLI
 function initializeCLI(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -897,6 +1149,48 @@ function initializeCLI(): Promise<void> {
                     .option('-v, --verbose', 'verbose output')
                     .description('starts local development server with API and playground\n\nExamples:\n  dygram server\n  dygram server ./my-machines\n  dygram server --port 3000')
                     .action(serverAction);
+
+                program
+                    .command('code-status')
+                    .aliases(['cs'])
+                    .argument('<file>', `machine file to check (${fileExtensions})`)
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('show code generation status for all tasks\n\nExamples:\n  dygram code-status app.dygram')
+                    .action(codeStatusAction);
+
+                program
+                    .command('generate-code')
+                    .aliases(['gc'])
+                    .argument('<file>', `machine file (${fileExtensions})`)
+                    .argument('<task>', 'task name to generate code for')
+                    .option('-m, --model <model>', 'model ID to use for code generation')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('manually generate code for a specific task\n\nExamples:\n  dygram generate-code app.dygram ValidateEmail\n  dygram gc app.dygram ProcessData --model claude-3-5-sonnet-20241022')
+                    .action(generateCodeAction);
+
+                program
+                    .command('regenerate')
+                    .aliases(['regen'])
+                    .argument('<file>', `machine file (${fileExtensions})`)
+                    .argument('<task>', 'task name to regenerate code for')
+                    .option('-r, --reason <reason>', 'reason for regeneration (helps LLM understand what to fix)')
+                    .option('-m, --model <model>', 'model ID to use for code generation')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('force regeneration of code for a task\n\nExamples:\n  dygram regenerate app.dygram ValidateEmail\n  dygram regen app.dygram ProcessData --reason "Fix type error in output"')
+                    .action(regenerateCodeAction);
+
+                program
+                    .command('show-code')
+                    .aliases(['sc'])
+                    .argument('<file>', `machine file (${fileExtensions})`)
+                    .argument('<task>', 'task name to show code for')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('display generated code for a task\n\nExamples:\n  dygram show-code app.dygram ValidateEmail\n  dygram sc app.dygram ProcessData')
+                    .action(showCodeAction);
 
                 program.parse(process.argv);
                 resolve();
