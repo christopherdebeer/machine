@@ -38,6 +38,7 @@ import {
 import { lintKeymap } from "@codemirror/lint";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { ExecutionControls } from "./ExecutionControls";
+import { ExecutionStateVisualizer, type ExecutionStateVisualizerRef } from "./ExecutionStateVisualizer";
 import { UnifiedFileTree } from "./UnifiedFileTree";
 import { loadSettings, saveSettings } from "../language/shared-settings";
 import { VirtualFileSystem } from "../playground/virtual-filesystem";
@@ -578,6 +579,7 @@ export const CodeMirrorPlayground: React.FC = () => {
   const editorViewRef = useRef<EditorView | null>(null);
   const outputPanelRef = useRef<HTMLDivElement>(null);
   const currentHighlightedElements = useRef<SVGElement[]>([]);
+  const executionVisualizerRef = useRef<ExecutionStateVisualizerRef>(null);
 
     const [settings, setSettings] = useState(() => loadSettings());
     const [settingsCollapsed, setSettingsCollapsed] = useState(true);
@@ -592,6 +594,7 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [executor, setExecutor] = useState<RailsExecutor | null>(null);
     const [isExecuting, setIsExecuting] = useState(false);
     const [currentMachineData, setCurrentMachineData] = useState<MachineData | null>(null);
+    const [showVisualizer, setShowVisualizer] = useState(true);
     const [selectedExample, setSelectedExample] = useState<Example | null>(null);
     const [isDirty, setIsDirty] = useState(false);
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
@@ -1300,6 +1303,9 @@ export const CodeMirrorPlayground: React.FC = () => {
       // Update visualization with final state
       await updateRuntimeVisualization(exec);
 
+      // Update execution state visualizer
+      await executionVisualizerRef.current?.refresh();
+
       console.log("Execution complete");
     } catch (error) {
       console.error("Execution error:", error);
@@ -1349,6 +1355,9 @@ export const CodeMirrorPlayground: React.FC = () => {
 
       // Update visualization (this ensures viz reflects execution state)
       await updateRuntimeVisualization(exec);
+
+      // Update execution state visualizer
+      await executionVisualizerRef.current?.refresh();
 
       if (!continued) {
         console.log("Machine execution complete");
@@ -1736,8 +1745,15 @@ export const CodeMirrorPlayground: React.FC = () => {
                 </HeaderControls>
             </SectionHeader>
             <ExecutionSection $collapsed={executionCollapsed} $size={executionSize}>
-                
+
                 <SectionContent $collapsed={executionCollapsed}>
+                    {showVisualizer && (
+                        <ExecutionStateVisualizer
+                            ref={executionVisualizerRef}
+                            executor={executor}
+                            mobile={true}
+                        />
+                    )}
                     <ExecutionControls
                         onExecute={handleExecute}
                         onStep={handleStep}

@@ -76,6 +76,11 @@ export interface ExecutionPath {
     nodeInvocationCounts: Map<string, number>;
     stateTransitions: Array<{ state: string; timestamp: string }>;
     startTime: number;
+    // Path-specific context storage (Phase 3)
+    attributes: Map<string, any>;
+    contextReads: Set<string>;
+    contextWrites: Set<string>;
+    errorCount: number;
 }
 
 /**

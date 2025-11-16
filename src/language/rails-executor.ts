@@ -168,6 +168,42 @@ export class RailsExecutor extends BaseExecutor {
         this.stateManager = new StateManager(100);
 
         console.log('✅ Phase 1-3 execution managers initialized');
+
+        // Initialize execution paths for multiple entry points
+        this.initializePaths();
+    }
+
+    /**
+     * Initialize execution paths for all start nodes
+     * Detects multiple entry points and creates a path for each
+     */
+    private initializePaths(): void {
+        if (!this.transitionManager || !this.pathManager) {
+            return;
+        }
+
+        // Find all start nodes (multiple entry points)
+        const startNodes = this.transitionManager.findStartNodes();
+
+        if (startNodes.length === 0) {
+            console.warn('⚠️ No start nodes found in machine');
+            return;
+        }
+
+        if (startNodes.length === 1) {
+            // Single entry point - use legacy single-path mode (this.context)
+            this.context.currentNode = startNodes[0];
+            console.log(`📍 Single entry point: ${startNodes[0]}`);
+        } else {
+            // Multiple entry points - create a path for each
+            console.log(`📍 Multiple entry points detected: ${startNodes.length} paths`);
+            for (const startNode of startNodes) {
+                const pathId = this.pathManager.createPath(startNode);
+                console.log(`  ✓ Created path ${pathId} at ${startNode}`);
+            }
+            // Clear legacy context since we're using paths
+            this.context.currentNode = '';
+        }
     }
 
     /**
@@ -634,8 +670,32 @@ export class RailsExecutor extends BaseExecutor {
 
     /**
      * Build system prompt for a node using AgentContextBuilder
+     * @param nodeName Node to build prompt for
+     * @param pathId Optional path ID for multi-path execution
      */
-    buildSystemPrompt(nodeName: string): string {
+    buildSystemPrompt(nodeName: string, pathId?: string): string {
+        // For multi-path: build context from path-specific data
+        if (pathId && this.pathManager) {
+            const path = this.pathManager.getPath(pathId);
+            if (path) {
+                // Create a temporary context from path data
+                const pathContext = {
+                    currentNode: path.currentNode,
+                    currentTaskNode: undefined,
+                    activeState: undefined,
+                    errorCount: path.errorCount,
+                    visitedNodes: new Set(path.history.map(h => h.to)),
+                    attributes: path.attributes,
+                    history: path.history,
+                    nodeInvocationCounts: path.nodeInvocationCounts,
+                    stateTransitions: path.stateTransitions
+                };
+                const builder = new AgentContextBuilder(this.machineData, pathContext);
+                return builder.buildSystemPrompt(nodeName);
+            }
+        }
+
+        // Single-path: use global context
         const builder = new AgentContextBuilder(this.machineData, this.context);
         return builder.buildSystemPrompt(nodeName);
     }
@@ -656,16 +716,20 @@ export class RailsExecutor extends BaseExecutor {
 
     /**
      * Build phase-specific tools for a node
+     * @param nodeName Node to build tools for
+     * @param pathId Optional path ID for multi-path execution
      */
-    protected buildPhaseTools(nodeName: string): ToolDefinition[] {
+    protected buildPhaseTools(nodeName: string, pathId?: string): ToolDefinition[] {
         const tools: ToolDefinition[] = [];
 
         // Add transition tools (non-automated)
         const transitions = this.getNonAutomatedTransitions(nodeName);
         for (const transition of transitions) {
-            tools.push({
+            const toolDef: ToolDefinition = {
                 name: `transition_to_${transition.target}`,
-                description: `Transition to ${transition.target}${transition.description ? ': ' + transition.description : ''}`,
+                description: pathId
+                    ? `[Path ${pathId.substring(0, 8)}] Transition to ${transition.target}${transition.description ? ': ' + transition.description : ''}`
+                    : `Transition to ${transition.target}${transition.description ? ': ' + transition.description : ''}`,
                 input_schema: {
                     type: 'object',
                     properties: {
@@ -675,16 +739,42 @@ export class RailsExecutor extends BaseExecutor {
                         }
                     }
                 }
-            });
+            };
+
+            // For multi-path, store pathId in the tool for later use
+            if (pathId) {
+                (toolDef as any).__pathId = pathId;
+            }
+
+            tools.push(toolDef);
         }
 
         // Add context tools (read/write based on permissions)
-        const builder = new AgentContextBuilder(this.machineData, this.context);
+        // Use path-specific context if pathId provided
+        let builderContext = this.context;
+        if (pathId && this.pathManager) {
+            const path = this.pathManager.getPath(pathId);
+            if (path) {
+                builderContext = {
+                    currentNode: path.currentNode,
+                    currentTaskNode: undefined,
+                    activeState: undefined,
+                    errorCount: path.errorCount,
+                    visitedNodes: new Set(path.history.map(h => h.to)),
+                    attributes: path.attributes,
+                    history: path.history,
+                    nodeInvocationCounts: path.nodeInvocationCounts,
+                    stateTransitions: path.stateTransitions
+                };
+            }
+        }
+
+        const builder = new AgentContextBuilder(this.machineData, builderContext);
         const contexts = builder.getAccessibleContextNodes(nodeName);
 
         for (const [contextName, perms] of contexts.entries()) {
             if (perms.canRead) {
-                tools.push({
+                const readTool: ToolDefinition = {
                     name: `read_${contextName}`,
                     description: `Read data from ${contextName} context`,
                     input_schema: {
@@ -697,11 +787,15 @@ export class RailsExecutor extends BaseExecutor {
                             }
                         }
                     }
-                });
+                };
+                if (pathId) {
+                    (readTool as any).__pathId = pathId;
+                }
+                tools.push(readTool);
             }
 
             if (perms.canWrite) {
-                tools.push({
+                const writeTool: ToolDefinition = {
                     name: `write_${contextName}`,
                     description: `Write data to ${contextName} context`,
                     input_schema: {
@@ -714,7 +808,11 @@ export class RailsExecutor extends BaseExecutor {
                         },
                         required: ['data']
                     }
-                });
+                };
+                if (pathId) {
+                    (writeTool as any).__pathId = pathId;
+                }
+                tools.push(writeTool);
             }
         }
 
@@ -746,6 +844,32 @@ export class RailsExecutor extends BaseExecutor {
 
         // Fallback to agent SDK bridge for meta-tools
         return await this.agentSDKBridge.executeTool(toolName, input);
+    }
+
+    /**
+     * Execute a tool for a specific path (multi-path execution)
+     * Delegates to path-specific context operations
+     */
+    async executeToolForPath(toolName: string, input: any, pathId: string): Promise<any> {
+        console.log(`🔧 Path ${pathId.substring(0, 8)}: Executing tool ${toolName}`);
+
+        // Handle transition tools
+        if (toolName.startsWith('transition_to_')) {
+            return await this.handleTransitionToolForPath(toolName, input, pathId);
+        }
+
+        // Handle context read tools
+        if (toolName.startsWith('read_')) {
+            return await this.handleReadToolForPath(toolName, input, pathId);
+        }
+
+        // Handle context write tools
+        if (toolName.startsWith('write_')) {
+            return await this.handleWriteToolForPath(toolName, input, pathId);
+        }
+
+        // Fallback to regular tool execution for meta-tools
+        return await this.executeTool(toolName, input);
     }
 
     /**
@@ -873,10 +997,141 @@ export class RailsExecutor extends BaseExecutor {
     }
 
     /**
+     * Handle transition tool execution for a specific path
+     */
+    private async handleTransitionToolForPath(name: string, input: any, pathId: string): Promise<any> {
+        const targetNode = name.replace('transition_to_', '');
+        const reason = input.reason || 'agent decision';
+
+        const path = this.pathManager?.getPath(pathId);
+        if (!path) {
+            throw new Error(`Path ${pathId} not found`);
+        }
+
+        // Validate transition is valid from this path's current node
+        const transitions = this.getNonAutomatedTransitions(path.currentNode);
+        const validTransition = transitions.find(t => t.target === targetNode);
+
+        if (!validTransition) {
+            throw new Error(`Invalid transition for path ${pathId}: ${path.currentNode} -> ${targetNode}`);
+        }
+
+        return {
+            success: true,
+            action: 'transition',
+            target: targetNode,
+            reason
+        };
+    }
+
+    /**
+     * Handle read tool execution for a specific path
+     */
+    private async handleReadToolForPath(name: string, input: any, pathId: string): Promise<any> {
+        const contextName = name.replace('read_', '');
+        const path = this.pathManager?.getPath(pathId);
+
+        if (!path) {
+            throw new Error(`Path ${pathId} not found`);
+        }
+
+        // Track context read
+        path.contextReads.add(contextName);
+
+        // Read from path-specific attributes
+        if (input.fields && Array.isArray(input.fields)) {
+            const filtered: Record<string, any> = {};
+            input.fields.forEach((field: string) => {
+                if (path.attributes.has(field)) {
+                    filtered[field] = path.attributes.get(field);
+                }
+            });
+
+            this.logger.info('context', `Path ${pathId}: Read from context ${contextName}`, {
+                fields: input.fields,
+                values: filtered
+            });
+
+            return {
+                success: true,
+                context: contextName,
+                data: filtered
+            };
+        }
+
+        // Return all attributes
+        const allData: Record<string, any> = {};
+        path.attributes.forEach((value, key) => {
+            allData[key] = value;
+        });
+
+        this.logger.info('context', `Path ${pathId}: Read all from context ${contextName}`, {
+            fieldCount: path.attributes.size
+        });
+
+        return {
+            success: true,
+            context: contextName,
+            data: allData
+        };
+    }
+
+    /**
+     * Handle write tool execution for a specific path
+     */
+    private async handleWriteToolForPath(name: string, input: any, pathId: string): Promise<any> {
+        const contextName = name.replace('write_', '');
+        const path = this.pathManager?.getPath(pathId);
+
+        if (!path) {
+            throw new Error(`Path ${pathId} not found`);
+        }
+
+        if (!input.data || typeof input.data !== 'object') {
+            throw new Error('write tool requires data object');
+        }
+
+        // Track context write
+        path.contextWrites.add(contextName);
+
+        this.logger.info('context', `Path ${pathId}: Writing to context ${contextName}`, {
+            fields: Object.keys(input.data),
+            values: input.data
+        });
+
+        // Update path-specific attributes
+        Object.entries(input.data).forEach(([key, value]) => {
+            path.attributes.set(key, value);
+        });
+
+        return {
+            success: true,
+            context: contextName,
+            written: Object.keys(input.data)
+        };
+    }
+
+    /**
      * Execute one step of the machine
      * Returns true if step was executed, false if machine is complete
      */
     async step(): Promise<boolean> {
+        // Check if we're using multi-path execution
+        const activePaths = this.pathManager?.getActivePaths() || [];
+
+        if (activePaths.length > 0) {
+            // Multi-path execution mode
+            return await this.stepMultiPath();
+        }
+
+        // Single-path execution mode (legacy)
+        return await this.stepSinglePath();
+    }
+
+    /**
+     * Execute one step in single-path mode (legacy)
+     */
+    private async stepSinglePath(): Promise<boolean> {
         const nodeName = this.context.currentNode;
 
         if (!nodeName) {
@@ -1042,6 +1297,188 @@ export class RailsExecutor extends BaseExecutor {
         });
         console.warn(`⚠️ No transition available for node: ${nodeName}`);
         return false;
+    }
+
+    /**
+     * Execute one step in multi-path mode
+     * Processes all active paths and handles forking on @parallel edges
+     */
+    private async stepMultiPath(): Promise<boolean> {
+        if (!this.pathManager || !this.transitionManager) {
+            throw new Error('PathManager or TransitionManager not initialized for multi-path execution');
+        }
+
+        const activePaths = this.pathManager.getActivePaths();
+
+        if (activePaths.length === 0) {
+            this.logger.info('execution', 'All paths complete');
+            console.log('✓ All paths complete');
+            return false;
+        }
+
+        console.log(`\n🔀 Step: ${activePaths.length} active path(s)`);
+
+        // Process each active path
+        let anyPathContinued = false;
+
+        for (const path of activePaths) {
+            const nodeName = path.currentNode;
+
+            if (!nodeName) {
+                this.pathManager.updatePathStatus(path.id, 'completed');
+                continue;
+            }
+
+            console.log(`\n  📍 Path ${path.id.substring(0, 8)}: ${nodeName}`);
+
+            const node = this.machineData.nodes.find(n => n.name === nodeName);
+            if (!node) {
+                this.logger.error('execution', `Path ${path.id}: Node ${nodeName} not found`);
+                this.pathManager.updatePathStatus(path.id, 'failed');
+                continue;
+            }
+
+            // Safety checks for this path
+            this.trackNodeInvocation(nodeName);
+
+            // Get outbound edges using TransitionManager
+            const outboundEdges = this.transitionManager.getOutboundEdges(nodeName);
+
+            // Check for @parallel edges (explicit forking)
+            const parallelEdges = outboundEdges.filter(e =>
+                this.transitionManager?.hasParallelAnnotation(e)
+            );
+
+            if (parallelEdges.length > 0) {
+                console.log(`  🔱 Forking at ${nodeName}: ${parallelEdges.length} parallel paths`);
+
+                for (const edge of parallelEdges) {
+                    const newPathId = this.pathManager.createPath(edge.target);
+                    console.log(`    ✓ Created parallel path ${newPathId.substring(0, 8)} to ${edge.target}`);
+                }
+
+                // Current path completes after forking
+                this.pathManager.updatePathStatus(path.id, 'completed');
+                anyPathContinued = true;
+                continue;
+            }
+
+            // Check for automated transitions
+            const autoTransition = this.evaluateAutomatedTransitions(nodeName);
+            if (autoTransition) {
+                this.logger.info('transition', `Path ${path.id}: Auto-transition to ${autoTransition.target}`, {
+                    reason: autoTransition.reason
+                });
+                console.log(`    → ${autoTransition.target} (${autoTransition.reason})`);
+
+                // Update path
+                this.pathManager.recordTransition(
+                    path.id,
+                    nodeName,
+                    autoTransition.target,
+                    autoTransition.reason
+                );
+
+                // Update path's current node
+                const pathObj = this.pathManager.getPath(path.id);
+                if (pathObj) {
+                    pathObj.currentNode = autoTransition.target;
+                    pathObj.stepCount++;
+                }
+
+                anyPathContinued = true;
+                continue;
+            }
+
+            // Check if agent decision required
+            if (this.requiresAgentDecision(nodeName)) {
+                console.log(`    🤖 Agent decision required for path ${path.id.substring(0, 8)}`);
+
+                // Get node attributes for model configuration
+                const attributes = this.getNodeAttributes(nodeName);
+                const taskModelId = attributes.modelId ? String(attributes.modelId).replace(/^["']|["']$/g, '') : undefined;
+
+                // Build path-specific system prompt and tools
+                const systemPrompt = this.buildSystemPrompt(nodeName, path.id);
+                const tools = this.buildPhaseTools(nodeName, path.id);
+
+                this.logger.debug('execution', `Path ${path.id}: Invoking agent with ${tools.length} tools`, {
+                    modelId: taskModelId,
+                    toolNames: tools.map(t => t.name)
+                });
+
+                try {
+                    const result = await this.agentSDKBridge.invokeAgent(
+                        nodeName,
+                        systemPrompt,
+                        tools,
+                        (toolName: string, input: any) => this.executeToolForPath(toolName, input, path.id),
+                        taskModelId
+                    );
+
+                    this.logger.info('execution', `Path ${path.id}: Agent completed successfully`, {
+                        output: result.output,
+                        nextNode: result.nextNode
+                    });
+
+                    console.log(`    ✓ Agent completed: ${result.output?.substring(0, 50)}...`);
+
+                    // Record success
+                    if (this.safetyManager) {
+                        this.safetyManager.recordSuccess(nodeName);
+                    }
+
+                    // If agent determined next node, update path
+                    if (result.nextNode) {
+                        this.pathManager.recordTransition(
+                            path.id,
+                            nodeName,
+                            result.nextNode,
+                            'agent_decision'
+                        );
+
+                        // Update path's current node
+                        path.currentNode = result.nextNode;
+                        path.stepCount++;
+
+                        anyPathContinued = true;
+                        continue;
+                    }
+
+                    // Agent completed but didn't choose a transition - mark waiting
+                    this.logger.warn('execution', `Path ${path.id}: Agent completed but did not choose a transition`);
+                    console.warn(`    ⚠️ No transition chosen`);
+                    this.pathManager.updatePathStatus(path.id, 'waiting');
+                    continue;
+
+                } catch (error) {
+                    // Record failure
+                    if (this.safetyManager && error instanceof Error) {
+                        this.safetyManager.recordFailure(nodeName, error);
+                    }
+                    this.logger.error('execution', `Path ${path.id}: Agent execution failed: ${error instanceof Error ? error.message : String(error)}`);
+                    console.error(`    ❌ Agent failed: ${error instanceof Error ? error.message : String(error)}`);
+
+                    // Mark path as failed
+                    this.pathManager.updatePathStatus(path.id, 'failed');
+                    path.errorCount++;
+                    continue;
+                }
+            }
+
+            // No outbound edges - terminal node
+            if (outboundEdges.length === 0) {
+                console.log(`    ✓ Terminal node reached`);
+                this.pathManager.updatePathStatus(path.id, 'completed');
+                continue;
+            }
+
+            // No valid transition found
+            console.log(`    ⚠️ No valid transition`);
+            this.pathManager.updatePathStatus(path.id, 'waiting');
+        }
+
+        return anyPathContinued || this.pathManager.hasActivePaths();
     }
 
     /**
