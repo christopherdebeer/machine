@@ -39,7 +39,12 @@ export class PathManager {
             stepCount: 0,
             nodeInvocationCounts: new Map(),
             stateTransitions: [],
-            startTime: Date.now()
+            startTime: Date.now(),
+            // Path-specific context (Phase 3)
+            attributes: new Map(),
+            contextReads: new Set(),
+            contextWrites: new Set(),
+            errorCount: 0
         };
 
         this.paths.set(pathId, path);

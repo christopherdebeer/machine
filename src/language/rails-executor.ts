@@ -670,8 +670,32 @@ export class RailsExecutor extends BaseExecutor {
 
     /**
      * Build system prompt for a node using AgentContextBuilder
+     * @param nodeName Node to build prompt for
+     * @param pathId Optional path ID for multi-path execution
      */
-    buildSystemPrompt(nodeName: string): string {
+    buildSystemPrompt(nodeName: string, pathId?: string): string {
+        // For multi-path: build context from path-specific data
+        if (pathId && this.pathManager) {
+            const path = this.pathManager.getPath(pathId);
+            if (path) {
+                // Create a temporary context from path data
+                const pathContext = {
+                    currentNode: path.currentNode,
+                    currentTaskNode: undefined,
+                    activeState: undefined,
+                    errorCount: path.errorCount,
+                    visitedNodes: new Set(path.history.map(h => h.to)),
+                    attributes: path.attributes,
+                    history: path.history,
+                    nodeInvocationCounts: path.nodeInvocationCounts,
+                    stateTransitions: path.stateTransitions
+                };
+                const builder = new AgentContextBuilder(this.machineData, pathContext);
+                return builder.buildSystemPrompt(nodeName);
+            }
+        }
+
+        // Single-path: use global context
         const builder = new AgentContextBuilder(this.machineData, this.context);
         return builder.buildSystemPrompt(nodeName);
     }
@@ -692,16 +716,20 @@ export class RailsExecutor extends BaseExecutor {
 
     /**
      * Build phase-specific tools for a node
+     * @param nodeName Node to build tools for
+     * @param pathId Optional path ID for multi-path execution
      */
-    protected buildPhaseTools(nodeName: string): ToolDefinition[] {
+    protected buildPhaseTools(nodeName: string, pathId?: string): ToolDefinition[] {
         const tools: ToolDefinition[] = [];
 
         // Add transition tools (non-automated)
         const transitions = this.getNonAutomatedTransitions(nodeName);
         for (const transition of transitions) {
-            tools.push({
+            const toolDef: ToolDefinition = {
                 name: `transition_to_${transition.target}`,
-                description: `Transition to ${transition.target}${transition.description ? ': ' + transition.description : ''}`,
+                description: pathId
+                    ? `[Path ${pathId.substring(0, 8)}] Transition to ${transition.target}${transition.description ? ': ' + transition.description : ''}`
+                    : `Transition to ${transition.target}${transition.description ? ': ' + transition.description : ''}`,
                 input_schema: {
                     type: 'object',
                     properties: {
@@ -711,16 +739,42 @@ export class RailsExecutor extends BaseExecutor {
                         }
                     }
                 }
-            });
+            };
+
+            // For multi-path, store pathId in the tool for later use
+            if (pathId) {
+                (toolDef as any).__pathId = pathId;
+            }
+
+            tools.push(toolDef);
         }
 
         // Add context tools (read/write based on permissions)
-        const builder = new AgentContextBuilder(this.machineData, this.context);
+        // Use path-specific context if pathId provided
+        let builderContext = this.context;
+        if (pathId && this.pathManager) {
+            const path = this.pathManager.getPath(pathId);
+            if (path) {
+                builderContext = {
+                    currentNode: path.currentNode,
+                    currentTaskNode: undefined,
+                    activeState: undefined,
+                    errorCount: path.errorCount,
+                    visitedNodes: new Set(path.history.map(h => h.to)),
+                    attributes: path.attributes,
+                    history: path.history,
+                    nodeInvocationCounts: path.nodeInvocationCounts,
+                    stateTransitions: path.stateTransitions
+                };
+            }
+        }
+
+        const builder = new AgentContextBuilder(this.machineData, builderContext);
         const contexts = builder.getAccessibleContextNodes(nodeName);
 
         for (const [contextName, perms] of contexts.entries()) {
             if (perms.canRead) {
-                tools.push({
+                const readTool: ToolDefinition = {
                     name: `read_${contextName}`,
                     description: `Read data from ${contextName} context`,
                     input_schema: {
@@ -733,11 +787,15 @@ export class RailsExecutor extends BaseExecutor {
                             }
                         }
                     }
-                });
+                };
+                if (pathId) {
+                    (readTool as any).__pathId = pathId;
+                }
+                tools.push(readTool);
             }
 
             if (perms.canWrite) {
-                tools.push({
+                const writeTool: ToolDefinition = {
                     name: `write_${contextName}`,
                     description: `Write data to ${contextName} context`,
                     input_schema: {
@@ -750,7 +808,11 @@ export class RailsExecutor extends BaseExecutor {
                         },
                         required: ['data']
                     }
-                });
+                };
+                if (pathId) {
+                    (writeTool as any).__pathId = pathId;
+                }
+                tools.push(writeTool);
             }
         }
 
@@ -782,6 +844,32 @@ export class RailsExecutor extends BaseExecutor {
 
         // Fallback to agent SDK bridge for meta-tools
         return await this.agentSDKBridge.executeTool(toolName, input);
+    }
+
+    /**
+     * Execute a tool for a specific path (multi-path execution)
+     * Delegates to path-specific context operations
+     */
+    async executeToolForPath(toolName: string, input: any, pathId: string): Promise<any> {
+        console.log(`🔧 Path ${pathId.substring(0, 8)}: Executing tool ${toolName}`);
+
+        // Handle transition tools
+        if (toolName.startsWith('transition_to_')) {
+            return await this.handleTransitionToolForPath(toolName, input, pathId);
+        }
+
+        // Handle context read tools
+        if (toolName.startsWith('read_')) {
+            return await this.handleReadToolForPath(toolName, input, pathId);
+        }
+
+        // Handle context write tools
+        if (toolName.startsWith('write_')) {
+            return await this.handleWriteToolForPath(toolName, input, pathId);
+        }
+
+        // Fallback to regular tool execution for meta-tools
+        return await this.executeTool(toolName, input);
     }
 
     /**
@@ -900,6 +988,121 @@ export class RailsExecutor extends BaseExecutor {
         });
 
         this.logger.debug('context', `Context update recorded as mutation`);
+
+        return {
+            success: true,
+            context: contextName,
+            written: Object.keys(input.data)
+        };
+    }
+
+    /**
+     * Handle transition tool execution for a specific path
+     */
+    private async handleTransitionToolForPath(name: string, input: any, pathId: string): Promise<any> {
+        const targetNode = name.replace('transition_to_', '');
+        const reason = input.reason || 'agent decision';
+
+        const path = this.pathManager?.getPath(pathId);
+        if (!path) {
+            throw new Error(`Path ${pathId} not found`);
+        }
+
+        // Validate transition is valid from this path's current node
+        const transitions = this.getNonAutomatedTransitions(path.currentNode);
+        const validTransition = transitions.find(t => t.target === targetNode);
+
+        if (!validTransition) {
+            throw new Error(`Invalid transition for path ${pathId}: ${path.currentNode} -> ${targetNode}`);
+        }
+
+        return {
+            success: true,
+            action: 'transition',
+            target: targetNode,
+            reason
+        };
+    }
+
+    /**
+     * Handle read tool execution for a specific path
+     */
+    private async handleReadToolForPath(name: string, input: any, pathId: string): Promise<any> {
+        const contextName = name.replace('read_', '');
+        const path = this.pathManager?.getPath(pathId);
+
+        if (!path) {
+            throw new Error(`Path ${pathId} not found`);
+        }
+
+        // Track context read
+        path.contextReads.add(contextName);
+
+        // Read from path-specific attributes
+        if (input.fields && Array.isArray(input.fields)) {
+            const filtered: Record<string, any> = {};
+            input.fields.forEach((field: string) => {
+                if (path.attributes.has(field)) {
+                    filtered[field] = path.attributes.get(field);
+                }
+            });
+
+            this.logger.info('context', `Path ${pathId}: Read from context ${contextName}`, {
+                fields: input.fields,
+                values: filtered
+            });
+
+            return {
+                success: true,
+                context: contextName,
+                data: filtered
+            };
+        }
+
+        // Return all attributes
+        const allData: Record<string, any> = {};
+        path.attributes.forEach((value, key) => {
+            allData[key] = value;
+        });
+
+        this.logger.info('context', `Path ${pathId}: Read all from context ${contextName}`, {
+            fieldCount: path.attributes.size
+        });
+
+        return {
+            success: true,
+            context: contextName,
+            data: allData
+        };
+    }
+
+    /**
+     * Handle write tool execution for a specific path
+     */
+    private async handleWriteToolForPath(name: string, input: any, pathId: string): Promise<any> {
+        const contextName = name.replace('write_', '');
+        const path = this.pathManager?.getPath(pathId);
+
+        if (!path) {
+            throw new Error(`Path ${pathId} not found`);
+        }
+
+        if (!input.data || typeof input.data !== 'object') {
+            throw new Error('write tool requires data object');
+        }
+
+        // Track context write
+        path.contextWrites.add(contextName);
+
+        this.logger.info('context', `Path ${pathId}: Writing to context ${contextName}`, {
+            fields: Object.keys(input.data),
+            values: input.data
+        });
+
+        // Update path-specific attributes
+        Object.entries(input.data).forEach(([key, value]) => {
+            path.attributes.set(key, value);
+        });
 
         return {
             success: true,
@@ -1189,10 +1392,78 @@ export class RailsExecutor extends BaseExecutor {
 
             // Check if agent decision required
             if (this.requiresAgentDecision(nodeName)) {
-                console.log(`    🤖 Agent decision required (multi-path not yet supported for agent nodes)`);
-                // For now, mark path as waiting
-                this.pathManager.updatePathStatus(path.id, 'waiting');
-                continue;
+                console.log(`    🤖 Agent decision required for path ${path.id.substring(0, 8)}`);
+
+                // Get node attributes for model configuration
+                const attributes = this.getNodeAttributes(nodeName);
+                const taskModelId = attributes.modelId ? String(attributes.modelId).replace(/^["']|["']$/g, '') : undefined;
+
+                // Build path-specific system prompt and tools
+                const systemPrompt = this.buildSystemPrompt(nodeName, path.id);
+                const tools = this.buildPhaseTools(nodeName, path.id);
+
+                this.logger.debug('execution', `Path ${path.id}: Invoking agent with ${tools.length} tools`, {
+                    modelId: taskModelId,
+                    toolNames: tools.map(t => t.name)
+                });
+
+                try {
+                    const result = await this.agentSDKBridge.invokeAgent(
+                        nodeName,
+                        systemPrompt,
+                        tools,
+                        (toolName: string, input: any) => this.executeToolForPath(toolName, input, path.id),
+                        taskModelId
+                    );
+
+                    this.logger.info('execution', `Path ${path.id}: Agent completed successfully`, {
+                        output: result.output,
+                        nextNode: result.nextNode
+                    });
+
+                    console.log(`    ✓ Agent completed: ${result.output?.substring(0, 50)}...`);
+
+                    // Record success
+                    if (this.safetyManager) {
+                        this.safetyManager.recordSuccess(nodeName);
+                    }
+
+                    // If agent determined next node, update path
+                    if (result.nextNode) {
+                        this.pathManager.recordTransition(
+                            path.id,
+                            nodeName,
+                            result.nextNode,
+                            'agent_decision'
+                        );
+
+                        // Update path's current node
+                        path.currentNode = result.nextNode;
+                        path.stepCount++;
+
+                        anyPathContinued = true;
+                        continue;
+                    }
+
+                    // Agent completed but didn't choose a transition - mark waiting
+                    this.logger.warn('execution', `Path ${path.id}: Agent completed but did not choose a transition`);
+                    console.warn(`    ⚠️ No transition chosen`);
+                    this.pathManager.updatePathStatus(path.id, 'waiting');
+                    continue;
+
+                } catch (error) {
+                    // Record failure
+                    if (this.safetyManager && error instanceof Error) {
+                        this.safetyManager.recordFailure(nodeName, error);
+                    }
+                    this.logger.error('execution', `Path ${path.id}: Agent execution failed: ${error instanceof Error ? error.message : String(error)}`);
+                    console.error(`    ❌ Agent failed: ${error instanceof Error ? error.message : String(error)}`);
+
+                    // Mark path as failed
+                    this.pathManager.updatePathStatus(path.id, 'failed');
+                    path.errorCount++;
+                    continue;
+                }
             }
 
             // No outbound edges - terminal node
