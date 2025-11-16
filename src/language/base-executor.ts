@@ -157,7 +157,7 @@ export abstract class BaseExecutor {
      * Evaluate a condition string against current context
      * Uses CEL (Common Expression Language) for safe, sandboxed evaluation
      */
-    protected evaluateCondition(condition: string | undefined): boolean {
+    public evaluateCondition(condition: string | undefined): boolean {
         if (!condition) {
             return true; // No condition means always true
         }

@@ -168,6 +168,42 @@ export class RailsExecutor extends BaseExecutor {
         this.stateManager = new StateManager(100);
 
         console.log('✅ Phase 1-3 execution managers initialized');
+
+        // Initialize execution paths for multiple entry points
+        this.initializePaths();
+    }
+
+    /**
+     * Initialize execution paths for all start nodes
+     * Detects multiple entry points and creates a path for each
+     */
+    private initializePaths(): void {
+        if (!this.transitionManager || !this.pathManager) {
+            return;
+        }
+
+        // Find all start nodes (multiple entry points)
+        const startNodes = this.transitionManager.findStartNodes();
+
+        if (startNodes.length === 0) {
+            console.warn('⚠️ No start nodes found in machine');
+            return;
+        }
+
+        if (startNodes.length === 1) {
+            // Single entry point - use legacy single-path mode (this.context)
+            this.context.currentNode = startNodes[0];
+            console.log(`📍 Single entry point: ${startNodes[0]}`);
+        } else {
+            // Multiple entry points - create a path for each
+            console.log(`📍 Multiple entry points detected: ${startNodes.length} paths`);
+            for (const startNode of startNodes) {
+                const pathId = this.pathManager.createPath(startNode);
+                console.log(`  ✓ Created path ${pathId} at ${startNode}`);
+            }
+            // Clear legacy context since we're using paths
+            this.context.currentNode = '';
+        }
     }
 
     /**
@@ -877,6 +913,22 @@ export class RailsExecutor extends BaseExecutor {
      * Returns true if step was executed, false if machine is complete
      */
     async step(): Promise<boolean> {
+        // Check if we're using multi-path execution
+        const activePaths = this.pathManager?.getActivePaths() || [];
+
+        if (activePaths.length > 0) {
+            // Multi-path execution mode
+            return await this.stepMultiPath();
+        }
+
+        // Single-path execution mode (legacy)
+        return await this.stepSinglePath();
+    }
+
+    /**
+     * Execute one step in single-path mode (legacy)
+     */
+    private async stepSinglePath(): Promise<boolean> {
         const nodeName = this.context.currentNode;
 
         if (!nodeName) {
@@ -1042,6 +1094,120 @@ export class RailsExecutor extends BaseExecutor {
         });
         console.warn(`⚠️ No transition available for node: ${nodeName}`);
         return false;
+    }
+
+    /**
+     * Execute one step in multi-path mode
+     * Processes all active paths and handles forking on @parallel edges
+     */
+    private async stepMultiPath(): Promise<boolean> {
+        if (!this.pathManager || !this.transitionManager) {
+            throw new Error('PathManager or TransitionManager not initialized for multi-path execution');
+        }
+
+        const activePaths = this.pathManager.getActivePaths();
+
+        if (activePaths.length === 0) {
+            this.logger.info('execution', 'All paths complete');
+            console.log('✓ All paths complete');
+            return false;
+        }
+
+        console.log(`\n🔀 Step: ${activePaths.length} active path(s)`);
+
+        // Process each active path
+        let anyPathContinued = false;
+
+        for (const path of activePaths) {
+            const nodeName = path.currentNode;
+
+            if (!nodeName) {
+                this.pathManager.updatePathStatus(path.id, 'completed');
+                continue;
+            }
+
+            console.log(`\n  📍 Path ${path.id.substring(0, 8)}: ${nodeName}`);
+
+            const node = this.machineData.nodes.find(n => n.name === nodeName);
+            if (!node) {
+                this.logger.error('execution', `Path ${path.id}: Node ${nodeName} not found`);
+                this.pathManager.updatePathStatus(path.id, 'failed');
+                continue;
+            }
+
+            // Safety checks for this path
+            this.trackNodeInvocation(nodeName);
+
+            // Get outbound edges using TransitionManager
+            const outboundEdges = this.transitionManager.getOutboundEdges(nodeName);
+
+            // Check for @parallel edges (explicit forking)
+            const parallelEdges = outboundEdges.filter(e =>
+                this.transitionManager?.hasParallelAnnotation(e)
+            );
+
+            if (parallelEdges.length > 0) {
+                console.log(`  🔱 Forking at ${nodeName}: ${parallelEdges.length} parallel paths`);
+
+                for (const edge of parallelEdges) {
+                    const newPathId = this.pathManager.createPath(edge.target);
+                    console.log(`    ✓ Created parallel path ${newPathId.substring(0, 8)} to ${edge.target}`);
+                }
+
+                // Current path completes after forking
+                this.pathManager.updatePathStatus(path.id, 'completed');
+                anyPathContinued = true;
+                continue;
+            }
+
+            // Check for automated transitions
+            const autoTransition = this.evaluateAutomatedTransitions(nodeName);
+            if (autoTransition) {
+                this.logger.info('transition', `Path ${path.id}: Auto-transition to ${autoTransition.target}`, {
+                    reason: autoTransition.reason
+                });
+                console.log(`    → ${autoTransition.target} (${autoTransition.reason})`);
+
+                // Update path
+                this.pathManager.recordTransition(
+                    path.id,
+                    nodeName,
+                    autoTransition.target,
+                    autoTransition.reason
+                );
+
+                // Update path's current node
+                const pathObj = this.pathManager.getPath(path.id);
+                if (pathObj) {
+                    pathObj.currentNode = autoTransition.target;
+                    pathObj.stepCount++;
+                }
+
+                anyPathContinued = true;
+                continue;
+            }
+
+            // Check if agent decision required
+            if (this.requiresAgentDecision(nodeName)) {
+                console.log(`    🤖 Agent decision required (multi-path not yet supported for agent nodes)`);
+                // For now, mark path as waiting
+                this.pathManager.updatePathStatus(path.id, 'waiting');
+                continue;
+            }
+
+            // No outbound edges - terminal node
+            if (outboundEdges.length === 0) {
+                console.log(`    ✓ Terminal node reached`);
+                this.pathManager.updatePathStatus(path.id, 'completed');
+                continue;
+            }
+
+            // No valid transition found
+            console.log(`    ⚠️ No valid transition`);
+            this.pathManager.updatePathStatus(path.id, 'waiting');
+        }
+
+        return anyPathContinued || this.pathManager.hasActivePaths();
     }
 
     /**

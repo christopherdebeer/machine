@@ -131,22 +131,42 @@ export const ExecutionStateVisualizer = forwardRef<ExecutionStateVisualizerRef, 
             }
             setActiveStates(states);
 
-            // Get possible next edges
+            // Get possible next edges using TransitionManager for proper annotation handling
             const edges: EdgeInfo[] = [];
-            if (context.currentNode) {
-                const outgoingEdges = machineData.edges.filter(e => e.source === context.currentNode);
+            if (context.currentNode && managers?.transition) {
+                const outgoingEdges = managers.transition.getOutboundEdges(context.currentNode);
 
                 for (const edge of outgoingEdges) {
+                    // Extract annotations from edge structure (not label parsing!)
+                    const annotations = edge.annotations?.map(a => `@${a.name}`) || [];
+
                     // Check if this edge can be traversed
                     const canTransition = await checkEdgeCondition(executor, edge, managers);
+
+                    // Extract condition from edge label (if present)
+                    const condition = extractConditionFromEdge(edge);
 
                     edges.push({
                         target: edge.target,
                         label: edge.label,
-                        condition: extractCondition(edge.label),
+                        condition,
                         type: edge.type,
-                        annotations: extractAnnotations(edge.label),
+                        annotations,
                         canTransition
+                    });
+                }
+            } else if (context.currentNode) {
+                // Fallback to machineData edges if TransitionManager not available
+                const outgoingEdges = machineData.edges.filter(e => e.source === context.currentNode);
+
+                for (const edge of outgoingEdges) {
+                    edges.push({
+                        target: edge.target,
+                        label: edge.label,
+                        condition: extractConditionFromEdge(edge),
+                        type: edge.type,
+                        annotations: [],
+                        canTransition: true // Can't evaluate without managers
                     });
                 }
             }
@@ -196,40 +216,52 @@ export const ExecutionStateVisualizer = forwardRef<ExecutionStateVisualizerRef, 
 
     const checkEdgeCondition = async (exec: RailsExecutor, edge: any, managers: any): Promise<boolean> => {
         // Check if this edge has @auto annotation (automatic transition)
-        if (edge.label && edge.label.includes('@auto')) return true;
+        if (edge.annotations?.some((a: any) => a.name === 'auto')) {
+            // Edge has @auto, check if its condition is met (if it has one)
+            const condition = extractConditionFromEdge(edge);
+            if (!condition) return true;
 
-        // If TransitionManager is available, use it to evaluate
-        if (managers?.transition) {
+            // Evaluate the condition using executor's evaluateCondition
             try {
-                // TransitionManager can evaluate if a transition is valid
-                // For now, we'll use a simplified check
-                const condition = extractCondition(edge.label);
-                if (!condition) return true; // No condition means it's available
-
-                // Would need to evaluate condition here using evaluator
-                // For now, assume all transitions are possible
-                return true;
+                return exec.evaluateCondition(condition);
             } catch (error) {
-                console.error('Error checking edge condition:', error);
+                console.error('Error evaluating @auto edge condition:', error);
                 return false;
             }
         }
 
-        // Default: assume all edges are possible
-        return true;
+        // Extract condition from edge
+        const condition = extractConditionFromEdge(edge);
+
+        if (!condition) {
+            // No condition means it's always available
+            return true;
+        }
+
+        // Check if it's a simple deterministic condition
+        try {
+            // Use executor's evaluateCondition method for proper CEL evaluation
+            return exec.evaluateCondition(condition);
+        } catch (error) {
+            console.error('Error evaluating edge condition:', error);
+            // If evaluation fails, assume the edge is not available
+            return false;
+        }
     };
 
-    const extractCondition = (label?: string): string | undefined => {
+    const extractConditionFromEdge = (edge: any): string | undefined => {
+        // First check if edge has a structured condition field
+        if (edge.condition) {
+            return edge.condition;
+        }
+
+        // Fallback: extract from label for backward compatibility
+        const label = edge.label || edge.type;
         if (!label) return undefined;
+
         // Extract condition from label like "when: value > 10" or "if value > 10"
         const match = label.match(/(?:when|if|condition):\s*(.+?)(?:\s*@|$)/i);
         return match ? match[1].trim() : undefined;
-    };
-
-    const extractAnnotations = (label?: string): string[] => {
-        if (!label) return [];
-        const annotations = label.match(/@\w+/g);
-        return annotations || [];
     };
 
     const getContextPermissions = async (exec: RailsExecutor, contextName: string, managers: any) => {
