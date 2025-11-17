@@ -39,7 +39,7 @@ import { lintKeymap } from "@codemirror/lint";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { ExecutionControls } from "./ExecutionControls";
 import { UnifiedFileTree } from "./UnifiedFileTree";
-import { loadSettings, saveSettings } from "../language/shared-settings";
+import { ANTHROPIC_MODELS, loadSettings, saveSettings } from "../language/shared-settings";
 import { VirtualFileSystem } from "../playground/virtual-filesystem";
 import { FileAccessService } from "../playground/file-access-service";
 import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
@@ -1555,10 +1555,8 @@ export const CodeMirrorPlayground: React.FC = () => {
                         value={settings.model}
                         onChange={handleModelChange}
                     >
-                        <option value="claude-sonnet-4-5-20250929">claude-sonnet-4-5-20250929</option>
-                        <option value="claude-sonnet-4-20250514">claude-sonnet-4-20250514</option>
-                        <option value="claude-3-7-sonnet-latest">claude-3-7-sonnet-latest</option>
-                        <option value="claude-3-5-haiku-latest">claude-3-5-haiku-latest</option>
+                        { ANTHROPIC_MODELS.map( model => <option value={model.id}>{model.name}</option> ) }
+                        
                     </SettingsSelect>
                 </SettingsGroup>
                 <SettingsGroup>
