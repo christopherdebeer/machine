@@ -27,6 +27,7 @@ const ANTHROPIC_TO_BEDROCK: Record<string, string> = {
     'claude-3-sonnet-20240229': 'anthropic.claude-3-sonnet-20240229-v1:0',
     'claude-3-opus-20240229': 'anthropic.claude-3-opus-20240229-v1:0',
     'claude-3-haiku-20240307': 'anthropic.claude-3-haiku-20240307-v1:0',
+    'claude-haiku-4-5-20251001': 'anthropic.claude-haiku-4-5-20251001-v1:0'
     'claude-sonnet-4-5-20250929': 'anthropic.claude-sonnet-4-5-20250929-v1:0'
 };
 
@@ -177,6 +178,7 @@ export function getEffectiveModelId(
  */
 export const ANTHROPIC_MODELS = [
     { id: 'claude-sonnet-4-5-20250929', name: 'Claude Sonnet 4.5' },
+    { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5' },
     { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
     { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet' },
     { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' },

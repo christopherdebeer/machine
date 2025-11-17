@@ -129,7 +129,6 @@ export class RailsExecutor extends BaseExecutor {
             (mutation) => this.recordMutation(mutation),
             this.toolRegistry
         );
-        debugger;
         // Initialize AgentSDKBridge (Agent SDK)
         this.agentSDKBridge = new AgentSDKBridge(
             this.machineData,
