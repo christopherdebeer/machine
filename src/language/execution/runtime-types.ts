@@ -170,12 +170,32 @@ export interface ExecutionResult {
 
 /**
  * Visualization-optimized state
+ *
+ * Designed for multi-path execution visualization:
+ * - Multiple paths can execute concurrently
+ * - Each path has independent position and history
+ * - Nodes can be active in multiple paths simultaneously
  */
 export interface VisualizationState {
-    // Current execution position
-    currentNodes: Array<{ pathId: string; nodeName: string }>;
+    // Current execution positions (one per active path)
+    // For multi-start machines, this will have multiple entries
+    currentNodes: Array<{
+        pathId: string;
+        nodeName: string;
+    }>;
 
-    // Active paths
+    // All paths (active, completed, failed, waiting)
+    // For multi-path execution, shows concurrent execution state
+    allPaths: Array<{
+        id: string;
+        currentNode: string;
+        status: PathStatus;
+        stepCount: number;
+        history: Transition[];
+        startTime: number;
+    }>;
+
+    // Active paths (currently executing)
     activePaths: Array<{
         id: string;
         currentNode: string;
@@ -184,21 +204,27 @@ export interface VisualizationState {
         history: Transition[];
     }>;
 
-    // Node states overlay
+    // Node states overlay (aggregated across all paths)
     nodeStates: Record<string, {
-        visitCount: number;
-        lastVisited?: string;
-        isActive: boolean;
+        visitCount: number;                // Total visits across all paths
+        lastVisited?: string;               // Most recent visit timestamp
+        isActive: boolean;                  // True if any path is currently at this node
+        activeInPaths: string[];            // List of path IDs currently at this node
         contextValues?: Record<string, any>;
     }>;
 
-    // Execution metadata
+    // Execution metadata (global across all paths)
     stepCount: number;
     elapsedTime: number;
     errorCount: number;
+    totalPaths: number;                     // Total paths created
+    activePathCount: number;                // Currently active paths
+    completedPathCount: number;             // Successfully completed paths
+    failedPathCount: number;                // Failed paths
 
-    // Available transitions
+    // Available transitions (per active path)
     availableTransitions: Array<{
+        pathId: string;                     // Which path this transition is for
         fromNode: string;
         toNode: string;
         isAutomatic: boolean;

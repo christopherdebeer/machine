@@ -93,6 +93,9 @@ function initialize(
 
 /**
  * Execute a single step
+ *
+ * Processes all active paths concurrently for true multi-path execution.
+ * Each path is advanced independently based on its current state.
  */
 function step(state: ExecutionState): ExecutionResult {
     const effects: Effect[] = [];
@@ -110,8 +113,71 @@ function step(state: ExecutionState): ExecutionResult {
         };
     }
 
-    // Process first active path (single-path execution for now)
-    const path = activePaths[0];
+    // Log multi-path execution
+    if (activePaths.length > 1) {
+        effects.push(buildLogEffect(
+            'debug',
+            'execution',
+            `Multi-path execution: ${activePaths.length} active paths`,
+            { pathIds: activePaths.map(p => p.id) }
+        ));
+    }
+
+    // Process all active paths concurrently
+    let nextState = state;
+    let hasWaitingPath = false;
+    let hasContinuingPath = false;
+
+    for (const path of activePaths) {
+        const result = stepPath(nextState, path.id);
+        nextState = result.nextState;
+        effects.push(...result.effects);
+
+        // Track path statuses
+        if (result.status === 'waiting') {
+            hasWaitingPath = true;
+        } else if (result.status === 'continue') {
+            hasContinuingPath = true;
+        }
+    }
+
+    // Determine overall execution status
+    const finalActivePaths = getActivePaths(nextState);
+    let overallStatus: ExecutionResult['status'];
+
+    if (finalActivePaths.length === 0) {
+        overallStatus = 'complete';
+        effects.push(buildCompleteEffect(nextState));
+    } else if (hasWaitingPath) {
+        overallStatus = 'waiting';
+    } else if (hasContinuingPath) {
+        overallStatus = 'continue';
+    } else {
+        overallStatus = 'complete';
+    }
+
+    return {
+        nextState,
+        effects,
+        status: overallStatus
+    };
+}
+
+/**
+ * Execute a single step for a specific path
+ */
+function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
+    const effects: Effect[] = [];
+    const path = getPath(state, pathId);
+
+    if (!path || path.status !== 'active') {
+        return {
+            nextState: state,
+            effects: [],
+            status: 'complete'
+        };
+    }
+
     const nodeName = path.currentNode;
     const machineJSON = state.machineSnapshot;
 
@@ -363,61 +429,101 @@ function applyAgentResult(
 
 /**
  * Get visualization state
+ *
+ * Provides a complete view of multi-path execution for visualization and inspection.
+ * Aggregates state across all paths and clearly shows concurrent execution.
  */
 function getVisualizationState(state: ExecutionState): VisualizationState {
     const activePaths = getActivePaths(state);
 
-    // Build node states
+    // Build node states (aggregated across all paths)
     const nodeStates: Record<string, any> = {};
+
     for (const path of state.paths) {
+        // Aggregate visit counts
         for (const [nodeName, count] of Object.entries(path.nodeInvocationCounts)) {
             if (!nodeStates[nodeName]) {
                 nodeStates[nodeName] = {
                     visitCount: 0,
                     isActive: false,
+                    activeInPaths: [],
                     contextValues: {}
                 };
             }
             nodeStates[nodeName].visitCount += count;
         }
 
-        // Mark current node as active
+        // Mark current node as active and track which paths are there
         if (path.status === 'active') {
-            if (!nodeStates[path.currentNode]) {
-                nodeStates[path.currentNode] = {
+            const currentNode = path.currentNode;
+            if (!nodeStates[currentNode]) {
+                nodeStates[currentNode] = {
                     visitCount: 0,
                     isActive: false,
+                    activeInPaths: [],
                     contextValues: {}
                 };
             }
-            nodeStates[path.currentNode].isActive = true;
+            nodeStates[currentNode].isActive = true;
+            nodeStates[currentNode].activeInPaths.push(path.id);
         }
 
-        // Add last visited timestamp
+        // Add last visited timestamp (most recent across all paths)
         if (path.history.length > 0) {
             const lastTransition = path.history[path.history.length - 1];
             if (nodeStates[lastTransition.to]) {
-                nodeStates[lastTransition.to].lastVisited = lastTransition.timestamp;
+                const existing = nodeStates[lastTransition.to].lastVisited;
+                if (!existing || lastTransition.timestamp > existing) {
+                    nodeStates[lastTransition.to].lastVisited = lastTransition.timestamp;
+                }
             }
         }
     }
 
-    // Build available transitions (from active paths)
-    const availableTransitions: any[] = [];
+    // Build available transitions (per active path)
+    const availableTransitions: Array<{
+        pathId: string;
+        fromNode: string;
+        toNode: string;
+        isAutomatic: boolean;
+        condition?: string;
+    }> = [];
+
     for (const path of activePaths) {
         const edges = state.machineSnapshot.edges.filter(e => e.source === path.currentNode);
         for (const edge of edges) {
+            const hasAutoAnnotation = edge.annotations?.some(a => a.name === 'auto');
             availableTransitions.push({
+                pathId: path.id,
                 fromNode: edge.source,
                 toNode: edge.target,
-                isAutomatic: false, // TODO: check annotations
+                isAutomatic: hasAutoAnnotation || false,
                 condition: edge.label
             });
         }
     }
 
+    // Count path statuses
+    const pathCounts = state.paths.reduce(
+        (acc, path) => {
+            if (path.status === 'active') acc.active++;
+            else if (path.status === 'completed') acc.completed++;
+            else if (path.status === 'failed') acc.failed++;
+            return acc;
+        },
+        { active: 0, completed: 0, failed: 0 }
+    );
+
     return {
         currentNodes: activePaths.map(p => ({ pathId: p.id, nodeName: p.currentNode })),
+        allPaths: state.paths.map(p => ({
+            id: p.id,
+            currentNode: p.currentNode,
+            status: p.status,
+            stepCount: p.stepCount,
+            history: p.history,
+            startTime: p.startTime
+        })),
         activePaths: activePaths.map(p => ({
             id: p.id,
             currentNode: p.currentNode,
@@ -429,6 +535,10 @@ function getVisualizationState(state: ExecutionState): VisualizationState {
         stepCount: state.metadata.stepCount,
         elapsedTime: state.metadata.elapsedTime,
         errorCount: state.metadata.errorCount,
+        totalPaths: state.paths.length,
+        activePathCount: pathCounts.active,
+        completedPathCount: pathCounts.completed,
+        failedPathCount: pathCounts.failed,
         availableTransitions
     };
 }
