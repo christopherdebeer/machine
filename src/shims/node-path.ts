@@ -18,9 +18,16 @@ export const basename = (p: string, ext?: string): string => {
     return name;
 };
 
+export const extname = (p: string): string => {
+    const name = basename(p);
+    const lastDot = name.lastIndexOf('.');
+    return lastDot === -1 ? '' : name.slice(lastDot);
+};
+
 export default {
     join,
     resolve,
     dirname,
-    basename
+    basename,
+    extname
 };

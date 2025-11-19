@@ -14,6 +14,36 @@ import type { LLMClient } from './llm-client.js';
 import Ajv, { type ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 
+// File system interface for browser compatibility
+interface FileSystem {
+    writeFile(path: string, content: string): Promise<void> | void;
+    readFile(path: string): Promise<string> | string | undefined;
+    exists(path: string): Promise<boolean> | boolean;
+}
+
+// VFS adapter for browser compatibility
+class VFSAdapter implements FileSystem {
+    constructor(private vfs?: { 
+        writeFile(path: string, content: string): void;
+        readFile(path: string): string | undefined;
+        exists(path: string): boolean;
+    }) {}
+
+    writeFile(path: string, content: string): void {
+        if (this.vfs) {
+            this.vfs.writeFile(path, content);
+        }
+    }
+
+    readFile(path: string): string | undefined {
+        return this.vfs?.readFile(path);
+    }
+
+    exists(path: string): boolean {
+        return this.vfs?.exists(path) ?? false;
+    }
+}
+
 export interface CodeExecutionResult {
     output: any;
     usedGeneratedCode: boolean;
@@ -32,13 +62,22 @@ export interface TaskNode {
  */
 export class CodeExecutor {
     private codeGenerator: CodeGenerator;
-    private ajv: Ajv;
+    private fileSystem?: FileSystem;
+    private ajv: Ajv.default;
     private validatorCache: Map<string, ValidateFunction> = new Map();
 
-    constructor(private llmClient: LLMClient) {
-        this.codeGenerator = new CodeGenerator(llmClient);
-        this.ajv = new Ajv({ allErrors: true });
-        addFormats(this.ajv);
+    constructor(
+        private llmClient: LLMClient,
+        vfs?: { 
+            writeFile(path: string, content: string): void;
+            readFile(path: string): string | undefined;
+            exists(path: string): boolean;
+        }
+    ) {
+        this.fileSystem = vfs ? new VFSAdapter(vfs) : undefined;
+        this.codeGenerator = new CodeGenerator(llmClient, this.fileSystem);
+        this.ajv = new Ajv.default({ allErrors: true });
+        addFormats.default(this.ajv);
     }
 
     /**
@@ -129,7 +168,7 @@ export class CodeExecutor {
         const schema = this.getTaskSchema(task);
 
         // If no code reference, generate code first
-        if (!codeRef || !(await hasGeneratedCode(codeRef, dygramFilePath))) {
+        if (!codeRef || !(await hasGeneratedCode(codeRef, dygramFilePath, this.fileSystem))) {
             console.log(`📝 Task ${task.name} has @code but no generated code yet, generating...`);
 
             try {
@@ -205,7 +244,7 @@ export class CodeExecutor {
         }
 
         // Load previous code
-        const previousCode = await loadGeneratedCode(codeRef, dygramFilePath);
+        const previousCode = await loadGeneratedCode(codeRef, dygramFilePath, this.fileSystem);
 
         // Regenerate
         const result = await this.codeGenerator.regenerateCode({

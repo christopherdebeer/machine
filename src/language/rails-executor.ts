@@ -51,6 +51,12 @@ export interface MachineExecutorConfig extends BaseMachineExecutorConfig {
     agentSDK?: AgentSDKBridgeConfig;
     // .dygram file path (for code generation)
     dygramFilePath?: string;
+    // VFS instance for browser compatibility
+    vfs?: { 
+        writeFile(path: string, content: string): void;
+        readFile(path: string): string | undefined;
+        exists(path: string): boolean;
+    };
 }
 
 /**
@@ -140,7 +146,9 @@ export class RailsExecutor extends BaseExecutor {
         );
 
         // Initialize CodeExecutor for @code tasks
-        this.codeExecutor = new CodeExecutor(this.llmClient);
+        // Pass VFS if available from config
+        const vfs = config.vfs || undefined;
+        this.codeExecutor = new CodeExecutor(this.llmClient, vfs);
 
         // Register dynamic tool patterns with ToolRegistry
         this.registerDynamicTools();

@@ -6,9 +6,38 @@
  * Regenerates on errors or schema mismatches.
  */
 
-import * as fs from 'fs/promises';
-import * as path from 'path';
 import type { LLMClient } from './llm-client.js';
+
+// Browser-compatible path utilities
+const pathUtils = {
+    basename(path: string, ext?: string): string {
+        const name = path.split('/').pop() || '';
+        if (ext && name.endsWith(ext)) {
+            return name.slice(0, -ext.length);
+        }
+        return name;
+    },
+    
+    dirname(path: string): string {
+        const parts = path.split('/');
+        parts.pop();
+        return parts.join('/') || '/';
+    },
+    
+    join(...parts: string[]): string {
+        return parts
+            .filter(part => part.length > 0)
+            .join('/')
+            .replace(/\/+/g, '/');
+    }
+};
+
+// File system interface for browser compatibility
+interface FileSystem {
+    writeFile(path: string, content: string): Promise<void> | void;
+    readFile(path: string): Promise<string> | string | undefined;
+    exists(path: string): Promise<boolean> | boolean;
+}
 
 export interface CodeGenerationInput {
     taskName: string;
@@ -37,19 +66,22 @@ export interface GeneratedCode {
  * Code Generator - handles TypeScript code generation for tasks
  */
 export class CodeGenerator {
-    constructor(private llmClient: LLMClient) {}
+    constructor(
+        private llmClient: LLMClient,
+        private fileSystem?: FileSystem
+    ) {}
 
     /**
      * Generate TypeScript code for a task (initial generation)
      */
     async generateCode(input: CodeGenerationInput): Promise<GeneratedCode> {
         const prompt = this.buildInitialGenerationPrompt(input);
-        const code = await this.llmClient.generateCode(prompt);
+        const code = await this.llmClient.invokeModel(prompt);
 
         // Determine file path: <dygramfile>.<taskname>.ts
-        const baseName = path.basename(input.dygramFilePath, '.dygram');
-        const dirName = path.dirname(input.dygramFilePath);
-        const filePath = path.join(dirName, `${baseName}.${input.taskName}.ts`);
+        const baseName = pathUtils.basename(input.dygramFilePath, '.dygram');
+        const dirName = pathUtils.dirname(input.dygramFilePath);
+        const filePath = pathUtils.join(dirName, `${baseName}.${input.taskName}.ts`);
 
         // Add metadata header
         const codeWithMetadata = this.addMetadataHeader(code, {
@@ -58,8 +90,12 @@ export class CodeGenerator {
             prompt: input.prompt
         });
 
-        // Save code file
-        await fs.writeFile(filePath, codeWithMetadata, 'utf-8');
+        // Save code file (use VFS if available, otherwise skip file writing in browser)
+        if (this.fileSystem) {
+            await this.fileSystem.writeFile(filePath, codeWithMetadata);
+        } else {
+            console.log(`📝 Generated code (not saved - no file system): ${filePath}`);
+        }
 
         // External reference (for use in .dygram file)
         const externalRef = `#${input.taskName}`;
@@ -78,12 +114,12 @@ export class CodeGenerator {
      */
     async regenerateCode(input: CodeRegenerationInput): Promise<GeneratedCode> {
         const prompt = this.buildRegenerationPrompt(input);
-        const code = await this.llmClient.generateCode(prompt);
+        const code = await this.llmClient.invokeModel(prompt);
 
         // Determine file path (same as original)
-        const baseName = path.basename(input.dygramFilePath, '.dygram');
-        const dirName = path.dirname(input.dygramFilePath);
-        const filePath = path.join(dirName, `${baseName}.${input.taskName}.ts`);
+        const baseName = pathUtils.basename(input.dygramFilePath, '.dygram');
+        const dirName = pathUtils.dirname(input.dygramFilePath);
+        const filePath = pathUtils.join(dirName, `${baseName}.${input.taskName}.ts`);
 
         // Add metadata header with regeneration info
         const codeWithMetadata = this.addMetadataHeader(code, {
@@ -93,8 +129,12 @@ export class CodeGenerator {
             prompt: input.prompt
         });
 
-        // Save code file
-        await fs.writeFile(filePath, codeWithMetadata, 'utf-8');
+        // Save code file (use VFS if available, otherwise skip file writing in browser)
+        if (this.fileSystem) {
+            await this.fileSystem.writeFile(filePath, codeWithMetadata);
+        } else {
+            console.log(`📝 Regenerated code (not saved - no file system): ${filePath}`);
+        }
 
         const externalRef = `#${input.taskName}`;
 
@@ -246,22 +286,31 @@ Return ONLY the improved TypeScript code, no markdown formatting or explanations
 export function resolveCodePath(externalRef: string, dygramFilePath: string): string {
     // #taskname → <dygramfile>.taskname.ts
     const taskName = externalRef.startsWith('#') ? externalRef.substring(1) : externalRef;
-    const baseName = path.basename(dygramFilePath, '.dygram');
-    const dirName = path.dirname(dygramFilePath);
+    const baseName = pathUtils.basename(dygramFilePath, '.dygram');
+    const dirName = pathUtils.dirname(dygramFilePath);
 
     // Try <filename>.<taskname>.ts
-    const codePath = path.join(dirName, `${baseName}.${taskName}.ts`);
+    const codePath = pathUtils.join(dirName, `${baseName}.${taskName}.ts`);
     return codePath;
 }
 
 /**
  * Check if generated code file exists
  */
-export async function hasGeneratedCode(externalRef: string, dygramFilePath: string): Promise<boolean> {
+export async function hasGeneratedCode(
+    externalRef: string, 
+    dygramFilePath: string, 
+    fileSystem?: FileSystem
+): Promise<boolean> {
+    if (!fileSystem) {
+        // In browser without file system, assume code doesn't exist
+        return false;
+    }
+    
     const codePath = resolveCodePath(externalRef, dygramFilePath);
     try {
-        await fs.access(codePath);
-        return true;
+        const exists = await fileSystem.exists(codePath);
+        return Boolean(exists);
     } catch {
         return false;
     }
@@ -270,7 +319,23 @@ export async function hasGeneratedCode(externalRef: string, dygramFilePath: stri
 /**
  * Load generated code
  */
-export async function loadGeneratedCode(externalRef: string, dygramFilePath: string): Promise<string> {
+export async function loadGeneratedCode(
+    externalRef: string, 
+    dygramFilePath: string, 
+    fileSystem?: FileSystem
+): Promise<string> {
+    if (!fileSystem) {
+        throw new Error('No file system available to load generated code');
+    }
+    
     const codePath = resolveCodePath(externalRef, dygramFilePath);
-    return await fs.readFile(codePath, 'utf-8');
+    const content = await fileSystem.readFile(codePath);
+    
+    if (typeof content === 'string') {
+        return content;
+    } else if (content === undefined) {
+        throw new Error(`Generated code file not found: ${codePath}`);
+    } else {
+        return content;
+    }
 }

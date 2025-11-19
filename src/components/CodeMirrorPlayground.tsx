@@ -1289,6 +1289,7 @@ export const CodeMirrorPlayground: React.FC = () => {
           apiKey: settings.apiKey,
           modelId: settings.model,
         },
+        vfs: fileService.getVFS(),
       });
 
       setExecutor(exec);
