@@ -2,7 +2,7 @@
  * Machine versioning and persistence
  */
 
-import { MachineData, MachineExecutor } from './machine-executor.js';
+import type { MachineJSON as MachineData } from './json/types.js';
 import { StorageBackend, MachineVersion, PerformanceMetrics, LearnedPattern } from './storage.js';
 
 export class MachinePersistence {

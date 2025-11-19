@@ -3,7 +3,7 @@
  * Maintains visual consistency with static diagrams while adding runtime state
  */
 
-import { MachineExecutor, MachineExecutionContext, MachineData } from './machine-executor.js';
+import { MachineExecutionContext, MachineData } from './json/types.js';
 import { generateRuntimeGraphviz, DiagramOptions, RuntimeContext as DiagramRuntimeContext } from './diagram/index.js';
 
 export interface RuntimeVisualizationOptions {

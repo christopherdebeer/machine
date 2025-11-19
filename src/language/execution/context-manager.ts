@@ -3,7 +3,7 @@
  * Responsible for context permissions, read/write operations, and synchronization
  */
 
-import { MachineData } from '../base-executor.js';
+import type { MachineJSON as MachineData } from '../json/types.js';
 import { ContextPermissionsResolver } from '../utils/context-permissions.js';
 import { ContextPermissions, ContextLock } from './types.js';
 

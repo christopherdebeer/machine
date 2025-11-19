@@ -14,11 +14,13 @@ Complete reference to all DyGram documentation organized by topic.
 
   - [Canonical Machine JSON Adoption Review](development/canonical-machine-json-usage.md)
   - [Execution Model Redesign](development/execution-model-redesign.md)
+  - [Execution Runtime Refactor - Deep Analysis](development/execution-refactor-analysis.md)
   - [Import System Implementation Summary](development/IMPORT_SYSTEM_IMPLEMENTATION_SUMMARY.md)
   - [Import System Integration with Tools and Code Generation](development/IMPORT_SYSTEM_INTEGRATION.md)
   - [Import System Low-Level Design](development/IMPORT_SYSTEM_LOW_LEVEL_DESIGN.md)
   - [Import System - Remaining Work](development/IMPORT_SYSTEM_REMAINING_WORK.md)
   - [Import System Design Considerations](development/import-system-design.md)
+  - [Multi-Path Execution Model](development/multi-path-execution.md)
   - [Parse Error Analysis Report](development/parse-error-analysis-2025-11-02.md)
   - [Parse Error Fixes - November 2, 2025](development/parse-error-fixes-2025-11-02.md)
   - [Playground Import System Integration](development/PLAYGROUND_IMPORT_INTEGRATION.md)

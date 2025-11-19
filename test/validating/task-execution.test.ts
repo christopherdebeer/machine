@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MachineExecutor, MachineData } from '../../src/language/machine-executor';
-import { ClaudeClient } from '../../src/language/claude-client';
+import { MachineExecutor, type MachineJSON } from '../../src/language/executor.js';
+import { ClaudeClient } from '../../src/language/claude-client.js';
 
 // Mock the ClaudeClient
 vi.mock('../../src/language/claude-client', () => {
@@ -38,7 +38,7 @@ vi.mock('../../src/language/claude-client', () => {
 
 describe('Task Node Execution', () => {
     let executor: MachineExecutor;
-    let mockMachineData: MachineData;
+    let mockMachineData: MachineJSON;
 
     beforeEach(() => {
         // Reset mocks
@@ -85,9 +85,9 @@ describe('Task Node Execution', () => {
         const result = await executor.step();
         expect(result).toBe(true);
 
-        const context = executor.getContext();
-        expect(context.history).toHaveLength(1);
-        expect(context.history[0].output).toContain('Task complete');
+        const state = executor.getState();
+        expect(state.paths[0].history).toHaveLength(1);
+        expect(state.paths[0].history[0].output).toContain('Task complete');
     });
 
     it('should execute an analysis task node with specific template', async () => {
@@ -98,20 +98,20 @@ describe('Task Node Execution', () => {
         const result = await executor.step();
         expect(result).toBe(true);
 
-        const context = executor.getContext();
-        expect(context.history).toHaveLength(2);
-        expect(context.history[1].output).toContain('Analysis complete');
+        const state = executor.getState();
+        expect(state.paths[0].history).toHaveLength(2);
+        expect(state.paths[0].history[1].output).toContain('Analysis complete');
     });
 
     it('should execute all nodes in sequence', async () => {
-        const context = await executor.execute();
-        expect(context.history).toHaveLength(2);
-        expect(context.visitedNodes.size).toBe(2);
-        expect(context.currentNode).toBe('end');
+        const finalState = await executor.execute();
+        expect(finalState.paths[0].history).toHaveLength(2);
+        expect(finalState.paths[0].stepCount).toBe(2);
+        expect(finalState.paths[0].currentNode).toBe('end');
     });
 
     it('should handle missing attributes gracefully', async () => {
-        const minimalMachine: MachineData = {
+        const minimalMachine: MachineJSON = {
             title: 'Minimal Machine',
             nodes: [
                 {
@@ -132,8 +132,8 @@ describe('Task Node Execution', () => {
         const result = await minimalExecutor.step();
         expect(result).toBe(true);
 
-        const context = minimalExecutor.getContext();
-        expect(context.history).toHaveLength(1);
-        expect(context.history[0].output).toBeDefined();
+        const state = minimalExecutor.getState();
+        expect(state.paths[0].history).toHaveLength(1);
+        expect(state.paths[0].history[0].output).toBeDefined();
     });
 });

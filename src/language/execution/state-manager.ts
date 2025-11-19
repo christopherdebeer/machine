@@ -8,7 +8,7 @@
  */
 
 import type { ExecutionPath } from './types.js';
-import type { MachineData } from '../base-executor.js';
+import type { MachineJSON as MachineData } from '../json/types.js';
 
 /**
  * Execution checkpoint

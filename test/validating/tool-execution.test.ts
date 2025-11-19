@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MachineExecutor, MachineData } from '../../src/language/machine-executor.js';
+import { MachineExecutor, type MachineJSON } from '../../src/language/executor.js';
 import {
     ToolDefinition,
     ModelResponse,
@@ -33,7 +33,7 @@ vi.mock('../../src/language/claude-client', () => {
 
 describe('Tool-Based Execution', () => {
     let executor: MachineExecutor;
-    let mockMachineData: MachineData;
+    let mockMachineData: MachineJSON;
     let mockClaudeClient: any;
 
     beforeEach(async () => {
@@ -106,8 +106,8 @@ describe('Tool-Based Execution', () => {
             expect(transitionTool!.input_schema.properties.target.enum).toContain('pathB');
 
             // Verify the transition was made
-            const context = executor.getContext();
-            expect(context.currentNode).toBe('pathA');
+            const context = executor.getState();
+            expect(state.paths[0].currentNode).toBe('pathA');
         });
 
         it('should let LLM choose pathB via transition tool', async () => {
@@ -127,9 +127,9 @@ describe('Tool-Based Execution', () => {
 
             await executor.step();
 
-            const context = executor.getContext();
-            expect(context.currentNode).toBe('pathB');
-            expect(context.history[0].transition).toBe('option_b');
+            const context = executor.getState();
+            expect(state.paths[0].currentNode).toBe('pathB');
+            expect(state.paths[0].history[0].transition).toBe('option_b');
         });
 
         it('should fallback to first transition if no tool use', async () => {
@@ -143,14 +143,14 @@ describe('Tool-Based Execution', () => {
 
             await executor.step();
 
-            const context = executor.getContext();
+            const context = executor.getState();
             // Should take first available transition (pathA)
-            expect(context.currentNode).toBe('pathA');
+            expect(state.paths[0].currentNode).toBe('pathA');
         });
     });
 
     describe('Meta Tools', () => {
-        let metaMachineData: MachineData;
+        let metaMachineData: MachineJSON;
 
         beforeEach(() => {
             metaMachineData = {

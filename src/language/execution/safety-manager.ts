@@ -8,7 +8,7 @@
  * - Rate limiting
  */
 
-import type { MachineData } from '../base-executor.js';
+import type { MachineJSON as MachineData } from '../json/types.js';
 
 /**
  * Circuit breaker state

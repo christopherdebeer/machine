@@ -5,7 +5,7 @@
 
 import { CelEvaluator } from '../cel-evaluator.js';
 import { EdgeConditionParser } from '../utils/edge-conditions.js';
-import { MachineData } from '../base-executor.js';
+import type { MachineJSON as MachineData } from '../json/types.js';
 import { parseAttributeValue } from '../utils/ast-helpers.js';
 import { EvaluationContext, AnnotatedEdge } from './types.js';
 

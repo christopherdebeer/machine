@@ -4,7 +4,7 @@
  */
 
 import { ExecutionPath, PathState } from './types.js';
-import { ExecutionLimits } from '../base-executor.js';
+import type { ExecutionLimits } from './runtime-types.js';
 
 /**
  * PathManager handles lifecycle and coordination of multiple execution paths

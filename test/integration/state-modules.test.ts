@@ -9,13 +9,13 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { RailsExecutor, MachineData } from '../../src/language/rails-executor.js';
+import { MachineExecutor, type MachineJSON } from '../../src/language/executor.js';
 import { AgentContextBuilder } from '../../src/language/agent-context-builder.js';
 
 describe('State Modules', () => {
     describe('Module Entry', () => {
         it('should enter state module at first child task', async () => {
-            const machineData: MachineData = {
+            const machineData: MachineJSON = {
                 title: 'State Module Entry Test',
                 nodes: [
                     { name: 'start', type: 'init' },
@@ -31,7 +31,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
             executor.context.currentNode = 'start';
 
             // Transition to module should route to first child
@@ -48,7 +48,7 @@ describe('State Modules', () => {
         });
 
         it('should prefer task nodes as entry points', async () => {
-            const machineData: MachineData = {
+            const machineData: MachineJSON = {
                 title: 'State Module Entry Preference Test',
                 nodes: [
                     { name: 'start', type: 'init' },
@@ -63,7 +63,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
             executor.context.currentNode = 'start';
 
             await executor.step();
@@ -73,7 +73,7 @@ describe('State Modules', () => {
         });
 
         it('should handle simple state nodes without children normally', async () => {
-            const machineData: MachineData = {
+            const machineData: MachineJSON = {
                 title: 'Simple State Node Test',
                 nodes: [
                     { name: 'start', type: 'init' },
@@ -86,7 +86,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
             executor.context.currentNode = 'start';
 
             await executor.step();
@@ -102,7 +102,7 @@ describe('State Modules', () => {
 
     describe('Module Exit', () => {
         it('should inherit module-level exit edges from terminal nodes', async () => {
-            const machineData: MachineData = {
+            const machineData: MachineJSON = {
                 title: 'State Module Exit Test',
                 nodes: [
                     { name: 'start', type: 'init' },
@@ -118,7 +118,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
             executor.context.currentNode = 'start';
 
             // Execute through the module
@@ -134,7 +134,7 @@ describe('State Modules', () => {
         });
 
         it('should prioritize explicit edges over module-level exits', async () => {
-            const machineData: MachineData = {
+            const machineData: MachineJSON = {
                 title: 'Explicit Edge Priority Test',
                 nodes: [
                     { name: 'start', type: 'init' },
@@ -152,7 +152,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
             executor.context.currentNode = 'start';
 
             await executor.step(); // start -> Module -> task1
@@ -165,7 +165,7 @@ describe('State Modules', () => {
 
     describe('Module Composition', () => {
         it('should support sequential module composition', async () => {
-            const machineData: MachineData = {
+            const machineData: MachineJSON = {
                 title: 'Sequential Module Composition',
                 nodes: [
                     { name: 'start', type: 'init' },
@@ -188,7 +188,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
             executor.context.currentNode = 'start';
 
             await executor.step(); // start -> Validation -> validate
@@ -208,7 +208,7 @@ describe('State Modules', () => {
         });
 
         it('should support conditional module transitions', async () => {
-            const machineData: MachineData = {
+            const machineData: MachineJSON = {
                 title: 'Conditional Module Transitions',
                 nodes: [
                     { name: 'start', type: 'init' },
@@ -229,7 +229,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
             executor.context.currentNode = 'start';
 
             await executor.step(); // start -> Validation -> validate
@@ -246,7 +246,7 @@ describe('State Modules', () => {
 
     describe('Nested Modules', () => {
         it('should support nested state modules', async () => {
-            const machineData: MachineData = {
+            const machineData: MachineJSON = {
                 title: 'Nested State Modules',
                 nodes: [
                     { name: 'start', type: 'init' },
@@ -265,7 +265,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
             executor.context.currentNode = 'start';
 
             // Transition to outer module should enter inner module (first child)
@@ -289,7 +289,7 @@ describe('State Modules', () => {
 
     describe('Module Context Inheritance', () => {
         it('should inherit context from parent state module', async () => {
-            const machineData: MachineData = {
+            const machineData: MachineJSON = {
                 title: 'Module Context Inheritance',
                 nodes: [
                     { name: 'start', type: 'init' },
@@ -307,7 +307,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
 
             // Use AgentContextBuilder directly
             const builder = new AgentContextBuilder(machineData, executor.context);
@@ -326,7 +326,7 @@ describe('State Modules', () => {
 
     describe('Backward Compatibility', () => {
         it('should maintain backward compatibility with non-module state nodes', async () => {
-            const machineData: MachineData = {
+            const machineData: MachineJSON = {
                 title: 'Backward Compatibility Test',
                 nodes: [
                     { name: 'start', type: 'init' },
@@ -343,7 +343,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
             executor.context.currentNode = 'start';
 
             // Should auto-transition through simple states as before

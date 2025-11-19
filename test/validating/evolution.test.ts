@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { MachineData } from '../../src/language/machine-executor.js';
+import type { MachineJSON as MachineData } from '../../src/language/json/types.js';
 import { EvolutionaryExecutor } from '../../src/language/task-evolution.js';
 import { MemoryStorage } from '../../src/language/storage.js';
 import { MachinePersistence, PatternLibrary } from '../../src/language/machine-persistence.js';

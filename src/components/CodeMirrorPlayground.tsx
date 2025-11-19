@@ -56,7 +56,7 @@ import {
 import { serializeMachineToJSON } from "../language/json/serializer";
 import { generateGraphvizFromJSON } from "../language/diagram/index";
 import { render as renderGraphviz } from "../language/diagram-controls";
-import { RailsExecutor } from "../language/rails-executor";
+import { MachineExecutor } from "../language/executor";
 import { RuntimeVisualizer } from "../language/runtime-visualizer";
 import type { MachineData } from "../language/base-executor";
 import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples";
@@ -589,7 +589,7 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [outputSize, setOutputSize] = useState<SectionSize>('medium');
     const [executionSize, setExecutionSize] = useState<SectionSize>('medium');
     const [outputData, setOutputData] = useState<OutputData>({});
-    const [executor, setExecutor] = useState<RailsExecutor | null>(null);
+    const [executor, setExecutor] = useState<MachineExecutor | null>(null);
     const [isExecuting, setIsExecuting] = useState(false);
     const [currentMachineData, setCurrentMachineData] = useState<MachineData | null>(null);
     const [selectedExample, setSelectedExample] = useState<Example | null>(null);
@@ -1231,7 +1231,7 @@ export const CodeMirrorPlayground: React.FC = () => {
 
   // Helper to update visualization with runtime state
   const updateRuntimeVisualization = useCallback(
-    async (exec: RailsExecutor) => {
+    async (exec: MachineExecutor) => {
       try {
         const visualizer = new RuntimeVisualizer(exec);
         const runtimeDot = visualizer.generateRuntimeVisualization({
@@ -1283,7 +1283,7 @@ export const CodeMirrorPlayground: React.FC = () => {
       setCurrentMachineData(machineData);
 
       // Create executor
-      const exec = await RailsExecutor.create(machineData, {
+      const exec = await MachineExecutor.create(machineData, {
         llm: {
           provider: "anthropic",
           apiKey: settings.apiKey,
@@ -1328,7 +1328,7 @@ export const CodeMirrorPlayground: React.FC = () => {
         const machineData = convertToMachineData(outputData.machine);
         setCurrentMachineData(machineData);
 
-        exec = await RailsExecutor.create(machineData, {
+        exec = await MachineExecutor.create(machineData, {
           llm: {
             provider: "anthropic",
             apiKey: settings.apiKey,

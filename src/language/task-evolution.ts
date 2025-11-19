@@ -2,7 +2,7 @@
  * Task evolution system - transitions tasks from LLM to code execution
  */
 
-import { MachineExecutor, MachineData } from './machine-executor.js';
+import { MachineData } from './json/types.js';
 import {
     GeneratedCodeModule,
     TaskExecutionContext,

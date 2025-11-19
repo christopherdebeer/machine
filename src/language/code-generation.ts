@@ -2,7 +2,7 @@
  * TypeScript code generation for evolved tasks
  */
 
-import { MachineData } from './machine-executor.js';
+import type { MachineJSON as MachineData } from './json/types.js';
 
 export interface GeneratedCodeModule {
     execute(input: any, context: TaskExecutionContext): Promise<TaskExecutionResult>;

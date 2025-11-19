@@ -3,7 +3,7 @@
  * Responsible for evaluating transitions, detecting start nodes, and state module logic
  */
 
-import { MachineData } from '../base-executor.js';
+import type { MachineJSON as MachineData } from '../json/types.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
 import { EdgeConditionParser } from '../utils/edge-conditions.js';
 import { EvaluationEngine } from './evaluation-engine.js';

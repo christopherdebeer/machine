@@ -12,7 +12,7 @@ import { createMachineServices } from './language/machine-module.js';
 import { Machine } from './language/generated/ast.js';
 import { generateJSON, generateGraphviz } from './language/generator/generator.js';
 import { render as renderGraphviz, downloadSVG, downloadPNG } from './language/diagram-controls.js';
-import { RailsExecutor } from './language/rails-executor.js';
+import { MachineExecutor } from './language/executor.js';
 import { createStorage } from './language/storage.js';
 import { createLangiumExtensions } from './codemirror-langium.js';
 import { loadSettings, saveSettings } from './language/shared-settings.js';
@@ -113,7 +113,7 @@ let executionControls: ExecutionControlsWrapper | null = null;
 let outputPanel: OutputPanel | null = null;
 
 // Current executor
-let currentExecutor: RailsExecutor | null = null;
+let currentExecutor: MachineExecutor | null = null;
 
 /**
  * Render Graphviz DOT diagram
@@ -216,13 +216,14 @@ async function executeFullMachine(): Promise<void> {
         const stepped = await currentExecutor.step();
         stepCount++;
 
-        const context = currentExecutor.getContext();
+        const state = currentExecutor.getState();
+        const primaryPath = state.paths[0];
         if (executionControls) {
             executionControls.updateState({
-                currentNode: context.currentNode,
-                stepCount: context.history.length
+                currentNode: primaryPath.currentNode,
+                stepCount: primaryPath.history.length
             });
-            executionControls.addLogEntry(`Step ${stepCount}: At node ${context.currentNode}`, 'info');
+            executionControls.addLogEntry(`Step ${stepCount}: At node ${primaryPath.currentNode}`, 'info');
         }
 
         if (!stepped) {
@@ -246,14 +247,15 @@ async function stepMachine(): Promise<void> {
     }
 
     const stepped = await currentExecutor.step();
-    const context = currentExecutor.getContext();
+    const state = currentExecutor.getState();
+    const primaryPath = state.paths[0];
 
     if (executionControls) {
         executionControls.updateState({
-            currentNode: context.currentNode,
-            stepCount: context.history.length
+            currentNode: primaryPath.currentNode,
+            stepCount: primaryPath.history.length
         });
-        executionControls.addLogEntry(`Step: At node ${context.currentNode}`, 'info');
+        executionControls.addLogEntry(`Step: At node ${primaryPath.currentNode}`, 'info');
     }
 
     if (!stepped) {
@@ -612,11 +614,11 @@ async function executeCode(code: string): Promise<void> {
         // Get settings for LLM configuration
         const settings = loadSettings();
 
-        // Initialize storage system (kept for future use but not required for RailsExecutor)
+        // Initialize storage system (kept for future use but not required for MachineExecutor)
         const storage = getStorage();
 
-        // Create RailsExecutor with LLM configuration
-        let executor: RailsExecutor | null = null;
+        // Create MachineExecutor with LLM configuration
+        let executor: MachineExecutor | null = null;
 
         const llmConfig = settings.apiKey.trim() ? {
             llm: {
@@ -632,27 +634,27 @@ async function executeCode(code: string): Promise<void> {
             }
         } : {};
 
-        console.log('🔧 Creating RailsExecutor with config:', {
+        console.log('🔧 Creating MachineExecutor with config:', {
             hasApiKey: !!settings.apiKey.trim(),
             apiKeyPrefix: settings.apiKey.substring(0, 10) + '...',
             model: settings.model,
             llmConfig
         });
 
-        // Create RailsExecutor with proper LLM client
+        // Create MachineExecutor with proper LLM client
         if (llmConfig.llm) {
             try {
-                executor = await RailsExecutor.create(machineData, llmConfig);
+                executor = await MachineExecutor.create(machineData, llmConfig);
                 currentExecutor = executor; // Store globally for execution controls
-                console.log('✅ RailsExecutor created successfully');
+                console.log('✅ MachineExecutor created successfully');
             } catch (error) {
-                console.error('❌ Failed to create RailsExecutor:', error);
+                console.error('❌ Failed to create MachineExecutor:', error);
             }
         } else {
             // Create executor without LLM for static analysis only
-            executor = new RailsExecutor(machineData, {});
+            executor = new MachineExecutor(machineData, {});
             currentExecutor = executor; // Store globally for execution controls
-            console.log('✅ RailsExecutor created (no API key - static mode only)');
+            console.log('✅ MachineExecutor created (no API key - static mode only)');
         }
 
         // Identify task nodes for execution
@@ -704,7 +706,8 @@ async function executeCode(code: string): Promise<void> {
                     const stepped = await executor.step();
                     executionSteps++;
 
-                    console.log(`✅ Step ${executionSteps} result:`, { stepped, currentContext: executor.getContext() });
+                    const currentState = executor.getState();
+                    console.log(`✅ Step ${executionSteps} result:`, { stepped, currentState });
 
                     if (!stepped) {
                         console.log('🛑 No more transitions available');
@@ -712,7 +715,7 @@ async function executeCode(code: string): Promise<void> {
                     }
                 }
 
-                executionResult = executor.getContext();
+                executionResult = executor.getState();
                 console.log('🏁 Final execution result:', executionResult);
             } catch (execError) {
                 console.error('❌ Execution failed:', execError);
@@ -761,13 +764,9 @@ async function executeCode(code: string): Promise<void> {
                 }))
             };
 
-            // Get mutations from executor if available
-            const mutations = executor ? executor.getMutations() : [];
-            const safeMutations = mutations.map((mutation: any) => ({
-                type: mutation.type,
-                timestamp: mutation.timestamp,
-                data: mutation.data || {}
-            }));
+            // Machine mutations are no longer tracked separately
+            // The full execution state includes all state changes
+            const safeMutations: any[] = [];
 
             await storage.saveMachineVersion(versionKey, {
                 version: `v${Date.now()}`,
