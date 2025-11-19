@@ -1,6 +1,6 @@
 import { MonacoEditorLanguageClientWrapper, UserConfig, EditorAppConfigExtended } from 'monaco-editor-wrapper';
 import { configureWorker, defineUserServices } from './setupCommon.js';
-import { RailsExecutor } from './language/rails-executor.js';
+import { MachineExecutor } from './language/executor.js';
 import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './language/diagram-controls.js';
 import { loadSettings, saveSettings } from './language/shared-settings.js';
 import { renderExampleButtons } from './language/shared-examples.js';
@@ -10,7 +10,7 @@ import { IDimension } from 'vscode/services';
 import { KeyCode, KeyMod } from 'monaco-editor';
 
 // Execution state
-let currentExecutor: RailsExecutor | null = null;
+let currentExecutor: MachineExecutor | null = null;
 let isExecuting = false;
 let executionStepMode = false;
 
@@ -419,7 +419,7 @@ s1 -catch-> init;
 
                 // Validate API key before attempting to create executor
                 if (!settings.apiKey || settings.apiKey.trim() === '') {
-                    console.warn('No API key configured. RailsExecutor creation skipped.');
+                    console.warn('No API key configured. MachineExecutor creation skipped.');
                     // Still render the diagram even without executor
                     if (outputPanel) {
                         const tempDiv = document.createElement('div');
@@ -439,9 +439,9 @@ s1 -catch-> init;
                     return;
                 }
 
-                // Create RailsExecutor with configuration
-                console.log('Creating RailsExecutor with API key present');
-                currentExecutor = await RailsExecutor.create(data, {
+                // Create MachineExecutor with configuration
+                console.log('Creating MachineExecutor with API key present');
+                currentExecutor = await MachineExecutor.create(data, {
                     llm: {
                         provider: 'anthropic' as const,
                         apiKey: settings.apiKey,
@@ -464,7 +464,7 @@ s1 -catch-> init;
                     }
                 });
 
-                console.log('RailsExecutor created successfully:', currentExecutor);
+                console.log('MachineExecutor created successfully:', currentExecutor);
 
                 running = false;
                 console.log(resp, data, dotCode, currentExecutor)
@@ -491,7 +491,7 @@ s1 -catch-> init;
             } catch (e) {
                 // Improved error handling with detailed logging
                 const error = e as Error;
-                console.error('Failed to create RailsExecutor:', error);
+                console.error('Failed to create MachineExecutor:', error);
                 console.error('Error details:', {
                     message: error.message,
                     stack: error.stack,

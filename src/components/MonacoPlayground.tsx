@@ -324,15 +324,15 @@ s1 -catch-> init;
         }
     }, []);
 
-    // Execution handlers (to be implemented with RailsExecutor)
+    // Execution handlers (to be implemented with MachineExecutor)
     const handleExecute = useCallback(async () => {
         console.log('Execute machine');
-        // Implementation will use RailsExecutor
+        // Implementation will use MachineExecutor
     }, []);
 
     const handleStep = useCallback(async () => {
         console.log('Step machine');
-        // Implementation will use RailsExecutor
+        // Implementation will use MachineExecutor
     }, []);
 
     const handleStop = useCallback(() => {

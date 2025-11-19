@@ -1,7 +1,7 @@
 /**
  * Agent SDK Bridge - Claude Agent SDK Integration
  *
- * Bridges RailsExecutor with Claude Agent SDK for:
+ * Bridges execution runtime with Claude Agent SDK for:
  * - Agent invocation with context-specific prompts
  * - Tool execution handling
  * - Message history retention with auto-compaction
@@ -9,7 +9,8 @@
  */
 
 import type { ToolDefinition, ConversationMessage, ModelResponse, ToolUseBlock } from './claude-client.js';
-import type { MachineData, MachineExecutionContext } from './rails-executor.js';
+import type { MachineJSON as MachineData } from './json/types.js';
+import type { MachineExecutionContext } from './agent-context-builder.js';
 import type { MetaToolManager } from './meta-tool-manager.js';
 import type { ToolRegistry } from './tool-registry.js';
 import type { ExecutionLogger } from './execution/index.js';

@@ -7,7 +7,7 @@
  * Related to issue #102 - Refactor: Extract duplicated context permission logic
  */
 
-import type { MachineData } from '../rails-executor.js';
+import type { MachineJSON as MachineData } from '../json/types.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
 
 /**
