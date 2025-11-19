@@ -371,7 +371,7 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     const hasImports = machine.imports && machine.imports.length > 0;
     const useImportSystem = hasImports && !opts.noImports;
 
-    let machineData: MachineData;
+    let machineData: MachineJSON;
 
     if (useImportSystem) {
         logger.debug('File has imports, using multi-file compilation');
@@ -398,7 +398,7 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
 
             // Generate JSON representation for execution
             const jsonContent = generateJSON(mergedMachine, fileName, opts.destination);
-            machineData = JSON.parse(jsonContent.content) as MachineData;
+            machineData = JSON.parse(jsonContent.content) as MachineJSON;
 
         } catch (error) {
             if (error instanceof CircularDependencyError) {
@@ -416,7 +416,7 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
         // Single-file execution (existing code)
         const singleMachine = await extractAstNode<Machine>(fileName, services);
         const jsonContent = generateJSON(singleMachine, fileName, opts.destination);
-        machineData = JSON.parse(jsonContent.content) as MachineData;
+        machineData = JSON.parse(jsonContent.content) as MachineJSON;
     }
 
     logger.info(chalk.blue('\n⚙️  Executing machine program with Rails-Based Architecture...'));
@@ -480,7 +480,7 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     logger.debug('Starting execution...');
 
     // Execute the machine with Rails-Based Architecture
-    const executor = await RailsExecutor.create(machineData, config);
+    const executor = await MachineExecutor.create(machineData, config);
 
     // Set up callback to save updated machine definition when agent modifies it
     let machineWasUpdated = false;
@@ -625,7 +625,7 @@ export const bundleAction = async (fileName: string, opts: { output?: string; ve
 
         // Generate JSON representation
         const jsonContent = generateJSON(mergedMachine, fileName);
-        const machineData = JSON.parse(jsonContent.content) as MachineData;
+        const machineData = JSON.parse(jsonContent.content) as MachineJSON;
 
         // Reverse-compile to DSL
         const bundledDsl = generateDSL(machineData);

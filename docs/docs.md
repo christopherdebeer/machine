@@ -14,6 +14,7 @@ Complete reference to all DyGram documentation organized by topic.
 
   - [Canonical Machine JSON Adoption Review](development/canonical-machine-json-usage.md)
   - [Execution Model Redesign](development/execution-model-redesign.md)
+  - [Execution Runtime Refactor - Deep Analysis](development/execution-refactor-analysis.md)
   - [Import System Implementation Summary](development/IMPORT_SYSTEM_IMPLEMENTATION_SUMMARY.md)
   - [Import System Integration with Tools and Code Generation](development/IMPORT_SYSTEM_INTEGRATION.md)
   - [Import System Low-Level Design](development/IMPORT_SYSTEM_LOW_LEVEL_DESIGN.md)
