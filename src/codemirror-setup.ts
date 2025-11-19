@@ -216,13 +216,14 @@ async function executeFullMachine(): Promise<void> {
         const stepped = await currentExecutor.step();
         stepCount++;
 
-        const context = currentExecutor.getContext();
+        const state = currentExecutor.getState();
+        const primaryPath = state.paths[0];
         if (executionControls) {
             executionControls.updateState({
-                currentNode: context.currentNode,
-                stepCount: context.history.length
+                currentNode: primaryPath.currentNode,
+                stepCount: primaryPath.history.length
             });
-            executionControls.addLogEntry(`Step ${stepCount}: At node ${context.currentNode}`, 'info');
+            executionControls.addLogEntry(`Step ${stepCount}: At node ${primaryPath.currentNode}`, 'info');
         }
 
         if (!stepped) {
@@ -246,14 +247,15 @@ async function stepMachine(): Promise<void> {
     }
 
     const stepped = await currentExecutor.step();
-    const context = currentExecutor.getContext();
+    const state = currentExecutor.getState();
+    const primaryPath = state.paths[0];
 
     if (executionControls) {
         executionControls.updateState({
-            currentNode: context.currentNode,
-            stepCount: context.history.length
+            currentNode: primaryPath.currentNode,
+            stepCount: primaryPath.history.length
         });
-        executionControls.addLogEntry(`Step: At node ${context.currentNode}`, 'info');
+        executionControls.addLogEntry(`Step: At node ${primaryPath.currentNode}`, 'info');
     }
 
     if (!stepped) {
@@ -704,7 +706,8 @@ async function executeCode(code: string): Promise<void> {
                     const stepped = await executor.step();
                     executionSteps++;
 
-                    console.log(`✅ Step ${executionSteps} result:`, { stepped, currentContext: executor.getContext() });
+                    const currentState = executor.getState();
+                    console.log(`✅ Step ${executionSteps} result:`, { stepped, currentState });
 
                     if (!stepped) {
                         console.log('🛑 No more transitions available');
@@ -712,7 +715,7 @@ async function executeCode(code: string): Promise<void> {
                     }
                 }
 
-                executionResult = executor.getContext();
+                executionResult = executor.getState();
                 console.log('🏁 Final execution result:', executionResult);
             } catch (execError) {
                 console.error('❌ Execution failed:', execError);
@@ -761,13 +764,9 @@ async function executeCode(code: string): Promise<void> {
                 }))
             };
 
-            // Get mutations from executor if available
-            const mutations = executor ? executor.getMutations() : [];
-            const safeMutations = mutations.map((mutation: any) => ({
-                type: mutation.type,
-                timestamp: mutation.timestamp,
-                data: mutation.data || {}
-            }));
+            // Machine mutations are no longer tracked separately
+            // The full execution state includes all state changes
+            const safeMutations: any[] = [];
 
             await storage.saveMachineVersion(versionKey, {
                 version: `v${Date.now()}`,

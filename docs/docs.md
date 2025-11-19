@@ -20,6 +20,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Import System Low-Level Design](development/IMPORT_SYSTEM_LOW_LEVEL_DESIGN.md)
   - [Import System - Remaining Work](development/IMPORT_SYSTEM_REMAINING_WORK.md)
   - [Import System Design Considerations](development/import-system-design.md)
+  - [Multi-Path Execution Model](development/multi-path-execution.md)
   - [Parse Error Analysis Report](development/parse-error-analysis-2025-11-02.md)
   - [Parse Error Fixes - November 2, 2025](development/parse-error-fixes-2025-11-02.md)
   - [Playground Import System Integration](development/PLAYGROUND_IMPORT_INTEGRATION.md)

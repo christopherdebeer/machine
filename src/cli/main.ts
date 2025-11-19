@@ -479,23 +479,8 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
 
     logger.debug('Starting execution...');
 
-    // Execute the machine with Rails-Based Architecture
+    // Execute the machine with new execution runtime
     const executor = await MachineExecutor.create(machineData, config);
-
-    // Set up callback to save updated machine definition when agent modifies it
-    let machineWasUpdated = false;
-    executor.setMachineUpdateCallback(async (dsl: string) => {
-        machineWasUpdated = true;
-        const data = extractDestinationAndName(fileName, opts.destination);
-
-        // Save updated DSL to a new file with suffix
-        const updatedFileName = `${data.name}-updated.machine`;
-        const updatedPath = path.join(data.destination, updatedFileName);
-
-        await fs.writeFile(updatedPath, dsl, 'utf-8');
-        console.log(chalk.magenta(`\n🔄 Machine definition updated by agent!`));
-        console.log(chalk.gray(`   Updated DSL saved to: ${updatedPath}`));
-    });
 
     const executionResult = await executor.execute();
 
@@ -504,42 +489,48 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     // Ensure the destination directory exists
     await fs.mkdir(data.destination, { recursive: true });
     const resultPath = path.join(data.destination, `${data.name}-result.json`);
+
+    // Use first path for single-path machines (most common case)
+    const primaryPath = executionResult.paths[0];
+
+    // Build visited nodes set from history
+    const visitedNodes = new Set<string>();
+    primaryPath.history.forEach(h => {
+        visitedNodes.add(h.from);
+        visitedNodes.add(h.to);
+    });
+
+    // Build attributes map from machine snapshot
+    const attributes: Record<string, any> = {};
+    executionResult.machineSnapshot.nodes.forEach(node => {
+        if (node.attributes) {
+            node.attributes.forEach(attr => {
+                attributes[`${node.name}.${attr.name}`] = attr.value;
+            });
+        }
+    });
+
     await fs.writeFile(resultPath, JSON.stringify(
         {
-            ...executionResult,
-            visitedNodes: Array.from(executionResult.visitedNodes),
-            attributes: Object.fromEntries(executionResult.attributes)
+            currentNode: primaryPath.currentNode,
+            errorCount: executionResult.metadata.errorCount,
+            visitedNodes: Array.from(visitedNodes),
+            attributes,
+            history: primaryPath.history,
+            // Include full execution state for advanced inspection
+            fullState: executionResult
         },
         null,
         2
     ));
     logger.success(`\n✓ Execution results written to: ${resultPath}`);
     logger.info(chalk.blue('\n📋 Execution path:'));
-    executionResult.history.forEach(step => {
+    primaryPath.history.forEach(step => {
         logger.info(chalk.cyan(`  ${step.from}`) + chalk.gray(` --(${step.transition})--> `) + chalk.cyan(`${step.to}`));
         if (step.output) {
             logger.info(chalk.gray(`    Output: ${step.output}`));
         }
     });
-
-    // Show mutations if machine was updated
-    if (machineWasUpdated) {
-        const mutations = executor.getMutations();
-        const machineUpdateMutations = mutations.filter(m =>
-            m.data?.mutationType === 'machine_updated'
-        );
-
-        if (machineUpdateMutations.length > 0) {
-            console.log(chalk.magenta('\n🔧 Machine Mutations:'));
-            machineUpdateMutations.forEach(mutation => {
-                console.log(chalk.yellow(`  ${mutation.timestamp}`));
-                console.log(chalk.gray(`    Reason: ${mutation.data.reason}`));
-                if (mutation.data.machine) {
-                    console.log(chalk.gray(`    Nodes: ${mutation.data.machine.nodeCount}, Edges: ${mutation.data.machine.edgeCount}`));
-                }
-            });
-        }
-    }
 };
 
 /**
