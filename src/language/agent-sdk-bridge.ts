@@ -132,6 +132,8 @@ export class AgentSDKBridge {
             } catch (error) {
                 console.warn('Failed to initialize Claude client:', error);
             }
+        } else {
+            console.warn(`Skipped Claude client initialization (no API key)`)
         }
 
         // Register meta-tools with ToolRegistry if available
