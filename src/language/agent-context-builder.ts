@@ -8,12 +8,30 @@
  * - Meta-programming capabilities
  */
 
-import type { MachineData, MachineExecutionContext } from './rails-executor.js';
+import type { MachineJSON as MachineData } from './json/types.js';
 import { NodeTypeChecker } from './node-type-checker.js';
 import { EdgeConditionParser } from './utils/edge-conditions.js';
 import { ContextPermissionsResolver } from './utils/context-permissions.js';
 import { extractValueFromAST } from './utils/ast-helpers.js';
 
+// Legacy execution context type (for backward compatibility)
+export interface MachineExecutionContext {
+    currentNode: string;
+    currentTaskNode?: string;
+    activeState?: string;
+    errorCount: number;
+    visitedNodes: Set<string>;
+    attributes: Map<string, any>;
+    history: Array<{
+        from: string;
+        to: string;
+        transition: string;
+        timestamp: string;
+        output?: string;
+    }>;
+    nodeInvocationCounts: Map<string, number>;
+    stateTransitions: Array<{ state: string; timestamp: string }>;
+}
 
 /**
  * Context access permissions for a node

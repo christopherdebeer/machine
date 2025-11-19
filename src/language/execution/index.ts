@@ -1,14 +1,31 @@
 /**
- * Execution Model - Core Managers
+ * Execution Runtime
  *
- * This module implements the modular execution architecture described in
- * docs/development/execution-model-redesign.md
+ * Functional, immutable execution runtime for DyGram machines.
+ * Operates on serialized MachineJSON and produces immutable ExecutionState.
  *
- * Phase 1: Core managers (evaluation, context, transition, path)
- * Phase 2: Enhanced semantics (edge types, annotations, synchronization, error handling)
- * Phase 3: Production features (safety, state management)
+ * Architecture:
+ * - Functional Core: Pure functions that transform state (runtime-types, state-builder, evaluators)
+ * - Imperative Shell: Side effect execution (effect-executor)
+ *
+ * All execution state is JSON-serializable for persistence and visualization.
  */
 
+// Core types
+export * from './runtime-types.js';
+export * from './runtime.js';
+
+// Functional core (pure functions)
+export * from './state-builder.js';
+export * from './condition-evaluator.js';
+export * from './transition-evaluator.js';
+export * from './effect-builder.js';
+export * from './execution-runtime.js';
+
+// Imperative shell (side effects)
+export * from './effect-executor.js';
+
+// Legacy Phase 1-3 managers (kept for backward compatibility during migration)
 export * from './types.js';
 export * from './logger.js';
 export * from './evaluation-engine.js';

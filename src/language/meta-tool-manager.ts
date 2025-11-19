@@ -9,9 +9,18 @@
  */
 
 import type { ToolDefinition } from './llm-client.js';
-import type { MachineMutation, MachineData } from './rails-executor.js';
+import type { MachineJSON as MachineData } from './json/types.js';
 import type { ToolRegistry } from './tool-registry.js';
 import { extractValueFromAST } from './utils/ast-helpers.js';
+
+/**
+ * Machine mutation record
+ */
+export interface MachineMutation {
+    type: 'add_node' | 'add_edge' | 'modify_node' | 'remove_node';
+    timestamp: string;
+    data: any;
+}
 
 /**
  * Dynamic tool with handler

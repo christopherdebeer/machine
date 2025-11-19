@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { MachineLanguageMetaData } from '../language/generated/module.js';
 import { createMachineServices } from '../language/machine-module.js';
 import { extractAstNode, extractDocument, extractDestinationAndName } from './cli-util.js';
-import { RailsExecutor, type MachineData } from '../language/rails-executor.js';
+import { MachineExecutor, type MachineJSON } from '../language/executor.js';
 import { generateJSON, generateHTML, generateDSL, generateGraphviz, FileGenerationResult } from '../language/generator/generator.js';
 import { NodeFileSystem } from 'langium/node';
 import * as path from 'node:path';
