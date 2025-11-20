@@ -21,6 +21,10 @@
           "attr1": "value1",
           "attr2": "value2"
         },
+        "value": {
+          "attr1": "value1",
+          "attr2": "value2"
+        },
         "style": {
           "attr1": "value1",
           "attr2": "value2"

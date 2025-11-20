@@ -30,6 +30,9 @@
         "attributes": {
           "priority": "1"
         },
+        "value": {
+          "priority": "1"
+        },
         "style": {
           "priority": 1
         },
@@ -49,6 +52,10 @@
         "target": "Step2",
         "arrowType": "->",
         "attributes": {
+          "weight": "0.8",
+          "condition": "ready"
+        },
+        "value": {
           "weight": "0.8",
           "condition": "ready"
         },

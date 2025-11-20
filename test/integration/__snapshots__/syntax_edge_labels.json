@@ -20,6 +20,9 @@
         "attributes": {
           "text": "label"
         },
+        "value": {
+          "text": "label"
+        },
         "$sourceRange": {
           "start": {
             "line": 1,
@@ -38,6 +41,9 @@
         "attributes": {
           "text": "label"
         },
+        "value": {
+          "text": "label"
+        },
         "$sourceRange": {
           "start": {
             "line": 2,
@@ -54,6 +60,9 @@
         "target": "b",
         "arrowType": "=>",
         "attributes": {
+          "text": "label"
+        },
+        "value": {
           "text": "label"
         },
         "$sourceRange": {

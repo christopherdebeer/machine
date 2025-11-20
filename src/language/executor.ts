@@ -20,6 +20,7 @@ import { EffectExecutor, type EffectExecutorConfig } from './execution/effect-ex
 import type { RuntimeConfig } from './execution/runtime.js';
 import { ClaudeClient } from './claude-client.js';
 import { createLLMClient, type LLMClientConfig } from './llm-client.js';
+import { MetaToolManager } from './meta-tool-manager.js';
 
 /**
  * Machine executor configuration
@@ -52,6 +53,9 @@ export class MachineExecutor {
     private effectExecutor: EffectExecutor;
     private currentState: ExecutionState;
     private llmClient?: ClaudeClient;
+    private metaToolManager: MetaToolManager;
+    private mutations: any[] = [];
+    private machineUpdateCallback?: (dsl: string) => void;
 
     constructor(
         machineJSON: MachineJSON,
@@ -72,6 +76,25 @@ export class MachineExecutor {
         this.effectExecutor = new EffectExecutor({
             llmClient: this.llmClient,
             vfs: config.vfs
+        });
+
+        // Initialize meta-tool manager with mutation tracking
+        this.metaToolManager = new MetaToolManager(
+            machineJSON,
+            (mutation: any) => {
+                this.mutations.push(mutation);
+            }
+        );
+
+        // Set up internal machine update handler
+        this.metaToolManager.setMachineUpdateCallback((dsl: string, machineData: MachineJSON) => {
+            // Update the machine snapshot in the current state
+            this.currentState.machineSnapshot = machineData;
+
+            // Call user callback if set
+            if (this.machineUpdateCallback) {
+                this.machineUpdateCallback(dsl);
+            }
         });
     }
 
@@ -220,10 +243,32 @@ export class MachineExecutor {
     }
 
     /**
-     * Get mutations (backward compatibility - returns empty for now)
+     * Get mutations (backward compatibility)
      */
     getMutations(): any[] {
-        return [];
+        return this.mutations;
+    }
+
+    /**
+     * Get meta-tool manager for dynamic tool construction
+     */
+    getMetaToolManager(): MetaToolManager {
+        return this.metaToolManager;
+    }
+
+    /**
+     * Set callback for machine updates (used by playground)
+     */
+    setMachineUpdateCallback(callback: (dsl: string) => void): void {
+        this.machineUpdateCallback = callback;
+        // No need to update metaToolManager callback - it's already set up in constructor
+    }
+
+    /**
+     * Get machine data (backward compatibility alias)
+     */
+    getMachineData(): MachineJSON {
+        return this.currentState.machineSnapshot;
     }
 
     /**

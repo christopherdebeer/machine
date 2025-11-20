@@ -489,19 +489,11 @@ class MachineAstSerializer {
                                 record.attributes = finalAttributes;
                             }
 
-                            // Keep value for backward compatibility, but only with metadata (no conflicting content)
+                            // Keep value for backward compatibility and DSL round-trip
+                            // Include ALL edge label/attribute content, not just metadata
+                            // This ensures backward compatibility with code expecting value field
                             if (valueWithMetadata && Object.keys(valueWithMetadata).length > 0) {
-                                // Only include non-attribute metadata in value
-                                const metadataOnly: Record<string, unknown> = {};
-                                if (valueWithMetadata.sourceAttribute) {
-                                    metadataOnly.sourceAttribute = valueWithMetadata.sourceAttribute;
-                                }
-                                if (valueWithMetadata.targetAttribute) {
-                                    metadataOnly.targetAttribute = valueWithMetadata.targetAttribute;
-                                }
-                                if (Object.keys(metadataOnly).length > 0) {
-                                    record.value = metadataOnly;
-                                }
+                                record.value = valueWithMetadata;
                             }
 
                             if (edgeStyle && Object.keys(edgeStyle).length > 0) {
@@ -549,7 +541,10 @@ class MachineAstSerializer {
         const primitiveTypes = new Set(['string', 'number', 'boolean', 'float', 'double', 'integer', 'int', 'decimal']);
 
         const visitNode = (node: Node) => {
-            if ((node.type ?? '').toLowerCase() === 'style') {
+            const nodeType = (node.type ?? '').toLowerCase();
+
+            // Skip style and note nodes - they have special meaning and shouldn't generate attribute edges
+            if (nodeType === 'style' || nodeType === 'note') {
                 node.nodes?.forEach(visitNode);
                 return;
             }
@@ -558,7 +553,9 @@ class MachineAstSerializer {
             nodeAttributes.forEach(attr => {
                 const attrType = attr.type ? this.serializeType(attr.type) : undefined;
 
-                if (!attrType || primitiveTypes.has(attrType.toLowerCase())) {
+                // Skip if type is explicitly a primitive type
+                // BUT allow attributes with no type annotation - they might reference nodes
+                if (attrType && primitiveTypes.has(attrType.toLowerCase())) {
                     return;
                 }
 
@@ -575,6 +572,7 @@ class MachineAstSerializer {
 
                     const edgeValue: Record<string, unknown> = {
                         attribute: attr.name,
+                        text: attr.name, // Add text field for backward compatibility
                         type: attrType
                     };
 
@@ -675,10 +673,77 @@ class MachineAstSerializer {
         }
 
         const node = reference.ref as Node;
+
+        // Check if the reference text contains a qualified path (e.g., "parent.spouse")
+        // Even if the ref resolves to a node, we need to extract the attribute path
+        if (reference.$refText && reference.$refText.includes('.')) {
+            const resolved = this.resolveEdgeQualifiedPath(reference.$refText, aliasMap);
+            if (resolved) {
+                return resolved;
+            }
+        }
+
         return {
             node,
             nodeName: node.name
         };
+    }
+
+    /**
+     * Resolve a qualified path specifically for edge references
+     * For "parent.spouse", we want node=parent and attributePath="spouse"
+     * We only match against NODE entries, not attribute entries in the aliasMap
+     */
+    private resolveEdgeQualifiedPath(refText: string, aliasMap: Map<string, NodeAliasInfo>): ResolvedReference | undefined {
+        if (!refText) {
+            return undefined;
+        }
+
+        const sanitized = refText.trim().replace(/;$/, '');
+        if (!sanitized) {
+            return undefined;
+        }
+
+        const parts = sanitized.split('.');
+
+        // Try to find a node match (not an attribute match)
+        // Start from full path and work backwards
+        for (let i = parts.length; i > 0; i--) {
+            const candidateNode = parts.slice(0, i).join('.');
+            const info = aliasMap.get(candidateNode);
+
+            // Check if this entry represents an actual node (not just an attribute path)
+            if (info) {
+                // An entry is a node if the info.node.name matches the last part of the qualified name
+                // For "parent.child1", node.name should be "child1"
+                // For "parent.spouse" (attribute), node.name would be "parent" (the parent node)
+                const lastPart = candidateNode.split('.').pop();
+                const isActualNode = info.node.name === lastPart;
+
+                if (isActualNode) {
+                    const attributePath = parts.slice(i).join('.');
+                    return {
+                        node: info.node,
+                        nodeName: info.node.name,
+                        attributePath: attributePath.length > 0 ? attributePath : undefined
+                    };
+                }
+            }
+        }
+
+        // If no qualified match, try just the first part
+        const firstPart = parts[0];
+        const info = aliasMap.get(firstPart);
+        if (info && parts.length > 1) {
+            const attributePath = parts.slice(1).join('.');
+            return {
+                node: info.node,
+                nodeName: info.node.name,
+                attributePath: attributePath
+            };
+        }
+
+        return undefined;
     }
 
     private buildNodeAliasMap(): Map<string, NodeAliasInfo> {
@@ -746,7 +811,10 @@ class MachineAstSerializer {
                 } else if (attr.name) {
                     let attrValue: unknown = attr.value;
                     if (typeof attrValue === 'string') {
-                        attrValue = attrValue.replace(/^["']|["']$/g, '');
+                        // Only strip quotes if the string starts AND ends with matching quotes
+                        // Langium parser already strips outer quotes from STRING terminals,
+                        // so this handles any edge cases where quotes remain
+                        attrValue = attrValue.replace(/^(["'])(.*)\1$/, '$2');
                     }
 
                     if (attrValue !== undefined) {

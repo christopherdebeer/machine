@@ -55,6 +55,10 @@
           "timeout": "5000",
           "maxRetries": "5"
         },
+        "value": {
+          "timeout": "5000",
+          "maxRetries": "5"
+        },
         "style": {
           "timeout": 5000,
           "maxRetries": 5

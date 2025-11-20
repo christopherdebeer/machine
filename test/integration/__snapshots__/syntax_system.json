@@ -63,6 +63,9 @@
         "attributes": {
           "text": "color: red;"
         },
+        "value": {
+          "text": "color: red;"
+        },
         "style": {
           "color": "red"
         },

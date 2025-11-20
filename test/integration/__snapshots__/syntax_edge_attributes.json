@@ -69,6 +69,9 @@
         "attributes": {
           "priority": "1"
         },
+        "value": {
+          "priority": "1"
+        },
         "style": {
           "priority": 1
         },
@@ -88,6 +91,10 @@
         "target": "Transform",
         "arrowType": "->",
         "attributes": {
+          "weight": "0.8",
+          "condition": "ready"
+        },
+        "value": {
           "weight": "0.8",
           "condition": "ready"
         },
@@ -111,6 +118,9 @@
         "target": "End",
         "arrowType": "->",
         "attributes": {
+          "timeout": "5000"
+        },
+        "value": {
           "timeout": "5000"
         },
         "style": {

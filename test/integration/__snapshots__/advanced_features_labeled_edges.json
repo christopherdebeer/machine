@@ -157,6 +157,9 @@
         "attributes": {
           "text": "validate"
         },
+        "value": {
+          "text": "validate"
+        },
         "$sourceRange": {
           "start": {
             "line": 8,
@@ -175,6 +178,9 @@
         "attributes": {
           "text": "complete"
         },
+        "value": {
+          "text": "complete"
+        },
         "$sourceRange": {
           "start": {
             "line": 11,
@@ -191,6 +197,9 @@
         "target": "active",
         "arrowType": "->",
         "attributes": {
+          "text": "s"
+        },
+        "value": {
           "text": "s"
         },
         "$sourceRange": {
@@ -217,6 +226,9 @@
         "attributes": {
           "text": "color: red; stroke-width: 3px"
         },
+        "value": {
+          "text": "color: red; stroke-width: 3px"
+        },
         "style": {
           "color": "red",
           "penwidth": "3px"
@@ -237,6 +249,10 @@
         "target": "taskB",
         "arrowType": "->",
         "attributes": {
+          "priority": "5",
+          "weight": "10"
+        },
+        "value": {
           "priority": "5",
           "weight": "10"
         },

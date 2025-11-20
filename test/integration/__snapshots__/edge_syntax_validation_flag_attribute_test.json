@@ -45,6 +45,9 @@
         "attributes": {
           "text": "async"
         },
+        "value": {
+          "text": "async"
+        },
         "$sourceRange": {
           "start": {
             "line": 6,

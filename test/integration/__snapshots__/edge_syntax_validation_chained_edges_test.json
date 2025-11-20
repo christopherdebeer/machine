@@ -66,6 +66,9 @@
         "attributes": {
           "text": "first"
         },
+        "value": {
+          "text": "first"
+        },
         "$sourceRange": {
           "start": {
             "line": 7,
@@ -88,6 +91,9 @@
         ],
         "arrowType": "->",
         "attributes": {
+          "text": "second"
+        },
+        "value": {
           "text": "second"
         },
         "$sourceRange": {

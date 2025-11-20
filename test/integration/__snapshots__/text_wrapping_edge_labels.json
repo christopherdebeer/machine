@@ -26,6 +26,9 @@
         "attributes": {
           "text": "This is a very long edge label that will be wrapped"
         },
+        "value": {
+          "text": "This is a very long edge label that will be wrapped"
+        },
         "$sourceRange": {
           "start": {
             "line": 4,

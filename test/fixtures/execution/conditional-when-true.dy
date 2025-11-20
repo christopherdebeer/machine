@@ -1,0 +1,11 @@
+// Test 1.1: Simple When Condition (True Path)
+machine "Conditional When True" {
+    status: "valid";
+}
+
+state Start "Start Node" @start
+state Success "Success Path"
+state Failure "Failure Path"
+
+Start -when: "status == 'valid'"-> Success
+Start -when: "status == 'invalid'"-> Failure

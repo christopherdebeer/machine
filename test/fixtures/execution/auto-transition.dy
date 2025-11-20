@@ -1,0 +1,11 @@
+// Test 3.1: Auto-transition State Nodes
+machine "Auto Transition"
+
+state Start @start "Initial state"
+state Ready "Ready state (auto-transitions)"
+state Process "Processing state"
+task Complete "Final task"
+
+Start -> Ready
+Ready -> Process
+Process -> Complete

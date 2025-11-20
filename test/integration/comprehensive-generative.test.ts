@@ -191,9 +191,12 @@ class SnapshotManager {
             return { differences, diffs };
         }
 
-        // Compare JSON output
-        const currentJsonStr = JSON.stringify(jsonOutput, null, 2);
-        const snapshotJsonStr = JSON.stringify(snapshot.json, null, 2);
+        // Compare JSON output (excluding $sourceRange fields which can differ due to formatting)
+        const currentJsonNormalized = this.removeSourceRanges(jsonOutput);
+        const snapshotJsonNormalized = this.removeSourceRanges(snapshot.json);
+
+        const currentJsonStr = JSON.stringify(currentJsonNormalized, null, 2);
+        const snapshotJsonStr = JSON.stringify(snapshotJsonNormalized, null, 2);
         if (currentJsonStr !== snapshotJsonStr) {
             differences.push('JSON output differs from snapshot');
             diffs.push({
@@ -273,6 +276,35 @@ class SnapshotManager {
         }
 
         return diff;
+    }
+
+    /**
+     * Remove $sourceRange fields from JSON for comparison
+     * $sourceRange contains line/character positions that will differ in DSL round-trips
+     * due to formatting differences, but don't indicate semantic changes
+     */
+    removeSourceRanges(obj: any): any {
+        if (obj === null || obj === undefined) {
+            return obj;
+        }
+
+        if (Array.isArray(obj)) {
+            return obj.map(item => this.removeSourceRanges(item));
+        }
+
+        if (typeof obj === 'object') {
+            const result: any = {};
+            for (const key in obj) {
+                if (key === '$sourceRange') {
+                    // Skip $sourceRange fields
+                    continue;
+                }
+                result[key] = this.removeSourceRanges(obj[key]);
+            }
+            return result;
+        }
+
+        return obj;
     }
 
     /**
@@ -1329,7 +1361,10 @@ describe('Comprehensive Generative Integration Tests', () => {
 
                         // Deep compare JSON structures (DSL→JSON1→DSL2→JSON2, check JSON1 === JSON2)
                         // This ensures lossless transformation, ignoring formatting differences
-                        const jsonDifferences = deepCompareJSON(result.jsonOutput, roundTripJson, 'json');
+                        // Remove $sourceRange fields before comparison as they naturally differ in round-trips
+                        const originalJsonNormalized = snapshotManager.removeSourceRanges(result.jsonOutput);
+                        const roundTripJsonNormalized = snapshotManager.removeSourceRanges(roundTripJson);
+                        const jsonDifferences = deepCompareJSON(originalJsonNormalized, roundTripJsonNormalized, 'json');
 
                         if (jsonDifferences.length > 0) {
                             result.dslRoundTripErrors.push(

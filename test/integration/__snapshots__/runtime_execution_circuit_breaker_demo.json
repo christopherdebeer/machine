@@ -93,6 +93,9 @@
         "attributes": {
           "when": "circuitOpen"
         },
+        "value": {
+          "when": "circuitOpen"
+        },
         "style": {
           "when": "circuitOpen"
         },

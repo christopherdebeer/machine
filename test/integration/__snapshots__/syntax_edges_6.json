@@ -24,6 +24,9 @@
         "attributes": {
           "weight": "0.8"
         },
+        "value": {
+          "weight": "0.8"
+        },
         "style": {
           "weight": 0.8
         },
@@ -43,6 +46,9 @@
         "target": "Fallback",
         "arrowType": "->",
         "attributes": {
+          "weight": "0.2"
+        },
+        "value": {
           "weight": "0.2"
         },
         "style": {

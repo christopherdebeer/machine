@@ -87,6 +87,9 @@
         "attributes": {
           "when": "error"
         },
+        "value": {
+          "when": "error"
+        },
         "style": {
           "when": "error"
         },

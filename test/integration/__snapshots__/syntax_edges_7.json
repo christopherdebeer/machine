@@ -28,6 +28,9 @@
         "attributes": {
           "text": "start"
         },
+        "value": {
+          "text": "start"
+        },
         "$sourceRange": {
           "start": {
             "line": 1,
@@ -44,6 +47,9 @@
         "target": "Complete",
         "arrowType": "->",
         "attributes": {
+          "text": "success"
+        },
+        "value": {
           "text": "success"
         },
         "$sourceRange": {
@@ -64,6 +70,9 @@
         "attributes": {
           "text": "error"
         },
+        "value": {
+          "text": "error"
+        },
         "$sourceRange": {
           "start": {
             "line": 3,
@@ -80,6 +89,9 @@
         "target": "Processing",
         "arrowType": "->",
         "attributes": {
+          "text": "retry"
+        },
+        "value": {
           "text": "retry"
         },
         "$sourceRange": {

@@ -68,6 +68,10 @@
           "text": "broadcast",
           "timeout": "1000"
         },
+        "value": {
+          "text": "broadcast",
+          "timeout": "1000"
+        },
         "style": {
           "timeout": 1000
         },
@@ -93,6 +97,10 @@
         ],
         "arrowType": "->",
         "attributes": {
+          "text": "broadcast",
+          "timeout": "1000"
+        },
+        "value": {
           "text": "broadcast",
           "timeout": "1000"
         },

@@ -87,6 +87,9 @@
         "attributes": {
           "when": "timeout"
         },
+        "value": {
+          "when": "timeout"
+        },
         "style": {
           "when": "timeout"
         },

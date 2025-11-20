@@ -47,6 +47,9 @@
         "attributes": {
           "text": "success"
         },
+        "value": {
+          "text": "success"
+        },
         "$sourceRange": {
           "start": {
             "line": 2,
@@ -63,6 +66,9 @@
         "target": "Error",
         "arrowType": "->",
         "attributes": {
+          "text": "failure"
+        },
+        "value": {
           "text": "failure"
         },
         "$sourceRange": {

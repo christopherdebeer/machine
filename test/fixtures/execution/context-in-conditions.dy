@@ -1,0 +1,14 @@
+// Test 2.3: Context in Conditions
+machine "Context in Conditions"
+
+context Settings {
+    debugMode: true;
+    maxRetries: 3;
+}
+
+state Start @start
+state DebugPath
+state ProductionPath
+
+Start -when: "Settings.debugMode == true"-> DebugPath
+Start -unless: "Settings.debugMode"-> ProductionPath

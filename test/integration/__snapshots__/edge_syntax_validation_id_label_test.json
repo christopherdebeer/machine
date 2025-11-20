@@ -45,6 +45,9 @@
         "attributes": {
           "text": "transitionLabel"
         },
+        "value": {
+          "text": "transitionLabel"
+        },
         "$sourceRange": {
           "start": {
             "line": 6,

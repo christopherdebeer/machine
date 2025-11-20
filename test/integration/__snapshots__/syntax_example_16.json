@@ -72,6 +72,9 @@
         "attributes": {
           "text": "start"
         },
+        "value": {
+          "text": "start"
+        },
         "$sourceRange": {
           "start": {
             "line": 6,
@@ -88,6 +91,9 @@
         "target": "Paused",
         "arrowType": "->",
         "attributes": {
+          "text": "pause"
+        },
+        "value": {
           "text": "pause"
         },
         "$sourceRange": {
@@ -108,6 +114,9 @@
         "attributes": {
           "text": "resume"
         },
+        "value": {
+          "text": "resume"
+        },
         "$sourceRange": {
           "start": {
             "line": 8,
@@ -124,6 +133,9 @@
         "target": "Stopped",
         "arrowType": "->",
         "attributes": {
+          "text": "stop"
+        },
+        "value": {
           "text": "stop"
         },
         "$sourceRange": {

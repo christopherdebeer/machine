@@ -140,6 +140,9 @@
         "attributes": {
           "text": "temp < 68"
         },
+        "value": {
+          "text": "temp < 68"
+        },
         "$sourceRange": {
           "start": {
             "line": 13,
@@ -171,6 +174,9 @@
         "target": "coolOn",
         "arrowType": "->",
         "attributes": {
+          "text": "temp > 72"
+        },
+        "value": {
           "text": "temp > 72"
         },
         "$sourceRange": {
@@ -234,6 +240,9 @@
         "target": "turnOff",
         "arrowType": "->",
         "attributes": {
+          "text": "68 <= temp <= 72"
+        },
+        "value": {
           "text": "68 <= temp <= 72"
         },
         "$sourceRange": {

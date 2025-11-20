@@ -23,7 +23,7 @@ export interface ExecutionControlsProps {
     onReset?: () => void;
     mobile?: boolean;
     showLog?: boolean;
-    executor?: any; // RailsExecutor instance to get logs from
+    executor?: any; // MachineExecutor instance to get logs from
     logLevel?: string; // Current log level
     onLogLevelChange?: (level: string) => void;
 }
