@@ -1,7 +1,7 @@
 /**
  * Agent SDK Bridge - Claude Agent SDK Integration
  *
- * Bridges RailsExecutor with Claude Agent SDK for:
+ * Bridges MachineExecutor with Claude Agent SDK for:
  * - Agent invocation with context-specific prompts
  * - Tool execution handling
  * - Message history retention with auto-compaction
@@ -590,7 +590,7 @@ export class AgentSDKBridge {
     async executeTool(toolName: string, input: any): Promise<any> {
         console.log(`🔧 Executing tool: ${toolName}`);
 
-        // Primary: Use tool executor from RailsExecutor
+        // Primary: Use tool executor from MachineExecutor
         if (this.toolExecutor) {
             return await this.toolExecutor(toolName, input);
         }

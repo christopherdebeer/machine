@@ -419,7 +419,7 @@ s1 -catch-> init;
 
                 // Validate API key before attempting to create executor
                 if (!settings.apiKey || settings.apiKey.trim() === '') {
-                    console.warn('No API key configured. RailsExecutor creation skipped.');
+                    console.warn('No API key configured. MachineExecutor creation skipped.');
                     // Still render the diagram even without executor
                     if (outputPanel) {
                         const tempDiv = document.createElement('div');

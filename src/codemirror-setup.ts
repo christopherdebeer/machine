@@ -612,7 +612,7 @@ async function executeCode(code: string): Promise<void> {
         // Get settings for LLM configuration
         const settings = loadSettings();
 
-        // Initialize storage system (kept for future use but not required for RailsExecutor)
+        // Initialize storage system (kept for future use but not required for MachineExecutor)
         const storage = getStorage();
 
         // Create MachineExecutor with LLM configuration
