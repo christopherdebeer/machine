@@ -11,7 +11,8 @@
 
 import { CodeGenerator, resolveCodePath, hasGeneratedCode, loadGeneratedCode } from '../code-generation.js';
 import type { ClaudeClient } from '../claude-client.js';
-import Ajv, { type ValidateFunction } from 'ajv';
+import type { ValidateFunction } from 'ajv';
+import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 
 // File system interface for browser compatibility
@@ -63,7 +64,7 @@ export interface TaskNode {
 export class CodeExecutor {
     private codeGenerator: CodeGenerator;
     private fileSystem?: FileSystem;
-    private ajv: Ajv.default;
+    private ajv: Ajv;
     private validatorCache: Map<string, ValidateFunction> = new Map();
 
     constructor(
@@ -76,8 +77,8 @@ export class CodeExecutor {
     ) {
         this.fileSystem = vfs ? new VFSAdapter(vfs) : undefined;
         this.codeGenerator = new CodeGenerator(llmClient, this.fileSystem);
-        this.ajv = new Ajv.default({ allErrors: true });
-        addFormats.default(this.ajv);
+        this.ajv = new Ajv({ allErrors: true });
+        addFormats(this.ajv);
     }
 
     /**

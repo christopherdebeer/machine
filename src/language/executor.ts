@@ -25,7 +25,7 @@ import { createLLMClient, type LLMClientConfig } from './llm-client.js';
  * Machine executor configuration
  */
 export interface MachineExecutorConfig {
-    llm?: LLMClientConfig;
+    llm?: LLMClientConfig | ClaudeClient;  // Accept config or pre-initialized client
     limits?: {
         maxSteps?: number;
         maxNodeInvocations?: number;
@@ -33,6 +33,11 @@ export interface MachineExecutorConfig {
         cycleDetectionWindow?: number;
     };
     logLevel?: 'debug' | 'info' | 'warn' | 'error';
+    vfs?: {
+        writeFile(path: string, content: string): void;
+        readFile(path: string): string | undefined;
+        exists(path: string): boolean;
+    };
 }
 
 
@@ -58,29 +63,41 @@ export class MachineExecutor {
             logLevel: config.logLevel
         });
 
-        // Initialize effect executor
+        // Check if llm is a pre-initialized ClaudeClient
+        if (config.llm && typeof (config.llm as any).invokeModel === 'function') {
+            this.llmClient = config.llm as ClaudeClient;
+        }
+
+        // Initialize effect executor with LLM client if available
         this.effectExecutor = new EffectExecutor({
-            llmClient: config.llm ? undefined : undefined, // Will be set in create()
+            llmClient: this.llmClient,
+            vfs: config.vfs
         });
     }
 
     /**
-     * Create executor with async LLM client
+     * Create executor with async LLM client initialization
      */
     static async create(
         machineJSON: MachineJSON,
         config: MachineExecutorConfig = {}
     ): Promise<MachineExecutor> {
-        const executor = new MachineExecutor(machineJSON, config);
+        // If config.llm is already a ClaudeClient, use constructor directly
+        if (config.llm && typeof (config.llm as any).invokeModel === 'function') {
+            return new MachineExecutor(machineJSON, config);
+        }
 
+        // If config.llm is an LLMClientConfig, create the client first
         if (config.llm) {
-            executor.llmClient = await createLLMClient(config.llm);
-            executor.effectExecutor = new EffectExecutor({
-                llmClient: executor.llmClient
+            const llmClient = await createLLMClient(config.llm as LLMClientConfig);
+            return new MachineExecutor(machineJSON, {
+                ...config,
+                llm: llmClient
             });
         }
 
-        return executor;
+        // No LLM config provided
+        return new MachineExecutor(machineJSON, config);
     }
 
     /**

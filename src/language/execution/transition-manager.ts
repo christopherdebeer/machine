@@ -3,7 +3,7 @@
  * Responsible for evaluating transitions, detecting start nodes, and state module logic
  */
 
-import { MachineData } from '../base-executor.js';
+import { MachineJSON } from '../json/types.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
 import { EdgeConditionParser } from '../utils/edge-conditions.js';
 import { EvaluationEngine } from './evaluation-engine.js';
@@ -15,10 +15,10 @@ import { AnnotationProcessor, ProcessedEdgeAnnotations } from './annotation-proc
  * TransitionManager handles transition evaluation and state module logic
  */
 export class TransitionManager {
-    private machineData: MachineData;
+    private machineData: MachineJSON;
     private evaluationEngine: EvaluationEngine;
 
-    constructor(machineData: MachineData, evaluationEngine: EvaluationEngine) {
+    constructor(machineData: MachineJSON, evaluationEngine: EvaluationEngine) {
         this.machineData = machineData;
         this.evaluationEngine = evaluationEngine;
     }

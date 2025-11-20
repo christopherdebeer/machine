@@ -8,7 +8,7 @@
  * - Rate limiting
  */
 
-import type { MachineData } from '../base-executor.js';
+import type { MachineJSON } from '../json/types.js';
 
 /**
  * Circuit breaker state
@@ -68,9 +68,9 @@ export class SafetyManager {
     private nodeTimeouts: Map<string, number> = new Map();
     private limits: Required<SafetyLimits>;
     private startTime: number;
-    private machineData: MachineData;
+    private machineData: MachineJSON;
 
-    constructor(machineData: MachineData, limits?: SafetyLimits) {
+    constructor(machineData: MachineJSON, limits?: SafetyLimits) {
         this.machineData = machineData;
         this.startTime = Date.now();
 

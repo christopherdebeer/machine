@@ -5,7 +5,7 @@
 
 import { CelEvaluator } from '../cel-evaluator.js';
 import { EdgeConditionParser } from '../utils/edge-conditions.js';
-import { MachineData } from '../base-executor.js';
+import { MachineJSON } from '../json/types.js';
 import { parseAttributeValue } from '../utils/ast-helpers.js';
 import { EvaluationContext, AnnotatedEdge } from './types.js';
 
@@ -14,9 +14,9 @@ import { EvaluationContext, AnnotatedEdge } from './types.js';
  */
 export class EvaluationEngine {
     private celEvaluator: CelEvaluator;
-    private machineData: MachineData;
+    private machineData: MachineJSON;
 
-    constructor(machineData: MachineData) {
+    constructor(machineData: MachineJSON) {
         this.machineData = machineData;
         this.celEvaluator = new CelEvaluator();
     }

@@ -3,7 +3,7 @@
  * Responsible for context permissions, read/write operations, and synchronization
  */
 
-import { MachineData } from '../base-executor.js';
+import { MachineJSON } from '../json/types.js';
 import { ContextPermissionsResolver } from '../utils/context-permissions.js';
 import { ContextPermissions, ContextLock } from './types.js';
 
@@ -11,11 +11,11 @@ import { ContextPermissions, ContextLock } from './types.js';
  * ContextManager handles context node access with locking for multi-path execution
  */
 export class ContextManager {
-    private machineData: MachineData;
+    private machineData: MachineJSON;
     private locks: Map<string, ContextLock>;
     private lockTimeout: number = 5000; // 5 seconds default
 
-    constructor(machineData: MachineData) {
+    constructor(machineData: MachineJSON) {
         this.machineData = machineData;
         this.locks = new Map();
 

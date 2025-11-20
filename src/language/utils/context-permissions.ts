@@ -7,7 +7,7 @@
  * Related to issue #102 - Refactor: Extract duplicated context permission logic
  */
 
-import type { MachineData } from '../rails-executor.js';
+import type { MachineJSON } from '../json/types.js';
 import { NodeTypeChecker } from '../node-type-checker.js';
 
 /**
@@ -75,7 +75,7 @@ export class ContextPermissionsResolver {
      */
     static getAccessibleContextNodes(
         taskNodeName: string,
-        machineData: MachineData,
+        machineData: MachineJSON,
         options: AccessibleContextOptions = {}
     ): Map<string, ContextPermissions> {
         const {
@@ -209,7 +209,7 @@ export class ContextPermissionsResolver {
      */
     private static getInheritedContextNodes(
         taskNodeName: string,
-        machineData: MachineData,
+        machineData: MachineJSON,
         enableLogging: boolean
     ): Map<string, ContextPermissions> {
         const inheritedMap = new Map<string, ContextPermissions>();
@@ -221,7 +221,7 @@ export class ContextPermissionsResolver {
         }
 
         // Get parent node names by traversing the hierarchy
-        // Note: In the flattened MachineData structure, we need to track parent relationships
+        // Note: In the flattened MachineJSON structure, we need to track parent relationships
         // This requires looking at the node structure to find which nodes contain others
         const parentNames = this.findParentNodes(taskNodeName, machineData);
 
@@ -267,7 +267,7 @@ export class ContextPermissionsResolver {
 
     /**
      * Find parent nodes in the hierarchy for a given node name
-     * Uses the MachineData structure to traverse the node tree via the parent field
+     * Uses the MachineJSON structure to traverse the node tree via the parent field
      *
      * @param nodeName The name of the node to find parents for
      * @param machineData The machine data containing nodes
@@ -275,7 +275,7 @@ export class ContextPermissionsResolver {
      */
     private static findParentNodes(
         nodeName: string,
-        machineData: MachineData
+        machineData: MachineJSON
     ): string[] {
         const parents: string[] = [];
 
