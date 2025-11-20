@@ -38,6 +38,7 @@ import {
 import { lintKeymap } from "@codemirror/lint";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { ExecutionControls } from "./ExecutionControls";
+import { ExecutionStateVisualizer } from "./ExecutionStateVisualizer";
 import { UnifiedFileTree } from "./UnifiedFileTree";
 import { loadSettings, saveSettings } from "../language/shared-settings";
 import { VirtualFileSystem } from "../playground/virtual-filesystem";
@@ -56,9 +57,8 @@ import {
 import { serializeMachineToJSON } from "../language/json/serializer";
 import { generateGraphvizFromJSON } from "../language/diagram/index";
 import { render as renderGraphviz } from "../language/diagram-controls";
-import { RailsExecutor } from "../language/rails-executor";
-import { RuntimeVisualizer } from "../language/runtime-visualizer";
-import type { MachineData } from "../language/base-executor";
+import { MachineExecutor } from "../language/executor";
+import type { MachineJSON } from "../language/json/types";
 import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples";
 import {
   base64UrlEncode,
@@ -589,9 +589,9 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [outputSize, setOutputSize] = useState<SectionSize>('medium');
     const [executionSize, setExecutionSize] = useState<SectionSize>('medium');
     const [outputData, setOutputData] = useState<OutputData>({});
-    const [executor, setExecutor] = useState<RailsExecutor | null>(null);
+    const [executor, setExecutor] = useState<MachineExecutor | null>(null);
     const [isExecuting, setIsExecuting] = useState(false);
-    const [currentMachineData, setCurrentMachineData] = useState<MachineData | null>(null);
+    const [currentMachineData, setCurrentMachineData] = useState<MachineJSON | null>(null);
     const [selectedExample, setSelectedExample] = useState<Example | null>(null);
     const [isDirty, setIsDirty] = useState(false);
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
@@ -1225,40 +1225,22 @@ export const CodeMirrorPlayground: React.FC = () => {
   }, [isFormatting]);
 
   // Helper to convert Machine AST to canonical Machine JSON
-  const convertToMachineData = useCallback((machine: Machine): MachineData => {
+  const convertToMachineData = useCallback((machine: Machine): MachineJSON => {
     return serializeMachineToJSON(machine);
   }, []);
 
-  // Helper to update visualization with runtime state
+  // Helper to refresh visualization (component will call this)
+  const refreshVisualization = useCallback(async () => {
+    // ExecutionStateVisualizer component now handles visualization internally
+    // This is a no-op placeholder for compatibility
+    return Promise.resolve();
+  }, []);
+
+  // Deprecated: kept for backward compatibility
   const updateRuntimeVisualization = useCallback(
-    async (exec: RailsExecutor) => {
-      try {
-        const visualizer = new RuntimeVisualizer(exec);
-        const runtimeDot = visualizer.generateRuntimeVisualization({
-          showCurrentState: true,
-          showVisitCounts: true,
-          showExecutionPath: true,
-          showRuntimeValues: true,
-          mobileOptimized: true,
-        });
-
-        // Render runtime SVG
-        const tempDiv = window.document.createElement("div");
-        await renderGraphviz(runtimeDot, tempDiv, `runtime-${Date.now()}`);
-
-        // Generate PNG from SVG
-        const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
-
-        // Update output with runtime visualization
-        setOutputData((prev) => ({
-          ...prev,
-          svg: tempDiv.innerHTML,
-          png: pngDataUrl,
-          dot: runtimeDot,
-        }));
-      } catch (error) {
-        console.error("Error updating runtime visualization:", error);
-      }
+    async (exec: MachineExecutor) => {
+      // No-op: visualization is now handled by ExecutionStateVisualizer component
+      return Promise.resolve();
     },
     []
   );
@@ -1278,12 +1260,12 @@ export const CodeMirrorPlayground: React.FC = () => {
     try {
       setIsExecuting(true);
 
-      // Convert AST to MachineData
-      const machineData = convertToMachineData(outputData.machine);
-      setCurrentMachineData(machineData);
+      // Convert AST to MachineJSON
+      const machineJSON = convertToMachineData(outputData.machine);
+      setCurrentMachineData(machineJSON);
 
-      // Create executor
-      const exec = await RailsExecutor.create(machineData, {
+      // Create executor with new MachineExecutor
+      const exec = await MachineExecutor.create(machineJSON, {
         llm: {
           provider: "anthropic",
           apiKey: settings.apiKey,
@@ -1296,9 +1278,6 @@ export const CodeMirrorPlayground: React.FC = () => {
       // Execute machine
       console.log("Starting execution...");
       await exec.execute();
-
-      // Update visualization with final state
-      await updateRuntimeVisualization(exec);
 
       console.log("Execution complete");
     } catch (error) {
@@ -1325,10 +1304,10 @@ export const CodeMirrorPlayground: React.FC = () => {
 
       // Create executor if not exists (first step)
       if (!exec) {
-        const machineData = convertToMachineData(outputData.machine);
-        setCurrentMachineData(machineData);
+        const machineJSON = convertToMachineData(outputData.machine);
+        setCurrentMachineData(machineJSON);
 
-        exec = await RailsExecutor.create(machineData, {
+        exec = await MachineExecutor.create(machineJSON, {
           llm: {
             provider: "anthropic",
             apiKey: settings.apiKey,
@@ -1342,13 +1321,6 @@ export const CodeMirrorPlayground: React.FC = () => {
       // Execute one step
       console.log("Executing step...");
       const continued = await exec.step();
-
-      // Get logs from executor and log them
-      const logs = exec.getLogs();
-      console.log('Execution logs:', logs);
-
-      // Update visualization (this ensures viz reflects execution state)
-      await updateRuntimeVisualization(exec);
 
       if (!continued) {
         console.log("Machine execution complete");
@@ -1736,7 +1708,7 @@ export const CodeMirrorPlayground: React.FC = () => {
                 </HeaderControls>
             </SectionHeader>
             <ExecutionSection $collapsed={executionCollapsed} $size={executionSize}>
-                
+
                 <SectionContent $collapsed={executionCollapsed}>
                     <ExecutionControls
                         onExecute={handleExecute}
@@ -1749,6 +1721,12 @@ export const CodeMirrorPlayground: React.FC = () => {
                         logLevel={logLevel}
                         onLogLevelChange={handleLogLevelChange}
                     />
+                    {executor && (
+                        <ExecutionStateVisualizer
+                            executor={executor}
+                            mobile={false}
+                        />
+                    )}
                 </SectionContent>
             </ExecutionSection>
         </Container>

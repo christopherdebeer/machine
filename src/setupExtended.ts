@@ -1,6 +1,6 @@
 import { MonacoEditorLanguageClientWrapper, UserConfig, EditorAppConfigExtended } from 'monaco-editor-wrapper';
 import { configureWorker, defineUserServices } from './setupCommon.js';
-import { RailsExecutor } from './language/rails-executor.js';
+import { MachineExecutor } from './language/executor.js';
 import { render, downloadSVG, downloadPNG, toggleTheme, initTheme } from './language/diagram-controls.js';
 import { loadSettings, saveSettings } from './language/shared-settings.js';
 import { renderExampleButtons } from './language/shared-examples.js';
@@ -10,7 +10,7 @@ import { IDimension } from 'vscode/services';
 import { KeyCode, KeyMod } from 'monaco-editor';
 
 // Execution state
-let currentExecutor: RailsExecutor | null = null;
+let currentExecutor: MachineExecutor | null = null;
 let isExecuting = false;
 let executionStepMode = false;
 
@@ -439,32 +439,17 @@ s1 -catch-> init;
                     return;
                 }
 
-                // Create RailsExecutor with configuration
-                console.log('Creating RailsExecutor with API key present');
-                currentExecutor = await RailsExecutor.create(data, {
+                // Create MachineExecutor with configuration
+                console.log('Creating MachineExecutor with API key present');
+                currentExecutor = await MachineExecutor.create(data, {
                     llm: {
                         provider: 'anthropic' as const,
                         apiKey: settings.apiKey,
                         modelId: 'claude-3-5-sonnet-20241022'
-                    },
-                    agentSDK: {
-                        model: 'sonnet' as const,
-                        maxTurns: 20,
-                        persistHistory: false, // Don't persist in playground
-                        apiKey: settings.apiKey
                     }
                 });
 
-                // Set up machine update callback to update editor when agent modifies machine
-                currentExecutor.setMachineUpdateCallback((dsl: string) => {
-                    if (editor) {
-                        console.log('Machine definition updated by agent, updating editor');
-                        addLogEntry('Machine definition updated by agent', 'info');
-                        editor.setValue(dsl);
-                    }
-                });
-
-                console.log('RailsExecutor created successfully:', currentExecutor);
+                console.log('MachineExecutor created successfully:', currentExecutor);
 
                 running = false;
                 console.log(resp, data, dotCode, currentExecutor)
@@ -491,7 +476,7 @@ s1 -catch-> init;
             } catch (e) {
                 // Improved error handling with detailed logging
                 const error = e as Error;
-                console.error('Failed to create RailsExecutor:', error);
+                console.error('Failed to create MachineExecutor:', error);
                 console.error('Error details:', {
                     message: error.message,
                     stack: error.stack,
@@ -621,16 +606,19 @@ async function executeMachine() {
             continued = await currentExecutor.step();
             stepCount++;
 
-            const context = currentExecutor.getContext();
-            updateStatus('Running', context.currentNode, stepCount);
-            addLogEntry(`Step ${stepCount}: At node ${context.currentNode}`, 'info');
+            const state = currentExecutor.getState();
+            const activePath = state.paths.find(p => p.status === 'active');
+            const currentNode = activePath?.currentNode || '-';
+
+            updateStatus('Running', currentNode, stepCount);
+            addLogEntry(`Step ${stepCount}: At node ${currentNode}`, 'info');
 
             // Small delay to allow UI updates
             await new Promise(resolve => setTimeout(resolve, 500));
 
             if (!continued) {
                 addLogEntry('Machine execution complete', 'success');
-                updateStatus('Complete', context.currentNode, stepCount);
+                updateStatus('Complete', currentNode, stepCount);
                 break;
             }
         }
@@ -661,20 +649,24 @@ async function stepMachine() {
     }
 
     try {
-        const context = currentExecutor.getContext();
-        const stepCount = context.history.length;
+        const state = currentExecutor.getState();
+        const activePath = state.paths.find(p => p.status === 'active');
+        const stepCount = activePath?.stepCount || 0;
 
         addLogEntry(`Executing step ${stepCount + 1}...`, 'info');
 
         const continued = await currentExecutor.step();
-        const newContext = currentExecutor.getContext();
+        const newState = currentExecutor.getState();
+        const newActivePath = newState.paths.find(p => p.status === 'active');
+        const currentNode = newActivePath?.currentNode || '-';
+        const totalSteps = newActivePath?.stepCount || 0;
 
-        updateStatus('Step Mode', newContext.currentNode, newContext.history.length);
-        addLogEntry(`Step ${newContext.history.length}: At node ${newContext.currentNode}`, 'info');
+        updateStatus('Step Mode', currentNode, totalSteps);
+        addLogEntry(`Step ${totalSteps}: At node ${currentNode}`, 'info');
 
         if (!continued) {
             addLogEntry('Machine execution complete', 'success');
-            updateStatus('Complete', newContext.currentNode, newContext.history.length);
+            updateStatus('Complete', currentNode, totalSteps);
             executionStepMode = false;
             setButtonStates(false, false);
         }
@@ -686,16 +678,26 @@ async function stepMachine() {
 }
 
 function stopMachine() {
+    let currentNode = '-';
+    let stepCount = 0;
+
+    if (currentExecutor) {
+        const state = currentExecutor.getState();
+        const activePath = state.paths.find(p => p.status === 'active');
+        currentNode = activePath?.currentNode || '-';
+        stepCount = activePath?.stepCount || 0;
+    }
+
     if (isExecuting) {
         isExecuting = false;
         addLogEntry('Execution stopped by user', 'warning');
-        updateStatus('Stopped', currentExecutor?.getContext().currentNode || '-', currentExecutor?.getContext().history.length || 0);
+        updateStatus('Stopped', currentNode, stepCount);
     }
 
     if (executionStepMode) {
         executionStepMode = false;
         addLogEntry('Exited step-by-step mode', 'info');
-        updateStatus('Stopped', currentExecutor?.getContext().currentNode || '-', currentExecutor?.getContext().history.length || 0);
+        updateStatus('Stopped', currentNode, stepCount);
     }
 
     setButtonStates(false, false);
