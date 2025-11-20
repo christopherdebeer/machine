@@ -1,14 +1,6 @@
 /**
  * Test suite for meta-programming machine manipulation tools
  * Tests get_machine_definition and update_definition functionality
- *
- * NOTE: These tests are currently skipped as the meta-tool functionality
- * (getMetaToolManager, setMachineUpdateCallback, etc.) needs to be
- * reimplemented for the new MachineExecutor architecture.
- *
- * The old RailsExecutor had meta-tool support that allowed machines to
- * introspect and modify themselves. This functionality will be restored
- * in a future update to MachineExecutor.
  */
 
 import { describe, expect, test } from 'vitest';
@@ -17,7 +9,7 @@ import type { MachineJSON } from '../../src/language/json/types.js';
 
 type MachineData = MachineJSON;
 
-describe.skip('Meta-programming: Machine Manipulation', () => {
+describe('Meta-programming: Machine Manipulation', () => {
     test('get_machine_definition returns both JSON and DSL', async () => {
         const machineData: MachineData = {
             title: 'Test Machine',
@@ -43,7 +35,7 @@ describe.skip('Meta-programming: Machine Manipulation', () => {
             ]
         };
 
-        const executor = new RailsExecutor(machineData);
+        const executor = new MachineExecutor(machineData);
         const metaToolManager = executor.getMetaToolManager();
 
         // Get machine definition in both formats
@@ -65,7 +57,7 @@ describe.skip('Meta-programming: Machine Manipulation', () => {
             edges: []
         };
 
-        const executor = new RailsExecutor(machineData);
+        const executor = new MachineExecutor(machineData);
         const metaToolManager = executor.getMetaToolManager();
 
         const result = await metaToolManager.getMachineDefinition({ format: 'json' });
@@ -81,7 +73,7 @@ describe.skip('Meta-programming: Machine Manipulation', () => {
             edges: []
         };
 
-        const executor = new RailsExecutor(machineData);
+        const executor = new MachineExecutor(machineData);
         const metaToolManager = executor.getMetaToolManager();
 
         const result = await metaToolManager.getMachineDefinition({ format: 'dsl' });
@@ -98,7 +90,7 @@ describe.skip('Meta-programming: Machine Manipulation', () => {
             edges: []
         };
 
-        const executor = new RailsExecutor(machineData);
+        const executor = new MachineExecutor(machineData);
         const metaToolManager = executor.getMetaToolManager();
 
         // Update the machine
@@ -139,7 +131,7 @@ describe.skip('Meta-programming: Machine Manipulation', () => {
             edges: []
         };
 
-        const executor = new RailsExecutor(machineData);
+        const executor = new MachineExecutor(machineData);
         const metaToolManager = executor.getMetaToolManager();
 
         // Try to update with invalid structure (missing edges)
@@ -163,7 +155,7 @@ describe.skip('Meta-programming: Machine Manipulation', () => {
             edges: []
         };
 
-        const executor = new RailsExecutor(machineData);
+        const executor = new MachineExecutor(machineData);
         let callbackCalled = false;
         let receivedDsl = '';
 
@@ -199,7 +191,7 @@ describe.skip('Meta-programming: Machine Manipulation', () => {
             edges: []
         };
 
-        const executor = new RailsExecutor(machineData);
+        const executor = new MachineExecutor(machineData);
         const metaToolManager = executor.getMetaToolManager();
 
         const updatedMachine = {
@@ -221,7 +213,13 @@ describe.skip('Meta-programming: Machine Manipulation', () => {
         expect(machineUpdateMutation?.data.machine.title).toBe('Modified Machine');
     });
 
-    test('meta tools are only available when meta: true', async () => {
+    test.skip('meta tools are only available when meta: true', async () => {
+        // NOTE: This test is skipped because buildPhaseTools was an internal method
+        // in RailsExecutor that doesn't exist in MachineExecutor. The new architecture
+        // handles tool availability through MetaToolManager and EffectExecutor.
+        // Meta tools are always available through getMetaToolManager() and the
+        // 'meta' attribute filtering happens at the effect execution level.
+
         const machineData: MachineData = {
             title: 'Test Machine',
             nodes: [
@@ -242,7 +240,7 @@ describe.skip('Meta-programming: Machine Manipulation', () => {
             edges: []
         };
 
-        const executor = new RailsExecutor(machineData);
+        const executor = new MachineExecutor(machineData);
 
         // Build tools for normal task
         const normalTools = (executor as any).buildPhaseTools('normalTask');
@@ -290,7 +288,7 @@ describe.skip('Meta-programming: Machine Manipulation', () => {
             ]
         };
 
-        const executor = new RailsExecutor(machineData);
+        const executor = new MachineExecutor(machineData);
         const metaToolManager = executor.getMetaToolManager();
 
         // Get DSL
