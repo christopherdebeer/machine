@@ -9,99 +9,9 @@ import type { MachineJSON } from '../json/types.js';
 import type { ExecutionState } from './runtime-types.js';
 import { CelEvaluator } from '../cel-evaluator.js';
 import { EdgeConditionParser } from '../utils/edge-conditions.js';
-import { getPath } from './state-builder.js';
+import { buildEvaluationContext as buildUnifiedEvaluationContext, buildGlobalContext } from './context-builder.js';
 
 const celEvaluator = new CelEvaluator();
-
-/**
- * Build attribute context from machine JSON
- */
-function buildAttributeContext(machineJSON: MachineJSON): Record<string, any> {
-    const RESERVED_NAMES = ['errorCount', 'errors', 'activeState'];
-    const attributes: Record<string, any> = {};
-
-    for (const node of machineJSON.nodes) {
-        // Warn about reserved name collisions
-        if (RESERVED_NAMES.includes(node.name)) {
-            console.warn(
-                `[CEL] Node '${node.name}' uses a reserved name. ` +
-                `Built-in variable will take precedence. Consider renaming the node.`
-            );
-        }
-
-        if (node.attributes && node.attributes.length > 0) {
-            attributes[node.name] = {};
-            for (const attr of node.attributes) {
-                attributes[node.name][attr.name] = parseAttributeValue(attr.value, attr.type);
-            }
-        }
-    }
-
-    return attributes;
-}
-
-/**
- * Parse attribute value
- */
-function parseAttributeValue(value: unknown, type?: string): any {
-    if (typeof value === 'string') {
-        if (!type) {
-            // Auto-detect
-            const cleanValue = value.replace(/^["']|["']$/g, '');
-            try {
-                return JSON.parse(value);
-            } catch {
-                return cleanValue;
-            }
-        }
-
-        // Type-specific parsing
-        const cleanValue = value.replace(/^["']|["']$/g, '');
-        switch (type) {
-            case 'number':
-                return Number(cleanValue);
-            case 'boolean':
-                return cleanValue.toLowerCase() === 'true';
-            case 'json':
-                return JSON.parse(cleanValue);
-            default:
-                return cleanValue;
-        }
-    }
-
-    return value;
-}
-
-/**
- * Build evaluation context for CEL
- */
-function buildEvaluationContext(
-    machineJSON: MachineJSON,
-    state: ExecutionState,
-    pathId: string
-): Record<string, any> {
-    const path = getPath(state, pathId);
-    if (!path) {
-        throw new Error(`Path ${pathId} not found`);
-    }
-
-    // Find active state for this path
-    let activeState = '';
-    for (let i = path.history.length - 1; i >= 0; i--) {
-        const transition = path.history[i];
-        const node = machineJSON.nodes.find(n => n.name === transition.to);
-        if (node?.type?.toLowerCase() === 'state') {
-            activeState = transition.to;
-            break;
-        }
-    }
-
-    return {
-        errorCount: state.metadata.errorCount,
-        activeState,
-        attributes: buildAttributeContext(machineJSON)
-    };
-}
 
 /**
  * Evaluate a condition string
@@ -117,7 +27,12 @@ export function evaluateCondition(
     }
 
     try {
-        const context = buildEvaluationContext(machineJSON, state, pathId);
+        // We need to determine which node this condition is being evaluated for
+        // For now, we'll use the current node from the path
+        const path = state.paths.find(p => p.id === pathId);
+        const currentNode = path?.currentNode || '';
+        
+        const context = buildUnifiedEvaluationContext(currentNode, machineJSON, state, pathId);
 
         // Replace template variables with CEL-compatible syntax
         // {{ nodeName.attributeName }} -> nodeName.attributeName
@@ -126,8 +41,13 @@ export function evaluateCondition(
         // Convert JavaScript operators to CEL equivalents
         celCondition = celCondition.replace(/===/g, '==').replace(/!==/g, '!=');
 
-        // Use CEL evaluator
-        return celEvaluator.evaluateCondition(celCondition, context);
+        // Use CEL evaluator with proper context structure
+        const celContext = {
+            errorCount: context.errorCount,
+            activeState: context.activeState,
+            attributes: context.attributes
+        };
+        return celEvaluator.evaluateCondition(celCondition, celContext);
     } catch (error) {
         console.error('Error evaluating condition:', condition, error);
         return false;
@@ -156,7 +76,7 @@ export function resolveTemplate(
     machineJSON: MachineJSON,
     state: ExecutionState
 ): string {
-    const attributes = buildAttributeContext(machineJSON);
+    const attributes = buildGlobalContext(machineJSON);
 
     return celEvaluator.resolveTemplate(template, {
         errorCount: state.metadata.errorCount,

@@ -38,10 +38,33 @@ function interpolateValue(value: string, context?: RuntimeContext): string {
     // For runtime diagrams, interpolate using CEL evaluator
     try {
         const celEvaluator = new CelEvaluator();
+        
+        // Build proper context structure for CEL evaluator
+        // The context.attributes is a Map, we need to convert it to a nested object structure
+        const attributesObj: Record<string, any> = {};
+        
+        if (context.attributes) {
+            context.attributes.forEach((attrValue, attrKey) => {
+                // Handle nested attribute names like "input.query"
+                const parts = attrKey.split('.');
+                let current = attributesObj;
+                
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i];
+                    if (!current[part]) {
+                        current[part] = {};
+                    }
+                    current = current[part];
+                }
+                
+                current[parts[parts.length - 1]] = attrValue;
+            });
+        }
+
         const celContext = {
             errorCount: context.errorCount || 0,
             activeState: context.activeState || '',
-            attributes: Object.fromEntries(context.attributes || new Map())
+            attributes: attributesObj
         };
 
         return celEvaluator.resolveTemplate(value, celContext);
@@ -2060,14 +2083,20 @@ function generateNodeDefinition(
 
     // Add source position metadata for bidirectional highlighting via URL attribute
     let sourceMetadata = '';
-    if (node.$sourceRange) {
-        const startLine = node.$sourceRange.start.line;
-        const startChar = node.$sourceRange.start.character;
-        const endLine = node.$sourceRange.end.line;
-        const endChar = node.$sourceRange.end.character;
-        // Use URL attribute with fragment identifier containing position data
-        // Format: #L{startLine}:{startChar}-{endLine}:{endChar}
-        sourceMetadata = `, URL="#L${startLine}:${startChar}-${endLine}:${endChar}"`;
+    if (node.$sourceRange && typeof node.$sourceRange === 'object' && 
+        'start' in node.$sourceRange && 'end' in node.$sourceRange) {
+        const sourceRange = node.$sourceRange as any;
+        const startLine = sourceRange.start?.line;
+        const startChar = sourceRange.start?.character;
+        const endLine = sourceRange.end?.line;
+        const endChar = sourceRange.end?.character;
+        
+        if (typeof startLine === 'number' && typeof startChar === 'number' && 
+            typeof endLine === 'number' && typeof endChar === 'number') {
+            // Use URL attribute with fragment identifier containing position data
+            // Format: #L{startLine}:{startChar}-{endLine}:{endChar}
+            sourceMetadata = `, URL="#L${startLine}:${startChar}-${endLine}:${endChar}"`;
+        }
     }
 
     return `${indent}"${node.name}" [label=<${htmlLabel}>, pad=0.5, shape=${shape}, ${style}${sourceMetadata}];`;
@@ -2431,14 +2460,22 @@ function generateEdges(
         edgeAttrs.push('labelOverlay="75%"');
 
         // Add source position metadata for bidirectional highlighting via edgeURL attribute
-        if (edge.$sourceRange) {
-            const startLine = edge.$sourceRange.start.line;
-            const startChar = edge.$sourceRange.start.character;
-            const endLine = edge.$sourceRange.end.line;
-            const endChar = edge.$sourceRange.end.character;
-            // Use edgeURL attribute with fragment identifier containing position data
-            // Format: #L{startLine}:{startChar}-{endLine}:{endChar}
-            edgeAttrs.push(`edgeURL="#L${startLine}:${startChar}-${endLine}:${endChar}"`);
+        if (edge.$sourceRange && typeof edge.$sourceRange === 'object' && 
+            'start' in edge.$sourceRange && 'end' in edge.$sourceRange) {
+            const sourceRange = edge.$sourceRange as any;
+            const startLine = sourceRange.start?.line;
+            const startChar = sourceRange.start?.character;
+            const endLine = sourceRange.end?.line;
+            const endChar = sourceRange.end?.character;
+            
+            if (typeof startLine === 'number' && typeof startChar === 'number' && 
+                typeof endLine === 'number' && typeof endChar === 'number') {
+                // Use edgeURL attribute with fragment identifier containing position data
+                // Format: #L{startLine}:{startChar}-{endLine}:{endChar}
+                edgeAttrs.push(`edgeURL="#L${startLine}:${startChar}-${endLine}:${endChar}"`);
+            } else {
+                edgeAttrs.push('labelhref="#srcLineTBD"');
+            }
         } else {
             edgeAttrs.push('labelhref="#srcLineTBD"');
         }
@@ -2727,7 +2764,7 @@ function buildEdgeStates(machineJson: MachineJSON, context: RuntimeContext): Run
             .pop();
 
         const edgeValue = edge.attributes || {};
-        const label = edgeValue.text || '';
+        const label = String(edgeValue.text || '');
 
         return {
             source: edge.source,

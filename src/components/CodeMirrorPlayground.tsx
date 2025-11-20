@@ -1256,13 +1256,16 @@ export const CodeMirrorPlayground: React.FC = () => {
         });
 
         // Render to SVG
-        const svgResult = await renderGraphviz(dotWithContext);
-
+        const tempDiv = window.document.createElement("div");
+        const svgResult = await renderGraphviz(dotWithContext, tempDiv);
+        // Generate PNG from SVG
+        const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
         // Update output panel with new SVG
         setOutputData(prev => ({
           ...prev,
           graphviz: dotWithContext,
-          svg: svgResult,
+          svg: tempDiv.innerHTML,
+          png: pngDataUrl,
         }));
       } catch (error) {
         console.error('Failed to update runtime visualization:', error);
