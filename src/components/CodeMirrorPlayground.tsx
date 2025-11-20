@@ -1236,13 +1236,54 @@ export const CodeMirrorPlayground: React.FC = () => {
     return Promise.resolve();
   }, []);
 
-  // Deprecated: kept for backward compatibility
+  // Update SVG visualization with execution context
   const updateRuntimeVisualization = useCallback(
     async (exec: MachineExecutor) => {
-      // No-op: visualization is now handled by ExecutionStateVisualizer component
-      return Promise.resolve();
+      if (!exec || !currentMachineData) return;
+
+      try {
+        const state = exec.getState();
+        const activePath = state.paths.find(p => p.status === 'active' || p.status === 'waiting');
+
+        if (!activePath) return;
+
+        // Convert ExecutionState to RuntimeContext for diagram generation
+        const runtimeContext = {
+          currentNode: activePath.currentNode,
+          errorCount: state.metadata.errorCount,
+          visitedNodes: new Set(activePath.visitedNodes),
+          attributes: new Map(Object.entries(activePath.context)),
+          history: activePath.history.map(h => ({
+            from: h.from,
+            to: h.to,
+            transition: h.transition || '',
+            timestamp: new Date(h.timestamp).toISOString(),
+          })),
+          nodeInvocationCounts: new Map(Object.entries(activePath.nodeInvocationCounts)),
+        };
+
+        // Generate new Graphviz with runtime context
+        const { generateRuntimeGraphviz } = await import('../language/diagram/index');
+        const dotWithContext = generateRuntimeGraphviz(currentMachineData, runtimeContext, {
+          showRuntimeState: true,
+          showVisitCounts: true,
+          showExecutionPath: true,
+        });
+
+        // Render to SVG
+        const svgResult = await renderGraphviz(dotWithContext);
+
+        // Update output panel with new SVG
+        setOutputData(prev => ({
+          ...prev,
+          graphviz: dotWithContext,
+          svg: svgResult,
+        }));
+      } catch (error) {
+        console.error('Failed to update runtime visualization:', error);
+      }
     },
-    []
+    [currentMachineData]
   );
 
   // Execution handlers
@@ -1278,6 +1319,9 @@ export const CodeMirrorPlayground: React.FC = () => {
       // Execute machine
       console.log("Starting execution...");
       await exec.execute();
+
+      // Update SVG visualization with final execution state
+      await updateRuntimeVisualization(exec);
 
       console.log("Execution complete");
     } catch (error) {
@@ -1321,6 +1365,9 @@ export const CodeMirrorPlayground: React.FC = () => {
       // Execute one step
       console.log("Executing step...");
       const continued = await exec.step();
+
+      // Update SVG visualization with execution context
+      await updateRuntimeVisualization(exec);
 
       if (!continued) {
         console.log("Machine execution complete");
@@ -1710,6 +1757,12 @@ export const CodeMirrorPlayground: React.FC = () => {
             <ExecutionSection $collapsed={executionCollapsed} $size={executionSize}>
 
                 <SectionContent $collapsed={executionCollapsed}>
+                    {executor && (
+                        <ExecutionStateVisualizer
+                            executor={executor}
+                            mobile={false}
+                        />
+                    )}
                     <ExecutionControls
                         onExecute={handleExecute}
                         onStep={handleStep}
@@ -1721,12 +1774,6 @@ export const CodeMirrorPlayground: React.FC = () => {
                         logLevel={logLevel}
                         onLogLevelChange={handleLogLevelChange}
                     />
-                    {executor && (
-                        <ExecutionStateVisualizer
-                            executor={executor}
-                            mobile={false}
-                        />
-                    )}
                 </SectionContent>
             </ExecutionSection>
         </Container>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import type { MachineExecutor } from '../language/executor';
 import type { VisualizationState } from '../language/execution/runtime-types';
 import type { MachineJSON } from '../language/json/types';
@@ -277,7 +277,7 @@ const PathCard = styled.div<{ $status: string; $borderColor?: string }>`
     border-left: 3px solid ${props => props.$borderColor || '#6366f1'};
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    ${props => props.$status === 'active' && `
+    ${props => props.$status === 'active' && css`
         animation: ${pulse} 2s ease-in-out infinite;
     `}
 `;
@@ -346,7 +346,7 @@ const NodeCard = styled.div<{ $active?: boolean }>`
     border-left: 3px solid ${props => props.$active ? '#10b981' : '#cbd5e1'};
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    ${props => props.$active && `
+    ${props => props.$active && css`
         box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
         animation: ${pulse} 2s ease-in-out infinite;
     `}
