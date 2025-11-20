@@ -494,6 +494,18 @@ export function generateDSL(machineJson: MachineJSON): string {
 }
 
 /**
+ * Find the direct parent of a node by searching through the children map
+ */
+function findDirectParent(nodeName: string, childrenMap: Map<string, any[]>): string | null {
+    for (const [parentName, children] of childrenMap.entries()) {
+        if (children.some(child => child.name === nodeName)) {
+            return parentName;
+        }
+    }
+    return null;
+}
+
+/**
  * Determine which edges belong at the root level vs. inside node scopes
  */
 function getRootLevelEdges(edges: MachineEdgeJSON[], rootNodes: any[], childrenMap: Map<string, any[]>): MachineEdgeJSON[] {
@@ -528,9 +540,17 @@ function getRootLevelEdges(edges: MachineEdgeJSON[], rootNodes: any[], childrenM
             return true;
         }
 
-        // Both are nested - need to check if they share the same parent
-        // For now, we'll include cross-scope edges at root level
-        // A more sophisticated implementation would determine the common ancestor
+        // Both are nested - check if they share the same direct parent
+        // If they do, the edge will be generated inside that parent's block
+        const sourceParent = findDirectParent(edge.source, childrenMap);
+        const targetParent = findDirectParent(edge.target, childrenMap);
+
+        // If they have the same parent, this edge belongs in that parent's scope, not at root
+        if (sourceParent && targetParent && sourceParent === targetParent) {
+            return false;
+        }
+
+        // Different parents or couldn't determine parent - include at root level
         return true;
     });
 }

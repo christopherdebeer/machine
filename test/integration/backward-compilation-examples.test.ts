@@ -20,12 +20,41 @@ beforeAll(async () => {
  * Ensures round-trip works with actual DSL files from the examples directory
  */
 
+/**
+ * Remove $sourceRange fields from JSON for comparison
+ * $sourceRange contains line/character positions that will differ in DSL round-trips
+ * due to formatting differences, but don't indicate semantic changes
+ */
+function removeSourceRanges(obj: any): any {
+    if (obj === null || obj === undefined) {
+        return obj;
+    }
+
+    if (Array.isArray(obj)) {
+        return obj.map(item => removeSourceRanges(item));
+    }
+
+    if (typeof obj === 'object') {
+        const result: any = {};
+        for (const key in obj) {
+            if (key === '$sourceRange') {
+                // Skip $sourceRange fields
+                continue;
+            }
+            result[key] = removeSourceRanges(obj[key]);
+        }
+        return result;
+    }
+
+    return obj;
+}
+
 const exampleFiles = [
-    'examples/basic/hello-world.dygram',
-    'examples/basic/simple-workflow.dygram',
-    'examples/state-machines/traffic-light.dygram',
-    'examples/state-machines/connection-manager.dygram',
-    'examples/workflows/conditional-workflow.dygram',
+    'examples/basic/hello-world.dy',
+    'examples/basic/simple-workflow.dy',
+    'examples/state-machines/traffic-light.dy',
+    'examples/state-machines/connection-manager.dy',
+    'examples/workflows/conditional-workflow.dy',
 ];
 
 describe('Backward Compilation with Example Files', () => {
@@ -58,14 +87,18 @@ describe('Backward Compilation with Example Files', () => {
             const json2 = generateJSON(machine2, filePath, undefined);
             const machineJson2 = JSON.parse(json2.content);
 
+            // Normalize both JSONs by removing $sourceRange fields which differ due to formatting
+            const normalized1 = removeSourceRanges(machineJson1);
+            const normalized2 = removeSourceRanges(machineJson2);
+
             // Compare key properties
-            expect(machineJson2.title).toBe(machineJson1.title);
-            expect(machineJson2.nodes.length).toBe(machineJson1.nodes.length);
-            expect(machineJson2.edges.length).toBe(machineJson1.edges.length);
+            expect(normalized2.title).toBe(normalized1.title);
+            expect(normalized2.nodes.length).toBe(normalized1.nodes.length);
+            expect(normalized2.edges.length).toBe(normalized1.edges.length);
 
             // Check node names are preserved
-            const nodeNames1 = machineJson1.nodes.map((n: any) => n.name).sort();
-            const nodeNames2 = machineJson2.nodes.map((n: any) => n.name).sort();
+            const nodeNames1 = normalized1.nodes.map((n: any) => n.name).sort();
+            const nodeNames2 = normalized2.nodes.map((n: any) => n.name).sort();
             expect(nodeNames2).toEqual(nodeNames1);
         });
     });
