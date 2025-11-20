@@ -283,7 +283,7 @@ class SnapshotManager {
      * $sourceRange contains line/character positions that will differ in DSL round-trips
      * due to formatting differences, but don't indicate semantic changes
      */
-    private removeSourceRanges(obj: any): any {
+    removeSourceRanges(obj: any): any {
         if (obj === null || obj === undefined) {
             return obj;
         }
@@ -1361,7 +1361,10 @@ describe('Comprehensive Generative Integration Tests', () => {
 
                         // Deep compare JSON structures (DSL→JSON1→DSL2→JSON2, check JSON1 === JSON2)
                         // This ensures lossless transformation, ignoring formatting differences
-                        const jsonDifferences = deepCompareJSON(result.jsonOutput, roundTripJson, 'json');
+                        // Remove $sourceRange fields before comparison as they naturally differ in round-trips
+                        const originalJsonNormalized = snapshotManager.removeSourceRanges(result.jsonOutput);
+                        const roundTripJsonNormalized = snapshotManager.removeSourceRanges(roundTripJson);
+                        const jsonDifferences = deepCompareJSON(originalJsonNormalized, roundTripJsonNormalized, 'json');
 
                         if (jsonDifferences.length > 0) {
                             result.dslRoundTripErrors.push(
