@@ -489,19 +489,11 @@ class MachineAstSerializer {
                                 record.attributes = finalAttributes;
                             }
 
-                            // Keep value for backward compatibility, but only with metadata (no conflicting content)
+                            // Keep value for backward compatibility and DSL round-trip
+                            // Include ALL edge label/attribute content, not just metadata
+                            // This ensures backward compatibility with code expecting value field
                             if (valueWithMetadata && Object.keys(valueWithMetadata).length > 0) {
-                                // Only include non-attribute metadata in value
-                                const metadataOnly: Record<string, unknown> = {};
-                                if (valueWithMetadata.sourceAttribute) {
-                                    metadataOnly.sourceAttribute = valueWithMetadata.sourceAttribute;
-                                }
-                                if (valueWithMetadata.targetAttribute) {
-                                    metadataOnly.targetAttribute = valueWithMetadata.targetAttribute;
-                                }
-                                if (Object.keys(metadataOnly).length > 0) {
-                                    record.value = metadataOnly;
-                                }
+                                record.value = valueWithMetadata;
                             }
 
                             if (edgeStyle && Object.keys(edgeStyle).length > 0) {
