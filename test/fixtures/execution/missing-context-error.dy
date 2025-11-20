@@ -1,0 +1,6 @@
+// Test 4.1: Missing Context Reference
+machine "Missing Context"
+
+task Start @start {
+    description: "{{ MissingContext.field }}";
+}

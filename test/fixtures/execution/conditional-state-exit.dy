@@ -1,0 +1,13 @@
+// Test 3.2: Conditional State Exit
+machine "Conditional State Exit" {
+    validated: false;
+}
+
+state Start @start
+state Validating
+state SuccessPath
+state ErrorPath
+
+Start -> Validating
+Validating -when: "validated == true"-> SuccessPath
+Validating -when: "validated == false"-> ErrorPath

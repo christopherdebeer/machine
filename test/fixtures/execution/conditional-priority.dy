@@ -1,0 +1,15 @@
+// Test 1.3: Multiple Conditions with Priority
+machine "Conditional Priority" {
+    priority: 5;
+    urgent: true;
+}
+
+state Start @start
+state HighPriority
+state NormalPriority
+state LowPriority
+
+Start -when: "urgent == true"-> HighPriority
+Start -when: "priority > 7"-> HighPriority
+Start -when: "priority >= 3"-> NormalPriority
+Start -> LowPriority
