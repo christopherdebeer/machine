@@ -160,8 +160,14 @@
         "source": "parent",
         "target": "child1",
         "arrowType": "->",
+        "sourceAttribute": "spouse",
         "attributes": {
-          "text": "begets..."
+          "text": "begets...",
+          "sourceAttribute": "spouse"
+        },
+        "value": {
+          "text": "begets...",
+          "sourceAttribute": "spouse"
         },
         "$sourceRange": {
           "start": {
@@ -190,6 +196,9 @@
         "attributes": {
           "text": "color: yellow; gradientangle: 90"
         },
+        "value": {
+          "text": "color: yellow; gradientangle: 90"
+        },
         "style": {
           "color": "yellow",
           "gradientangle": 90
@@ -204,10 +213,36 @@
             "character": 70
           }
         }
+      },
+      {
+        "source": "child2",
+        "target": "apples",
+        "value": {
+          "attribute": "likes",
+          "text": "likes",
+          "sourceAttribute": "likes"
+        },
+        "attributes": {
+          "attribute": "likes",
+          "text": "likes",
+          "sourceAttribute": "likes"
+        },
+        "type": "inferred",
+        "sourceAttribute": "likes",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 8
+          },
+          "end": {
+            "line": 14,
+            "character": 22
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Refined styling, ports, and layout</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\"><i>my machine description</i></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"type__key\" align=\"left\" balign=\"left\">type</td><td port=\"type__value\" align=\"left\" balign=\"left\">example</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_parent {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>parent</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"parent\" [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"spouse__key\" align=\"left\" balign=\"left\">spouse</td><td port=\"spouse__value\" align=\"left\" balign=\"left\">Alice</td></tr></table>>, shape=plain, margin=0];\n    \"parent__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    subgraph cluster_child1 {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>child1</b> <i>@highlight</i></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      color=\"red\";\n      rank=\"group:one\";\n      shape=\"star\";\n      \"child1\" [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"age__key\" align=\"left\" balign=\"left\">age</td><td port=\"age__value\" align=\"left\" balign=\"left\">38</td></tr></table>>, shape=plain, margin=0];\n      \"child1__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"grandchild\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>grandchild</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"age__key\" align=\"left\" balign=\"left\">age</td><td port=\"age__value\" align=\"left\" balign=\"left\">7</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L9:8-11:9\"];\n    }\n    \"child2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>child2</b> <i>@highlight</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"likes__key\" align=\"left\" balign=\"left\">likes</td><td port=\"likes__value\" align=\"left\" balign=\"left\">apples</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", color=\"red\", rank=\"group:one\", shape=\"star\", URL=\"#L13:4-15:5\"];\n  }\n  \"apples\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apples</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L18:0-18:7\"];\n\n  // Edges\n  \"parent__cluster_anchor\" -> \"child1__cluster_anchor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>begets...</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L27:14-27:42\", ltail=\"cluster_parent\", lhead=\"cluster_child1\"];\n  \"child1__cluster_anchor\" -> \"child2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>color: yellow; gradientangle: 90</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@highlight</i></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L28:7-28:70\", ltail=\"cluster_child1\", color=\"yellow\", gradientangle=\"90\", color=\"red\", rank=\"group:one\", shape=\"star\"];\n}",
-  "svgHash": "6dad5ae790e07cdcfaed07e6c870aefa0047770fbb8d81ed5b6925a12c29bbd0"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Refined styling, ports, and layout</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\"><i>my machine description</i></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"type__key\" align=\"left\" balign=\"left\">type</td><td port=\"type__value\" align=\"left\" balign=\"left\">example</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_parent {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>parent</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"parent\" [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"spouse__key\" align=\"left\" balign=\"left\">spouse</td><td port=\"spouse__value\" align=\"left\" balign=\"left\">Alice</td></tr></table>>, shape=plain, margin=0];\n    \"parent__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    subgraph cluster_child1 {\n      label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>child1</b> <i>@highlight</i></td></tr></table>>;\n      labelloc=\"t\";\n      style=filled;\n      fontsize=10;\n      fillcolor=\"#FFFFFF\";\n      color=\"#999999\";\n      color=\"red\";\n      rank=\"group:one\";\n      shape=\"star\";\n      \"child1\" [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"age__key\" align=\"left\" balign=\"left\">age</td><td port=\"age__value\" align=\"left\" balign=\"left\">38</td></tr></table>>, shape=plain, margin=0];\n      \"child1__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n      \"grandchild\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>grandchild</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"age__key\" align=\"left\" balign=\"left\">age</td><td port=\"age__value\" align=\"left\" balign=\"left\">7</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L9:8-11:9\"];\n    }\n    \"child2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>child2</b> <i>@highlight</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"likes__key\" align=\"left\" balign=\"left\">likes</td><td port=\"likes__value\" align=\"left\" balign=\"left\">apples</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", color=\"red\", rank=\"group:one\", shape=\"star\", URL=\"#L13:4-15:5\"];\n  }\n  \"apples\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apples</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L18:0-18:7\"];\n\n  // Edges\n  \"parent\":\"spouse__value\" -> \"child1__cluster_anchor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>begets...</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L27:14-27:42\", lhead=\"cluster_child1\"];\n  \"child1__cluster_anchor\" -> \"child2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>color: yellow; gradientangle: 90</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@highlight</i></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L28:7-28:70\", ltail=\"cluster_child1\", color=\"yellow\", gradientangle=\"90\", color=\"red\", rank=\"group:one\", shape=\"star\"];\n  \"child2\":\"likes__value\" -> \"apples\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>likes</b></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">attribute</td><td align=\"left\" balign=\"left\">likes</td></tr><tr><td align=\"left\" balign=\"left\">type</td><td align=\"left\" balign=\"left\">undefined</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L14:8-14:22\"];\n}",
+  "svgHash": "3b2b8bc8006f7c6293d5ad5dc00fdf13665c2190f26ac6a07993988feb769982"
 }

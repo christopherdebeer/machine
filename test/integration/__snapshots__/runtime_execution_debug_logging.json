@@ -101,6 +101,9 @@
         "attributes": {
           "when": "Counter.value < 10"
         },
+        "value": {
+          "when": "Counter.value < 10"
+        },
         "style": {
           "when": "Counter.value < 10"
         },
@@ -120,6 +123,9 @@
         "target": "Done",
         "arrowType": "->",
         "attributes": {
+          "when": "Counter.value >= 10"
+        },
+        "value": {
           "when": "Counter.value >= 10"
         },
         "style": {

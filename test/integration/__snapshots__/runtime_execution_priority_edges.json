@@ -108,6 +108,9 @@
         "attributes": {
           "when": "Data.itemCount > 100"
         },
+        "value": {
+          "when": "Data.itemCount > 100"
+        },
         "style": {
           "when": "Data.itemCount > 100"
         },
@@ -133,6 +136,9 @@
         ],
         "arrowType": "->",
         "attributes": {
+          "when": "Data.itemCount > 0"
+        },
+        "value": {
           "when": "Data.itemCount > 0"
         },
         "style": {

@@ -48,6 +48,10 @@
           "weight": "0.9",
           "condition": "success"
         },
+        "value": {
+          "weight": "0.9",
+          "condition": "success"
+        },
         "style": {
           "weight": 0.9,
           "condition": "success"
@@ -68,6 +72,10 @@
         "target": "Retry",
         "arrowType": "->",
         "attributes": {
+          "weight": "0.1",
+          "condition": "error"
+        },
+        "value": {
           "weight": "0.1",
           "condition": "error"
         },
@@ -93,6 +101,9 @@
         "attributes": {
           "attempts": "3"
         },
+        "value": {
+          "attempts": "3"
+        },
         "style": {
           "attempts": 3
         },
@@ -112,6 +123,9 @@
         "target": "Failed",
         "arrowType": "->",
         "attributes": {
+          "exhausted": "true"
+        },
+        "value": {
           "exhausted": "true"
         },
         "style": {

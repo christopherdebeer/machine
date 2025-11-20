@@ -26,6 +26,9 @@
         "attributes": {
           "text": "color: red; stroke-width: 3px"
         },
+        "value": {
+          "text": "color: red; stroke-width: 3px"
+        },
         "style": {
           "color": "red",
           "penwidth": "3px"

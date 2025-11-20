@@ -108,6 +108,9 @@
         "attributes": {
           "text": "success"
         },
+        "value": {
+          "text": "success"
+        },
         "$sourceRange": {
           "start": {
             "line": 10,
@@ -139,6 +142,9 @@
         "target": "LoginFailure",
         "arrowType": "->",
         "attributes": {
+          "text": "failure"
+        },
+        "value": {
           "text": "failure"
         },
         "$sourceRange": {

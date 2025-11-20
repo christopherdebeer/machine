@@ -46,6 +46,10 @@
           "text": "process",
           "timeout": "5000"
         },
+        "value": {
+          "text": "process",
+          "timeout": "5000"
+        },
         "style": {
           "timeout": 5000
         },

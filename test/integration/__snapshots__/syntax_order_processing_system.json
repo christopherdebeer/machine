@@ -375,6 +375,9 @@
         "attributes": {
           "condition": "success"
         },
+        "value": {
+          "condition": "success"
+        },
         "style": {
           "condition": "success"
         },
@@ -396,6 +399,9 @@
         "attributes": {
           "condition": "error"
         },
+        "value": {
+          "condition": "error"
+        },
         "style": {
           "condition": "error"
         },
@@ -415,6 +421,9 @@
         "target": "Validate",
         "arrowType": "->",
         "attributes": {
+          "retries": "3"
+        },
+        "value": {
           "retries": "3"
         },
         "style": {

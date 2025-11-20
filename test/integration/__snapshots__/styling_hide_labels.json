@@ -28,6 +28,9 @@
         "attributes": {
           "text": "done"
         },
+        "value": {
+          "text": "done"
+        },
         "$sourceRange": {
           "start": {
             "line": 2,

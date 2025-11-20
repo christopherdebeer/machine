@@ -45,6 +45,9 @@
         "attributes": {
           "text": "transition text"
         },
+        "value": {
+          "text": "transition text"
+        },
         "$sourceRange": {
           "start": {
             "line": 6,

@@ -51,6 +51,9 @@
         "attributes": {
           "text": "high priority transition"
         },
+        "value": {
+          "text": "high priority transition"
+        },
         "$sourceRange": {
           "start": {
             "line": 6,

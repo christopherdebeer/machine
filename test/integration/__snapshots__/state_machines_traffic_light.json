@@ -61,6 +61,9 @@
         "attributes": {
           "text": "s"
         },
+        "value": {
+          "text": "s"
+        },
         "$sourceRange": {
           "start": {
             "line": 7,
@@ -79,6 +82,9 @@
         "attributes": {
           "text": "s"
         },
+        "value": {
+          "text": "s"
+        },
         "$sourceRange": {
           "start": {
             "line": 8,
@@ -95,6 +101,9 @@
         "target": "red",
         "arrowType": "->",
         "attributes": {
+          "text": "s"
+        },
+        "value": {
           "text": "s"
         },
         "$sourceRange": {

@@ -1004,18 +1004,31 @@ function generateEdgeDSL(edge: MachineEdgeJSON, nodeMap?: Map<string, any>, simp
                 }
             }
         } else {
-            // Plain text label: -@annotation-"label"-> or just -"label"->
+            // Plain text label: -@annotation, "label"-> or just -"label"->
             const formattedLabel = isPlainText ? formatValue(label) : label;
-            const arrowPrefix = edgeAnnotationsStr ? ` -${edgeAnnotationsStr}` : '';
 
-            if (arrowType === '->') {
-                parts.push(`${arrowPrefix}-${formattedLabel}->`);
-            } else if (arrowType === '-->') {
-                parts.push(`${arrowPrefix}--${formattedLabel}-->`);
-            } else if (arrowType === '=>') {
-                parts.push(`${arrowPrefix}=${formattedLabel}=>`);
+            if (edgeAnnotationsStr) {
+                // With annotations, use comma separator: -@annotation, "label"->
+                if (arrowType === '->') {
+                    parts.push(`-${edgeAnnotationsStr}, ${formattedLabel}->`);
+                } else if (arrowType === '-->') {
+                    parts.push(`-${edgeAnnotationsStr}, ${formattedLabel}-->`);
+                } else if (arrowType === '=>') {
+                    parts.push(`-${edgeAnnotationsStr}, ${formattedLabel}=>`);
+                } else {
+                    parts.push(`-${edgeAnnotationsStr}, ${formattedLabel}${arrowType.substring(1)}`);
+                }
             } else {
-                parts.push(edgeAnnotationsStr ? `${arrowPrefix}${arrowType.substring(1)}` : arrowType);
+                // Without annotations: -"label"->
+                if (arrowType === '->') {
+                    parts.push(`-${formattedLabel}->`);
+                } else if (arrowType === '-->') {
+                    parts.push(`--${formattedLabel}-->`);
+                } else if (arrowType === '=>') {
+                    parts.push(`=${formattedLabel}=>`);
+                } else {
+                    parts.push(`${arrowType.substring(0, 1)}${formattedLabel}${arrowType.substring(1)}`);
+                }
             }
         }
     } else {

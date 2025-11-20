@@ -55,6 +55,10 @@
           "text": "async",
           "timeout": "1000"
         },
+        "value": {
+          "text": "async",
+          "timeout": "1000"
+        },
         "style": {
           "timeout": 1000,
           "color": "blue",

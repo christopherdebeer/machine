@@ -45,6 +45,9 @@
         "attributes": {
           "timeout": "5000"
         },
+        "value": {
+          "timeout": "5000"
+        },
         "style": {
           "timeout": 5000
         },

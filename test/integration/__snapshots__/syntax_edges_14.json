@@ -82,6 +82,9 @@
         "attributes": {
           "priority": "1"
         },
+        "value": {
+          "priority": "1"
+        },
         "style": {
           "priority": 1
         },
@@ -101,6 +104,10 @@
         "target": "Process",
         "arrowType": "->",
         "attributes": {
+          "weight": "0.8",
+          "condition": "valid"
+        },
+        "value": {
           "weight": "0.8",
           "condition": "valid"
         },

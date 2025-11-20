@@ -191,6 +191,9 @@
         "attributes": {
           "text": "score >= 1000"
         },
+        "value": {
+          "text": "score >= 1000"
+        },
         "$sourceRange": {
           "start": {
             "line": 22,
@@ -207,6 +210,9 @@
         "target": "checkLoseCondition",
         "arrowType": "->",
         "attributes": {
+          "text": "score < 1000"
+        },
+        "value": {
           "text": "score < 1000"
         },
         "$sourceRange": {
@@ -227,6 +233,9 @@
         "attributes": {
           "text": "lives <= 0"
         },
+        "value": {
+          "text": "lives <= 0"
+        },
         "$sourceRange": {
           "start": {
             "line": 24,
@@ -243,6 +252,9 @@
         "target": "playing",
         "arrowType": "->",
         "attributes": {
+          "text": "lives > 0"
+        },
+        "value": {
           "text": "lives > 0"
         },
         "$sourceRange": {

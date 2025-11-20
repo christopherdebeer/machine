@@ -32,6 +32,9 @@
         "attributes": {
           "text": "start"
         },
+        "value": {
+          "text": "start"
+        },
         "$sourceRange": {
           "start": {
             "line": 1,
@@ -48,6 +51,9 @@
         "target": "Paused",
         "arrowType": "->",
         "attributes": {
+          "text": "pause"
+        },
+        "value": {
           "text": "pause"
         },
         "$sourceRange": {
@@ -68,6 +74,9 @@
         "attributes": {
           "text": "resume"
         },
+        "value": {
+          "text": "resume"
+        },
         "$sourceRange": {
           "start": {
             "line": 3,
@@ -84,6 +93,9 @@
         "target": "Stopped",
         "arrowType": "->",
         "attributes": {
+          "text": "stop"
+        },
+        "value": {
           "text": "stop"
         },
         "$sourceRange": {
@@ -104,6 +116,9 @@
         "attributes": {
           "text": "error"
         },
+        "value": {
+          "text": "error"
+        },
         "$sourceRange": {
           "start": {
             "line": 5,
@@ -120,6 +135,9 @@
         "target": "Running",
         "arrowType": "->",
         "attributes": {
+          "text": "retry"
+        },
+        "value": {
           "text": "retry"
         },
         "$sourceRange": {

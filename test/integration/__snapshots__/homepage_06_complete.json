@@ -968,6 +968,9 @@
         "attributes": {
           "text": "implements"
         },
+        "value": {
+          "text": "implements"
+        },
         "$sourceRange": {
           "start": {
             "line": 175,
@@ -984,6 +987,9 @@
         "target": "Runtime",
         "arrowType": "->",
         "attributes": {
+          "text": "implements"
+        },
+        "value": {
           "text": "implements"
         },
         "$sourceRange": {
@@ -1004,6 +1010,9 @@
         "attributes": {
           "text": "implements"
         },
+        "value": {
+          "text": "implements"
+        },
         "$sourceRange": {
           "start": {
             "line": 177,
@@ -1020,6 +1029,9 @@
         "target": "Visualization",
         "arrowType": "->",
         "attributes": {
+          "text": "implements"
+        },
+        "value": {
           "text": "implements"
         },
         "$sourceRange": {
@@ -1055,6 +1067,9 @@
         "attributes": {
           "text": "reads"
         },
+        "value": {
+          "text": "reads"
+        },
         "$sourceRange": {
           "start": {
             "line": 184,
@@ -1071,6 +1086,9 @@
         "target": "ArrowTypes",
         "arrowType": "->",
         "attributes": {
+          "text": "reads"
+        },
+        "value": {
           "text": "reads"
         },
         "$sourceRange": {
@@ -1121,6 +1139,9 @@
         "attributes": {
           "text": "reads"
         },
+        "value": {
+          "text": "reads"
+        },
         "$sourceRange": {
           "start": {
             "line": 192,
@@ -1139,6 +1160,9 @@
         "attributes": {
           "text": "reads"
         },
+        "value": {
+          "text": "reads"
+        },
         "$sourceRange": {
           "start": {
             "line": 193,
@@ -1155,6 +1179,9 @@
         "target": "config",
         "arrowType": "->",
         "attributes": {
+          "text": "reads"
+        },
+        "value": {
           "text": "reads"
         },
         "$sourceRange": {

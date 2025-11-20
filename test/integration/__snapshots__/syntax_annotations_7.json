@@ -25,6 +25,9 @@
         "attributes": {
           "priority": "1"
         },
+        "value": {
+          "priority": "1"
+        },
         "style": {
           "priority": 1
         },

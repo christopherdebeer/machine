@@ -101,6 +101,9 @@
         "attributes": {
           "when": "errorCount > 0"
         },
+        "value": {
+          "when": "errorCount > 0"
+        },
         "style": {
           "when": "errorCount > 0"
         },
@@ -120,6 +123,9 @@
         "target": "Retry",
         "arrowType": "->",
         "attributes": {
+          "when": "retryCount < maxRetries"
+        },
+        "value": {
           "when": "retryCount < maxRetries"
         },
         "style": {

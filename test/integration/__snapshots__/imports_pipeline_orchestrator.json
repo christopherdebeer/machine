@@ -275,6 +275,9 @@
         "attributes": {
           "text": "error"
         },
+        "value": {
+          "text": "error"
+        },
         "$sourceRange": {
           "start": {
             "line": 20,
@@ -293,6 +296,9 @@
         "attributes": {
           "text": "error"
         },
+        "value": {
+          "text": "error"
+        },
         "$sourceRange": {
           "start": {
             "line": 21,
@@ -309,6 +315,9 @@
         "target": "HandleError",
         "arrowType": "->",
         "attributes": {
+          "text": "error"
+        },
+        "value": {
           "text": "error"
         },
         "$sourceRange": {

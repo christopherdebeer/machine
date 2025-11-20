@@ -141,6 +141,9 @@
         "attributes": {
           "text": "label"
         },
+        "value": {
+          "text": "label"
+        },
         "$sourceRange": {
           "start": {
             "line": 5,
@@ -157,6 +160,9 @@
         "target": "b",
         "arrowType": "->",
         "attributes": {
+          "condition": "true"
+        },
+        "value": {
           "condition": "true"
         },
         "style": {

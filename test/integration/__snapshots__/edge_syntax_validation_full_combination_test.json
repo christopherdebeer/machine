@@ -52,6 +52,10 @@
           "text": "critical path",
           "timeout": "5000"
         },
+        "value": {
+          "text": "critical path",
+          "timeout": "5000"
+        },
         "style": {
           "timeout": 5000
         },
