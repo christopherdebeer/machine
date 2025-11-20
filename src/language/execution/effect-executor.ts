@@ -65,16 +65,16 @@ export class EffectExecutor {
     /**
      * Execute a batch of effects
      */
-    async execute(effects: Effect[]): Promise<AgentResult | null> {
-        let agentResult: AgentResult | null = null;
+    async execute(effects: Effect[]): Promise<AgentResult[]> {
+        const agentResults: AgentResult[] = [];
 
         for (const effect of effects) {
             switch (effect.type) {
                 case 'invoke_llm':
-                    agentResult = await this.executeInvokeLLM(effect);
+                    agentResults.push(await this.executeInvokeLLM(effect));
                     break;
                 case 'code_task':
-                    agentResult = await this.executeCodeTask(effect);
+                    agentResults.push(await this.executeCodeTask(effect));
                     break;
                 case 'log':
                     this.executeLog(effect);
@@ -91,7 +91,7 @@ export class EffectExecutor {
             }
         }
 
-        return agentResult;
+        return agentResults;
     }
 
     /**
@@ -102,12 +102,13 @@ export class EffectExecutor {
             throw new Error('LLM client not configured');
         }
 
-        const { systemPrompt, tools, modelId } = effect;
+        const { pathId, systemPrompt, tools, modelId } = effect;
 
         // If no tools, use simple invocation
         if (tools.length === 0) {
             const output = await this.llmClient.invokeModel(systemPrompt);
             return {
+                pathId,
                 output,
                 toolExecutions: []
             };
@@ -202,6 +203,7 @@ export class EffectExecutor {
         }
 
         return {
+            pathId,
             output: finalText,
             nextNode,
             toolExecutions
@@ -234,6 +236,7 @@ export class EffectExecutor {
         );
 
         return {
+            pathId: effect.pathId,
             output: String(result.output),
             toolExecutions: []
         };

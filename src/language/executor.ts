@@ -107,21 +107,20 @@ export class MachineExecutor {
         const result = this.runtime.step(this.currentState);
 
         // Execute effects
-        const agentResult = await this.effectExecutor.execute(result.effects);
+        const agentResults = await this.effectExecutor.execute(result.effects);
 
-        // Apply agent result if present
-        if (agentResult && agentResult.nextNode) {
-            const activePath = this.currentState.paths.find(p => p.status === 'active');
-            if (activePath) {
-                this.currentState = this.runtime.applyAgentResult(
-                    result.nextState,
-                    activePath.id,
+        // Apply each agent result to its corresponding path
+        let nextState = result.nextState;
+        for (const agentResult of agentResults) {
+            if (agentResult.nextNode) {
+                nextState = this.runtime.applyAgentResult(
+                    nextState,
+                    agentResult.pathId,
                     agentResult
                 );
             }
-        } else {
-            this.currentState = result.nextState;
         }
+        this.currentState = nextState;
 
         return result.status === 'continue' || result.status === 'waiting';
     }
@@ -175,6 +174,70 @@ export class MachineExecutor {
      */
     getMachineDefinition(): MachineJSON {
         return this.currentState.machineSnapshot;
+    }
+
+    /**
+     * Get execution context (backward compatibility)
+     * Converts ExecutionState to legacy RuntimeContext format
+     */
+    getContext(): any {
+        // Get the first active path (or first path if none active)
+        const activePath = this.currentState.paths.find(p => p.status === 'active') || this.currentState.paths[0];
+
+        if (!activePath) {
+            return {
+                currentNode: '',
+                currentTaskNode: undefined,
+                activeState: undefined,
+                errorCount: this.currentState.metadata.errorCount,
+                visitedNodes: new Set<string>(),
+                attributes: new Map<string, any>(),
+                history: [],
+                nodeInvocationCounts: new Map<string, number>(),
+                stateTransitions: []
+            };
+        }
+
+        // Build visited nodes set from history
+        const visitedNodes = new Set<string>();
+        activePath.history.forEach(t => {
+            visitedNodes.add(t.from);
+            visitedNodes.add(t.to);
+        });
+        visitedNodes.add(activePath.currentNode);
+
+        return {
+            currentNode: activePath.currentNode,
+            currentTaskNode: undefined,  // Legacy field
+            activeState: activePath.currentNode,
+            errorCount: this.currentState.metadata.errorCount,
+            visitedNodes,
+            attributes: new Map<string, any>(),
+            history: activePath.history,
+            nodeInvocationCounts: new Map(Object.entries(activePath.nodeInvocationCounts || {})),
+            stateTransitions: activePath.stateTransitions
+        };
+    }
+
+    /**
+     * Get mutations (backward compatibility - returns empty for now)
+     */
+    getMutations(): any[] {
+        return [];
+    }
+
+    /**
+     * Get task metrics (backward compatibility)
+     */
+    getTaskMetrics(): any {
+        const activePath = this.currentState.paths.find(p => p.status === 'active') || this.currentState.paths[0];
+
+        return {
+            totalSteps: this.currentState.metadata.stepCount,
+            nodeInvocationCounts: activePath ? activePath.nodeInvocationCounts : {},
+            elapsedTime: this.currentState.metadata.elapsedTime,
+            errorCount: this.currentState.metadata.errorCount
+        };
     }
 
     /**

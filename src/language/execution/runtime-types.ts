@@ -261,6 +261,7 @@ export interface ToolExecutionResult {
  * Agent execution result
  */
 export interface AgentResult {
+    pathId: string;              // Which path this result belongs to
     output: string;
     nextNode?: string;
     toolExecutions: ToolExecutionResult[];
