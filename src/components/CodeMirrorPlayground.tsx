@@ -826,7 +826,7 @@ export const CodeMirrorPlayground: React.FC = () => {
         view.update([transaction]);
 
         // Update SVG highlighting on selection/cursor changes
-        if (transaction.selectionSet) {
+        if (transaction.selection) {
           const pos = transaction.state.selection.main.head;
           const line = transaction.state.doc.lineAt(pos);
           const character = pos - line.from;
@@ -838,7 +838,6 @@ export const CodeMirrorPlayground: React.FC = () => {
               effects: setHighlightEffect.of(null)
             });
           }
-
           // Highlight SVG elements at cursor position
           highlightSVGElementsAtPosition(line.number - 1, character);
         }
