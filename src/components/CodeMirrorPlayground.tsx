@@ -1236,35 +1236,21 @@ export const CodeMirrorPlayground: React.FC = () => {
     return Promise.resolve();
   }, []);
 
-  // Update SVG visualization with execution context
+  // Update SVG visualization with execution state
   const updateRuntimeVisualization = useCallback(
     async (exec: MachineExecutor) => {
       if (!exec || !currentMachineData) return;
 
       try {
+        // Get current execution state
         const state = exec.getState();
-        const activePath = state.paths.find(p => p.status === 'active' || p.status === 'waiting');
 
-        if (!activePath) return;
+        // Check if there are any paths with execution
+        if (!state.paths || state.paths.length === 0) return;
 
-        // Convert ExecutionState to RuntimeContext for diagram generation
-        const runtimeContext = {
-          currentNode: activePath.currentNode,
-          errorCount: state.metadata.errorCount,
-          visitedNodes: new Set(activePath.visitedNodes),
-          attributes: new Map(Object.entries(activePath.context)),
-          history: activePath.history.map(h => ({
-            from: h.from,
-            to: h.to,
-            transition: h.transition || '',
-            timestamp: new Date(h.timestamp).toISOString(),
-          })),
-          nodeInvocationCounts: new Map(Object.entries(activePath.nodeInvocationCounts)),
-        };
-
-        // Generate new Graphviz with runtime context
+        // Generate new Graphviz with ExecutionState (conversion handled internally)
         const { generateRuntimeGraphviz } = await import('../language/diagram/index');
-        const dotWithContext = generateRuntimeGraphviz(currentMachineData, runtimeContext, {
+        const dotWithContext = generateRuntimeGraphviz(currentMachineData, state, {
           showRuntimeState: true,
           showVisitCounts: true,
           showExecutionPath: true,
