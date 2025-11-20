@@ -12,6 +12,7 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Development
 
+  - [Branch Integration: Unified Functional Runtime](development/branch-integration-2025-11-20.md)
   - [Canonical Machine JSON Adoption Review](development/canonical-machine-json-usage.md)
   - [Execution Model Redesign](development/execution-model-redesign.md)
   - [Import System Implementation Summary](development/IMPORT_SYSTEM_IMPLEMENTATION_SUMMARY.md)
