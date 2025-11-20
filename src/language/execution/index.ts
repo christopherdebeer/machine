@@ -21,3 +21,14 @@ export * from './edge-type-resolver.js';
 export * from './error-handling-manager.js';
 export * from './safety-manager.js';
 export * from './state-manager.js';
+
+// Functional runtime exports
+export * from './runtime-types.js';
+export * from './runtime.js';
+export * from './execution-runtime.js';
+export * from './condition-evaluator.js';
+export * from './effect-builder.js';
+export * from './effect-executor.js';
+export * from './state-builder.js';
+export * from './transition-evaluator.js';
+export * from './code-executor.js';
