@@ -8,24 +8,54 @@
         "name": "Validate",
         "type": "state",
         "attributes": [],
-        "title": "**Validate** input with `schema.check()`"
+        "title": "**Validate** input with `schema.check()`",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 57
+          }
+        }
       },
       {
         "name": "Transform",
         "type": "state",
         "attributes": [],
-        "title": "*Transform* data to **JSON**"
+        "title": "*Transform* data to **JSON**",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 46
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Validate",
         "target": "Transform",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 9
+          },
+          "end": {
+            "line": 6,
+            "character": 22
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Markdown in Nodes</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validate</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\"><b>Validate</b> input with <font face=\"monospace\" color=\"#6C757D\">schema.check()</font></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Transform</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\"><i>Transform</i> data to <b>JSON</b></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Validate\" -> \"Transform\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "5da96bc5117804ac8983bca9d088fbfb542a018c7b3f6a0b556f9ce4a51095b9"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Markdown in Nodes</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validate</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\"><b>Validate</b> input with <font face=\"monospace\" color=\"#6C757D\">schema.check()</font></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:57\"];\n  \"Transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Transform</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\"><i>Transform</i> data to <b>JSON</b></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:46\"];\n\n  // Edges\n  \"Validate\" -> \"Transform\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L6:9-6:22\"];\n}",
+  "svgHash": "e8621f81ef1400d6587f88965ceb802864a3b410b79201b6439ac81128640596"
 }

@@ -8,19 +8,49 @@
         "name": "A",
         "type": "state",
         "attributes": [],
-        "title": "Start"
+        "title": "Start",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 15
+          }
+        }
       },
       {
         "name": "B",
         "type": "state",
         "attributes": [],
-        "title": "Middle"
+        "title": "Middle",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 16
+          }
+        }
       },
       {
         "name": "C",
         "type": "state",
         "attributes": [],
-        "title": "End"
+        "title": "End",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 13
+          }
+        }
       }
     ],
     "edges": [
@@ -35,6 +65,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "first"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 2
+          },
+          "end": {
+            "line": 7,
+            "character": 22
+          }
         }
       },
       {
@@ -49,11 +89,21 @@
         "arrowType": "->",
         "attributes": {
           "text": "second"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 23
+          },
+          "end": {
+            "line": 7,
+            "character": 52
+          }
         }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Chained Edges Test</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Middle</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"C\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>C</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"A\" -> \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>first</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@async</i></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"B\" -> \"C\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>second</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@priority(\"2\")</i></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "a7d8e8ad8d6c49c483727184617763d4750e1cc9af0bf4838ed490ca27017062"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Chained Edges Test</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:15\"];\n  \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Middle</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:16\"];\n  \"C\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>C</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:13\"];\n\n  // Edges\n  \"A\" -> \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>first</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@async</i></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L7:2-7:22\"];\n  \"B\" -> \"C\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>second</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@priority(\"2\")</i></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L7:23-7:52\"];\n}",
+  "svgHash": "f2844ddd45488d502c72d6d1c31010d7e2fb54ac00167fd7b0f145a0972c7877"
 }

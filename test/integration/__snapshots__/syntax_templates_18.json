@@ -11,7 +11,17 @@
             "name": "query",
             "value": "What is machine learning?"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 2
+          }
+        }
       },
       {
         "name": "research",
@@ -21,7 +31,17 @@
             "name": "prompt",
             "value": "Research: {{ userRequest.query }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 2
+          }
+        }
       },
       {
         "name": "synthesize",
@@ -31,7 +51,17 @@
             "name": "prompt",
             "value": "Synthesize findings from: {{ research.prompt }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 2
+          }
+        }
       },
       {
         "name": "format",
@@ -41,42 +71,72 @@
             "name": "prompt",
             "value": "Format final answer based on: {{ synthesize.prompt }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "research",
         "target": "synthesize",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 9
+          },
+          "end": {
+            "line": 17,
+            "character": 22
+          }
+        }
       },
       {
         "source": "synthesize",
         "target": "format",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 23
+          },
+          "end": {
+            "line": 17,
+            "character": 32
+          }
+        }
       }
     ],
     "inferredDependencies": [
       {
         "source": "research",
         "target": "userRequest",
-        "reason": "reads prompt",
+        "reason": "reads userRequest.query",
         "path": "userRequest.query"
       },
       {
         "source": "synthesize",
         "target": "research",
-        "reason": "reads prompt",
+        "reason": "reads research.prompt",
         "path": "research.prompt"
       },
       {
         "source": "format",
         "target": "synthesize",
-        "reason": "reads prompt",
+        "reason": "reads synthesize.prompt",
         "path": "synthesize.prompt"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"userRequest\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userRequest</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"query__key\" align=\"left\" balign=\"left\">query</td><td port=\"query__value\" align=\"left\" balign=\"left\">What is machine learning?</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"research\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>research</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Research: {{ userRequest.query }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"synthesize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>synthesize</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Synthesize findings from: {{<br/>research.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"format\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>format</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Format final answer based on: {{<br/>synthesize.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"research\" -> \"synthesize\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"synthesize\" -> \"format\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"research\" -> \"userRequest\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"synthesize\" -> \"research\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"format\" -> \"synthesize\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "f5c22bae522a02e6166f2a0542c69c8ddc683f160526f647732a5f0d5a276457"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"userRequest\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userRequest</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"query__key\" align=\"left\" balign=\"left\">query</td><td port=\"query__value\" align=\"left\" balign=\"left\">What is machine learning?</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L1:0-3:2\"];\n  \"research\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>research</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Research: {{ userRequest.query }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-7:2\"];\n  \"synthesize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>synthesize</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Synthesize findings from: {{<br/>research.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-11:2\"];\n  \"format\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>format</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Format final answer based on: {{<br/>synthesize.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L13:0-15:2\"];\n\n  // Edges\n  \"research\" -> \"synthesize\" [labelOverlay=\"75%\", edgeURL=\"#L17:9-17:22\"];\n  \"synthesize\" -> \"format\" [labelOverlay=\"75%\", edgeURL=\"#L17:23-17:32\"];\n\n  // Inferred Dependencies\n  \"research\" -> \"userRequest\" [label=\"reads userRequest.query\", style=dashed, color=blue];\n  \"synthesize\" -> \"research\" [label=\"reads research.prompt\", style=dashed, color=blue];\n  \"format\" -> \"synthesize\" [label=\"reads synthesize.prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "52691ff63d3b10f95cdcc13daab66929a0819d5c0624c137df2e762a402308e6"
 }

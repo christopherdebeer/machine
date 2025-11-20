@@ -5,7 +5,10 @@
 import { describe, it, expect } from 'vitest';
 import { AgentSDKBridge } from '../../src/language/agent-sdk-bridge.js';
 import { MetaToolManager } from '../../src/language/meta-tool-manager.js';
-import type { MachineData, MachineExecutionContext } from '../../src/language/rails-executor.js';
+import type { MachineExecutionContext } from '../../src/language/rails-executor.js';
+import type { MachineJSON } from '../../src/language/json/types.js';
+
+type MachineData = MachineJSON;
 
 describe('AgentSDKBridge - Agent SDK Integration', () => {
     it('should initialize with default config', () => {

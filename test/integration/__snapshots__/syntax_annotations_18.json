@@ -16,7 +16,17 @@
             "name": "Version",
             "value": "1.0"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 1,
+            "character": 77
+          }
+        }
       },
       {
         "name": "newProcessor",
@@ -27,18 +37,38 @@
             "name": "Version",
             "value": "2.0"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 34
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "legacyProcessor",
         "target": "newProcessor",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 16
+          },
+          "end": {
+            "line": 4,
+            "character": 31
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"legacyProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>legacyProcessor</b> <i>&lt;task&gt;</i> <i>@Deprecated(\"Use newProcessor instead\") @Version(\"1.0\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\", fontcolor=\"#999999\"];\n  \"newProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>newProcessor</b> <i>&lt;task&gt;</i> <i>@Version(\"2.0\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"legacyProcessor\" -> \"newProcessor\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "b0a7172d953fac47eccd60f6f79dbd4ffc2460e484cb0c8d313c4b323ffa8766"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"legacyProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>legacyProcessor</b> <i>&lt;task&gt;</i> <i>@Deprecated(\"Use newProcessor instead\") @Version(\"1.0\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\", fontcolor=\"#999999\", URL=\"#L1:0-1:77\"];\n  \"newProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>newProcessor</b> <i>&lt;task&gt;</i> <i>@Version(\"2.0\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L2:0-2:34\"];\n\n  // Edges\n  \"legacyProcessor\" -> \"newProcessor\" [labelOverlay=\"75%\", edgeURL=\"#L4:16-4:31\"];\n}",
+  "svgHash": "8be5b522a58a29113d9e493902972f7aec6dc1ed4dc9bb97afdaa47289787e81"
 }

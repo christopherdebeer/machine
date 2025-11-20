@@ -27,7 +27,17 @@
             "name": "Owner",
             "value": "Alice"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 2
+          }
+        }
       },
       {
         "name": "backend",
@@ -50,7 +60,17 @@
           {
             "name": "Critical"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 2
+          }
+        }
       },
       {
         "name": "database",
@@ -76,23 +96,53 @@
           {
             "name": "ReadOnly"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "frontend",
         "target": "backend",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 9
+          },
+          "end": {
+            "line": 15,
+            "character": 20
+          }
+        }
       },
       {
         "source": "backend",
         "target": "database",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 8
+          },
+          "end": {
+            "line": 16,
+            "character": 20
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Multi-Team System</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version(&quot;1.0&quot;)</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"frontend\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>frontend</b> <i>&lt;task&gt;</i> <i>@Team(\"Frontend\") @Owner(\"Alice\")</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"framework__key\" align=\"left\" balign=\"left\">framework</td><td port=\"framework__value\" align=\"left\" balign=\"left\">React</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"backend\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>backend</b> <i>&lt;task&gt;</i> <i>@Team(\"Backend\") @Owner(\"Bob\") @Critical</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"runtime__key\" align=\"left\" balign=\"left\">runtime</td><td port=\"runtime__value\" align=\"left\" balign=\"left\">Node.js</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"database\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>database</b> <i>&lt;task&gt;</i> <i>@Team(\"Data\") @Owner(\"Carol\") @Critical @ReadOnly</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"engine__key\" align=\"left\" balign=\"left\">engine</td><td port=\"engine__value\" align=\"left\" balign=\"left\">PostgreSQL</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n\n  // Edges\n  \"frontend\" -> \"backend\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"backend\" -> \"database\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "70a884c91f62e3fc599d9df5b4f71fa7b0450587a52e07ccf440af62df965948"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Multi-Team System</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version(&quot;1.0&quot;)</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"frontend\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>frontend</b> <i>&lt;task&gt;</i> <i>@Team(\"Frontend\") @Owner(\"Alice\")</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"framework__key\" align=\"left\" balign=\"left\">framework</td><td port=\"framework__value\" align=\"left\" balign=\"left\">React</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-5:2\"];\n  \"backend\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>backend</b> <i>&lt;task&gt;</i> <i>@Team(\"Backend\") @Owner(\"Bob\") @Critical</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"runtime__key\" align=\"left\" balign=\"left\">runtime</td><td port=\"runtime__value\" align=\"left\" balign=\"left\">Node.js</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L7:0-9:2\"];\n  \"database\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>database</b> <i>&lt;task&gt;</i> <i>@Team(\"Data\") @Owner(\"Carol\") @Critical @ReadOnly</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"engine__key\" align=\"left\" balign=\"left\">engine</td><td port=\"engine__value\" align=\"left\" balign=\"left\">PostgreSQL</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L11:0-13:2\"];\n\n  // Edges\n  \"frontend\" -> \"backend\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L15:9-15:20\"];\n  \"backend\" -> \"database\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L16:8-16:20\"];\n}",
+  "svgHash": "3825891362a41c5e74c12d228d814389cfeccaa85a1c8576d7be9682a388d8b3"
 }

@@ -6,14 +6,34 @@
     "nodes": [
       {
         "name": "Group",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
       },
       {
         "name": "Child",
         "type": "task",
         "attributes": [],
         "parent": "Group",
-        "title": "Simple child"
+        "title": "Simple child",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 4
+          },
+          "end": {
+            "line": 4,
+            "character": 30
+          }
+        }
       },
       {
         "name": "Group",
@@ -36,36 +56,96 @@
           }
         ],
         "parent": "Group",
-        "title": "Explicit qualified child"
+        "title": "Explicit qualified child",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 48
+          }
+        }
       },
       {
         "name": "Start",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 6
+          }
+        }
       },
       {
         "name": "End",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 4
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Start",
         "target": "Child",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 6
+          },
+          "end": {
+            "line": 12,
+            "character": 14
+          }
+        }
       },
       {
         "source": "Child",
         "target": "Child",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 6
+          },
+          "end": {
+            "line": 13,
+            "character": 20
+          }
+        }
       },
       {
         "source": "Child",
         "target": "End",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 12
+          },
+          "end": {
+            "line": 14,
+            "character": 18
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Collision Handling</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Group {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Group</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Group__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Child</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Simple child</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n    \"note_Group_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n    \"note_Group_0\" -> \"Group__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n    \"note_Child_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Explicit qualified child</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n    \"note_Child_0\" -> \"Child\" [style=dashed, color=\"#999999\", arrowhead=none];\n  }\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Start\" -> \"Child\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Child\" -> \"Child\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Child\" -> \"End\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "7b4e546115cf3348b0715ff0e77a617f6e36b7654f07df1f68e9abe52ad79cec"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Collision Handling</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Group {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Group</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Group__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Child</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Simple child</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:4-4:30\"];\n\n    \"note_Group_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n    \"note_Group_0\" -> \"Group__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n    \"note_Child_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Explicit qualified child</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n    \"note_Child_0\" -> \"Child\" [style=dashed, color=\"#999999\", arrowhead=none];\n  }\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L8:0-8:6\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L9:0-9:4\"];\n\n  // Edges\n  \"Start\" -> \"Child\" [labelOverlay=\"75%\", edgeURL=\"#L12:6-12:14\"];\n  \"Child\" -> \"Child\" [labelOverlay=\"75%\", edgeURL=\"#L13:6-13:20\"];\n  \"Child\" -> \"End\" [labelOverlay=\"75%\", edgeURL=\"#L14:12-14:18\"];\n}",
+  "svgHash": "eb80bed793886f2596850d17c30e2cc5addc8e00e938a881c22fec770f2195b1"
 }

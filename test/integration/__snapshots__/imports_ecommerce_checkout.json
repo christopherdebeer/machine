@@ -8,59 +8,159 @@
         "name": "ShippingAddress",
         "type": "state",
         "attributes": [],
-        "title": "Shipping Address"
+        "title": "Shipping Address",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 40
+          }
+        }
       },
       {
         "name": "ShippingMethod",
         "type": "state",
         "attributes": [],
-        "title": "Shipping Method"
+        "title": "Shipping Method",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 38
+          }
+        }
       },
       {
         "name": "PaymentInfo",
         "type": "state",
         "attributes": [],
-        "title": "Payment Information"
+        "title": "Payment Information",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 39
+          }
+        }
       },
       {
         "name": "ReviewOrder",
         "type": "state",
         "attributes": [],
-        "title": "Review Order"
+        "title": "Review Order",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 32
+          }
+        }
       },
       {
         "name": "ProcessPayment",
         "type": "state",
         "attributes": [],
-        "title": "Process Payment"
+        "title": "Process Payment",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 38
+          }
+        }
       },
       {
         "name": "OrderConfirmation",
         "type": "state",
         "attributes": [],
-        "title": "Order Confirmation"
+        "title": "Order Confirmation",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 44
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "ShippingAddress",
         "target": "ShippingMethod",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 16
+          },
+          "end": {
+            "line": 10,
+            "character": 34
+          }
+        }
       },
       {
         "source": "ShippingMethod",
         "target": "PaymentInfo",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 35
+          },
+          "end": {
+            "line": 10,
+            "character": 50
+          }
+        }
       },
       {
         "source": "PaymentInfo",
         "target": "ReviewOrder",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 12
+          },
+          "end": {
+            "line": 11,
+            "character": 27
+          }
+        }
       },
       {
         "source": "ReviewOrder",
         "target": "ProcessPayment",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 28
+          },
+          "end": {
+            "line": 11,
+            "character": 46
+          }
+        }
       },
       {
         "source": "ProcessPayment",
@@ -68,6 +168,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "success"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 15
+          },
+          "end": {
+            "line": 12,
+            "character": 43
+          }
         }
       },
       {
@@ -76,11 +186,21 @@
         "arrowType": "->",
         "attributes": {
           "text": "failure"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 15
+          },
+          "end": {
+            "line": 13,
+            "character": 37
+          }
         }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Checkout Process</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ShippingAddress\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShippingAddress</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Shipping Address</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ShippingMethod\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShippingMethod</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Shipping Method</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"PaymentInfo\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PaymentInfo</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Payment Information</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ReviewOrder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ReviewOrder</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Review Order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessPayment</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process Payment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"OrderConfirmation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>OrderConfirmation</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order Confirmation</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"ShippingAddress\" -> \"ShippingMethod\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ShippingMethod\" -> \"PaymentInfo\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"PaymentInfo\" -> \"ReviewOrder\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ReviewOrder\" -> \"ProcessPayment\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessPayment\" -> \"OrderConfirmation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>success</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessPayment\" -> \"PaymentInfo\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>failure</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "0a4b829bf3ab93c8ee95b58cb388359e8d4c977e411773e3b0636c4c19a1c2dc"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Checkout Process</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ShippingAddress\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShippingAddress</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Shipping Address</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:40\"];\n  \"ShippingMethod\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShippingMethod</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Shipping Method</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:38\"];\n  \"PaymentInfo\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PaymentInfo</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Payment Information</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:39\"];\n  \"ReviewOrder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ReviewOrder</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Review Order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:32\"];\n  \"ProcessPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessPayment</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process Payment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:38\"];\n  \"OrderConfirmation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>OrderConfirmation</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order Confirmation</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:44\"];\n\n  // Edges\n  \"ShippingAddress\" -> \"ShippingMethod\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:16-10:34\"];\n  \"ShippingMethod\" -> \"PaymentInfo\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:35-10:50\"];\n  \"PaymentInfo\" -> \"ReviewOrder\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:12-11:27\"];\n  \"ReviewOrder\" -> \"ProcessPayment\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:28-11:46\"];\n  \"ProcessPayment\" -> \"OrderConfirmation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>success</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L12:15-12:43\"];\n  \"ProcessPayment\" -> \"PaymentInfo\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>failure</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L13:15-13:37\"];\n}",
+  "svgHash": "59dac599917d3c8cbdf95dd97e677f5f918398a1cd6b9b99849afa2e5475e68a"
 }

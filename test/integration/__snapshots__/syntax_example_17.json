@@ -7,46 +7,116 @@
         "name": "input",
         "type": "task",
         "attributes": [],
-        "title": "Receive Input"
+        "title": "Receive Input",
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 1,
+            "character": 27
+          }
+        }
       },
       {
         "name": "validate",
         "type": "task",
         "attributes": [],
-        "title": "Validate Data"
+        "title": "Validate Data",
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 30
+          }
+        }
       },
       {
         "name": "transform",
         "type": "task",
         "attributes": [],
-        "title": "Transform Data"
+        "title": "Transform Data",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 32
+          }
+        }
       },
       {
         "name": "output",
         "type": "task",
         "attributes": [],
-        "title": "Send Output"
+        "title": "Send Output",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 26
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "input",
         "target": "validate",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 6
+          },
+          "end": {
+            "line": 6,
+            "character": 17
+          }
+        }
       },
       {
         "source": "validate",
         "target": "transform",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 18
+          },
+          "end": {
+            "line": 6,
+            "character": 30
+          }
+        }
       },
       {
         "source": "transform",
         "target": "output",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 31
+          },
+          "end": {
+            "line": 6,
+            "character": 40
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"input\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>input</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Receive Input</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate Data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transform</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Transform Data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"output\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>output</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Send Output</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"input\" -> \"validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validate\" -> \"transform\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transform\" -> \"output\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "b46e15ace669e8e0f7a86c5e8ed4f6228a18299ccc3c76871fb3062e6893cc2c"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"input\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>input</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Receive Input</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L1:0-1:27\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate Data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L2:0-2:30\"];\n  \"transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transform</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Transform Data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:32\"];\n  \"output\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>output</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Send Output</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:26\"];\n\n  // Edges\n  \"input\" -> \"validate\" [labelOverlay=\"75%\", edgeURL=\"#L6:6-6:17\"];\n  \"validate\" -> \"transform\" [labelOverlay=\"75%\", edgeURL=\"#L6:18-6:30\"];\n  \"transform\" -> \"output\" [labelOverlay=\"75%\", edgeURL=\"#L6:31-6:40\"];\n}",
+  "svgHash": "fe9af6681a592f3a23c3597b73f70714fb243183db23ac21c6cd121e881fd9a1"
 }

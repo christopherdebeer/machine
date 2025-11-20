@@ -20,7 +20,17 @@
             "name": "max_tokens",
             "value": 1024
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 2
+          }
+        }
       },
       {
         "name": "userMessage",
@@ -34,7 +44,17 @@
             "name": "history",
             "value": []
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 2
+          }
+        }
       },
       {
         "name": "understand",
@@ -44,7 +64,17 @@
             "name": "prompt",
             "value": "Understand the user's intent: {{ userMessage.text }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 2
+          }
+        }
       },
       {
         "name": "classify",
@@ -54,25 +84,65 @@
             "name": "prompt",
             "value": "Classify as: question, complaint, or request"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 2
+          }
+        }
       },
       {
         "name": "question",
         "type": "state",
         "attributes": [],
-        "title": "Question Intent"
+        "title": "Question Intent",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 33
+          }
+        }
       },
       {
         "name": "complaint",
         "type": "state",
         "attributes": [],
-        "title": "Complaint Intent"
+        "title": "Complaint Intent",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 0
+          },
+          "end": {
+            "line": 23,
+            "character": 35
+          }
+        }
       },
       {
         "name": "request",
         "type": "state",
         "attributes": [],
-        "title": "Request Intent"
+        "title": "Request Intent",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 24,
+            "character": 31
+          }
+        }
       },
       {
         "name": "answerQuestion",
@@ -82,7 +152,17 @@
             "name": "prompt",
             "value": "Answer the question: {{ userMessage.text }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 0
+          },
+          "end": {
+            "line": 28,
+            "character": 2
+          }
+        }
       },
       {
         "name": "handleComplaint",
@@ -92,7 +172,17 @@
             "name": "prompt",
             "value": "Address the complaint empathetically: {{ userMessage.text }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 0
+          },
+          "end": {
+            "line": 32,
+            "character": 2
+          }
+        }
       },
       {
         "name": "processRequest",
@@ -102,7 +192,17 @@
             "name": "prompt",
             "value": "Process the request: {{ userMessage.text }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 0
+          },
+          "end": {
+            "line": 36,
+            "character": 2
+          }
+        }
       },
       {
         "name": "response",
@@ -116,93 +216,213 @@
             "name": "action",
             "value": ""
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 38,
+            "character": 0
+          },
+          "end": {
+            "line": 41,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "userMessage",
         "target": "understand",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 43,
+            "character": 12
+          },
+          "end": {
+            "line": 43,
+            "character": 25
+          }
+        }
       },
       {
         "source": "understand",
         "target": "classify",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 43,
+            "character": 26
+          },
+          "end": {
+            "line": 43,
+            "character": 37
+          }
+        }
       },
       {
         "source": "classify",
         "target": "question",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 44,
+            "character": 9
+          },
+          "end": {
+            "line": 44,
+            "character": 40
+          }
+        }
       },
       {
         "source": "classify",
         "target": "complaint",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 44,
+            "character": 9
+          },
+          "end": {
+            "line": 44,
+            "character": 40
+          }
+        }
       },
       {
         "source": "classify",
         "target": "request",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 44,
+            "character": 9
+          },
+          "end": {
+            "line": 44,
+            "character": 40
+          }
+        }
       },
       {
         "source": "question",
         "target": "answerQuestion",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 45,
+            "character": 9
+          },
+          "end": {
+            "line": 45,
+            "character": 26
+          }
+        }
       },
       {
         "source": "answerQuestion",
         "target": "response",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 45,
+            "character": 27
+          },
+          "end": {
+            "line": 45,
+            "character": 38
+          }
+        }
       },
       {
         "source": "complaint",
         "target": "handleComplaint",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 46,
+            "character": 10
+          },
+          "end": {
+            "line": 46,
+            "character": 28
+          }
+        }
       },
       {
         "source": "handleComplaint",
         "target": "response",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 46,
+            "character": 29
+          },
+          "end": {
+            "line": 46,
+            "character": 40
+          }
+        }
       },
       {
         "source": "request",
         "target": "processRequest",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 8
+          },
+          "end": {
+            "line": 47,
+            "character": 25
+          }
+        }
       },
       {
         "source": "processRequest",
         "target": "response",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 26
+          },
+          "end": {
+            "line": 47,
+            "character": 37
+          }
+        }
       }
     ],
     "inferredDependencies": [
       {
         "source": "understand",
         "target": "userMessage",
-        "reason": "reads prompt",
+        "reason": "reads userMessage.text",
         "path": "userMessage.text"
       },
       {
         "source": "answerQuestion",
         "target": "userMessage",
-        "reason": "reads prompt",
+        "reason": "reads userMessage.text",
         "path": "userMessage.text"
       },
       {
         "source": "handleComplaint",
         "target": "userMessage",
-        "reason": "reads prompt",
+        "reason": "reads userMessage.text",
         "path": "userMessage.text"
       },
       {
         "source": "processRequest",
         "target": "userMessage",
-        "reason": "reads prompt",
+        "reason": "reads userMessage.text",
         "path": "userMessage.text"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Customer Support Bot</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"agent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>agent</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"max_tokens__key\" align=\"left\" balign=\"left\">max_tokens</td><td port=\"max_tokens__value\" align=\"left\" balign=\"left\">1024</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"userMessage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userMessage</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"text__key\" align=\"left\" balign=\"left\">text</td><td port=\"text__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"history__key\" align=\"left\" balign=\"left\">history</td><td port=\"history__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"understand\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>understand</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Understand the user's intent: {{<br/>userMessage.text }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"classify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>classify</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Classify as: question, complaint, or<br/>request</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"question\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>question</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Question Intent</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"complaint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complaint</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complaint Intent</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"request\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>request</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Request Intent</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"answerQuestion\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>answerQuestion</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Answer the question: {{ userMessage.text<br/>}}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"handleComplaint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleComplaint</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Address the complaint empathetically: {{<br/>userMessage.text }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"processRequest\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processRequest</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process the request: {{ userMessage.text<br/>}}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"response\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>response</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"text__key\" align=\"left\" balign=\"left\">text</td><td port=\"text__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"action__key\" align=\"left\" balign=\"left\">action</td><td port=\"action__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"userMessage\" -> \"understand\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"understand\" -> \"classify\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"classify\" -> \"question\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"classify\" -> \"complaint\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"classify\" -> \"request\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"question\" -> \"answerQuestion\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"answerQuestion\" -> \"response\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"complaint\" -> \"handleComplaint\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleComplaint\" -> \"response\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"request\" -> \"processRequest\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processRequest\" -> \"response\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"understand\" -> \"userMessage\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"answerQuestion\" -> \"userMessage\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"handleComplaint\" -> \"userMessage\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"processRequest\" -> \"userMessage\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "d613267649b47d4ad7ff55e011732899cfac482e33dd0660dc1278f359ac9aca"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Customer Support Bot</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"agent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>agent</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"max_tokens__key\" align=\"left\" balign=\"left\">max_tokens</td><td port=\"max_tokens__value\" align=\"left\" balign=\"left\">1024</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-7:2\"];\n  \"userMessage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userMessage</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"text__key\" align=\"left\" balign=\"left\">text</td><td port=\"text__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"history__key\" align=\"left\" balign=\"left\">history</td><td port=\"history__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L9:0-12:2\"];\n  \"understand\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>understand</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Understand the user's intent: {{<br/>userMessage.text }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-16:2\"];\n  \"classify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>classify</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Classify as: question, complaint, or<br/>request</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L18:0-20:2\"];\n  \"question\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>question</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Question Intent</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L22:0-22:33\"];\n  \"complaint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complaint</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complaint Intent</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L23:0-23:35\"];\n  \"request\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>request</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Request Intent</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L24:0-24:31\"];\n  \"answerQuestion\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>answerQuestion</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Answer the question: {{ userMessage.text<br/>}}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L26:0-28:2\"];\n  \"handleComplaint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleComplaint</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Address the complaint empathetically: {{<br/>userMessage.text }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L30:0-32:2\"];\n  \"processRequest\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processRequest</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process the request: {{ userMessage.text<br/>}}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L34:0-36:2\"];\n  \"response\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>response</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"text__key\" align=\"left\" balign=\"left\">text</td><td port=\"text__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"action__key\" align=\"left\" balign=\"left\">action</td><td port=\"action__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L38:0-41:2\"];\n\n  // Edges\n  \"userMessage\" -> \"understand\" [labelOverlay=\"75%\", edgeURL=\"#L43:12-43:25\"];\n  \"understand\" -> \"classify\" [labelOverlay=\"75%\", edgeURL=\"#L43:26-43:37\"];\n  \"classify\" -> \"question\" [labelOverlay=\"75%\", edgeURL=\"#L44:9-44:40\"];\n  \"classify\" -> \"complaint\" [labelOverlay=\"75%\", edgeURL=\"#L44:9-44:40\"];\n  \"classify\" -> \"request\" [labelOverlay=\"75%\", edgeURL=\"#L44:9-44:40\"];\n  \"question\" -> \"answerQuestion\" [labelOverlay=\"75%\", edgeURL=\"#L45:9-45:26\"];\n  \"answerQuestion\" -> \"response\" [labelOverlay=\"75%\", edgeURL=\"#L45:27-45:38\"];\n  \"complaint\" -> \"handleComplaint\" [labelOverlay=\"75%\", edgeURL=\"#L46:10-46:28\"];\n  \"handleComplaint\" -> \"response\" [labelOverlay=\"75%\", edgeURL=\"#L46:29-46:40\"];\n  \"request\" -> \"processRequest\" [labelOverlay=\"75%\", edgeURL=\"#L47:8-47:25\"];\n  \"processRequest\" -> \"response\" [labelOverlay=\"75%\", edgeURL=\"#L47:26-47:37\"];\n\n  // Inferred Dependencies\n  \"understand\" -> \"userMessage\" [label=\"reads userMessage.text\", style=dashed, color=blue];\n  \"answerQuestion\" -> \"userMessage\" [label=\"reads userMessage.text\", style=dashed, color=blue];\n  \"handleComplaint\" -> \"userMessage\" [label=\"reads userMessage.text\", style=dashed, color=blue];\n  \"processRequest\" -> \"userMessage\" [label=\"reads userMessage.text\", style=dashed, color=blue];\n}",
+  "svgHash": "b348a097c72a4d8127284abffd707f64d3d19f07c29b3c3ea95dad1eb23f17f6"
 }

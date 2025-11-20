@@ -3,8 +3,37 @@
  * Maintains visual consistency with static diagrams while adding runtime state
  */
 
-import { MachineExecutor, MachineExecutionContext, MachineData } from './machine-executor.js';
+import { MachineExecutor } from './executor.js';
+import type { MachineJSON } from './json/types.js';
 import { generateRuntimeGraphviz, DiagramOptions, RuntimeContext as DiagramRuntimeContext } from './diagram/index.js';
+
+// Type alias for backward compatibility
+type MachineData = MachineJSON;
+
+// Define MachineExecutionContext locally (based on agent-sdk-bridge.ts pattern)
+export interface ExecutionState {
+    currentNode: string;
+    currentTaskNode?: string;
+    activeState?: string;
+    errorCount: number;
+}
+
+export interface VisualizationState {
+    visitedNodes: Set<string>;
+    attributes: Map<string, any>;
+    nodeInvocationCounts?: Map<string, number>;
+    stateTransitions?: Array<{from: string; to: string; timestamp: string}>;
+}
+
+export interface MachineExecutionContext extends ExecutionState, VisualizationState {
+    history: Array<{
+        from: string;
+        to: string;
+        transition: string;
+        timestamp: string;
+        output?: string;
+    }>;
+}
 
 export interface RuntimeVisualizationOptions {
     showRuntimeValues?: boolean;

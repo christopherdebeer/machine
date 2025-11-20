@@ -6,22 +6,62 @@
       {
         "name": "Idle",
         "type": "state",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 1,
+            "character": 11
+          }
+        }
       },
       {
         "name": "Running",
         "type": "state",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 14
+          }
+        }
       },
       {
         "name": "Paused",
         "type": "state",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 13
+          }
+        }
       },
       {
         "name": "Stopped",
         "type": "state",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 14
+          }
+        }
       }
     ],
     "edges": [
@@ -31,6 +71,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "start"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 5
+          },
+          "end": {
+            "line": 6,
+            "character": 21
+          }
         }
       },
       {
@@ -39,6 +89,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "pause"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 8
+          },
+          "end": {
+            "line": 7,
+            "character": 23
+          }
         }
       },
       {
@@ -47,6 +107,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "resume"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 7
+          },
+          "end": {
+            "line": 8,
+            "character": 24
+          }
         }
       },
       {
@@ -55,11 +125,21 @@
         "arrowType": "->",
         "attributes": {
           "text": "stop"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 8
+          },
+          "end": {
+            "line": 9,
+            "character": 23
+          }
         }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Idle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Idle</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Running</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Paused</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Stopped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Stopped</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Idle\" -> \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>start</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Running\" -> \"Paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>pause</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Paused\" -> \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>resume</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Running\" -> \"Stopped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>stop</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "623099c48c72ba48bb4e093acd217468251dfa2dfaf68aa6b56505c4444b1613"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Idle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Idle</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L1:0-1:11\"];\n  \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Running</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L2:0-2:14\"];\n  \"Paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Paused</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:13\"];\n  \"Stopped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Stopped</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:14\"];\n\n  // Edges\n  \"Idle\" -> \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>start</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L6:5-6:21\"];\n  \"Running\" -> \"Paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>pause</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L7:8-7:23\"];\n  \"Paused\" -> \"Running\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>resume</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L8:7-8:24\"];\n  \"Running\" -> \"Stopped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>stop</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L9:8-9:23\"];\n}",
+  "svgHash": "41575153b4b0d8fe06b489a626a1618e4298da68521be6fd9b500260831ea4f2"
 }

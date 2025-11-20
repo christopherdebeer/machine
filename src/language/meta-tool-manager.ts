@@ -9,9 +9,13 @@
  */
 
 import type { ToolDefinition } from './llm-client.js';
-import type { MachineMutation, MachineData } from './rails-executor.js';
+import type { MachineJSON } from './json/types.js';
 import type { ToolRegistry } from './tool-registry.js';
 import { extractValueFromAST } from './utils/ast-helpers.js';
+
+// Type aliases for backward compatibility
+type MachineMutation = MachineJSON;
+type MachineData = MachineJSON;
 
 /**
  * Dynamic tool with handler

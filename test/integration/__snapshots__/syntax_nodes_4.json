@@ -21,7 +21,17 @@
             "name": "Critical"
           }
         ],
-        "title": "Processing Details"
+        "title": "Processing Details",
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [],

@@ -13,7 +13,17 @@
             "name": "rank",
             "value": "header"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 27
+          }
+        }
       },
       {
         "name": "plan",
@@ -24,7 +34,17 @@
             "name": "rank",
             "value": "same:planning"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 33
+          }
+        }
       },
       {
         "name": "review",
@@ -35,7 +55,17 @@
             "name": "rank",
             "value": "same:planning"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 35
+          }
+        }
       },
       {
         "name": "archive",
@@ -46,28 +76,68 @@
             "name": "rank",
             "value": "footer"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 29
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "start",
         "target": "plan",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 6
+          },
+          "end": {
+            "line": 8,
+            "character": 13
+          }
+        }
       },
       {
         "source": "plan",
         "target": "review",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 14
+          },
+          "end": {
+            "line": 8,
+            "character": 23
+          }
+        }
       },
       {
         "source": "review",
         "target": "archive",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 24
+          },
+          "end": {
+            "line": 8,
+            "character": 34
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Ranked Layout</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i> <i>@rank(\"header\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"plan\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>plan</b> <i>&lt;task&gt;</i> <i>@rank(\"same:planning\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"review\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>review</b> <i>&lt;task&gt;</i> <i>@rank(\"same:planning\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"archive\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>archive</b> <i>&lt;task&gt;</i> <i>@rank(\"footer\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"start\" -> \"plan\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"plan\" -> \"review\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"review\" -> \"archive\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "bdd338a3b39e5aee1294f3724a8bdbba7cd90e180b0d050a962744364b8dd890"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Ranked Layout</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i> <i>@rank(\"header\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:27\"];\n  \"plan\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>plan</b> <i>&lt;task&gt;</i> <i>@rank(\"same:planning\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:33\"];\n  \"review\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>review</b> <i>&lt;task&gt;</i> <i>@rank(\"same:planning\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-5:35\"];\n  \"archive\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>archive</b> <i>&lt;task&gt;</i> <i>@rank(\"footer\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-6:29\"];\n\n  // Edges\n  \"start\" -> \"plan\" [labelOverlay=\"75%\", edgeURL=\"#L8:6-8:13\"];\n  \"plan\" -> \"review\" [labelOverlay=\"75%\", edgeURL=\"#L8:14-8:23\"];\n  \"review\" -> \"archive\" [labelOverlay=\"75%\", edgeURL=\"#L8:24-8:34\"];\n}",
+  "svgHash": "7777a300ed9122842381f0387031688857148e2962f2cbed038e1b66754f1405"
 }

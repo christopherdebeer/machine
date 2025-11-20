@@ -19,6 +19,16 @@
         ],
         "style": {
           "color": "#ff0000"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 1
+          }
         }
       },
       {
@@ -37,6 +47,16 @@
         ],
         "style": {
           "penwidth": 3
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 1
+          }
         }
       },
       {
@@ -55,12 +75,22 @@
           {
             "name": "Urgent"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
       }
     ],
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"criticalError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>criticalError</b> <i>&lt;task&gt;</i> <i>@Error @Urgent</i></td></tr><tr><td align=\"left\">Handle critical error</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", color=\"#ff0000\", penwidth=\"3\"];\n\n}",
-  "svgHash": "dbcedf87f087b3cec28464d8f18e81c2486544e3fa75b07a9512f18431e51b85"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"criticalError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>criticalError</b> <i>&lt;task&gt;</i> <i>@Error @Urgent</i></td></tr><tr><td align=\"left\">Handle critical error</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", color=\"#ff0000\", penwidth=\"3\", URL=\"#L9:0-11:1\"];\n\n}",
+  "svgHash": "798c1f5e95f8d976e93977f4695ef719a8d740ff4fc2b32af7dfee1b88302520"
 }

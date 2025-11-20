@@ -7,80 +7,200 @@
       {
         "name": "Authentication",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 1
+          }
+        }
       },
       {
         "name": "Login",
         "type": "state",
         "attributes": [],
         "parent": "Authentication",
-        "title": "Login"
+        "title": "Login",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 4
+          },
+          "end": {
+            "line": 4,
+            "character": 23
+          }
+        }
       },
       {
         "name": "Verify",
         "type": "state",
         "attributes": [],
         "parent": "Authentication",
-        "title": "Verify"
+        "title": "Verify",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 25
+          }
+        }
       },
       {
         "name": "Session",
         "type": "state",
         "attributes": [],
         "parent": "Authentication",
-        "title": "Session"
+        "title": "Session",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 4
+          },
+          "end": {
+            "line": 6,
+            "character": 27
+          }
+        }
       },
       {
         "name": "Authorization",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 1
+          }
+        }
       },
       {
         "name": "CheckPermissions",
         "type": "state",
         "attributes": [],
         "parent": "Authorization",
-        "title": "Check Permissions"
+        "title": "Check Permissions",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 4
+          },
+          "end": {
+            "line": 12,
+            "character": 46
+          }
+        }
       },
       {
         "name": "GrantAccess",
         "type": "state",
         "attributes": [],
         "parent": "Authorization",
-        "title": "Grant Access"
+        "title": "Grant Access",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 4
+          },
+          "end": {
+            "line": 13,
+            "character": 36
+          }
+        }
       },
       {
         "name": "DenyAccess",
         "type": "state",
         "attributes": [],
         "parent": "Authorization",
-        "title": "Deny Access"
+        "title": "Deny Access",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 4
+          },
+          "end": {
+            "line": 14,
+            "character": 34
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Login",
         "target": "Verify",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 10
+          },
+          "end": {
+            "line": 8,
+            "character": 20
+          }
+        }
       },
       {
         "source": "Verify",
         "target": "Session",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 21
+          },
+          "end": {
+            "line": 8,
+            "character": 32
+          }
+        }
       },
       {
         "source": "CheckPermissions",
         "target": "GrantAccess",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 21
+          },
+          "end": {
+            "line": 16,
+            "character": 36
+          }
+        }
       },
       {
         "source": "CheckPermissions",
         "target": "DenyAccess",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 21
+          },
+          "end": {
+            "line": 17,
+            "character": 35
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Hierarchical Library</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Authentication {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Authentication</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Authentication__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Login\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Login</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"Verify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Verify</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"Session\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Session</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  }\n  subgraph cluster_Authorization {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Authorization</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Authorization__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"CheckPermissions\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CheckPermissions</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Check Permissions</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"GrantAccess\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>GrantAccess</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Grant Access</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"DenyAccess\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DenyAccess</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Deny Access</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  }\n\n  // Edges\n  \"Login\" -> \"Verify\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Verify\" -> \"Session\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"CheckPermissions\" -> \"GrantAccess\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"CheckPermissions\" -> \"DenyAccess\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "94be1e47bf323c6f002ec5647a4216720d8f373258f8f0c97f67440afa4b2343"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Hierarchical Library</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Authentication {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Authentication</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Authentication__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Login\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Login</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:4-4:23\"];\n    \"Verify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Verify</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:4-5:25\"];\n    \"Session\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Session</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:4-6:27\"];\n  }\n  subgraph cluster_Authorization {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Authorization</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Authorization__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"CheckPermissions\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CheckPermissions</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Check Permissions</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L12:4-12:46\"];\n    \"GrantAccess\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>GrantAccess</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Grant Access</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L13:4-13:36\"];\n    \"DenyAccess\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DenyAccess</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Deny Access</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L14:4-14:34\"];\n  }\n\n  // Edges\n  \"Login\" -> \"Verify\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:10-8:20\"];\n  \"Verify\" -> \"Session\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:21-8:32\"];\n  \"CheckPermissions\" -> \"GrantAccess\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L16:21-16:36\"];\n  \"CheckPermissions\" -> \"DenyAccess\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L17:21-17:35\"];\n}",
+  "svgHash": "33c5cc2234674dc6c4d1e8424985228e2c8808b7e3c20bb8fb6957b6631b449c"
 }

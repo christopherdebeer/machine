@@ -8,19 +8,49 @@
         "name": "A",
         "type": "state",
         "attributes": [],
-        "title": "Start"
+        "title": "Start",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 15
+          }
+        }
       },
       {
         "name": "B",
         "type": "state",
         "attributes": [],
-        "title": "End1"
+        "title": "End1",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 14
+          }
+        }
       },
       {
         "name": "C",
         "type": "state",
         "attributes": [],
-        "title": "End2"
+        "title": "End2",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 14
+          }
+        }
       }
     ],
     "edges": [
@@ -40,6 +70,16 @@
         },
         "style": {
           "timeout": 1000
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 2
+          },
+          "end": {
+            "line": 7,
+            "character": 52
+          }
         }
       },
       {
@@ -58,11 +98,21 @@
         },
         "style": {
           "timeout": 1000
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 2
+          },
+          "end": {
+            "line": 7,
+            "character": 52
+          }
         }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Multiple Targets Test</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End1</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"C\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>C</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End2</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"A\" -> \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>broadcast</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@priority(\"1\")</i></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">timeout</td><td align=\"left\" balign=\"left\">1000</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", timeout=\"1000\"];\n  \"A\" -> \"C\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>broadcast</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@priority(\"1\")</i></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">timeout</td><td align=\"left\" balign=\"left\">1000</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", timeout=\"1000\"];\n}",
-  "svgHash": "251337de6cd84070435b6ca57a04a5b24a0e2c4b4cc05e378b62f62fcd0ae064"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Multiple Targets Test</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:15\"];\n  \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End1</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:14\"];\n  \"C\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>C</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End2</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:14\"];\n\n  // Edges\n  \"A\" -> \"B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>broadcast</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@priority(\"1\")</i></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">timeout</td><td align=\"left\" balign=\"left\">1000</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L7:2-7:52\", timeout=\"1000\"];\n  \"A\" -> \"C\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>broadcast</b></td></tr><tr><td align=\"left\" balign=\"left\"><i>@priority(\"1\")</i></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">timeout</td><td align=\"left\" balign=\"left\">1000</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L7:2-7:52\", timeout=\"1000\"];\n}",
+  "svgHash": "e835fad8dda3cd5f39c6047c11bb139c252d7df59c13647a0aabb42c694ab626"
 }

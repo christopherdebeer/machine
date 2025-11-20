@@ -8,19 +8,49 @@
         "name": "Home",
         "type": "state",
         "attributes": [],
-        "title": "Homepage"
+        "title": "Homepage",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 21
+          }
+        }
       },
       {
         "name": "SecureArea",
         "type": "state",
         "attributes": [],
-        "title": "Secure Area"
+        "title": "Secure Area",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 30
+          }
+        }
       },
       {
         "name": "Logout",
         "type": "state",
         "attributes": [],
-        "title": "Logout"
+        "title": "Logout",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 21
+          }
+        }
       },
       {
         "name": "LoginForm",
@@ -43,41 +73,111 @@
       {
         "source": "Home",
         "target": "LoginForm",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 5
+          },
+          "end": {
+            "line": 10,
+            "character": 18
+          }
+        }
       },
       {
         "source": "LoginForm",
         "target": "LoginSuccess",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 19
+          },
+          "end": {
+            "line": 10,
+            "character": 35
+          }
+        }
       },
       {
         "source": "LoginSuccess",
         "target": "CreateSession",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 36
+          },
+          "end": {
+            "line": 10,
+            "character": 53
+          }
+        }
       },
       {
         "source": "CreateSession",
         "target": "SecureArea",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 14
+          },
+          "end": {
+            "line": 11,
+            "character": 28
+          }
+        }
       },
       {
         "source": "SecureArea",
         "target": "ValidateSession",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 11
+          },
+          "end": {
+            "line": 12,
+            "character": 30
+          }
+        }
       },
       {
         "source": "ValidateSession",
         "target": "SecureArea",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 31
+          },
+          "end": {
+            "line": 12,
+            "character": 45
+          }
+        }
       },
       {
         "source": "SecureArea",
         "target": "Logout",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 11
+          },
+          "end": {
+            "line": 13,
+            "character": 21
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Secure Application</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Home\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Home</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Homepage</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"SecureArea\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SecureArea</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Secure Area</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Logout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Logout</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"LoginForm\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoginForm</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"LoginSuccess\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoginSuccess</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"CreateSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CreateSession</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ValidateSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ValidateSession</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Home\" -> \"LoginForm\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoginForm\" -> \"LoginSuccess\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoginSuccess\" -> \"CreateSession\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"CreateSession\" -> \"SecureArea\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"SecureArea\" -> \"ValidateSession\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ValidateSession\" -> \"SecureArea\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"SecureArea\" -> \"Logout\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "01266c050b3502bf1fdebd5911d1ab8e12d51e06399ee98eddbdeaa7749208ef"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Secure Application</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Home\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Home</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Homepage</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:21\"];\n  \"SecureArea\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SecureArea</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Secure Area</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:30\"];\n  \"Logout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Logout</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:21\"];\n  \"LoginForm\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoginForm</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"LoginSuccess\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoginSuccess</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"CreateSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CreateSession</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ValidateSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ValidateSession</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Home\" -> \"LoginForm\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:5-10:18\"];\n  \"LoginForm\" -> \"LoginSuccess\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:19-10:35\"];\n  \"LoginSuccess\" -> \"CreateSession\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:36-10:53\"];\n  \"CreateSession\" -> \"SecureArea\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:14-11:28\"];\n  \"SecureArea\" -> \"ValidateSession\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:11-12:30\"];\n  \"ValidateSession\" -> \"SecureArea\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:31-12:45\"];\n  \"SecureArea\" -> \"Logout\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L13:11-13:21\"];\n}",
+  "svgHash": "416b68c08abb41d9cb70aa09d93b44b855b88fce6b49403e1c30418216e11f8c"
 }

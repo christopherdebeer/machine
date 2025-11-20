@@ -146,8 +146,7 @@ The mock client is designed for testing structure and flow, not content quality:
 ## Example: Full Workflow
 
 ```typescript
-import { RailsExecutor } from './language/rails-executor.js';
-import { createClaudeClientWithMockFallback } from './language/llm-client.js';
+import { MachineExecutor } from './language/executor.js';
 
 // Machine definition with a Task node
 const machineData = {
@@ -170,7 +169,7 @@ const machineData = {
 };
 
 // Create executor with mock client (no API key)
-const executor = await RailsExecutor.create(machineData, {
+const executor = await MachineExecutor.create(machineData, {
     llm: {
         provider: 'anthropic',
         apiKey: '', // Empty → uses mock
@@ -180,7 +179,9 @@ const executor = await RailsExecutor.create(machineData, {
 
 // Execute steps - uses mock responses
 while (await executor.step()) {
-    console.log('Step completed:', executor.getContext().currentNode);
+    const state = executor.getState();
+    const activePath = state.paths.find(p => p.status === 'active');
+    console.log('Step completed:', activePath?.currentNode);
 }
 
 console.log('Execution complete!');

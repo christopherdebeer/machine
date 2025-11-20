@@ -40,41 +40,111 @@
       {
         "source": "a",
         "target": "b",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 2
+          },
+          "end": {
+            "line": 2,
+            "character": 6
+          }
+        }
       },
       {
         "source": "a",
         "target": "b",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 2
+          },
+          "end": {
+            "line": 5,
+            "character": 7
+          }
+        }
       },
       {
         "source": "a",
         "target": "b",
-        "arrowType": "=>"
+        "arrowType": "=>",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 2
+          },
+          "end": {
+            "line": 8,
+            "character": 6
+          }
+        }
       },
       {
         "source": "Child",
         "target": "Parent",
-        "arrowType": "<|--"
+        "arrowType": "<|--",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 6
+          },
+          "end": {
+            "line": 11,
+            "character": 17
+          }
+        }
       },
       {
         "source": "Container",
         "target": "Component",
-        "arrowType": "*-->"
+        "arrowType": "*-->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 10
+          },
+          "end": {
+            "line": 14,
+            "character": 24
+          }
+        }
       },
       {
         "source": "Group",
         "target": "Member",
-        "arrowType": "o-->"
+        "arrowType": "o-->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 6
+          },
+          "end": {
+            "line": 17,
+            "character": 17
+          }
+        }
       },
       {
         "source": "a",
         "target": "b",
-        "arrowType": "<-->"
+        "arrowType": "<-->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 2
+          },
+          "end": {
+            "line": 20,
+            "character": 8
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Child</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Parent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Parent</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Container\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Container</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Component\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Component</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Group\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Group</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Member\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Member</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"a\" -> \"b\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Child\" -> \"Parent\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Container\" -> \"Component\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Group\" -> \"Member\" [arrowhead=odiamond, arrowtail=none, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"a\" -> \"b\" [dir=both, arrowhead=normal, arrowtail=normal, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "126de2f650798a47e781b5c74e274b4420d3a8360ccbde604e6e21e029cd9660"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Child</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Parent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Parent</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Container\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Container</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Component\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Component</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Group\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Group</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Member\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Member</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"a\" -> \"b\" [labelOverlay=\"75%\", edgeURL=\"#L2:2-2:6\"];\n  \"a\" -> \"b\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L5:2-5:7\"];\n  \"a\" -> \"b\" [penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", edgeURL=\"#L8:2-8:6\"];\n  \"Child\" -> \"Parent\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", edgeURL=\"#L11:6-11:17\"];\n  \"Container\" -> \"Component\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", edgeURL=\"#L14:10-14:24\"];\n  \"Group\" -> \"Member\" [arrowhead=odiamond, arrowtail=none, labelOverlay=\"75%\", edgeURL=\"#L17:6-17:17\"];\n  \"a\" -> \"b\" [dir=both, arrowhead=normal, arrowtail=normal, labelOverlay=\"75%\", edgeURL=\"#L20:2-20:8\"];\n}",
+  "svgHash": "06b43c91d9421a25b70997539800ddc4891d5b4cb257c61d9aac9821cf9cef6a"
 }

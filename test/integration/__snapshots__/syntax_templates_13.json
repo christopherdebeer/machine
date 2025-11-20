@@ -20,7 +20,17 @@
             "type": "Duration",
             "value": "PT30S"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 2
+          }
+        }
       },
       {
         "name": "fetchData",
@@ -38,7 +48,17 @@
             "name": "timeout",
             "value": "{{ appConfig.timeout }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [],
@@ -46,23 +66,23 @@
       {
         "source": "fetchData",
         "target": "appConfig",
-        "reason": "reads endpoint",
+        "reason": "reads appConfig.apiUrl",
         "path": "appConfig.apiUrl"
       },
       {
         "source": "fetchData",
         "target": "appConfig",
-        "reason": "reads auth",
+        "reason": "reads appConfig.apiKey",
         "path": "appConfig.apiKey"
       },
       {
         "source": "fetchData",
         "target": "appConfig",
-        "reason": "reads timeout",
+        "reason": "reads appConfig.timeout",
         "path": "appConfig.timeout"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"appConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>appConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiUrl__key\" align=\"left\" balign=\"left\">apiUrl</td><td port=\"apiUrl__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"apiKey__key\" align=\"left\" balign=\"left\">apiKey</td><td port=\"apiKey__value\" align=\"left\" balign=\"left\">#envApiKey</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchData</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">{{ appConfig.apiUrl }}</td></tr><tr><td port=\"auth__key\" align=\"left\" balign=\"left\">auth</td><td port=\"auth__value\" align=\"left\" balign=\"left\">Bearer {{ appConfig.apiKey }}</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">{{ appConfig.timeout }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Inferred Dependencies\n  \"fetchData\" -> \"appConfig\" [label=\"reads endpoint\", style=dashed, color=blue];\n  \"fetchData\" -> \"appConfig\" [label=\"reads auth\", style=dashed, color=blue];\n  \"fetchData\" -> \"appConfig\" [label=\"reads timeout\", style=dashed, color=blue];\n}",
-  "svgHash": "d6c51b01cc3ab56889675f645fdd412a0a78372817267f360d66a5dd4cd067bd"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"appConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>appConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"apiUrl__key\" align=\"left\" balign=\"left\">apiUrl</td><td port=\"apiUrl__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"apiKey__key\" align=\"left\" balign=\"left\">apiKey</td><td port=\"apiKey__value\" align=\"left\" balign=\"left\">#envApiKey</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L2:0-6:2\"];\n  \"fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchData</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">{{ appConfig.apiUrl }}</td></tr><tr><td port=\"auth__key\" align=\"left\" balign=\"left\">auth</td><td port=\"auth__value\" align=\"left\" balign=\"left\">Bearer {{ appConfig.apiKey }}</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">{{ appConfig.timeout }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-12:2\"];\n\n\n  // Inferred Dependencies\n  \"fetchData\" -> \"appConfig\" [label=\"reads appConfig.apiUrl\", style=dashed, color=blue];\n  \"fetchData\" -> \"appConfig\" [label=\"reads appConfig.apiKey\", style=dashed, color=blue];\n  \"fetchData\" -> \"appConfig\" [label=\"reads appConfig.timeout\", style=dashed, color=blue];\n}",
+  "svgHash": "468df9114a3ad88123ef4a0843cdc126c0a66e6b6ed842a9adf9c788a586b7c0"
 }

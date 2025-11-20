@@ -8,120 +8,320 @@
         "name": "disconnected",
         "type": "state",
         "attributes": [],
-        "title": "Disconnected"
+        "title": "Disconnected",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 34
+          }
+        }
       },
       {
         "name": "connected",
         "type": "state",
         "attributes": [],
-        "title": "Connected"
+        "title": "Connected",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 2
+          }
+        }
       },
       {
         "name": "authenticating",
         "type": "state",
         "attributes": [],
         "parent": "connected",
-        "title": "Authenticating"
+        "title": "Authenticating",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 4
+          },
+          "end": {
+            "line": 6,
+            "character": 42
+          }
+        }
       },
       {
         "name": "authenticated",
         "type": "state",
         "attributes": [],
         "parent": "connected",
-        "title": "Authenticated"
+        "title": "Authenticated",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 4
+          },
+          "end": {
+            "line": 7,
+            "character": 40
+          }
+        }
       },
       {
         "name": "active",
         "type": "state",
         "attributes": [],
         "parent": "connected",
-        "title": "Active"
+        "title": "Active",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 4
+          },
+          "end": {
+            "line": 8,
+            "character": 26
+          }
+        }
       },
       {
         "name": "error",
         "type": "state",
         "attributes": [],
-        "title": "Error State"
+        "title": "Error State",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 26
+          }
+        }
       },
       {
         "name": "connect",
         "type": "task",
         "attributes": [],
-        "title": "Establish connection"
+        "title": "Establish connection",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 36
+          }
+        }
       },
       {
         "name": "authenticate",
         "type": "task",
         "attributes": [],
-        "title": "Authenticate user"
+        "title": "Authenticate user",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 38
+          }
+        }
       },
       {
         "name": "disconnect",
         "type": "task",
         "attributes": [],
-        "title": "Disconnect"
+        "title": "Disconnect",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 29
+          }
+        }
       },
       {
         "name": "handleError",
         "type": "task",
         "attributes": [],
-        "title": "Handle error"
+        "title": "Handle error",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 32
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "disconnected",
         "target": "connect",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 13
+          },
+          "end": {
+            "line": 20,
+            "character": 23
+          }
+        }
       },
       {
         "source": "connect",
         "target": "authenticating",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 24
+          },
+          "end": {
+            "line": 20,
+            "character": 51
+          }
+        }
       },
       {
         "source": "active",
         "target": "disconnect",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 17
+          },
+          "end": {
+            "line": 21,
+            "character": 30
+          }
+        }
       },
       {
         "source": "disconnect",
         "target": "disconnected",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 31
+          },
+          "end": {
+            "line": 21,
+            "character": 46
+          }
+        }
       },
       {
         "source": "connected",
         "target": "handleError",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 10
+          },
+          "end": {
+            "line": 22,
+            "character": 24
+          }
+        }
       },
       {
         "source": "handleError",
         "target": "error",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 25
+          },
+          "end": {
+            "line": 22,
+            "character": 33
+          }
+        }
       },
       {
         "source": "error",
         "target": "connect",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 6
+          },
+          "end": {
+            "line": 23,
+            "character": 16
+          }
+        }
       },
       {
         "source": "connect",
         "target": "authenticating",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 17
+          },
+          "end": {
+            "line": 23,
+            "character": 44
+          }
+        }
       },
       {
         "source": "authenticating",
         "target": "authenticated",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 19
+          },
+          "end": {
+            "line": 10,
+            "character": 35
+          }
+        }
       },
       {
         "source": "authenticated",
         "target": "active",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 36
+          },
+          "end": {
+            "line": 10,
+            "character": 45
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Connection Manager</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"disconnected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>disconnected</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Disconnected</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  subgraph cluster_connected {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>connected</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"center\"><b>Connected</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"connected__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"authenticating\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticating</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Authenticating</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"authenticated\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticated</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Authenticated</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"active\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>active</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Active</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  }\n  \"error\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>error</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Error State</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"connect\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>connect</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Establish connection</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"authenticate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Authenticate user</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"disconnect\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>disconnect</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Disconnect</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"handleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleError</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Handle error</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"disconnected\" -> \"connect\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"connect\" -> \"authenticating\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"active\" -> \"disconnect\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"disconnect\" -> \"disconnected\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"connected__cluster_anchor\" -> \"handleError\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_connected\"];\n  \"handleError\" -> \"error\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"error\" -> \"connect\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"connect\" -> \"authenticating\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"authenticating\" -> \"authenticated\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"authenticated\" -> \"active\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "b729875256015a56b8a988a1cb887063c57f55efedfd487bf742182a32814cb9"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Connection Manager</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"disconnected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>disconnected</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Disconnected</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:34\"];\n  subgraph cluster_connected {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>connected</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"center\"><b>Connected</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"connected__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"authenticating\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticating</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Authenticating</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:4-6:42\"];\n    \"authenticated\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticated</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Authenticated</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:4-7:40\"];\n    \"active\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>active</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Active</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:4-8:26\"];\n  }\n  \"error\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>error</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Error State</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L13:0-13:26\"];\n  \"connect\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>connect</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Establish connection</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L15:0-15:36\"];\n  \"authenticate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Authenticate user</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L16:0-16:38\"];\n  \"disconnect\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>disconnect</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Disconnect</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L17:0-17:29\"];\n  \"handleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleError</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Handle error</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L18:0-18:32\"];\n\n  // Edges\n  \"disconnected\" -> \"connect\" [labelOverlay=\"75%\", edgeURL=\"#L20:13-20:23\"];\n  \"connect\" -> \"authenticating\" [labelOverlay=\"75%\", edgeURL=\"#L20:24-20:51\"];\n  \"active\" -> \"disconnect\" [labelOverlay=\"75%\", edgeURL=\"#L21:17-21:30\"];\n  \"disconnect\" -> \"disconnected\" [labelOverlay=\"75%\", edgeURL=\"#L21:31-21:46\"];\n  \"connected__cluster_anchor\" -> \"handleError\" [labelOverlay=\"75%\", edgeURL=\"#L22:10-22:24\", ltail=\"cluster_connected\"];\n  \"handleError\" -> \"error\" [labelOverlay=\"75%\", edgeURL=\"#L22:25-22:33\"];\n  \"error\" -> \"connect\" [labelOverlay=\"75%\", edgeURL=\"#L23:6-23:16\"];\n  \"connect\" -> \"authenticating\" [labelOverlay=\"75%\", edgeURL=\"#L23:17-23:44\"];\n  \"authenticating\" -> \"authenticated\" [labelOverlay=\"75%\", edgeURL=\"#L10:19-10:35\"];\n  \"authenticated\" -> \"active\" [labelOverlay=\"75%\", edgeURL=\"#L10:36-10:45\"];\n}",
+  "svgHash": "ffc578ecab241076b841d377fe0e4bcc9d9429e233f251c077b55f5cb0c11dc2"
 }

@@ -8,137 +8,367 @@
         "name": "input",
         "type": "task",
         "attributes": [],
-        "title": "Input"
+        "title": "Input",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 19
+          }
+        }
       },
       {
         "name": "output",
         "type": "task",
         "attributes": [],
-        "title": "Output"
+        "title": "Output",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 21
+          }
+        }
       },
       {
         "name": "parent",
         "type": "task",
         "attributes": [],
-        "title": "Parent Task"
+        "title": "Parent Task",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 26
+          }
+        }
       },
       {
         "name": "child",
         "type": "task",
         "attributes": [],
-        "title": "Child Task"
+        "title": "Child Task",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 24
+          }
+        }
       },
       {
         "name": "container",
         "type": "task",
         "attributes": [],
-        "title": "Container"
+        "title": "Container",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 27
+          }
+        }
       },
       {
         "name": "component",
         "type": "task",
         "attributes": [],
-        "title": "Component"
+        "title": "Component",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 27
+          }
+        }
       },
       {
         "name": "team",
         "type": "task",
         "attributes": [],
-        "title": "Team"
+        "title": "Team",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 17
+          }
+        }
       },
       {
         "name": "member",
         "type": "task",
         "attributes": [],
-        "title": "Member"
+        "title": "Member",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 21
+          }
+        }
       },
       {
         "name": "clientA",
         "type": "task",
         "attributes": [],
-        "title": "Client A"
+        "title": "Client A",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 24,
+            "character": 24
+          }
+        }
       },
       {
         "name": "server",
         "type": "task",
         "attributes": [],
-        "title": "Server"
+        "title": "Server",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 21
+          }
+        }
       },
       {
         "name": "data",
         "type": "input",
         "attributes": [],
-        "title": "Data"
+        "title": "Data",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 0
+          },
+          "end": {
+            "line": 29,
+            "character": 18
+          }
+        }
       },
       {
         "name": "transform",
         "type": "task",
         "attributes": [],
-        "title": "Transform"
+        "title": "Transform",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 0
+          },
+          "end": {
+            "line": 30,
+            "character": 27
+          }
+        }
       },
       {
         "name": "result",
         "type": "output",
         "attributes": [],
-        "title": "Result"
+        "title": "Result",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 0
+          },
+          "end": {
+            "line": 31,
+            "character": 23
+          }
+        }
       },
       {
         "name": "serviceA",
         "type": "task",
         "attributes": [],
-        "title": "Service A"
+        "title": "Service A",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 0
+          },
+          "end": {
+            "line": 35,
+            "character": 26
+          }
+        }
       },
       {
         "name": "serviceB",
         "type": "task",
         "attributes": [],
-        "title": "Service B"
+        "title": "Service B",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 0
+          },
+          "end": {
+            "line": 36,
+            "character": 26
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "input",
         "target": "output",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 6
+          },
+          "end": {
+            "line": 6,
+            "character": 15
+          }
+        }
       },
       {
         "source": "child",
         "target": "parent",
-        "arrowType": "<|--"
+        "arrowType": "<|--",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 6
+          },
+          "end": {
+            "line": 11,
+            "character": 17
+          }
+        }
       },
       {
         "source": "container",
         "target": "component",
-        "arrowType": "*-->"
+        "arrowType": "*-->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 10
+          },
+          "end": {
+            "line": 16,
+            "character": 24
+          }
+        }
       },
       {
         "source": "team",
         "target": "member",
-        "arrowType": "o-->"
+        "arrowType": "o-->",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 5
+          },
+          "end": {
+            "line": 21,
+            "character": 16
+          }
+        }
       },
       {
         "source": "clientA",
         "target": "server",
-        "arrowType": "<-->"
+        "arrowType": "<-->",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 8
+          },
+          "end": {
+            "line": 26,
+            "character": 19
+          }
+        }
       },
       {
         "source": "data",
         "target": "transform",
-        "arrowType": "=>"
+        "arrowType": "=>",
+        "$sourceRange": {
+          "start": {
+            "line": 32,
+            "character": 5
+          },
+          "end": {
+            "line": 32,
+            "character": 17
+          }
+        }
       },
       {
         "source": "transform",
         "target": "result",
-        "arrowType": "=>"
+        "arrowType": "=>",
+        "$sourceRange": {
+          "start": {
+            "line": 32,
+            "character": 18
+          },
+          "end": {
+            "line": 32,
+            "character": 27
+          }
+        }
       },
       {
         "source": "serviceA",
         "target": "serviceB",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 37,
+            "character": 9
+          },
+          "end": {
+            "line": 37,
+            "character": 21
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Relationship Types</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"input\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>input</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Input</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"output\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>output</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Output</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"parent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>parent</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Parent Task</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>child</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Child Task</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"container\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>container</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Container</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"component\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>component</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Component</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"team\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>team</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Team</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"member\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>member</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Member</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"clientA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>clientA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Client A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"server\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>server</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Server</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"data\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>data</b> <i>&lt;input&gt;</i></td></tr><tr><td align=\"left\">Data</td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transform</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Transform</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>result</b> <i>&lt;output&gt;</i></td></tr><tr><td align=\"left\">Result</td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"serviceA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>serviceA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Service A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"serviceB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>serviceB</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Service B</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"input\" -> \"output\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"child\" -> \"parent\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"container\" -> \"component\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"team\" -> \"member\" [arrowhead=odiamond, arrowtail=none, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"clientA\" -> \"server\" [dir=both, arrowhead=normal, arrowtail=normal, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"data\" -> \"transform\" [penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transform\" -> \"result\" [penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"serviceA\" -> \"serviceB\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "53b085799c3b8366fa94859a4b38b094f6223c10cde596c9e10647647e083730"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Relationship Types</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"input\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>input</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Input</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:19\"];\n  \"output\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>output</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Output</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-5:21\"];\n  \"parent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>parent</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Parent Task</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-9:26\"];\n  \"child\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>child</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Child Task</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-10:24\"];\n  \"container\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>container</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Container</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-14:27\"];\n  \"component\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>component</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Component</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L15:0-15:27\"];\n  \"team\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>team</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Team</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:0-19:17\"];\n  \"member\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>member</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Member</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L20:0-20:21\"];\n  \"clientA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>clientA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Client A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L24:0-24:24\"];\n  \"server\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>server</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Server</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L25:0-25:21\"];\n  \"data\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>data</b> <i>&lt;input&gt;</i></td></tr><tr><td align=\"left\">Data</td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L29:0-29:18\"];\n  \"transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transform</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Transform</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L30:0-30:27\"];\n  \"result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>result</b> <i>&lt;output&gt;</i></td></tr><tr><td align=\"left\">Result</td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L31:0-31:23\"];\n  \"serviceA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>serviceA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Service A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L35:0-35:26\"];\n  \"serviceB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>serviceB</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Service B</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L36:0-36:26\"];\n\n  // Edges\n  \"input\" -> \"output\" [labelOverlay=\"75%\", edgeURL=\"#L6:6-6:15\"];\n  \"child\" -> \"parent\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", edgeURL=\"#L11:6-11:17\"];\n  \"container\" -> \"component\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", edgeURL=\"#L16:10-16:24\"];\n  \"team\" -> \"member\" [arrowhead=odiamond, arrowtail=none, labelOverlay=\"75%\", edgeURL=\"#L21:5-21:16\"];\n  \"clientA\" -> \"server\" [dir=both, arrowhead=normal, arrowtail=normal, labelOverlay=\"75%\", edgeURL=\"#L26:8-26:19\"];\n  \"data\" -> \"transform\" [penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", edgeURL=\"#L32:5-32:17\"];\n  \"transform\" -> \"result\" [penwidth=3, color=\"#D32F2F\", labelOverlay=\"75%\", edgeURL=\"#L32:18-32:27\"];\n  \"serviceA\" -> \"serviceB\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L37:9-37:21\"];\n}",
+  "svgHash": "e5e3cf505dea710c966f986e06f841ce97438f0dda29a4b08520f0be87013571"
 }

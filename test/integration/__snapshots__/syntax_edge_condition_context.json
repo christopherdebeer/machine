@@ -20,29 +20,79 @@
       {
         "name": "Start",
         "type": "task",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 11
+          }
+        }
       },
       {
         "name": "Process",
         "type": "task",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 13
+          }
+        }
       },
       {
         "name": "Retry",
         "type": "task",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 11
+          }
+        }
       },
       {
         "name": "End",
         "type": "task",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 9
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Start",
         "target": "Process",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 6
+          },
+          "end": {
+            "line": 12,
+            "character": 16
+          }
+        }
       },
       {
         "source": "Process",
@@ -53,6 +103,16 @@
         },
         "style": {
           "when": "errorCount > 0"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 8
+          },
+          "end": {
+            "line": 13,
+            "character": 40
+          }
         }
       },
       {
@@ -64,16 +124,36 @@
         },
         "style": {
           "when": "retryCount < maxRetries"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 8
+          },
+          "end": {
+            "line": 14,
+            "character": 49
+          }
         }
       },
       {
         "source": "Retry",
         "target": "End",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 6
+          },
+          "end": {
+            "line": 15,
+            "character": 12
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Condition Evaluation Context</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"errorCount__key\" align=\"left\" balign=\"left\">errorCount</td><td port=\"errorCount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"retryCount__key\" align=\"left\" balign=\"left\">retryCount</td><td port=\"retryCount__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"Retry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Retry</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"Start\" -> \"Process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"Retry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">errorCount &gt; 0</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", when=\"errorCount > 0\", style=dashed, color=\"#9E9E9E\", penwidth=1];\n  \"Process\" -> \"Retry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">retryCount &lt; maxRetries</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", when=\"retryCount < maxRetries\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"Retry\" -> \"End\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "2da2d24d2c5a8e649b4185215bffbcdb329ba605c87b6e09e5a20afef5b69356"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Condition Evaluation Context</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"errorCount__key\" align=\"left\" balign=\"left\">errorCount</td><td port=\"errorCount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"retryCount__key\" align=\"left\" balign=\"left\">retryCount</td><td port=\"retryCount__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-7:11\"];\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-8:13\"];\n  \"Retry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Retry</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-9:11\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-10:9\"];\n\n  // Edges\n  \"Start\" -> \"Process\" [labelOverlay=\"75%\", edgeURL=\"#L12:6-12:16\"];\n  \"Process\" -> \"Retry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">errorCount &gt; 0</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L13:8-13:40\", when=\"errorCount > 0\", style=dashed, color=\"#9E9E9E\", penwidth=1];\n  \"Process\" -> \"Retry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">retryCount &lt; maxRetries</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L14:8-14:49\", when=\"retryCount < maxRetries\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"Retry\" -> \"End\" [labelOverlay=\"75%\", edgeURL=\"#L15:6-15:12\"];\n}",
+  "svgHash": "8ff13e839193382d1b2833f9c8ca18f320bea80b509909c24a85f39ba5e33949"
 }

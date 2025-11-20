@@ -25,6 +25,16 @@
         ],
         "style": {
           "grid": true
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 18
+          }
         }
       },
       {
@@ -41,6 +51,16 @@
         ],
         "style": {
           "grid": true
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 18
+          }
         }
       },
       {
@@ -57,6 +77,16 @@
         ],
         "style": {
           "grid": true
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 18
+          }
         }
       },
       {
@@ -73,6 +103,16 @@
         ],
         "style": {
           "grid": true
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 18
+          }
         }
       }
     ],
@@ -82,6 +122,6 @@
       "grid": 3
     }
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Explicit Grid Assignment</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", grid=\"true\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", grid=\"true\"];\n  \"c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>c</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", grid=\"true\"];\n  \"d\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>d</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", grid=\"true\"];\n\n  // Grid layout\n  \"root__grid_rail_1\" [shape=point, width=0, height=0, label=\"\", style=invis, fixedsize=true];\n  \"root__grid_rail_2\" [shape=point, width=0, height=0, label=\"\", style=invis, fixedsize=true];\n  \"root__grid_rail_3\" [shape=point, width=0, height=0, label=\"\", style=invis, fixedsize=true];\n  \"root__grid_rail_1\" -> \"root__grid_rail_2\" [style=invis];\n  \"root__grid_rail_2\" -> \"root__grid_rail_3\" [style=invis];\n  // Grid position 1\n  { rank=same; \"root__grid_rail_1\"; \"a\"; \"d\"; }\n  // Grid position 2\n  { rank=same; \"root__grid_rail_2\"; \"b\"; }\n  // Grid position 3\n  { rank=same; \"root__grid_rail_3\"; \"c\"; }\n\n}",
-  "svgHash": "05106d62b39b8cbdaa5d7daa59729d71cb604fef4b347df21f87086f3c69b25e"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Explicit Grid Assignment</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", grid=\"true\", URL=\"#L3:0-3:18\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", grid=\"true\", URL=\"#L4:0-4:18\"];\n  \"c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>c</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", grid=\"true\", URL=\"#L5:0-5:18\"];\n  \"d\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>d</b> <i>&lt;task&gt;</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", grid=\"true\", URL=\"#L6:0-6:18\"];\n\n  // Grid layout\n  \"root__grid_rail_1\" [shape=point, width=0, height=0, label=\"\", style=invis, fixedsize=true];\n  \"root__grid_rail_2\" [shape=point, width=0, height=0, label=\"\", style=invis, fixedsize=true];\n  \"root__grid_rail_3\" [shape=point, width=0, height=0, label=\"\", style=invis, fixedsize=true];\n  \"root__grid_rail_1\" -> \"root__grid_rail_2\" [style=invis];\n  \"root__grid_rail_2\" -> \"root__grid_rail_3\" [style=invis];\n  // Grid position 1\n  { rank=same; \"root__grid_rail_1\"; \"a\"; \"d\"; }\n  // Grid position 2\n  { rank=same; \"root__grid_rail_2\"; \"b\"; }\n  // Grid position 3\n  { rank=same; \"root__grid_rail_3\"; \"c\"; }\n\n}",
+  "svgHash": "6d0d856cbe86bbb55b5e02ccadd733df03d15713999f9dc63a3f6bf204160092"
 }

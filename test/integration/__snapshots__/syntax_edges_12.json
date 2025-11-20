@@ -48,41 +48,111 @@
       {
         "source": "Vehicle",
         "target": "Car",
-        "arrowType": "<|--"
+        "arrowType": "<|--",
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 8
+          },
+          "end": {
+            "line": 2,
+            "character": 16
+          }
+        }
       },
       {
         "source": "Vehicle",
         "target": "Truck",
-        "arrowType": "<|--"
+        "arrowType": "<|--",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 8
+          },
+          "end": {
+            "line": 3,
+            "character": 18
+          }
+        }
       },
       {
         "source": "Car",
         "target": "Engine",
-        "arrowType": "*-->"
+        "arrowType": "*-->",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 4
+          },
+          "end": {
+            "line": 6,
+            "character": 15
+          }
+        }
       },
       {
         "source": "Car",
         "target": "Wheels",
-        "arrowType": "*-->"
+        "arrowType": "*-->",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 4
+          },
+          "end": {
+            "line": 7,
+            "character": 15
+          }
+        }
       },
       {
         "source": "Company",
         "target": "Employee",
-        "arrowType": "o-->"
+        "arrowType": "o-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 8
+          },
+          "end": {
+            "line": 10,
+            "character": 21
+          }
+        }
       },
       {
         "source": "Frontend",
         "target": "Backend",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 9
+          },
+          "end": {
+            "line": 13,
+            "character": 20
+          }
+        }
       },
       {
         "source": "Backend",
         "target": "Database",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 8
+          },
+          "end": {
+            "line": 14,
+            "character": 20
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Vehicle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Vehicle</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Car\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Car</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Truck\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Truck</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Engine\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Engine</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Wheels\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Wheels</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Company\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Company</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Employee\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Employee</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Frontend\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Frontend</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Backend\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Backend</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Database\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Database</b></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"Vehicle\" -> \"Car\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Vehicle\" -> \"Truck\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Car\" -> \"Engine\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Car\" -> \"Wheels\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Company\" -> \"Employee\" [arrowhead=odiamond, arrowtail=none, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Frontend\" -> \"Backend\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Backend\" -> \"Database\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "29c3868fb68b47a6e227e630534a00ad0d0ea621cbd35d0dea867e8f86c828db"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Vehicle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Vehicle</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Car\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Car</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Truck\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Truck</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Engine\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Engine</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Wheels\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Wheels</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Company\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Company</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Employee\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Employee</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Frontend\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Frontend</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Backend\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Backend</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Database\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Database</b></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"Vehicle\" -> \"Car\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", edgeURL=\"#L2:8-2:16\"];\n  \"Vehicle\" -> \"Truck\" [arrowhead=empty, dir=back, labelOverlay=\"75%\", edgeURL=\"#L3:8-3:18\"];\n  \"Car\" -> \"Engine\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", edgeURL=\"#L6:4-6:15\"];\n  \"Car\" -> \"Wheels\" [arrowhead=diamond, arrowtail=diamond, dir=forward, labelOverlay=\"75%\", edgeURL=\"#L7:4-7:15\"];\n  \"Company\" -> \"Employee\" [arrowhead=odiamond, arrowtail=none, labelOverlay=\"75%\", edgeURL=\"#L10:8-10:21\"];\n  \"Frontend\" -> \"Backend\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L13:9-13:20\"];\n  \"Backend\" -> \"Database\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L14:8-14:20\"];\n}",
+  "svgHash": "8c6bfa1e6a9df48129f977b331ab7f3f675ee2700ccdba73e24ed8aa08dbeae3"
 }

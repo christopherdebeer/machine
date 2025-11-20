@@ -6,28 +6,68 @@
     "nodes": [
       {
         "name": "Workflow",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 1
+          }
+        }
       },
       {
         "name": "Start",
         "type": "task",
         "attributes": [],
         "parent": "Workflow",
-        "title": "Initialize workflow"
+        "title": "Initialize workflow",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 4
+          },
+          "end": {
+            "line": 4,
+            "character": 37
+          }
+        }
       },
       {
         "name": "Process",
         "type": "task",
         "attributes": [],
         "parent": "Workflow",
-        "title": "Process data"
+        "title": "Process data",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 32
+          }
+        }
       },
       {
         "name": "Complete",
         "type": "task",
         "attributes": [],
         "parent": "Workflow",
-        "title": "Finalize"
+        "title": "Finalize",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 4
+          },
+          "end": {
+            "line": 6,
+            "character": 29
+          }
+        }
       },
       {
         "name": "Init",
@@ -42,26 +82,66 @@
       {
         "source": "Init",
         "target": "Start",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 5
+          },
+          "end": {
+            "line": 10,
+            "character": 22
+          }
+        }
       },
       {
         "source": "Start",
         "target": "Process",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 15
+          },
+          "end": {
+            "line": 11,
+            "character": 34
+          }
+        }
       },
       {
         "source": "Process",
         "target": "Complete",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 35
+          },
+          "end": {
+            "line": 11,
+            "character": 55
+          }
+        }
       },
       {
         "source": "Complete",
         "target": "Done",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 18
+          },
+          "end": {
+            "line": 12,
+            "character": 25
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Basic Qualified Names</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Workflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Workflow</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Workflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Initialize workflow</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Finalize</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"Init\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Init</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Done\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Done</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Init\" -> \"Start\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Start\" -> \"Process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Complete\" -> \"Done\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "4f1b482f765730b68f1d45961c8c578157b904a8d89c09a3c928f828e7fb2c57"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Basic Qualified Names</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Workflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Workflow</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Workflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Initialize workflow</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:4-4:37\"];\n    \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:4-5:32\"];\n    \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Finalize</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:4-6:29\"];\n  }\n  \"Init\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Init</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Done\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Done</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Init\" -> \"Start\" [labelOverlay=\"75%\", edgeURL=\"#L10:5-10:22\"];\n  \"Start\" -> \"Process\" [labelOverlay=\"75%\", edgeURL=\"#L11:15-11:34\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", edgeURL=\"#L11:35-11:55\"];\n  \"Complete\" -> \"Done\" [labelOverlay=\"75%\", edgeURL=\"#L12:18-12:25\"];\n}",
+  "svgHash": "ccfbe239ea8f8857daec52a9e5d8b5d8e6935db04e33c0a6d9ef9f8dcd5d8a39"
 }

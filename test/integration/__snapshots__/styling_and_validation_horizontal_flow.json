@@ -15,31 +15,81 @@
         "name": "a",
         "type": "task",
         "attributes": [],
-        "title": "A"
+        "title": "A",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 11
+          }
+        }
       },
       {
         "name": "b",
         "type": "task",
         "attributes": [],
-        "title": "B"
+        "title": "B",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 11
+          }
+        }
       },
       {
         "name": "c",
         "type": "task",
         "attributes": [],
-        "title": "C"
+        "title": "C",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 11
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "a",
         "target": "b",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 2
+          },
+          "end": {
+            "line": 8,
+            "character": 6
+          }
+        }
       },
       {
         "source": "b",
         "target": "c",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 7
+          },
+          "end": {
+            "line": 8,
+            "character": 11
+          }
+        }
       }
     ],
     "inferredDependencies": [],
@@ -47,6 +97,6 @@
       "rankdir": "LR"
     }
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Horizontal Flow</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"LR\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">B</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>c</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">C</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"a\" -> \"b\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"b\" -> \"c\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "bdcdb5477fd4643d37610841d92f02b43f252c63888da6c6fedc6d358fca4435"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Horizontal Flow</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"LR\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>a</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:11\"];\n  \"b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>b</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">B</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-5:11\"];\n  \"c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>c</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">C</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-6:11\"];\n\n  // Edges\n  \"a\" -> \"b\" [labelOverlay=\"75%\", edgeURL=\"#L8:2-8:6\"];\n  \"b\" -> \"c\" [labelOverlay=\"75%\", edgeURL=\"#L8:7-8:11\"];\n}",
+  "svgHash": "512df585358940253e4490b03e8f91abefc62b47a5a5b0f1f6319ea527430015"
 }

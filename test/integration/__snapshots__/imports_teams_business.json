@@ -8,57 +8,147 @@
         "name": "ValidateOrder",
         "type": "state",
         "attributes": [],
-        "title": "Validate Order"
+        "title": "Validate Order",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 36
+          }
+        }
       },
       {
         "name": "CalculatePricing",
         "type": "state",
         "attributes": [],
-        "title": "Calculate Pricing"
+        "title": "Calculate Pricing",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 42
+          }
+        }
       },
       {
         "name": "ApplyDiscounts",
         "type": "state",
         "attributes": [],
-        "title": "Apply Discounts"
+        "title": "Apply Discounts",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 38
+          }
+        }
       },
       {
         "name": "ProcessPayment",
         "type": "state",
         "attributes": [],
-        "title": "Process Payment"
+        "title": "Process Payment",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 38
+          }
+        }
       },
       {
         "name": "UpdateInventory",
         "type": "state",
         "attributes": [],
-        "title": "Update Inventory"
+        "title": "Update Inventory",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 40
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "ValidateOrder",
         "target": "CalculatePricing",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 14
+          },
+          "end": {
+            "line": 9,
+            "character": 34
+          }
+        }
       },
       {
         "source": "CalculatePricing",
         "target": "ApplyDiscounts",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 35
+          },
+          "end": {
+            "line": 9,
+            "character": 53
+          }
+        }
       },
       {
         "source": "ApplyDiscounts",
         "target": "ProcessPayment",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 15
+          },
+          "end": {
+            "line": 10,
+            "character": 33
+          }
+        }
       },
       {
         "source": "ProcessPayment",
         "target": "UpdateInventory",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 34
+          },
+          "end": {
+            "line": 10,
+            "character": 53
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Business Logic</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ValidateOrder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ValidateOrder</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate Order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"CalculatePricing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CalculatePricing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Calculate Pricing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ApplyDiscounts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ApplyDiscounts</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Apply Discounts</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessPayment</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process Payment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"UpdateInventory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UpdateInventory</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Update Inventory</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"ValidateOrder\" -> \"CalculatePricing\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"CalculatePricing\" -> \"ApplyDiscounts\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ApplyDiscounts\" -> \"ProcessPayment\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessPayment\" -> \"UpdateInventory\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "906a315bceee3afc95600038cc88b35855cc72780d83310b0fdb2adc5b886bba"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Business Logic</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ValidateOrder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ValidateOrder</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate Order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:36\"];\n  \"CalculatePricing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CalculatePricing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Calculate Pricing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:42\"];\n  \"ApplyDiscounts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ApplyDiscounts</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Apply Discounts</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:38\"];\n  \"ProcessPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessPayment</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process Payment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:38\"];\n  \"UpdateInventory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UpdateInventory</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Update Inventory</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:40\"];\n\n  // Edges\n  \"ValidateOrder\" -> \"CalculatePricing\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L9:14-9:34\"];\n  \"CalculatePricing\" -> \"ApplyDiscounts\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L9:35-9:53\"];\n  \"ApplyDiscounts\" -> \"ProcessPayment\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:15-10:33\"];\n  \"ProcessPayment\" -> \"UpdateInventory\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:34-10:53\"];\n}",
+  "svgHash": "6f84d4197b6d69b97b7ef2d2c37c3773ff1b91125581cd29ad04eb4e43441ec0"
 }

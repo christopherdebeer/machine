@@ -12,7 +12,17 @@
             "name": "question",
             "value": ""
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 2
+          }
+        }
       },
       {
         "name": "quickAnalysis",
@@ -30,19 +40,49 @@
             "name": "prompt",
             "value": "Quick analysis: {{ query.question }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 2
+          }
+        }
       },
       {
         "name": "simpleQuery",
         "type": "state",
         "attributes": [],
-        "title": "Simple Query"
+        "title": "Simple Query",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 33
+          }
+        }
       },
       {
         "name": "complexQuery",
         "type": "state",
         "attributes": [],
-        "title": "Complex Query"
+        "title": "Complex Query",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 35
+          }
+        }
       },
       {
         "name": "deepAnalysis",
@@ -64,7 +104,17 @@
             "name": "prompt",
             "value": "Deep analysis: {{ query.question }}. Previous: {{ quickAnalysis.result }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 2
+          }
+        }
       },
       {
         "name": "synthesize",
@@ -82,7 +132,17 @@
             "name": "prompt",
             "value": "Synthesize findings from: {{ deepAnalysis.result }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 0
+          },
+          "end": {
+            "line": 27,
+            "character": 2
+          }
+        }
       },
       {
         "name": "answer",
@@ -96,14 +156,34 @@
             "name": "detail",
             "value": ""
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 0
+          },
+          "end": {
+            "line": 32,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "query",
         "target": "quickAnalysis",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 6
+          },
+          "end": {
+            "line": 34,
+            "character": 22
+          }
+        }
       },
       {
         "source": "quickAnalysis",
@@ -111,12 +191,32 @@
         "arrowType": "->",
         "attributes": {
           "text": "simple"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 14
+          },
+          "end": {
+            "line": 35,
+            "character": 37
+          }
         }
       },
       {
         "source": "simpleQuery",
         "target": "answer",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 38
+          },
+          "end": {
+            "line": 35,
+            "character": 47
+          }
+        }
       },
       {
         "source": "quickAnalysis",
@@ -124,51 +224,91 @@
         "arrowType": "->",
         "attributes": {
           "text": "complex"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 14
+          },
+          "end": {
+            "line": 36,
+            "character": 39
+          }
         }
       },
       {
         "source": "complexQuery",
         "target": "deepAnalysis",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 40
+          },
+          "end": {
+            "line": 36,
+            "character": 55
+          }
+        }
       },
       {
         "source": "deepAnalysis",
         "target": "synthesize",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 56
+          },
+          "end": {
+            "line": 36,
+            "character": 69
+          }
+        }
       },
       {
         "source": "synthesize",
         "target": "answer",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 70
+          },
+          "end": {
+            "line": 36,
+            "character": 79
+          }
+        }
       }
     ],
     "inferredDependencies": [
       {
         "source": "quickAnalysis",
         "target": "query",
-        "reason": "reads prompt",
+        "reason": "reads query.question",
         "path": "query.question"
       },
       {
         "source": "deepAnalysis",
         "target": "query",
-        "reason": "reads prompt",
+        "reason": "reads query.question",
         "path": "query.question"
       },
       {
         "source": "deepAnalysis",
         "target": "quickAnalysis",
-        "reason": "reads prompt",
+        "reason": "reads quickAnalysis.result",
         "path": "quickAnalysis.result"
       },
       {
         "source": "synthesize",
         "target": "deepAnalysis",
-        "reason": "reads prompt",
+        "reason": "reads deepAnalysis.result",
         "path": "deepAnalysis.result"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Research Assistant</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"query\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>query</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"question__key\" align=\"left\" balign=\"left\">question</td><td port=\"question__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"quickAnalysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>quickAnalysis</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Quick analysis: {{ query.question }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-haiku-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.3</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"simpleQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>simpleQuery</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Simple Query</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"complexQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complexQuery</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complex Query</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"deepAnalysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>deepAnalysis</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deep analysis: {{ query.question }}.<br/>Previous: {{ quickAnalysis.result }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"max_tokens__key\" align=\"left\" balign=\"left\">max_tokens</td><td port=\"max_tokens__value\" align=\"left\" balign=\"left\">4096</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"synthesize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>synthesize</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Synthesize findings from: {{<br/>deepAnalysis.result }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.5</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"answer\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>answer</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"summary__key\" align=\"left\" balign=\"left\">summary</td><td port=\"summary__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"detail__key\" align=\"left\" balign=\"left\">detail</td><td port=\"detail__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"query\" -> \"quickAnalysis\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"quickAnalysis\" -> \"simpleQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>simple</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"simpleQuery\" -> \"answer\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"quickAnalysis\" -> \"complexQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>complex</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"complexQuery\" -> \"deepAnalysis\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"deepAnalysis\" -> \"synthesize\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"synthesize\" -> \"answer\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"quickAnalysis\" -> \"query\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"deepAnalysis\" -> \"query\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"deepAnalysis\" -> \"quickAnalysis\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"synthesize\" -> \"deepAnalysis\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "bdb7f5127f9085d612cca8c7ef13bf757d5f77e406cf672e84e8cad311373275"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Research Assistant</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"query\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>query</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"question__key\" align=\"left\" balign=\"left\">question</td><td port=\"question__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-5:2\"];\n  \"quickAnalysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>quickAnalysis</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Quick analysis: {{ query.question }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-haiku-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.3</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-11:2\"];\n  \"simpleQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>simpleQuery</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Simple Query</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L13:0-13:33\"];\n  \"complexQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>complexQuery</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complex Query</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L14:0-14:35\"];\n  \"deepAnalysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>deepAnalysis</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deep analysis: {{ query.question }}.<br/>Previous: {{ quickAnalysis.result }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"max_tokens__key\" align=\"left\" balign=\"left\">max_tokens</td><td port=\"max_tokens__value\" align=\"left\" balign=\"left\">4096</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L16:0-21:2\"];\n  \"synthesize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>synthesize</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Synthesize findings from: {{<br/>deepAnalysis.result }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.5</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L23:0-27:2\"];\n  \"answer\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>answer</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"summary__key\" align=\"left\" balign=\"left\">summary</td><td port=\"summary__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"detail__key\" align=\"left\" balign=\"left\">detail</td><td port=\"detail__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L29:0-32:2\"];\n\n  // Edges\n  \"query\" -> \"quickAnalysis\" [labelOverlay=\"75%\", edgeURL=\"#L34:6-34:22\"];\n  \"quickAnalysis\" -> \"simpleQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>simple</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L35:14-35:37\"];\n  \"simpleQuery\" -> \"answer\" [labelOverlay=\"75%\", edgeURL=\"#L35:38-35:47\"];\n  \"quickAnalysis\" -> \"complexQuery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>complex</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L36:14-36:39\"];\n  \"complexQuery\" -> \"deepAnalysis\" [labelOverlay=\"75%\", edgeURL=\"#L36:40-36:55\"];\n  \"deepAnalysis\" -> \"synthesize\" [labelOverlay=\"75%\", edgeURL=\"#L36:56-36:69\"];\n  \"synthesize\" -> \"answer\" [labelOverlay=\"75%\", edgeURL=\"#L36:70-36:79\"];\n\n  // Inferred Dependencies\n  \"quickAnalysis\" -> \"query\" [label=\"reads query.question\", style=dashed, color=blue];\n  \"deepAnalysis\" -> \"query\" [label=\"reads query.question\", style=dashed, color=blue];\n  \"deepAnalysis\" -> \"quickAnalysis\" [label=\"reads quickAnalysis.result\", style=dashed, color=blue];\n  \"synthesize\" -> \"deepAnalysis\" [label=\"reads deepAnalysis.result\", style=dashed, color=blue];\n}",
+  "svgHash": "c3c27a55d01bc2e9ce2bb2a5bffac01889712f0686c4eb4e3e4b08e1d4d6c60f"
 }

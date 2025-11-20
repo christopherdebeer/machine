@@ -8,25 +8,65 @@
         "name": "Home",
         "type": "state",
         "attributes": [],
-        "title": "Homepage"
+        "title": "Homepage",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 21
+          }
+        }
       },
       {
         "name": "UserProfile",
         "type": "state",
         "attributes": [],
-        "title": "User Profile"
+        "title": "User Profile",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 32
+          }
+        }
       },
       {
         "name": "OrderHistory",
         "type": "state",
         "attributes": [],
-        "title": "Order History"
+        "title": "Order History",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 34
+          }
+        }
       },
       {
         "name": "CustomerSupport",
         "type": "state",
         "attributes": [],
-        "title": "Customer Support"
+        "title": "Customer Support",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 40
+          }
+        }
       },
       {
         "name": "BrowseProducts",
@@ -61,61 +101,171 @@
       {
         "source": "Home",
         "target": "BrowseProducts",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 5
+          },
+          "end": {
+            "line": 12,
+            "character": 23
+          }
+        }
       },
       {
         "source": "BrowseProducts",
         "target": "ViewProduct",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 24
+          },
+          "end": {
+            "line": 12,
+            "character": 39
+          }
+        }
       },
       {
         "source": "ViewProduct",
         "target": "AddItem",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 40
+          },
+          "end": {
+            "line": 12,
+            "character": 51
+          }
+        }
       },
       {
         "source": "AddItem",
         "target": "ViewCart",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 8
+          },
+          "end": {
+            "line": 13,
+            "character": 20
+          }
+        }
       },
       {
         "source": "ViewCart",
         "target": "CalculateTotal",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 21
+          },
+          "end": {
+            "line": 13,
+            "character": 39
+          }
+        }
       },
       {
         "source": "CalculateTotal",
         "target": "ShippingAddress",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 40
+          },
+          "end": {
+            "line": 13,
+            "character": 59
+          }
+        }
       },
       {
         "source": "ShippingAddress",
         "target": "OrderConfirmation",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 16
+          },
+          "end": {
+            "line": 14,
+            "character": 37
+          }
+        }
       },
       {
         "source": "OrderConfirmation",
         "target": "OrderHistory",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 38
+          },
+          "end": {
+            "line": 14,
+            "character": 54
+          }
+        }
       },
       {
         "source": "Home",
         "target": "UserProfile",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 5
+          },
+          "end": {
+            "line": 15,
+            "character": 20
+          }
+        }
       },
       {
         "source": "UserProfile",
         "target": "OrderHistory",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 21
+          },
+          "end": {
+            "line": 15,
+            "character": 37
+          }
+        }
       },
       {
         "source": "Home",
         "target": "CustomerSupport",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 5
+          },
+          "end": {
+            "line": 16,
+            "character": 24
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>E-Commerce Platform</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Home\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Home</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Homepage</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"UserProfile\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UserProfile</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User Profile</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"OrderHistory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>OrderHistory</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order History</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"CustomerSupport\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CustomerSupport</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Customer Support</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"BrowseProducts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>BrowseProducts</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ViewProduct\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ViewProduct</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"AddItem\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AddItem</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ViewCart\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ViewCart</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"CalculateTotal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CalculateTotal</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ShippingAddress\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShippingAddress</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"OrderConfirmation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>OrderConfirmation</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Home\" -> \"BrowseProducts\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"BrowseProducts\" -> \"ViewProduct\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ViewProduct\" -> \"AddItem\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"AddItem\" -> \"ViewCart\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ViewCart\" -> \"CalculateTotal\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"CalculateTotal\" -> \"ShippingAddress\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ShippingAddress\" -> \"OrderConfirmation\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"OrderConfirmation\" -> \"OrderHistory\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Home\" -> \"UserProfile\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"UserProfile\" -> \"OrderHistory\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Home\" -> \"CustomerSupport\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "bde4b4cc5f5ff80f3bcb68d3cd891b99e77656c94bb6cb6499b02c991865706d"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>E-Commerce Platform</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Home\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Home</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Homepage</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:21\"];\n  \"UserProfile\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UserProfile</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User Profile</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:32\"];\n  \"OrderHistory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>OrderHistory</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order History</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L9:0-9:34\"];\n  \"CustomerSupport\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CustomerSupport</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Customer Support</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:40\"];\n  \"BrowseProducts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>BrowseProducts</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ViewProduct\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ViewProduct</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"AddItem\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AddItem</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ViewCart\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ViewCart</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"CalculateTotal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CalculateTotal</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ShippingAddress\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShippingAddress</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"OrderConfirmation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>OrderConfirmation</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Home\" -> \"BrowseProducts\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:5-12:23\"];\n  \"BrowseProducts\" -> \"ViewProduct\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:24-12:39\"];\n  \"ViewProduct\" -> \"AddItem\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:40-12:51\"];\n  \"AddItem\" -> \"ViewCart\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L13:8-13:20\"];\n  \"ViewCart\" -> \"CalculateTotal\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L13:21-13:39\"];\n  \"CalculateTotal\" -> \"ShippingAddress\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L13:40-13:59\"];\n  \"ShippingAddress\" -> \"OrderConfirmation\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L14:16-14:37\"];\n  \"OrderConfirmation\" -> \"OrderHistory\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L14:38-14:54\"];\n  \"Home\" -> \"UserProfile\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L15:5-15:20\"];\n  \"UserProfile\" -> \"OrderHistory\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L15:21-15:37\"];\n  \"Home\" -> \"CustomerSupport\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L16:5-16:24\"];\n}",
+  "svgHash": "3d90469d91bc697c16077c1ac166f5db9622223f159e69a0c4dd07bd4097823e"
 }

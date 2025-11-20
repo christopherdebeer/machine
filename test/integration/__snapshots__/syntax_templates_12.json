@@ -11,7 +11,17 @@
             "name": "value",
             "value": "shared"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 2
+          }
+        }
       },
       {
         "name": "taskA",
@@ -21,7 +31,17 @@
             "name": "prompt",
             "value": "Use {{ config.value }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 2
+          }
+        }
       },
       {
         "name": "taskB",
@@ -31,7 +51,17 @@
             "name": "prompt",
             "value": "Also use {{ config.value }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [],
@@ -39,17 +69,17 @@
       {
         "source": "taskA",
         "target": "config",
-        "reason": "reads prompt",
+        "reason": "reads config.value",
         "path": "config.value"
       },
       {
         "source": "taskB",
         "target": "config",
-        "reason": "reads prompt",
+        "reason": "reads config.value",
         "path": "config.value"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"value__key\" align=\"left\" balign=\"left\">value</td><td port=\"value__value\" align=\"left\" balign=\"left\">shared</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"taskA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Use {{ config.value }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"taskB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskB</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Also use {{ config.value }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Inferred Dependencies\n  \"taskA\" -> \"config\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"taskB\" -> \"config\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "56cbe5edb29b1ca233f1f7cfebd87a1204ae983cbb78a167dc5010e9d5b117be"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"value__key\" align=\"left\" balign=\"left\">value</td><td port=\"value__value\" align=\"left\" balign=\"left\">shared</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L1:0-3:2\"];\n  \"taskA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Use {{ config.value }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-7:2\"];\n  \"taskB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskB</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Also use {{ config.value }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-11:2\"];\n\n\n  // Inferred Dependencies\n  \"taskA\" -> \"config\" [label=\"reads config.value\", style=dashed, color=blue];\n  \"taskB\" -> \"config\" [label=\"reads config.value\", style=dashed, color=blue];\n}",
+  "svgHash": "92c59ccee0d5673293dd542d44b066a6f8a0dbc580e9115fc6e6821f8a0f18d5"
 }

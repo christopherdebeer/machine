@@ -5,62 +5,162 @@
     "nodes": [
       {
         "name": "Start",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 6
+          }
+        }
       },
       {
         "name": "End",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 4
+          }
+        }
       },
       {
         "name": "Workflow",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
       },
       {
         "name": "Validate",
         "type": "task",
         "attributes": [],
         "parent": "Workflow",
-        "title": "Validation step"
+        "title": "Validation step",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 4
+          },
+          "end": {
+            "line": 7,
+            "character": 36
+          }
+        }
       },
       {
         "name": "Process",
         "type": "task",
         "attributes": [],
         "parent": "Workflow",
-        "title": "Processing step"
+        "title": "Processing step",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 4
+          },
+          "end": {
+            "line": 8,
+            "character": 35
+          }
+        }
       },
       {
         "name": "Complete",
         "type": "task",
         "attributes": [],
         "parent": "Workflow",
-        "title": "Completion step"
+        "title": "Completion step",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 4
+          },
+          "end": {
+            "line": 9,
+            "character": 36
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Start",
         "target": "Validate",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 6
+          },
+          "end": {
+            "line": 13,
+            "character": 26
+          }
+        }
       },
       {
         "source": "Validate",
         "target": "Process",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 18
+          },
+          "end": {
+            "line": 14,
+            "character": 37
+          }
+        }
       },
       {
         "source": "Process",
         "target": "Complete",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 17
+          },
+          "end": {
+            "line": 15,
+            "character": 37
+          }
+        }
       },
       {
         "source": "Complete",
         "target": "End",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 18
+          },
+          "end": {
+            "line": 16,
+            "character": 24
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  subgraph cluster_Workflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Workflow</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Workflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validation step</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Processing step</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Completion step</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n\n  // Edges\n  \"Start\" -> \"Validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Validate\" -> \"Process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Complete\" -> \"End\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "b87f6f6bd6adea58f4aaf6573530411def803b9dce7aee7f96e6cffd1e2b6288"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L2:0-2:6\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L3:0-3:4\"];\n  subgraph cluster_Workflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Workflow</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Workflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validation step</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:4-7:36\"];\n    \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Processing step</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:4-8:35\"];\n    \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Completion step</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:4-9:36\"];\n  }\n\n  // Edges\n  \"Start\" -> \"Validate\" [labelOverlay=\"75%\", edgeURL=\"#L13:6-13:26\"];\n  \"Validate\" -> \"Process\" [labelOverlay=\"75%\", edgeURL=\"#L14:18-14:37\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", edgeURL=\"#L15:17-15:37\"];\n  \"Complete\" -> \"End\" [labelOverlay=\"75%\", edgeURL=\"#L16:18-16:24\"];\n}",
+  "svgHash": "d459b5027e9d9c9bba3c1337ca6dc5929857e7d44bb6823381db5ab71910bdf4"
 }

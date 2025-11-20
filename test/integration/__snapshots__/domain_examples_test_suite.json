@@ -22,7 +22,17 @@
             "type": "number",
             "value": 2
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 2
+          }
+        }
       },
       {
         "name": "setupEnvironment",
@@ -37,18 +47,48 @@
             ]
           }
         ],
-        "title": "Setup test environment"
+        "title": "Setup test environment",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 2
+          }
+        }
       },
       {
         "name": "ready",
         "type": "state",
         "attributes": [],
-        "title": "Ready for Testing"
+        "title": "Ready for Testing",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 32
+          }
+        }
       },
       {
         "name": "unitTests",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 2
+          }
+        }
       },
       {
         "name": "runModuleA",
@@ -60,7 +100,17 @@
             "name": "Async"
           }
         ],
-        "title": "Unit tests: Module A"
+        "title": "Unit tests: Module A",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 4
+          },
+          "end": {
+            "line": 17,
+            "character": 50
+          }
+        }
       },
       {
         "name": "runModuleB",
@@ -72,7 +122,17 @@
             "name": "Async"
           }
         ],
-        "title": "Unit tests: Module B"
+        "title": "Unit tests: Module B",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 4
+          },
+          "end": {
+            "line": 18,
+            "character": 50
+          }
+        }
       },
       {
         "name": "runModuleC",
@@ -84,12 +144,32 @@
             "name": "Async"
           }
         ],
-        "title": "Unit tests: Module C"
+        "title": "Unit tests: Module C",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 4
+          },
+          "end": {
+            "line": 19,
+            "character": 50
+          }
+        }
       },
       {
         "name": "integrationTests",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 2
+          }
+        }
       },
       {
         "name": "runAPITests",
@@ -101,7 +181,17 @@
             "name": "Async"
           }
         ],
-        "title": "Integration tests: API"
+        "title": "Integration tests: API",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 4
+          },
+          "end": {
+            "line": 23,
+            "character": 53
+          }
+        }
       },
       {
         "name": "runDBTests",
@@ -113,12 +203,32 @@
             "name": "Async"
           }
         ],
-        "title": "Integration tests: Database"
+        "title": "Integration tests: Database",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 4
+          },
+          "end": {
+            "line": 24,
+            "character": 57
+          }
+        }
       },
       {
         "name": "e2eTests",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 0
+          },
+          "end": {
+            "line": 30,
+            "character": 2
+          }
+        }
       },
       {
         "name": "runUserFlows",
@@ -130,7 +240,17 @@
             "name": "Async"
           }
         ],
-        "title": "E2E: User flows"
+        "title": "E2E: User flows",
+        "$sourceRange": {
+          "start": {
+            "line": 28,
+            "character": 4
+          },
+          "end": {
+            "line": 28,
+            "character": 47
+          }
+        }
       },
       {
         "name": "runPaymentFlows",
@@ -142,25 +262,65 @@
             "name": "Async"
           }
         ],
-        "title": "E2E: Payment flows"
+        "title": "E2E: Payment flows",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 4
+          },
+          "end": {
+            "line": 29,
+            "character": 53
+          }
+        }
       },
       {
         "name": "aggregateResults",
         "type": "task",
         "attributes": [],
-        "title": "Aggregate test results"
+        "title": "Aggregate test results",
+        "$sourceRange": {
+          "start": {
+            "line": 33,
+            "character": 0
+          },
+          "end": {
+            "line": 33,
+            "character": 47
+          }
+        }
       },
       {
         "name": "allPassed",
         "type": "state",
         "attributes": [],
-        "title": "All Tests Passed"
+        "title": "All Tests Passed",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 0
+          },
+          "end": {
+            "line": 35,
+            "character": 35
+          }
+        }
       },
       {
         "name": "someFailed",
         "type": "state",
         "attributes": [],
-        "title": "Some Tests Failed"
+        "title": "Some Tests Failed",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 0
+          },
+          "end": {
+            "line": 36,
+            "character": 37
+          }
+        }
       },
       {
         "name": "generateReport",
@@ -176,7 +336,17 @@
             "value": true
           }
         ],
-        "title": "Generate test report"
+        "title": "Generate test report",
+        "$sourceRange": {
+          "start": {
+            "line": 39,
+            "character": 0
+          },
+          "end": {
+            "line": 42,
+            "character": 2
+          }
+        }
       },
       {
         "name": "notifyTeam",
@@ -190,7 +360,17 @@
             ]
           }
         ],
-        "title": "Notify team"
+        "title": "Notify team",
+        "$sourceRange": {
+          "start": {
+            "line": 44,
+            "character": 0
+          },
+          "end": {
+            "line": 46,
+            "character": 2
+          }
+        }
       },
       {
         "name": "testResults",
@@ -220,128 +400,368 @@
             "name": "reportUrl",
             "value": ""
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 48,
+            "character": 0
+          },
+          "end": {
+            "line": 54,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "setupEnvironment",
         "target": "ready",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 57,
+            "character": 17
+          },
+          "end": {
+            "line": 57,
+            "character": 25
+          }
+        }
       },
       {
         "source": "ready",
         "target": "runModuleA",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 58,
+            "character": 6
+          },
+          "end": {
+            "line": 58,
+            "character": 73
+          }
+        }
       },
       {
         "source": "ready",
         "target": "runModuleB",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 58,
+            "character": 6
+          },
+          "end": {
+            "line": 58,
+            "character": 73
+          }
+        }
       },
       {
         "source": "ready",
         "target": "runModuleC",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 58,
+            "character": 6
+          },
+          "end": {
+            "line": 58,
+            "character": 73
+          }
+        }
       },
       {
         "source": "ready",
         "target": "runAPITests",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 59,
+            "character": 6
+          },
+          "end": {
+            "line": 59,
+            "character": 66
+          }
+        }
       },
       {
         "source": "ready",
         "target": "runDBTests",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 59,
+            "character": 6
+          },
+          "end": {
+            "line": 59,
+            "character": 66
+          }
+        }
       },
       {
         "source": "ready",
         "target": "runUserFlows",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 60,
+            "character": 6
+          },
+          "end": {
+            "line": 60,
+            "character": 56
+          }
+        }
       },
       {
         "source": "ready",
         "target": "runPaymentFlows",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 60,
+            "character": 6
+          },
+          "end": {
+            "line": 60,
+            "character": 56
+          }
+        }
       },
       {
         "source": "runModuleA",
         "target": "aggregateResults",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 62,
+            "character": 21
+          },
+          "end": {
+            "line": 62,
+            "character": 40
+          }
+        }
       },
       {
         "source": "runModuleB",
         "target": "aggregateResults",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 63,
+            "character": 21
+          },
+          "end": {
+            "line": 63,
+            "character": 40
+          }
+        }
       },
       {
         "source": "runModuleC",
         "target": "aggregateResults",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 64,
+            "character": 21
+          },
+          "end": {
+            "line": 64,
+            "character": 40
+          }
+        }
       },
       {
         "source": "runAPITests",
         "target": "aggregateResults",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 65,
+            "character": 29
+          },
+          "end": {
+            "line": 65,
+            "character": 48
+          }
+        }
       },
       {
         "source": "runDBTests",
         "target": "aggregateResults",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 66,
+            "character": 28
+          },
+          "end": {
+            "line": 66,
+            "character": 47
+          }
+        }
       },
       {
         "source": "runUserFlows",
         "target": "aggregateResults",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 67,
+            "character": 22
+          },
+          "end": {
+            "line": 67,
+            "character": 41
+          }
+        }
       },
       {
         "source": "runPaymentFlows",
         "target": "aggregateResults",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 68,
+            "character": 25
+          },
+          "end": {
+            "line": 68,
+            "character": 44
+          }
+        }
       },
       {
         "source": "aggregateResults",
         "target": "allPassed",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 70,
+            "character": 17
+          },
+          "end": {
+            "line": 70,
+            "character": 41
+          }
+        }
       },
       {
         "source": "aggregateResults",
         "target": "someFailed",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 70,
+            "character": 17
+          },
+          "end": {
+            "line": 70,
+            "character": 41
+          }
+        }
       },
       {
         "source": "allPassed",
         "target": "generateReport",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 71,
+            "character": 10
+          },
+          "end": {
+            "line": 71,
+            "character": 27
+          }
+        }
       },
       {
         "source": "generateReport",
         "target": "notifyTeam",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 71,
+            "character": 28
+          },
+          "end": {
+            "line": 71,
+            "character": 41
+          }
+        }
       },
       {
         "source": "notifyTeam",
         "target": "testResults",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 71,
+            "character": 42
+          },
+          "end": {
+            "line": 71,
+            "character": 56
+          }
+        }
       },
       {
         "source": "someFailed",
         "target": "generateReport",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 72,
+            "character": 11
+          },
+          "end": {
+            "line": 72,
+            "character": 28
+          }
+        }
       },
       {
         "source": "generateReport",
         "target": "notifyTeam",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 72,
+            "character": 29
+          },
+          "end": {
+            "line": 72,
+            "character": 42
+          }
+        }
       },
       {
         "source": "notifyTeam",
         "target": "testResults",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 72,
+            "character": 43
+          },
+          "end": {
+            "line": 72,
+            "character": 57
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Test Suite</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"testConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>testConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">staging</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">300000</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : number</td><td port=\"retries__value\" align=\"left\" balign=\"left\">2</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"setupEnvironment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>setupEnvironment</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Setup test environment</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"tasks__key\" align=\"left\" balign=\"left\">tasks</td><td port=\"tasks__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;start_services&quot;,<br align=\"left\"/>  &quot;seed_database&quot;,<br align=\"left\"/>  &quot;clear_cache&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"ready\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ready</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Ready for Testing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  subgraph cluster_unitTests {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>unitTests</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"unitTests__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"runModuleA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runModuleA</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Unit tests: Module A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"runModuleB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runModuleB</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Unit tests: Module B</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"runModuleC\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runModuleC</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Unit tests: Module C</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_integrationTests {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>integrationTests</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"integrationTests__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"runAPITests\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runAPITests</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Integration tests: API</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"runDBTests\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runDBTests</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Integration tests: Database</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_e2eTests {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>e2eTests</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"e2eTests__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"runUserFlows\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runUserFlows</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">E2E: User flows</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"runPaymentFlows\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runPaymentFlows</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">E2E: Payment flows</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"aggregateResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>aggregateResults</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Aggregate test results</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"allPassed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>allPassed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">All Tests Passed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"someFailed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>someFailed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Some Tests Failed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"generateReport\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generateReport</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate test report</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"format__key\" align=\"left\" balign=\"left\">format</td><td port=\"format__value\" align=\"left\" balign=\"left\">html</td></tr><tr><td port=\"includeScreenshots__key\" align=\"left\" balign=\"left\">includeScreenshots : boolean</td><td port=\"includeScreenshots__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"notifyTeam\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>notifyTeam</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Notify team</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"channels__key\" align=\"left\" balign=\"left\">channels</td><td port=\"channels__value\" align=\"left\" balign=\"left\">[<br/>  &quot;slack&quot;,<br/>  &quot;email&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"testResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>testResults</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"passed__key\" align=\"left\" balign=\"left\">passed : number</td><td port=\"passed__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"failed__key\" align=\"left\" balign=\"left\">failed : number</td><td port=\"failed__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"skipped__key\" align=\"left\" balign=\"left\">skipped : number</td><td port=\"skipped__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"duration__key\" align=\"left\" balign=\"left\">duration : number</td><td port=\"duration__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"reportUrl__key\" align=\"left\" balign=\"left\">reportUrl</td><td port=\"reportUrl__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"setupEnvironment\" -> \"ready\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ready\" -> \"runModuleA\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ready\" -> \"runModuleB\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ready\" -> \"runModuleC\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ready\" -> \"runAPITests\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ready\" -> \"runDBTests\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ready\" -> \"runUserFlows\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ready\" -> \"runPaymentFlows\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"runModuleA\" -> \"aggregateResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"runModuleB\" -> \"aggregateResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"runModuleC\" -> \"aggregateResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"runAPITests\" -> \"aggregateResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"runDBTests\" -> \"aggregateResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"runUserFlows\" -> \"aggregateResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"runPaymentFlows\" -> \"aggregateResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"aggregateResults\" -> \"allPassed\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"aggregateResults\" -> \"someFailed\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"allPassed\" -> \"generateReport\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"generateReport\" -> \"notifyTeam\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"notifyTeam\" -> \"testResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"someFailed\" -> \"generateReport\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"generateReport\" -> \"notifyTeam\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"notifyTeam\" -> \"testResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "2cb45c405fd81470635d4b4b26956f52b654913fd7b70cf80c8d476d0c17c630"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Test Suite</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"testConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>testConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">staging</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : number</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">300000</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries : number</td><td port=\"retries__value\" align=\"left\" balign=\"left\">2</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-7:2\"];\n  \"setupEnvironment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>setupEnvironment</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Setup test environment</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"tasks__key\" align=\"left\" balign=\"left\">tasks</td><td port=\"tasks__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;start_services&quot;,<br align=\"left\"/>  &quot;seed_database&quot;,<br align=\"left\"/>  &quot;clear_cache&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-11:2\"];\n  \"ready\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ready</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Ready for Testing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L13:0-13:32\"];\n  subgraph cluster_unitTests {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>unitTests</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"unitTests__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"runModuleA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runModuleA</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Unit tests: Module A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L17:4-17:50\"];\n    \"runModuleB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runModuleB</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Unit tests: Module B</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L18:4-18:50\"];\n    \"runModuleC\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runModuleC</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Unit tests: Module C</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:4-19:50\"];\n  }\n  subgraph cluster_integrationTests {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>integrationTests</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"integrationTests__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"runAPITests\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runAPITests</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Integration tests: API</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L23:4-23:53\"];\n    \"runDBTests\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runDBTests</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Integration tests: Database</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L24:4-24:57\"];\n  }\n  subgraph cluster_e2eTests {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>e2eTests</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"e2eTests__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"runUserFlows\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runUserFlows</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">E2E: User flows</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L28:4-28:47\"];\n    \"runPaymentFlows\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>runPaymentFlows</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">E2E: Payment flows</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L29:4-29:53\"];\n  }\n  \"aggregateResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>aggregateResults</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Aggregate test results</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L33:0-33:47\"];\n  \"allPassed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>allPassed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">All Tests Passed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L35:0-35:35\"];\n  \"someFailed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>someFailed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Some Tests Failed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L36:0-36:37\"];\n  \"generateReport\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generateReport</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate test report</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"format__key\" align=\"left\" balign=\"left\">format</td><td port=\"format__value\" align=\"left\" balign=\"left\">html</td></tr><tr><td port=\"includeScreenshots__key\" align=\"left\" balign=\"left\">includeScreenshots : boolean</td><td port=\"includeScreenshots__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L39:0-42:2\"];\n  \"notifyTeam\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>notifyTeam</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Notify team</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"channels__key\" align=\"left\" balign=\"left\">channels</td><td port=\"channels__value\" align=\"left\" balign=\"left\">[<br/>  &quot;slack&quot;,<br/>  &quot;email&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L44:0-46:2\"];\n  \"testResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>testResults</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"passed__key\" align=\"left\" balign=\"left\">passed : number</td><td port=\"passed__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"failed__key\" align=\"left\" balign=\"left\">failed : number</td><td port=\"failed__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"skipped__key\" align=\"left\" balign=\"left\">skipped : number</td><td port=\"skipped__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"duration__key\" align=\"left\" balign=\"left\">duration : number</td><td port=\"duration__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"reportUrl__key\" align=\"left\" balign=\"left\">reportUrl</td><td port=\"reportUrl__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L48:0-54:2\"];\n\n  // Edges\n  \"setupEnvironment\" -> \"ready\" [labelOverlay=\"75%\", edgeURL=\"#L57:17-57:25\"];\n  \"ready\" -> \"runModuleA\" [labelOverlay=\"75%\", edgeURL=\"#L58:6-58:73\"];\n  \"ready\" -> \"runModuleB\" [labelOverlay=\"75%\", edgeURL=\"#L58:6-58:73\"];\n  \"ready\" -> \"runModuleC\" [labelOverlay=\"75%\", edgeURL=\"#L58:6-58:73\"];\n  \"ready\" -> \"runAPITests\" [labelOverlay=\"75%\", edgeURL=\"#L59:6-59:66\"];\n  \"ready\" -> \"runDBTests\" [labelOverlay=\"75%\", edgeURL=\"#L59:6-59:66\"];\n  \"ready\" -> \"runUserFlows\" [labelOverlay=\"75%\", edgeURL=\"#L60:6-60:56\"];\n  \"ready\" -> \"runPaymentFlows\" [labelOverlay=\"75%\", edgeURL=\"#L60:6-60:56\"];\n  \"runModuleA\" -> \"aggregateResults\" [labelOverlay=\"75%\", edgeURL=\"#L62:21-62:40\"];\n  \"runModuleB\" -> \"aggregateResults\" [labelOverlay=\"75%\", edgeURL=\"#L63:21-63:40\"];\n  \"runModuleC\" -> \"aggregateResults\" [labelOverlay=\"75%\", edgeURL=\"#L64:21-64:40\"];\n  \"runAPITests\" -> \"aggregateResults\" [labelOverlay=\"75%\", edgeURL=\"#L65:29-65:48\"];\n  \"runDBTests\" -> \"aggregateResults\" [labelOverlay=\"75%\", edgeURL=\"#L66:28-66:47\"];\n  \"runUserFlows\" -> \"aggregateResults\" [labelOverlay=\"75%\", edgeURL=\"#L67:22-67:41\"];\n  \"runPaymentFlows\" -> \"aggregateResults\" [labelOverlay=\"75%\", edgeURL=\"#L68:25-68:44\"];\n  \"aggregateResults\" -> \"allPassed\" [labelOverlay=\"75%\", edgeURL=\"#L70:17-70:41\"];\n  \"aggregateResults\" -> \"someFailed\" [labelOverlay=\"75%\", edgeURL=\"#L70:17-70:41\"];\n  \"allPassed\" -> \"generateReport\" [labelOverlay=\"75%\", edgeURL=\"#L71:10-71:27\"];\n  \"generateReport\" -> \"notifyTeam\" [labelOverlay=\"75%\", edgeURL=\"#L71:28-71:41\"];\n  \"notifyTeam\" -> \"testResults\" [labelOverlay=\"75%\", edgeURL=\"#L71:42-71:56\"];\n  \"someFailed\" -> \"generateReport\" [labelOverlay=\"75%\", edgeURL=\"#L72:11-72:28\"];\n  \"generateReport\" -> \"notifyTeam\" [labelOverlay=\"75%\", edgeURL=\"#L72:29-72:42\"];\n  \"notifyTeam\" -> \"testResults\" [labelOverlay=\"75%\", edgeURL=\"#L72:43-72:57\"];\n}",
+  "svgHash": "9e340fd542680ad06c94db0e10c316fde94b81a8c4b5c758a16e0377e7f88258"
 }

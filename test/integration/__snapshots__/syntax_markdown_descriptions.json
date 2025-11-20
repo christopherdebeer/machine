@@ -12,7 +12,17 @@
             "name": "desc",
             "value": "Process data using **fast** algorithm"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
       },
       {
         "name": "Verify",
@@ -22,18 +32,38 @@
             "name": "prompt",
             "value": "Verify with `checksum` *before* saving"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 1
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Process",
         "target": "Verify",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 8
+          },
+          "end": {
+            "line": 11,
+            "character": 18
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Markdown in Descriptions</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process data using <b>fast</b> algorithm</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Verify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Verify</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Verify with <font face=\"monospace\" color=\"#6C757D\">checksum</font> <i>before</i> saving</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Process\" -> \"Verify\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "31b91bc374889439bfa33ea4d1ea1b892a72df06406197d1a375719f246c1448"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Markdown in Descriptions</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process data using <b>fast</b> algorithm</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-5:1\"];\n  \"Verify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Verify</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Verify with <font face=\"monospace\" color=\"#6C757D\">checksum</font> <i>before</i> saving</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-9:1\"];\n\n  // Edges\n  \"Process\" -> \"Verify\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:8-11:18\"];\n}",
+  "svgHash": "6bc1cd6b0a7873bfe69652004b902efdb5e9028a06fecf1259d1a8b34390e4be"
 }

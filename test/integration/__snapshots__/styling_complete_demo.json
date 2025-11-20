@@ -37,6 +37,16 @@
           "fillcolor": "#ffcccc",
           "penwidth": 3,
           "color": "#cc0000"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
         }
       },
       {
@@ -58,6 +68,16 @@
         "style": {
           "color": "blue",
           "shape": "box"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
         }
       },
       {
@@ -73,7 +93,17 @@
           {
             "name": "critical"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 1
+          }
+        }
       }
     ],
     "edges": [
@@ -93,6 +123,16 @@
         "style": {
           "color": "green",
           "penwidth": 2
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 8
+          },
+          "end": {
+            "line": 25,
+            "character": 54
+          }
         }
       }
     ],
@@ -101,6 +141,6 @@
       "rankdir": "LR"
     }
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complete Styling Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"LR\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", color=\"blue\", shape=\"box\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i> <i>@critical</i></td></tr><tr><td align=\"left\">Validate</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", fillcolor=\"#ffcccc\", penwidth=\"3\", color=\"#cc0000\"];\n\n  // Edges\n  \"process\" -> \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"green\", penwidth=\"2\"];\n}",
-  "svgHash": "a614f7e045f93c16531da12c13819efce812eca552fec2d700a8d3f6f7906cd8"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complete Styling Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  rankdir=\"LR\";\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", color=\"blue\", shape=\"box\", URL=\"#L11:0-17:1\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i> <i>@critical</i></td></tr><tr><td align=\"left\">Validate</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", fillcolor=\"#ffcccc\", penwidth=\"3\", color=\"#cc0000\", URL=\"#L20:0-22:1\"];\n\n  // Edges\n  \"process\" -> \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"></table>>, labelOverlay=\"75%\", edgeURL=\"#L25:8-25:54\", color=\"green\", penwidth=\"2\"];\n}",
+  "svgHash": "f8cdf75d96ef40c952bab383cb36eb9cd9467ca6707ce302ea4cf86fa40f23cb"
 }

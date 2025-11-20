@@ -1,6 +1,8 @@
 import type { Machine } from '../../src/language/generated/ast.js';
-import type { MachineData } from '../../src/language/base-executor.js';
+import type { MachineJSON } from '../../src/language/json/types.js';
 import { serializeMachineToJSON } from '../../src/language/json/serializer.js';
+
+type MachineData = MachineJSON;
 
 /**
  * Convert a parsed Machine AST into the canonical MachineData structure.

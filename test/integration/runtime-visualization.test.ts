@@ -3,7 +3,7 @@ import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import { createMachineServices } from '../../src/language/machine-module.js';
 import { Machine } from '../../src/language/generated/ast.js';
-import { MachineExecutor } from '../../src/language/machine-executor.js';
+import { MachineExecutor } from '../../src/language/executor.js';
 import { EvolutionaryExecutor } from '../../src/language/task-evolution.js';
 import { VisualizingMachineExecutor } from '../../src/language/runtime-visualizer.js';
 import { createStorage } from '../../src/language/storage.js';

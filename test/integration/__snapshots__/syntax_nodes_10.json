@@ -13,14 +13,34 @@
         "type": "task",
         "attributes": [],
         "parent": "Data",
-        "title": "Store data"
+        "title": "Store data",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 29
+          }
+        }
       },
       {
         "name": "Fetch",
         "type": "task",
         "attributes": [],
         "parent": "Data",
-        "title": "Fetch data"
+        "title": "Fetch data",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 29
+          }
+        }
       },
       {
         "name": "Auth",
@@ -32,35 +52,85 @@
         "type": "task",
         "attributes": [],
         "parent": "Auth",
-        "title": "Logout handler"
+        "title": "Logout handler",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 34
+          }
+        }
       },
       {
         "name": "Login",
         "type": "task",
         "attributes": [],
         "parent": "Auth",
-        "title": "Login handler"
+        "title": "Login handler",
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 32
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Login",
         "target": "Fetch",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 11
+          },
+          "end": {
+            "line": 7,
+            "character": 24
+          }
+        }
       },
       {
         "source": "Fetch",
         "target": "Store",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 25
+          },
+          "end": {
+            "line": 7,
+            "character": 38
+          }
+        }
       },
       {
         "source": "Store",
         "target": "Logout",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 39
+          },
+          "end": {
+            "line": 7,
+            "character": 53
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Data {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Data</b> <i>&lt;task&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Data__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Store\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Store</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Store data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Fetch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Fetch</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Fetch data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_Auth {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Auth</b> <i>&lt;task&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Auth__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Logout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Logout</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Logout handler</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Login\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Login</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Login handler</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n\n  // Edges\n  \"Login\" -> \"Fetch\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Fetch\" -> \"Store\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Store\" -> \"Logout\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "6d1c96a7ffda60b18e69486aac38942a51f6512a281dbb9fe514182df80f9ae4"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_Data {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Data</b> <i>&lt;task&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Data__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Store\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Store</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Store data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-5:29\"];\n    \"Fetch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Fetch</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Fetch data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:29\"];\n  }\n  subgraph cluster_Auth {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Auth</b> <i>&lt;task&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Auth__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Logout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Logout</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Logout handler</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:34\"];\n    \"Login\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Login</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Login handler</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L2:0-2:32\"];\n  }\n\n  // Edges\n  \"Login\" -> \"Fetch\" [labelOverlay=\"75%\", edgeURL=\"#L7:11-7:24\"];\n  \"Fetch\" -> \"Store\" [labelOverlay=\"75%\", edgeURL=\"#L7:25-7:38\"];\n  \"Store\" -> \"Logout\" [labelOverlay=\"75%\", edgeURL=\"#L7:39-7:53\"];\n}",
+  "svgHash": "971695d05b33f44865866a726d438970225dd317dec37e45fe129b2ce529e6ab"
 }

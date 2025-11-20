@@ -4,8 +4,12 @@ import { Command } from 'commander';
 import { MachineLanguageMetaData } from '../language/generated/module.js';
 import { createMachineServices } from '../language/machine-module.js';
 import { extractAstNode, extractDocument, extractDestinationAndName } from './cli-util.js';
-import { RailsExecutor, type MachineData } from '../language/rails-executor.js';
+import { MachineExecutor } from '../language/executor.js';
+import type { MachineJSON } from '../language/json/types.js';
 import { generateJSON, generateHTML, generateDSL, generateGraphviz, FileGenerationResult } from '../language/generator/generator.js';
+
+// Type alias for backward compatibility
+type MachineData = MachineJSON;
 import { NodeFileSystem } from 'langium/node';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
@@ -480,7 +484,7 @@ export const executeAction = async (fileName: string, opts: { destination?: stri
     logger.debug('Starting execution...');
 
     // Execute the machine with Rails-Based Architecture
-    const executor = await RailsExecutor.create(machineData, config);
+    const executor = await MachineExecutor.create(machineData, config);
 
     // Set up callback to save updated machine definition when agent modifies it
     let machineWasUpdated = false;

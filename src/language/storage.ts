@@ -3,7 +3,11 @@
  * Supports IndexedDB, localStorage, and in-memory storage
  */
 
-import { MachineData, MachineMutation } from './machine-executor.js';
+import type { MachineJSON } from './json/types.js';
+
+// Type aliases for backward compatibility
+type MachineData = MachineJSON;
+type MachineMutation = MachineJSON;
 
 export interface MachineVersion {
     version: string;

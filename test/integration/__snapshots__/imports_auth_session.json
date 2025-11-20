@@ -8,51 +8,131 @@
         "name": "CreateSession",
         "type": "state",
         "attributes": [],
-        "title": "Create Session"
+        "title": "Create Session",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 36
+          }
+        }
       },
       {
         "name": "ValidateSession",
         "type": "state",
         "attributes": [],
-        "title": "Validate Session"
+        "title": "Validate Session",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 40
+          }
+        }
       },
       {
         "name": "RefreshSession",
         "type": "state",
         "attributes": [],
-        "title": "Refresh Session"
+        "title": "Refresh Session",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 38
+          }
+        }
       },
       {
         "name": "EndSession",
         "type": "state",
         "attributes": [],
-        "title": "End Session"
+        "title": "End Session",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 30
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "CreateSession",
         "target": "ValidateSession",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 14
+          },
+          "end": {
+            "line": 8,
+            "character": 33
+          }
+        }
       },
       {
         "source": "ValidateSession",
         "target": "RefreshSession",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 16
+          },
+          "end": {
+            "line": 9,
+            "character": 34
+          }
+        }
       },
       {
         "source": "RefreshSession",
         "target": "ValidateSession",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 35
+          },
+          "end": {
+            "line": 9,
+            "character": 54
+          }
+        }
       },
       {
         "source": "ValidateSession",
         "target": "EndSession",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 16
+          },
+          "end": {
+            "line": 10,
+            "character": 30
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Session Management</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"CreateSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CreateSession</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Create Session</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ValidateSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ValidateSession</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate Session</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"RefreshSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>RefreshSession</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Refresh Session</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"EndSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>EndSession</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End Session</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"CreateSession\" -> \"ValidateSession\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ValidateSession\" -> \"RefreshSession\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"RefreshSession\" -> \"ValidateSession\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ValidateSession\" -> \"EndSession\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "a067fdbc7577de638e17935d9e063a67422183bf2456e70b9c759a12d3e1110b"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Session Management</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"CreateSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CreateSession</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Create Session</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:36\"];\n  \"ValidateSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ValidateSession</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate Session</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:40\"];\n  \"RefreshSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>RefreshSession</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Refresh Session</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:38\"];\n  \"EndSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>EndSession</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">End Session</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:30\"];\n\n  // Edges\n  \"CreateSession\" -> \"ValidateSession\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:14-8:33\"];\n  \"ValidateSession\" -> \"RefreshSession\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L9:16-9:34\"];\n  \"RefreshSession\" -> \"ValidateSession\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L9:35-9:54\"];\n  \"ValidateSession\" -> \"EndSession\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:16-10:30\"];\n}",
+  "svgHash": "04ac87815dff19ec4d985ce57af1e7560a984e6b94e1d7ea59f54cd4e0e6b3e1"
 }

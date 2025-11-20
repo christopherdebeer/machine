@@ -30,6 +30,16 @@
           "fillcolor": "#ffcccc",
           "penwidth": 3,
           "color": "#cc0000"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
         }
       },
       {
@@ -58,6 +68,16 @@
           "fillcolor": "#ffffcc",
           "penwidth": 2,
           "color": "#cccc00"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 1
+          }
         }
       },
       {
@@ -86,6 +106,16 @@
           "fillcolor": "#ccffcc",
           "penwidth": 2,
           "color": "#00cc00"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 1
+          }
         }
       },
       {
@@ -97,7 +127,17 @@
             "value": "Initialize the payment processing system"
           }
         ],
-        "title": "Initialize system"
+        "title": "Initialize system",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 0
+          },
+          "end": {
+            "line": 28,
+            "character": 1
+          }
+        }
       },
       {
         "name": "validatePayment",
@@ -113,7 +153,17 @@
             "name": "Critical"
           }
         ],
-        "title": "Validate Payment"
+        "title": "Validate Payment",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 0
+          },
+          "end": {
+            "line": 32,
+            "character": 1
+          }
+        }
       },
       {
         "name": "checkBalance",
@@ -129,13 +179,33 @@
             "name": "Warning"
           }
         ],
-        "title": "Check Balance"
+        "title": "Check Balance",
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 0
+          },
+          "end": {
+            "line": 36,
+            "character": 1
+          }
+        }
       },
       {
         "name": "processing",
         "type": "state",
         "attributes": [],
-        "title": "Processing payment"
+        "title": "Processing payment",
+        "$sourceRange": {
+          "start": {
+            "line": 38,
+            "character": 0
+          },
+          "end": {
+            "line": 38,
+            "character": 38
+          }
+        }
       },
       {
         "name": "completePayment",
@@ -151,44 +221,114 @@
             "name": "Success"
           }
         ],
-        "title": "Complete Payment"
+        "title": "Complete Payment",
+        "$sourceRange": {
+          "start": {
+            "line": 40,
+            "character": 0
+          },
+          "end": {
+            "line": 42,
+            "character": 1
+          }
+        }
       },
       {
         "name": "done",
         "type": "state",
         "attributes": [],
-        "title": "Transaction complete"
+        "title": "Transaction complete",
+        "$sourceRange": {
+          "start": {
+            "line": 44,
+            "character": 0
+          },
+          "end": {
+            "line": 44,
+            "character": 34
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "start",
         "target": "validatePayment",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 6
+          },
+          "end": {
+            "line": 47,
+            "character": 24
+          }
+        }
       },
       {
         "source": "validatePayment",
         "target": "checkBalance",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 48,
+            "character": 16
+          },
+          "end": {
+            "line": 48,
+            "character": 31
+          }
+        }
       },
       {
         "source": "checkBalance",
         "target": "processing",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 49,
+            "character": 13
+          },
+          "end": {
+            "line": 49,
+            "character": 26
+          }
+        }
       },
       {
         "source": "processing",
         "target": "completePayment",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 50,
+            "character": 11
+          },
+          "end": {
+            "line": 50,
+            "character": 29
+          }
+        }
       },
       {
         "source": "completePayment",
         "target": "done",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 51,
+            "character": 16
+          },
+          "end": {
+            "line": 51,
+            "character": 23
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Custom Styling Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Initialize system</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validatePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validatePayment</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Validate Payment</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, fillcolor=\"#ffcccc\", penwidth=\"3\", color=\"#cc0000\"];\n  \"checkBalance\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkBalance</b> <i>&lt;task&gt;</i> <i>@Warning</i></td></tr><tr><td align=\"left\">Check Balance</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", fillcolor=\"#ffffcc\", penwidth=\"2\", color=\"#cccc00\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing payment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"completePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>completePayment</b> <i>&lt;task&gt;</i> <i>@Success</i></td></tr><tr><td align=\"left\">Complete Payment</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", fillcolor=\"#ccffcc\", penwidth=\"2\", color=\"#00cc00\"];\n  \"done\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>done</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Transaction complete</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"start\" -> \"validatePayment\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validatePayment\" -> \"checkBalance\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkBalance\" -> \"processing\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processing\" -> \"completePayment\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"completePayment\" -> \"done\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "b6adbed39239b67885ce2be45ae812a7f39e3caf02f8044d594b5b09bfb3dfd3"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Custom Styling Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Initialize system</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L26:0-28:1\"];\n  \"validatePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validatePayment</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Validate Payment</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, fillcolor=\"#ffcccc\", penwidth=\"3\", color=\"#cc0000\", URL=\"#L30:0-32:1\"];\n  \"checkBalance\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkBalance</b> <i>&lt;task&gt;</i> <i>@Warning</i></td></tr><tr><td align=\"left\">Check Balance</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", fillcolor=\"#ffffcc\", penwidth=\"2\", color=\"#cccc00\", URL=\"#L34:0-36:1\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing payment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L38:0-38:38\"];\n  \"completePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>completePayment</b> <i>&lt;task&gt;</i> <i>@Success</i></td></tr><tr><td align=\"left\">Complete Payment</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", fillcolor=\"#ccffcc\", penwidth=\"2\", color=\"#00cc00\", URL=\"#L40:0-42:1\"];\n  \"done\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>done</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Transaction complete</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L44:0-44:34\"];\n\n  // Edges\n  \"start\" -> \"validatePayment\" [labelOverlay=\"75%\", edgeURL=\"#L47:6-47:24\"];\n  \"validatePayment\" -> \"checkBalance\" [labelOverlay=\"75%\", edgeURL=\"#L48:16-48:31\"];\n  \"checkBalance\" -> \"processing\" [labelOverlay=\"75%\", edgeURL=\"#L49:13-49:26\"];\n  \"processing\" -> \"completePayment\" [labelOverlay=\"75%\", edgeURL=\"#L50:11-50:29\"];\n  \"completePayment\" -> \"done\" [labelOverlay=\"75%\", edgeURL=\"#L51:16-51:23\"];\n}",
+  "svgHash": "f50ca06dfbd99734ae9261a0e7a1c54a2753944c37d46436004f569fc0b570fe"
 }

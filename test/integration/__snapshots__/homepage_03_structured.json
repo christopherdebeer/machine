@@ -16,7 +16,17 @@
             "name": "target",
             "value": "productivity users"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
       },
       {
         "name": "research",
@@ -29,7 +39,17 @@
               "competitor review"
             ]
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
       },
       {
         "name": "prototype",
@@ -42,7 +62,17 @@
               "tech spike"
             ]
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
       },
       {
         "name": "validation",
@@ -55,28 +85,68 @@
               "technical feasibility"
             ]
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 1
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "idea",
         "target": "research",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 5
+          },
+          "end": {
+            "line": 20,
+            "character": 16
+          }
+        }
       },
       {
         "source": "research",
         "target": "prototype",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 17
+          },
+          "end": {
+            "line": 20,
+            "character": 29
+          }
+        }
       },
       {
         "source": "prototype",
         "target": "validation",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 30
+          },
+          "end": {
+            "line": 20,
+            "character": 43
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Product Development</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"idea\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idea</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"concept__key\" align=\"left\" balign=\"left\">concept</td><td port=\"concept__value\" align=\"left\" balign=\"left\">Mobile app for task management</td></tr><tr><td port=\"target__key\" align=\"left\" balign=\"left\">target</td><td port=\"target__value\" align=\"left\" balign=\"left\">productivity users</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"research\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>research</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"activities__key\" align=\"left\" balign=\"left\">activities</td><td port=\"activities__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;market analysis&quot;,<br align=\"left\"/>  &quot;competitor review&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"prototype\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prototype</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"deliverables__key\" align=\"left\" balign=\"left\">deliverables</td><td port=\"deliverables__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;wireframes&quot;,<br align=\"left\"/>  &quot;tech spike&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validation</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"criteria__key\" align=\"left\" balign=\"left\">criteria</td><td port=\"criteria__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user feedback&quot;,<br align=\"left\"/>  &quot;technical feasibility&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"idea\" -> \"research\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"research\" -> \"prototype\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"prototype\" -> \"validation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "0a5d4da8d1e95630ebfe41955848f4d386715c17eeb346125559b1a02f69eada"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Product Development</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"idea\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idea</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"concept__key\" align=\"left\" balign=\"left\">concept</td><td port=\"concept__value\" align=\"left\" balign=\"left\">Mobile app for task management</td></tr><tr><td port=\"target__key\" align=\"left\" balign=\"left\">target</td><td port=\"target__value\" align=\"left\" balign=\"left\">productivity users</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:1\"];\n  \"research\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>research</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"activities__key\" align=\"left\" balign=\"left\">activities</td><td port=\"activities__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;market analysis&quot;,<br align=\"left\"/>  &quot;competitor review&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-10:1\"];\n  \"prototype\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prototype</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"deliverables__key\" align=\"left\" balign=\"left\">deliverables</td><td port=\"deliverables__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;wireframes&quot;,<br align=\"left\"/>  &quot;tech spike&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-14:1\"];\n  \"validation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validation</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"criteria__key\" align=\"left\" balign=\"left\">criteria</td><td port=\"criteria__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user feedback&quot;,<br align=\"left\"/>  &quot;technical feasibility&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L16:0-18:1\"];\n\n  // Edges\n  \"idea\" -> \"research\" [labelOverlay=\"75%\", edgeURL=\"#L20:5-20:16\"];\n  \"research\" -> \"prototype\" [labelOverlay=\"75%\", edgeURL=\"#L20:17-20:29\"];\n  \"prototype\" -> \"validation\" [labelOverlay=\"75%\", edgeURL=\"#L20:30-20:43\"];\n}",
+  "svgHash": "d772001e14fc86aeea54d4ceaa7f1259081ab2fed7bf526dac817aab4264cf1e"
 }

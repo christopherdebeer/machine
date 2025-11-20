@@ -7,85 +7,215 @@
       {
         "name": "development",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 2
+          }
+        }
       },
       {
         "name": "design",
         "type": "task",
         "attributes": [],
         "parent": "development",
-        "title": "Design system"
+        "title": "Design system",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 4
+          },
+          "end": {
+            "line": 4,
+            "character": 32
+          }
+        }
       },
       {
         "name": "implement",
         "type": "task",
         "attributes": [],
         "parent": "development",
-        "title": "Implement features"
+        "title": "Implement features",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 40
+          }
+        }
       },
       {
         "name": "test",
         "type": "task",
         "attributes": [],
         "parent": "development",
-        "title": "Run tests"
+        "title": "Run tests",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 4
+          },
+          "end": {
+            "line": 6,
+            "character": 26
+          }
+        }
       },
       {
         "name": "deployment",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 2
+          }
+        }
       },
       {
         "name": "build",
         "type": "task",
         "attributes": [],
         "parent": "deployment",
-        "title": "Build artifacts"
+        "title": "Build artifacts",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 4
+          },
+          "end": {
+            "line": 12,
+            "character": 33
+          }
+        }
       },
       {
         "name": "stage",
         "type": "task",
         "attributes": [],
         "parent": "deployment",
-        "title": "Deploy to staging"
+        "title": "Deploy to staging",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 4
+          },
+          "end": {
+            "line": 13,
+            "character": 35
+          }
+        }
       },
       {
         "name": "prod",
         "type": "task",
         "attributes": [],
         "parent": "deployment",
-        "title": "Deploy to production"
+        "title": "Deploy to production",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 4
+          },
+          "end": {
+            "line": 14,
+            "character": 37
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "development",
         "target": "deployment",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 12
+          },
+          "end": {
+            "line": 19,
+            "character": 25
+          }
+        }
       },
       {
         "source": "design",
         "target": "implement",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 11
+          },
+          "end": {
+            "line": 8,
+            "character": 23
+          }
+        }
       },
       {
         "source": "implement",
         "target": "test",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 24
+          },
+          "end": {
+            "line": 8,
+            "character": 31
+          }
+        }
       },
       {
         "source": "build",
         "target": "stage",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 10
+          },
+          "end": {
+            "line": 16,
+            "character": 18
+          }
+        }
       },
       {
         "source": "stage",
         "target": "prod",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 19
+          },
+          "end": {
+            "line": 16,
+            "character": 26
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Project Management</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_development {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>development</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"development__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"design\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>design</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Design system</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"implement\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>implement</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Implement features</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"test\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>test</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Run tests</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_deployment {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>deployment</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"deployment__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"build\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>build</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Build artifacts</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"stage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>stage</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deploy to staging</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"prod\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prod</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deploy to production</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n\n  // Edges\n  \"development__cluster_anchor\" -> \"deployment__cluster_anchor\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", ltail=\"cluster_development\", lhead=\"cluster_deployment\"];\n  \"design\" -> \"implement\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"implement\" -> \"test\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"build\" -> \"stage\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"stage\" -> \"prod\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "77893e241c0ced9a6b4577b02b92a43ca0c3bf45af8194a0080fd10b71f0510d"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Project Management</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_development {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>development</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"development__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"design\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>design</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Design system</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:4-4:32\"];\n    \"implement\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>implement</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Implement features</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:4-5:40\"];\n    \"test\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>test</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Run tests</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:4-6:26\"];\n  }\n  subgraph cluster_deployment {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>deployment</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"deployment__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"build\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>build</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Build artifacts</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:4-12:33\"];\n    \"stage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>stage</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deploy to staging</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L13:4-13:35\"];\n    \"prod\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prod</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Deploy to production</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:4-14:37\"];\n  }\n\n  // Edges\n  \"development__cluster_anchor\" -> \"deployment__cluster_anchor\" [labelOverlay=\"75%\", edgeURL=\"#L19:12-19:25\", ltail=\"cluster_development\", lhead=\"cluster_deployment\"];\n  \"design\" -> \"implement\" [labelOverlay=\"75%\", edgeURL=\"#L8:11-8:23\"];\n  \"implement\" -> \"test\" [labelOverlay=\"75%\", edgeURL=\"#L8:24-8:31\"];\n  \"build\" -> \"stage\" [labelOverlay=\"75%\", edgeURL=\"#L16:10-16:18\"];\n  \"stage\" -> \"prod\" [labelOverlay=\"75%\", edgeURL=\"#L16:19-16:26\"];\n}",
+  "svgHash": "b0d8039e10c4bf9a8408690a7f3cc3d6cf9dedf8292805f96428b51a85aed977"
 }

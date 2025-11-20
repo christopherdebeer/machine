@@ -9,10 +9,12 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import { ContextPermissionsResolver } from '../../src/language/utils/context-permissions.js';
-import type { MachineData } from '../../src/language/base-executor.js';
+import type { MachineJSON } from '../../src/language/json/types.js';
 import { createMachineServices } from '../../src/language/machine-module.js';
 import { Machine } from '../../src/language/generated/ast.js';
 import { generateJSON } from '../../src/language/generator/generator.js';
+
+type MachineData = MachineJSON;
 
 let services: ReturnType<typeof createMachineServices>;
 let parse: ReturnType<typeof parseHelper<Machine>>;

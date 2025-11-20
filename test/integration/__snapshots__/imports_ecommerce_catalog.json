@@ -8,57 +8,147 @@
         "name": "BrowseProducts",
         "type": "state",
         "attributes": [],
-        "title": "Browse Products"
+        "title": "Browse Products",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 38
+          }
+        }
       },
       {
         "name": "SearchProducts",
         "type": "state",
         "attributes": [],
-        "title": "Search Products"
+        "title": "Search Products",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 38
+          }
+        }
       },
       {
         "name": "ViewProduct",
         "type": "state",
         "attributes": [],
-        "title": "View Product Details"
+        "title": "View Product Details",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 40
+          }
+        }
       },
       {
         "name": "CompareProducts",
         "type": "state",
         "attributes": [],
-        "title": "Compare Products"
+        "title": "Compare Products",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 40
+          }
+        }
       },
       {
         "name": "AddToWishlist",
         "type": "state",
         "attributes": [],
-        "title": "Add to Wishlist"
+        "title": "Add to Wishlist",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 37
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "BrowseProducts",
         "target": "ViewProduct",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 15
+          },
+          "end": {
+            "line": 9,
+            "character": 30
+          }
+        }
       },
       {
         "source": "SearchProducts",
         "target": "ViewProduct",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 15
+          },
+          "end": {
+            "line": 10,
+            "character": 30
+          }
+        }
       },
       {
         "source": "ViewProduct",
         "target": "CompareProducts",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 12
+          },
+          "end": {
+            "line": 11,
+            "character": 31
+          }
+        }
       },
       {
         "source": "ViewProduct",
         "target": "AddToWishlist",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 12
+          },
+          "end": {
+            "line": 12,
+            "character": 29
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Product Catalog</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"BrowseProducts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>BrowseProducts</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Browse Products</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"SearchProducts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SearchProducts</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Search Products</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ViewProduct\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ViewProduct</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">View Product Details</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"CompareProducts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CompareProducts</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Compare Products</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"AddToWishlist\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AddToWishlist</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Add to Wishlist</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"BrowseProducts\" -> \"ViewProduct\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"SearchProducts\" -> \"ViewProduct\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ViewProduct\" -> \"CompareProducts\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ViewProduct\" -> \"AddToWishlist\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "f808d27f1126bec207765218aaaf4bf651a1de0e18b8b221c75e6f1c35ac8331"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Product Catalog</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"BrowseProducts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>BrowseProducts</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Browse Products</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:38\"];\n  \"SearchProducts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SearchProducts</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Search Products</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:38\"];\n  \"ViewProduct\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ViewProduct</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">View Product Details</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:40\"];\n  \"CompareProducts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CompareProducts</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Compare Products</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:40\"];\n  \"AddToWishlist\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AddToWishlist</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Add to Wishlist</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:37\"];\n\n  // Edges\n  \"BrowseProducts\" -> \"ViewProduct\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L9:15-9:30\"];\n  \"SearchProducts\" -> \"ViewProduct\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:15-10:30\"];\n  \"ViewProduct\" -> \"CompareProducts\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:12-11:31\"];\n  \"ViewProduct\" -> \"AddToWishlist\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:12-12:29\"];\n}",
+  "svgHash": "90cd139d8601164fff2a5b4e1f37492ba8bdcdef9c6b53a1835694f936a19a3b"
 }

@@ -18,7 +18,17 @@
             "type": "number",
             "value": 0
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 2
+          }
+        }
       },
       {
         "name": "auditAttributes",
@@ -39,7 +49,17 @@
             "type": "number",
             "value": 1
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 2
+          }
+        }
       },
       {
         "name": "dataPayload",
@@ -53,7 +73,17 @@
             "name": "metadata",
             "value": {}
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 2
+          }
+        }
       },
       {
         "name": "request",
@@ -76,12 +106,22 @@
             "type": "number",
             "value": 5
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 26,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Type Composition</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"baseAttributes\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>baseAttributes</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"id__key\" align=\"left\" balign=\"left\">id : string</td><td port=\"id__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"timestamp__key\" align=\"left\" balign=\"left\">timestamp : number</td><td port=\"timestamp__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"auditAttributes\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>auditAttributes</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"createdBy__key\" align=\"left\" balign=\"left\">createdBy : string</td><td port=\"createdBy__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"modifiedBy__key\" align=\"left\" balign=\"left\">modifiedBy : string</td><td port=\"modifiedBy__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version : number</td><td port=\"version__value\" align=\"left\" balign=\"left\">1</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"dataPayload\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataPayload</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"content__key\" align=\"left\" balign=\"left\">content</td><td port=\"content__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"metadata__key\" align=\"left\" balign=\"left\">metadata</td><td port=\"metadata__value\" align=\"left\" balign=\"left\">{}</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"request\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>request</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"base__key\" align=\"left\" balign=\"left\">base</td><td port=\"base__value\" align=\"left\" balign=\"left\">#baseAttributes</td></tr><tr><td port=\"audit__key\" align=\"left\" balign=\"left\">audit</td><td port=\"audit__value\" align=\"left\" balign=\"left\">#auditAttributes</td></tr><tr><td port=\"payload__key\" align=\"left\" balign=\"left\">payload</td><td port=\"payload__value\" align=\"left\" balign=\"left\">#dataPayload</td></tr><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority : number</td><td port=\"priority__value\" align=\"left\" balign=\"left\">5</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n}",
-  "svgHash": "af427f29f9a606ace35943392664a02acf2e5fefcad171f0f381a9fe2608621a"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Type Composition</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"baseAttributes\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>baseAttributes</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"id__key\" align=\"left\" balign=\"left\">id : string</td><td port=\"id__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"timestamp__key\" align=\"left\" balign=\"left\">timestamp : number</td><td port=\"timestamp__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:2\"];\n  \"auditAttributes\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>auditAttributes</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"createdBy__key\" align=\"left\" balign=\"left\">createdBy : string</td><td port=\"createdBy__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"modifiedBy__key\" align=\"left\" balign=\"left\">modifiedBy : string</td><td port=\"modifiedBy__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version : number</td><td port=\"version__value\" align=\"left\" balign=\"left\">1</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L8:0-12:2\"];\n  \"dataPayload\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataPayload</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"content__key\" align=\"left\" balign=\"left\">content</td><td port=\"content__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"metadata__key\" align=\"left\" balign=\"left\">metadata</td><td port=\"metadata__value\" align=\"left\" balign=\"left\">{}</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L14:0-17:2\"];\n  \"request\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>request</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"base__key\" align=\"left\" balign=\"left\">base</td><td port=\"base__value\" align=\"left\" balign=\"left\">#baseAttributes</td></tr><tr><td port=\"audit__key\" align=\"left\" balign=\"left\">audit</td><td port=\"audit__value\" align=\"left\" balign=\"left\">#auditAttributes</td></tr><tr><td port=\"payload__key\" align=\"left\" balign=\"left\">payload</td><td port=\"payload__value\" align=\"left\" balign=\"left\">#dataPayload</td></tr><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority : number</td><td port=\"priority__value\" align=\"left\" balign=\"left\">5</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L20:0-26:2\"];\n\n}",
+  "svgHash": "b5e849e23038b35f5319e13b4b039eca33b2700b182292f5930461a4a83764d0"
 }

@@ -8,13 +8,33 @@
         "name": "Dashboard",
         "type": "state",
         "attributes": [],
-        "title": "User Dashboard"
+        "title": "User Dashboard",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 32
+          }
+        }
       },
       {
         "name": "Profile",
         "type": "state",
         "attributes": [],
-        "title": "User Profile"
+        "title": "User Profile",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 28
+          }
+        }
       },
       {
         "name": "LoginPage",
@@ -29,21 +49,51 @@
       {
         "source": "LoginPage",
         "target": "Dashboard",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 10
+          },
+          "end": {
+            "line": 8,
+            "character": 23
+          }
+        }
       },
       {
         "source": "Dashboard",
         "target": "Profile",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 24
+          },
+          "end": {
+            "line": 8,
+            "character": 35
+          }
+        }
       },
       {
         "source": "Profile",
         "target": "UserSession",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 36
+          },
+          "end": {
+            "line": 8,
+            "character": 51
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Main Application</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Dashboard\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Dashboard</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User Dashboard</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Profile\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Profile</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User Profile</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"LoginPage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoginPage</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"UserSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UserSession</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"LoginPage\" -> \"Dashboard\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Dashboard\" -> \"Profile\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Profile\" -> \"UserSession\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "b92ef74616d183ee7ff29de1915f2cff75238cc11d0b3d2f9c7051cca7182d17"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Main Application</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Dashboard\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Dashboard</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User Dashboard</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:32\"];\n  \"Profile\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Profile</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">User Profile</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:28\"];\n  \"LoginPage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoginPage</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"UserSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UserSession</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"LoginPage\" -> \"Dashboard\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:10-8:23\"];\n  \"Dashboard\" -> \"Profile\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:24-8:35\"];\n  \"Profile\" -> \"UserSession\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:36-8:51\"];\n}",
+  "svgHash": "5635d87da3a6ddd412b7e59eb92c49454aa6b89d755ad99ddc718d74a6d69351"
 }

@@ -14,7 +14,17 @@
           {
             "name": "Async"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 1,
+            "character": 31
+          }
+        }
       },
       {
         "name": "legacy",
@@ -25,12 +35,22 @@
             "name": "Deprecated",
             "value": "Use newResource instead"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 55
+          }
+        }
       }
     ],
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>critical</b> <i>&lt;task&gt;</i> <i>@Critical @Async</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"legacy\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>legacy</b> <i>&lt;resource&gt;</i> <i>@Deprecated(\"Use newResource instead\")</i></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=\"filled,dashed\", color=\"#388E3C\", fontcolor=\"#999999\"];\n\n}",
-  "svgHash": "7b90d16a07a9cabe0fff7d978a925a0a619a27757e97c03af0c539f8ca2c5aed"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>critical</b> <i>&lt;task&gt;</i> <i>@Critical @Async</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L1:0-1:31\"];\n  \"legacy\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>legacy</b> <i>&lt;resource&gt;</i> <i>@Deprecated(\"Use newResource instead\")</i></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=\"filled,dashed\", color=\"#388E3C\", fontcolor=\"#999999\", URL=\"#L2:0-2:55\"];\n\n}",
+  "svgHash": "fa692d1ab08a6e111068284b936aa897670bbed50adf06cec69fdc5fbd0c948b"
 }

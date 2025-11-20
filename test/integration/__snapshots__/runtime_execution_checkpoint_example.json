@@ -13,7 +13,17 @@
         "name": "Initialize",
         "type": "state",
         "attributes": [],
-        "title": "Initialize system"
+        "title": "Initialize system",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 36
+          }
+        }
       },
       {
         "name": "ImportantState",
@@ -24,29 +34,69 @@
             "name": "checkpoint"
           }
         ],
-        "title": "Critical point"
+        "title": "Critical point",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 49
+          }
+        }
       },
       {
         "name": "ProcessMore",
         "type": "state",
         "attributes": [],
-        "title": "Continue processing"
+        "title": "Continue processing",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 39
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Initialize",
         "target": "ImportantState",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 11
+          },
+          "end": {
+            "line": 9,
+            "character": 28
+          }
+        }
       },
       {
         "source": "ImportantState",
         "target": "ProcessMore",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 29
+          },
+          "end": {
+            "line": 9,
+            "character": 43
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Checkpoint Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">info</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Initialize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Initialize</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Initialize system</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ImportantState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ImportantState</b> <i>&lt;state&gt;</i> <i>@checkpoint</i></td></tr><tr><td align=\"left\">Critical point</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessMore\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessMore</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Continue processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Initialize\" -> \"ImportantState\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ImportantState\" -> \"ProcessMore\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "6fcc3f068e10dbdd6bb66d3ce0e0284bc75b96f47bf25c7503d1fa37d86ca2a0"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Checkpoint Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">info</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Initialize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Initialize</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Initialize system</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:36\"];\n  \"ImportantState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ImportantState</b> <i>&lt;state&gt;</i> <i>@checkpoint</i></td></tr><tr><td align=\"left\">Critical point</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:49\"];\n  \"ProcessMore\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessMore</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Continue processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:39\"];\n\n  // Edges\n  \"Initialize\" -> \"ImportantState\" [labelOverlay=\"75%\", edgeURL=\"#L9:11-9:28\"];\n  \"ImportantState\" -> \"ProcessMore\" [labelOverlay=\"75%\", edgeURL=\"#L9:29-9:43\"];\n}",
+  "svgHash": "372fc03a3e07b75d05b885d8b5c0f8452bd90eb006df95c9a0b8fcad2e7c756b"
 }

@@ -17,7 +17,17 @@
             "value": "https://api.example.com/data"
           }
         ],
-        "title": "Fetch data"
+        "title": "Fetch data",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 2
+          }
+        }
       },
       {
         "name": "transform",
@@ -32,7 +42,17 @@
             ]
           }
         ],
-        "title": "Transform data"
+        "title": "Transform data",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 2
+          }
+        }
       },
       {
         "name": "validate",
@@ -43,7 +63,17 @@
             "value": "#validationSchema"
           }
         ],
-        "title": "Validate results"
+        "title": "Validate results",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 2
+          }
+        }
       },
       {
         "name": "store",
@@ -54,28 +84,68 @@
             "value": "database"
           }
         ],
-        "title": "Store results"
+        "title": "Store results",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "fetch",
         "target": "transform",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 6
+          },
+          "end": {
+            "line": 20,
+            "character": 18
+          }
+        }
       },
       {
         "source": "transform",
         "target": "validate",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 19
+          },
+          "end": {
+            "line": 20,
+            "character": 30
+          }
+        }
       },
       {
         "source": "validate",
         "target": "store",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 31
+          },
+          "end": {
+            "line": 20,
+            "character": 39
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Pipeline</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"fetch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetch</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Fetch data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">api</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">https://api.example.com/data</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transform</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Transform data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"operations__key\" align=\"left\" balign=\"left\">operations</td><td port=\"operations__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;filter&quot;,<br align=\"left\"/>  &quot;map&quot;,<br align=\"left\"/>  &quot;reduce&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate results</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#validationSchema</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"store\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>store</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Store results</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"destination__key\" align=\"left\" balign=\"left\">destination</td><td port=\"destination__value\" align=\"left\" balign=\"left\">database</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"fetch\" -> \"transform\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"transform\" -> \"validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validate\" -> \"store\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "7dc4dad1ea451902b4bd1d1f6408e37a614ada3160379a5b0cef2bd2be2c0309"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Pipeline</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"fetch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetch</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Fetch data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">api</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">https://api.example.com/data</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-6:2\"];\n  \"transform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transform</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Transform data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"operations__key\" align=\"left\" balign=\"left\">operations</td><td port=\"operations__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;filter&quot;,<br align=\"left\"/>  &quot;map&quot;,<br align=\"left\"/>  &quot;reduce&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-10:2\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate results</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#validationSchema</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-14:2\"];\n  \"store\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>store</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Store results</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"destination__key\" align=\"left\" balign=\"left\">destination</td><td port=\"destination__value\" align=\"left\" balign=\"left\">database</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L16:0-18:2\"];\n\n  // Edges\n  \"fetch\" -> \"transform\" [labelOverlay=\"75%\", edgeURL=\"#L20:6-20:18\"];\n  \"transform\" -> \"validate\" [labelOverlay=\"75%\", edgeURL=\"#L20:19-20:30\"];\n  \"validate\" -> \"store\" [labelOverlay=\"75%\", edgeURL=\"#L20:31-20:39\"];\n}",
+  "svgHash": "a7751a1dc6f467dc59a66d93a80a065e99302d32457fd97eb558e291fc80a4ff"
 }

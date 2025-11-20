@@ -8,68 +8,178 @@
         "name": "LoadRaw",
         "type": "state",
         "attributes": [],
-        "title": "Load Raw Data"
+        "title": "Load Raw Data",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 29
+          }
+        }
       },
       {
         "name": "ParseData",
         "type": "state",
         "attributes": [],
-        "title": "Parse Data"
+        "title": "Parse Data",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 28
+          }
+        }
       },
       {
         "name": "TransformStructure",
         "type": "state",
         "attributes": [],
-        "title": "Transform Structure"
+        "title": "Transform Structure",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 46
+          }
+        }
       },
       {
         "name": "EnrichData",
         "type": "state",
         "attributes": [],
-        "title": "Enrich Data"
+        "title": "Enrich Data",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 30
+          }
+        }
       },
       {
         "name": "ValidateOutput",
         "type": "state",
         "attributes": [],
-        "title": "Validate Output"
+        "title": "Validate Output",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 38
+          }
+        }
       },
       {
         "name": "StoreProcessed",
         "type": "state",
         "attributes": [],
-        "title": "Store Processed Data"
+        "title": "Store Processed Data",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 43
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "LoadRaw",
         "target": "ParseData",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 8
+          },
+          "end": {
+            "line": 10,
+            "character": 21
+          }
+        }
       },
       {
         "source": "ParseData",
         "target": "TransformStructure",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 22
+          },
+          "end": {
+            "line": 10,
+            "character": 44
+          }
+        }
       },
       {
         "source": "TransformStructure",
         "target": "EnrichData",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 19
+          },
+          "end": {
+            "line": 11,
+            "character": 33
+          }
+        }
       },
       {
         "source": "EnrichData",
         "target": "ValidateOutput",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 34
+          },
+          "end": {
+            "line": 11,
+            "character": 52
+          }
+        }
       },
       {
         "source": "ValidateOutput",
         "target": "StoreProcessed",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 15
+          },
+          "end": {
+            "line": 12,
+            "character": 33
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Transformation</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"LoadRaw\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoadRaw</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Load Raw Data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ParseData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ParseData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Parse Data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"TransformStructure\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>TransformStructure</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Transform Structure</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"EnrichData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>EnrichData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Enrich Data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ValidateOutput\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ValidateOutput</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate Output</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"StoreProcessed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreProcessed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Store Processed Data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"LoadRaw\" -> \"ParseData\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ParseData\" -> \"TransformStructure\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"TransformStructure\" -> \"EnrichData\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"EnrichData\" -> \"ValidateOutput\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ValidateOutput\" -> \"StoreProcessed\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "d5574db4476ae98f7d8b1b383df63aa4f3776aaaa6434ca9c921d3114507c026"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Transformation</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"LoadRaw\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoadRaw</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Load Raw Data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:29\"];\n  \"ParseData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ParseData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Parse Data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:28\"];\n  \"TransformStructure\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>TransformStructure</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Transform Structure</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:46\"];\n  \"EnrichData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>EnrichData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Enrich Data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:30\"];\n  \"ValidateOutput\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ValidateOutput</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate Output</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:38\"];\n  \"StoreProcessed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreProcessed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Store Processed Data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:43\"];\n\n  // Edges\n  \"LoadRaw\" -> \"ParseData\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:8-10:21\"];\n  \"ParseData\" -> \"TransformStructure\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:22-10:44\"];\n  \"TransformStructure\" -> \"EnrichData\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:19-11:33\"];\n  \"EnrichData\" -> \"ValidateOutput\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:34-11:52\"];\n  \"ValidateOutput\" -> \"StoreProcessed\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:15-12:33\"];\n}",
+  "svgHash": "65cde769b36ccf9e97fc304065f92cff91dccbafbc288cec9612df8b25bcf2a0"
 }
