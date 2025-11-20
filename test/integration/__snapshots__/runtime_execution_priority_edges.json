@@ -17,31 +17,81 @@
             "name": "itemCount",
             "value": 0
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 1
+          }
+        }
       },
       {
         "name": "CheckData",
         "type": "state",
         "attributes": [],
-        "title": "Check data"
+        "title": "Check data",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 28
+          }
+        }
       },
       {
         "name": "ProcessNormal",
         "type": "state",
         "attributes": [],
-        "title": "Normal processing"
+        "title": "Normal processing",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 39
+          }
+        }
       },
       {
         "name": "ProcessUrgent",
         "type": "state",
         "attributes": [],
-        "title": "Urgent processing"
+        "title": "Urgent processing",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 39
+          }
+        }
       },
       {
         "name": "ProcessDefault",
         "type": "state",
         "attributes": [],
-        "title": "Default processing"
+        "title": "Default processing",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 41
+          }
+        }
       }
     ],
     "edges": [
@@ -60,6 +110,16 @@
         },
         "style": {
           "when": "Data.itemCount > 100"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 10
+          },
+          "end": {
+            "line": 15,
+            "character": 72
+          }
         }
       },
       {
@@ -77,6 +137,16 @@
         },
         "style": {
           "when": "Data.itemCount > 0"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 10
+          },
+          "end": {
+            "line": 16,
+            "character": 70
+          }
         }
       },
       {
@@ -88,7 +158,17 @@
             "value": "3"
           }
         ],
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 10
+          },
+          "end": {
+            "line": 17,
+            "character": 42
+          }
+        }
       }
     ],
     "inferredDependencies": [
@@ -106,6 +186,6 @@
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Priority Edges</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Data\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Data</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"itemCount__key\" align=\"left\" balign=\"left\">itemCount</td><td port=\"itemCount__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"CheckData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CheckData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Check data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessNormal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessNormal</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Normal processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessUrgent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessUrgent</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Urgent processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessDefault\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessDefault</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Default processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"CheckData\" -> \"ProcessUrgent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@priority(\"1\")</i></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Data.itemCount &gt; 100</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", when=\"Data.itemCount > 100\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"CheckData\" -> \"ProcessNormal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@priority(\"2\")</i></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Data.itemCount &gt; 0</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", when=\"Data.itemCount > 0\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"CheckData\" -> \"ProcessDefault\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@priority(\"3\")</i></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"CheckData\" -> \"Data\" [label=\"condition references Data\", style=dashed, color=blue];\n  \"CheckData\" -> \"Data\" [label=\"condition references Data\", style=dashed, color=blue];\n}",
-  "svgHash": "273023bd523cf813f44899e2aa190920efc2ffbbeaa29cfe2eae79474c8c846a"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Priority Edges</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Data\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Data</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"itemCount__key\" align=\"left\" balign=\"left\">itemCount</td><td port=\"itemCount__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L5:0-7:1\"];\n  \"CheckData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CheckData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Check data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L9:0-9:28\"];\n  \"ProcessNormal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessNormal</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Normal processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:39\"];\n  \"ProcessUrgent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessUrgent</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Urgent processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:39\"];\n  \"ProcessDefault\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessDefault</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Default processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L12:0-12:41\"];\n\n  // Edges\n  \"CheckData\" -> \"ProcessUrgent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@priority(\"1\")</i></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Data.itemCount &gt; 100</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L15:10-15:72\", when=\"Data.itemCount > 100\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"CheckData\" -> \"ProcessNormal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@priority(\"2\")</i></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Data.itemCount &gt; 0</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L16:10-16:70\", when=\"Data.itemCount > 0\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"CheckData\" -> \"ProcessDefault\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@priority(\"3\")</i></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L17:10-17:42\"];\n\n  // Inferred Dependencies\n  \"CheckData\" -> \"Data\" [label=\"condition references Data\", style=dashed, color=blue];\n  \"CheckData\" -> \"Data\" [label=\"condition references Data\", style=dashed, color=blue];\n}",
+  "svgHash": "bab497f5f32d199257fe277406d32a030f55782bb5ee4dc00b11b07eefad3646"
 }

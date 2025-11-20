@@ -22,7 +22,17 @@
             "type": "Integer",
             "value": 4096
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 2
+          }
+        }
       },
       {
         "name": "userInput",
@@ -36,7 +46,17 @@
             "name": "context",
             "value": "#conversationHistory"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 2
+          }
+        }
       },
       {
         "name": "analyze",
@@ -54,7 +74,17 @@
             "name": "prompt",
             "value": "Analyze this question: {{ userInput.question }}\nContext: {{ userInput.context }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 2
+          }
+        }
       },
       {
         "name": "enhance",
@@ -68,7 +98,17 @@
             "name": "prompt",
             "value": "Enhance the analysis: {{ analyze.prompt }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 23,
+            "character": 2
+          }
+        }
       },
       {
         "name": "format",
@@ -78,66 +118,96 @@
             "name": "prompt",
             "value": "Format the final response based on: {{ enhance.prompt }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 0
+          },
+          "end": {
+            "line": 27,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "analyze",
         "target": "enhance",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 8
+          },
+          "end": {
+            "line": 29,
+            "character": 18
+          }
+        }
       },
       {
         "source": "enhance",
         "target": "format",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 19
+          },
+          "end": {
+            "line": 29,
+            "character": 28
+          }
+        }
       }
     ],
     "inferredDependencies": [
       {
         "source": "analyze",
         "target": "llmConfig",
-        "reason": "reads model",
+        "reason": "reads llmConfig.model",
         "path": "llmConfig.model"
       },
       {
         "source": "analyze",
         "target": "llmConfig",
-        "reason": "reads temperature",
+        "reason": "reads llmConfig.temperature",
         "path": "llmConfig.temperature"
       },
       {
         "source": "analyze",
         "target": "userInput",
-        "reason": "reads prompt",
+        "reason": "reads userInput.question",
         "path": "userInput.question"
       },
       {
         "source": "analyze",
         "target": "userInput",
-        "reason": "reads prompt",
+        "reason": "reads userInput.context",
         "path": "userInput.context"
       },
       {
         "source": "enhance",
         "target": "llmConfig",
-        "reason": "reads model",
+        "reason": "reads llmConfig.model",
         "path": "llmConfig.model"
       },
       {
         "source": "enhance",
         "target": "analyze",
-        "reason": "reads prompt",
+        "reason": "reads analyze.prompt",
         "path": "analyze.prompt"
       },
       {
         "source": "format",
         "target": "enhance",
-        "reason": "reads prompt",
+        "reason": "reads enhance.prompt",
         "path": "enhance.prompt"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>LLM Processing Pipeline</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"llmConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>llmConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature : Float</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"maxTokens__key\" align=\"left\" balign=\"left\">maxTokens : Integer</td><td port=\"maxTokens__value\" align=\"left\" balign=\"left\">4096</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"userInput\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userInput</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"question__key\" align=\"left\" balign=\"left\">question</td><td port=\"question__value\" align=\"left\" balign=\"left\">#userQuestion</td></tr><tr><td port=\"context__key\" align=\"left\" balign=\"left\">context</td><td port=\"context__value\" align=\"left\" balign=\"left\">#conversationHistory</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze this question: {{<br/>userInput.question }}\nContext: {{<br/>userInput.context }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">{{ llmConfig.model }}</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">{{ llmConfig.temperature }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"enhance\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>enhance</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Enhance the analysis: {{ analyze.prompt<br/>}}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">{{ llmConfig.model }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"format\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>format</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Format the final response based on: {{<br/>enhance.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"analyze\" -> \"enhance\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"enhance\" -> \"format\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"analyze\" -> \"llmConfig\" [label=\"reads model\", style=dashed, color=blue];\n  \"analyze\" -> \"llmConfig\" [label=\"reads temperature\", style=dashed, color=blue];\n  \"analyze\" -> \"userInput\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"userInput\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"enhance\" -> \"llmConfig\" [label=\"reads model\", style=dashed, color=blue];\n  \"enhance\" -> \"analyze\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"format\" -> \"enhance\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "8b697f40a4c325df02069cd7bda90d2fe1604830dc61a09803d5238cd4b70a87"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>LLM Processing Pipeline</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"llmConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>llmConfig</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature : Float</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"maxTokens__key\" align=\"left\" balign=\"left\">maxTokens : Integer</td><td port=\"maxTokens__value\" align=\"left\" balign=\"left\">4096</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-7:2\"];\n  \"userInput\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userInput</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"question__key\" align=\"left\" balign=\"left\">question</td><td port=\"question__value\" align=\"left\" balign=\"left\">#userQuestion</td></tr><tr><td port=\"context__key\" align=\"left\" balign=\"left\">context</td><td port=\"context__value\" align=\"left\" balign=\"left\">#conversationHistory</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L9:0-12:2\"];\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze this question: {{<br/>userInput.question }}\nContext: {{<br/>userInput.context }}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">{{ llmConfig.model }}</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">{{ llmConfig.temperature }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-18:2\"];\n  \"enhance\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>enhance</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Enhance the analysis: {{ analyze.prompt<br/>}}</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">{{ llmConfig.model }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L20:0-23:2\"];\n  \"format\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>format</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Format the final response based on: {{<br/>enhance.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L25:0-27:2\"];\n\n  // Edges\n  \"analyze\" -> \"enhance\" [labelOverlay=\"75%\", edgeURL=\"#L29:8-29:18\"];\n  \"enhance\" -> \"format\" [labelOverlay=\"75%\", edgeURL=\"#L29:19-29:28\"];\n\n  // Inferred Dependencies\n  \"analyze\" -> \"llmConfig\" [label=\"reads llmConfig.model\", style=dashed, color=blue];\n  \"analyze\" -> \"llmConfig\" [label=\"reads llmConfig.temperature\", style=dashed, color=blue];\n  \"analyze\" -> \"userInput\" [label=\"reads userInput.question\", style=dashed, color=blue];\n  \"analyze\" -> \"userInput\" [label=\"reads userInput.context\", style=dashed, color=blue];\n  \"enhance\" -> \"llmConfig\" [label=\"reads llmConfig.model\", style=dashed, color=blue];\n  \"enhance\" -> \"analyze\" [label=\"reads analyze.prompt\", style=dashed, color=blue];\n  \"format\" -> \"enhance\" [label=\"reads enhance.prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "fb3a31365863f2721b1c54e6bd1cd38eded90a7f331b3d06d611ec3715f98088"
 }

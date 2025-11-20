@@ -8,51 +8,131 @@
         "name": "evaluate",
         "type": "task",
         "attributes": [],
-        "title": "Evaluate condition"
+        "title": "Evaluate condition",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 35
+          }
+        }
       },
       {
         "name": "pathA",
         "type": "task",
         "attributes": [],
-        "title": "Process path A"
+        "title": "Process path A",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 28
+          }
+        }
       },
       {
         "name": "pathB",
         "type": "task",
         "attributes": [],
-        "title": "Process path B"
+        "title": "Process path B",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 28
+          }
+        }
       },
       {
         "name": "merge",
         "type": "task",
         "attributes": [],
-        "title": "Merge results"
+        "title": "Merge results",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 27
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "evaluate",
         "target": "pathA",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 9
+          },
+          "end": {
+            "line": 8,
+            "character": 24
+          }
+        }
       },
       {
         "source": "evaluate",
         "target": "pathB",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 9
+          },
+          "end": {
+            "line": 8,
+            "character": 24
+          }
+        }
       },
       {
         "source": "pathA",
         "target": "merge",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 6
+          },
+          "end": {
+            "line": 9,
+            "character": 14
+          }
+        }
       },
       {
         "source": "pathB",
         "target": "merge",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 6
+          },
+          "end": {
+            "line": 10,
+            "character": 14
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Conditional Workflow</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"evaluate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>evaluate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Evaluate condition</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"pathA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pathA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process path A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"pathB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pathB</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process path B</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"merge\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>merge</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Merge results</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"evaluate\" -> \"pathA\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"evaluate\" -> \"pathB\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"pathA\" -> \"merge\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"pathB\" -> \"merge\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "cfd8ba51dacc29af165293896d975488d0f353b2e670653fa7d0890809eeabf3"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Conditional Workflow</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"evaluate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>evaluate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Evaluate condition</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:35\"];\n  \"pathA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pathA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process path A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:28\"];\n  \"pathB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pathB</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process path B</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-5:28\"];\n  \"merge\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>merge</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Merge results</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-6:27\"];\n\n  // Edges\n  \"evaluate\" -> \"pathA\" [labelOverlay=\"75%\", edgeURL=\"#L8:9-8:24\"];\n  \"evaluate\" -> \"pathB\" [labelOverlay=\"75%\", edgeURL=\"#L8:9-8:24\"];\n  \"pathA\" -> \"merge\" [labelOverlay=\"75%\", edgeURL=\"#L9:6-9:14\"];\n  \"pathB\" -> \"merge\" [labelOverlay=\"75%\", edgeURL=\"#L10:6-10:14\"];\n}",
+  "svgHash": "3d025fbb2b615a323c9502dabed64b89c353c5d6e34f4c569cb778da83bfe2ce"
 }

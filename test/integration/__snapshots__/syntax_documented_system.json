@@ -12,12 +12,32 @@
             "name": "target",
             "value": "Processor"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
       },
       {
         "name": "Input",
         "attributes": [],
-        "parent": "Processor"
+        "parent": "Processor",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 4
+          },
+          "end": {
+            "line": 4,
+            "character": 10
+          }
+        }
       },
       {
         "name": "Validate",
@@ -29,7 +49,17 @@
           }
         ],
         "parent": "Processor",
-        "title": "Validates input against schema. Throws ValidationError on failure."
+        "title": "Validates input against schema. Throws ValidationError on failure.",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 13
+          }
+        }
       },
       {
         "name": "Transform",
@@ -41,12 +71,32 @@
           }
         ],
         "parent": "Processor",
-        "title": "Applies transformation rules from config.rules array."
+        "title": "Applies transformation rules from config.rules array.",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 4
+          },
+          "end": {
+            "line": 6,
+            "character": 14
+          }
+        }
       },
       {
         "name": "Output",
         "attributes": [],
-        "parent": "Processor"
+        "parent": "Processor",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 4
+          },
+          "end": {
+            "line": 7,
+            "character": 11
+          }
+        }
       },
       {
         "name": "Start",
@@ -61,31 +111,81 @@
       {
         "source": "Start",
         "target": "Input",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 6
+          },
+          "end": {
+            "line": 14,
+            "character": 24
+          }
+        }
       },
       {
         "source": "Input",
         "target": "Validate",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 25
+          },
+          "end": {
+            "line": 14,
+            "character": 46
+          }
+        }
       },
       {
         "source": "Validate",
         "target": "Transform",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 47
+          },
+          "end": {
+            "line": 14,
+            "character": 69
+          }
+        }
       },
       {
         "source": "Transform",
         "target": "Output",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 70
+          },
+          "end": {
+            "line": 14,
+            "character": 89
+          }
+        }
       },
       {
         "source": "Output",
         "target": "End",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 90
+          },
+          "end": {
+            "line": 14,
+            "character": 96
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Documented System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Root-level notes\n  \"note_Processor_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Processor_0\" -> \"Processor\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"Start\" -> \"Input\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Input\" -> \"Validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Validate\" -> \"Transform\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Transform\" -> \"Output\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Output\" -> \"End\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "6561f4e9d8c5765432ef0af64a3c8e719a60796198db3747b6d42cb7bc9649ce"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Documented System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Root-level notes\n  \"note_Processor_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Processor_0\" -> \"Processor\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"Start\" -> \"Input\" [labelOverlay=\"75%\", edgeURL=\"#L14:6-14:24\"];\n  \"Input\" -> \"Validate\" [labelOverlay=\"75%\", edgeURL=\"#L14:25-14:46\"];\n  \"Validate\" -> \"Transform\" [labelOverlay=\"75%\", edgeURL=\"#L14:47-14:69\"];\n  \"Transform\" -> \"Output\" [labelOverlay=\"75%\", edgeURL=\"#L14:70-14:89\"];\n  \"Output\" -> \"End\" [labelOverlay=\"75%\", edgeURL=\"#L14:90-14:96\"];\n}",
+  "svgHash": "587bf0fdf966ec45e425d6f77e7a7f9b3ac15143d2c79d523d03e71612b4a841"
 }

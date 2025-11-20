@@ -9,8 +9,11 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { RailsExecutor, MachineData } from '../../src/language/rails-executor.js';
+import { RailsExecutor } from '../../src/language/rails-executor.js';
+import type { MachineJSON } from '../../src/language/json/types.js';
 import { AgentContextBuilder } from '../../src/language/agent-context-builder.js';
+
+type MachineData = MachineJSON;
 
 describe('State Modules', () => {
     describe('Module Entry', () => {

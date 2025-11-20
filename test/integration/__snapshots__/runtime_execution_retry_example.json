@@ -19,26 +19,66 @@
             "value": "3"
           }
         ],
-        "title": "Call external API"
+        "title": "Call external API",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 46
+          }
+        }
       },
       {
         "name": "ProcessResponse",
         "type": "state",
         "attributes": [],
-        "title": "Process API response"
+        "title": "Process API response",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 44
+          }
+        }
       },
       {
         "name": "HandleError",
         "type": "state",
         "attributes": [],
-        "title": "Handle API error"
+        "title": "Handle API error",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 36
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "FetchAPI",
         "target": "ProcessResponse",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 9
+          },
+          "end": {
+            "line": 9,
+            "character": 27
+          }
+        }
       },
       {
         "source": "FetchAPI",
@@ -49,11 +89,21 @@
         },
         "style": {
           "when": "error"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 9
+          },
+          "end": {
+            "line": 10,
+            "character": 38
+          }
         }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Retry Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"FetchAPI\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchAPI</b> <i>&lt;state&gt;</i> <i>@retry(\"3\")</i></td></tr><tr><td align=\"left\">Call external API</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessResponse\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessResponse</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process API response</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HandleError</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Handle API error</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"FetchAPI\" -> \"ProcessResponse\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"FetchAPI\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">error</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", when=\"error\", style=solid, color=\"#4CAF50\", penwidth=2];\n}",
-  "svgHash": "7637d90a755a0eb51f41f1bafebe86048037617f92a189930b0cb987ea3cc4e4"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Retry Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"FetchAPI\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchAPI</b> <i>&lt;state&gt;</i> <i>@retry(\"3\")</i></td></tr><tr><td align=\"left\">Call external API</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:46\"];\n  \"ProcessResponse\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessResponse</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process API response</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:44\"];\n  \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HandleError</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Handle API error</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:36\"];\n\n  // Edges\n  \"FetchAPI\" -> \"ProcessResponse\" [labelOverlay=\"75%\", edgeURL=\"#L9:9-9:27\"];\n  \"FetchAPI\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">error</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L10:9-10:38\", when=\"error\", style=solid, color=\"#4CAF50\", penwidth=2];\n}",
+  "svgHash": "ff1a825d719f594d118fd81b6b9c070a8c8935b5f33cebcd6ba815ab6231e445"
 }

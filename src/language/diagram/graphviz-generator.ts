@@ -10,7 +10,8 @@
  * - renderDotToSVG: Render DOT syntax to SVG using @hpcc-js/wasm
  */
 
-import { MachineJSON, DiagramOptions, RuntimeContext } from './types.js';
+import type { MachineJSON, DiagramOptions, RuntimeContext } from './types.js';
+import type { ExecutionState, VisualizationState } from '../execution/runtime-types.js';
 import { generateDotDiagram, generateRuntimeDotDiagram } from './graphviz-dot-diagram.js';
 import { Graphviz } from '@hpcc-js/wasm';
 
@@ -25,6 +26,107 @@ async function getGraphviz(): Promise<Awaited<ReturnType<typeof Graphviz.load>>>
         graphvizInstance = await Graphviz.load();
     }
     return graphvizInstance;
+}
+
+/**
+ * Convert ExecutionState to RuntimeContext for diagram generation
+ */
+function executionStateToRuntimeContext(state: ExecutionState): RuntimeContext {
+    // Find the first active or waiting path
+    const activePath = state.paths.find(p => p.status === 'active' || p.status === 'waiting');
+
+    if (!activePath) {
+        // No active path, use first path or create empty context
+        const firstPath = state.paths[0];
+        return {
+            currentNode: firstPath?.currentNode || '',
+            errorCount: state.metadata.errorCount,
+            visitedNodes: new Set<string>(),
+            attributes: new Map<string, any>(),
+            history: [],
+            nodeInvocationCounts: new Map<string, number>(),
+            stateTransitions: []
+        };
+    }
+
+    // Build visited nodes set from history
+    const visitedNodes = new Set<string>();
+    activePath.history.forEach(t => {
+        visitedNodes.add(t.from);
+        visitedNodes.add(t.to);
+    });
+    visitedNodes.add(activePath.currentNode);
+
+    return {
+        currentNode: activePath.currentNode,
+        errorCount: state.metadata.errorCount,
+        visitedNodes,
+        attributes: new Map<string, any>(), // Context values not stored in Path
+        history: activePath.history.map(h => ({
+            from: h.from,
+            to: h.to,
+            transition: h.transition,
+            timestamp: h.timestamp,
+            output: h.output
+        })),
+        nodeInvocationCounts: new Map(Object.entries(activePath.nodeInvocationCounts || {})),
+        stateTransitions: activePath.stateTransitions.map(st => ({
+            state: st.state,
+            timestamp: st.timestamp
+        }))
+    };
+}
+
+/**
+ * Convert VisualizationState to RuntimeContext for diagram generation
+ */
+function visualizationStateToRuntimeContext(vizState: VisualizationState): RuntimeContext {
+    // Use the first active path
+    const activePath = vizState.activePaths[0] || vizState.allPaths[0];
+
+    if (!activePath) {
+        return {
+            currentNode: '',
+            errorCount: vizState.errorCount,
+            visitedNodes: new Set<string>(),
+            attributes: new Map<string, any>(),
+            history: [],
+            nodeInvocationCounts: new Map<string, number>(),
+            stateTransitions: []
+        };
+    }
+
+    // Build visited nodes from node states
+    const visitedNodes = new Set<string>();
+    Object.entries(vizState.nodeStates).forEach(([nodeName, state]) => {
+        if (state.visitCount > 0) {
+            visitedNodes.add(nodeName);
+        }
+    });
+
+    // Build node invocation counts from node states
+    const nodeInvocationCounts = new Map<string, number>();
+    Object.entries(vizState.nodeStates).forEach(([nodeName, state]) => {
+        if (state.visitCount > 0) {
+            nodeInvocationCounts.set(nodeName, state.visitCount);
+        }
+    });
+
+    return {
+        currentNode: activePath.currentNode,
+        errorCount: vizState.errorCount,
+        visitedNodes,
+        attributes: new Map<string, any>(), // Context values in nodeStates.contextValues
+        history: activePath.history.map(h => ({
+            from: h.from,
+            to: h.to,
+            transition: h.transition,
+            timestamp: h.timestamp,
+            output: h.output
+        })),
+        nodeInvocationCounts,
+        stateTransitions: []
+    };
 }
 
 /**
@@ -60,25 +162,49 @@ export function generateGraphvizFromJSON(
  * - Visit counts
  * - Runtime values
  *
+ * Supports multiple input formats:
+ * - RuntimeContext (legacy)
+ * - ExecutionState (new functional runtime)
+ * - VisualizationState (optimized for display)
+ *
  * @param json - Machine definition in JSON format
- * @param context - Runtime execution context
+ * @param stateOrContext - Execution state or runtime context
  * @param options - Generation options
  * @returns DOT diagram with runtime state as a string
  *
  * @example
  * ```typescript
- * const runtimeDot = generateRuntimeGraphviz(machineJson, executionContext, {
- *   showRuntimeState: true,
- *   showVisitCounts: true,
- *   showExecutionPath: true
- * });
+ * // With ExecutionState
+ * const state = executor.getState();
+ * const dot = generateRuntimeGraphviz(machineJson, state);
+ *
+ * // With VisualizationState
+ * const vizState = executor.getVisualizationState();
+ * const dot = generateRuntimeGraphviz(machineJson, vizState);
+ *
+ * // With RuntimeContext (legacy)
+ * const dot = generateRuntimeGraphviz(machineJson, context);
  * ```
  */
 export function generateRuntimeGraphviz(
     json: MachineJSON,
-    context: RuntimeContext,
+    stateOrContext: RuntimeContext | ExecutionState | VisualizationState,
     options: DiagramOptions = {}
 ): string {
+    // Convert to RuntimeContext if needed
+    let context: RuntimeContext;
+
+    if ('version' in stateOrContext && 'paths' in stateOrContext) {
+        // ExecutionState
+        context = executionStateToRuntimeContext(stateOrContext as ExecutionState);
+    } else if ('nodeStates' in stateOrContext && 'activePaths' in stateOrContext) {
+        // VisualizationState
+        context = visualizationStateToRuntimeContext(stateOrContext as VisualizationState);
+    } else {
+        // Already RuntimeContext
+        context = stateOrContext as RuntimeContext;
+    }
+
     // Set defaults for runtime visualization
     const runtimeOptions: DiagramOptions = {
         showRuntimeState: true,
@@ -154,20 +280,21 @@ export async function generateGraphvizSVG(
  * Generate runtime SVG directly from MachineJSON with execution context
  *
  * Convenience function that generates runtime DOT and renders to SVG in one step.
+ * Supports ExecutionState, VisualizationState, or RuntimeContext.
  *
  * @param json - Machine definition in JSON format
- * @param context - Runtime execution context
+ * @param stateOrContext - Execution state or runtime context
  * @param options - Generation options
  * @param engine - Graphviz layout engine
  * @returns SVG string
  */
 export async function generateRuntimeGraphvizSVG(
     json: MachineJSON,
-    context: RuntimeContext,
+    stateOrContext: RuntimeContext | ExecutionState | VisualizationState,
     options: DiagramOptions = {},
     engine: 'dot' | 'neato' | 'fdp' | 'circo' | 'twopi' = 'dot'
 ): Promise<string> {
-    const dot = generateRuntimeGraphviz(json, context, options);
+    const dot = generateRuntimeGraphviz(json, stateOrContext, options);
     return renderDotToSVG(dot, engine);
 }
 
@@ -176,15 +303,16 @@ export async function generateRuntimeGraphvizSVG(
  *
  * This is a convenience function that generates a diagram optimized
  * for mobile display (smaller, less detailed).
+ * Supports ExecutionState, VisualizationState, or RuntimeContext.
  *
  * @param json - Machine definition in JSON format
- * @param context - Optional runtime context for runtime visualizations
+ * @param stateOrContext - Optional execution state or runtime context
  * @param options - Generation options
  * @returns Mobile-optimized DOT diagram
  */
 export function generateMobileGraphviz(
     json: MachineJSON,
-    context?: RuntimeContext,
+    stateOrContext?: RuntimeContext | ExecutionState | VisualizationState,
     options: DiagramOptions = {}
 ): string {
     const mobileOptions: DiagramOptions = {
@@ -193,8 +321,8 @@ export function generateMobileGraphviz(
         showExecutionPath: false, // Reduce clutter on mobile
     };
 
-    if (context) {
-        return generateRuntimeGraphviz(json, context, mobileOptions);
+    if (stateOrContext) {
+        return generateRuntimeGraphviz(json, stateOrContext, mobileOptions);
     } else {
         return generateGraphvizFromJSON(json, mobileOptions);
     }

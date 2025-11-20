@@ -4,7 +4,10 @@
  */
 
 import { describe, expect, test } from 'vitest';
-import { RailsExecutor, type MachineData } from '../../src/language/rails-executor.js';
+import { RailsExecutor } from '../../src/language/rails-executor.js';
+import type { MachineJSON } from '../../src/language/json/types.js';
+
+type MachineData = MachineJSON;
 
 describe('Meta-programming: Machine Manipulation', () => {
     test('get_machine_definition returns both JSON and DSL', async () => {

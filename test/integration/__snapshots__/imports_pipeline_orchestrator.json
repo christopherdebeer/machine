@@ -8,31 +8,81 @@
         "name": "Initialize",
         "type": "state",
         "attributes": [],
-        "title": "Initialize Pipeline"
+        "title": "Initialize Pipeline",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 38
+          }
+        }
       },
       {
         "name": "Monitor",
         "type": "state",
         "attributes": [],
-        "title": "Monitor Progress"
+        "title": "Monitor Progress",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 32
+          }
+        }
       },
       {
         "name": "HandleError",
         "type": "state",
         "attributes": [],
-        "title": "Handle Error"
+        "title": "Handle Error",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 32
+          }
+        }
       },
       {
         "name": "Complete",
         "type": "state",
         "attributes": [],
-        "title": "Pipeline Complete"
+        "title": "Pipeline Complete",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 34
+          }
+        }
       },
       {
         "name": "Archive",
         "type": "state",
         "attributes": [],
-        "title": "Archive Results"
+        "title": "Archive Results",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 31
+          }
+        }
       },
       {
         "name": "FetchExternal",
@@ -71,52 +121,152 @@
       {
         "source": "Initialize",
         "target": "FetchExternal",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 11
+          },
+          "end": {
+            "line": 14,
+            "character": 28
+          }
+        }
       },
       {
         "source": "FetchExternal",
         "target": "StoreRaw",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 29
+          },
+          "end": {
+            "line": 14,
+            "character": 41
+          }
+        }
       },
       {
         "source": "StoreRaw",
         "target": "LoadRaw",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 42
+          },
+          "end": {
+            "line": 14,
+            "character": 53
+          }
+        }
       },
       {
         "source": "LoadRaw",
         "target": "StoreProcessed",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 8
+          },
+          "end": {
+            "line": 15,
+            "character": 26
+          }
+        }
       },
       {
         "source": "StoreProcessed",
         "target": "LoadProcessed",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 27
+          },
+          "end": {
+            "line": 15,
+            "character": 44
+          }
+        }
       },
       {
         "source": "LoadProcessed",
         "target": "PublishResults",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 14
+          },
+          "end": {
+            "line": 16,
+            "character": 32
+          }
+        }
       },
       {
         "source": "PublishResults",
         "target": "PrepareMessage",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 33
+          },
+          "end": {
+            "line": 16,
+            "character": 51
+          }
+        }
       },
       {
         "source": "PrepareMessage",
         "target": "UpdateDashboard",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 15
+          },
+          "end": {
+            "line": 17,
+            "character": 34
+          }
+        }
       },
       {
         "source": "UpdateDashboard",
         "target": "Complete",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 35
+          },
+          "end": {
+            "line": 17,
+            "character": 47
+          }
+        }
       },
       {
         "source": "Complete",
         "target": "Archive",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 9
+          },
+          "end": {
+            "line": 18,
+            "character": 20
+          }
+        }
       },
       {
         "source": "FetchExternal",
@@ -124,6 +274,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "error"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 14
+          },
+          "end": {
+            "line": 20,
+            "character": 34
+          }
         }
       },
       {
@@ -132,6 +292,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "error"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 8
+          },
+          "end": {
+            "line": 21,
+            "character": 28
+          }
         }
       },
       {
@@ -140,16 +310,36 @@
         "arrowType": "->",
         "attributes": {
           "text": "error"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 14
+          },
+          "end": {
+            "line": 22,
+            "character": 34
+          }
         }
       },
       {
         "source": "HandleError",
         "target": "PrepareMessage",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 12
+          },
+          "end": {
+            "line": 23,
+            "character": 30
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Pipeline Orchestrator</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Initialize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Initialize</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Initialize Pipeline</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Monitor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Monitor</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Monitor Progress</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HandleError</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Handle Error</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Pipeline Complete</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Archive\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Archive</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Archive Results</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"FetchExternal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchExternal</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"StoreRaw\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreRaw</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"LoadRaw\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoadRaw</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"StoreProcessed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreProcessed</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"LoadProcessed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoadProcessed</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"PublishResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PublishResults</b></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"PrepareMessage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PrepareMessage</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"UpdateDashboard\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UpdateDashboard</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Initialize\" -> \"FetchExternal\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"FetchExternal\" -> \"StoreRaw\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"StoreRaw\" -> \"LoadRaw\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoadRaw\" -> \"StoreProcessed\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"StoreProcessed\" -> \"LoadProcessed\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoadProcessed\" -> \"PublishResults\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"PublishResults\" -> \"PrepareMessage\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"PrepareMessage\" -> \"UpdateDashboard\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"UpdateDashboard\" -> \"Complete\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Complete\" -> \"Archive\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"FetchExternal\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoadRaw\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LoadProcessed\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"HandleError\" -> \"PrepareMessage\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "633cf6e1a96268383eb65b1095b48b4246e5511a27feae2f645f13bb84f84f35"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Pipeline Orchestrator</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Initialize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Initialize</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Initialize Pipeline</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:38\"];\n  \"Monitor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Monitor</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Monitor Progress</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L9:0-9:32\"];\n  \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HandleError</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Handle Error</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:32\"];\n  \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Pipeline Complete</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:34\"];\n  \"Archive\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Archive</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Archive Results</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L12:0-12:31\"];\n  \"FetchExternal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchExternal</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"StoreRaw\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreRaw</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"LoadRaw\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoadRaw</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"StoreProcessed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreProcessed</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"LoadProcessed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoadProcessed</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"PublishResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PublishResults</b></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"PrepareMessage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PrepareMessage</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"UpdateDashboard\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UpdateDashboard</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Initialize\" -> \"FetchExternal\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L14:11-14:28\"];\n  \"FetchExternal\" -> \"StoreRaw\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L14:29-14:41\"];\n  \"StoreRaw\" -> \"LoadRaw\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L14:42-14:53\"];\n  \"LoadRaw\" -> \"StoreProcessed\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L15:8-15:26\"];\n  \"StoreProcessed\" -> \"LoadProcessed\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L15:27-15:44\"];\n  \"LoadProcessed\" -> \"PublishResults\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L16:14-16:32\"];\n  \"PublishResults\" -> \"PrepareMessage\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L16:33-16:51\"];\n  \"PrepareMessage\" -> \"UpdateDashboard\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L17:15-17:34\"];\n  \"UpdateDashboard\" -> \"Complete\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L17:35-17:47\"];\n  \"Complete\" -> \"Archive\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L18:9-18:20\"];\n  \"FetchExternal\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L20:14-20:34\"];\n  \"LoadRaw\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L21:8-21:28\"];\n  \"LoadProcessed\" -> \"HandleError\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>error</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L22:14-22:34\"];\n  \"HandleError\" -> \"PrepareMessage\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L23:12-23:30\"];\n}",
+  "svgHash": "d3d97bc6920b2350fde3cda3f5964ec199beb7e01204d8bc6259de8880703365"
 }

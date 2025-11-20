@@ -12,7 +12,17 @@
             "name": "model",
             "value": "claude-3-5-sonnet-20241022"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 2
+          }
+        }
       },
       {
         "name": "document",
@@ -22,7 +32,17 @@
             "name": "content",
             "value": "#documentContent"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 2
+          }
+        }
       },
       {
         "name": "extract",
@@ -32,7 +52,17 @@
             "name": "prompt",
             "value": "Extract key entities from: {{ document.content }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 2
+          }
+        }
       },
       {
         "name": "classify",
@@ -42,7 +72,17 @@
             "name": "prompt",
             "value": "Classify the document based on entities: {{ extract.result }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 2
+          }
+        }
       },
       {
         "name": "summarize",
@@ -52,7 +92,17 @@
             "name": "prompt",
             "value": "Summarize the document: {{ document.content }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 2
+          }
+        }
       },
       {
         "name": "combine",
@@ -62,69 +112,129 @@
             "name": "prompt",
             "value": "Combine classification and summary: {{ classify.result }} + {{ summarize.result }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "document",
         "target": "extract",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 9
+          },
+          "end": {
+            "line": 27,
+            "character": 19
+          }
+        }
       },
       {
         "source": "extract",
         "target": "classify",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 20
+          },
+          "end": {
+            "line": 27,
+            "character": 31
+          }
+        }
       },
       {
         "source": "classify",
         "target": "combine",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 32
+          },
+          "end": {
+            "line": 27,
+            "character": 42
+          }
+        }
       },
       {
         "source": "document",
         "target": "summarize",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 28,
+            "character": 9
+          },
+          "end": {
+            "line": 28,
+            "character": 21
+          }
+        }
       },
       {
         "source": "summarize",
         "target": "combine",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 28,
+            "character": 22
+          },
+          "end": {
+            "line": 28,
+            "character": 32
+          }
+        }
       }
     ],
     "inferredDependencies": [
       {
         "source": "extract",
         "target": "document",
-        "reason": "reads prompt",
+        "reason": "reads document.content",
         "path": "document.content"
       },
       {
         "source": "classify",
         "target": "extract",
-        "reason": "reads prompt",
+        "reason": "reads extract.result",
         "path": "extract.result"
       },
       {
         "source": "summarize",
         "target": "document",
-        "reason": "reads prompt",
+        "reason": "reads document.content",
         "path": "document.content"
       },
       {
         "source": "combine",
         "target": "classify",
-        "reason": "reads prompt",
+        "reason": "reads classify.result",
         "path": "classify.result"
       },
       {
         "source": "combine",
         "target": "summarize",
-        "reason": "reads prompt",
+        "reason": "reads summarize.result",
         "path": "summarize.result"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Document Processing</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"llm\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>llm</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"document\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>document</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"content__key\" align=\"left\" balign=\"left\">content</td><td port=\"content__value\" align=\"left\" balign=\"left\">#documentContent</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"extract\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extract</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Extract key entities from: {{<br/>document.content }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"classify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>classify</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Classify the document based on entities:<br/>{{ extract.result }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"summarize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>summarize</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Summarize the document: {{<br/>document.content }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"combine\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>combine</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Combine classification and summary: {{<br/>classify.result }} + {{ summarize.result<br/>}}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"document\" -> \"extract\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"extract\" -> \"classify\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"classify\" -> \"combine\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"document\" -> \"summarize\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"summarize\" -> \"combine\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"extract\" -> \"document\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"classify\" -> \"extract\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"summarize\" -> \"document\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"combine\" -> \"classify\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"combine\" -> \"summarize\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "67dd8423480efeb38ffc47735988fb7ad3e42498f6f287b47937f06869c1f76b"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Document Processing</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"llm\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>llm</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-5:2\"];\n  \"document\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>document</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"content__key\" align=\"left\" balign=\"left\">content</td><td port=\"content__value\" align=\"left\" balign=\"left\">#documentContent</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L7:0-9:2\"];\n  \"extract\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extract</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Extract key entities from: {{<br/>document.content }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L11:0-13:2\"];\n  \"classify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>classify</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Classify the document based on entities:<br/>{{ extract.result }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L15:0-17:2\"];\n  \"summarize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>summarize</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Summarize the document: {{<br/>document.content }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:0-21:2\"];\n  \"combine\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>combine</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Combine classification and summary: {{<br/>classify.result }} + {{ summarize.result<br/>}}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L23:0-25:2\"];\n\n  // Edges\n  \"document\" -> \"extract\" [labelOverlay=\"75%\", edgeURL=\"#L27:9-27:19\"];\n  \"extract\" -> \"classify\" [labelOverlay=\"75%\", edgeURL=\"#L27:20-27:31\"];\n  \"classify\" -> \"combine\" [labelOverlay=\"75%\", edgeURL=\"#L27:32-27:42\"];\n  \"document\" -> \"summarize\" [labelOverlay=\"75%\", edgeURL=\"#L28:9-28:21\"];\n  \"summarize\" -> \"combine\" [labelOverlay=\"75%\", edgeURL=\"#L28:22-28:32\"];\n\n  // Inferred Dependencies\n  \"extract\" -> \"document\" [label=\"reads document.content\", style=dashed, color=blue];\n  \"classify\" -> \"extract\" [label=\"reads extract.result\", style=dashed, color=blue];\n  \"summarize\" -> \"document\" [label=\"reads document.content\", style=dashed, color=blue];\n  \"combine\" -> \"classify\" [label=\"reads classify.result\", style=dashed, color=blue];\n  \"combine\" -> \"summarize\" [label=\"reads summarize.result\", style=dashed, color=blue];\n}",
+  "svgHash": "cc824818a090bbbca79522a2ba768ec22706c1d446a68b2101982c9354c32383"
 }

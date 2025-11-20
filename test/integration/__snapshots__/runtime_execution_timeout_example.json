@@ -19,26 +19,66 @@
             "value": "5000"
           }
         ],
-        "title": "Long operation"
+        "title": "Long operation",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 55
+          }
+        }
       },
       {
         "name": "Success",
         "type": "state",
         "attributes": [],
-        "title": "Task completed"
+        "title": "Task completed",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 30
+          }
+        }
       },
       {
         "name": "Timeout",
         "type": "state",
         "attributes": [],
-        "title": "Task timed out"
+        "title": "Task timed out",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 30
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "LongRunningTask",
         "target": "Success",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 16
+          },
+          "end": {
+            "line": 9,
+            "character": 26
+          }
+        }
       },
       {
         "source": "LongRunningTask",
@@ -49,11 +89,21 @@
         },
         "style": {
           "when": "timeout"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 16
+          },
+          "end": {
+            "line": 10,
+            "character": 43
+          }
         }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Timeout Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"LongRunningTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LongRunningTask</b> <i>&lt;state&gt;</i> <i>@timeout(\"5000\")</i></td></tr><tr><td align=\"left\">Long operation</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Success</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task completed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Timeout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Timeout</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task timed out</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"LongRunningTask\" -> \"Success\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LongRunningTask\" -> \"Timeout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">timeout</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", when=\"timeout\", style=solid, color=\"#4CAF50\", penwidth=2];\n}",
-  "svgHash": "987386c5a8ef58b0bf4b0ad571ebc7c8d79b49be0e635ad7123933f5497bf4b4"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Timeout Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"LongRunningTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LongRunningTask</b> <i>&lt;state&gt;</i> <i>@timeout(\"5000\")</i></td></tr><tr><td align=\"left\">Long operation</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:55\"];\n  \"Success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Success</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task completed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:30\"];\n  \"Timeout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Timeout</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task timed out</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:30\"];\n\n  // Edges\n  \"LongRunningTask\" -> \"Success\" [labelOverlay=\"75%\", edgeURL=\"#L9:16-9:26\"];\n  \"LongRunningTask\" -> \"Timeout\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">timeout</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L10:16-10:43\", when=\"timeout\", style=solid, color=\"#4CAF50\", penwidth=2];\n}",
+  "svgHash": "987abf84546226b8305af9d3c2af083b9cc7b9a7f956d9be61fdd0a3d9854502"
 }

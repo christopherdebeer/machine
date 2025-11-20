@@ -8,62 +8,162 @@
         "name": "PrepareMessage",
         "type": "state",
         "attributes": [],
-        "title": "Prepare Message"
+        "title": "Prepare Message",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 38
+          }
+        }
       },
       {
         "name": "SendEmail",
         "type": "state",
         "attributes": [],
-        "title": "Send Email"
+        "title": "Send Email",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 28
+          }
+        }
       },
       {
         "name": "SendSlack",
         "type": "state",
         "attributes": [],
-        "title": "Send Slack Message"
+        "title": "Send Slack Message",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 36
+          }
+        }
       },
       {
         "name": "LogNotification",
         "type": "state",
         "attributes": [],
-        "title": "Log Notification"
+        "title": "Log Notification",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 40
+          }
+        }
       },
       {
         "name": "UpdateDashboard",
         "type": "state",
         "attributes": [],
-        "title": "Update Dashboard"
+        "title": "Update Dashboard",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 40
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "PrepareMessage",
         "target": "SendEmail",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 15
+          },
+          "end": {
+            "line": 9,
+            "character": 28
+          }
+        }
       },
       {
         "source": "SendEmail",
         "target": "LogNotification",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 29
+          },
+          "end": {
+            "line": 9,
+            "character": 48
+          }
+        }
       },
       {
         "source": "PrepareMessage",
         "target": "SendSlack",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 15
+          },
+          "end": {
+            "line": 10,
+            "character": 28
+          }
+        }
       },
       {
         "source": "SendSlack",
         "target": "LogNotification",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 29
+          },
+          "end": {
+            "line": 10,
+            "character": 48
+          }
+        }
       },
       {
         "source": "LogNotification",
         "target": "UpdateDashboard",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 16
+          },
+          "end": {
+            "line": 11,
+            "character": 35
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Notifications</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"PrepareMessage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PrepareMessage</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Prepare Message</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"SendEmail\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SendEmail</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Send Email</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"SendSlack\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SendSlack</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Send Slack Message</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"LogNotification\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LogNotification</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Log Notification</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"UpdateDashboard\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UpdateDashboard</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Update Dashboard</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"PrepareMessage\" -> \"SendEmail\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"SendEmail\" -> \"LogNotification\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"PrepareMessage\" -> \"SendSlack\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"SendSlack\" -> \"LogNotification\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LogNotification\" -> \"UpdateDashboard\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "199a0cc01934687486268b03ca9ee997fdc5d5d022e152faa6bbd7450a3966e3"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Notifications</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"PrepareMessage\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PrepareMessage</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Prepare Message</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:38\"];\n  \"SendEmail\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SendEmail</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Send Email</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:28\"];\n  \"SendSlack\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SendSlack</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Send Slack Message</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:36\"];\n  \"LogNotification\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LogNotification</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Log Notification</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:40\"];\n  \"UpdateDashboard\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UpdateDashboard</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Update Dashboard</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:40\"];\n\n  // Edges\n  \"PrepareMessage\" -> \"SendEmail\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L9:15-9:28\"];\n  \"SendEmail\" -> \"LogNotification\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L9:29-9:48\"];\n  \"PrepareMessage\" -> \"SendSlack\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:15-10:28\"];\n  \"SendSlack\" -> \"LogNotification\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L10:29-10:48\"];\n  \"LogNotification\" -> \"UpdateDashboard\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:16-11:35\"];\n}",
+  "svgHash": "4961488f7da6e4ef8631f4659eeb961413780fa41a0086483589f0f23babd2c6"
 }

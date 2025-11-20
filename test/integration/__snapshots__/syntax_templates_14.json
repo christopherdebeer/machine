@@ -11,7 +11,17 @@
             "name": "prompt",
             "value": "Analyze the data and extract key points"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 2
+          }
+        }
       },
       {
         "name": "summarize",
@@ -21,7 +31,17 @@
             "name": "prompt",
             "value": "Summarize based on: {{ analyze.prompt }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 2
+          }
+        }
       },
       {
         "name": "report",
@@ -31,36 +51,66 @@
             "name": "prompt",
             "value": "Create report using summary: {{ summarize.prompt }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "analyze",
         "target": "summarize",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 8
+          },
+          "end": {
+            "line": 14,
+            "character": 20
+          }
+        }
       },
       {
         "source": "summarize",
         "target": "report",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 21
+          },
+          "end": {
+            "line": 14,
+            "character": 30
+          }
+        }
       }
     ],
     "inferredDependencies": [
       {
         "source": "summarize",
         "target": "analyze",
-        "reason": "reads prompt",
+        "reason": "reads analyze.prompt",
         "path": "analyze.prompt"
       },
       {
         "source": "report",
         "target": "summarize",
-        "reason": "reads prompt",
+        "reason": "reads summarize.prompt",
         "path": "summarize.prompt"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze the data and extract key points</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"summarize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>summarize</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Summarize based on: {{ analyze.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"report\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>report</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create report using summary: {{<br/>summarize.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"analyze\" -> \"summarize\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"summarize\" -> \"report\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"summarize\" -> \"analyze\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"report\" -> \"summarize\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "9b8d1e022a7f87c90f3f7c98065cf1139f56dcb27ef0b51eb627a88fb9f3d44a"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze the data and extract key points</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L2:0-4:2\"];\n  \"summarize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>summarize</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Summarize based on: {{ analyze.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-8:2\"];\n  \"report\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>report</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create report using summary: {{<br/>summarize.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-12:2\"];\n\n  // Edges\n  \"analyze\" -> \"summarize\" [labelOverlay=\"75%\", edgeURL=\"#L14:8-14:20\"];\n  \"summarize\" -> \"report\" [labelOverlay=\"75%\", edgeURL=\"#L14:21-14:30\"];\n\n  // Inferred Dependencies\n  \"summarize\" -> \"analyze\" [label=\"reads analyze.prompt\", style=dashed, color=blue];\n  \"report\" -> \"summarize\" [label=\"reads summarize.prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "470dcd00e5ff943456b97585c6e068b10d9094536e5ef373fbbef42998374a0d"
 }

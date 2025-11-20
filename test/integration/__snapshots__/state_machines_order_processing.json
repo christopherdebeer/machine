@@ -8,79 +8,209 @@
         "name": "pending",
         "type": "state",
         "attributes": [],
-        "title": "Order Pending"
+        "title": "Order Pending",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 30
+          }
+        }
       },
       {
         "name": "processing",
         "type": "state",
         "attributes": [],
-        "title": "Processing Order"
+        "title": "Processing Order",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 36
+          }
+        }
       },
       {
         "name": "shipped",
         "type": "state",
         "attributes": [],
-        "title": "Order Shipped"
+        "title": "Order Shipped",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 30
+          }
+        }
       },
       {
         "name": "delivered",
         "type": "state",
         "attributes": [],
-        "title": "Order Delivered"
+        "title": "Order Delivered",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 34
+          }
+        }
       },
       {
         "name": "validate",
         "type": "task",
         "attributes": [],
-        "title": "Validate order"
+        "title": "Validate order",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 31
+          }
+        }
       },
       {
         "name": "prepare",
         "type": "task",
         "attributes": [],
-        "title": "Prepare shipment"
+        "title": "Prepare shipment",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 32
+          }
+        }
       },
       {
         "name": "ship",
         "type": "task",
         "attributes": [],
-        "title": "Ship order"
+        "title": "Ship order",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 23
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "pending",
         "target": "validate",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 8
+          },
+          "end": {
+            "line": 12,
+            "character": 19
+          }
+        }
       },
       {
         "source": "validate",
         "target": "processing",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 20
+          },
+          "end": {
+            "line": 12,
+            "character": 33
+          }
+        }
       },
       {
         "source": "processing",
         "target": "prepare",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 11
+          },
+          "end": {
+            "line": 13,
+            "character": 21
+          }
+        }
       },
       {
         "source": "prepare",
         "target": "shipped",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 22
+          },
+          "end": {
+            "line": 13,
+            "character": 32
+          }
+        }
       },
       {
         "source": "shipped",
         "target": "ship",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 8
+          },
+          "end": {
+            "line": 14,
+            "character": 15
+          }
+        }
       },
       {
         "source": "ship",
         "target": "delivered",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 16
+          },
+          "end": {
+            "line": 14,
+            "character": 28
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Order Processing</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"pending\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pending</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order Pending</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing Order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"shipped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>shipped</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order Shipped</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"delivered\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>delivered</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order Delivered</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate order</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"prepare\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prepare</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Prepare shipment</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"ship\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ship</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Ship order</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"pending\" -> \"validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validate\" -> \"processing\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processing\" -> \"prepare\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"prepare\" -> \"shipped\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"shipped\" -> \"ship\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ship\" -> \"delivered\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "267fed3ee705a00939aa836fb9e3eae051671b1278c8174b3cc5d3312c858478"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Order Processing</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"pending\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pending</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order Pending</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:30\"];\n  \"processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing Order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:36\"];\n  \"shipped\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>shipped</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order Shipped</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:30\"];\n  \"delivered\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>delivered</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order Delivered</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:34\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate order</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-8:31\"];\n  \"prepare\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prepare</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Prepare shipment</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-9:32\"];\n  \"ship\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ship</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Ship order</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-10:23\"];\n\n  // Edges\n  \"pending\" -> \"validate\" [labelOverlay=\"75%\", edgeURL=\"#L12:8-12:19\"];\n  \"validate\" -> \"processing\" [labelOverlay=\"75%\", edgeURL=\"#L12:20-12:33\"];\n  \"processing\" -> \"prepare\" [labelOverlay=\"75%\", edgeURL=\"#L13:11-13:21\"];\n  \"prepare\" -> \"shipped\" [labelOverlay=\"75%\", edgeURL=\"#L13:22-13:32\"];\n  \"shipped\" -> \"ship\" [labelOverlay=\"75%\", edgeURL=\"#L14:8-14:15\"];\n  \"ship\" -> \"delivered\" [labelOverlay=\"75%\", edgeURL=\"#L14:16-14:28\"];\n}",
+  "svgHash": "d37c069eebb74be1026b794f931dd45b4d22ac4fbe610c53614306e1551d3a43"
 }

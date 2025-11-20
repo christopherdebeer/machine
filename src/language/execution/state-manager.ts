@@ -8,7 +8,7 @@
  */
 
 import type { ExecutionPath } from './types.js';
-import type { MachineData } from '../base-executor.js';
+import type { MachineJSON } from '../json/types.js';
 
 /**
  * Execution checkpoint
@@ -16,7 +16,7 @@ import type { MachineData } from '../base-executor.js';
 export interface ExecutionCheckpoint {
     id: string;
     timestamp: string;
-    machineData: MachineData;
+    machineData: MachineJSON;
     paths: ExecutionPath[];
     sharedContext: Record<string, any>;
     metadata: {
@@ -42,7 +42,7 @@ export class StateManager {
      * Create a checkpoint of current execution state
      */
     createCheckpoint(
-        machineData: MachineData,
+        machineData: MachineJSON,
         paths: ExecutionPath[],
         sharedContext: Record<string, any>,
         stepCount: number,

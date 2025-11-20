@@ -8,55 +8,145 @@
         "name": "start",
         "type": "task",
         "attributes": [],
-        "title": "Start"
+        "title": "Start",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 19
+          }
+        }
       },
       {
         "name": "process",
         "type": "task",
         "attributes": [],
-        "title": "Process"
+        "title": "Process",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 23
+          }
+        }
       },
       {
         "name": "end",
         "type": "task",
         "attributes": [],
-        "title": "End"
+        "title": "End",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 15
+          }
+        }
       },
       {
         "name": "idle",
         "type": "state",
         "attributes": [],
-        "title": "Idle"
+        "title": "Idle",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 18
+          }
+        }
       },
       {
         "name": "active",
         "type": "state",
         "attributes": [],
-        "title": "Active"
+        "title": "Active",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 22
+          }
+        }
       },
       {
         "name": "sender",
         "type": "task",
         "attributes": [],
-        "title": "Sender"
+        "title": "Sender",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 21
+          }
+        }
       },
       {
         "name": "receiver",
         "type": "task",
         "attributes": [],
-        "title": "Receiver"
+        "title": "Receiver",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 25
+          }
+        }
       },
       {
         "name": "taskA",
         "type": "task",
         "attributes": [],
-        "title": "Task A"
+        "title": "Task A",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 24,
+            "character": 20
+          }
+        }
       },
       {
         "name": "taskB",
         "type": "task",
         "attributes": [],
-        "title": "Task B"
+        "title": "Task B",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 20
+          }
+        }
       }
     ],
     "edges": [
@@ -66,6 +156,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "validate"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 6
+          },
+          "end": {
+            "line": 8,
+            "character": 27
+          }
         }
       },
       {
@@ -74,6 +174,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "complete"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 8
+          },
+          "end": {
+            "line": 11,
+            "character": 36
+          }
         }
       },
       {
@@ -82,6 +192,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "s"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 5
+          },
+          "end": {
+            "line": 16,
+            "character": 18
+          }
         }
       },
       {
@@ -100,6 +220,16 @@
         "style": {
           "color": "red",
           "penwidth": "3px"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 7
+          },
+          "end": {
+            "line": 21,
+            "character": 58
+          }
         }
       },
       {
@@ -113,11 +243,21 @@
         "style": {
           "priority": 5,
           "weight": 10
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 6
+          },
+          "end": {
+            "line": 26,
+            "character": 38
+          }
         }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Labeled Edges</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">End</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"idle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idle</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Idle</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"active\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>active</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Active</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"sender\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>sender</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Sender</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"receiver\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>receiver</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Receiver</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"taskA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Task A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"taskB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskB</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Task B</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"start\" -> \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>validate</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"process\" -> \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>complete</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"idle\" -> \"active\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"sender\" -> \"receiver\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>color: red; stroke-width: 3px</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", color=\"red\", penwidth=\"3px\"];\n  \"taskA\" -> \"taskB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">priority</td><td align=\"left\" balign=\"left\">5</td></tr><tr><td align=\"left\" balign=\"left\">weight</td><td align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", priority=\"5\", weight=\"10\"];\n}",
-  "svgHash": "98e5b52cec5f37c6e9ca23fb7b274eb88b1f185b5da96b86e71e8a67c8fc3259"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Labeled Edges</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Start</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:19\"];\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:23\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">End</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-5:15\"];\n  \"idle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idle</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Idle</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L14:0-14:18\"];\n  \"active\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>active</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Active</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L15:0-15:22\"];\n  \"sender\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>sender</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Sender</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:0-19:21\"];\n  \"receiver\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>receiver</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Receiver</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L20:0-20:25\"];\n  \"taskA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Task A</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L24:0-24:20\"];\n  \"taskB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskB</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Task B</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L25:0-25:20\"];\n\n  // Edges\n  \"start\" -> \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>validate</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L8:6-8:27\"];\n  \"process\" -> \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>complete</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L11:8-11:36\"];\n  \"idle\" -> \"active\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L16:5-16:18\"];\n  \"sender\" -> \"receiver\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>color: red; stroke-width: 3px</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L21:7-21:58\", color=\"red\", penwidth=\"3px\"];\n  \"taskA\" -> \"taskB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">priority</td><td align=\"left\" balign=\"left\">5</td></tr><tr><td align=\"left\" balign=\"left\">weight</td><td align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L26:6-26:38\", priority=\"5\", weight=\"10\"];\n}",
+  "svgHash": "d44593d6f7cefcb3e4c3140781dff31fc3db7aebba57298bf35920e47fcde5c1"
 }

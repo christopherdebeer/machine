@@ -4,7 +4,10 @@
 
 import { describe, it, expect } from 'vitest';
 import { AgentContextBuilder } from '../../src/language/agent-context-builder.js';
-import type { MachineData, MachineExecutionContext } from '../../src/language/rails-executor.js';
+import type { MachineExecutionContext } from '../../src/language/rails-executor.js';
+import type { MachineJSON } from '../../src/language/json/types.js';
+
+type MachineData = MachineJSON;
 
 describe('AgentContextBuilder - Dynamic Context System Prompts', () => {
     it('should build basic system prompt with role and position', () => {

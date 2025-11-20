@@ -57,19 +57,59 @@
       {
         "name": "userInput",
         "type": "input",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 15
+          }
+        }
       },
       {
         "name": "constraints",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 4
+          },
+          "end": {
+            "line": 9,
+            "character": 15
+          }
+        }
       },
       {
         "name": "name",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 8
+          },
+          "end": {
+            "line": 11,
+            "character": 12
+          }
+        }
       },
       {
         "name": "age",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 8
+          },
+          "end": {
+            "line": 12,
+            "character": 11
+          }
+        }
       },
       {
         "name": "validate",
@@ -88,12 +128,22 @@
             "name": "errorMode",
             "value": "collect"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Validation Attributes</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#inputSchema</td></tr><tr><td port=\"validation__key\" align=\"left\" balign=\"left\">validation</td><td port=\"validation__value\" align=\"left\" balign=\"left\">strict</td></tr><tr><td port=\"sanitize__key\" align=\"left\" balign=\"left\">sanitize : boolean</td><td port=\"sanitize__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"required__key\" align=\"left\" balign=\"left\">required : Array&lt;string&gt;</td><td port=\"required__value\" align=\"left\" balign=\"left\">[<br/>  &quot;email&quot;,<br/>  &quot;name&quot;<br/>]</td></tr><tr><td port=\"optional__key\" align=\"left\" balign=\"left\">optional : Array&lt;string&gt;</td><td port=\"optional__value\" align=\"left\" balign=\"left\">[<br/>  &quot;phone&quot;,<br/>  &quot;address&quot;<br/>]</td></tr><tr><td port=\"email__key\" align=\"left\" balign=\"left\">email</td><td port=\"email__value\" align=\"left\" balign=\"left\">#emailRegex</td></tr><tr><td port=\"minLength__key\" align=\"left\" balign=\"left\">minLength</td><td port=\"minLength__value\" align=\"left\" balign=\"left\">2</td></tr><tr><td port=\"maxLength__key\" align=\"left\" balign=\"left\">maxLength</td><td port=\"maxLength__value\" align=\"left\" balign=\"left\">100</td></tr><tr><td port=\"min__key\" align=\"left\" balign=\"left\">min</td><td port=\"min__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"max__key\" align=\"left\" balign=\"left\">max</td><td port=\"max__value\" align=\"left\" balign=\"left\">150</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"userInput\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userInput</b> <i>&lt;input&gt;</i></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"constraints\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>constraints</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"name\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>name</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"age\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>age</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#inputSchema</td></tr><tr><td port=\"strict__key\" align=\"left\" balign=\"left\">strict : boolean</td><td port=\"strict__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"errorMode__key\" align=\"left\" balign=\"left\">errorMode</td><td port=\"errorMode__value\" align=\"left\" balign=\"left\">collect</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
-  "svgHash": "e374b3b2efe6810ab8f7d62b8e0883cacf1428fbe9fdbec7fe74f2eb62a7d6cd"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Validation Attributes</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#inputSchema</td></tr><tr><td port=\"validation__key\" align=\"left\" balign=\"left\">validation</td><td port=\"validation__value\" align=\"left\" balign=\"left\">strict</td></tr><tr><td port=\"sanitize__key\" align=\"left\" balign=\"left\">sanitize : boolean</td><td port=\"sanitize__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"required__key\" align=\"left\" balign=\"left\">required : Array&lt;string&gt;</td><td port=\"required__value\" align=\"left\" balign=\"left\">[<br/>  &quot;email&quot;,<br/>  &quot;name&quot;<br/>]</td></tr><tr><td port=\"optional__key\" align=\"left\" balign=\"left\">optional : Array&lt;string&gt;</td><td port=\"optional__value\" align=\"left\" balign=\"left\">[<br/>  &quot;phone&quot;,<br/>  &quot;address&quot;<br/>]</td></tr><tr><td port=\"email__key\" align=\"left\" balign=\"left\">email</td><td port=\"email__value\" align=\"left\" balign=\"left\">#emailRegex</td></tr><tr><td port=\"minLength__key\" align=\"left\" balign=\"left\">minLength</td><td port=\"minLength__value\" align=\"left\" balign=\"left\">2</td></tr><tr><td port=\"maxLength__key\" align=\"left\" balign=\"left\">maxLength</td><td port=\"maxLength__value\" align=\"left\" balign=\"left\">100</td></tr><tr><td port=\"min__key\" align=\"left\" balign=\"left\">min</td><td port=\"min__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"max__key\" align=\"left\" balign=\"left\">max</td><td port=\"max__value\" align=\"left\" balign=\"left\">150</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"userInput\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>userInput</b> <i>&lt;input&gt;</i></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-3:15\"];\n  \"constraints\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>constraints</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L9:4-9:15\"];\n  \"name\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>name</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L11:8-11:12\"];\n  \"age\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>age</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L12:8-12:11\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#inputSchema</td></tr><tr><td port=\"strict__key\" align=\"left\" balign=\"left\">strict : boolean</td><td port=\"strict__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"errorMode__key\" align=\"left\" balign=\"left\">errorMode</td><td port=\"errorMode__value\" align=\"left\" balign=\"left\">collect</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L16:0-20:2\"];\n\n}",
+  "svgHash": "d457c3e26938a3b9f44f60dae00a4ce26f48e39cff35885f5f11ae4bd0efd2ff"
 }

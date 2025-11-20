@@ -33,12 +33,22 @@
             "name": "systemPrompt",
             "value": "You are a helpful assistant.\n    Respond concisely and accurately.\n    Use markdown for formatting."
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"llmCall\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>llmCall</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature : Float</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"maxTokens__key\" align=\"left\" balign=\"left\">maxTokens : Integer</td><td port=\"maxTokens__value\" align=\"left\" balign=\"left\">4096</td></tr><tr><td port=\"stopSequences__key\" align=\"left\" balign=\"left\">stopSequences : Array&lt;string&gt;</td><td port=\"stopSequences__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;\\n\\nHuman:&quot;,<br align=\"left\"/>  &quot;\\n\\nAssistant:&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"systemPrompt__key\" align=\"left\" balign=\"left\">systemPrompt</td><td port=\"systemPrompt__value\" align=\"left\" balign=\"left\">You are a helpful assistant.<br align=\"left\"/>Respond concisely and<br align=\"left\"/>accurately.<br align=\"left\"/>Use markdown for formatting.</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n}",
-  "svgHash": "95212a1314c2d7b92df4c5fdb982e14f6acc1ddccd97743432c258feb72ccb4b"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"llmCall\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>llmCall</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"temperature__key\" align=\"left\" balign=\"left\">temperature : Float</td><td port=\"temperature__value\" align=\"left\" balign=\"left\">0.7</td></tr><tr><td port=\"maxTokens__key\" align=\"left\" balign=\"left\">maxTokens : Integer</td><td port=\"maxTokens__value\" align=\"left\" balign=\"left\">4096</td></tr><tr><td port=\"stopSequences__key\" align=\"left\" balign=\"left\">stopSequences : Array&lt;string&gt;</td><td port=\"stopSequences__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;\\n\\nHuman:&quot;,<br align=\"left\"/>  &quot;\\n\\nAssistant:&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"systemPrompt__key\" align=\"left\" balign=\"left\">systemPrompt</td><td port=\"systemPrompt__value\" align=\"left\" balign=\"left\">You are a helpful assistant.<br align=\"left\"/>Respond concisely and<br align=\"left\"/>accurately.<br align=\"left\"/>Use markdown for formatting.</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L1:0-9:2\"];\n\n}",
+  "svgHash": "b1af533c9ec79636c4c67241806f6307d540945ced2bf463f330e972edce142c"
 }

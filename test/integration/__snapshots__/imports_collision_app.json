@@ -8,19 +8,49 @@
         "name": "Start",
         "type": "state",
         "attributes": [],
-        "title": "Application Start"
+        "title": "Application Start",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 31
+          }
+        }
       },
       {
         "name": "Merge",
         "type": "state",
         "attributes": [],
-        "title": "Merge Results"
+        "title": "Merge Results",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 27
+          }
+        }
       },
       {
         "name": "End",
         "type": "state",
         "attributes": [],
-        "title": "Application End"
+        "title": "Application End",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 27
+          }
+        }
       },
       {
         "name": "InitA",
@@ -63,71 +93,201 @@
       {
         "source": "Start",
         "target": "InitA",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 6
+          },
+          "end": {
+            "line": 11,
+            "character": 15
+          }
+        }
       },
       {
         "source": "InitA",
         "target": "ProcessA",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 16
+          },
+          "end": {
+            "line": 11,
+            "character": 28
+          }
+        }
       },
       {
         "source": "ProcessA",
         "target": "CompleteA",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 29
+          },
+          "end": {
+            "line": 11,
+            "character": 42
+          }
+        }
       },
       {
         "source": "CompleteA",
         "target": "Merge",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 43
+          },
+          "end": {
+            "line": 11,
+            "character": 52
+          }
+        }
       },
       {
         "source": "Start",
         "target": "InitB",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 6
+          },
+          "end": {
+            "line": 12,
+            "character": 15
+          }
+        }
       },
       {
         "source": "InitB",
         "target": "ProcessB",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 16
+          },
+          "end": {
+            "line": 12,
+            "character": 28
+          }
+        }
       },
       {
         "source": "ProcessB",
         "target": "CompleteB",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 29
+          },
+          "end": {
+            "line": 12,
+            "character": 42
+          }
+        }
       },
       {
         "source": "CompleteB",
         "target": "Merge",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 43
+          },
+          "end": {
+            "line": 12,
+            "character": 52
+          }
+        }
       },
       {
         "source": "Start",
         "target": "InitC",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 6
+          },
+          "end": {
+            "line": 13,
+            "character": 15
+          }
+        }
       },
       {
         "source": "InitC",
         "target": "ProcessC",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 16
+          },
+          "end": {
+            "line": 13,
+            "character": 28
+          }
+        }
       },
       {
         "source": "ProcessC",
         "target": "CompleteC",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 29
+          },
+          "end": {
+            "line": 13,
+            "character": 42
+          }
+        }
       },
       {
         "source": "CompleteC",
         "target": "Merge",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 43
+          },
+          "end": {
+            "line": 13,
+            "character": 52
+          }
+        }
       },
       {
         "source": "Merge",
         "target": "End",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 6
+          },
+          "end": {
+            "line": 14,
+            "character": 13
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Multi-Module Application</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Application Start</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Merge\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Merge</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Merge Results</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Application End</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"InitA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>InitA</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ProcessA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessA</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"CompleteA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CompleteA</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"InitB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>InitB</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ProcessB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessB</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"CompleteB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CompleteB</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"InitC\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>InitC</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ProcessC\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessC</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"CompleteC\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CompleteC</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Start\" -> \"InitA\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"InitA\" -> \"ProcessA\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessA\" -> \"CompleteA\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"CompleteA\" -> \"Merge\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Start\" -> \"InitB\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"InitB\" -> \"ProcessB\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessB\" -> \"CompleteB\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"CompleteB\" -> \"Merge\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Start\" -> \"InitC\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"InitC\" -> \"ProcessC\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessC\" -> \"CompleteC\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"CompleteC\" -> \"Merge\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Merge\" -> \"End\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "ee1fba99997c620e19f769bbfa04e3c5fb0240a9f642002b03c352bb395d1f2e"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Multi-Module Application</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Application Start</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:31\"];\n  \"Merge\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Merge</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Merge Results</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:27\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Application End</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L9:0-9:27\"];\n  \"InitA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>InitA</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ProcessA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessA</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"CompleteA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CompleteA</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"InitB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>InitB</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ProcessB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessB</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"CompleteB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CompleteB</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"InitC\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>InitC</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"ProcessC\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessC</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"CompleteC\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CompleteC</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"Start\" -> \"InitA\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:6-11:15\"];\n  \"InitA\" -> \"ProcessA\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:16-11:28\"];\n  \"ProcessA\" -> \"CompleteA\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:29-11:42\"];\n  \"CompleteA\" -> \"Merge\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L11:43-11:52\"];\n  \"Start\" -> \"InitB\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:6-12:15\"];\n  \"InitB\" -> \"ProcessB\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:16-12:28\"];\n  \"ProcessB\" -> \"CompleteB\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:29-12:42\"];\n  \"CompleteB\" -> \"Merge\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L12:43-12:52\"];\n  \"Start\" -> \"InitC\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L13:6-13:15\"];\n  \"InitC\" -> \"ProcessC\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L13:16-13:28\"];\n  \"ProcessC\" -> \"CompleteC\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L13:29-13:42\"];\n  \"CompleteC\" -> \"Merge\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L13:43-13:52\"];\n  \"Merge\" -> \"End\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L14:6-14:13\"];\n}",
+  "svgHash": "c3de171d68645dd558b8a93310285f1d3917c2546568262ece758049990619db"
 }

@@ -23,31 +23,81 @@
             "type": "number",
             "value": 1
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 2
+          }
+        }
       },
       {
         "name": "playing",
         "type": "state",
         "attributes": [],
-        "title": "Playing"
+        "title": "Playing",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 24
+          }
+        }
       },
       {
         "name": "paused",
         "type": "state",
         "attributes": [],
-        "title": "Paused"
+        "title": "Paused",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 22
+          }
+        }
       },
       {
         "name": "gameOver",
         "type": "state",
         "attributes": [],
-        "title": "Game Over"
+        "title": "Game Over",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 27
+          }
+        }
       },
       {
         "name": "victory",
         "type": "state",
         "attributes": [],
-        "title": "Victory"
+        "title": "Victory",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 24
+          }
+        }
       },
       {
         "name": "updateScore",
@@ -58,31 +108,81 @@
             "value": "Current score: {{ session.score }}"
           }
         ],
-        "title": "Update score"
+        "title": "Update score",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 2
+          }
+        }
       },
       {
         "name": "checkWinCondition",
         "type": "task",
         "attributes": [],
-        "title": "Check win"
+        "title": "Check win",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 35
+          }
+        }
       },
       {
         "name": "checkLoseCondition",
         "type": "task",
         "attributes": [],
-        "title": "Check lose"
+        "title": "Check lose",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 37
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "playing",
         "target": "updateScore",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 8
+          },
+          "end": {
+            "line": 21,
+            "character": 22
+          }
+        }
       },
       {
         "source": "updateScore",
         "target": "checkWinCondition",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 23
+          },
+          "end": {
+            "line": 21,
+            "character": 43
+          }
+        }
       },
       {
         "source": "checkWinCondition",
@@ -90,6 +190,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "score >= 1000"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 18
+          },
+          "end": {
+            "line": 22,
+            "character": 44
+          }
         }
       },
       {
@@ -98,6 +208,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "score < 1000"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 18
+          },
+          "end": {
+            "line": 23,
+            "character": 54
+          }
         }
       },
       {
@@ -106,6 +226,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "lives <= 0"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 19
+          },
+          "end": {
+            "line": 24,
+            "character": 43
+          }
         }
       },
       {
@@ -114,6 +244,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "lives > 0"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 19
+          },
+          "end": {
+            "line": 25,
+            "character": 41
+          }
         }
       }
     ],
@@ -121,11 +261,11 @@
       {
         "source": "updateScore",
         "target": "session",
-        "reason": "reads prompt",
+        "reason": "reads session.score",
         "path": "session.score"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Game Session</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"session\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>session</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"score__key\" align=\"left\" balign=\"left\">score : number</td><td port=\"score__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"lives__key\" align=\"left\" balign=\"left\">lives : number</td><td port=\"lives__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"level__key\" align=\"left\" balign=\"left\">level : number</td><td port=\"level__value\" align=\"left\" balign=\"left\">1</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"playing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>playing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Playing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>paused</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Paused</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"gameOver\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>gameOver</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Game Over</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"victory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>victory</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Victory</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"updateScore\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>updateScore</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Update score</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"checkWinCondition\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkWinCondition</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check win</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"checkLoseCondition\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkLoseCondition</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check lose</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Edges\n  \"playing\" -> \"updateScore\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"updateScore\" -> \"checkWinCondition\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkWinCondition\" -> \"victory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>score &gt;= 1000</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkWinCondition\" -> \"checkLoseCondition\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>score &lt; 1000</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkLoseCondition\" -> \"gameOver\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>lives &lt;= 0</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"checkLoseCondition\" -> \"playing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>lives &gt; 0</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"updateScore\" -> \"session\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "09d7515f1119ee145b9945750ee8756bad4552291b58f112a947b02e5aa9b6fd"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Game Session</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"session\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>session</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"score__key\" align=\"left\" balign=\"left\">score : number</td><td port=\"score__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"lives__key\" align=\"left\" balign=\"left\">lives : number</td><td port=\"lives__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"level__key\" align=\"left\" balign=\"left\">level : number</td><td port=\"level__value\" align=\"left\" balign=\"left\">1</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-7:2\"];\n  \"playing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>playing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Playing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L9:0-9:24\"];\n  \"paused\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>paused</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Paused</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:22\"];\n  \"gameOver\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>gameOver</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Game Over</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:27\"];\n  \"victory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>victory</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Victory</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L12:0-12:24\"];\n  \"updateScore\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>updateScore</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Update score</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-16:2\"];\n  \"checkWinCondition\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkWinCondition</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check win</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L18:0-18:35\"];\n  \"checkLoseCondition\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkLoseCondition</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check lose</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:0-19:37\"];\n\n  // Edges\n  \"playing\" -> \"updateScore\" [labelOverlay=\"75%\", edgeURL=\"#L21:8-21:22\"];\n  \"updateScore\" -> \"checkWinCondition\" [labelOverlay=\"75%\", edgeURL=\"#L21:23-21:43\"];\n  \"checkWinCondition\" -> \"victory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>score &gt;= 1000</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L22:18-22:44\"];\n  \"checkWinCondition\" -> \"checkLoseCondition\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>score &lt; 1000</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L23:18-23:54\"];\n  \"checkLoseCondition\" -> \"gameOver\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>lives &lt;= 0</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L24:19-24:43\"];\n  \"checkLoseCondition\" -> \"playing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>lives &gt; 0</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L25:19-25:41\"];\n\n  // Inferred Dependencies\n  \"updateScore\" -> \"session\" [label=\"reads session.score\", style=dashed, color=blue];\n}",
+  "svgHash": "72bb4792d2ba89e3ca5c24dbc6b80b1a773362889b3f031eab3ecc42d64236de"
 }

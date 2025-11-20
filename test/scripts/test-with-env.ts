@@ -10,7 +10,7 @@ import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import { createMachineServices } from '../../src/language/machine-module.js';
 import { Machine } from '../../src/language/generated/ast.js';
-import { MachineExecutor } from '../../src/language/machine-executor.js';
+import { MachineExecutor } from '../../src/language/executor.js';
 import { convertAstToMachineData } from '../utils/ast-to-machine-data.js';
 
 const services = createMachineServices(EmptyFileSystem);

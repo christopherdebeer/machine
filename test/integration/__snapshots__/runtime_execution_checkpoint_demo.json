@@ -25,7 +25,17 @@
             "name": "data",
             "value": []
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 1
+          }
+        }
       },
       {
         "name": "Step1",
@@ -36,7 +46,17 @@
             "name": "checkpoint"
           }
         ],
-        "title": "Step 1"
+        "title": "Step 1",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 32
+          }
+        }
       },
       {
         "name": "Step2",
@@ -47,7 +67,17 @@
             "name": "checkpoint"
           }
         ],
-        "title": "Step 2"
+        "title": "Step 2",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 32
+          }
+        }
       },
       {
         "name": "Step3",
@@ -58,34 +88,84 @@
             "name": "checkpoint"
           }
         ],
-        "title": "Step 3"
+        "title": "Step 3",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 32
+          }
+        }
       },
       {
         "name": "Step4",
         "type": "state",
         "attributes": [],
-        "title": "Step 4"
+        "title": "Step 4",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 20
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Step1",
         "target": "Step2",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 6
+          },
+          "end": {
+            "line": 17,
+            "character": 14
+          }
+        }
       },
       {
         "source": "Step2",
         "target": "Step3",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 15
+          },
+          "end": {
+            "line": 17,
+            "character": 23
+          }
+        }
       },
       {
         "source": "Step3",
         "target": "Step4",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 24
+          },
+          "end": {
+            "line": 17,
+            "character": 32
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Checkpoint Demo</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">info</td></tr><tr><td port=\"maxCheckpoints__key\" align=\"left\" balign=\"left\">maxCheckpoints</td><td port=\"maxCheckpoints__value\" align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"State\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>State</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"step__key\" align=\"left\" balign=\"left\">step</td><td port=\"step__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"data__key\" align=\"left\" balign=\"left\">data</td><td port=\"data__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"Step1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Step1</b> <i>&lt;state&gt;</i> <i>@checkpoint</i></td></tr><tr><td align=\"left\">Step 1</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Step2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Step2</b> <i>&lt;state&gt;</i> <i>@checkpoint</i></td></tr><tr><td align=\"left\">Step 2</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Step3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Step3</b> <i>&lt;state&gt;</i> <i>@checkpoint</i></td></tr><tr><td align=\"left\">Step 3</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Step4\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Step4</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Step 4</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Step1\" -> \"Step2\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Step2\" -> \"Step3\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Step3\" -> \"Step4\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "31e3021df59088722f17e479d67a2471cb7b4ff768011503358332c38e4f6a9c"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Checkpoint Demo</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">info</td></tr><tr><td port=\"maxCheckpoints__key\" align=\"left\" balign=\"left\">maxCheckpoints</td><td port=\"maxCheckpoints__value\" align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"State\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>State</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"step__key\" align=\"left\" balign=\"left\">step</td><td port=\"step__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"data__key\" align=\"left\" balign=\"left\">data</td><td port=\"data__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-9:1\"];\n  \"Step1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Step1</b> <i>&lt;state&gt;</i> <i>@checkpoint</i></td></tr><tr><td align=\"left\">Step 1</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:32\"];\n  \"Step2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Step2</b> <i>&lt;state&gt;</i> <i>@checkpoint</i></td></tr><tr><td align=\"left\">Step 2</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L12:0-12:32\"];\n  \"Step3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Step3</b> <i>&lt;state&gt;</i> <i>@checkpoint</i></td></tr><tr><td align=\"left\">Step 3</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L13:0-13:32\"];\n  \"Step4\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Step4</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Step 4</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L14:0-14:20\"];\n\n  // Edges\n  \"Step1\" -> \"Step2\" [labelOverlay=\"75%\", edgeURL=\"#L17:6-17:14\"];\n  \"Step2\" -> \"Step3\" [labelOverlay=\"75%\", edgeURL=\"#L17:15-17:23\"];\n  \"Step3\" -> \"Step4\" [labelOverlay=\"75%\", edgeURL=\"#L17:24-17:32\"];\n}",
+  "svgHash": "6f532c8fdfc0df98c9336fc88b673ade47867f84c88d93d0f503f65434b68d3e"
 }

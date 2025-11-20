@@ -26,83 +26,223 @@
         "name": "Worker1",
         "type": "init",
         "attributes": [],
-        "title": "Worker 1"
+        "title": "Worker 1",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 23
+          }
+        }
       },
       {
         "name": "Worker2",
         "type": "init",
         "attributes": [],
-        "title": "Worker 2"
+        "title": "Worker 2",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 23
+          }
+        }
       },
       {
         "name": "Worker3",
         "type": "init",
         "attributes": [],
-        "title": "Worker 3"
+        "title": "Worker 3",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 23
+          }
+        }
       },
       {
         "name": "Worker4",
         "type": "init",
         "attributes": [],
-        "title": "Worker 4"
+        "title": "Worker 4",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 23
+          }
+        }
       },
       {
         "name": "Process",
         "type": "state",
         "attributes": [],
-        "title": "Process item"
+        "title": "Process item",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 28
+          }
+        }
       },
       {
         "name": "Complete",
         "type": "state",
         "attributes": [],
-        "title": "Complete"
+        "title": "Complete",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 25
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Worker1",
         "target": "Process",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 8
+          },
+          "end": {
+            "line": 16,
+            "character": 18
+          }
+        }
       },
       {
         "source": "Process",
         "target": "Complete",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 19
+          },
+          "end": {
+            "line": 16,
+            "character": 30
+          }
+        }
       },
       {
         "source": "Worker2",
         "target": "Process",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 8
+          },
+          "end": {
+            "line": 17,
+            "character": 18
+          }
+        }
       },
       {
         "source": "Process",
         "target": "Complete",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 19
+          },
+          "end": {
+            "line": 17,
+            "character": 30
+          }
+        }
       },
       {
         "source": "Worker3",
         "target": "Process",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 8
+          },
+          "end": {
+            "line": 18,
+            "character": 18
+          }
+        }
       },
       {
         "source": "Process",
         "target": "Complete",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 19
+          },
+          "end": {
+            "line": 18,
+            "character": 30
+          }
+        }
       },
       {
         "source": "Worker4",
         "target": "Process",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 8
+          },
+          "end": {
+            "line": 19,
+            "character": 18
+          }
+        }
       },
       {
         "source": "Process",
         "target": "Complete",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 19
+          },
+          "end": {
+            "line": 19,
+            "character": 30
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Resource Limits</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@concurrent(&quot;4&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">info</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">1000</td></tr><tr><td port=\"maxConcurrentPaths__key\" align=\"left\" balign=\"left\">maxConcurrentPaths</td><td port=\"maxConcurrentPaths__value\" align=\"left\" balign=\"left\">4</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Worker1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Worker1</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Worker 1</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Worker2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Worker2</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Worker 2</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Worker3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Worker3</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Worker 3</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Worker4\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Worker4</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Worker 4</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process item</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Worker1\" -> \"Process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Worker2\" -> \"Process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Worker3\" -> \"Process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Worker4\" -> \"Process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "b5a7abf5096624c9a0454e116d61875f2800050bd4edbc56a376fd95f29e6978"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Resource Limits</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@concurrent(&quot;4&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">info</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">1000</td></tr><tr><td port=\"maxConcurrentPaths__key\" align=\"left\" balign=\"left\">maxConcurrentPaths</td><td port=\"maxConcurrentPaths__value\" align=\"left\" balign=\"left\">4</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Worker1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Worker1</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Worker 1</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L7:0-7:23\"];\n  \"Worker2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Worker2</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Worker 2</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L8:0-8:23\"];\n  \"Worker3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Worker3</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Worker 3</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L9:0-9:23\"];\n  \"Worker4\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Worker4</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Worker 4</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L10:0-10:23\"];\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process item</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L12:0-12:28\"];\n  \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;state&gt;</i></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L13:0-13:25\"];\n\n  // Edges\n  \"Worker1\" -> \"Process\" [labelOverlay=\"75%\", edgeURL=\"#L16:8-16:18\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", edgeURL=\"#L16:19-16:30\"];\n  \"Worker2\" -> \"Process\" [labelOverlay=\"75%\", edgeURL=\"#L17:8-17:18\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", edgeURL=\"#L17:19-17:30\"];\n  \"Worker3\" -> \"Process\" [labelOverlay=\"75%\", edgeURL=\"#L18:8-18:18\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", edgeURL=\"#L18:19-18:30\"];\n  \"Worker4\" -> \"Process\" [labelOverlay=\"75%\", edgeURL=\"#L19:8-19:18\"];\n  \"Process\" -> \"Complete\" [labelOverlay=\"75%\", edgeURL=\"#L19:19-19:30\"];\n}",
+  "svgHash": "57502795a4dc70a5e51ddc1308383533dc5a350e20e732c6d1ab3600a94a43cd"
 }

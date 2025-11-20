@@ -21,12 +21,22 @@
             "type": "Port",
             "value": 8080
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
       }
     ],
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"user\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>user</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"email__key\" align=\"left\" balign=\"left\">email : Email</td><td port=\"email__value\" align=\"left\" balign=\"left\">user@example.com</td></tr><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version : SemVer</td><td port=\"version__value\" align=\"left\" balign=\"left\">1.2.3</td></tr><tr><td port=\"port__key\" align=\"left\" balign=\"left\">port : Port</td><td port=\"port__value\" align=\"left\" balign=\"left\">8080</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n}",
-  "svgHash": "6bcbb11721c5353e6f52a4af3ece2b1ae39b2f70aecbcf314eb41bb2e252b10a"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"user\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>user</b></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"email__key\" align=\"left\" balign=\"left\">email : Email</td><td port=\"email__value\" align=\"left\" balign=\"left\">user@example.com</td></tr><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version : SemVer</td><td port=\"version__value\" align=\"left\" balign=\"left\">1.2.3</td></tr><tr><td port=\"port__key\" align=\"left\" balign=\"left\">port : Port</td><td port=\"port__value\" align=\"left\" balign=\"left\">8080</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L1:0-5:1\"];\n\n}",
+  "svgHash": "dfb90618a4cf7d6fc2fe5e3d714172631807b6dfca824c4ae5508e99b69bcbcb"
 }

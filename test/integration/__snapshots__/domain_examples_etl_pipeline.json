@@ -18,12 +18,32 @@
             "type": "number",
             "value": 4
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 2
+          }
+        }
       },
       {
         "name": "extraction",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 31,
+            "character": 2
+          }
+        }
       },
       {
         "name": "extractDB",
@@ -44,7 +64,17 @@
             "name": "Async"
           }
         ],
-        "title": "Extract from Database"
+        "title": "Extract from Database",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 4
+          },
+          "end": {
+            "line": 13,
+            "character": 6
+          }
+        }
       },
       {
         "name": "extractAPI",
@@ -65,7 +95,17 @@
             "name": "Async"
           }
         ],
-        "title": "Extract from API"
+        "title": "Extract from API",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 4
+          },
+          "end": {
+            "line": 18,
+            "character": 6
+          }
+        }
       },
       {
         "name": "extractFiles",
@@ -90,19 +130,49 @@
             "name": "Async"
           }
         ],
-        "title": "Extract from Files"
+        "title": "Extract from Files",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 4
+          },
+          "end": {
+            "line": 24,
+            "character": 6
+          }
+        }
       },
       {
         "name": "mergeExtracts",
         "type": "task",
         "attributes": [],
         "parent": "extraction",
-        "title": "Merge all sources"
+        "title": "Merge all sources",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 4
+          },
+          "end": {
+            "line": 26,
+            "character": 43
+          }
+        }
       },
       {
         "name": "transformation",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 0
+          },
+          "end": {
+            "line": 55,
+            "character": 2
+          }
+        }
       },
       {
         "name": "cleanData",
@@ -118,7 +188,17 @@
           }
         ],
         "parent": "transformation",
-        "title": "Clean data"
+        "title": "Clean data",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 4
+          },
+          "end": {
+            "line": 37,
+            "character": 6
+          }
+        }
       },
       {
         "name": "normalizeData",
@@ -134,7 +214,17 @@
           }
         ],
         "parent": "transformation",
-        "title": "Normalize"
+        "title": "Normalize",
+        "$sourceRange": {
+          "start": {
+            "line": 39,
+            "character": 4
+          },
+          "end": {
+            "line": 42,
+            "character": 6
+          }
+        }
       },
       {
         "name": "enrichData",
@@ -153,7 +243,17 @@
           }
         ],
         "parent": "transformation",
-        "title": "Enrich with external data"
+        "title": "Enrich with external data",
+        "$sourceRange": {
+          "start": {
+            "line": 44,
+            "character": 4
+          },
+          "end": {
+            "line": 47,
+            "character": 6
+          }
+        }
       },
       {
         "name": "validateData",
@@ -170,12 +270,32 @@
           }
         ],
         "parent": "transformation",
-        "title": "Validate"
+        "title": "Validate",
+        "$sourceRange": {
+          "start": {
+            "line": 49,
+            "character": 4
+          },
+          "end": {
+            "line": 52,
+            "character": 6
+          }
+        }
       },
       {
         "name": "loading",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 58,
+            "character": 0
+          },
+          "end": {
+            "line": 73,
+            "character": 2
+          }
+        }
       },
       {
         "name": "loadWarehouse",
@@ -200,7 +320,17 @@
             "name": "Async"
           }
         ],
-        "title": "Load to data warehouse"
+        "title": "Load to data warehouse",
+        "$sourceRange": {
+          "start": {
+            "line": 59,
+            "character": 4
+          },
+          "end": {
+            "line": 63,
+            "character": 6
+          }
+        }
       },
       {
         "name": "updateCache",
@@ -222,7 +352,17 @@
             "name": "Async"
           }
         ],
-        "title": "Update cache"
+        "title": "Update cache",
+        "$sourceRange": {
+          "start": {
+            "line": 65,
+            "character": 4
+          },
+          "end": {
+            "line": 68,
+            "character": 6
+          }
+        }
       },
       {
         "name": "notifyDownstream",
@@ -242,63 +382,173 @@
             "name": "Async"
           }
         ],
-        "title": "Notify downstream systems"
+        "title": "Notify downstream systems",
+        "$sourceRange": {
+          "start": {
+            "line": 70,
+            "character": 4
+          },
+          "end": {
+            "line": 72,
+            "character": 6
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "mergeExtracts",
         "target": "cleanData",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 76,
+            "character": 25
+          },
+          "end": {
+            "line": 76,
+            "character": 52
+          }
+        }
       },
       {
         "source": "validateData",
         "target": "loadWarehouse",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 77,
+            "character": 28
+          },
+          "end": {
+            "line": 77,
+            "character": 52
+          }
+        }
       },
       {
         "source": "validateData",
         "target": "updateCache",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 78,
+            "character": 28
+          },
+          "end": {
+            "line": 78,
+            "character": 50
+          }
+        }
       },
       {
         "source": "validateData",
         "target": "notifyDownstream",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 79,
+            "character": 28
+          },
+          "end": {
+            "line": 79,
+            "character": 55
+          }
+        }
       },
       {
         "source": "extractDB",
         "target": "mergeExtracts",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 28,
+            "character": 14
+          },
+          "end": {
+            "line": 28,
+            "character": 30
+          }
+        }
       },
       {
         "source": "extractAPI",
         "target": "mergeExtracts",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 15
+          },
+          "end": {
+            "line": 29,
+            "character": 31
+          }
+        }
       },
       {
         "source": "extractFiles",
         "target": "mergeExtracts",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 17
+          },
+          "end": {
+            "line": 30,
+            "character": 33
+          }
+        }
       },
       {
         "source": "cleanData",
         "target": "normalizeData",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 54,
+            "character": 14
+          },
+          "end": {
+            "line": 54,
+            "character": 30
+          }
+        }
       },
       {
         "source": "normalizeData",
         "target": "enrichData",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 54,
+            "character": 31
+          },
+          "end": {
+            "line": 54,
+            "character": 44
+          }
+        }
       },
       {
         "source": "enrichData",
         "target": "validateData",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 54,
+            "character": 45
+          },
+          "end": {
+            "line": 54,
+            "character": 60
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>ETL Pipeline</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"batchSize__key\" align=\"left\" balign=\"left\">batchSize : number</td><td port=\"batchSize__value\" align=\"left\" balign=\"left\">1000</td></tr><tr><td port=\"parallelism__key\" align=\"left\" balign=\"left\">parallelism : number</td><td port=\"parallelism__value\" align=\"left\" balign=\"left\">4</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  subgraph cluster_extraction {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>extraction</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"extraction__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"extractDB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extractDB</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Extract from Database</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">postgresql</td></tr><tr><td port=\"query__key\" align=\"left\" balign=\"left\">query</td><td port=\"query__value\" align=\"left\" balign=\"left\">#extractQuery</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"extractAPI\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extractAPI</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Extract from API</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">rest-api</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">https://api.example.com/data</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"extractFiles\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extractFiles</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Extract from Files</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">s3</td></tr><tr><td port=\"bucket__key\" align=\"left\" balign=\"left\">bucket</td><td port=\"bucket__value\" align=\"left\" balign=\"left\">data-lake</td></tr><tr><td port=\"pattern__key\" align=\"left\" balign=\"left\">pattern</td><td port=\"pattern__value\" align=\"left\" balign=\"left\">*.json</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"mergeExtracts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>mergeExtracts</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Merge all sources</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_transformation {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>transformation</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"transformation__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"cleanData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cleanData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Clean data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"operations__key\" align=\"left\" balign=\"left\">operations</td><td port=\"operations__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;remove_nulls&quot;,<br align=\"left\"/>  &quot;trim_strings&quot;,<br align=\"left\"/>  &quot;deduplicate&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"normalizeData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>normalizeData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Normalize</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"format__key\" align=\"left\" balign=\"left\">format</td><td port=\"format__value\" align=\"left\" balign=\"left\">standard</td></tr><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#targetSchema</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"enrichData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>enrichData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Enrich with external data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"lookupService__key\" align=\"left\" balign=\"left\">lookupService</td><td port=\"lookupService__value\" align=\"left\" balign=\"left\">#enrichmentAPI</td></tr><tr><td port=\"fields__key\" align=\"left\" balign=\"left\">fields</td><td port=\"fields__value\" align=\"left\" balign=\"left\">[<br/>  &quot;location&quot;,<br/>  &quot;category&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"validateData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#targetSchema</td></tr><tr><td port=\"strict__key\" align=\"left\" balign=\"left\">strict : boolean</td><td port=\"strict__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_loading {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>loading</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"loading__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"loadWarehouse\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>loadWarehouse</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Load to data warehouse</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"destination__key\" align=\"left\" balign=\"left\">destination</td><td port=\"destination__value\" align=\"left\" balign=\"left\">snowflake</td></tr><tr><td port=\"table__key\" align=\"left\" balign=\"left\">table</td><td port=\"table__value\" align=\"left\" balign=\"left\">processed_data</td></tr><tr><td port=\"mode__key\" align=\"left\" balign=\"left\">mode</td><td port=\"mode__value\" align=\"left\" balign=\"left\">append</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"updateCache\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>updateCache</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Update cache</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"cache__key\" align=\"left\" balign=\"left\">cache</td><td port=\"cache__value\" align=\"left\" balign=\"left\">redis</td></tr><tr><td port=\"ttl__key\" align=\"left\" balign=\"left\">ttl : number</td><td port=\"ttl__value\" align=\"left\" balign=\"left\">3600</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"notifyDownstream\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>notifyDownstream</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Notify downstream systems</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"targets__key\" align=\"left\" balign=\"left\">targets</td><td port=\"targets__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;analytics&quot;,<br align=\"left\"/>  &quot;reporting&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n\n  // Edges\n  \"mergeExtracts\" -> \"cleanData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateData\" -> \"loadWarehouse\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateData\" -> \"updateCache\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateData\" -> \"notifyDownstream\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"extractDB\" -> \"mergeExtracts\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"extractAPI\" -> \"mergeExtracts\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"extractFiles\" -> \"mergeExtracts\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"cleanData\" -> \"normalizeData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"normalizeData\" -> \"enrichData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"enrichData\" -> \"validateData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "f173623874264f714852677ec253ba61421a5dcdff642c88b62b45972985bebf"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>ETL Pipeline</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"batchSize__key\" align=\"left\" balign=\"left\">batchSize : number</td><td port=\"batchSize__value\" align=\"left\" balign=\"left\">1000</td></tr><tr><td port=\"parallelism__key\" align=\"left\" balign=\"left\">parallelism : number</td><td port=\"parallelism__value\" align=\"left\" balign=\"left\">4</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:2\"];\n  subgraph cluster_extraction {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>extraction</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"extraction__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"extractDB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extractDB</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Extract from Database</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">postgresql</td></tr><tr><td port=\"query__key\" align=\"left\" balign=\"left\">query</td><td port=\"query__value\" align=\"left\" balign=\"left\">#extractQuery</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:4-13:6\"];\n    \"extractAPI\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extractAPI</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Extract from API</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">rest-api</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">https://api.example.com/data</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L15:4-18:6\"];\n    \"extractFiles\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extractFiles</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Extract from Files</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">s3</td></tr><tr><td port=\"bucket__key\" align=\"left\" balign=\"left\">bucket</td><td port=\"bucket__value\" align=\"left\" balign=\"left\">data-lake</td></tr><tr><td port=\"pattern__key\" align=\"left\" balign=\"left\">pattern</td><td port=\"pattern__value\" align=\"left\" balign=\"left\">*.json</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L20:4-24:6\"];\n    \"mergeExtracts\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>mergeExtracts</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Merge all sources</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L26:4-26:43\"];\n  }\n  subgraph cluster_transformation {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>transformation</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"transformation__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"cleanData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>cleanData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Clean data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"operations__key\" align=\"left\" balign=\"left\">operations</td><td port=\"operations__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;remove_nulls&quot;,<br align=\"left\"/>  &quot;trim_strings&quot;,<br align=\"left\"/>  &quot;deduplicate&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L35:4-37:6\"];\n    \"normalizeData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>normalizeData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Normalize</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"format__key\" align=\"left\" balign=\"left\">format</td><td port=\"format__value\" align=\"left\" balign=\"left\">standard</td></tr><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#targetSchema</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L39:4-42:6\"];\n    \"enrichData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>enrichData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Enrich with external data</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"lookupService__key\" align=\"left\" balign=\"left\">lookupService</td><td port=\"lookupService__value\" align=\"left\" balign=\"left\">#enrichmentAPI</td></tr><tr><td port=\"fields__key\" align=\"left\" balign=\"left\">fields</td><td port=\"fields__value\" align=\"left\" balign=\"left\">[<br/>  &quot;location&quot;,<br/>  &quot;category&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L44:4-47:6\"];\n    \"validateData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"schema__key\" align=\"left\" balign=\"left\">schema</td><td port=\"schema__value\" align=\"left\" balign=\"left\">#targetSchema</td></tr><tr><td port=\"strict__key\" align=\"left\" balign=\"left\">strict : boolean</td><td port=\"strict__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L49:4-52:6\"];\n  }\n  subgraph cluster_loading {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>loading</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"loading__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"loadWarehouse\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>loadWarehouse</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Load to data warehouse</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"destination__key\" align=\"left\" balign=\"left\">destination</td><td port=\"destination__value\" align=\"left\" balign=\"left\">snowflake</td></tr><tr><td port=\"table__key\" align=\"left\" balign=\"left\">table</td><td port=\"table__value\" align=\"left\" balign=\"left\">processed_data</td></tr><tr><td port=\"mode__key\" align=\"left\" balign=\"left\">mode</td><td port=\"mode__value\" align=\"left\" balign=\"left\">append</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L59:4-63:6\"];\n    \"updateCache\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>updateCache</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Update cache</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"cache__key\" align=\"left\" balign=\"left\">cache</td><td port=\"cache__value\" align=\"left\" balign=\"left\">redis</td></tr><tr><td port=\"ttl__key\" align=\"left\" balign=\"left\">ttl : number</td><td port=\"ttl__value\" align=\"left\" balign=\"left\">3600</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L65:4-68:6\"];\n    \"notifyDownstream\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>notifyDownstream</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Notify downstream systems</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"targets__key\" align=\"left\" balign=\"left\">targets</td><td port=\"targets__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;analytics&quot;,<br align=\"left\"/>  &quot;reporting&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L70:4-72:6\"];\n  }\n\n  // Edges\n  \"mergeExtracts\" -> \"cleanData\" [labelOverlay=\"75%\", edgeURL=\"#L76:25-76:52\"];\n  \"validateData\" -> \"loadWarehouse\" [labelOverlay=\"75%\", edgeURL=\"#L77:28-77:52\"];\n  \"validateData\" -> \"updateCache\" [labelOverlay=\"75%\", edgeURL=\"#L78:28-78:50\"];\n  \"validateData\" -> \"notifyDownstream\" [labelOverlay=\"75%\", edgeURL=\"#L79:28-79:55\"];\n  \"extractDB\" -> \"mergeExtracts\" [labelOverlay=\"75%\", edgeURL=\"#L28:14-28:30\"];\n  \"extractAPI\" -> \"mergeExtracts\" [labelOverlay=\"75%\", edgeURL=\"#L29:15-29:31\"];\n  \"extractFiles\" -> \"mergeExtracts\" [labelOverlay=\"75%\", edgeURL=\"#L30:17-30:33\"];\n  \"cleanData\" -> \"normalizeData\" [labelOverlay=\"75%\", edgeURL=\"#L54:14-54:30\"];\n  \"normalizeData\" -> \"enrichData\" [labelOverlay=\"75%\", edgeURL=\"#L54:31-54:44\"];\n  \"enrichData\" -> \"validateData\" [labelOverlay=\"75%\", edgeURL=\"#L54:45-54:60\"];\n}",
+  "svgHash": "ca279cd8cc02a0583cde09658f43ffbf35e96ae23cea92aef0d3f22a071cd024"
 }

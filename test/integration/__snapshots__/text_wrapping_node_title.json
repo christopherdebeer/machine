@@ -17,7 +17,17 @@
             "value": "And this is a long description that will also be wrapped"
           }
         ],
-        "title": "This is a very long node title that will be wrapped"
+        "title": "This is a very long node title that will be wrapped",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
       }
     ],
     "edges": [],
@@ -26,6 +36,6 @@
       "maxNodeTitleLength": 25
     }
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>NodeTitleExample</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxNodeTitleLength__key\" align=\"left\" balign=\"left\">maxNodeTitleLength</td><td port=\"maxNodeTitleLength__value\" align=\"left\" balign=\"left\">25</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"longTitleNode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>longTitleNode</b></td></tr><tr><td align=\"left\">This is a very long node title that will<br/>be wrapped</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"description__key\" align=\"left\" balign=\"left\">description</td><td port=\"description__value\" align=\"left\" balign=\"left\">And this is a long description<br align=\"left\"/>that will also be wrapped</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n}",
-  "svgHash": "cb071708fdc30ae9e2b08a553e629e62c2e26609c1b0cde0a7b432763a037c73"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>NodeTitleExample</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"maxNodeTitleLength__key\" align=\"left\" balign=\"left\">maxNodeTitleLength</td><td port=\"maxNodeTitleLength__value\" align=\"left\" balign=\"left\">25</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"longTitleNode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>longTitleNode</b></td></tr><tr><td align=\"left\">This is a very long node title that will<br/>be wrapped</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"description__key\" align=\"left\" balign=\"left\">description</td><td port=\"description__value\" align=\"left\" balign=\"left\">And this is a long description<br align=\"left\"/>that will also be wrapped</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L4:0-6:1\"];\n\n}",
+  "svgHash": "85f6f9da86db5c75da49ecc04b27da6e4c644c0a732610771cc4b45de9a2ab21"
 }

@@ -42,12 +42,32 @@
           {
             "name": "Singleton"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 1
+          }
+        }
       },
       {
         "name": "Discovery",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 35,
+            "character": 1
+          }
+        }
       },
       {
         "name": "idea",
@@ -62,7 +82,17 @@
             "value": "productivity users"
           }
         ],
-        "parent": "Discovery"
+        "parent": "Discovery",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 4
+          },
+          "end": {
+            "line": 22,
+            "character": 5
+          }
+        }
       },
       {
         "name": "analyze",
@@ -82,7 +112,17 @@
           {
             "name": "Critical"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 4
+          },
+          "end": {
+            "line": 27,
+            "character": 5
+          }
+        }
       },
       {
         "name": "research",
@@ -101,12 +141,32 @@
             "value": "{{ analyze.output }}"
           }
         ],
-        "parent": "Discovery"
+        "parent": "Discovery",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 4
+          },
+          "end": {
+            "line": 32,
+            "character": 5
+          }
+        }
       },
       {
         "name": "Execution",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 0
+          },
+          "end": {
+            "line": 56,
+            "character": 1
+          }
+        }
       },
       {
         "name": "design",
@@ -122,7 +182,17 @@
           }
         ],
         "parent": "Execution",
-        "title": "Create Designs"
+        "title": "Create Designs",
+        "$sourceRange": {
+          "start": {
+            "line": 42,
+            "character": 4
+          },
+          "end": {
+            "line": 44,
+            "character": 5
+          }
+        }
       },
       {
         "name": "build",
@@ -147,7 +217,17 @@
             "name": "Async"
           }
         ],
-        "title": "Build Prototype"
+        "title": "Build Prototype",
+        "$sourceRange": {
+          "start": {
+            "line": 46,
+            "character": 4
+          },
+          "end": {
+            "line": 49,
+            "character": 5
+          }
+        }
       },
       {
         "name": "test",
@@ -163,7 +243,17 @@
           }
         ],
         "parent": "Execution",
-        "title": "Validate Prototype"
+        "title": "Validate Prototype",
+        "$sourceRange": {
+          "start": {
+            "line": 51,
+            "character": 4
+          },
+          "end": {
+            "line": 53,
+            "character": 5
+          }
+        }
       },
       {
         "name": "Review",
@@ -182,19 +272,49 @@
             ]
           }
         ],
-        "title": "Stakeholder Review"
+        "title": "Stakeholder Review",
+        "$sourceRange": {
+          "start": {
+            "line": 62,
+            "character": 0
+          },
+          "end": {
+            "line": 65,
+            "character": 1
+          }
+        }
       },
       {
         "name": "Approved",
         "type": "output",
         "attributes": [],
-        "title": "Go to Production"
+        "title": "Go to Production",
+        "$sourceRange": {
+          "start": {
+            "line": 67,
+            "character": 0
+          },
+          "end": {
+            "line": 67,
+            "character": 35
+          }
+        }
       },
       {
         "name": "Rejected",
         "type": "output",
         "attributes": [],
-        "title": "Back to Discovery"
+        "title": "Back to Discovery",
+        "$sourceRange": {
+          "start": {
+            "line": 68,
+            "character": 0
+          },
+          "end": {
+            "line": 68,
+            "character": 36
+          }
+        }
       },
       {
         "name": "Discovery",
@@ -205,7 +325,17 @@
             "value": "Discovery"
           }
         ],
-        "title": "Discovery phase uses LLM reasoning to adaptively analyze concepts and recommend features based on constraints."
+        "title": "Discovery phase uses LLM reasoning to adaptively analyze concepts and recommend features based on constraints.",
+        "$sourceRange": {
+          "start": {
+            "line": 93,
+            "character": 0
+          },
+          "end": {
+            "line": 93,
+            "character": 128
+          }
+        }
       },
       {
         "name": "Execution",
@@ -216,7 +346,17 @@
             "value": "Execution"
           }
         ],
-        "title": "Execution phase combines design thinking with technical prototyping. Build task is async for parallel work."
+        "title": "Execution phase combines design thinking with technical prototyping. Build task is async for parallel work.",
+        "$sourceRange": {
+          "start": {
+            "line": 95,
+            "character": 0
+          },
+          "end": {
+            "line": 95,
+            "character": 125
+          }
+        }
       },
       {
         "name": "Review",
@@ -227,19 +367,49 @@
             "value": "Review"
           }
         ],
-        "title": "Review gates production deployment. Failures loop back to discovery with learnings, demonstrating iterative evolution."
+        "title": "Review gates production deployment. Failures loop back to discovery with learnings, demonstrating iterative evolution.",
+        "$sourceRange": {
+          "start": {
+            "line": 97,
+            "character": 0
+          },
+          "end": {
+            "line": 97,
+            "character": 133
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "research",
         "target": "design",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 75,
+            "character": 19
+          },
+          "end": {
+            "line": 75,
+            "character": 38
+          }
+        }
       },
       {
         "source": "test",
         "target": "Review",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 76,
+            "character": 15
+          },
+          "end": {
+            "line": 76,
+            "character": 24
+          }
+        }
       },
       {
         "source": "Review",
@@ -247,6 +417,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "approved"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 79,
+            "character": 7
+          },
+          "end": {
+            "line": 79,
+            "character": 27
+          }
         }
       },
       {
@@ -255,79 +435,139 @@
         "arrowType": "->",
         "attributes": {
           "text": "needs_work"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 80,
+            "character": 7
+          },
+          "end": {
+            "line": 80,
+            "character": 29
+          }
         }
       },
       {
         "source": "Rejected",
         "target": "analyze",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 83,
+            "character": 9
+          },
+          "end": {
+            "line": 83,
+            "character": 30
+          }
+        }
       },
       {
         "source": "idea",
         "target": "analyze",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 9
+          },
+          "end": {
+            "line": 34,
+            "character": 19
+          }
+        }
       },
       {
         "source": "analyze",
         "target": "research",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 20
+          },
+          "end": {
+            "line": 34,
+            "character": 31
+          }
+        }
       },
       {
         "source": "design",
         "target": "build",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 55,
+            "character": 11
+          },
+          "end": {
+            "line": 55,
+            "character": 19
+          }
+        }
       },
       {
         "source": "build",
         "target": "test",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 55,
+            "character": 20
+          },
+          "end": {
+            "line": 55,
+            "character": 27
+          }
+        }
       }
     ],
     "inferredDependencies": [
       {
         "source": "analyze",
         "target": "idea",
-        "reason": "reads prompt",
+        "reason": "reads idea.concept",
         "path": "idea.concept"
       },
       {
         "source": "analyze",
         "target": "idea",
-        "reason": "reads prompt",
+        "reason": "reads idea.target",
         "path": "idea.target"
       },
       {
         "source": "analyze",
         "target": "config",
-        "reason": "reads prompt",
+        "reason": "reads config.budget",
         "path": "config.budget"
       },
       {
         "source": "analyze",
         "target": "config",
-        "reason": "reads prompt",
+        "reason": "reads config.timeline",
         "path": "config.timeline"
       },
       {
         "source": "analyze",
         "target": "config",
-        "reason": "reads model",
+        "reason": "reads config.model",
         "path": "config.model"
       },
       {
         "source": "research",
         "target": "analyze",
-        "reason": "reads input",
+        "reason": "reads analyze.output",
         "path": "analyze.output"
       },
       {
         "source": "Review",
         "target": "config",
-        "reason": "reads reviewers",
+        "reason": "reads config.reviewers",
         "path": "config.reviewers"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Product Development System</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version(&quot;1.0&quot;)</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i> <i>@Singleton</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"budget__key\" align=\"left\" balign=\"left\">budget : number</td><td port=\"budget__value\" align=\"left\" balign=\"left\">50000</td></tr><tr><td port=\"timeline__key\" align=\"left\" balign=\"left\">timeline : Duration</td><td port=\"timeline__value\" align=\"left\" balign=\"left\">P3M</td></tr><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model : string</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"reviewers__key\" align=\"left\" balign=\"left\">reviewers : Array&lt;string&gt;</td><td port=\"reviewers__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;product&quot;,<br align=\"left\"/>  &quot;engineering&quot;,<br align=\"left\"/>  &quot;design&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", peripheries=2];\n  subgraph cluster_Discovery {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Discovery</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Discovery__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"idea\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idea</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"concept__key\" align=\"left\" balign=\"left\">concept</td><td port=\"concept__value\" align=\"left\" balign=\"left\">Mobile app for task management</td></tr><tr><td port=\"target__key\" align=\"left\" balign=\"left\">target</td><td port=\"target__value\" align=\"left\" balign=\"left\">productivity users</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n    \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Analyze '{{ idea.concept }}' for {{<br/>idea.target }}. Budget: {{ config.budget<br/>}}, Timeline: {{ config.timeline }}.<br/>Recommend critical features.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">{{ config.model }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n    \"research\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>research</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"sources__key\" align=\"left\" balign=\"left\">sources</td><td port=\"sources__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;market reports&quot;,<br align=\"left\"/>  &quot;user surveys&quot;,<br align=\"left\"/>  &quot;competitor analysis&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input</td><td port=\"input__value\" align=\"left\" balign=\"left\">{{ analyze.output }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_Execution {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Execution</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Execution__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"design\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>design</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create Designs</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"deliverables__key\" align=\"left\" balign=\"left\">deliverables</td><td port=\"deliverables__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;wireframes&quot;,<br align=\"left\"/>  &quot;user flows&quot;,<br align=\"left\"/>  &quot;design system&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"build\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>build</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Build Prototype</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"type__key\" align=\"left\" balign=\"left\">type</td><td port=\"type__value\" align=\"left\" balign=\"left\">technical spike</td></tr><tr><td port=\"technologies__key\" align=\"left\" balign=\"left\">technologies</td><td port=\"technologies__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;React Native&quot;,<br align=\"left\"/>  &quot;TypeScript&quot;,<br align=\"left\"/>  &quot;Supabase&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"test\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>test</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate Prototype</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"methods__key\" align=\"left\" balign=\"left\">methods</td><td port=\"methods__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user testing&quot;,<br align=\"left\"/>  &quot;technical review&quot;,<br align=\"left\"/>  &quot;accessibility audit&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"Review\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Review</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Stakeholder Review</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"reviewers__key\" align=\"left\" balign=\"left\">reviewers</td><td port=\"reviewers__value\" align=\"left\" balign=\"left\">{{ config.reviewers }}</td></tr><tr><td port=\"criteria__key\" align=\"left\" balign=\"left\">criteria</td><td port=\"criteria__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user value&quot;,<br align=\"left\"/>  &quot;technical feasibility&quot;,<br align=\"left\"/>  &quot;market fit&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Approved</b> <i>&lt;output&gt;</i></td></tr><tr><td align=\"left\">Go to Production</td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"Rejected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Rejected</b> <i>&lt;output&gt;</i></td></tr><tr><td align=\"left\">Back to Discovery</td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Root-level notes\n  \"note_Discovery_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Discovery phase uses LLM reasoning to<br/>adaptively analyze concepts and<br/>recommend features based on constraints.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Discovery_0\" -> \"Discovery__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_Execution_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Execution phase combines design thinking<br/>with technical prototyping. Build task<br/>is async for parallel work.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Execution_0\" -> \"Execution__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_Review_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Review gates production deployment.<br/>Failures loop back to discovery with<br/>learnings, demonstrating iterative<br/>evolution.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Review_0\" -> \"Review\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"research\" -> \"design\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"test\" -> \"Review\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Review\" -> \"Approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>approved</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Review\" -> \"Rejected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>needs_work</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Rejected\" -> \"analyze\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"idea\" -> \"analyze\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyze\" -> \"research\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"design\" -> \"build\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"build\" -> \"test\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"analyze\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"config\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"config\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"config\" [label=\"reads model\", style=dashed, color=blue];\n  \"research\" -> \"analyze\" [label=\"reads input\", style=dashed, color=blue];\n  \"Review\" -> \"config\" [label=\"reads reviewers\", style=dashed, color=blue];\n}",
-  "svgHash": "c19ad5d90ff35e88898860a23e8b3aedf48e92bf9cc72c2686a088dea32eee17"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Product Development System</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version(&quot;1.0&quot;)</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i> <i>@Singleton</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"budget__key\" align=\"left\" balign=\"left\">budget : number</td><td port=\"budget__value\" align=\"left\" balign=\"left\">50000</td></tr><tr><td port=\"timeline__key\" align=\"left\" balign=\"left\">timeline : Duration</td><td port=\"timeline__value\" align=\"left\" balign=\"left\">P3M</td></tr><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model : string</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"reviewers__key\" align=\"left\" balign=\"left\">reviewers : Array&lt;string&gt;</td><td port=\"reviewers__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;product&quot;,<br align=\"left\"/>  &quot;engineering&quot;,<br align=\"left\"/>  &quot;design&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", peripheries=2, URL=\"#L7:0-12:1\"];\n  subgraph cluster_Discovery {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Discovery</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Discovery__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"idea\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idea</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"concept__key\" align=\"left\" balign=\"left\">concept</td><td port=\"concept__value\" align=\"left\" balign=\"left\">Mobile app for task management</td></tr><tr><td port=\"target__key\" align=\"left\" balign=\"left\">target</td><td port=\"target__value\" align=\"left\" balign=\"left\">productivity users</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L19:4-22:5\"];\n    \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Analyze '{{ idea.concept }}' for {{<br/>idea.target }}. Budget: {{ config.budget<br/>}}, Timeline: {{ config.timeline }}.<br/>Recommend critical features.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">{{ config.model }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L24:4-27:5\"];\n    \"research\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>research</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"sources__key\" align=\"left\" balign=\"left\">sources</td><td port=\"sources__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;market reports&quot;,<br align=\"left\"/>  &quot;user surveys&quot;,<br align=\"left\"/>  &quot;competitor analysis&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input</td><td port=\"input__value\" align=\"left\" balign=\"left\">{{ analyze.output }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L29:4-32:5\"];\n  }\n  subgraph cluster_Execution {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>Execution</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"Execution__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"design\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>design</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create Designs</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"deliverables__key\" align=\"left\" balign=\"left\">deliverables</td><td port=\"deliverables__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;wireframes&quot;,<br align=\"left\"/>  &quot;user flows&quot;,<br align=\"left\"/>  &quot;design system&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L42:4-44:5\"];\n    \"build\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>build</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Build Prototype</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"type__key\" align=\"left\" balign=\"left\">type</td><td port=\"type__value\" align=\"left\" balign=\"left\">technical spike</td></tr><tr><td port=\"technologies__key\" align=\"left\" balign=\"left\">technologies</td><td port=\"technologies__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;React Native&quot;,<br align=\"left\"/>  &quot;TypeScript&quot;,<br align=\"left\"/>  &quot;Supabase&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L46:4-49:5\"];\n    \"test\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>test</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate Prototype</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"methods__key\" align=\"left\" balign=\"left\">methods</td><td port=\"methods__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user testing&quot;,<br align=\"left\"/>  &quot;technical review&quot;,<br align=\"left\"/>  &quot;accessibility audit&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L51:4-53:5\"];\n  }\n  \"Review\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Review</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Stakeholder Review</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"reviewers__key\" align=\"left\" balign=\"left\">reviewers</td><td port=\"reviewers__value\" align=\"left\" balign=\"left\">{{ config.reviewers }}</td></tr><tr><td port=\"criteria__key\" align=\"left\" balign=\"left\">criteria</td><td port=\"criteria__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user value&quot;,<br align=\"left\"/>  &quot;technical feasibility&quot;,<br align=\"left\"/>  &quot;market fit&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L62:0-65:1\"];\n  \"Approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Approved</b> <i>&lt;output&gt;</i></td></tr><tr><td align=\"left\">Go to Production</td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L67:0-67:35\"];\n  \"Rejected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Rejected</b> <i>&lt;output&gt;</i></td></tr><tr><td align=\"left\">Back to Discovery</td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L68:0-68:36\"];\n\n  // Root-level notes\n  \"note_Discovery_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Discovery phase uses LLM reasoning to<br/>adaptively analyze concepts and<br/>recommend features based on constraints.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Discovery_0\" -> \"Discovery__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_Execution_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Execution phase combines design thinking<br/>with technical prototyping. Build task<br/>is async for parallel work.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Execution_0\" -> \"Execution__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_Review_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Review gates production deployment.<br/>Failures loop back to discovery with<br/>learnings, demonstrating iterative<br/>evolution.</td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Review_0\" -> \"Review\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"research\" -> \"design\" [labelOverlay=\"75%\", edgeURL=\"#L75:19-75:38\"];\n  \"test\" -> \"Review\" [labelOverlay=\"75%\", edgeURL=\"#L76:15-76:24\"];\n  \"Review\" -> \"Approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>approved</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L79:7-79:27\"];\n  \"Review\" -> \"Rejected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>needs_work</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L80:7-80:29\"];\n  \"Rejected\" -> \"analyze\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L83:9-83:30\"];\n  \"idea\" -> \"analyze\" [labelOverlay=\"75%\", edgeURL=\"#L34:9-34:19\"];\n  \"analyze\" -> \"research\" [labelOverlay=\"75%\", edgeURL=\"#L34:20-34:31\"];\n  \"design\" -> \"build\" [labelOverlay=\"75%\", edgeURL=\"#L55:11-55:19\"];\n  \"build\" -> \"test\" [labelOverlay=\"75%\", edgeURL=\"#L55:20-55:27\"];\n\n  // Inferred Dependencies\n  \"analyze\" -> \"idea\" [label=\"reads idea.concept\", style=dashed, color=blue];\n  \"analyze\" -> \"idea\" [label=\"reads idea.target\", style=dashed, color=blue];\n  \"analyze\" -> \"config\" [label=\"reads config.budget\", style=dashed, color=blue];\n  \"analyze\" -> \"config\" [label=\"reads config.timeline\", style=dashed, color=blue];\n  \"analyze\" -> \"config\" [label=\"reads config.model\", style=dashed, color=blue];\n  \"research\" -> \"analyze\" [label=\"reads analyze.output\", style=dashed, color=blue];\n  \"Review\" -> \"config\" [label=\"reads config.reviewers\", style=dashed, color=blue];\n}",
+  "svgHash": "1b14affba00d38cb0c1743e8a893d5e8a971ccaca7dde231a591153d8b902ef6"
 }

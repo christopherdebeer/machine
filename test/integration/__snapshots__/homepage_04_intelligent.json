@@ -23,7 +23,17 @@
               "timeline: 3 months"
             ]
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 1
+          }
+        }
       },
       {
         "name": "analyze",
@@ -42,7 +52,17 @@
           {
             "name": "Critical"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 1
+          }
+        }
       },
       {
         "name": "research",
@@ -59,7 +79,17 @@
             "name": "input",
             "value": "{{ analyze.output }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
       },
       {
         "name": "prototype",
@@ -69,7 +99,17 @@
             "name": "prompt",
             "value": "Create detailed wireframes and technical architecture for: {{ analyze.output }}. Ensure designs address {{ idea.target }} needs."
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 1
+          }
+        }
       },
       {
         "name": "review",
@@ -84,7 +124,17 @@
             ]
           }
         ],
-        "title": "Stakeholder Review"
+        "title": "Stakeholder Review",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 1
+          }
+        }
       },
       {
         "name": "decision",
@@ -98,75 +148,135 @@
               "market fit"
             ]
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 0
+          },
+          "end": {
+            "line": 29,
+            "character": 1
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "idea",
         "target": "analyze",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 5
+          },
+          "end": {
+            "line": 31,
+            "character": 15
+          }
+        }
       },
       {
         "source": "analyze",
         "target": "research",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 16
+          },
+          "end": {
+            "line": 31,
+            "character": 27
+          }
+        }
       },
       {
         "source": "research",
         "target": "prototype",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 28
+          },
+          "end": {
+            "line": 31,
+            "character": 40
+          }
+        }
       },
       {
         "source": "prototype",
         "target": "review",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 41
+          },
+          "end": {
+            "line": 31,
+            "character": 50
+          }
+        }
       },
       {
         "source": "review",
         "target": "decision",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 51
+          },
+          "end": {
+            "line": 31,
+            "character": 62
+          }
+        }
       }
     ],
     "inferredDependencies": [
       {
         "source": "analyze",
         "target": "idea",
-        "reason": "reads prompt",
+        "reason": "reads idea.concept",
         "path": "idea.concept"
       },
       {
         "source": "analyze",
         "target": "idea",
-        "reason": "reads prompt",
+        "reason": "reads idea.target",
         "path": "idea.target"
       },
       {
         "source": "analyze",
         "target": "idea",
-        "reason": "reads prompt",
+        "reason": "reads idea.constraints",
         "path": "idea.constraints"
       },
       {
         "source": "research",
         "target": "analyze",
-        "reason": "reads input",
+        "reason": "reads analyze.output",
         "path": "analyze.output"
       },
       {
         "source": "prototype",
         "target": "analyze",
-        "reason": "reads prompt",
+        "reason": "reads analyze.output",
         "path": "analyze.output"
       },
       {
         "source": "prototype",
         "target": "idea",
-        "reason": "reads prompt",
+        "reason": "reads idea.target",
         "path": "idea.target"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>AI-Powered Product Development</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"idea\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idea</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"concept__key\" align=\"left\" balign=\"left\">concept</td><td port=\"concept__value\" align=\"left\" balign=\"left\">Mobile app for task management</td></tr><tr><td port=\"target__key\" align=\"left\" balign=\"left\">target</td><td port=\"target__value\" align=\"left\" balign=\"left\">productivity users</td></tr><tr><td port=\"constraints__key\" align=\"left\" balign=\"left\">constraints</td><td port=\"constraints__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;budget: $50k&quot;,<br align=\"left\"/>  &quot;timeline: 3 months&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Given the concept '{{ idea.concept }}'<br/>for {{ idea.target }}, with constraints<br/>{{ idea.constraints }}, identify the 3<br/>most critical features to prototype<br/>first. Consider market viability and<br/>technical complexity.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n  \"research\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>research</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"activities__key\" align=\"left\" balign=\"left\">activities</td><td port=\"activities__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;market analysis&quot;,<br align=\"left\"/>  &quot;competitor review&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input</td><td port=\"input__value\" align=\"left\" balign=\"left\">{{ analyze.output }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"prototype\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prototype</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create detailed wireframes and technical<br/>architecture for: {{ analyze.output }}.<br/>Ensure designs address {{ idea.target }}<br/>needs.</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"review\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>review</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Stakeholder Review</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"reviewers__key\" align=\"left\" balign=\"left\">reviewers</td><td port=\"reviewers__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;product&quot;,<br align=\"left\"/>  &quot;engineering&quot;,<br align=\"left\"/>  &quot;design&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"decision\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>decision</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"criteria__key\" align=\"left\" balign=\"left\">criteria</td><td port=\"criteria__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user feedback&quot;,<br align=\"left\"/>  &quot;technical feasibility&quot;,<br align=\"left\"/>  &quot;market fit&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"idea\" -> \"analyze\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyze\" -> \"research\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"research\" -> \"prototype\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"prototype\" -> \"review\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"review\" -> \"decision\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"analyze\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"analyze\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"research\" -> \"analyze\" [label=\"reads input\", style=dashed, color=blue];\n  \"prototype\" -> \"analyze\" [label=\"reads prompt\", style=dashed, color=blue];\n  \"prototype\" -> \"idea\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "eb797ec7c47a66f83773017df8df7e3c2e69581d509a79d2b940a1977b486fda"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>AI-Powered Product Development</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"idea\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>idea</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"concept__key\" align=\"left\" balign=\"left\">concept</td><td port=\"concept__value\" align=\"left\" balign=\"left\">Mobile app for task management</td></tr><tr><td port=\"target__key\" align=\"left\" balign=\"left\">target</td><td port=\"target__value\" align=\"left\" balign=\"left\">productivity users</td></tr><tr><td port=\"constraints__key\" align=\"left\" balign=\"left\">constraints</td><td port=\"constraints__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;budget: $50k&quot;,<br align=\"left\"/>  &quot;timeline: 3 months&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-7:1\"];\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Given the concept '{{ idea.concept }}'<br/>for {{ idea.target }}, with constraints<br/>{{ idea.constraints }}, identify the 3<br/>most critical features to prototype<br/>first. Consider market viability and<br/>technical complexity.</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L9:0-12:1\"];\n  \"research\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>research</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"activities__key\" align=\"left\" balign=\"left\">activities</td><td port=\"activities__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;market analysis&quot;,<br align=\"left\"/>  &quot;competitor review&quot;<br align=\"left\"/>]</td></tr><tr><td port=\"input__key\" align=\"left\" balign=\"left\">input</td><td port=\"input__value\" align=\"left\" balign=\"left\">{{ analyze.output }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-17:1\"];\n  \"prototype\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>prototype</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create detailed wireframes and technical<br/>architecture for: {{ analyze.output }}.<br/>Ensure designs address {{ idea.target }}<br/>needs.</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:0-21:1\"];\n  \"review\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>review</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Stakeholder Review</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"reviewers__key\" align=\"left\" balign=\"left\">reviewers</td><td port=\"reviewers__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;product&quot;,<br align=\"left\"/>  &quot;engineering&quot;,<br align=\"left\"/>  &quot;design&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L23:0-25:1\"];\n  \"decision\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>decision</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"criteria__key\" align=\"left\" balign=\"left\">criteria</td><td port=\"criteria__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;user feedback&quot;,<br align=\"left\"/>  &quot;technical feasibility&quot;,<br align=\"left\"/>  &quot;market fit&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L27:0-29:1\"];\n\n  // Edges\n  \"idea\" -> \"analyze\" [labelOverlay=\"75%\", edgeURL=\"#L31:5-31:15\"];\n  \"analyze\" -> \"research\" [labelOverlay=\"75%\", edgeURL=\"#L31:16-31:27\"];\n  \"research\" -> \"prototype\" [labelOverlay=\"75%\", edgeURL=\"#L31:28-31:40\"];\n  \"prototype\" -> \"review\" [labelOverlay=\"75%\", edgeURL=\"#L31:41-31:50\"];\n  \"review\" -> \"decision\" [labelOverlay=\"75%\", edgeURL=\"#L31:51-31:62\"];\n\n  // Inferred Dependencies\n  \"analyze\" -> \"idea\" [label=\"reads idea.concept\", style=dashed, color=blue];\n  \"analyze\" -> \"idea\" [label=\"reads idea.target\", style=dashed, color=blue];\n  \"analyze\" -> \"idea\" [label=\"reads idea.constraints\", style=dashed, color=blue];\n  \"research\" -> \"analyze\" [label=\"reads analyze.output\", style=dashed, color=blue];\n  \"prototype\" -> \"analyze\" [label=\"reads analyze.output\", style=dashed, color=blue];\n  \"prototype\" -> \"idea\" [label=\"reads idea.target\", style=dashed, color=blue];\n}",
+  "svgHash": "fdefe8a05d5e7102e403527188faf62f7721d9a702a20c1dcba5c429938c6ba5"
 }

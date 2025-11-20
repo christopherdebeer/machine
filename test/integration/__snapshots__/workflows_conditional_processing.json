@@ -7,83 +7,223 @@
       {
         "name": "request",
         "type": "input",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 14
+          }
+        }
       },
       {
         "name": "evaluate",
         "type": "task",
         "attributes": [],
-        "title": "Evaluate request"
+        "title": "Evaluate request",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 33
+          }
+        }
       },
       {
         "name": "approved",
         "type": "state",
         "attributes": [],
-        "title": "Approved"
+        "title": "Approved",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 26
+          }
+        }
       },
       {
         "name": "rejected",
         "type": "state",
         "attributes": [],
-        "title": "Rejected"
+        "title": "Rejected",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 26
+          }
+        }
       },
       {
         "name": "processApproved",
         "type": "task",
         "attributes": [],
-        "title": "Process approved request"
+        "title": "Process approved request",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 48
+          }
+        }
       },
       {
         "name": "handleRejection",
         "type": "task",
         "attributes": [],
-        "title": "Handle rejection"
+        "title": "Handle rejection",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 40
+          }
+        }
       },
       {
         "name": "result",
         "type": "output",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 14
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "request",
         "target": "evaluate",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 8
+          },
+          "end": {
+            "line": 14,
+            "character": 19
+          }
+        }
       },
       {
         "source": "evaluate",
         "target": "approved",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 9
+          },
+          "end": {
+            "line": 15,
+            "character": 30
+          }
+        }
       },
       {
         "source": "evaluate",
         "target": "rejected",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 9
+          },
+          "end": {
+            "line": 15,
+            "character": 30
+          }
+        }
       },
       {
         "source": "approved",
         "target": "processApproved",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 9
+          },
+          "end": {
+            "line": 16,
+            "character": 27
+          }
+        }
       },
       {
         "source": "processApproved",
         "target": "result",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 28
+          },
+          "end": {
+            "line": 16,
+            "character": 37
+          }
+        }
       },
       {
         "source": "rejected",
         "target": "handleRejection",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 9
+          },
+          "end": {
+            "line": 17,
+            "character": 27
+          }
+        }
       },
       {
         "source": "handleRejection",
         "target": "result",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 28
+          },
+          "end": {
+            "line": 17,
+            "character": 37
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Conditional Processing</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"request\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>request</b> <i>&lt;input&gt;</i></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"evaluate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>evaluate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Evaluate request</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>approved</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Approved</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"rejected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>rejected</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Rejected</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"processApproved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processApproved</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process approved request</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"handleRejection\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleRejection</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Handle rejection</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>result</b> <i>&lt;output&gt;</i></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"request\" -> \"evaluate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"evaluate\" -> \"approved\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"evaluate\" -> \"rejected\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"approved\" -> \"processApproved\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"processApproved\" -> \"result\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"rejected\" -> \"handleRejection\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"handleRejection\" -> \"result\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "d066a96effaafe49d8f2a21b543cd76d7cd8fdb06fb587c1b12760264bba0986"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Conditional Processing</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"request\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>request</b> <i>&lt;input&gt;</i></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-3:14\"];\n  \"evaluate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>evaluate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Evaluate request</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:33\"];\n  \"approved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>approved</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Approved</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:26\"];\n  \"rejected\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>rejected</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Rejected</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:26\"];\n  \"processApproved\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processApproved</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process approved request</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-9:48\"];\n  \"handleRejection\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handleRejection</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Handle rejection</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-10:40\"];\n  \"result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>result</b> <i>&lt;output&gt;</i></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L12:0-12:14\"];\n\n  // Edges\n  \"request\" -> \"evaluate\" [labelOverlay=\"75%\", edgeURL=\"#L14:8-14:19\"];\n  \"evaluate\" -> \"approved\" [labelOverlay=\"75%\", edgeURL=\"#L15:9-15:30\"];\n  \"evaluate\" -> \"rejected\" [labelOverlay=\"75%\", edgeURL=\"#L15:9-15:30\"];\n  \"approved\" -> \"processApproved\" [labelOverlay=\"75%\", edgeURL=\"#L16:9-16:27\"];\n  \"processApproved\" -> \"result\" [labelOverlay=\"75%\", edgeURL=\"#L16:28-16:37\"];\n  \"rejected\" -> \"handleRejection\" [labelOverlay=\"75%\", edgeURL=\"#L17:9-17:27\"];\n  \"handleRejection\" -> \"result\" [labelOverlay=\"75%\", edgeURL=\"#L17:28-17:37\"];\n}",
+  "svgHash": "5af6b5059b3190777a4864e891badebb766b0fabb0e283d9a4dc5bd71a53c8c6"
 }

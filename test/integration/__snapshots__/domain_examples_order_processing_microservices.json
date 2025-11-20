@@ -20,7 +20,17 @@
             "name": "items",
             "value": []
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 2
+          }
+        }
       },
       {
         "name": "validateInventory",
@@ -39,7 +49,17 @@
           {
             "name": "Async"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 2
+          }
+        }
       },
       {
         "name": "validatePayment",
@@ -58,7 +78,17 @@
           {
             "name": "Async"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 2
+          }
+        }
       },
       {
         "name": "validateShipping",
@@ -77,7 +107,17 @@
           {
             "name": "Async"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 23,
+            "character": 2
+          }
+        }
       },
       {
         "name": "aggregateValidation",
@@ -87,19 +127,49 @@
             "name": "prompt",
             "value": "Check all validations passed"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 0
+          },
+          "end": {
+            "line": 27,
+            "character": 2
+          }
+        }
       },
       {
         "name": "allValid",
         "type": "state",
         "attributes": [],
-        "title": "All Valid"
+        "title": "All Valid",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 0
+          },
+          "end": {
+            "line": 29,
+            "character": 27
+          }
+        }
       },
       {
         "name": "validationFailed",
         "type": "state",
         "attributes": [],
-        "title": "Validation Failed"
+        "title": "Validation Failed",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 0
+          },
+          "end": {
+            "line": 30,
+            "character": 43
+          }
+        }
       },
       {
         "name": "reserveInventory",
@@ -113,7 +183,17 @@
             "name": "endpoint",
             "value": "/reserve"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 33,
+            "character": 0
+          },
+          "end": {
+            "line": 36,
+            "character": 2
+          }
+        }
       },
       {
         "name": "chargePayment",
@@ -127,7 +207,17 @@
             "name": "endpoint",
             "value": "/charge"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 38,
+            "character": 0
+          },
+          "end": {
+            "line": 41,
+            "character": 2
+          }
+        }
       },
       {
         "name": "createShipment",
@@ -141,7 +231,17 @@
             "name": "endpoint",
             "value": "/create"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 43,
+            "character": 0
+          },
+          "end": {
+            "line": 46,
+            "character": 2
+          }
+        }
       },
       {
         "name": "result",
@@ -156,78 +256,218 @@
             "name": "orderId",
             "value": ""
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 48,
+            "character": 0
+          },
+          "end": {
+            "line": 51,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "order",
         "target": "validateInventory",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 54,
+            "character": 6
+          },
+          "end": {
+            "line": 54,
+            "character": 61
+          }
+        }
       },
       {
         "source": "order",
         "target": "validatePayment",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 54,
+            "character": 6
+          },
+          "end": {
+            "line": 54,
+            "character": 61
+          }
+        }
       },
       {
         "source": "order",
         "target": "validateShipping",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 54,
+            "character": 6
+          },
+          "end": {
+            "line": 54,
+            "character": 61
+          }
+        }
       },
       {
         "source": "validateInventory",
         "target": "aggregateValidation",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 55,
+            "character": 18
+          },
+          "end": {
+            "line": 55,
+            "character": 40
+          }
+        }
       },
       {
         "source": "validatePayment",
         "target": "aggregateValidation",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 56,
+            "character": 16
+          },
+          "end": {
+            "line": 56,
+            "character": 38
+          }
+        }
       },
       {
         "source": "validateShipping",
         "target": "aggregateValidation",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 57,
+            "character": 17
+          },
+          "end": {
+            "line": 57,
+            "character": 39
+          }
+        }
       },
       {
         "source": "aggregateValidation",
         "target": "allValid",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 59,
+            "character": 20
+          },
+          "end": {
+            "line": 59,
+            "character": 49
+          }
+        }
       },
       {
         "source": "aggregateValidation",
         "target": "validationFailed",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 59,
+            "character": 20
+          },
+          "end": {
+            "line": 59,
+            "character": 49
+          }
+        }
       },
       {
         "source": "allValid",
         "target": "reserveInventory",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 60,
+            "character": 9
+          },
+          "end": {
+            "line": 60,
+            "character": 28
+          }
+        }
       },
       {
         "source": "reserveInventory",
         "target": "chargePayment",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 60,
+            "character": 29
+          },
+          "end": {
+            "line": 60,
+            "character": 45
+          }
+        }
       },
       {
         "source": "chargePayment",
         "target": "createShipment",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 60,
+            "character": 46
+          },
+          "end": {
+            "line": 60,
+            "character": 63
+          }
+        }
       },
       {
         "source": "createShipment",
         "target": "result",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 60,
+            "character": 64
+          },
+          "end": {
+            "line": 60,
+            "character": 73
+          }
+        }
       },
       {
         "source": "validationFailed",
         "target": "result",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 61,
+            "character": 17
+          },
+          "end": {
+            "line": 61,
+            "character": 26
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Order Processing Microservices</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"order\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>order</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"orderId__key\" align=\"left\" balign=\"left\">orderId</td><td port=\"orderId__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"customerId__key\" align=\"left\" balign=\"left\">customerId</td><td port=\"customerId__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"items__key\" align=\"left\" balign=\"left\">items</td><td port=\"items__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"validateInventory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateInventory</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">inventory-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/validate</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validatePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validatePayment</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">payment-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/authorize</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"validateShipping\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateShipping</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">shipping-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/calculate</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"aggregateValidation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>aggregateValidation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check all validations passed</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"allValid\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>allValid</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">All Valid</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"validationFailed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validationFailed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validation Failed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"reserveInventory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>reserveInventory</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">inventory-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/reserve</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"chargePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>chargePayment</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">payment-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/charge</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"createShipment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>createShipment</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">shipping-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/create</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>result</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"success__key\" align=\"left\" balign=\"left\">success : boolean</td><td port=\"success__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"orderId__key\" align=\"left\" balign=\"left\">orderId</td><td port=\"orderId__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"order\" -> \"validateInventory\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"order\" -> \"validatePayment\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"order\" -> \"validateShipping\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateInventory\" -> \"aggregateValidation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validatePayment\" -> \"aggregateValidation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validateShipping\" -> \"aggregateValidation\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"aggregateValidation\" -> \"allValid\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"aggregateValidation\" -> \"validationFailed\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"allValid\" -> \"reserveInventory\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"reserveInventory\" -> \"chargePayment\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"chargePayment\" -> \"createShipment\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"createShipment\" -> \"result\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"validationFailed\" -> \"result\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "a0c0f2b34c606cc7a354bd7e74a515345f722037b07c7df797b450d36f90162c"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Order Processing Microservices</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"order\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>order</b> <i>&lt;input&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"orderId__key\" align=\"left\" balign=\"left\">orderId</td><td port=\"orderId__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"customerId__key\" align=\"left\" balign=\"left\">customerId</td><td port=\"customerId__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"items__key\" align=\"left\" balign=\"left\">items</td><td port=\"items__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-7:2\"];\n  \"validateInventory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateInventory</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">inventory-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/validate</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-13:2\"];\n  \"validatePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validatePayment</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">payment-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/authorize</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L15:0-18:2\"];\n  \"validateShipping\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateShipping</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">shipping-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/calculate</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L20:0-23:2\"];\n  \"aggregateValidation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>aggregateValidation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check all validations passed</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L25:0-27:2\"];\n  \"allValid\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>allValid</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">All Valid</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L29:0-29:27\"];\n  \"validationFailed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validationFailed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validation Failed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L30:0-30:43\"];\n  \"reserveInventory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>reserveInventory</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">inventory-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/reserve</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L33:0-36:2\"];\n  \"chargePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>chargePayment</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">payment-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/charge</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L38:0-41:2\"];\n  \"createShipment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>createShipment</b> <i>&lt;task&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">shipping-service</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/create</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L43:0-46:2\"];\n  \"result\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>result</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"success__key\" align=\"left\" balign=\"left\">success : boolean</td><td port=\"success__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"orderId__key\" align=\"left\" balign=\"left\">orderId</td><td port=\"orderId__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L48:0-51:2\"];\n\n  // Edges\n  \"order\" -> \"validateInventory\" [labelOverlay=\"75%\", edgeURL=\"#L54:6-54:61\"];\n  \"order\" -> \"validatePayment\" [labelOverlay=\"75%\", edgeURL=\"#L54:6-54:61\"];\n  \"order\" -> \"validateShipping\" [labelOverlay=\"75%\", edgeURL=\"#L54:6-54:61\"];\n  \"validateInventory\" -> \"aggregateValidation\" [labelOverlay=\"75%\", edgeURL=\"#L55:18-55:40\"];\n  \"validatePayment\" -> \"aggregateValidation\" [labelOverlay=\"75%\", edgeURL=\"#L56:16-56:38\"];\n  \"validateShipping\" -> \"aggregateValidation\" [labelOverlay=\"75%\", edgeURL=\"#L57:17-57:39\"];\n  \"aggregateValidation\" -> \"allValid\" [labelOverlay=\"75%\", edgeURL=\"#L59:20-59:49\"];\n  \"aggregateValidation\" -> \"validationFailed\" [labelOverlay=\"75%\", edgeURL=\"#L59:20-59:49\"];\n  \"allValid\" -> \"reserveInventory\" [labelOverlay=\"75%\", edgeURL=\"#L60:9-60:28\"];\n  \"reserveInventory\" -> \"chargePayment\" [labelOverlay=\"75%\", edgeURL=\"#L60:29-60:45\"];\n  \"chargePayment\" -> \"createShipment\" [labelOverlay=\"75%\", edgeURL=\"#L60:46-60:63\"];\n  \"createShipment\" -> \"result\" [labelOverlay=\"75%\", edgeURL=\"#L60:64-60:73\"];\n  \"validationFailed\" -> \"result\" [labelOverlay=\"75%\", edgeURL=\"#L61:17-61:26\"];\n}",
+  "svgHash": "2a8aa4e76cd04acc636a25204328d22ba8372f30d6c2ddb8589d225b9d45d1ac"
 }

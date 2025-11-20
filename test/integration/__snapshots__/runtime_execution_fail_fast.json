@@ -18,63 +18,163 @@
         "name": "Path1",
         "type": "init",
         "attributes": [],
-        "title": "First workflow"
+        "title": "First workflow",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 27
+          }
+        }
       },
       {
         "name": "Path2",
         "type": "init",
         "attributes": [],
-        "title": "Second workflow"
+        "title": "Second workflow",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 28
+          }
+        }
       },
       {
         "name": "Task1A",
         "type": "state",
         "attributes": [],
-        "title": "Task 1A"
+        "title": "Task 1A",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 22
+          }
+        }
       },
       {
         "name": "Task1B",
         "type": "state",
         "attributes": [],
-        "title": "Task 1B"
+        "title": "Task 1B",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 22
+          }
+        }
       },
       {
         "name": "Task2A",
         "type": "state",
         "attributes": [],
-        "title": "Task 2A"
+        "title": "Task 2A",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 22
+          }
+        }
       },
       {
         "name": "Task2B",
         "type": "state",
         "attributes": [],
-        "title": "Task 2B"
+        "title": "Task 2B",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 22
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Path1",
         "target": "Task1A",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 6
+          },
+          "end": {
+            "line": 14,
+            "character": 15
+          }
+        }
       },
       {
         "source": "Task1A",
         "target": "Task1B",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 16
+          },
+          "end": {
+            "line": 14,
+            "character": 25
+          }
+        }
       },
       {
         "source": "Path2",
         "target": "Task2A",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 6
+          },
+          "end": {
+            "line": 15,
+            "character": 15
+          }
+        }
       },
       {
         "source": "Task2A",
         "target": "Task2B",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 16
+          },
+          "end": {
+            "line": 15,
+            "character": 25
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Fail Fast</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@errorHandling(&quot;fail-fast&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Path1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Path1</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">First workflow</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Path2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Path2</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Second workflow</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"Task1A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task1A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task 1A</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Task1B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task1B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task 1B</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Task2A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task2A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task 2A</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Task2B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task2B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task 2B</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Path1\" -> \"Task1A\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Task1A\" -> \"Task1B\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Path2\" -> \"Task2A\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Task2A\" -> \"Task2B\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "afea81a1ded6a0b74a6d3f82d859991633203a6ee93631283905018131300216"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Fail Fast</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@errorHandling(&quot;fail-fast&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Path1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Path1</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">First workflow</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L5:0-5:27\"];\n  \"Path2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Path2</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Second workflow</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L6:0-6:28\"];\n  \"Task1A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task1A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task 1A</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:22\"];\n  \"Task1B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task1B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task 1B</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L9:0-9:22\"];\n  \"Task2A\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task2A</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task 2A</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:22\"];\n  \"Task2B\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task2B</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Task 2B</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:22\"];\n\n  // Edges\n  \"Path1\" -> \"Task1A\" [labelOverlay=\"75%\", edgeURL=\"#L14:6-14:15\"];\n  \"Task1A\" -> \"Task1B\" [labelOverlay=\"75%\", edgeURL=\"#L14:16-14:25\"];\n  \"Path2\" -> \"Task2A\" [labelOverlay=\"75%\", edgeURL=\"#L15:6-15:15\"];\n  \"Task2A\" -> \"Task2B\" [labelOverlay=\"75%\", edgeURL=\"#L15:16-15:25\"];\n}",
+  "svgHash": "b1f844e79f9767d69c854e93b8a6b28691ee807495c7caf916a60fb4946c2980"
 }

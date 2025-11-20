@@ -2,8 +2,12 @@
  * Machine versioning and persistence
  */
 
-import { MachineData, MachineExecutor } from './machine-executor.js';
+import { MachineExecutor } from './executor.js';
+import type { MachineJSON } from './json/types.js';
 import { StorageBackend, MachineVersion, PerformanceMetrics, LearnedPattern } from './storage.js';
+
+// Type alias for backward compatibility
+type MachineData = MachineJSON;
 
 export class MachinePersistence {
     private versions: MachineVersion[] = [];

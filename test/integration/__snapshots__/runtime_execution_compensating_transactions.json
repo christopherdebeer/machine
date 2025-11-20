@@ -18,19 +18,49 @@
         "name": "ReserveInventory",
         "type": "state",
         "attributes": [],
-        "title": "Reserve inventory"
+        "title": "Reserve inventory",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 42
+          }
+        }
       },
       {
         "name": "ChargePayment",
         "type": "state",
         "attributes": [],
-        "title": "Charge customer"
+        "title": "Charge customer",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 37
+          }
+        }
       },
       {
         "name": "ShipOrder",
         "type": "state",
         "attributes": [],
-        "title": "Ship order"
+        "title": "Ship order",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 28
+          }
+        }
       },
       {
         "name": "ReleaseInventory",
@@ -41,7 +71,17 @@
             "name": "compensate"
           }
         ],
-        "title": "Release inventory"
+        "title": "Release inventory",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 54
+          }
+        }
       },
       {
         "name": "RefundPayment",
@@ -52,23 +92,53 @@
             "name": "compensate"
           }
         ],
-        "title": "Refund payment"
+        "title": "Refund payment",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 48
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "ReserveInventory",
         "target": "ChargePayment",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 17
+          },
+          "end": {
+            "line": 12,
+            "character": 33
+          }
+        }
       },
       {
         "source": "ChargePayment",
         "target": "ShipOrder",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 34
+          },
+          "end": {
+            "line": 12,
+            "character": 46
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Compensating Transactions</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@errorHandling(&quot;compensate&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">info</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ReserveInventory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ReserveInventory</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Reserve inventory</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ChargePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ChargePayment</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Charge customer</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ShipOrder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShipOrder</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Ship order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ReleaseInventory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ReleaseInventory</b> <i>&lt;state&gt;</i> <i>@compensate</i></td></tr><tr><td align=\"left\">Release inventory</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"RefundPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>RefundPayment</b> <i>&lt;state&gt;</i> <i>@compensate</i></td></tr><tr><td align=\"left\">Refund payment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"ReserveInventory\" -> \"ChargePayment\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ChargePayment\" -> \"ShipOrder\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "8d5c273c2f48020c7723dc0e81adcbb66f248131227514cb32a5fa114c8b648d"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Compensating Transactions</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@errorHandling(&quot;compensate&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">info</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ReserveInventory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ReserveInventory</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Reserve inventory</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:42\"];\n  \"ChargePayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ChargePayment</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Charge customer</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:37\"];\n  \"ShipOrder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ShipOrder</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Ship order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:28\"];\n  \"ReleaseInventory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ReleaseInventory</b> <i>&lt;state&gt;</i> <i>@compensate</i></td></tr><tr><td align=\"left\">Release inventory</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:54\"];\n  \"RefundPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>RefundPayment</b> <i>&lt;state&gt;</i> <i>@compensate</i></td></tr><tr><td align=\"left\">Refund payment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L9:0-9:48\"];\n\n  // Edges\n  \"ReserveInventory\" -> \"ChargePayment\" [labelOverlay=\"75%\", edgeURL=\"#L12:17-12:33\"];\n  \"ChargePayment\" -> \"ShipOrder\" [labelOverlay=\"75%\", edgeURL=\"#L12:34-12:46\"];\n}",
+  "svgHash": "5f087ecbd20e0cfa21cf32ee80c468699da784724db778398a931871541a697a"
 }

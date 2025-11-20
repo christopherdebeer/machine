@@ -8,46 +8,116 @@
         "name": "Initialize",
         "type": "state",
         "attributes": [],
-        "title": "Initialize C"
+        "title": "Initialize C",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 31
+          }
+        }
       },
       {
         "name": "Process",
         "type": "state",
         "attributes": [],
-        "title": "Process C"
+        "title": "Process C",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 25
+          }
+        }
       },
       {
         "name": "Validate",
         "type": "state",
         "attributes": [],
-        "title": "Validate C"
+        "title": "Validate C",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 27
+          }
+        }
       },
       {
         "name": "Complete",
         "type": "state",
         "attributes": [],
-        "title": "Complete C"
+        "title": "Complete C",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 27
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Initialize",
         "target": "Process",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 11
+          },
+          "end": {
+            "line": 8,
+            "character": 22
+          }
+        }
       },
       {
         "source": "Process",
         "target": "Validate",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 23
+          },
+          "end": {
+            "line": 8,
+            "character": 35
+          }
+        }
       },
       {
         "source": "Validate",
         "target": "Complete",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 36
+          },
+          "end": {
+            "line": 8,
+            "character": 48
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Module C</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Initialize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Initialize</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Initialize C</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process C</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validate</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate C</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complete C</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"Initialize\" -> \"Process\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"Validate\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Validate\" -> \"Complete\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "98284e0232af624734b9ff3ef5531f316d16841dc5ce354106b733d00265955e"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Module C</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Initialize\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Initialize</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Initialize C</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:31\"];\n  \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process C</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:25\"];\n  \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validate</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate C</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:27\"];\n  \"Complete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Complete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Complete C</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:27\"];\n\n  // Edges\n  \"Initialize\" -> \"Process\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:11-8:22\"];\n  \"Process\" -> \"Validate\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:23-8:35\"];\n  \"Validate\" -> \"Complete\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:36-8:48\"];\n}",
+  "svgHash": "128424773f12ea556190a4e7aca3d90f24dd1cf947eb0f031787ca9a0e5b3a36"
 }

@@ -5,7 +5,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { MetaToolManager } from '../../src/language/meta-tool-manager.js';
 import { NodeTypeChecker } from '../../src/language/node-type-checker.js';
-import type { MachineData, MachineMutation } from '../../src/language/rails-executor.js';
+import type { MachineMutation } from '../../src/language/rails-executor.js';
+import type { MachineJSON } from '../../src/language/json/types.js';
+
+type MachineData = MachineJSON;
 
 describe('MetaToolManager - Dynamic Tool Construction', () => {
     let machineData: MachineData;

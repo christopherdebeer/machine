@@ -9,10 +9,34 @@
  */
 
 import type { ToolDefinition, ConversationMessage, ModelResponse, ToolUseBlock } from './claude-client.js';
-import type { MachineData, MachineExecutionContext } from './rails-executor.js';
+import type { MachineJSON } from './json/types.js';
 import type { MetaToolManager } from './meta-tool-manager.js';
 import type { ToolRegistry } from './tool-registry.js';
 import type { ExecutionLogger } from './execution/index.js';
+
+// Type aliases for compatibility
+type MachineData = MachineJSON;
+interface MachineExecutionContext {
+    currentNode: string;
+    currentTaskNode?: string;
+    activeState?: string;
+    errorCount: number;
+    visitedNodes: Set<string>;
+    attributes: Map<string, any>;
+    history: Array<{
+        from: string;
+        to: string;
+        timestamp: number;
+        transition?: string;
+    }>;
+    nodeInvocationCounts: Map<string, number>;
+    stateTransitions: Array<{
+        from: string;
+        to: string;
+        timestamp: number;
+        trigger?: string;
+    }>;
+}
 import { ClaudeClient } from './claude-client.js';
 import { extractText, extractToolUses } from './llm-utils.js';
 import { Mutex } from 'async-mutex';

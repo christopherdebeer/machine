@@ -13,25 +13,65 @@
         "name": "FetchData",
         "type": "init",
         "attributes": [],
-        "title": "Fetch data"
+        "title": "Fetch data",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 27
+          }
+        }
       },
       {
         "name": "FetchConfig",
         "type": "init",
         "attributes": [],
-        "title": "Fetch config"
+        "title": "Fetch config",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 31
+          }
+        }
       },
       {
         "name": "WaitPoint",
         "type": "state",
         "attributes": [],
-        "title": "Wait for both"
+        "title": "Wait for both",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 31
+          }
+        }
       },
       {
         "name": "MergeAndContinue",
         "type": "state",
         "attributes": [],
-        "title": "Merge and continue"
+        "title": "Merge and continue",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 43
+          }
+        }
       }
     ],
     "edges": [
@@ -44,7 +84,17 @@
             "value": "sync_point"
           }
         ],
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 10
+          },
+          "end": {
+            "line": 12,
+            "character": 45
+          }
+        }
       },
       {
         "source": "FetchConfig",
@@ -55,16 +105,36 @@
             "value": "sync_point"
           }
         ],
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 12
+          },
+          "end": {
+            "line": 13,
+            "character": 47
+          }
+        }
       },
       {
         "source": "WaitPoint",
         "target": "MergeAndContinue",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 10
+          },
+          "end": {
+            "line": 14,
+            "character": 29
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Barrier Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"FetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchData</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Fetch data</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"FetchConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchConfig</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Fetch config</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"WaitPoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>WaitPoint</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Wait for both</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"MergeAndContinue\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>MergeAndContinue</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Merge and continue</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"FetchData\" -> \"WaitPoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@barrier(\"sync_point\")</i></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"FetchConfig\" -> \"WaitPoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@barrier(\"sync_point\")</i></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"WaitPoint\" -> \"MergeAndContinue\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "1f9e266173c630805228af0b2c66c60afe14f785fb63851ad181596ac2363144"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Barrier Example</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"FetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchData</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Fetch data</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L5:0-5:27\"];\n  \"FetchConfig\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FetchConfig</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Fetch config</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L6:0-6:31\"];\n  \"WaitPoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>WaitPoint</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Wait for both</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:31\"];\n  \"MergeAndContinue\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>MergeAndContinue</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Merge and continue</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L9:0-9:43\"];\n\n  // Edges\n  \"FetchData\" -> \"WaitPoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@barrier(\"sync_point\")</i></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L12:10-12:45\"];\n  \"FetchConfig\" -> \"WaitPoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><i>@barrier(\"sync_point\")</i></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L13:12-13:47\"];\n  \"WaitPoint\" -> \"MergeAndContinue\" [labelOverlay=\"75%\", edgeURL=\"#L14:10-14:29\"];\n}",
+  "svgHash": "3baabb4f880e8a3c1743dbd801d996ced179c4cb4634bc079ed703b8a1c214f9"
 }

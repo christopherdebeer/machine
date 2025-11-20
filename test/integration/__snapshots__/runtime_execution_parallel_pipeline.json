@@ -17,52 +17,132 @@
         "name": "DataIngestion",
         "type": "init",
         "attributes": [],
-        "title": "Ingest data from source"
+        "title": "Ingest data from source",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 44
+          }
+        }
       },
       {
         "name": "HealthMonitor",
         "type": "init",
         "attributes": [],
-        "title": "Monitor system health"
+        "title": "Monitor system health",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 42
+          }
+        }
       },
       {
         "name": "ProcessData",
         "type": "state",
         "attributes": [],
-        "title": "Process ingested data"
+        "title": "Process ingested data",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 41
+          }
+        }
       },
       {
         "name": "StoreResults",
         "type": "state",
         "attributes": [],
-        "title": "Store processed results"
+        "title": "Store processed results",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 44
+          }
+        }
       },
       {
         "name": "AlertOnIssue",
         "type": "state",
         "attributes": [],
-        "title": "Alert if health issue detected"
+        "title": "Alert if health issue detected",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 51
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "DataIngestion",
         "target": "ProcessData",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 14
+          },
+          "end": {
+            "line": 15,
+            "character": 28
+          }
+        }
       },
       {
         "source": "ProcessData",
         "target": "StoreResults",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 29
+          },
+          "end": {
+            "line": 15,
+            "character": 44
+          }
+        }
       },
       {
         "source": "HealthMonitor",
         "target": "AlertOnIssue",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 14
+          },
+          "end": {
+            "line": 18,
+            "character": 29
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Parallel Pipeline</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">100</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"DataIngestion\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DataIngestion</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Ingest data from source</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"HealthMonitor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HealthMonitor</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Monitor system health</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"ProcessData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process ingested data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"StoreResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreResults</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Store processed results</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"AlertOnIssue\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AlertOnIssue</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Alert if health issue detected</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"DataIngestion\" -> \"ProcessData\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ProcessData\" -> \"StoreResults\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"HealthMonitor\" -> \"AlertOnIssue\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "a27182d881f5490559d7d744bb5900f1d6e078833122e096b69db6038877f60a"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Parallel Pipeline</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">100</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"DataIngestion\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DataIngestion</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Ingest data from source</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L7:0-7:44\"];\n  \"HealthMonitor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HealthMonitor</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Monitor system health</td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L8:0-8:42\"];\n  \"ProcessData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessData</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process ingested data</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:41\"];\n  \"StoreResults\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>StoreResults</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Store processed results</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:44\"];\n  \"AlertOnIssue\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>AlertOnIssue</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Alert if health issue detected</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L12:0-12:51\"];\n\n  // Edges\n  \"DataIngestion\" -> \"ProcessData\" [labelOverlay=\"75%\", edgeURL=\"#L15:14-15:28\"];\n  \"ProcessData\" -> \"StoreResults\" [labelOverlay=\"75%\", edgeURL=\"#L15:29-15:44\"];\n  \"HealthMonitor\" -> \"AlertOnIssue\" [labelOverlay=\"75%\", edgeURL=\"#L18:14-18:29\"];\n}",
+  "svgHash": "5fbc7b8232f0cfee7f3560317139793ca898f723974548499594066c3a10e594"
 }

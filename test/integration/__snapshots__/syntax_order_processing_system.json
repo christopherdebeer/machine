@@ -45,12 +45,32 @@
             "type": "Integer",
             "value": 3
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 2
+          }
+        }
       },
       {
         "name": "PaymentWorkflow",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 2
+          }
+        }
       },
       {
         "name": "Validate",
@@ -62,7 +82,17 @@
             "name": "Critical"
           }
         ],
-        "title": "Validate Payment Method"
+        "title": "Validate Payment Method",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 4
+          },
+          "end": {
+            "line": 16,
+            "character": 54
+          }
+        }
       },
       {
         "name": "Process",
@@ -74,64 +104,164 @@
             "name": "Async"
           }
         ],
-        "title": "Process Transaction"
+        "title": "Process Transaction",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 4
+          },
+          "end": {
+            "line": 17,
+            "character": 46
+          }
+        }
       },
       {
         "name": "Confirm",
         "type": "task",
         "attributes": [],
         "parent": "PaymentWorkflow",
-        "title": "Confirm Payment"
+        "title": "Confirm Payment",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 4
+          },
+          "end": {
+            "line": 18,
+            "character": 35
+          }
+        }
       },
       {
         "name": "InventoryWorkflow",
         "type": "process",
-        "attributes": []
+        "attributes": [],
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 30,
+            "character": 2
+          }
+        }
       },
       {
         "name": "Check",
         "type": "task",
         "attributes": [],
         "parent": "InventoryWorkflow",
-        "title": "Check Availability"
+        "title": "Check Availability",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 4
+          },
+          "end": {
+            "line": 25,
+            "character": 36
+          }
+        }
       },
       {
         "name": "Reserve",
         "type": "task",
         "attributes": [],
         "parent": "InventoryWorkflow",
-        "title": "Reserve Items"
+        "title": "Reserve Items",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 4
+          },
+          "end": {
+            "line": 26,
+            "character": 33
+          }
+        }
       },
       {
         "name": "Allocate",
         "type": "task",
         "attributes": [],
         "parent": "InventoryWorkflow",
-        "title": "Allocate Stock"
+        "title": "Allocate Stock",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 4
+          },
+          "end": {
+            "line": 27,
+            "character": 35
+          }
+        }
       },
       {
         "name": "OrderReceived",
         "type": "state",
         "attributes": [],
-        "title": "Order received"
+        "title": "Order received",
+        "$sourceRange": {
+          "start": {
+            "line": 33,
+            "character": 0
+          },
+          "end": {
+            "line": 33,
+            "character": 37
+          }
+        }
       },
       {
         "name": "Processing",
         "type": "state",
         "attributes": [],
-        "title": "Processing order"
+        "title": "Processing order",
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 0
+          },
+          "end": {
+            "line": 34,
+            "character": 36
+          }
+        }
       },
       {
         "name": "Completed",
         "type": "state",
         "attributes": [],
-        "title": "Order completed"
+        "title": "Order completed",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 0
+          },
+          "end": {
+            "line": 35,
+            "character": 34
+          }
+        }
       },
       {
         "name": "Failed",
         "type": "state",
         "attributes": [],
-        "title": "Order failed"
+        "title": "Order failed",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 0
+          },
+          "end": {
+            "line": 36,
+            "character": 28
+          }
+        }
       },
       {
         "name": "PaymentWorkflow",
@@ -150,7 +280,17 @@
             "value": "PaymentWorkflow"
           }
         ],
-        "title": "Handles all payment processing with Stripe integration"
+        "title": "Handles all payment processing with Stripe integration",
+        "$sourceRange": {
+          "start": {
+            "line": 50,
+            "character": 0
+          },
+          "end": {
+            "line": 53,
+            "character": 2
+          }
+        }
       },
       {
         "name": "InventoryWorkflow",
@@ -169,24 +309,64 @@
             "value": "InventoryWorkflow"
           }
         ],
-        "title": "Manages inventory checking and allocation"
+        "title": "Manages inventory checking and allocation",
+        "$sourceRange": {
+          "start": {
+            "line": 55,
+            "character": 0
+          },
+          "end": {
+            "line": 58,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "OrderReceived",
         "target": "Validate",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 39,
+            "character": 14
+          },
+          "end": {
+            "line": 39,
+            "character": 41
+          }
+        }
       },
       {
         "source": "Confirm",
         "target": "Check",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 40,
+            "character": 24
+          },
+          "end": {
+            "line": 40,
+            "character": 50
+          }
+        }
       },
       {
         "source": "Allocate",
         "target": "Processing",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 27
+          },
+          "end": {
+            "line": 41,
+            "character": 40
+          }
+        }
       },
       {
         "source": "Processing",
@@ -197,6 +377,16 @@
         },
         "style": {
           "condition": "success"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 43,
+            "character": 11
+          },
+          "end": {
+            "line": 43,
+            "character": 45
+          }
         }
       },
       {
@@ -208,6 +398,16 @@
         },
         "style": {
           "condition": "error"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 44,
+            "character": 11
+          },
+          "end": {
+            "line": 44,
+            "character": 40
+          }
         }
       },
       {
@@ -219,44 +419,94 @@
         },
         "style": {
           "retries": 3
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 7
+          },
+          "end": {
+            "line": 47,
+            "character": 46
+          }
         }
       },
       {
         "source": "Validate",
         "target": "Process",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 13
+          },
+          "end": {
+            "line": 20,
+            "character": 23
+          }
+        }
       },
       {
         "source": "Process",
         "target": "Confirm",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 24
+          },
+          "end": {
+            "line": 20,
+            "character": 34
+          }
+        }
       },
       {
         "source": "Check",
         "target": "Reserve",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 10
+          },
+          "end": {
+            "line": 29,
+            "character": 20
+          }
+        }
       },
       {
         "source": "Reserve",
         "target": "Allocate",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 21
+          },
+          "end": {
+            "line": 29,
+            "character": 32
+          }
+        }
       }
     ],
     "inferredDependencies": [
       {
         "source": "InventoryWorkflow",
         "target": "config",
-        "reason": "reads database",
+        "reason": "reads config.inventoryDb",
         "path": "config.inventoryDb"
       },
       {
         "source": "InventoryWorkflow",
         "target": "config",
-        "reason": "reads timeout",
+        "reason": "reads config.timeout",
         "path": "config.timeout"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Order Processing System</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version(&quot;2.0&quot;) @Critical</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">production</td></tr><tr><td port=\"region__key\" align=\"left\" balign=\"left\">region</td><td port=\"region__value\" align=\"left\" balign=\"left\">us-east-1</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"paymentProvider__key\" align=\"left\" balign=\"left\">paymentProvider : string</td><td port=\"paymentProvider__value\" align=\"left\" balign=\"left\">stripe</td></tr><tr><td port=\"inventoryDb__key\" align=\"left\" balign=\"left\">inventoryDb : URL</td><td port=\"inventoryDb__value\" align=\"left\" balign=\"left\">https://inventory.example.com</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT5M</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : Integer</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  subgraph cluster_PaymentWorkflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>PaymentWorkflow</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"PaymentWorkflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validate</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Validate Payment Method</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3];\n    \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Process Transaction</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Confirm\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Confirm</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Confirm Payment</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  subgraph cluster_InventoryWorkflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>InventoryWorkflow</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"InventoryWorkflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Check\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Check</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check Availability</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Reserve\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Reserve</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Reserve Items</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n    \"Allocate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Allocate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Allocate Stock</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  }\n  \"OrderReceived\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>OrderReceived</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order received</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Completed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Completed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order completed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Failed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order failed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Root-level notes\n  \"note_PaymentWorkflow_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Handles all payment processing with<br/>Stripe integration</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"complexity__key\" align=\"left\" balign=\"left\">complexity</td><td port=\"complexity__value\" align=\"left\" balign=\"left\">O(1)</td></tr><tr><td port=\"owner__key\" align=\"left\" balign=\"left\">owner</td><td port=\"owner__value\" align=\"left\" balign=\"left\">Payment Team</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_PaymentWorkflow_0\" -> \"PaymentWorkflow__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_InventoryWorkflow_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Manages inventory checking and<br/>allocation</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"database__key\" align=\"left\" balign=\"left\">database</td><td port=\"database__value\" align=\"left\" balign=\"left\">{{ config.inventoryDb }}</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">{{ config.timeout }}</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_InventoryWorkflow_0\" -> \"InventoryWorkflow__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"OrderReceived\" -> \"Validate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Confirm\" -> \"Check\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Allocate\" -> \"Processing\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Processing\" -> \"Completed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">condition</td><td align=\"left\" balign=\"left\">success</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", condition=\"success\"];\n  \"Processing\" -> \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">condition</td><td align=\"left\" balign=\"left\">error</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", condition=\"error\"];\n  \"Failed\" -> \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">retries</td><td align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", retries=\"3\"];\n  \"Validate\" -> \"Process\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Process\" -> \"Confirm\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Check\" -> \"Reserve\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Reserve\" -> \"Allocate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"InventoryWorkflow\" -> \"config\" [label=\"reads database\", style=dashed, color=blue];\n  \"InventoryWorkflow\" -> \"config\" [label=\"reads timeout\", style=dashed, color=blue];\n}",
-  "svgHash": "9040e69f1fe7452314cb8dc80520de3f7c98170a4e04865f18faf32ba2541314"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Order Processing System</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version(&quot;2.0&quot;) @Critical</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"environment__key\" align=\"left\" balign=\"left\">environment</td><td port=\"environment__value\" align=\"left\" balign=\"left\">production</td></tr><tr><td port=\"region__key\" align=\"left\" balign=\"left\">region</td><td port=\"region__value\" align=\"left\" balign=\"left\">us-east-1</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"paymentProvider__key\" align=\"left\" balign=\"left\">paymentProvider : string</td><td port=\"paymentProvider__value\" align=\"left\" balign=\"left\">stripe</td></tr><tr><td port=\"inventoryDb__key\" align=\"left\" balign=\"left\">inventoryDb : URL</td><td port=\"inventoryDb__value\" align=\"left\" balign=\"left\">https://inventory.example.com</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT5M</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries : Integer</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L7:0-12:2\"];\n  subgraph cluster_PaymentWorkflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>PaymentWorkflow</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"PaymentWorkflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Validate</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr><tr><td align=\"left\">Validate Payment Method</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L16:4-16:54\"];\n    \"Process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Process</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Process Transaction</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L17:4-17:46\"];\n    \"Confirm\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Confirm</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Confirm Payment</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L18:4-18:35\"];\n  }\n  subgraph cluster_InventoryWorkflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>InventoryWorkflow</b> <i>&lt;process&gt;</i></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"InventoryWorkflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Check\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Check</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Check Availability</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L25:4-25:36\"];\n    \"Reserve\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Reserve</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Reserve Items</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L26:4-26:33\"];\n    \"Allocate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Allocate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Allocate Stock</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L27:4-27:35\"];\n  }\n  \"OrderReceived\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>OrderReceived</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order received</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L33:0-33:37\"];\n  \"Processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L34:0-34:36\"];\n  \"Completed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Completed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order completed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L35:0-35:34\"];\n  \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Failed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order failed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L36:0-36:28\"];\n\n  // Root-level notes\n  \"note_PaymentWorkflow_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Handles all payment processing with<br/>Stripe integration</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"complexity__key\" align=\"left\" balign=\"left\">complexity</td><td port=\"complexity__value\" align=\"left\" balign=\"left\">O(1)</td></tr><tr><td port=\"owner__key\" align=\"left\" balign=\"left\">owner</td><td port=\"owner__value\" align=\"left\" balign=\"left\">Payment Team</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_PaymentWorkflow_0\" -> \"PaymentWorkflow__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n  \"note_InventoryWorkflow_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\">Manages inventory checking and<br/>allocation</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"database__key\" align=\"left\" balign=\"left\">database</td><td port=\"database__value\" align=\"left\" balign=\"left\">{{ config.inventoryDb }}</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">{{ config.timeout }}</td></tr></table></td></tr></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_InventoryWorkflow_0\" -> \"InventoryWorkflow__cluster_anchor\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"OrderReceived\" -> \"Validate\" [labelOverlay=\"75%\", edgeURL=\"#L39:14-39:41\"];\n  \"Confirm\" -> \"Check\" [labelOverlay=\"75%\", edgeURL=\"#L40:24-40:50\"];\n  \"Allocate\" -> \"Processing\" [labelOverlay=\"75%\", edgeURL=\"#L41:27-41:40\"];\n  \"Processing\" -> \"Completed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">condition</td><td align=\"left\" balign=\"left\">success</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L43:11-43:45\", condition=\"success\"];\n  \"Processing\" -> \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">condition</td><td align=\"left\" balign=\"left\">error</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L44:11-44:40\", condition=\"error\"];\n  \"Failed\" -> \"Validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">retries</td><td align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L47:7-47:46\", retries=\"3\"];\n  \"Validate\" -> \"Process\" [labelOverlay=\"75%\", edgeURL=\"#L20:13-20:23\"];\n  \"Process\" -> \"Confirm\" [labelOverlay=\"75%\", edgeURL=\"#L20:24-20:34\"];\n  \"Check\" -> \"Reserve\" [labelOverlay=\"75%\", edgeURL=\"#L29:10-29:20\"];\n  \"Reserve\" -> \"Allocate\" [labelOverlay=\"75%\", edgeURL=\"#L29:21-29:32\"];\n\n  // Inferred Dependencies\n  \"InventoryWorkflow\" -> \"config\" [label=\"reads config.inventoryDb\", style=dashed, color=blue];\n  \"InventoryWorkflow\" -> \"config\" [label=\"reads config.timeout\", style=dashed, color=blue];\n}",
+  "svgHash": "a2f77713a42b35fed649e89d3c6baa26a1c779acd677736a2e43e85fa07d8b6d"
 }

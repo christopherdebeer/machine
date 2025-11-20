@@ -45,11 +45,14 @@ console.log(result.content); // JSON string
 ### Execute a Machine
 
 ```typescript
-import { RailsExecutor } from 'dygram';
+import { MachineExecutor } from 'dygram';
 
-const executor = new RailsExecutor(machineData, {
-    modelId: 'claude-3-5-sonnet-20241022',
-    apiKey: process.env.ANTHROPIC_API_KEY
+const executor = await MachineExecutor.create(machineData, {
+    llm: {
+        provider: 'anthropic',
+        modelId: 'claude-3-5-sonnet-20241022',
+        apiKey: process.env.ANTHROPIC_API_KEY
+    }
 });
 
 await executor.execute();
@@ -275,36 +278,103 @@ const dslContent = generateDSL(machineJson);
 
 ## Execution
 
-### Rails Executor
+### Machine Executor
 
-Execute machines using the Rails-Based Architecture:
+Execute machines using the functional execution runtime:
 
 ```typescript
-import { RailsExecutor, type MachineData } from 'dygram/executor';
+import { MachineExecutor, type MachineJSON } from 'dygram/executor';
 
 // Parse machine to JSON
-const machineData: MachineData = JSON.parse(jsonContent);
+const machineData: MachineJSON = JSON.parse(jsonContent);
 
-// Create executor
-const executor = new RailsExecutor(machineData, {
-    modelId: 'claude-3-5-sonnet-20241022',
-    apiKey: process.env.ANTHROPIC_API_KEY
+// Create executor with async LLM client initialization
+const executor = await MachineExecutor.create(machineData, {
+    llm: {
+        provider: 'anthropic',
+        modelId: 'claude-3-5-sonnet-20241022',
+        apiKey: process.env.ANTHROPIC_API_KEY
+    },
+    limits: {
+        maxSteps: 1000,
+        maxNodeInvocations: 100,
+        timeout: 300000  // 5 minutes
+    },
+    logLevel: 'info'
 });
 
-// Execute
+// Execute all paths to completion
 await executor.execute();
+
+// Or execute single step
+const continued = await executor.step();
+
+// Get current state
+const state = executor.getState();
+
+// Get visualization data
+const vizState = executor.getVisualizationState();
 ```
 
 **Configuration Options**:
 
 ```typescript
-interface ExecutorOptions {
-    modelId?: string;        // LLM model ID
-    apiKey?: string;          // Anthropic API key
-    verbose?: boolean;        // Verbose logging
-    maxRetries?: number;      // Max retry attempts
-    timeout?: number;         // Execution timeout (ms)
+interface MachineExecutorConfig {
+    llm?: {
+        provider: 'anthropic';
+        modelId: string;
+        apiKey: string;
+    };
+    limits?: {
+        maxSteps?: number;              // Max total steps
+        maxNodeInvocations?: number;    // Max visits per node
+        timeout?: number;               // Timeout in milliseconds
+        cycleDetectionWindow?: number;  // Cycle detection window
+    };
+    logLevel?: 'debug' | 'info' | 'warn' | 'error';
+    vfs?: {
+        writeFile(path: string, content: string): void;
+        readFile(path: string): string | undefined;
+        exists(path: string): boolean;
+    };
 }
+```
+
+**Execution State**:
+
+```typescript
+// Get current execution state
+const state = executor.getState();
+
+// State includes:
+// - paths: Array of execution paths (multi-path support)
+// - metadata: Step count, elapsed time, error count
+// - machineSnapshot: Current machine definition
+
+// Get visualization state
+const vizState = executor.getVisualizationState();
+
+// Visualization state includes:
+// - activePaths: Currently executing paths
+// - allPaths: All paths (active, completed, failed)
+// - nodeStates: Visit counts and active status per node
+// - availableTransitions: Next possible transitions
+```
+
+**Checkpoints**:
+
+```typescript
+// Create checkpoint
+const checkpoint = executor.createCheckpoint('Before critical section');
+
+// Restore from checkpoint
+executor.restoreCheckpoint(checkpoint);
+
+// Serialize state
+const serialized = executor.serializeState();
+
+// Deserialize state
+const state = MachineExecutor.deserializeState(serialized);
 ```
 
 ### Claude Client

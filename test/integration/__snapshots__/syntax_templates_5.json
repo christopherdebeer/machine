@@ -11,7 +11,17 @@
             "name": "prompt",
             "value": "Generate a summary"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 2
+          }
+        }
       },
       {
         "name": "taskB",
@@ -21,7 +31,17 @@
             "name": "prompt",
             "value": "Use result from {{ taskA.prompt }}"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [],
@@ -29,11 +49,11 @@
       {
         "source": "taskB",
         "target": "taskA",
-        "reason": "reads prompt",
+        "reason": "reads taskA.prompt",
         "path": "taskA.prompt"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"taskA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate a summary</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"taskB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskB</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Use result from {{ taskA.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n\n  // Inferred Dependencies\n  \"taskB\" -> \"taskA\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "04cafc318ce5a654acfed20451fb3e03daf552563e62afa650e0c653814979f7"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"taskA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskA</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate a summary</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L1:0-3:2\"];\n  \"taskB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>taskB</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Use result from {{ taskA.prompt }}</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-7:2\"];\n\n\n  // Inferred Dependencies\n  \"taskB\" -> \"taskA\" [label=\"reads taskA.prompt\", style=dashed, color=blue];\n}",
+  "svgHash": "12e8e288dee41ed71831376a22365b6e97fc2f78788b293bd105cf4937a9f7b8"
 }

@@ -23,7 +23,17 @@
             "type": "number",
             "value": 30
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 2
+          }
+        }
       },
       {
         "name": "collectMetrics",
@@ -43,7 +53,17 @@
             "name": "Async"
           }
         ],
-        "title": "Collect metrics"
+        "title": "Collect metrics",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 2
+          }
+        }
       },
       {
         "name": "collectLogs",
@@ -62,7 +82,17 @@
             "name": "Async"
           }
         ],
-        "title": "Collect logs"
+        "title": "Collect logs",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 2
+          }
+        }
       },
       {
         "name": "collectTraces",
@@ -78,7 +108,17 @@
             "name": "Async"
           }
         ],
-        "title": "Collect traces"
+        "title": "Collect traces",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 2
+          }
+        }
       },
       {
         "name": "analyzeMetrics",
@@ -93,31 +133,81 @@
             "value": "Analyze metrics for anomalies: {{ collectMetrics.data }}"
           }
         ],
-        "title": "Analyze metrics"
+        "title": "Analyze metrics",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 0
+          },
+          "end": {
+            "line": 26,
+            "character": 2
+          }
+        }
       },
       {
         "name": "correlateLogs",
         "type": "task",
         "attributes": [],
-        "title": "Correlate logs with metrics"
+        "title": "Correlate logs with metrics",
+        "$sourceRange": {
+          "start": {
+            "line": 28,
+            "character": 0
+          },
+          "end": {
+            "line": 28,
+            "character": 49
+          }
+        }
       },
       {
         "name": "normal",
         "type": "state",
         "attributes": [],
-        "title": "Normal Operation"
+        "title": "Normal Operation",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 0
+          },
+          "end": {
+            "line": 30,
+            "character": 32
+          }
+        }
       },
       {
         "name": "warning",
         "type": "state",
         "attributes": [],
-        "title": "Warning Level"
+        "title": "Warning Level",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 0
+          },
+          "end": {
+            "line": 31,
+            "character": 30
+          }
+        }
       },
       {
         "name": "critical",
         "type": "state",
         "attributes": [],
-        "title": "Critical Level"
+        "title": "Critical Level",
+        "$sourceRange": {
+          "start": {
+            "line": 32,
+            "character": 0
+          },
+          "end": {
+            "line": 32,
+            "character": 32
+          }
+        }
       },
       {
         "name": "createAlert",
@@ -128,7 +218,17 @@
             "value": "{{ state }}"
           }
         ],
-        "title": "Create alert"
+        "title": "Create alert",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 0
+          },
+          "end": {
+            "line": 37,
+            "character": 2
+          }
+        }
       },
       {
         "name": "notifyTeam",
@@ -142,7 +242,17 @@
             ]
           }
         ],
-        "title": "Notify team"
+        "title": "Notify team",
+        "$sourceRange": {
+          "start": {
+            "line": 39,
+            "character": 0
+          },
+          "end": {
+            "line": 41,
+            "character": 2
+          }
+        }
       },
       {
         "name": "createTicket",
@@ -153,7 +263,17 @@
             "value": "jira"
           }
         ],
-        "title": "Create incident ticket"
+        "title": "Create incident ticket",
+        "$sourceRange": {
+          "start": {
+            "line": 43,
+            "character": 0
+          },
+          "end": {
+            "line": 45,
+            "character": 2
+          }
+        }
       },
       {
         "name": "autoRemediate",
@@ -164,7 +284,17 @@
             "value": "#remediationPlaybook"
           }
         ],
-        "title": "Auto-remediate"
+        "title": "Auto-remediate",
+        "$sourceRange": {
+          "start": {
+            "line": 48,
+            "character": 0
+          },
+          "end": {
+            "line": 50,
+            "character": 2
+          }
+        }
       },
       {
         "name": "status",
@@ -179,100 +309,270 @@
             "type": "Array<string>",
             "value": []
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 52,
+            "character": 0
+          },
+          "end": {
+            "line": 55,
+            "character": 2
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "collectMetrics",
         "target": "analyzeMetrics",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 58,
+            "character": 15
+          },
+          "end": {
+            "line": 58,
+            "character": 32
+          }
+        }
       },
       {
         "source": "collectLogs",
         "target": "correlateLogs",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 59,
+            "character": 12
+          },
+          "end": {
+            "line": 59,
+            "character": 28
+          }
+        }
       },
       {
         "source": "collectTraces",
         "target": "correlateLogs",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 60,
+            "character": 14
+          },
+          "end": {
+            "line": 60,
+            "character": 30
+          }
+        }
       },
       {
         "source": "analyzeMetrics",
         "target": "correlateLogs",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 62,
+            "character": 15
+          },
+          "end": {
+            "line": 62,
+            "character": 31
+          }
+        }
       },
       {
         "source": "correlateLogs",
         "target": "normal",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 63,
+            "character": 14
+          },
+          "end": {
+            "line": 63,
+            "character": 42
+          }
+        }
       },
       {
         "source": "correlateLogs",
         "target": "warning",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 63,
+            "character": 14
+          },
+          "end": {
+            "line": 63,
+            "character": 42
+          }
+        }
       },
       {
         "source": "correlateLogs",
         "target": "critical",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 63,
+            "character": 14
+          },
+          "end": {
+            "line": 63,
+            "character": 42
+          }
+        }
       },
       {
         "source": "warning",
         "target": "createAlert",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 65,
+            "character": 8
+          },
+          "end": {
+            "line": 65,
+            "character": 22
+          }
+        }
       },
       {
         "source": "createAlert",
         "target": "notifyTeam",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 65,
+            "character": 23
+          },
+          "end": {
+            "line": 65,
+            "character": 36
+          }
+        }
       },
       {
         "source": "notifyTeam",
         "target": "status",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 65,
+            "character": 37
+          },
+          "end": {
+            "line": 65,
+            "character": 46
+          }
+        }
       },
       {
         "source": "critical",
         "target": "createAlert",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 66,
+            "character": 9
+          },
+          "end": {
+            "line": 66,
+            "character": 23
+          }
+        }
       },
       {
         "source": "createAlert",
         "target": "notifyTeam",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 66,
+            "character": 24
+          },
+          "end": {
+            "line": 66,
+            "character": 37
+          }
+        }
       },
       {
         "source": "notifyTeam",
         "target": "createTicket",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 66,
+            "character": 38
+          },
+          "end": {
+            "line": 66,
+            "character": 53
+          }
+        }
       },
       {
         "source": "createTicket",
         "target": "autoRemediate",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 66,
+            "character": 54
+          },
+          "end": {
+            "line": 66,
+            "character": 70
+          }
+        }
       },
       {
         "source": "autoRemediate",
         "target": "status",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 66,
+            "character": 71
+          },
+          "end": {
+            "line": 66,
+            "character": 80
+          }
+        }
       },
       {
         "source": "normal",
         "target": "status",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 67,
+            "character": 7
+          },
+          "end": {
+            "line": 67,
+            "character": 16
+          }
+        }
       }
     ],
     "inferredDependencies": [
       {
         "source": "analyzeMetrics",
         "target": "collectMetrics",
-        "reason": "reads prompt",
+        "reason": "reads collectMetrics.data",
         "path": "collectMetrics.data"
       }
     ]
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Monitoring System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"checkInterval__key\" align=\"left\" balign=\"left\">checkInterval : number</td><td port=\"checkInterval__value\" align=\"left\" balign=\"left\">60</td></tr><tr><td port=\"alertThreshold__key\" align=\"left\" balign=\"left\">alertThreshold : number</td><td port=\"alertThreshold__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"retentionDays__key\" align=\"left\" balign=\"left\">retentionDays : number</td><td port=\"retentionDays__value\" align=\"left\" balign=\"left\">30</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n  \"collectMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>collectMetrics</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Collect metrics</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"sources__key\" align=\"left\" balign=\"left\">sources</td><td port=\"sources__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;prometheus&quot;,<br align=\"left\"/>  &quot;cloudwatch&quot;,<br align=\"left\"/>  &quot;datadog&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"collectLogs\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>collectLogs</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Collect logs</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"sources__key\" align=\"left\" balign=\"left\">sources</td><td port=\"sources__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;elasticsearch&quot;,<br align=\"left\"/>  &quot;splunk&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"collectTraces\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>collectTraces</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Collect traces</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">jaeger</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"analyzeMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyzeMetrics</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze metrics</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"correlateLogs\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>correlateLogs</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Correlate logs with metrics</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"normal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>normal</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Normal Operation</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"warning\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>warning</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Warning Level</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>critical</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Critical Level</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"createAlert\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>createAlert</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create alert</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"severity__key\" align=\"left\" balign=\"left\">severity</td><td port=\"severity__value\" align=\"left\" balign=\"left\">{{ state }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"notifyTeam\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>notifyTeam</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Notify team</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"channels__key\" align=\"left\" balign=\"left\">channels</td><td port=\"channels__value\" align=\"left\" balign=\"left\">[<br/>  &quot;pagerduty&quot;,<br/>  &quot;slack&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"createTicket\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>createTicket</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create incident ticket</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"system__key\" align=\"left\" balign=\"left\">system</td><td port=\"system__value\" align=\"left\" balign=\"left\">jira</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"autoRemediate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>autoRemediate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Auto-remediate</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"actions__key\" align=\"left\" balign=\"left\">actions</td><td port=\"actions__value\" align=\"left\" balign=\"left\">#remediationPlaybook</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n  \"status\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>status</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"health__key\" align=\"left\" balign=\"left\">health</td><td port=\"health__value\" align=\"left\" balign=\"left\">unknown</td></tr><tr><td port=\"alerts__key\" align=\"left\" balign=\"left\">alerts : Array&lt;string&gt;</td><td port=\"alerts__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\"];\n\n  // Edges\n  \"collectMetrics\" -> \"analyzeMetrics\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"collectLogs\" -> \"correlateLogs\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"collectTraces\" -> \"correlateLogs\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"analyzeMetrics\" -> \"correlateLogs\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"correlateLogs\" -> \"normal\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"correlateLogs\" -> \"warning\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"correlateLogs\" -> \"critical\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"warning\" -> \"createAlert\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"createAlert\" -> \"notifyTeam\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"notifyTeam\" -> \"status\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"critical\" -> \"createAlert\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"createAlert\" -> \"notifyTeam\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"notifyTeam\" -> \"createTicket\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"createTicket\" -> \"autoRemediate\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"autoRemediate\" -> \"status\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"normal\" -> \"status\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n\n  // Inferred Dependencies\n  \"analyzeMetrics\" -> \"collectMetrics\" [label=\"reads prompt\", style=dashed, color=blue];\n}",
-  "svgHash": "c90d42ea7ce522815dc2dafd27eb114be89a1b63fcbc0e7aa3ff5399342ba948"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Monitoring System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"config\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>config</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"checkInterval__key\" align=\"left\" balign=\"left\">checkInterval : number</td><td port=\"checkInterval__value\" align=\"left\" balign=\"left\">60</td></tr><tr><td port=\"alertThreshold__key\" align=\"left\" balign=\"left\">alertThreshold : number</td><td port=\"alertThreshold__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"retentionDays__key\" align=\"left\" balign=\"left\">retentionDays : number</td><td port=\"retentionDays__value\" align=\"left\" balign=\"left\">30</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-7:2\"];\n  \"collectMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>collectMetrics</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Collect metrics</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"sources__key\" align=\"left\" balign=\"left\">sources</td><td port=\"sources__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;prometheus&quot;,<br align=\"left\"/>  &quot;cloudwatch&quot;,<br align=\"left\"/>  &quot;datadog&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-12:2\"];\n  \"collectLogs\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>collectLogs</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Collect logs</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"sources__key\" align=\"left\" balign=\"left\">sources</td><td port=\"sources__value\" align=\"left\" balign=\"left\">[<br align=\"left\"/>  &quot;elasticsearch&quot;,<br align=\"left\"/>  &quot;splunk&quot;<br align=\"left\"/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-16:2\"];\n  \"collectTraces\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>collectTraces</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr><tr><td align=\"left\">Collect traces</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"source__key\" align=\"left\" balign=\"left\">source</td><td port=\"source__value\" align=\"left\" balign=\"left\">jaeger</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L18:0-20:2\"];\n  \"analyzeMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyzeMetrics</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze metrics</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L23:0-26:2\"];\n  \"correlateLogs\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>correlateLogs</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Correlate logs with metrics</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L28:0-28:49\"];\n  \"normal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>normal</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Normal Operation</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L30:0-30:32\"];\n  \"warning\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>warning</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Warning Level</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L31:0-31:30\"];\n  \"critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>critical</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Critical Level</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L32:0-32:32\"];\n  \"createAlert\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>createAlert</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create alert</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"severity__key\" align=\"left\" balign=\"left\">severity</td><td port=\"severity__value\" align=\"left\" balign=\"left\">{{ state }}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L35:0-37:2\"];\n  \"notifyTeam\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>notifyTeam</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Notify team</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"channels__key\" align=\"left\" balign=\"left\">channels</td><td port=\"channels__value\" align=\"left\" balign=\"left\">[<br/>  &quot;pagerduty&quot;,<br/>  &quot;slack&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L39:0-41:2\"];\n  \"createTicket\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>createTicket</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create incident ticket</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"system__key\" align=\"left\" balign=\"left\">system</td><td port=\"system__value\" align=\"left\" balign=\"left\">jira</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L43:0-45:2\"];\n  \"autoRemediate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>autoRemediate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Auto-remediate</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"actions__key\" align=\"left\" balign=\"left\">actions</td><td port=\"actions__value\" align=\"left\" balign=\"left\">#remediationPlaybook</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L48:0-50:2\"];\n  \"status\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>status</b> <i>&lt;output&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"health__key\" align=\"left\" balign=\"left\">health</td><td port=\"health__value\" align=\"left\" balign=\"left\">unknown</td></tr><tr><td port=\"alerts__key\" align=\"left\" balign=\"left\">alerts : Array&lt;string&gt;</td><td port=\"alerts__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L52:0-55:2\"];\n\n  // Edges\n  \"collectMetrics\" -> \"analyzeMetrics\" [labelOverlay=\"75%\", edgeURL=\"#L58:15-58:32\"];\n  \"collectLogs\" -> \"correlateLogs\" [labelOverlay=\"75%\", edgeURL=\"#L59:12-59:28\"];\n  \"collectTraces\" -> \"correlateLogs\" [labelOverlay=\"75%\", edgeURL=\"#L60:14-60:30\"];\n  \"analyzeMetrics\" -> \"correlateLogs\" [labelOverlay=\"75%\", edgeURL=\"#L62:15-62:31\"];\n  \"correlateLogs\" -> \"normal\" [labelOverlay=\"75%\", edgeURL=\"#L63:14-63:42\"];\n  \"correlateLogs\" -> \"warning\" [labelOverlay=\"75%\", edgeURL=\"#L63:14-63:42\"];\n  \"correlateLogs\" -> \"critical\" [labelOverlay=\"75%\", edgeURL=\"#L63:14-63:42\"];\n  \"warning\" -> \"createAlert\" [labelOverlay=\"75%\", edgeURL=\"#L65:8-65:22\"];\n  \"createAlert\" -> \"notifyTeam\" [labelOverlay=\"75%\", edgeURL=\"#L65:23-65:36\"];\n  \"notifyTeam\" -> \"status\" [labelOverlay=\"75%\", edgeURL=\"#L65:37-65:46\"];\n  \"critical\" -> \"createAlert\" [labelOverlay=\"75%\", edgeURL=\"#L66:9-66:23\"];\n  \"createAlert\" -> \"notifyTeam\" [labelOverlay=\"75%\", edgeURL=\"#L66:24-66:37\"];\n  \"notifyTeam\" -> \"createTicket\" [labelOverlay=\"75%\", edgeURL=\"#L66:38-66:53\"];\n  \"createTicket\" -> \"autoRemediate\" [labelOverlay=\"75%\", edgeURL=\"#L66:54-66:70\"];\n  \"autoRemediate\" -> \"status\" [labelOverlay=\"75%\", edgeURL=\"#L66:71-66:80\"];\n  \"normal\" -> \"status\" [labelOverlay=\"75%\", edgeURL=\"#L67:7-67:16\"];\n\n  // Inferred Dependencies\n  \"analyzeMetrics\" -> \"collectMetrics\" [label=\"reads collectMetrics.data\", style=dashed, color=blue];\n}",
+  "svgHash": "be549a6a5a0d2fc4351d2a0fd7e14b0c25b65f3085bee2c41a9267f9df064e11"
 }

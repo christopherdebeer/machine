@@ -18,7 +18,17 @@
             "name": "eager"
           }
         ],
-        "title": "Execute immediately"
+        "title": "Execute immediately",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 44
+          }
+        }
       },
       {
         "name": "LazyTask",
@@ -29,29 +39,69 @@
             "name": "lazy"
           }
         ],
-        "title": "Execute on demand"
+        "title": "Execute on demand",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 40
+          }
+        }
       },
       {
         "name": "FinalTask",
         "type": "state",
         "attributes": [],
-        "title": "Final step"
+        "title": "Final step",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 28
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "EagerTask",
         "target": "LazyTask",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 10
+          },
+          "end": {
+            "line": 9,
+            "character": 21
+          }
+        }
       },
       {
         "source": "LazyTask",
         "target": "FinalTask",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 22
+          },
+          "end": {
+            "line": 9,
+            "character": 34
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Execution Modes</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"EagerTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>EagerTask</b> <i>&lt;state&gt;</i> <i>@eager</i></td></tr><tr><td align=\"left\">Execute immediately</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"LazyTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LazyTask</b> <i>&lt;state&gt;</i> <i>@lazy</i></td></tr><tr><td align=\"left\">Execute on demand</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"FinalTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FinalTask</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Final step</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"EagerTask\" -> \"LazyTask\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"LazyTask\" -> \"FinalTask\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "1db57622bf6efcced130fe1f1ed016a517b329167cf27b4392c8ba36737da112"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Execution Modes</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"EagerTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>EagerTask</b> <i>&lt;state&gt;</i> <i>@eager</i></td></tr><tr><td align=\"left\">Execute immediately</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:44\"];\n  \"LazyTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LazyTask</b> <i>&lt;state&gt;</i> <i>@lazy</i></td></tr><tr><td align=\"left\">Execute on demand</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:40\"];\n  \"FinalTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>FinalTask</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Final step</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L7:0-7:28\"];\n\n  // Edges\n  \"EagerTask\" -> \"LazyTask\" [labelOverlay=\"75%\", edgeURL=\"#L9:10-9:21\"];\n  \"LazyTask\" -> \"FinalTask\" [labelOverlay=\"75%\", edgeURL=\"#L9:22-9:34\"];\n}",
+  "svgHash": "40d00fb0ef06285cf89c81465832e8d698ee27bf243b75f060325f7c1a92099b"
 }

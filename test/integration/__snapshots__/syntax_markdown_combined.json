@@ -8,12 +8,22 @@
         "name": "Task",
         "type": "state",
         "attributes": [],
-        "title": "**Critical**: Run `npm test` *before* deployment"
+        "title": "**Critical**: Run `npm test` *before* deployment",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 61
+          }
+        }
       }
     ],
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Markdown Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Task\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\"><b>Critical</b>: Run <font face=\"monospace\" color=\"#6C757D\">npm test</font> <i>before</i><br/>deployment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n}",
-  "svgHash": "843bda43d609e7995abe18e03cf880b027593dfcec6b3ba87f6fb9396d0aa5c8"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Markdown Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Task\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Task</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\"><b>Critical</b>: Run <font face=\"monospace\" color=\"#6C757D\">npm test</font> <i>before</i><br/>deployment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:61\"];\n\n}",
+  "svgHash": "77ed5aa69693be4f87299ae1a8a90e07e88e3833695f05af5ac33b248ac3e22d"
 }

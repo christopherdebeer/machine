@@ -25,26 +25,66 @@
         "name": "CallService",
         "type": "state",
         "attributes": [],
-        "title": "Call external service"
+        "title": "Call external service",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 41
+          }
+        }
       },
       {
         "name": "ProcessResult",
         "type": "state",
         "attributes": [],
-        "title": "Process result"
+        "title": "Process result",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 36
+          }
+        }
       },
       {
         "name": "CircuitOpen",
         "type": "state",
         "attributes": [],
-        "title": "Circuit breaker open"
+        "title": "Circuit breaker open",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 40
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "CallService",
         "target": "ProcessResult",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 12
+          },
+          "end": {
+            "line": 13,
+            "character": 28
+          }
+        }
       },
       {
         "source": "CallService",
@@ -55,11 +95,21 @@
         },
         "style": {
           "when": "circuitOpen"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 12
+          },
+          "end": {
+            "line": 14,
+            "character": 47
+          }
         }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Circuit Breaker Demo</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"circuitBreakerThreshold__key\" align=\"left\" balign=\"left\">circuitBreakerThreshold</td><td port=\"circuitBreakerThreshold__value\" align=\"left\" balign=\"left\">5</td></tr><tr><td port=\"circuitBreakerTimeout__key\" align=\"left\" balign=\"left\">circuitBreakerTimeout</td><td port=\"circuitBreakerTimeout__value\" align=\"left\" balign=\"left\">10000</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">100</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"CallService\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CallService</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Call external service</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ProcessResult\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessResult</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process result</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"CircuitOpen\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CircuitOpen</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Circuit breaker open</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"CallService\" -> \"ProcessResult\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"CallService\" -> \"CircuitOpen\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">circuitOpen</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\", when=\"circuitOpen\", style=solid, color=\"#4CAF50\", penwidth=2];\n}",
-  "svgHash": "a5beb3b96a5c4c2e3c8c335c0e462e25734a040e6010784ac8c530096a0740b4"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Circuit Breaker Demo</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"circuitBreakerThreshold__key\" align=\"left\" balign=\"left\">circuitBreakerThreshold</td><td port=\"circuitBreakerThreshold__value\" align=\"left\" balign=\"left\">5</td></tr><tr><td port=\"circuitBreakerTimeout__key\" align=\"left\" balign=\"left\">circuitBreakerTimeout</td><td port=\"circuitBreakerTimeout__value\" align=\"left\" balign=\"left\">10000</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">100</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"CallService\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CallService</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Call external service</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:41\"];\n  \"ProcessResult\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessResult</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Process result</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L9:0-9:36\"];\n  \"CircuitOpen\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CircuitOpen</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Circuit breaker open</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:40\"];\n\n  // Edges\n  \"CallService\" -> \"ProcessResult\" [labelOverlay=\"75%\", edgeURL=\"#L13:12-13:28\"];\n  \"CallService\" -> \"CircuitOpen\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">circuitOpen</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L14:12-14:47\", when=\"circuitOpen\", style=solid, color=\"#4CAF50\", penwidth=2];\n}",
+  "svgHash": "764f6fcdd51d44ef1cc898f0ad27b80020a6e4c09f5cb5ba949a5864f00da3d9"
 }

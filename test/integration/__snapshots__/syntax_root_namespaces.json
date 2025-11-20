@@ -8,7 +8,17 @@
         "name": "Orchestrator",
         "type": "task",
         "attributes": [],
-        "title": "Main orchestrator"
+        "title": "Main orchestrator",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 38
+          }
+        }
       },
       {
         "name": "Services",
@@ -30,7 +40,17 @@
           }
         ],
         "parent": "Services",
-        "title": "Caching layer"
+        "title": "Caching layer",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 36
+          }
+        }
       },
       {
         "name": "Data",
@@ -42,7 +62,17 @@
           }
         ],
         "parent": "Services",
-        "title": "Data access service"
+        "title": "Data access service",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 41
+          }
+        }
       },
       {
         "name": "Auth",
@@ -54,28 +84,68 @@
           }
         ],
         "parent": "Services",
-        "title": "Authentication service"
+        "title": "Authentication service",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 44
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Orchestrator",
         "target": "Auth",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 13
+          },
+          "end": {
+            "line": 10,
+            "character": 29
+          }
+        }
       },
       {
         "source": "Orchestrator",
         "target": "Data",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 13
+          },
+          "end": {
+            "line": 11,
+            "character": 29
+          }
+        }
       },
       {
         "source": "Orchestrator",
         "target": "Cache",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 13
+          },
+          "end": {
+            "line": 12,
+            "character": 30
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Root Namespaces</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Orchestrator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Orchestrator</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Main orchestrator</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\"];\n\n  // Root-level notes\n  \"note_Services_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Services_0\" -> \"Services\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"Orchestrator\" -> \"Auth\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Orchestrator\" -> \"Data\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Orchestrator\" -> \"Cache\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "450f02e914c03bead017c02c391aa395a67258035e067207ecbb0ba97dee721c"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Root Namespaces</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Orchestrator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Orchestrator</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Main orchestrator</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-8:38\"];\n\n  // Root-level notes\n  \"note_Services_0\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>, shape=note, fillcolor=\"#FFFACD\", style=filled, fontsize=9];\n  \"note_Services_0\" -> \"Services\" [style=dashed, color=\"#999999\", arrowhead=none];\n\n  // Edges\n  \"Orchestrator\" -> \"Auth\" [labelOverlay=\"75%\", edgeURL=\"#L10:13-10:29\"];\n  \"Orchestrator\" -> \"Data\" [labelOverlay=\"75%\", edgeURL=\"#L11:13-11:29\"];\n  \"Orchestrator\" -> \"Cache\" [labelOverlay=\"75%\", edgeURL=\"#L12:13-12:30\"];\n}",
+  "svgHash": "6a55a1d0fa2e84ca4b676b1ab5a5d31b42068896206568a1f61166970a641d6c"
 }

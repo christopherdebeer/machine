@@ -13,56 +13,136 @@
             "value": "2.0"
           }
         ],
-        "title": "Order Processing"
+        "title": "Order Processing",
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 2
+          }
+        }
       },
       {
         "name": "Received",
         "type": "state",
         "attributes": [],
         "parent": "OrderWorkflow",
-        "title": "Order received"
+        "title": "Order received",
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 4
+          },
+          "end": {
+            "line": 2,
+            "character": 36
+          }
+        }
       },
       {
         "name": "Processing",
         "type": "state",
         "attributes": [],
         "parent": "OrderWorkflow",
-        "title": "Processing order"
+        "title": "Processing order",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 4
+          },
+          "end": {
+            "line": 3,
+            "character": 40
+          }
+        }
       },
       {
         "name": "Completed",
         "type": "state",
         "attributes": [],
         "parent": "OrderWorkflow",
-        "title": "Order completed"
+        "title": "Order completed",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 4
+          },
+          "end": {
+            "line": 4,
+            "character": 38
+          }
+        }
       },
       {
         "name": "Failed",
         "type": "state",
         "attributes": [],
         "parent": "OrderWorkflow",
-        "title": "Order failed"
+        "title": "Order failed",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 32
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "Received",
         "target": "Processing",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 13
+          },
+          "end": {
+            "line": 7,
+            "character": 26
+          }
+        }
       },
       {
         "source": "Processing",
         "target": "Completed",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 15
+          },
+          "end": {
+            "line": 8,
+            "character": 27
+          }
+        }
       },
       {
         "source": "Processing",
         "target": "Failed",
-        "arrowType": "->"
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 15
+          },
+          "end": {
+            "line": 9,
+            "character": 24
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_OrderWorkflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>OrderWorkflow</b> <i>&lt;process&gt;</i> <i>@Version(\"2.0\")</i></td></tr><tr><td align=\"center\"><b>Order Processing</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"OrderWorkflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Received\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Received</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order received</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"Processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"Completed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Completed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order completed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n    \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Failed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order failed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  }\n\n  // Edges\n  \"Received\" -> \"Processing\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Processing\" -> \"Completed\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"Processing\" -> \"Failed\" [labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "054bdedfe9434e5b33a0faea547271b2bc4f80975a3a6d5614406d89c0702366"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  subgraph cluster_OrderWorkflow {\n    label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr><td align=\"center\"><b>OrderWorkflow</b> <i>&lt;process&gt;</i> <i>@Version(\"2.0\")</i></td></tr><tr><td align=\"center\"><b>Order Processing</b></td></tr></table>>;\n    labelloc=\"t\";\n    style=filled;\n    fontsize=10;\n    fillcolor=\"#FFFFFF\";\n    color=\"#999999\";\n    \"OrderWorkflow__cluster_anchor\" [shape=point, width=0.01, height=0.01, label=\"\", style=invis, fixedsize=true];\n\n    \"Received\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Received</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order received</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L2:4-2:36\"];\n    \"Processing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Processing</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing order</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:4-3:40\"];\n    \"Completed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Completed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order completed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:4-4:38\"];\n    \"Failed\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Failed</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Order failed</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:4-5:32\"];\n  }\n\n  // Edges\n  \"Received\" -> \"Processing\" [labelOverlay=\"75%\", edgeURL=\"#L7:13-7:26\"];\n  \"Processing\" -> \"Completed\" [labelOverlay=\"75%\", edgeURL=\"#L8:15-8:27\"];\n  \"Processing\" -> \"Failed\" [labelOverlay=\"75%\", edgeURL=\"#L9:15-9:24\"];\n}",
+  "svgHash": "452bd29c15fb932c9d8d27777f95e5bf9b324e1b6b5ccf6f7aea1970417e19bf"
 }

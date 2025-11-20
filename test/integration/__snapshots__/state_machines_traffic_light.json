@@ -8,19 +8,49 @@
         "name": "red",
         "type": "state",
         "attributes": [],
-        "title": "Red Light"
+        "title": "Red Light",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 22
+          }
+        }
       },
       {
         "name": "yellow",
         "type": "state",
         "attributes": [],
-        "title": "Yellow Light"
+        "title": "Yellow Light",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 28
+          }
+        }
       },
       {
         "name": "green",
         "type": "state",
         "attributes": [],
-        "title": "Green Light"
+        "title": "Green Light",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 26
+          }
+        }
       }
     ],
     "edges": [
@@ -30,6 +60,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "s"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 4
+          },
+          "end": {
+            "line": 7,
+            "character": 16
+          }
         }
       },
       {
@@ -38,6 +78,16 @@
         "arrowType": "->",
         "attributes": {
           "text": "s"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 6
+          },
+          "end": {
+            "line": 8,
+            "character": 19
+          }
         }
       },
       {
@@ -46,11 +96,21 @@
         "arrowType": "->",
         "attributes": {
           "text": "s"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 7
+          },
+          "end": {
+            "line": 9,
+            "character": 16
+          }
         }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Traffic Light</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"red\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>red</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Red Light</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"yellow\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>yellow</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Yellow Light</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"green\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>green</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Green Light</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"red\" -> \"green\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"green\" -> \"yellow\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"yellow\" -> \"red\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "34887e824b4ae928efdede5403ae99e149ca2b69679f89e01f219fcbf71d1ea9"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Traffic Light</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"red\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>red</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Red Light</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:22\"];\n  \"yellow\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>yellow</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Yellow Light</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:28\"];\n  \"green\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>green</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Green Light</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:26\"];\n\n  // Edges\n  \"red\" -> \"green\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L7:4-7:16\"];\n  \"green\" -> \"yellow\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L8:6-8:19\"];\n  \"yellow\" -> \"red\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>s</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L9:7-9:16\"];\n}",
+  "svgHash": "7d1e474b778361508282a0b2ed58f2beed88913fb1a1afa3925ce1e1c584f1c2"
 }

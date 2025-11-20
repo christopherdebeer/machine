@@ -8,46 +8,116 @@
         "name": "DatabaseConnect",
         "type": "state",
         "attributes": [],
-        "title": "Database Connection"
+        "title": "Database Connection",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 43
+          }
+        }
       },
       {
         "name": "QueryExecute",
         "type": "state",
         "attributes": [],
-        "title": "Execute Query"
+        "title": "Execute Query",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 34
+          }
+        }
       },
       {
         "name": "ResultTransform",
         "type": "state",
         "attributes": [],
-        "title": "Transform Result"
+        "title": "Transform Result",
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 40
+          }
+        }
       },
       {
         "name": "CacheUpdate",
         "type": "state",
         "attributes": [],
-        "title": "Update Cache"
+        "title": "Update Cache",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 32
+          }
+        }
       }
     ],
     "edges": [
       {
         "source": "DatabaseConnect",
         "target": "QueryExecute",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 16
+          },
+          "end": {
+            "line": 8,
+            "character": 32
+          }
+        }
       },
       {
         "source": "QueryExecute",
         "target": "ResultTransform",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 33
+          },
+          "end": {
+            "line": 8,
+            "character": 52
+          }
+        }
       },
       {
         "source": "ResultTransform",
         "target": "CacheUpdate",
-        "arrowType": "-->"
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 53
+          },
+          "end": {
+            "line": 8,
+            "character": 68
+          }
+        }
       }
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Layer</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"DatabaseConnect\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DatabaseConnect</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Database Connection</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"QueryExecute\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>QueryExecute</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Execute Query</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"ResultTransform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ResultTransform</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Transform Result</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n  \"CacheUpdate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CacheUpdate</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Update Cache</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\"];\n\n  // Edges\n  \"DatabaseConnect\" -> \"QueryExecute\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"QueryExecute\" -> \"ResultTransform\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n  \"ResultTransform\" -> \"CacheUpdate\" [style=\"dashed\", labelOverlay=\"75%\", labelhref=\"#srcLineTBD\"];\n}",
-  "svgHash": "58ab84657a3a21eee42051d10309cce31b06fdf77f7e256175fd309242026a2b"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Data Layer</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"DatabaseConnect\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>DatabaseConnect</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Database Connection</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:43\"];\n  \"QueryExecute\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>QueryExecute</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Execute Query</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:34\"];\n  \"ResultTransform\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ResultTransform</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Transform Result</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L5:0-5:40\"];\n  \"CacheUpdate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CacheUpdate</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Update Cache</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L6:0-6:32\"];\n\n  // Edges\n  \"DatabaseConnect\" -> \"QueryExecute\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:16-8:32\"];\n  \"QueryExecute\" -> \"ResultTransform\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:33-8:52\"];\n  \"ResultTransform\" -> \"CacheUpdate\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L8:53-8:68\"];\n}",
+  "svgHash": "ab8ddd8f6c33deeab575dea70139a3d6fe64bf95641631a1144d38c5fe70a541"
 }
