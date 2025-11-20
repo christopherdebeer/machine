@@ -9,7 +9,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { RailsExecutor } from '../../src/language/rails-executor.js';
+import { MachineExecutor } from '../../src/language/executor.js';
+import { getNonAutomatedTransitions } from '../../src/language/execution/transition-evaluator.js';
 import type { MachineJSON } from '../../src/language/json/types.js';
 import { AgentContextBuilder } from '../../src/language/agent-context-builder.js';
 
@@ -34,20 +35,20 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
-            executor.context.currentNode = 'start';
+            const executor = new MachineExecutor(machineData);
 
             // Transition to module should route to first child
             await executor.step();
 
-            // Should be at 'check' (first child of Validation)
-            expect(executor.context.currentNode).toBe('check');
-            expect(executor.context.activeState).toBe('Validation');
+            const context = executor.getContext();
 
-            // History should show module entry
-            const history = executor.context.history;
-            expect(history.some(h => h.to === 'Validation')).toBe(true);
-            expect(history.some(h => h.from === 'Validation' && h.to === 'check')).toBe(true);
+            // Should be at 'check' (first child of Validation)
+            expect(context.currentNode).toBe('check');
+
+            // History should show transition to check (module entry is automatic)
+            const history = context.history;
+            // The executor transitions directly from start to check (entering the module automatically)
+            expect(history.some(h => h.from === 'start' && h.to === 'check')).toBe(true);
         });
 
         it('should prefer task nodes as entry points', async () => {
@@ -66,13 +67,14 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
-            executor.context.currentNode = 'start';
+            const executor = new MachineExecutor(machineData);
 
             await executor.step();
 
+            const context = executor.getContext();
+
             // Should enter at 'process' (task node), not 'config' (context node)
-            expect(executor.context.currentNode).toBe('process');
+            expect(context.currentNode).toBe('process');
         });
 
         it('should handle simple state nodes without children normally', async () => {
@@ -89,17 +91,20 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
-            executor.context.currentNode = 'start';
+            const executor = new MachineExecutor(machineData);
 
             await executor.step();
 
+            const context1 = executor.getContext();
+
             // Should be at 'ready' (not auto-routed anywhere)
-            expect(executor.context.currentNode).toBe('ready');
+            expect(context1.currentNode).toBe('ready');
 
             // Next step should auto-transition to 'process'
             await executor.step();
-            expect(executor.context.currentNode).toBe('process');
+
+            const context2 = executor.getContext();
+            expect(context2.currentNode).toBe('process');
         });
     });
 
@@ -121,19 +126,18 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
-            executor.context.currentNode = 'start';
+            const executor = new MachineExecutor(machineData);
 
             // Execute through the module
             await executor.step(); // start -> Processing -> task1
-            expect(executor.context.currentNode).toBe('task1');
+            expect(executor.getContext().currentNode).toBe('task1');
 
             await executor.step(); // task1 -> task2
-            expect(executor.context.currentNode).toBe('task2');
+            expect(executor.getContext().currentNode).toBe('task2');
 
             // task2 is terminal within module, should inherit module exit
             await executor.step(); // task2 -> complete (via module exit)
-            expect(executor.context.currentNode).toBe('complete');
+            expect(executor.getContext().currentNode).toBe('complete');
         });
 
         it('should prioritize explicit edges over module-level exits', async () => {
@@ -155,14 +159,13 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
-            executor.context.currentNode = 'start';
+            const executor = new MachineExecutor(machineData);
 
             await executor.step(); // start -> Module -> task1
             await executor.step(); // task1 -> task2
             await executor.step(); // task2 -> explicitTarget (not moduleTarget)
 
-            expect(executor.context.currentNode).toBe('explicitTarget');
+            expect(executor.getContext().currentNode).toBe('explicitTarget');
         });
     });
 
@@ -191,23 +194,26 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
-            executor.context.currentNode = 'start';
+            const executor = new MachineExecutor(machineData);
 
             await executor.step(); // start -> Validation -> validate
-            expect(executor.context.currentNode).toBe('validate');
-            expect(executor.context.activeState).toBe('Validation');
+            let context = executor.getContext();
+            expect(context.currentNode).toBe('validate');
+            // Module entry goes directly to child - validate is a state node
+            expect(context.history.some(h => h.to === 'validate')).toBe(true);
 
             await executor.step(); // validate -> Processing -> process
-            expect(executor.context.currentNode).toBe('process');
-            expect(executor.context.activeState).toBe('Processing');
+            context = executor.getContext();
+            expect(context.currentNode).toBe('process');
+            expect(context.history.some(h => h.to === 'process')).toBe(true);
 
             await executor.step(); // process -> Storage -> store
-            expect(executor.context.currentNode).toBe('store');
-            expect(executor.context.activeState).toBe('Storage');
+            context = executor.getContext();
+            expect(context.currentNode).toBe('store');
+            expect(context.history.some(h => h.to === 'store')).toBe(true);
 
             await executor.step(); // store -> end
-            expect(executor.context.currentNode).toBe('end');
+            expect(executor.getContext().currentNode).toBe('end');
         });
 
         it('should support conditional module transitions', async () => {
@@ -232,15 +238,17 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
-            executor.context.currentNode = 'start';
+            const executor = new MachineExecutor(machineData);
 
             await executor.step(); // start -> Validation -> validate
-            expect(executor.context.currentNode).toBe('validate');
+            expect(executor.getContext().currentNode).toBe('validate');
 
             // validate is terminal in Validation module
             // Should have two available transitions (success/error paths)
-            const transitions = executor['getNonAutomatedTransitions']('validate');
+            const state = executor.getState();
+            const activePath = state.paths.find(p => p.status === 'active')!;
+            const transitions = getNonAutomatedTransitions(machineData, state, activePath.id);
+
             expect(transitions.length).toBe(2);
             expect(transitions.map(t => t.target)).toContain('SuccessPath');
             expect(transitions.map(t => t.target)).toContain('ErrorPath');
@@ -268,8 +276,7 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
-            executor.context.currentNode = 'start';
+            const executor = new MachineExecutor(machineData);
 
             // Transition to outer module should enter inner module (first child)
             await executor.step(); // start -> Pipeline -> Validation (enters at Validation since it's first child)
@@ -277,16 +284,17 @@ describe('State Modules', () => {
             // Since getFirstChild prefers task nodes, and Validation is a state module,
             // it will enter Validation module, which then enters at validate
             // This test demonstrates nested module entry
-            expect(executor.context.currentNode).toBe('validate');
-            expect(executor.context.activeState).toBe('Validation');
+            const context = executor.getContext();
+            expect(context.currentNode).toBe('validate');
+            expect(context.history.some(h => h.to === 'validate')).toBe(true);
 
             // Exit inner module
             await executor.step(); // validate -> process (via Validation module exit)
-            expect(executor.context.currentNode).toBe('process');
+            expect(executor.getContext().currentNode).toBe('process');
 
             // Exit outer module
             await executor.step(); // process -> end (via Pipeline module exit)
-            expect(executor.context.currentNode).toBe('end');
+            expect(executor.getContext().currentNode).toBe('end');
         });
     });
 
@@ -310,10 +318,11 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
+            const executor = new MachineExecutor(machineData);
+            const context = executor.getContext();
 
             // Use AgentContextBuilder directly
-            const builder = new AgentContextBuilder(machineData, executor.context);
+            const builder = new AgentContextBuilder(machineData, context);
 
             // task1 should inherit read access to config from Pipeline
             const contexts = builder.getAccessibleContextNodes('task1');
@@ -346,18 +355,17 @@ describe('State Modules', () => {
                 ]
             };
 
-            const executor = new RailsExecutor(machineData);
-            executor.context.currentNode = 'start';
+            const executor = new MachineExecutor(machineData);
 
             // Should auto-transition through simple states as before
             await executor.step(); // start -> ready
-            expect(executor.context.currentNode).toBe('ready');
+            expect(executor.getContext().currentNode).toBe('ready');
 
             await executor.step(); // ready -> processing (auto-transition)
-            expect(executor.context.currentNode).toBe('processing');
+            expect(executor.getContext().currentNode).toBe('processing');
 
             await executor.step(); // processing -> task1 (auto-transition)
-            expect(executor.context.currentNode).toBe('task1');
+            expect(executor.getContext().currentNode).toBe('task1');
         });
     });
 });
