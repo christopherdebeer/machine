@@ -746,7 +746,10 @@ class MachineAstSerializer {
                 } else if (attr.name) {
                     let attrValue: unknown = attr.value;
                     if (typeof attrValue === 'string') {
-                        attrValue = attrValue.replace(/^["']|["']$/g, '');
+                        // Only strip quotes if the string starts AND ends with matching quotes
+                        // Langium parser already strips outer quotes from STRING terminals,
+                        // so this handles any edge cases where quotes remain
+                        attrValue = attrValue.replace(/^(["'])(.*)\1$/, '$2');
                     }
 
                     if (attrValue !== undefined) {

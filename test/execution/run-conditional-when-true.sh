@@ -22,9 +22,9 @@ grep -q '"when"' "$TMP_DIR/conditional-when-true.json" || {
     exit 1
 }
 
-# Check specific condition is present
-grep -q 'status == "valid"' "$TMP_DIR/conditional-when-true.json" || {
-    echo "ERROR: Expected condition 'status == \"valid\"' not found"
+# Check specific condition is present (with single quotes inside)
+grep -q "status == 'valid'" "$TMP_DIR/conditional-when-true.json" || {
+    echo "ERROR: Expected condition \"status == 'valid'\" not found"
     exit 1
 }
 
