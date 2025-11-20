@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import styled, { keyframes } from 'styled-components';
 import type { MachineExecutor } from '../language/executor';
-import type { VisualizationState, ExecutionState } from '../language/execution/runtime-types';
+import type { VisualizationState } from '../language/execution/runtime-types';
 import type { MachineJSON } from '../language/json/types';
 
 interface ExecutionStateVisualizerProps {
@@ -12,35 +13,483 @@ export interface ExecutionStateVisualizerRef {
     refresh: () => Promise<void>;
 }
 
-interface NodeState {
-    name: string;
-    type?: string;
-    attributes?: Record<string, any>;
-    isActive: boolean;
-    pathIds: string[];
-    visitCount: number;
-}
+// Styled Components
+const pulse = keyframes`
+    0%, 100% {
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2), 0 2px 4px rgba(79, 70, 229, 0.1);
+    }
+    50% {
+        box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3), 0 4px 8px rgba(79, 70, 229, 0.15);
+    }
+`;
 
-interface EdgeInfo {
-    pathId: string;
-    fromNode: string;
-    toNode: string;
-    isAutomatic: boolean;
-    condition?: string;
-}
+const Container = styled.div<{ $mobile?: boolean }>`
+    display: flex;
+    flex-direction: column;
+    gap: ${props => props.$mobile ? '0.75rem' : '1rem'};
+    padding: ${props => props.$mobile ? '0.75rem' : '0.5rem'};
+    background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+    border-radius: 0.5rem;
+    max-height: 100%;
+    overflow-y: auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+`;
 
-interface ContextInfo {
-    name: string;
-    value: any;
-}
+const EmptyState = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+    text-align: center;
+`;
 
-interface PathDisplay {
-    id: string;
-    currentNode: string;
-    status: string;
-    stepCount: number;
-    historyLength: number;
-}
+const EmptyIcon = styled.div`
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+`;
+
+const EmptyText = styled.p`
+    margin: 0;
+    font-size: 0.875rem;
+`;
+
+const Header = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+`;
+
+const Title = styled.h3`
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+`;
+
+const Section = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+`;
+
+const SectionTitle = styled.h4`
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+`;
+
+const SectionCount = styled.span`
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.375rem;
+    background: #e2e8f0;
+    color: #475569;
+    border-radius: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+`;
+
+const SummaryGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem;
+`;
+
+const SummaryStat = styled.div<{ $error?: boolean }>`
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 0.375rem;
+    border-left: 3px solid ${props => props.$error ? '#ef4444' : '#6366f1'};
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+`;
+
+const StatLabel = styled.span`
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+`;
+
+const StatValue = styled.span`
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+`;
+
+const PathsList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+`;
+
+const PathItem = styled.div<{ $borderColor?: string }>`
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-left: 4px solid ${props => props.$borderColor || '#6366f1'};
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+`;
+
+const PathHeader = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: #f8fafc;
+    }
+`;
+
+const PathStatus = styled.span<{ $status: string }>`
+    padding: 0.25rem 0.625rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    background: ${props => {
+        switch (props.$status) {
+            case 'active': return 'linear-gradient(135deg, #10b981, #059669)';
+            case 'waiting': return 'linear-gradient(135deg, #f59e0b, #d97706)';
+            case 'completed': return 'linear-gradient(135deg, #6366f1, #4f46e5)';
+            case 'failed': return 'linear-gradient(135deg, #ef4444, #dc2626)';
+            default: return '#94a3b8';
+        }
+    }};
+    color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+`;
+
+const PathNode = styled.span`
+    font-weight: 600;
+    color: #1e293b;
+    flex: 1;
+    margin: 0 0.5rem;
+`;
+
+const PathSteps = styled.span`
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-right: 0.5rem;
+`;
+
+const ExpandIcon = styled.span`
+    color: #94a3b8;
+    font-size: 0.875rem;
+`;
+
+const PathDetails = styled.div`
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+`;
+
+const DetailRow = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+`;
+
+const DetailLabel = styled.span`
+    color: #64748b;
+    font-weight: 500;
+    min-width: 4rem;
+`;
+
+const DetailValue = styled.span`
+    color: #1e293b;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.813rem;
+`;
+
+const HistorySection = styled.div`
+    margin-top: 0.5rem;
+`;
+
+const HistoryList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.375rem;
+`;
+
+const HistoryItem = styled.div`
+    padding: 0.375rem 0.5rem;
+    background: white;
+    border-radius: 0.25rem;
+    font-size: 0.813rem;
+    font-family: 'Monaco', 'Menlo', monospace;
+    color: #475569;
+`;
+
+const TransitionReason = styled.span`
+    color: #94a3b8;
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+`;
+
+const HistoryMore = styled.div`
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-style: italic;
+    padding: 0.25rem 0.5rem;
+`;
+
+const PathsGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+`;
+
+const PathCard = styled.div<{ $status: string; $borderColor?: string }>`
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    background: white;
+    border-left: 3px solid ${props => props.$borderColor || '#6366f1'};
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    ${props => props.$status === 'active' && `
+        animation: ${pulse} 2s ease-in-out infinite;
+    `}
+`;
+
+const PathCardHeader = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+`;
+
+const PathId = styled.span`
+    font-size: 0.75rem;
+    font-family: 'Monaco', 'Menlo', monospace;
+    color: #64748b;
+    font-weight: 500;
+`;
+
+const PathBadge = styled.span<{ $status: string }>`
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: ${props => {
+        switch (props.$status) {
+            case 'active': return '#10b981';
+            case 'waiting': return '#f59e0b';
+            case 'completed': return '#6366f1';
+            case 'failed': return '#ef4444';
+            default: return '#94a3b8';
+        }
+    }};
+    color: white;
+`;
+
+const PathCardBody = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+`;
+
+const PathCardRow = styled.div`
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.813rem;
+    color: #64748b;
+
+    .value {
+        color: #1e293b;
+        font-weight: 500;
+    }
+`;
+
+const NodesGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.75rem;
+`;
+
+const NodeCard = styled.div<{ $active?: boolean }>`
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    background: white;
+    border-left: 3px solid ${props => props.$active ? '#10b981' : '#cbd5e1'};
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    ${props => props.$active && `
+        box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+        animation: ${pulse} 2s ease-in-out infinite;
+    `}
+`;
+
+const NodeCardHeader = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+`;
+
+const NodeName = styled.span`
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.938rem;
+`;
+
+const ActiveBadge = styled.span`
+    padding: 0.125rem 0.5rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 0.75rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    box-shadow: 0 1px 2px rgba(16, 185, 129, 0.3);
+`;
+
+const NodeCardBody = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+`;
+
+const NodeStat = styled.div`
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.813rem;
+    color: #64748b;
+
+    .value {
+        color: #1e293b;
+        font-weight: 500;
+    }
+`;
+
+const ContextValues = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.375rem;
+    padding-top: 0.375rem;
+    border-top: 1px solid #e2e8f0;
+`;
+
+const ContextValue = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+
+    .key {
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .val {
+        color: #1e293b;
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 0.688rem;
+    }
+`;
+
+const TransitionsList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+`;
+
+const TransitionItem = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 0.5rem;
+    border-left: 3px solid #6366f1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const TransitionPath = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
+`;
+
+const PathLabel = styled.span`
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.75rem;
+`;
+
+const FromNode = styled.span`
+    color: #1e293b;
+    font-weight: 600;
+`;
+
+const Arrow = styled.span`
+    color: #94a3b8;
+`;
+
+const ToNode = styled.span`
+    color: #1e293b;
+    font-weight: 600;
+`;
+
+const TransitionCondition = styled.div`
+    padding: 0.375rem 0.5rem;
+    background: #f8fafc;
+    border-radius: 0.25rem;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.75rem;
+    color: #475569;
+    margin-bottom: 0.375rem;
+`;
+
+const TransitionType = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+`;
+
+const Badge = styled.span<{ $automatic?: boolean }>`
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: ${props => props.$automatic ? '#10b981' : '#6366f1'};
+    color: white;
+`;
 
 export const ExecutionStateVisualizer = forwardRef<ExecutionStateVisualizerRef, ExecutionStateVisualizerProps>(({
     executor,
@@ -49,7 +498,6 @@ export const ExecutionStateVisualizer = forwardRef<ExecutionStateVisualizerRef, 
     const [vizState, setVizState] = useState<VisualizationState | null>(null);
     const [machineJSON, setMachineJSON] = useState<MachineJSON | null>(null);
     const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
-    const [expandedContexts, setExpandedContexts] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         if (!executor) {
@@ -61,7 +509,6 @@ export const ExecutionStateVisualizer = forwardRef<ExecutionStateVisualizerRef, 
         updateExecutionState();
     }, [executor]);
 
-    // Expose refresh method via ref
     useImperativeHandle(ref, () => ({
         refresh: async () => {
             await updateExecutionState();
@@ -93,247 +540,219 @@ export const ExecutionStateVisualizer = forwardRef<ExecutionStateVisualizerRef, 
         });
     };
 
-    const toggleContextExpanded = (contextName: string) => {
-        setExpandedContexts(prev => {
-            const next = new Set(prev);
-            if (next.has(contextName)) {
-                next.delete(contextName);
-            } else {
-                next.add(contextName);
-            }
-            return next;
-        });
-    };
-
-    const formatValue = (value: any): string => {
-        if (value === null || value === undefined) return 'null';
-        if (typeof value === 'object') {
-            try {
-                return JSON.stringify(value, null, 2);
-            } catch {
-                return String(value);
-            }
-        }
-        return String(value);
-    };
-
     const getPathStatusClass = (status: string): string => {
-        switch (status) {
-            case 'active': return 'status-active';
-            case 'waiting': return 'status-waiting';
-            case 'completed': return 'status-completed';
-            case 'failed': return 'status-failed';
-            default: return '';
-        }
+        return status; // Used for badge coloring
+    };
+
+    const getPathColor = (pathId: string): string => {
+        const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+        const hash = pathId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return colors[hash % colors.length];
     };
 
     if (!executor || !vizState || !machineJSON) {
         return (
-            <div className={`execution-state-visualizer ${mobile ? 'mobile' : ''}`}>
-                <div className="empty-state">
-                    <p>No execution in progress</p>
-                    <p className="hint">Click "Execute" to start machine execution</p>
-                </div>
-            </div>
+            <Container $mobile={mobile}>
+                <EmptyState>
+                    <EmptyIcon>▶</EmptyIcon>
+                    <EmptyText>Click "Execute" to start machine execution</EmptyText>
+                </EmptyState>
+            </Container>
         );
     }
 
     return (
-        <div className={`execution-state-visualizer ${mobile ? 'mobile' : ''}`}>
+        <Container $mobile={mobile}>
             {/* Execution Summary */}
-            <div className="execution-summary">
-                <div className="summary-stat">
-                    <span className="stat-label">Steps:</span>
-                    <span className="stat-value">{vizState.stepCount}</span>
-                </div>
-                <div className="summary-stat">
-                    <span className="stat-label">Paths:</span>
-                    <span className="stat-value">
-                        {vizState.activePathCount} / {vizState.totalPaths}
-                    </span>
-                </div>
-                <div className="summary-stat">
-                    <span className="stat-label">Completed:</span>
-                    <span className="stat-value">{vizState.completedPathCount}</span>
-                </div>
-                {vizState.errorCount > 0 && (
-                    <div className="summary-stat error">
-                        <span className="stat-label">Errors:</span>
-                        <span className="stat-value">{vizState.errorCount}</span>
-                    </div>
-                )}
-                <div className="summary-stat">
-                    <span className="stat-label">Time:</span>
-                    <span className="stat-value">{(vizState.elapsedTime / 1000).toFixed(1)}s</span>
-                </div>
-            </div>
+            <Section>
+                <SummaryGrid>
+                    <SummaryStat>
+                        <StatLabel>Steps:</StatLabel>
+                        <StatValue>{vizState.stepCount}</StatValue>
+                    </SummaryStat>
+                    <SummaryStat>
+                        <StatLabel>Paths:</StatLabel>
+                        <StatValue>
+                            {vizState.activePathCount} / {vizState.totalPaths}
+                        </StatValue>
+                    </SummaryStat>
+                    <SummaryStat>
+                        <StatLabel>Completed:</StatLabel>
+                        <StatValue>{vizState.completedPathCount}</StatValue>
+                    </SummaryStat>
+                    {vizState.errorCount > 0 && (
+                        <SummaryStat $error>
+                            <StatLabel>Errors:</StatLabel>
+                            <StatValue>{vizState.errorCount}</StatValue>
+                        </SummaryStat>
+                    )}
+                    <SummaryStat>
+                        <StatLabel>Time:</StatLabel>
+                        <StatValue>{(vizState.elapsedTime / 1000).toFixed(1)}s</StatValue>
+                    </SummaryStat>
+                </SummaryGrid>
+            </Section>
 
             {/* Active Paths */}
             {vizState.activePaths.length > 0 && (
-                <div className="section">
-                    <h3 className="section-title">
-                        Active Paths ({vizState.activePaths.length})
-                    </h3>
-                    <div className="paths-list">
+                <Section>
+                    <SectionTitle>
+                        Active Paths <SectionCount>{vizState.activePaths.length}</SectionCount>
+                    </SectionTitle>
+                    <PathsList>
                         {vizState.activePaths.map((path) => (
-                            <div key={path.id} className="path-item">
-                                <div
-                                    className="path-header"
-                                    onClick={() => togglePathExpanded(path.id)}
-                                >
-                                    <span className={`path-status ${getPathStatusClass(path.status)}`}>
+                            <PathItem key={path.id} $borderColor={getPathColor(path.id)}>
+                                <PathHeader onClick={() => togglePathExpanded(path.id)}>
+                                    <PathStatus $status={path.status}>
                                         {path.status}
-                                    </span>
-                                    <span className="path-node">{path.currentNode}</span>
-                                    <span className="path-steps">{path.stepCount} steps</span>
-                                    <span className="expand-icon">
+                                    </PathStatus>
+                                    <PathNode>{path.currentNode}</PathNode>
+                                    <PathSteps>{path.stepCount} steps</PathSteps>
+                                    <ExpandIcon>
                                         {expandedPaths.has(path.id) ? '▼' : '▶'}
-                                    </span>
-                                </div>
+                                    </ExpandIcon>
+                                </PathHeader>
                                 {expandedPaths.has(path.id) && (
-                                    <div className="path-details">
-                                        <div className="detail-row">
-                                            <span className="detail-label">Path ID:</span>
-                                            <span className="detail-value">{path.id}</span>
-                                        </div>
+                                    <PathDetails>
+                                        <DetailRow>
+                                            <DetailLabel>Path ID:</DetailLabel>
+                                            <DetailValue>{path.id}</DetailValue>
+                                        </DetailRow>
                                         {path.history.length > 0 && (
-                                            <div className="history-section">
-                                                <div className="detail-label">History:</div>
-                                                <div className="history-list">
+                                            <HistorySection>
+                                                <DetailLabel>History:</DetailLabel>
+                                                <HistoryList>
                                                     {path.history.slice(-5).map((transition, idx) => (
-                                                        <div key={idx} className="history-item">
+                                                        <HistoryItem key={idx}>
                                                             {transition.from} → {transition.to}
                                                             {transition.transition && (
-                                                                <span className="transition-reason">
+                                                                <TransitionReason>
                                                                     ({transition.transition})
-                                                                </span>
+                                                                </TransitionReason>
                                                             )}
-                                                        </div>
+                                                        </HistoryItem>
                                                     ))}
                                                     {path.history.length > 5 && (
-                                                        <div className="history-more">
+                                                        <HistoryMore>
                                                             ...and {path.history.length - 5} more
-                                                        </div>
+                                                        </HistoryMore>
                                                     )}
-                                                </div>
-                                            </div>
+                                                </HistoryList>
+                                            </HistorySection>
                                         )}
-                                    </div>
+                                    </PathDetails>
                                 )}
-                            </div>
+                            </PathItem>
                         ))}
-                    </div>
-                </div>
+                    </PathsList>
+                </Section>
             )}
 
             {/* All Paths Overview */}
             {vizState.allPaths.length > vizState.activePaths.length && (
-                <div className="section">
-                    <h3 className="section-title">
-                        All Paths ({vizState.allPaths.length})
-                    </h3>
-                    <div className="paths-grid">
+                <Section>
+                    <SectionTitle>
+                        All Paths <SectionCount>{vizState.allPaths.length}</SectionCount>
+                    </SectionTitle>
+                    <PathsGrid>
                         {vizState.allPaths.map((path) => (
-                            <div key={path.id} className={`path-card ${getPathStatusClass(path.status)}`}>
-                                <div className="path-card-header">
-                                    <span className="path-id">{path.id}</span>
-                                    <span className={`path-badge ${getPathStatusClass(path.status)}`}>
+                            <PathCard key={path.id} $status={path.status} $borderColor={getPathColor(path.id)}>
+                                <PathCardHeader>
+                                    <PathId>{path.id}</PathId>
+                                    <PathBadge $status={path.status}>
                                         {path.status}
-                                    </span>
-                                </div>
-                                <div className="path-card-body">
-                                    <div className="path-card-row">
+                                    </PathBadge>
+                                </PathCardHeader>
+                                <PathCardBody>
+                                    <PathCardRow>
                                         <span>Node:</span>
                                         <span className="value">{path.currentNode}</span>
-                                    </div>
-                                    <div className="path-card-row">
+                                    </PathCardRow>
+                                    <PathCardRow>
                                         <span>Steps:</span>
                                         <span className="value">{path.stepCount}</span>
-                                    </div>
-                                </div>
-                            </div>
+                                    </PathCardRow>
+                                </PathCardBody>
+                            </PathCard>
                         ))}
-                    </div>
-                </div>
+                    </PathsGrid>
+                </Section>
             )}
 
             {/* Node States */}
-            <div className="section">
-                <h3 className="section-title">Node States</h3>
-                <div className="nodes-grid">
+            <Section>
+                <SectionTitle>Node States</SectionTitle>
+                <NodesGrid>
                     {Object.entries(vizState.nodeStates).map(([nodeName, nodeState]) => (
-                        <div
-                            key={nodeName}
-                            className={`node-card ${nodeState.isActive ? 'active' : ''}`}
-                        >
-                            <div className="node-card-header">
-                                <span className="node-name">{nodeName}</span>
+                        <NodeCard key={nodeName} $active={nodeState.isActive}>
+                            <NodeCardHeader>
+                                <NodeName>{nodeName}</NodeName>
                                 {nodeState.isActive && (
-                                    <span className="active-badge">ACTIVE</span>
+                                    <ActiveBadge>ACTIVE</ActiveBadge>
                                 )}
-                            </div>
-                            <div className="node-card-body">
-                                <div className="node-stat">
+                            </NodeCardHeader>
+                            <NodeCardBody>
+                                <NodeStat>
                                     <span>Visits:</span>
                                     <span className="value">{nodeState.visitCount}</span>
-                                </div>
+                                </NodeStat>
                                 {nodeState.activeInPaths.length > 0 && (
-                                    <div className="node-stat">
+                                    <NodeStat>
                                         <span>Active in:</span>
                                         <span className="value">
                                             {nodeState.activeInPaths.join(', ')}
                                         </span>
-                                    </div>
+                                    </NodeStat>
                                 )}
                                 {nodeState.contextValues && Object.keys(nodeState.contextValues).length > 0 && (
-                                    <div className="context-values">
+                                    <ContextValues>
                                         {Object.entries(nodeState.contextValues).slice(0, 3).map(([key, value]) => (
-                                            <div key={key} className="context-value">
+                                            <ContextValue key={key}>
                                                 <span className="key">{key}:</span>
                                                 <span className="val">{String(value).substring(0, 20)}</span>
-                                            </div>
+                                            </ContextValue>
                                         ))}
-                                    </div>
+                                    </ContextValues>
                                 )}
-                            </div>
-                        </div>
+                            </NodeCardBody>
+                        </NodeCard>
                     ))}
-                </div>
-            </div>
+                </NodesGrid>
+            </Section>
 
             {/* Available Transitions */}
             {vizState.availableTransitions.length > 0 && (
-                <div className="section">
-                    <h3 className="section-title">
-                        Available Transitions ({vizState.availableTransitions.length})
-                    </h3>
-                    <div className="transitions-list">
+                <Section>
+                    <SectionTitle>
+                        Available Transitions <SectionCount>{vizState.availableTransitions.length}</SectionCount>
+                    </SectionTitle>
+                    <TransitionsList>
                         {vizState.availableTransitions.map((transition, idx) => (
-                            <div key={idx} className="transition-item">
-                                <div className="transition-path">
-                                    <span className="path-label">{transition.pathId}:</span>
-                                    <span className="from-node">{transition.fromNode}</span>
-                                    <span className="arrow">→</span>
-                                    <span className="to-node">{transition.toNode}</span>
-                                </div>
+                            <TransitionItem key={idx}>
+                                <TransitionPath>
+                                    <PathLabel>{transition.pathId}:</PathLabel>
+                                    <FromNode>{transition.fromNode}</FromNode>
+                                    <Arrow>→</Arrow>
+                                    <ToNode>{transition.toNode}</ToNode>
+                                </TransitionPath>
                                 {transition.condition && (
-                                    <div className="transition-condition">
+                                    <TransitionCondition>
                                         Condition: {transition.condition}
-                                    </div>
+                                    </TransitionCondition>
                                 )}
-                                <div className="transition-type">
+                                <TransitionType>
                                     {transition.isAutomatic ? (
-                                        <span className="badge automatic">automatic</span>
+                                        <Badge $automatic>automatic</Badge>
                                     ) : (
-                                        <span className="badge manual">manual</span>
+                                        <Badge>manual</Badge>
                                     )}
-                                </div>
-                            </div>
+                                </TransitionType>
+                            </TransitionItem>
                         ))}
-                    </div>
-                </div>
+                    </TransitionsList>
+                </Section>
             )}
-        </div>
+        </Container>
     );
 });
 
