@@ -1,131 +1,226 @@
 ---
 name: dygram-test-execution
-description: Run DyGram execution tests with intelligent agent responses, generating and managing test recordings for CI/CD. Use this skill when you need to execute DyGram tests with real Claude Code agent reasoning.
+description: Run DyGram execution tests with intelligent agent responses by acting as the test responder. Use this skill when you need to execute DyGram tests with real Claude Code reasoning - YOU will make the intelligent decisions about tool selection.
 ---
 
 # DyGram Test Execution Skill
 
-This skill helps run DyGram execution tests with the agent responder, generating and managing test recordings for CI/CD.
+**YOU (Claude Code) are the intelligent test responder!**
 
-## Overview
+This skill enables you to act as the intelligent agent that responds to DyGram test requests. Tests will send LLM invocation requests to a queue, and you'll process them one by one, making intelligent decisions about which tools to use based on context.
 
-The DyGram test suite includes execution tests that require an agent (like Claude) to respond to LLM invocation requests during test runs. This skill automates the workflow of:
+## How It Works
 
-1. Starting the agent responder in background
-2. Running execution tests in interactive mode
-3. Monitoring agent responses and test results
-4. Analyzing and managing test recordings
-5. Cleaning up processes
+```
+┌─────────────────┐
+│ Tests running   │
+│ in background   │
+└────────┬────────┘
+         │ Writes requests
+         ▼
+┌─────────────────┐
+│ File Queue      │
+│ .dygram-test-   │
+│  queue/         │
+└────────┬────────┘
+         │
+         │ YOU poll queue with helper scripts
+         ▼
+┌─────────────────┐
+│ Claude Code     │◄── This is YOU!
+│ (This Session)  │    No API key needed!
+│                 │
+│ 1. Get request  │    Fresh context each time
+│ 2. Analyze      │    All info in request
+│ 3. Decide       │    Use your intelligence
+│ 4. Respond      │
+└─────────────────┘
+```
 
 ## Agent Responder Modes
 
-There are two agent responder implementations:
+### Mode 1: Claude Code Direct (Recommended) 🚀
 
-### Intelligent Agent (Recommended)
-**Script:** `scripts/agent-request-listener.js`
-**Method:** Uses Claude API directly for actual AI reasoning
-**Pros:** Makes genuinely intelligent decisions, better test coverage
-**Cons:** Requires ANTHROPIC_API_KEY environment variable
+**This mode:** YOU act as the responder using helper scripts
+**No separate process needed** - you ARE the intelligent agent
+**No API key required** - you're already running!
 
-This responder calls the Claude API to analyze each test request and make informed decisions about which tools to use. It understands context, semantics, and can handle complex scenarios that simple heuristics cannot.
+**How it works:**
+- Start tests in background
+- Loop: get request → analyze → decide → submit response
+- Helper scripts manage queue interaction
+- Each request is isolated with fresh context
 
-### Heuristic Agent (Fallback)
+### Mode 2: Heuristic Agent (Fallback)
+
 **Script:** `scripts/test-agent-responder.js`
-**Method:** Uses keyword matching and pattern heuristics
-**Pros:** No API key required, faster
-**Cons:** Limited to simple pattern matching, may not handle complex cases
+**Method:** Automated keyword matching heuristics
+**Use when:** You can't actively monitor/respond to requests
 
-This responder uses keyword matching (e.g., "error" → error transition) to make tool selections. Useful for simple tests or when API access is unavailable.
+This is a standalone process that uses simple pattern matching. Less intelligent than you, but runs automatically.
 
 ## Prerequisites
 
 - Node.js and npm installed
 - Dependencies installed (`npm ci`)
 - Tests located in `test/validating/`
-- **For Intelligent Agent:** `ANTHROPIC_API_KEY` environment variable set
-- **For Heuristic Agent:** No additional requirements
+- **No API key needed for Claude Code mode!**
 
-## Step-by-Step Workflow
+## Step-by-Step Workflow (Claude Code Mode)
 
-### Step 1: Start the Agent Responder
+### Step 1: Start Tests in Background
 
-Start the agent responder in the background. Choose one of the two options:
-
-#### Option A: Intelligent Agent (Recommended)
-
-Uses actual Claude AI reasoning via API:
+Run the execution tests in interactive mode:
 
 ```bash
-# Ensure API key is set
-export ANTHROPIC_API_KEY="your-api-key-here"
-
-# Start intelligent listener
-node scripts/agent-request-listener.js &
+DYGRAM_TEST_MODE=interactive npm test test/validating/ 2>&1 | tee /tmp/dygram-test-output.log &
 ```
 
-**Expected output:**
-```
-🤖 Agent Request Listener Starting...
-📁 Queue directory: .dygram-test-queue
-🧠 Using Claude Code sub-agents for intelligent decisions
-⏳ Waiting for test requests...
+Save the process ID:
+```bash
+TEST_PID=$!
+echo "Tests running as PID: $TEST_PID"
 ```
 
-#### Option B: Heuristic Agent (Fallback)
+### Step 2: Process Requests Loop
 
-Uses keyword matching heuristics:
+Now enter a loop where you'll respond to test requests. For each request:
+
+#### 2a. Get Next Request
+
+Use the helper script to block until a request is available:
 
 ```bash
-node scripts/test-agent-responder.js &
+node scripts/get-next-request.js --timeout 60000
 ```
 
-**Expected output:**
+**This will output a JSON request like:**
+```json
+{
+  "requestId": "req-12345-1",
+  "context": {
+    "testName": "should transition to correct state",
+    "machineTitle": "Payment Flow",
+    "currentNode": "PaymentStart"
+  },
+  "systemPrompt": "Transition to the success state after payment validation",
+  "tools": [
+    {
+      "name": "transition_to_PaymentSuccess",
+      "description": "Transition to PaymentSuccess state",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "transition_to_PaymentError",
+      "description": "Transition to PaymentError state",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  ]
+}
 ```
-🤖 Test Agent Responder Starting...
-📁 Queue directory: .dygram-test-queue
-⏳ Waiting for test requests...
-```
 
-**What to check:**
-- Look for startup message
-- Verify "⏳ Waiting for test requests..." appears
-- Save the process info for later cleanup
+#### 2b. Analyze Request
 
-### Step 2: Run Execution Tests
+Look at the request carefully:
+- **System Prompt:** What is the test asking you to do?
+- **Context:** What machine, what test, what state?
+- **Tools:** What are the available options?
 
-Run the tests in interactive mode, which will send requests to the agent responder:
+**Example Analysis:**
+- System prompt says "success state after payment validation"
+- Tools available: `transition_to_PaymentSuccess`, `transition_to_PaymentError`
+- Prompt mentions "success" → Should use `transition_to_PaymentSuccess`
+
+#### 2c. Make Intelligent Decision
+
+Based on your analysis, decide which tool to use. Consider:
+- Keywords in the system prompt
+- Tool descriptions and names
+- Test context and machine state
+- Semantic meaning of the request
+
+#### 2d. Submit Response
+
+Create a response JSON and submit it:
 
 ```bash
-DYGRAM_TEST_MODE=interactive npm test test/validating/ 2>&1 | tee /tmp/dygram-test-output.log
+cat << 'EOF' > /tmp/response.json
+{
+  "requestId": "req-12345-1",
+  "reasoning": "The system prompt mentions 'success state after payment validation', which clearly indicates we should transition to PaymentSuccess rather than PaymentError.",
+  "response": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Transitioning to success state as payment validation succeeded."
+      },
+      {
+        "type": "tool_use",
+        "id": "tool-1",
+        "name": "transition_to_PaymentSuccess",
+        "input": {
+          "reason": "Payment validation successful"
+        }
+      }
+    ],
+    "stop_reason": "tool_use"
+  }
+}
+EOF
+
+node scripts/submit-response.js --file /tmp/response.json
 ```
 
-**What happens:**
-- Tests create LLM invocation requests
-- Agent responder receives and processes them
-- Responses are recorded for CI playback
-- Test results are displayed
+**Or use piping:**
+```bash
+echo '{
+  "requestId": "req-12345-1",
+  "reasoning": "System prompt indicates success path",
+  "response": {
+    "content": [
+      {"type": "text", "text": "Proceeding with success transition"},
+      {
+        "type": "tool_use",
+        "id": "tool-1",
+        "name": "transition_to_PaymentSuccess",
+        "input": {"reason": "Success condition met"}
+      }
+    ],
+    "stop_reason": "tool_use"
+  }
+}' | node scripts/submit-response.js --request-id req-12345-1
+```
 
-**Duration:** Tests typically take 30-60 seconds to complete.
+#### 2e. Repeat
 
-### Step 3: Monitor Agent Activity
+Continue the loop - get next request, analyze, decide, respond - until tests complete.
 
-While tests run, check that the agent responder is processing requests properly. Look for:
+### Step 3: Monitor Test Progress
 
-✅ **Good signs:**
-- "📨 Received request:" messages appearing
-- "🧠 Agent Decision:" showing reasoning
-- "✅ Sent response" confirmations
-- Tool names matching test expectations
+Check if tests are still running:
 
-❌ **Warning signs:**
-- No requests received (responder not connected)
-- Errors in decision-making
-- Timeout messages
-- Responder process crashed
+```bash
+ps -p $TEST_PID > /dev/null && echo "Tests still running" || echo "Tests completed"
+```
 
-### Step 4: Analyze Test Results
+View test output:
+```bash
+tail -f /tmp/dygram-test-output.log
+```
 
-After tests complete, analyze the results:
+### Step 4: Analyze Results
+
+After tests complete:
 
 ```bash
 # Check test summary
@@ -136,56 +231,145 @@ git status --short test/fixtures/recordings/ | grep "^??" | wc -l
 
 # List recording categories
 ls -1 test/fixtures/recordings/
-
-# Check recent recordings
-find test/fixtures/recordings/ -name "*.json" -mmin -5 -exec ls -lh {} \;
 ```
 
-**What to report:**
-- Total tests: X passed, Y failed
-- New recordings created: N files
-- Recording categories updated
-- Any test failures or warnings
+### Step 5: Cleanup
 
-### Step 5: Review Recordings (Optional)
-
-Inspect a sample recording to verify quality:
+Clean up the queue:
 
 ```bash
-# Find a recent recording
-RECORDING=$(find test/fixtures/recordings/ -name "*.json" -mmin -5 | head -1)
-
-# View its content
-cat "$RECORDING" | jq '.'
+rm -rf .dygram-test-queue
 ```
 
-**Check for:**
-- Proper request structure
-- Agent reasoning is clear
-- Tool selection makes sense
-- Input parameters are valid
+## Decision-Making Guidelines
 
-### Step 6: Cleanup
+When analyzing requests, use this process:
 
-Stop the agent responder process:
+### 1. Read the System Prompt Carefully
+Extract the key intent: What is being asked?
+
+### 2. Identify Keywords
+- "error", "fail" → Error path tools
+- "success", "complete" → Success path tools
+- Specific state names → Match tool names
+
+### 3. Match Tool Names
+Look for tools whose names align with the prompt:
+- Prompt: "transition to error" → `transition_to_ErrorState`
+- Prompt: "add new node called Foo" → `add_node` with name="Foo"
+
+### 4. Consider Context
+- Test name might give hints
+- Machine title indicates the domain
+- Current node shows where you are
+
+### 5. Use Semantic Understanding
+You're Claude - use your intelligence! Don't just match keywords.
+Understand what the test is trying to verify and choose accordingly.
+
+## Response Structure
+
+All responses must follow this structure:
+
+```json
+{
+  "requestId": "req-xxx",
+  "reasoning": "Brief explanation of why you chose this tool",
+  "response": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Your reasoning or explanation"
+      },
+      {
+        "type": "tool_use",
+        "id": "unique-tool-id",
+        "name": "tool_name_from_request",
+        "input": {
+          // Tool input based on schema
+        }
+      }
+    ],
+    "stop_reason": "tool_use"
+  }
+}
+```
+
+**If no tool needed:**
+```json
+{
+  "requestId": "req-xxx",
+  "reasoning": "No tool use required",
+  "response": {
+    "content": [
+      {"type": "text", "text": "Task completed"}
+    ],
+    "stop_reason": "end_turn"
+  }
+}
+```
+
+## Helper Scripts Reference
+
+### `get-next-request.js`
+
+Blocks until a request is available, outputs JSON to stdout.
+
+**Usage:**
+```bash
+node scripts/get-next-request.js [--queue-dir <path>] [--timeout <ms>]
+```
+
+**Options:**
+- `--queue-dir`: Queue directory (default: `.dygram-test-queue`)
+- `--timeout`: Max wait time in ms (default: 30000)
+
+**Output:**
+- JSON request on stdout
+- Exit code 0 on success, 1 on timeout
+
+### `submit-response.js`
+
+Writes response to queue and cleans up request file.
+
+**Usage:**
+```bash
+# From file
+node scripts/submit-response.js --file response.json
+
+# From stdin
+echo '{"requestId": "...", ...}' | node scripts/submit-response.js --request-id <id>
+```
+
+**Options:**
+- `--queue-dir`: Queue directory (default: `.dygram-test-queue`)
+- `--request-id`: Request ID (required if not in JSON)
+- `--file`: Read response from file instead of stdin
+
+**Output:**
+- Success message on stderr
+- Exit code 0 on success, 1 on error
+
+## Alternative: Heuristic Agent Mode
+
+If you can't actively respond to requests, use the automated heuristic responder:
 
 ```bash
-# Find the process (works for both responder types)
-ps aux | grep -E "(agent-request-listener|test-agent-responder)"
+# Start heuristic agent
+node scripts/test-agent-responder.js &
 
-# Kill it gracefully (use whichever you started)
-pkill -f agent-request-listener  # For intelligent agent
-# OR
-pkill -f test-agent-responder    # For heuristic agent
+# Run tests
+DYGRAM_TEST_MODE=interactive npm test test/validating/
+
+# Cleanup
+pkill -f test-agent-responder
 ```
 
-**Verify cleanup:**
-- No hanging node processes
-- Queue directory can be removed: `rm -rf .dygram-test-queue`
+The heuristic agent uses keyword matching but is less intelligent than you.
 
 ## Summary Report Format
 
-Provide a summary in this format:
+After completing test execution, provide a summary:
 
 ```
 🧪 DyGram Test Execution Summary
@@ -196,14 +380,14 @@ Test Results:
   ❌ Failed: Y tests
   ⏭️  Skipped: Z tests
 
-Agent Responder Activity:
+Agent Responses:
   📨 Requests processed: N
-  🧠 Decisions made: N
-  ✅ Responses sent: N
+  🧠 Intelligent decisions made: N
+  ✅ Responses submitted: N
 
 Recordings:
   📝 New recordings: N files
-  📁 Categories updated: list categories
+  📁 Categories updated: [list]
   💾 Total size: X KB
 
 Status: SUCCESS/FAILURE
@@ -211,113 +395,84 @@ Status: SUCCESS/FAILURE
 Next Steps:
   - Commit recordings if tests passed
   - Investigate failures in /tmp/dygram-test-output.log
-  - Review agent decisions if unexpected
+  - Review decision quality if unexpected results
 ```
 
-## Common Issues
+## Troubleshooting
 
-### Issue: Agent responder not receiving requests
+### No requests appearing
 
-**Symptoms:** Tests hang or timeout, no "📨 Received request" messages
+**Check:**
+- Tests actually running? `ps -p $TEST_PID`
+- Queue directory exists? `ls -la .dygram-test-queue`
+- Test mode set? Check `DYGRAM_TEST_MODE=interactive`
 
-**Solutions:**
-1. Check that DYGRAM_TEST_MODE=interactive is set
-2. Verify .dygram-test-queue directory exists
-3. Restart agent responder
-4. Check file permissions
+### Timeout waiting for request
 
-### Issue: Tests fail with timeout errors
+**Causes:**
+- Tests completed already
+- Tests not in interactive mode
+- Queue in wrong location
 
-**Symptoms:** "Test timed out in 5000ms" errors
+### Response not accepted
 
-**Solutions:**
-1. Agent responder might not be running
-2. Queue might be in wrong location
-3. Increase test timeout if needed
-4. Check for responder errors
-
-### Issue: Recordings not created
-
-**Symptoms:** git status shows no new recordings
-
-**Solutions:**
-1. Tests might be using playback mode
-2. InteractiveTestClient might not be configured to record
-3. Check recordings directory permissions
-4. Review test configuration
+**Check:**
+- `requestId` matches the request
+- Response JSON is valid
+- All required fields present
 
 ## Advanced Usage
 
-### Running specific test files
+### Process Multiple Requests Automatically
+
+Create a simple loop script:
 
 ```bash
-# Just task execution tests
-DYGRAM_TEST_MODE=interactive npm test test/validating/task-execution.test.ts
+#!/bin/bash
+while true; do
+  REQUEST=$(node scripts/get-next-request.js --timeout 5000 2>/dev/null)
 
-# Just tool execution tests
-DYGRAM_TEST_MODE=interactive npm test test/validating/tool-execution.test.ts
+  if [ $? -ne 0 ]; then
+    echo "No more requests (timeout)"
+    break
+  fi
+
+  # Extract info and make decision
+  # (You'd fill this in with your logic)
+
+  # Submit response
+  # ...
+done
 ```
 
-### Using playback mode (no agent needed)
+### Custom Decision Logic
+
+You can create wrapper scripts that:
+- Parse the request JSON
+- Apply custom heuristics
+- Generate responses
+- Submit via helper script
+
+### Recording Analysis
 
 ```bash
-# Use existing recordings instead of agent
-DYGRAM_TEST_MODE=playback npm test test/validating/
+# Find all tool uses
+find test/fixtures/recordings -name "*.json" -exec jq -r '.response.response.content[]? | select(.type=="tool_use") | .name' {} \; | sort | uniq -c
+
+# Show reasoning patterns
+find test/fixtures/recordings -name "*.json" -exec jq -r '.response.reasoning' {} \; | head -10
 ```
-
-### Analyzing agent decision patterns
-
-```bash
-# Extract all reasoning from recordings
-find test/fixtures/recordings/ -name "*.json" -exec jq -r '.response.reasoning' {} \; | sort | uniq -c | sort -rn
-
-# Count tool selections
-find test/fixtures/recordings/ -name "*.json" -exec jq -r '.response.response.content[]? | select(.type=="tool_use") | .name' {} \; | sort | uniq -c | sort -rn
-```
-
-## Integration with Scripts
-
-This skill can be combined with helper scripts for automation. See:
-- `scripts/run-execution-tests.sh` - Automated test execution
-- `scripts/analyze-recordings.sh` - Recording analysis
-- `scripts/clean-recordings.sh` - Recording cleanup
-
-Run a script instead of manual steps:
-
-```bash
-./scripts/run-execution-tests.sh
-```
-
-## Notes
-
-### Agent Responder Architecture
-
-**Intelligent Agent (`agent-request-listener.js`):**
-- Uses Claude API for actual AI reasoning
-- Analyzes test context, tool descriptions, and semantic meaning
-- Makes genuinely intelligent decisions like Claude Code would
-- Requires API key but provides superior test coverage
-- Best for comprehensive testing and complex state machines
-
-**Heuristic Agent (`test-agent-responder.js`):**
-- Uses keyword matching and pattern heuristics
-- Fast and requires no API access
-- Limited to simple pattern matching (e.g., "error" → error transition)
-- May not handle complex scenarios requiring real reasoning
-- Good for simple tests or CI environments without API access
-
-### General Notes
-
-- Recordings are deterministic and can be used in CI
-- Each test run may create different recordings based on timing
-- Recordings include timestamps and request IDs for debugging
-- The skill is designed for interactive development use
-- For best results, use the intelligent agent during development
 
 ## See Also
 
 - Documentation: `docs/development/agent-responder-mcp-integration.md`
 - Test documentation: `test/CLAUDE.md`
-- Intelligent agent source: `scripts/agent-request-listener.js` (uses Claude API)
-- Heuristic agent source: `scripts/test-agent-responder.js` (uses keyword matching)
+- Helper scripts:
+  - `scripts/get-next-request.js` - Get requests from queue
+  - `scripts/submit-response.js` - Submit responses to queue
+  - `scripts/test-agent-responder.js` - Heuristic fallback agent
 - Interactive test client: `src/language/interactive-test-client.ts`
+
+## Remember
+
+**You ARE the intelligent agent!** Trust your analysis, use your reasoning capabilities, and make genuinely intelligent decisions. Each request is a fresh context - all information you need is in the request object.
