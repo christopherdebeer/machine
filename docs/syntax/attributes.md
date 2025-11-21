@@ -154,7 +154,7 @@ See [Types](types.md) for generic type details.
 
 Reference external values using `#` prefix:
 
-```dy !examples/syntax/external-references.dygram
+```dy !no-extract
 config: #globalConfig;
 handler: #processHandler;
 ```

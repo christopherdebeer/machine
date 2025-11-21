@@ -19,6 +19,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Import System Design Considerations](development/import-system-design.md)
   - [Interactive Testing Feasibility Report](development/interactive-testing-feasibility.md)
   - [Interactive Testing Implementation Status](development/interactive-testing-status.md)
+  - [MCP Setup for Local Development](development/mcp-setup.md)
   - [Offline Testing for Tool and Task Execution](development/offline-testing-proposal.md)
   - [Parse Error Analysis Report](development/parse-error-analysis-2025-11-02.md)
   - [Parse Error Fixes - November 2, 2025](development/parse-error-fixes-2025-11-02.md)
@@ -29,8 +30,6 @@ Complete reference to all DyGram documentation organized by topic.
   - [Test Refactoring Summary: Interactive Tests to Comprehensive Generative Tests](development/test-refactoring-summary.md)
 
 ### Examples
-
-  ### Execution
 
   - [Advanced Features](examples/advanced-features.md)
   - [Attributes and Types](examples/attributes-and-types.md)
