@@ -1,51 +1,66 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+/**
+ * Tool-Based Execution Tests - Interactive/Playback Mode
+ *
+ * Tests transition tools and intelligent path selection.
+ *
+ * Interactive Mode (local development):
+ *   Terminal 1: node scripts/test-agent-responder.js
+ *   Terminal 2: npm test test/validating/tool-execution.test.ts
+ *
+ * Playback Mode (CI):
+ *   DYGRAM_TEST_MODE=playback npm test test/validating/tool-execution.test.ts
+ *
+ * See test/CLAUDE.md for details.
+ */
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MachineExecutor } from '../../src/language/executor.js';
 import type { MachineJSON } from '../../src/language/json/types.js';
-import {
-    ToolDefinition,
-    ModelResponse,
-    ConversationMessage
-} from '../../src/language/llm-client.js';
-import { ClaudeClient } from '../../src/language/claude-client.js';
+import { InteractiveTestClient } from '../../src/language/interactive-test-client.js';
+import { PlaybackTestClient } from '../../src/language/playback-test-client.js';
+import * as fs from 'fs';
 
 type MachineData = MachineJSON;
 
-// TODO: Update for new MachineExecutor API
-// The new MachineExecutor from executor.js has a different API structure
+// Helper to create appropriate client based on environment
+function createTestClient(recordingsDir: string) {
+    const mode = process.env.DYGRAM_TEST_MODE || 'interactive';
 
-// Mock the ClaudeClient
-vi.mock('../../src/language/claude-client', () => {
-    const mockInvokeModel = vi.fn();
-    const mockInvokeWithTools = vi.fn();
+    if (mode === 'playback') {
+        return new PlaybackTestClient({
+            recordingsDir,
+            simulateDelay: true,
+            delay: 100,
+            strict: true
+        });
+    }
 
-    return {
-        ClaudeClient: vi.fn().mockImplementation(() => ({
-            invokeModel: mockInvokeModel,
-            invokeWithTools: mockInvokeWithTools,
-            extractText: (response: ModelResponse) => {
-                const textBlocks = response.content.filter(
-                    (block: any) => block.type === 'text'
-                );
-                return textBlocks.map((block: any) => block.text).join('\n');
-            },
-            extractToolUses: (response: ModelResponse) => {
-                return response.content.filter(
-                    (block: any) => block.type === 'tool_use'
-                );
-            }
-        }))
-    };
-});
+    // Default to interactive mode
+    return new InteractiveTestClient({
+        mode: 'file-queue',
+        queueDir: '.dygram-test-queue',
+        recordResponses: true,
+        recordingsDir,
+        timeout: 10000
+    });
+}
 
-describe.skip('Tool-Based Execution', () => {
+describe('Tool-Based Execution (Interactive)', () => {
     let executor: MachineExecutor;
     let mockMachineData: MachineData;
-    let mockClaudeClient: any;
+    let client: any;
+    const queueDir = '.dygram-test-queue';
 
-    beforeEach(async () => {
-        vi.clearAllMocks();
+    beforeEach(() => {
+        // Clean up queue (only needed in interactive mode)
+        if (process.env.DYGRAM_TEST_MODE !== 'playback' && fs.existsSync(queueDir)) {
+            fs.rmSync(queueDir, { recursive: true });
+        }
 
-        // Setup test machine data with branching paths
+        // Create appropriate client based on environment
+        client = createTestClient('test/fixtures/recordings/tool-execution');
+
+        // Setup test machine with branching paths
         mockMachineData = {
             title: 'Test Router Machine',
             nodes: [
@@ -53,7 +68,7 @@ describe.skip('Tool-Based Execution', () => {
                     name: 'start',
                     type: 'task',
                     attributes: [
-                        { name: 'prompt', type: 'string', value: 'Classify this input' }
+                        { name: 'prompt', type: 'string', value: 'Classify this input and choose appropriate path' }
                     ]
                 },
                 {
@@ -77,98 +92,113 @@ describe.skip('Tool-Based Execution', () => {
             ]
         };
 
-        executor = new MachineExecutor(mockMachineData);
-        // Access the mock through the module mock
-        mockClaudeClient = (ClaudeClient as any).mock.results[0].value;
+        executor = new MachineExecutor(mockMachineData, { llm: client as any });
+    });
+
+    afterEach(() => {
+        // Clean up queue
+        if (fs.existsSync(queueDir)) {
+            fs.rmSync(queueDir, { recursive: true });
+        }
     });
 
     describe('Transition Tools', () => {
-        it('should generate transition tools from outbound edges', async () => {
-            // Mock LLM to choose pathA
-            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
-                content: [
-                    { type: 'text', text: 'I will choose path A' },
-                    {
-                        type: 'tool_use',
-                        id: 'tool_1',
-                        name: 'transition',
-                        input: { target: 'pathA', reason: 'This input matches criteria for path A' }
-                    }
-                ],
-                stop_reason: 'tool_use'
-            });
-
+        it('should transition from start node to another node', async () => {
             await executor.step();
 
-            // Verify the tool was provided to the LLM
-            const callArgs = mockClaudeClient.invokeWithTools.mock.calls[0];
-            const tools: ToolDefinition[] = callArgs[1];
-
-            // Should have transition tool plus context tools (set_context_value, get_context_value, list_context_nodes)
-            expect(tools.length).toBeGreaterThanOrEqual(1);
-            const transitionTool = tools.find(t => t.name === 'transition');
-            expect(transitionTool).toBeDefined();
-            expect(transitionTool!.input_schema.properties.target.enum).toContain('pathA');
-            expect(transitionTool!.input_schema.properties.target.enum).toContain('pathB');
-
-            // Verify the transition was made
             const context = executor.getContext();
-            expect(context.currentNode).toBe('pathA');
+
+            // Should have transitioned from start
+            expect(context.currentNode).not.toBe('start');
+
+            // Should be at one of the available paths or already at end
+            expect(['pathA', 'pathB', 'end']).toContain(context.currentNode);
+
+            // Should have history
+            expect(context.history.length).toBeGreaterThan(0);
         });
 
-        it('should let LLM choose pathB via transition tool', async () => {
-            // Mock LLM to choose pathB
-            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
-                content: [
-                    { type: 'text', text: 'I will choose path B' },
-                    {
-                        type: 'tool_use',
-                        id: 'tool_1',
-                        name: 'transition',
-                        input: { target: 'pathB', reason: 'This input matches criteria for path B' }
-                    }
-                ],
-                stop_reason: 'tool_use'
-            });
-
+        it('should handle multiple transition options', async () => {
+            // Execute and see which path agent chooses
             await executor.step();
 
             const context = executor.getContext();
-            expect(context.currentNode).toBe('pathB');
-            expect(context.history[0].transition).toBe('option_b');
+
+            // Should have chosen one of the paths
+            const validNodes = ['pathA', 'pathB', 'end'];
+            expect(validNodes).toContain(context.currentNode);
         });
 
-        it('should fallback to first transition if no tool use', async () => {
-            // Mock LLM without tool use
-            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
-                content: [
-                    { type: 'text', text: 'Processing input' }
-                ],
-                stop_reason: 'end_turn'
-            });
-
-            await executor.step();
+        it('should complete full execution through branching paths', async () => {
+            await executor.execute();
 
             const context = executor.getContext();
-            // Should take first available transition (pathA)
-            expect(context.currentNode).toBe('pathA');
+
+            // Should reach end
+            expect(context.currentNode).toBe('end');
+
+            // Should have visited multiple nodes
+            expect(context.visitedNodes.size).toBeGreaterThanOrEqual(2);
+
+            // Should have history entries
+            expect(context.history.length).toBeGreaterThan(0);
         });
     });
 
-    describe('Meta Tools', () => {
-        let metaMachineData: MachineData;
+    describe('State Transitions', () => {
+        it('should track state transitions', async () => {
+            await executor.step();
 
-        beforeEach(() => {
-            metaMachineData = {
-                title: 'Self-Improving Machine',
+            const context = executor.getContext();
+
+            // Should have state transitions if available
+            if (context.stateTransitions) {
+                expect(Array.isArray(context.stateTransitions)).toBe(true);
+            }
+        });
+
+        it('should visit nodes sequentially', async () => {
+            await executor.execute();
+
+            const context = executor.getContext();
+
+            // Check visited nodes
+            expect(context.visitedNodes.has('start')).toBe(true);
+            expect(context.visitedNodes.has('end')).toBe(true);
+
+            // Should have visited at least one intermediate node
+            const intermediateVisited = context.visitedNodes.has('pathA') ||
+                                       context.visitedNodes.has('pathB');
+            expect(intermediateVisited).toBe(true);
+        });
+    });
+
+    describe('Complex Routing', () => {
+        it('should handle machine with multiple decision points', async () => {
+            const complexMachine: MachineData = {
+                title: 'Complex Router',
                 nodes: [
                     {
                         name: 'start',
                         type: 'task',
                         attributes: [
-                            { name: 'meta', type: 'boolean', value: 'true' },
-                            { name: 'prompt', type: 'string', value: 'Analyze and improve' }
+                            { name: 'prompt', type: 'string', value: 'Initial routing decision' }
                         ]
+                    },
+                    {
+                        name: 'checkpoint1',
+                        type: 'task',
+                        attributes: [
+                            { name: 'prompt', type: 'string', value: 'Second routing decision' }
+                        ]
+                    },
+                    {
+                        name: 'success',
+                        type: 'state'
+                    },
+                    {
+                        name: 'alternate',
+                        type: 'state'
                     },
                     {
                         name: 'end',
@@ -176,211 +206,56 @@ describe.skip('Tool-Based Execution', () => {
                     }
                 ],
                 edges: [
-                    { source: 'start', target: 'end' }
+                    { source: 'start', target: 'checkpoint1' },
+                    { source: 'start', target: 'alternate' },
+                    { source: 'checkpoint1', target: 'success' },
+                    { source: 'checkpoint1', target: 'alternate' },
+                    { source: 'success', target: 'end' },
+                    { source: 'alternate', target: 'end' }
                 ]
             };
 
-            executor = new MachineExecutor(metaMachineData);
-            mockClaudeClient = (ClaudeClient as any).mock.results[0].value;
-        });
+            const complexClient = createTestClient('test/fixtures/recordings/tool-execution-complex');
+            const complexExecutor = new MachineExecutor(complexMachine, { llm: complexClient as any });
 
-        it('should provide meta tools to tasks with meta=true', async () => {
-            mockClaudeClient.invokeWithTools.mockResolvedValueOnce({
-                content: [
-                    { type: 'text', text: 'Analyzing machine structure' }
-                ],
-                stop_reason: 'end_turn'
-            });
+            await complexExecutor.execute();
 
-            await executor.step();
+            const context = complexExecutor.getContext();
 
-            const callArgs = mockClaudeClient.invokeWithTools.mock.calls[0];
-            const tools: ToolDefinition[] = callArgs[1];
+            // Should complete
+            expect(context.currentNode).toBe('end');
 
-            // Should have transition tool + 6 meta tools
-            expect(tools.length).toBeGreaterThan(1);
-
-            const toolNames = tools.map(t => t.name);
-            expect(toolNames).toContain('get_machine_definition');
-            expect(toolNames).toContain('add_node');
-            expect(toolNames).toContain('add_edge');
-            expect(toolNames).toContain('modify_node');
-            expect(toolNames).toContain('remove_node');
-            expect(toolNames).toContain('get_execution_context');
-        });
-
-        it('should allow adding nodes via meta tools', async () => {
-            // Mock LLM adding a new node
-            mockClaudeClient.invokeWithTools
-                .mockResolvedValueOnce({
-                    content: [
-                        { type: 'text', text: 'I will add a new node' },
-                        {
-                            type: 'tool_use',
-                            id: 'tool_1',
-                            name: 'add_node',
-                            input: {
-                                name: 'newNode',
-                                type: 'state',
-                                attributes: { label: 'New Node' }
-                            }
-                        }
-                    ],
-                    stop_reason: 'tool_use'
-                })
-                .mockResolvedValueOnce({
-                    content: [
-                        { type: 'text', text: 'Node added, transitioning' },
-                        {
-                            type: 'tool_use',
-                            id: 'tool_2',
-                            name: 'transition',
-                            input: { target: 'end', reason: 'Done' }
-                        }
-                    ],
-                    stop_reason: 'tool_use'
-                });
-
-            await executor.step();
-
-            const machineData = executor.getMachineDefinition();
-            expect(machineData.nodes).toHaveLength(3); // start, end, newNode
-            expect(machineData.nodes.find(n => n.name === 'newNode')).toBeDefined();
-        });
-
-        it('should allow adding edges via meta tools', async () => {
-            // First add a node, then add an edge to it
-            mockClaudeClient.invokeWithTools
-                .mockResolvedValueOnce({
-                    content: [
-                        {
-                            type: 'tool_use',
-                            id: 'tool_1',
-                            name: 'add_node',
-                            input: { name: 'newNode', type: 'state' }
-                        }
-                    ],
-                    stop_reason: 'tool_use'
-                })
-                .mockResolvedValueOnce({
-                    content: [
-                        {
-                            type: 'tool_use',
-                            id: 'tool_2',
-                            name: 'add_edge',
-                            input: { source: 'start', target: 'newNode', type: 'new_path' }
-                        }
-                    ],
-                    stop_reason: 'tool_use'
-                })
-                .mockResolvedValueOnce({
-                    content: [
-                        {
-                            type: 'tool_use',
-                            id: 'tool_3',
-                            name: 'transition',
-                            input: { target: 'end', reason: 'Done' }
-                        }
-                    ],
-                    stop_reason: 'tool_use'
-                });
-
-            await executor.step();
-
-            const machineData = executor.getMachineDefinition();
-            expect(machineData.edges).toHaveLength(2); // original + new
-            expect(machineData.edges.find(e => e.target === 'newNode')).toBeDefined();
-        });
-
-        it('should allow modifying nodes via meta tools', async () => {
-            mockClaudeClient.invokeWithTools
-                .mockResolvedValueOnce({
-                    content: [
-                        {
-                            type: 'tool_use',
-                            id: 'tool_1',
-                            name: 'modify_node',
-                            input: {
-                                name: 'start',
-                                attributes: { newAttr: 'newValue' }
-                            }
-                        }
-                    ],
-                    stop_reason: 'tool_use'
-                })
-                .mockResolvedValueOnce({
-                    content: [
-                        {
-                            type: 'tool_use',
-                            id: 'tool_2',
-                            name: 'transition',
-                            input: { target: 'end', reason: 'Done' }
-                        }
-                    ],
-                    stop_reason: 'tool_use'
-                });
-
-            await executor.step();
-
-            const machineData = executor.getMachineDefinition();
-            const startNode = machineData.nodes.find(n => n.name === 'start');
-            expect(startNode?.attributes?.find(a => a.name === 'newAttr')).toBeDefined();
-        });
-
-        it('should track mutations', async () => {
-            mockClaudeClient.invokeWithTools
-                .mockResolvedValueOnce({
-                    content: [
-                        {
-                            type: 'tool_use',
-                            id: 'tool_1',
-                            name: 'add_node',
-                            input: { name: 'newNode', type: 'state' }
-                        }
-                    ],
-                    stop_reason: 'tool_use'
-                })
-                .mockResolvedValueOnce({
-                    content: [
-                        {
-                            type: 'tool_use',
-                            id: 'tool_2',
-                            name: 'transition',
-                            input: { target: 'end', reason: 'Done' }
-                        }
-                    ],
-                    stop_reason: 'tool_use'
-                });
-
-            await executor.step();
-
-            const mutations = executor.getMutations();
-            expect(mutations).toHaveLength(1);
-            expect(mutations[0].type).toBe('add_node');
-            expect(mutations[0].data.name).toBe('newNode');
+            // Should have made multiple decisions
+            expect(context.history.length).toBeGreaterThanOrEqual(2);
         });
     });
 
-    describe('DSL Serialization', () => {
-        it('should serialize modified machine back to DSL', async () => {
-            executor.addNode({
-                name: 'newNode',
-                type: 'state',
-                attributes: { label: 'New Node' }
-            });
+    describe('Error Handling', () => {
+        it('should handle machine with no transitions gracefully', async () => {
+            const isolatedMachine: MachineData = {
+                title: 'Isolated Machine',
+                nodes: [
+                    {
+                        name: 'start',
+                        type: 'task',
+                        attributes: [
+                            { name: 'prompt', type: 'string', value: 'Process task' }
+                        ]
+                    }
+                ],
+                edges: []
+            };
 
-            executor.addEdge({
-                source: 'start',
-                target: 'newNode',
-                type: 'new_route'
-            });
+            const isolatedClient = createTestClient('test/fixtures/recordings/tool-execution-isolated');
+            const isolatedExecutor = new MachineExecutor(isolatedMachine, { llm: isolatedClient as any });
 
-            const dsl = executor.toMachineDefinition();
+            // Should not throw
+            await isolatedExecutor.step();
 
-            expect(dsl).toContain('machine "Test Router Machine"');
-            expect(dsl).toContain('state newNode');
-            expect(dsl).toContain('label: "New Node"');
-            expect(dsl).toContain('start -new_route-> newNode');
+            const context = isolatedExecutor.getContext();
+
+            // Should still be at start (no transitions available)
+            expect(context.currentNode).toBe('start');
         });
     });
 });

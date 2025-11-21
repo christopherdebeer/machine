@@ -132,14 +132,21 @@ export function evaluateAutomatedTransitions(
 
     const outboundEdges = getOutboundEdges(machineJSON, nodeName);
 
-    // Single edge from state or init node - auto-transition
-    if (outboundEdges.length === 1 && (NodeTypeChecker.isState(node) || NodeTypeChecker.isInit(node))) {
+    // Single edge from state, init, or task node without prompt - auto-transition
+    const isTaskWithoutPrompt = NodeTypeChecker.isTask(node) && !node.attributes?.find(a => a.name === 'prompt');
+    if (outboundEdges.length === 1 && (NodeTypeChecker.isState(node) || NodeTypeChecker.isInit(node) || isTaskWithoutPrompt)) {
         const edge = outboundEdges[0];
         if (evaluateCondition(edge.condition, machineJSON, state, pathId)) {
+            let reason = 'Single edge from state node';
+            if (NodeTypeChecker.isInit(node)) {
+                reason = 'Single edge from init node';
+            } else if (isTaskWithoutPrompt) {
+                reason = 'Single edge from task node without prompt';
+            }
             return createTransition(
                 nodeName,
                 edge.target,
-                NodeTypeChecker.isInit(node) ? 'Single edge from init node' : 'Single edge from state node',
+                reason,
                 machineJSON
             );
         }
