@@ -1,3 +1,8 @@
+---
+name: dygram-test-execution
+description: Run DyGram execution tests with intelligent agent responses, generating and managing test recordings for CI/CD. Use this skill when you need to execute DyGram tests with real Claude Code agent reasoning.
+---
+
 # DyGram Test Execution Skill
 
 This skill helps run DyGram execution tests with the agent responder, generating and managing test recordings for CI/CD.
@@ -12,26 +17,67 @@ The DyGram test suite includes execution tests that require an agent (like Claud
 4. Analyzing and managing test recordings
 5. Cleaning up processes
 
+## Agent Responder Modes
+
+There are two agent responder implementations:
+
+### Intelligent Agent (Recommended)
+**Script:** `scripts/agent-request-listener.js`
+**Method:** Uses Claude API directly for actual AI reasoning
+**Pros:** Makes genuinely intelligent decisions, better test coverage
+**Cons:** Requires ANTHROPIC_API_KEY environment variable
+
+This responder calls the Claude API to analyze each test request and make informed decisions about which tools to use. It understands context, semantics, and can handle complex scenarios that simple heuristics cannot.
+
+### Heuristic Agent (Fallback)
+**Script:** `scripts/test-agent-responder.js`
+**Method:** Uses keyword matching and pattern heuristics
+**Pros:** No API key required, faster
+**Cons:** Limited to simple pattern matching, may not handle complex cases
+
+This responder uses keyword matching (e.g., "error" → error transition) to make tool selections. Useful for simple tests or when API access is unavailable.
+
 ## Prerequisites
 
 - Node.js and npm installed
 - Dependencies installed (`npm ci`)
 - Tests located in `test/validating/`
+- **For Intelligent Agent:** `ANTHROPIC_API_KEY` environment variable set
+- **For Heuristic Agent:** No additional requirements
 
 ## Step-by-Step Workflow
 
 ### Step 1: Start the Agent Responder
 
-The agent responder simulates Claude Code responding to test requests. Start it in the background:
+Start the agent responder in the background. Choose one of the two options:
+
+#### Option A: Intelligent Agent (Recommended)
+
+Uses actual Claude AI reasoning via API:
+
+```bash
+# Ensure API key is set
+export ANTHROPIC_API_KEY="your-api-key-here"
+
+# Start intelligent listener
+node scripts/agent-request-listener.js &
+```
+
+**Expected output:**
+```
+🤖 Agent Request Listener Starting...
+📁 Queue directory: .dygram-test-queue
+🧠 Using Claude Code sub-agents for intelligent decisions
+⏳ Waiting for test requests...
+```
+
+#### Option B: Heuristic Agent (Fallback)
+
+Uses keyword matching heuristics:
 
 ```bash
 node scripts/test-agent-responder.js &
 ```
-
-**What to check:**
-- Look for "🤖 Test Agent Responder Starting..." message
-- Verify "⏳ Waiting for test requests..." appears
-- Save the process info for later cleanup
 
 **Expected output:**
 ```
@@ -39,6 +85,11 @@ node scripts/test-agent-responder.js &
 📁 Queue directory: .dygram-test-queue
 ⏳ Waiting for test requests...
 ```
+
+**What to check:**
+- Look for startup message
+- Verify "⏳ Waiting for test requests..." appears
+- Save the process info for later cleanup
 
 ### Step 2: Run Execution Tests
 
@@ -119,11 +170,13 @@ cat "$RECORDING" | jq '.'
 Stop the agent responder process:
 
 ```bash
-# Find the process
-ps aux | grep test-agent-responder
+# Find the process (works for both responder types)
+ps aux | grep -E "(agent-request-listener|test-agent-responder)"
 
-# Kill it gracefully
-pkill -f test-agent-responder
+# Kill it gracefully (use whichever you started)
+pkill -f agent-request-listener  # For intelligent agent
+# OR
+pkill -f test-agent-responder    # For heuristic agent
 ```
 
 **Verify cleanup:**
@@ -237,14 +290,34 @@ Run a script instead of manual steps:
 
 ## Notes
 
-- Agent responder uses semantic analysis to select tools
+### Agent Responder Architecture
+
+**Intelligent Agent (`agent-request-listener.js`):**
+- Uses Claude API for actual AI reasoning
+- Analyzes test context, tool descriptions, and semantic meaning
+- Makes genuinely intelligent decisions like Claude Code would
+- Requires API key but provides superior test coverage
+- Best for comprehensive testing and complex state machines
+
+**Heuristic Agent (`test-agent-responder.js`):**
+- Uses keyword matching and pattern heuristics
+- Fast and requires no API access
+- Limited to simple pattern matching (e.g., "error" → error transition)
+- May not handle complex scenarios requiring real reasoning
+- Good for simple tests or CI environments without API access
+
+### General Notes
+
 - Recordings are deterministic and can be used in CI
 - Each test run may create different recordings based on timing
 - Recordings include timestamps and request IDs for debugging
 - The skill is designed for interactive development use
+- For best results, use the intelligent agent during development
 
 ## See Also
 
 - Documentation: `docs/development/agent-responder-mcp-integration.md`
 - Test documentation: `test/CLAUDE.md`
-- Agent responder source: `scripts/test-agent-responder.js`
+- Intelligent agent source: `scripts/agent-request-listener.js` (uses Claude API)
+- Heuristic agent source: `scripts/test-agent-responder.js` (uses keyword matching)
+- Interactive test client: `src/language/interactive-test-client.ts`
