@@ -138,14 +138,14 @@ task analysisTask "Analysis Template Task" {
   taskType: "analysis"
   template: "statistical_analysis"
   inputSchema: {
-    dataSource: "string",
-    analysisType: "string",
-    parameters: "object"
+    dataSource: "string";
+    analysisType: "string";
+    parameters: "object";
   }
   outputSchema: {
-    results: "object",
-    summary: "string",
-    confidence: "number"
+    results: "object";
+    summary: "string";
+    confidence: "number";
   }
 }
 
@@ -278,9 +278,10 @@ task errorHandling "Error Handling" {
 
 end "Processing complete"
 
-qualityCheck -> standardProcessing @condition("TaskContext.dataQuality == 'good'")
-qualityCheck -> enhancedProcessing @condition("TaskContext.dataQuality == 'poor'")
-qualityCheck -> errorHandling @condition("TaskContext.errorCount > 0")
+qualityCheck -when: "TaskContext.dataQuality == 'good'"-> standardProcessing
+qualityCheck -when: "TaskContext.dataQuality == 'poor'"-> enhancedProcessing
+qualityCheck -when: "TaskContext.errorCount > 0"-> errorHandling
+
 standardProcessing -> end
 enhancedProcessing -> end
 errorHandling -> end
@@ -341,9 +342,9 @@ task success "Success Handler" {
 
 end "Operation complete"
 
-riskyOperation -> success @condition("ErrorContext.lastError == null")
-riskyOperation -> retryHandler @condition("ErrorContext.attemptCount < ErrorContext.maxRetries")
-riskyOperation -> errorRecovery @condition("ErrorContext.attemptCount >= ErrorContext.maxRetries")
+riskyOperation -when: "ErrorContext.lastError == null"-> success
+riskyOperation -when: "ErrorContext.attemptCount < ErrorContext.maxRetries"-> retryHandler
+riskyOperation -when: "ErrorContext.attemptCount >= ErrorContext.maxRetries"-> errorRecovery
 retryHandler -> riskyOperation
 errorRecovery -> end
 success -> end
@@ -403,9 +404,9 @@ task successHandler "Success Handler" {
 
 end "Request processed"
 
-externalCall -> successHandler @condition("!CircuitState.circuitOpen && response.success")
-externalCall -> timeoutHandler @condition("response.timeout")
-externalCall -> circuitOpenHandler @condition("CircuitState.circuitOpen")
+externalCall -when: "!CircuitState.circuitOpen && response.success"-> successHandler
+externalCall -when: "response.timeout"-> timeoutHandler
+externalCall -when: "CircuitState.circuitOpen"-> circuitOpenHandler
 successHandler -> end
 timeoutHandler -> end
 circuitOpenHandler -> end
@@ -433,9 +434,9 @@ context UserSession {
   userId: "user123"
   sessionId: "session456"
   preferences: {
-    language: "en",
-    timezone: "UTC",
-    format: "json"
+    language: "en";
+    timezone: "UTC";
+    format: "json";
   }
 }
 
