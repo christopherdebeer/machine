@@ -88,6 +88,14 @@ function getCategoryFromPath(sourcePath) {
         return `syntax/${fileName}`;
     }
 
+    if (parts[0] === 'testing') {
+        // docs/testing/ contains test case documentation
+        // docs/testing/tool-execution.md → "testing/tool-execution"
+        // docs/testing/task-execution.md → "testing/task-execution"
+        if (fileName === 'README') return 'testing';
+        return `testing/${fileName}`;
+    }
+
     // For other multi-level paths, preserve directory structure
     // docs/getting-started/installation.md → "getting-started/installation"
     if (parts.length >= 2) {

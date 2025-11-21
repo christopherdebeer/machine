@@ -25,6 +25,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Playground Import System Integration](development/PLAYGROUND_IMPORT_INTEGRATION.md)
   - [Round-Trip Test Analysis - November 3, 2025](development/round-trip-analysis-2025-11-03.md)
   - [Snapshot Testing Guide](development/SNAPSHOTS.md)
+  - [Test Refactoring Summary: Interactive Tests to Comprehensive Generative Tests](development/test-refactoring-summary.md)
 
 ### Examples
 
@@ -65,6 +66,9 @@ Complete reference to all DyGram documentation organized by topic.
   - [Types](syntax/types.md)
 
 ### Testing
+
+  - [Task Execution Test Cases](testing/task-execution.md)
+  - [Tool Execution Test Cases](testing/tool-execution.md)
 
 - [Documentation Index](docs.md)
 - [DyGram | Thought → System](README.md)
