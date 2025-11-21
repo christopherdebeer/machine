@@ -1,11 +1,14 @@
 /**
- * Tool-Based Execution Tests - Interactive Mode
+ * Tool-Based Execution Tests - Interactive/Playback Mode
  *
- * Tests transition tools and intelligent path selection using InteractiveTestClient.
+ * Tests transition tools and intelligent path selection.
  *
- * To run:
+ * Interactive Mode (local development):
  *   Terminal 1: node scripts/test-agent-responder.js
  *   Terminal 2: npm test test/validating/tool-execution.test.ts
+ *
+ * Playback Mode (CI):
+ *   DYGRAM_TEST_MODE=playback npm test test/validating/tool-execution.test.ts
  *
  * See test/CLAUDE.md for details.
  */
@@ -14,30 +17,48 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MachineExecutor } from '../../src/language/executor.js';
 import type { MachineJSON } from '../../src/language/json/types.js';
 import { InteractiveTestClient } from '../../src/language/interactive-test-client.js';
+import { PlaybackTestClient } from '../../src/language/playback-test-client.js';
 import * as fs from 'fs';
 
 type MachineData = MachineJSON;
 
+// Helper to create appropriate client based on environment
+function createTestClient(recordingsDir: string) {
+    const mode = process.env.DYGRAM_TEST_MODE || 'interactive';
+
+    if (mode === 'playback') {
+        return new PlaybackTestClient({
+            recordingsDir,
+            simulateDelay: true,
+            delay: 100,
+            strict: true
+        });
+    }
+
+    // Default to interactive mode
+    return new InteractiveTestClient({
+        mode: 'file-queue',
+        queueDir: '.dygram-test-queue',
+        recordResponses: true,
+        recordingsDir,
+        timeout: 10000
+    });
+}
+
 describe('Tool-Based Execution (Interactive)', () => {
     let executor: MachineExecutor;
     let mockMachineData: MachineData;
-    let client: InteractiveTestClient;
+    let client: any;
     const queueDir = '.dygram-test-queue';
 
     beforeEach(() => {
-        // Clean up queue
-        if (fs.existsSync(queueDir)) {
+        // Clean up queue (only needed in interactive mode)
+        if (process.env.DYGRAM_TEST_MODE !== 'playback' && fs.existsSync(queueDir)) {
             fs.rmSync(queueDir, { recursive: true });
         }
 
-        // Create interactive client
-        client = new InteractiveTestClient({
-            mode: 'file-queue',
-            queueDir,
-            recordResponses: true,
-            recordingsDir: 'test/fixtures/recordings/tool-execution',
-            timeout: 10000
-        });
+        // Create appropriate client based on environment
+        client = createTestClient('test/fixtures/recordings/tool-execution');
 
         // Setup test machine with branching paths
         mockMachineData = {
@@ -194,13 +215,7 @@ describe('Tool-Based Execution (Interactive)', () => {
                 ]
             };
 
-            const complexClient = new InteractiveTestClient({
-                mode: 'file-queue',
-                queueDir,
-                recordResponses: false,
-                timeout: 15000
-            });
-
+            const complexClient = createTestClient('test/fixtures/recordings/tool-execution-complex');
             const complexExecutor = new MachineExecutor(complexMachine, { llm: complexClient as any });
 
             await complexExecutor.execute();
@@ -231,13 +246,7 @@ describe('Tool-Based Execution (Interactive)', () => {
                 edges: []
             };
 
-            const isolatedClient = new InteractiveTestClient({
-                mode: 'file-queue',
-                queueDir,
-                recordResponses: false,
-                timeout: 5000
-            });
-
+            const isolatedClient = createTestClient('test/fixtures/recordings/tool-execution-isolated');
             const isolatedExecutor = new MachineExecutor(isolatedMachine, { llm: isolatedClient as any });
 
             // Should not throw

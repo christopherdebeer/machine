@@ -2,43 +2,63 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MachineExecutor } from '../../src/language/executor.js';
 import type { MachineJSON } from '../../src/language/json/types.js';
 import { InteractiveTestClient } from '../../src/language/interactive-test-client.js';
+import { PlaybackTestClient } from '../../src/language/playback-test-client.js';
 import * as fs from 'fs';
 
 type MachineData = MachineJSON;
 
 /**
- * Task Node Execution Tests - Now Using Interactive Test Client
+ * Task Node Execution Tests - Interactive/Playback Mode
  *
- * These tests use InteractiveTestClient which communicates with an agent
- * (like test-agent-responder.js) for intelligent LLM responses.
+ * These tests use InteractiveTestClient (live agent) or PlaybackTestClient (recordings).
  *
- * To run these tests:
+ * Interactive Mode (local development):
  *   Terminal 1: node scripts/test-agent-responder.js
  *   Terminal 2: npm test test/validating/task-execution.test.ts
+ *
+ * Playback Mode (CI):
+ *   DYGRAM_TEST_MODE=playback npm test test/validating/task-execution.test.ts
  *
  * See test/CLAUDE.md for more details.
  */
 
+// Helper to create appropriate client based on environment
+function createTestClient(recordingsDir: string) {
+    const mode = process.env.DYGRAM_TEST_MODE || 'interactive';
+
+    if (mode === 'playback') {
+        return new PlaybackTestClient({
+            recordingsDir,
+            simulateDelay: true,
+            delay: 100,
+            strict: true
+        });
+    }
+
+    // Default to interactive mode
+    return new InteractiveTestClient({
+        mode: 'file-queue',
+        queueDir: '.dygram-test-queue',
+        recordResponses: true,
+        recordingsDir,
+        timeout: 10000
+    });
+}
+
 describe('Task Node Execution (Interactive)', () => {
     let executor: MachineExecutor;
     let mockMachineData: MachineData;
-    let client: InteractiveTestClient;
+    let client: any;
     const queueDir = '.dygram-test-queue';
 
     beforeEach(() => {
-        // Clean up queue from previous runs
-        if (fs.existsSync(queueDir)) {
+        // Clean up queue from previous runs (only needed in interactive mode)
+        if (process.env.DYGRAM_TEST_MODE !== 'playback' && fs.existsSync(queueDir)) {
             fs.rmSync(queueDir, { recursive: true });
         }
 
-        // Create interactive client
-        client = new InteractiveTestClient({
-            mode: 'file-queue',
-            queueDir,
-            recordResponses: true,
-            recordingsDir: 'test/fixtures/recordings/task-execution',
-            timeout: 10000
-        });
+        // Create appropriate client based on environment
+        client = createTestClient('test/fixtures/recordings/task-execution');
 
         // Setup test machine data
         mockMachineData = {
@@ -138,14 +158,8 @@ describe('Task Node Execution (Interactive)', () => {
             ]
         };
 
-        const minimalClient = new InteractiveTestClient({
-            mode: 'file-queue',
-            queueDir,
-            recordResponses: false,
-            timeout: 10000
-        });
-
-        const minimalExecutor = new MachineExecutor(minimalMachine, { llm: minimalClient as any });
+        // For minimal test, just use the client without recording
+        const minimalExecutor = new MachineExecutor(minimalMachine, { llm: client as any });
         const result = await minimalExecutor.step();
         expect(result).toBe(true);
 

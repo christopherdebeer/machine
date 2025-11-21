@@ -224,7 +224,7 @@ See full POC: `/tmp/test-interactive-poc.mjs`
 
 The agent responder implements multiple heuristics:
 
-### 1. Transition Tool Selection
+### Strategy One: Transition Tool Selection
 
 ```javascript
 if (transitionTools.length > 0) {
@@ -251,7 +251,7 @@ if (transitionTools.length > 0) {
 }
 ```
 
-### 2. Meta Tool Selection
+### Strategy Two: Meta Tool Selection
 
 ```javascript
 // Add/remove/modify detection
@@ -264,7 +264,7 @@ if (prompt.includes('get') || prompt.includes('retrieve')) {
 }
 ```
 
-### 3. Description-Based Matching
+### Strategy Three: Description-Based Matching
 
 ```javascript
 // Match tool description words with prompt words
@@ -351,17 +351,17 @@ beforeAll(() => {
 ## Performance Characteristics
 
 **File Queue Mode (measured):**
-- Request write: <1ms
+- Request write: less than 1ms
 - Agent detection: ~100ms (polling interval)
 - Agent processing: 1-5ms
-- Response write: <1ms
+- Response write: less than 1ms
 - Response detection: ~100ms (polling interval)
 - **Total latency: ~200-300ms per invocation**
 
 **For comparison:**
 - Real Claude API call: 500-2000ms
 - MockClaudeClient: 100-150ms (simulated delay)
-- vi.mock(): <1ms (but no intelligence)
+- vi.mock(): less than 1ms (but no intelligence)
 
 **Optimization opportunities:**
 - Reduce polling intervals for faster detection
@@ -402,35 +402,35 @@ beforeAll(() => {
 
 ## Recommended Implementation Plan
 
-### Phase 1: Foundation (Week 1) - COMPLETED ✅
+### Phase One: Foundation (Week 1) - COMPLETED ✅
 
 - [x] Implement InteractiveTestClient
 - [x] Create test-agent-responder script
 - [x] Validate proof of concept
 - [x] Document protocol and feasibility
 
-### Phase 2: Integration (Week 2)
+### Phase Two: Integration (Week 2)
 
 - [ ] Add PlaybackClient for CI mode
 - [ ] Update MachineExecutor to accept InteractiveTestClient
 - [ ] Add test mode selector in vitest setup
 - [ ] Create recordings directory structure
 
-### Phase 3: Test Migration (Week 3)
+### Phase Three: Test Migration (Week 3)
 
 - [ ] Un-skip tool-execution.test.ts
 - [ ] Un-skip task-execution.test.ts
 - [ ] Record baseline responses
 - [ ] Validate all tests pass locally
 
-### Phase 4: CI Integration (Week 4)
+### Phase Four: CI Integration (Week 4)
 
 - [ ] Add DYGRAM_TEST_MODE to GitHub Actions
 - [ ] Validate playback mode in CI
 - [ ] Set up recording refresh workflow
 - [ ] Document testing workflows
 
-### Phase 5: Claude Code Integration (Future)
+### Phase Five: Claude Code Integration (Future)
 
 - [ ] Add test mode detection in Claude Code
 - [ ] Auto-launch agent responder when tests run
