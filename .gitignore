@@ -41,3 +41,5 @@ src/pages/*.tsx
 src/data/doc-hierarchy.json
 src/data/doc-hierarchy.ts
 
+# Interactive test client channel
+.dygram-test-queue/
