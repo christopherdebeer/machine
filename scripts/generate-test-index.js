@@ -27,6 +27,33 @@ const vitestHtmlReportExists = fs.existsSync(path.join(outputDir, 'vitest', 'ind
 const generativeReportExists = fs.existsSync(path.join(outputDir, 'generative', 'index.html'));
 const comprehensiveGenerativeReportExists = fs.existsSync(path.join(outputDir, 'comprehensive-generative', 'index.html'));
 
+// Check for execution test artifacts
+const executionTestingDir = path.join(outputDir, 'comprehensive-generative', 'execution-testing');
+const taskExecutionDir = path.join(executionTestingDir, 'task-execution');
+const toolExecutionDir = path.join(executionTestingDir, 'tool-execution');
+
+const taskExecutionExists = fs.existsSync(taskExecutionDir);
+const toolExecutionExists = fs.existsSync(toolExecutionDir);
+
+// Scan for execution test files
+function scanExecutionTests(dir) {
+    if (!fs.existsSync(dir)) return [];
+    
+    return fs.readdirSync(dir)
+        .filter(file => file.endsWith('.html') && file !== 'index.html')
+        .map(file => {
+            const name = file.replace('.html', '');
+            const displayName = name.split('-').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+            return { file, name, displayName };
+        })
+        .sort((a, b) => a.displayName.localeCompare(b.displayName));
+}
+
+const taskExecutionTests = scanExecutionTests(taskExecutionDir);
+const toolExecutionTests = scanExecutionTests(toolExecutionDir);
+
 const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -344,12 +371,24 @@ const html = `<!DOCTYPE html>
                     <li>🌐 ${comprehensiveGenerativeReportExists ? '<a href="comprehensive-generative/index.html">Comprehensive Report (97 tests)</a>' : '<span class="unavailable">Comprehensive Report</span>'} ${comprehensiveGenerativeReportExists ? '<span class="status available">✓</span>' : '<span class="status unavailable">Not Generated</span>'}</li>
                 </ul>
             </div>
+
+            ${(taskExecutionExists || toolExecutionExists) ? `
+            <div class="report-card">
+                <h2><span class="icon">⚡</span> Interactive Execution Tests <span class="badge">Runtime</span></h2>
+                <p>Interactive execution test artifacts showing real-time machine execution with step-by-step visualization and state tracking.</p>
+                <ul>
+                    ${taskExecutionExists ? `<li>📋 <a href="comprehensive-generative/execution-testing/task-execution/index.html">Task Execution Tests (${taskExecutionTests.length} tests)</a> <span class="status available">✓</span></li>` : ''}
+                    ${toolExecutionExists ? `<li>🔧 <a href="comprehensive-generative/execution-testing/tool-execution/index.html">Tool Execution Tests (${toolExecutionTests.length} tests)</a> <span class="status available">✓</span></li>` : ''}
+                </ul>
+            </div>
+            ` : ''}
         </div>
 
         <div class="info-section">
             <h3>Test Suite Overview</h3>
             <p><strong>Unit & Integration Tests (Vitest):</strong> Validate core functionality including the DyGram language parser, AST generation, transformation pipeline, and runtime visualization.</p>
             <p><strong>Generative Tests (Vitest):</strong> Comprehensive validation of the DyGram transformation pipeline, testing parsing, AST generation, JSON serialization, and Graphviz diagram generation across all documentation examples.</p>
+            <p><strong>Interactive Execution Tests (Runtime):</strong> Real-time machine execution tests with step-by-step visualization, state tracking, and interactive debugging capabilities for both task and tool execution scenarios.</p>
             <p><strong>E2E Tests (Playwright):</strong> Test the playground interface in a real browser environment, including Monaco editor integration, theme switching, examples loading, and responsive behavior.</p>
             <p><strong>Coverage Reports:</strong> Analyze code coverage to identify tested and untested code paths, helping maintain high test quality.</p>
         </div>
