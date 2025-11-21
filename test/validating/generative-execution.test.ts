@@ -20,6 +20,11 @@ import { parseTestMetadata, validateTestExecution, generateTestReport } from '..
 import { readdir, readFile, stat, writeFile, mkdir } from 'fs/promises';
 import { join, relative, basename, dirname } from 'path';
 import * as fs from 'fs';
+import { createMachineServices } from '../../src/language/machine-module.js';
+import { extractAstNode } from '../../src/cli/cli-util.js';
+import { generateJSON } from '../../src/language/generator/generator.js';
+import { Machine } from '../../src/language/generated/ast.js';
+import { NodeFileSystem } from 'langium/node';
 
 // Helper to create appropriate client based on environment
 function createTestClient(recordingsDir: string) {
@@ -44,99 +49,19 @@ function createTestClient(recordingsDir: string) {
     });
 }
 
-// Parse DyGram file and extract machine data
+// Parse DyGram file using canonical Machine parsing logic
 async function parseDyGramFile(filePath: string) {
-    const content = await readFile(filePath, 'utf-8');
+    // Use the canonical parsing approach from CLI and codemirror-setup
+    const services = createMachineServices(NodeFileSystem).Machine;
     
-    // Remove provenance comment
-    const cleanContent = content.replace(/^\/\/[^\n]*\n/, '');
+    // Extract the parsed AST using the canonical CLI utility
+    const machine = await extractAstNode<Machine>(filePath, services);
     
-    // For now, we'll use a simple parser to extract basic machine structure
-    // In a full implementation, this would use the actual DyGram parser
-    const lines = cleanContent.split('\n');
-    const machine: any = {
-        title: 'Generated Test Machine',
-        nodes: [],
-        edges: []
-    };
-
-    let currentNode: any = null;
-    let inMachine = false;
-    let inContext = false;
-
-    for (const line of lines) {
-        const trimmed = line.trim();
-        
-        if (trimmed.startsWith('machine ')) {
-            const titleMatch = trimmed.match(/machine\s+"([^"]+)"/);
-            if (titleMatch) {
-                machine.title = titleMatch[1];
-            }
-            inMachine = true;
-            continue;
-        }
-
-        if (trimmed.startsWith('context ')) {
-            inContext = true;
-            continue;
-        }
-
-        if (trimmed === '}' && inContext) {
-            inContext = false;
-            continue;
-        }
-
-        if (inContext) {
-            continue; // Skip context content for now
-        }
-
-        // Parse node definitions
-        const nodeMatch = trimmed.match(/^(start|task|state|init|end)\s+(\w+)(?:\s+"([^"]+)")?/);
-        if (nodeMatch) {
-            const [, type, name, description] = nodeMatch;
-            currentNode = {
-                name,
-                type: type === 'start' ? 'task' : type,
-                attributes: []
-            };
-            
-            if (description) {
-                currentNode.attributes.push({
-                    name: 'prompt',
-                    type: 'string',
-                    value: description
-                });
-            }
-            
-            machine.nodes.push(currentNode);
-            continue;
-        }
-
-        // Parse node attributes
-        if (currentNode && trimmed.includes(':') && !trimmed.includes('->')) {
-            const attrMatch = trimmed.match(/(\w+):\s*"?([^"]+)"?/);
-            if (attrMatch) {
-                const [, name, value] = attrMatch;
-                currentNode.attributes.push({
-                    name,
-                    type: 'string',
-                    value: value.replace(/"/g, '')
-                });
-            }
-        }
-
-        // Parse edges
-        const edgeMatch = trimmed.match(/(\w+)\s*->\s*(\w+)/);
-        if (edgeMatch) {
-            const [, source, target] = edgeMatch;
-            machine.edges.push({
-                source,
-                target
-            });
-        }
-    }
-
-    return machine;
+    // Convert to MachineData format using the canonical generator
+    const jsonResult = generateJSON(machine, filePath);
+    const machineData = JSON.parse(jsonResult.content);
+    
+    return machineData;
 }
 
 // Extract expected behaviors from markdown documentation
