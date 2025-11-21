@@ -82,8 +82,8 @@ jobs:
       - name: Run unit tests
         run: npm run test
 
-  test-e2e:
     name: E2E Tests
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

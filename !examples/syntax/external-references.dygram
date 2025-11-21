@@ -1,3 +1,0 @@
-// do not edit, automatically extracted from docs/syntax/attributes.md lines 157-160.
-config: #globalConfig;
-handler: #processHandler;
