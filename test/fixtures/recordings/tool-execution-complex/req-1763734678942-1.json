@@ -1,0 +1,67 @@
+{
+  "request": {
+    "type": "llm_invocation_request",
+    "requestId": "req-1763734678942-1",
+    "timestamp": "2025-11-21T14:17:58.942Z",
+    "context": {},
+    "messages": [
+      {
+        "role": "user",
+        "content": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: start\n- **Type**: task\n- **Objective**: Initial routing decision\n- **Visited Nodes**: 0\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## checkpoint1\n\n## alternate\n\n\n# Instructions\nYour primary objective is:\n> Initial routing decision\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+      }
+    ],
+    "tools": [
+      {
+        "name": "transition_to_checkpoint1",
+        "description": "Transition to checkpoint1",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      },
+      {
+        "name": "transition_to_alternate",
+        "description": "Transition to alternate",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      }
+    ],
+    "systemPrompt": "[user]: # Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: start\n- **Type**: task\n- **Objective**: Initial routing decision\n- **Visited Nodes**: 0\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## checkpoint1\n\n## alternate\n\n\n# Instructions\nYour primary objective is:\n> Initial routing decision\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+  },
+  "response": {
+    "type": "llm_invocation_response",
+    "requestId": "req-1763734678942-1",
+    "timestamp": "2025-11-21T14:17:58.978Z",
+    "reasoning": "Prompt mentions \"checkpoint1\", selecting corresponding transition",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Transitioning to checkpoint1"
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-1763734678978",
+          "name": "transition_to_checkpoint1",
+          "input": {
+            "reason": "keyword match in prompt"
+          }
+        }
+      ],
+      "stop_reason": "tool_use"
+    }
+  },
+  "recordedAt": "2025-11-21T14:17:59.047Z"
+}
