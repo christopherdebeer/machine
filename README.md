@@ -559,6 +559,16 @@ Install the DyGram extension for:
 4. Run tests: `npm test`
 5. Submit a pull request
 
+### Development Tools
+
+This repository includes MCP (Model Context Protocol) configuration for enhanced development with Claude Code:
+
+- **Browser automation tools** via Playwright MCP
+- **Automatic setup** - Claude Code detects `.mcp.json` configuration
+- **Testing support** - Browser automation for playground testing
+
+See [MCP Setup Documentation](docs/development/mcp-setup.md) for details.
+
 ## License
 
 See [LICENSE.md](LICENSE.md)
