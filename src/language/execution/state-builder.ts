@@ -86,8 +86,8 @@ function findStartNodes(machineJSON: MachineJSON): string[] {
     );
 
     const entryPoints = machineJSON.nodes.filter(node => {
-        // Skip style nodes
-        if (node.type?.toLowerCase() === 'style') {
+        // Skip style nodes and context nodes
+        if (node.type?.toLowerCase() === 'style' || node.type?.toLowerCase() === 'context') {
             return false;
         }
         // Node is an entry point if it has no incoming edges
@@ -98,9 +98,9 @@ function findStartNodes(machineJSON: MachineJSON): string[] {
         return entryPoints.map(n => n.name);
     }
 
-    // Fallback: use first non-style node
+    // Fallback: use first non-style, non-context node
     const firstNode = machineJSON.nodes.find(
-        node => node.type?.toLowerCase() !== 'style'
+        node => node.type?.toLowerCase() !== 'style' && node.type?.toLowerCase() !== 'context'
     );
 
     if (!firstNode) {
