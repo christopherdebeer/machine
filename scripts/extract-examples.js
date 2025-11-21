@@ -157,9 +157,18 @@ function extractFromMarkdown(content, sourceFile, primaryExt) {
 
                 if (matchWithPath) {
                     // Explicit path provided
-                    inCodeblock = true;
-                    codeblockPath = matchWithPath[2].trim();
-                    codeblockContent = [];
+                    const providedPath = matchWithPath[2].trim();
+
+                    // Skip paths starting with ! (used as a "don't extract" marker)
+                    if (providedPath.startsWith('!')) {
+                        inCodeblock = true;
+                        codeblockPath = null; // Don't extract this block
+                        codeblockContent = [];
+                    } else {
+                        inCodeblock = true;
+                        codeblockPath = providedPath;
+                        codeblockContent = [];
+                    }
                 } else if (matchWithoutPath && !hasNoExtractMarker) {
                     // Generate path automatically
                     inCodeblock = true;
