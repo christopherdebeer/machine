@@ -180,7 +180,7 @@ function generateTestResultHTML(result: any, category: string): string {
         .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .failure { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .metric { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 6px; border-left: 4px solid #007bff; }
-        .code { background: #f8f9fa; padding: 15px; border-radius: 6px; font-family: 'Monaco', 'Consolas', monospace; overflow-x: auto; }
+        .code { background: #f8f9fa; padding: 15px; border-radius: 6px; font-family: 'Monaco', 'Consolas', monospace; overflow-x: auto; white-space: pre-wrap; }
         .execution-log { background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 6px; font-family: monospace; max-height: 400px; overflow-y: auto; }
         .node-path { display: flex; align-items: center; margin: 10px 0; }
         .node { background: #e3f2fd; padding: 8px 12px; border-radius: 4px; margin: 0 5px; border: 1px solid #bbdefb; }
