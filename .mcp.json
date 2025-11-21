@@ -7,5 +7,20 @@
         "PLAYWRIGHT_EXTRA_HTTP_HEADERS": "${PLAYWRIGHT_EXTRA_HTTP_HEADERS:-{}}"
       }
     }
+  },
+  "dygramConfig": {
+    "testing": {
+      "description": "Configuration for DyGram execution tests with agent responder",
+      "scripts": {
+        "runTests": "scripts/run-execution-tests.sh",
+        "analyzeRecordings": "scripts/analyze-recordings.sh",
+        "cleanRecordings": "scripts/clean-recordings.sh"
+      },
+      "skill": ".claude/skills/dygram-test.md",
+      "testMode": "interactive",
+      "queueDir": ".dygram-test-queue",
+      "recordingsDir": "test/fixtures/recordings",
+      "agentResponder": "scripts/test-agent-responder.js"
+    }
   }
 }
