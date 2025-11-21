@@ -28,6 +28,8 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Examples
 
+  ### Execution
+
   - [Advanced Features](examples/advanced-features.md)
   - [Attributes and Types](examples/attributes-and-types.md)
   - [Basic Examples](examples/basic.md)
@@ -61,6 +63,8 @@ Complete reference to all DyGram documentation organized by topic.
   - [Language Reference](syntax/README.md)
   - [Template Strings](syntax/templates.md)
   - [Types](syntax/types.md)
+
+### Testing
 
 - [Documentation Index](docs.md)
 - [DyGram | Thought → System](README.md)
