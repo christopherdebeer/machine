@@ -48,6 +48,18 @@ export interface InteractiveTestConfig extends ClaudeClientConfig {
 
     /** Directory to save recorded responses */
     recordingsDir?: string;
+
+    /** Whether to overwrite existing recordings (default: true) */
+    overwriteExisting?: boolean;
+
+    /** Session ID to group recordings (optional) */
+    sessionId?: string;
+
+    /** Maximum number of recordings to keep per test (default: unlimited) */
+    maxRecordingsPerTest?: number;
+
+    /** Clean recordings directory before starting (default: false) */
+    cleanBeforeRecording?: boolean;
 }
 
 export interface LLMInvocationRequest {
@@ -80,7 +92,7 @@ export interface LLMInvocationResponse {
  * responses during test runs.
  */
 export class InteractiveTestClient {
-    private config: Required<InteractiveTestConfig>;
+    private config: Required<Omit<InteractiveTestConfig, 'apiKey' | 'region'>> & Pick<InteractiveTestConfig, 'apiKey' | 'region'>;
     private requestCounter = 0;
 
     constructor(config: InteractiveTestConfig) {
@@ -93,6 +105,10 @@ export class InteractiveTestClient {
             timeout: config.timeout || 30000, // 30 seconds
             recordResponses: config.recordResponses !== false,
             recordingsDir: config.recordingsDir || 'test/fixtures/recordings',
+            overwriteExisting: config.overwriteExisting !== false,
+            sessionId: config.sessionId || '',
+            maxRecordingsPerTest: config.maxRecordingsPerTest || 0, // 0 = unlimited
+            cleanBeforeRecording: config.cleanBeforeRecording || false,
             modelId: config.modelId || 'interactive-claude-code',
             apiKey: config.apiKey,
             region: config.region
@@ -125,6 +141,11 @@ export class InteractiveTestClient {
             const recordingsPath = path.resolve(this.config.recordingsDir);
             if (!fs.existsSync(recordingsPath)) {
                 fs.mkdirSync(recordingsPath, { recursive: true });
+            }
+
+            // Clean recordings if requested
+            if (this.config.cleanBeforeRecording) {
+                this.cleanRecordingsDirectory(recordingsPath);
             }
         }
     }
@@ -338,14 +359,106 @@ export class InteractiveTestClient {
             recordedAt: new Date().toISOString()
         };
 
+        // Check if we should overwrite existing recording
+        if (!this.config.overwriteExisting && fs.existsSync(recordingPath)) {
+            console.log(`[InteractiveTestClient] Skipping existing recording: ${request.requestId}`);
+            return;
+        }
+
         fs.writeFileSync(recordingPath, JSON.stringify(recording, null, 2));
+
+        // Manage recording limits if we have test context
+        if (request.context.testName && this.config.maxRecordingsPerTest > 0) {
+            this.manageRecordingLimits(this.config.recordingsDir, request.context.testName);
+        }
+
+        console.log(`[InteractiveTestClient] Recorded response: ${request.requestId}`);
     }
 
     /**
-     * Generate unique request ID
+     * Generate request ID - deterministic when possible to prevent accumulation
      */
     private generateRequestId(): string {
+        const context = this.extractTestContext();
+        
+        // Use deterministic naming if we have test context
+        if (context.testName && this.config.overwriteExisting) {
+            const testName = this.sanitizeFileName(context.testName);
+            const sessionPrefix = this.config.sessionId ? `${this.config.sessionId}-` : '';
+            return `${sessionPrefix}${testName}-${this.requestCounter}`;
+        }
+        
+        // Fallback to timestamp-based for backward compatibility
         return `req-${Date.now()}-${++this.requestCounter}`;
+    }
+
+    /**
+     * Clean recordings directory
+     */
+    private cleanRecordingsDirectory(recordingsPath: string): void {
+        if (!fs.existsSync(recordingsPath)) {
+            return;
+        }
+
+        const files = fs.readdirSync(recordingsPath).filter(f => f.endsWith('.json'));
+        
+        if (this.config.sessionId) {
+            // Clean only files matching the current session
+            const sessionFiles = files.filter(f => f.startsWith(this.config.sessionId));
+            for (const file of sessionFiles) {
+                fs.unlinkSync(path.join(recordingsPath, file));
+            }
+            console.log(`[InteractiveTestClient] Cleaned ${sessionFiles.length} session recordings`);
+        } else {
+            // Clean all recordings
+            for (const file of files) {
+                fs.unlinkSync(path.join(recordingsPath, file));
+            }
+            console.log(`[InteractiveTestClient] Cleaned ${files.length} recordings`);
+        }
+    }
+
+    /**
+     * Manage recording limits per test
+     */
+    private manageRecordingLimits(recordingsPath: string, testName: string): void {
+        if (this.config.maxRecordingsPerTest <= 0) {
+            return; // No limit
+        }
+
+        const testPrefix = this.sanitizeFileName(testName);
+        const sessionPrefix = this.config.sessionId ? `${this.config.sessionId}-` : '';
+        const pattern = `${sessionPrefix}${testPrefix}-`;
+        
+        const testFiles = fs.readdirSync(recordingsPath)
+            .filter(f => f.startsWith(pattern) && f.endsWith('.json'))
+            .map(f => ({
+                name: f,
+                path: path.join(recordingsPath, f),
+                mtime: fs.statSync(path.join(recordingsPath, f)).mtime
+            }))
+            .sort((a, b) => b.mtime.getTime() - a.mtime.getTime()); // Newest first
+
+        // Remove excess recordings
+        const toRemove = testFiles.slice(this.config.maxRecordingsPerTest);
+        for (const file of toRemove) {
+            fs.unlinkSync(file.path);
+        }
+
+        if (toRemove.length > 0) {
+            console.log(`[InteractiveTestClient] Removed ${toRemove.length} old recordings for ${testName}`);
+        }
+    }
+
+    /**
+     * Sanitize filename for cross-platform compatibility
+     */
+    private sanitizeFileName(name: string): string {
+        return name
+            .replace(/[^a-zA-Z0-9-_]/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '')
+            .toLowerCase();
     }
 
     /**
