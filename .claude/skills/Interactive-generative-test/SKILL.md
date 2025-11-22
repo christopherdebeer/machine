@@ -62,11 +62,34 @@ This is a standalone process that uses simple pattern matching. Less intelligent
 ## Prerequisites
 
 - Node.js and npm installed
-- Dependencies installed (`npm ci`)
 - Tests located in `test/validating/`
 - **No API key needed for Claude Code mode!**
 
 ## Step-by-Step Workflow (Claude Code Mode)
+
+### Step 0: Install Dependencies and Build
+
+**IMPORTANT:** Before running tests, ensure dependencies are installed and the project is built:
+
+```bash
+# Install dependencies
+npm ci
+
+# Build the project (includes langium generation)
+npm run build
+```
+
+**What this does:**
+- Installs all npm dependencies
+- Runs prebuild (extracts examples, generates docs)
+- Generates Langium parser and syntax files
+- Compiles TypeScript
+- Bundles web assets
+
+**Skip this step if:**
+- Dependencies are already installed
+- Project is already built
+- You just ran the build recently
 
 ### Step 1: Start Tests in Background
 
