@@ -330,6 +330,321 @@ Each test case includes expected behavior specifications that should be validate
 - State management and tracking
 - Conditional logic evaluation
 
+## Edge Cases and Transition Bugs
+
+### Tool Disambiguation
+
+Tests handling of multiple tools with similar purposes.
+
+```dygram examples/testing/tool-execution/tool-disambiguation.dy
+machine "Tool Disambiguation Machine" {
+  logLevel: "debug"
+  maxSteps: 15
+}
+
+start "Choose the correct processing method" {
+  prompt: "Select the most appropriate processing tool for this data type"
+}
+
+state method_a "Processing Method A - Fast"
+state method_b "Processing Method B - Accurate"
+state method_c "Processing Method C - Balanced"
+end "Processing selected"
+
+start -> method_a @option("fast_processing")
+start -> method_b @option("accurate_processing")
+start -> method_c @option("balanced_processing")
+method_a -> end
+method_b -> end
+method_c -> end
+```
+
+**Expected Behavior:**
+- Should distinguish between similar transition options
+- Should make intelligent selection based on prompt context
+- Should handle semantic tool selection
+- Should not confuse similar tool names
+- Should provide clear reasoning for choice
+
+### Transition Conflicts
+
+Tests handling when multiple transitions could apply simultaneously.
+
+```dygram examples/testing/tool-execution/transition-conflicts.dy
+machine "Transition Conflict Machine" {
+  logLevel: "debug"
+  maxSteps: 15
+}
+
+context Conditions {
+  criteriaA: true
+  criteriaB: true
+  priority: "A"
+}
+
+start "Evaluate conflicting conditions" {
+  prompt: "Choose path when multiple conditions are met"
+}
+
+state pathA "Path A (Criteria A met)"
+state pathB "Path B (Criteria B met)"
+state pathDefault "Default path"
+end "Conflict resolved"
+
+start -> pathA @condition("Conditions.criteriaA == true")
+start -> pathB @condition("Conditions.criteriaB == true")
+start -> pathDefault @condition("true")
+pathA -> end
+pathB -> end
+pathDefault -> end
+```
+
+**Expected Behavior:**
+- Should resolve transition conflicts deterministically
+- Should apply priority or precedence rules
+- Should document which condition was evaluated first
+- Should handle overlapping conditions gracefully
+- Should maintain consistent behavior across runs
+
+### Diamond Pattern Navigation
+
+Tests execution through diamond-shaped graph structures.
+
+```dygram examples/testing/tool-execution/diamond-pattern.dy
+machine "Diamond Pattern Machine" {
+  logLevel: "debug"
+  maxSteps: 20
+}
+
+start "Fork decision point" {
+  prompt: "Choose initial branch in diamond pattern"
+}
+
+state leftBranch "Left processing branch"
+state rightBranch "Right processing branch"
+
+task convergence "Merge point" {
+  prompt: "Combine results from branches"
+}
+
+end "Diamond complete"
+
+start -> leftBranch @option("left")
+start -> rightBranch @option("right")
+leftBranch -> convergence
+rightBranch -> convergence
+convergence -> end
+```
+
+**Expected Behavior:**
+- Should navigate through diamond pattern correctly
+- Should handle multiple paths to same node
+- Should reach convergence point from either branch
+- Should not duplicate processing at merge
+- Should track complete execution path
+
+### Self-Referential Transitions
+
+Tests nodes with transitions back to themselves.
+
+```dygram examples/testing/tool-execution/self-referential.dy
+machine "Self-Referential Machine" {
+  logLevel: "debug"
+  maxSteps: 15
+}
+
+context LoopState {
+  iterations: 0
+  maxIterations: 3
+}
+
+start "Processing loop" {
+  prompt: "Process iteration and decide whether to continue"
+}
+
+end "Loop complete"
+
+start -> start @option("continue_loop")
+start -> end @option("exit_loop")
+```
+
+**Expected Behavior:**
+- Should handle self-referential transitions
+- Should prevent infinite loops via maxSteps
+- Should track iteration count
+- Should provide exit path from loop
+- Should detect cycles appropriately
+
+### No-Op Transitions
+
+Tests transitions that don't change effective state.
+
+```dygram examples/testing/tool-execution/noop-transitions.dy
+machine "No-Op Transition Machine" {
+  logLevel: "debug"
+  maxSteps: 10
+}
+
+state stateA "State A"
+state stateB "State B (functionally same as A)"
+state stateC "State C (distinct)"
+end "No-op complete"
+
+stateA -> stateB @option("move_to_identical")
+stateA -> stateC @option("move_to_different")
+stateB -> stateC
+stateC -> end
+```
+
+**Expected Behavior:**
+- Should handle semantically null transitions
+- Should track transition even if state similar
+- Should distinguish between identical and different states
+- Should maintain history accuracy
+- Should not optimize away no-op transitions
+
+### Orphaned Tool Detection
+
+Tests detection of tools that cannot be reached.
+
+```dygram examples/testing/tool-execution/orphaned-tools.dy
+machine "Orphaned Tool Machine" {
+  logLevel: "debug"
+  maxSteps: 10
+}
+
+start "Reachable start" {
+  prompt: "Execute from start"
+}
+
+state reachable "Reachable state"
+
+task orphaned "Orphaned task" {
+  prompt: "This task cannot be reached"
+}
+
+end "Execution end"
+
+start -> reachable
+reachable -> end
+```
+
+**Expected Behavior:**
+- Should detect unreachable nodes at validation
+- Should warn about orphaned tool definitions
+- Should execute reachable path successfully
+- Should not crash due to unreachable nodes
+- Should provide graph connectivity analysis
+
+### Transition Tool Name Collisions
+
+Tests handling when tool names might conflict with built-ins.
+
+```dygram examples/testing/tool-execution/name-collisions.dy
+machine "Name Collision Machine" {
+  logLevel: "debug"
+  maxSteps: 10
+}
+
+start "Choose transition carefully" {
+  prompt: "Select the correct custom transition"
+}
+
+state customEnd "Custom end-like state (not actual end)"
+state actualTarget "Actual target state"
+end "Real end node"
+
+start -> customEnd @option("goto_custom_end")
+start -> actualTarget @option("goto_actual")
+customEnd -> end
+actualTarget -> end
+```
+
+**Expected Behavior:**
+- Should distinguish custom names from reserved words
+- Should not confuse similar naming patterns
+- Should maintain name scoping correctly
+- Should handle potential collisions gracefully
+- Should validate tool names at initialization
+
+### Bi-Directional Transitions
+
+Tests handling of potential back-and-forth transitions.
+
+```dygram examples/testing/tool-execution/bidirectional.dy
+machine "Bidirectional Machine" {
+  logLevel: "debug"
+  maxSteps: 20
+}
+
+context NavigationState {
+  forwardCount: 0
+  backwardCount: 0
+  maxBounces: 3
+}
+
+task nodeA "Node A" {
+  prompt: "Decide whether to move forward or backward"
+}
+
+task nodeB "Node B" {
+  prompt: "Decide whether to continue or return"
+}
+
+end "Navigation complete"
+
+nodeA -> nodeB @option("move_to_b")
+nodeB -> nodeA @option("return_to_a")
+nodeB -> end @option("complete")
+```
+
+**Expected Behavior:**
+- Should handle bidirectional navigation
+- Should prevent infinite ping-pong
+- Should enforce bounce limits
+- Should eventually reach completion
+- Should track navigation history accurately
+
+### Transition Priority Resolution
+
+Tests evaluation order when multiple transition conditions exist.
+
+```dygram examples/testing/tool-execution/transition-priority.dy
+machine "Transition Priority Machine" {
+  logLevel: "debug"
+  maxSteps: 15
+}
+
+context Priority {
+  urgency: "high"
+  cost: "low"
+  quality: "standard"
+}
+
+start "Multi-criteria routing" {
+  prompt: "Route based on multiple priority criteria"
+}
+
+state urgent "Urgent path (high urgency)"
+state economical "Economical path (low cost)"
+state quality "Quality path (standard quality)"
+end "Routing complete"
+
+start -> urgent @condition("Priority.urgency == 'high'", priority: 1)
+start -> economical @condition("Priority.cost == 'low'", priority: 2)
+start -> quality @condition("Priority.quality == 'standard'", priority: 3)
+urgent -> end
+economical -> end
+quality -> end
+```
+
+**Expected Behavior:**
+- Should evaluate transitions in priority order
+- Should select highest priority matching condition
+- Should handle multiple valid conditions
+- Should respect priority metadata
+- Should provide deterministic routing
+
 ## Usage
 
 To run these tests:
