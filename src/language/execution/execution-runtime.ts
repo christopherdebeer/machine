@@ -40,7 +40,8 @@ import {
     evaluateAutomatedTransitions,
     requiresAgentDecision,
     getNodeAttributes,
-    getParallelEdges
+    getParallelEdges,
+    getNonAutomatedTransitions
 } from './transition-evaluator.js';
 import {
     buildLLMEffect,
