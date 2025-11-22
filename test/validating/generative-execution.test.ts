@@ -21,7 +21,7 @@ import { readdir, readFile, stat, writeFile, mkdir } from 'fs/promises';
 import { join, relative, basename, dirname } from 'path';
 import * as fs from 'fs';
 import { createMachineServices } from '../../src/language/machine-module.js';
-import { extractAstNode } from '../../src/cli/cli-util.js';
+import { extractAstNodeForTests } from '../../src/cli/cli-util.js';
 import { generateJSON } from '../../src/language/generator/generator.js';
 import { Machine } from '../../src/language/generated/ast.js';
 import { NodeFileSystem } from 'langium/node';
@@ -53,14 +53,14 @@ function createTestClient(recordingsDir: string) {
 async function parseDyGramFile(filePath: string) {
     // Use the canonical parsing approach from CLI and codemirror-setup
     const services = createMachineServices(NodeFileSystem).Machine;
-    
-    // Extract the parsed AST using the canonical CLI utility
-    const machine = await extractAstNode<Machine>(filePath, services);
-    
+
+    // Extract the parsed AST using test-safe parser (throws errors instead of process.exit)
+    const machine = await extractAstNodeForTests<Machine>(filePath, services);
+
     // Convert to MachineData format using the canonical generator
     const jsonResult = generateJSON(machine, filePath);
     const machineData = JSON.parse(jsonResult.content);
-    
+
     return machineData;
 }
 
@@ -522,7 +522,10 @@ describe('Generative Execution Tests', () => {
                     });
 
                     // Basic assertions
-                    expect(finalContext.history.length).toBeGreaterThan(0);
+                    // For isolated machines (no edges), history can be empty
+                    if (machineData.edges && machineData.edges.length > 0) {
+                        expect(finalContext.history.length).toBeGreaterThan(0);
+                    }
                     expect(finalContext.visitedNodes.size).toBeGreaterThanOrEqual(1);
 
                     testResult.success = true;
@@ -664,7 +667,10 @@ describe('Generative Execution Tests', () => {
                     });
 
                     // Basic assertions
-                    expect(finalContext.history.length).toBeGreaterThan(0);
+                    // For isolated machines (no edges), history can be empty
+                    if (machineData.edges && machineData.edges.length > 0) {
+                        expect(finalContext.history.length).toBeGreaterThan(0);
+                    }
                     expect(finalContext.visitedNodes.size).toBeGreaterThanOrEqual(1);
 
                     testResult.success = true;
