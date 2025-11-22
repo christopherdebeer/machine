@@ -41,6 +41,7 @@ import { ExecutionControls } from "./ExecutionControls";
 import { ExecutionStateVisualizer } from "./ExecutionStateVisualizer";
 import { UnifiedFileTree } from "./UnifiedFileTree";
 import { loadSettings, saveSettings } from "../language/shared-settings";
+import { fetchAnthropicModels, clearModelsCache, type ModelInfo } from "../language/model-fetcher";
 import { VirtualFileSystem } from "../playground/virtual-filesystem";
 import { FileAccessService } from "../playground/file-access-service";
 import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
@@ -311,6 +312,7 @@ const SettingsGroup = styled.div`
   gap: 8px;
   flex: 1;
   min-width: 200px;
+  position: relative;
 
   label {
     font-size: 12px;
@@ -349,6 +351,42 @@ const SettingsSelect = styled.select`
   &:focus {
     outline: none;
     border-color: #0e639c;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const RefreshButton = styled.button`
+  background: transparent;
+  border: 1px solid #505053;
+  color: #cccccc;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  min-width: 32px;
+  height: 32px;
+
+  &:hover {
+    background: #3e3e42;
+    border-color: #0e639c;
+    color: #ffffff;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
   }
 `;
 
@@ -582,6 +620,8 @@ export const CodeMirrorPlayground: React.FC = () => {
   const currentHighlightedElements = useRef<SVGElement[]>([]);
 
     const [settings, setSettings] = useState(() => loadSettings());
+    const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
+    const [isLoadingModels, setIsLoadingModels] = useState(false);
     const [settingsCollapsed, setSettingsCollapsed] = useState(true);
     const [filesCollapsed, setFilesCollapsed] = useState(true);
     const [editorCollapsed, setEditorCollapsed] = useState(false);
@@ -956,6 +996,24 @@ export const CodeMirrorPlayground: React.FC = () => {
     checkRecordings();
   }, [selectedExample]);
 
+  // Fetch available models on mount and when API key changes
+  useEffect(() => {
+    const loadModels = async () => {
+      setIsLoadingModels(true);
+      try {
+        const models = await fetchAnthropicModels(settings.apiKey);
+        setAvailableModels(models);
+      } catch (error) {
+        console.warn('Failed to load models:', error);
+        // fetchAnthropicModels already handles fallback to hardcoded models
+      } finally {
+        setIsLoadingModels(false);
+      }
+    };
+
+    loadModels();
+  }, [settings.apiKey]);
+
   // Handle settings changes
   const handleModelChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -980,6 +1038,19 @@ export const CodeMirrorPlayground: React.FC = () => {
     },
     []
   );
+
+  const handleRefreshModels = useCallback(async () => {
+    setIsLoadingModels(true);
+    clearModelsCache();
+    try {
+      const models = await fetchAnthropicModels(settings.apiKey);
+      setAvailableModels(models);
+    } catch (error) {
+      console.warn('Failed to refresh models:', error);
+    } finally {
+      setIsLoadingModels(false);
+    }
+  }, [settings.apiKey]);
 
   // Handle section toggles
   const toggleSettings = useCallback(() => {
@@ -1666,17 +1737,32 @@ export const CodeMirrorPlayground: React.FC = () => {
             </SectionHeader>
             <SettingsPanel $collapsed={settingsCollapsed}>
                 <SettingsGroup>
-                    <label htmlFor="model-select">Model:</label>
+                    <label htmlFor="model-select">
+                        Model: {isLoadingModels && <span style={{ fontSize: '10px', color: '#888' }}>(loading...)</span>}
+                    </label>
                     <SettingsSelect
                         id="model-select"
                         value={settings.model}
                         onChange={handleModelChange}
+                        disabled={isLoadingModels}
                     >
-                        <option value="claude-sonnet-4-5-20250929">claude-sonnet-4-5-20250929</option>
-                        <option value="claude-sonnet-4-20250514">claude-sonnet-4-20250514</option>
-                        <option value="claude-3-7-sonnet-latest">claude-3-7-sonnet-latest</option>
-                        <option value="claude-3-5-haiku-latest">claude-3-5-haiku-latest</option>
+                        {availableModels.length > 0 ? (
+                            availableModels.map((model) => (
+                                <option key={model.id} value={model.id}>
+                                    {model.name}
+                                </option>
+                            ))
+                        ) : (
+                            <option value={settings.model}>{settings.model}</option>
+                        )}
                     </SettingsSelect>
+                    <RefreshButton
+                        onClick={handleRefreshModels}
+                        disabled={isLoadingModels}
+                        title="Refresh models list"
+                    >
+                        ↻
+                    </RefreshButton>
                 </SettingsGroup>
                 <SettingsGroup>
                     <label htmlFor="api-key-input">API Key:</label>
