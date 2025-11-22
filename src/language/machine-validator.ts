@@ -27,6 +27,8 @@ export class MachineValidationRegistry extends ValidationRegistry {
                 validator.checkRelationshipSemantics.bind(validator),
                 // Context access validation
                 validator.checkContextAccess.bind(validator),
+                // Prompt-only node validation
+                validator.checkPromptOnlyNodes.bind(validator),
                 // Import validation
                 validator.checkImports.bind(validator),
             ],
@@ -682,5 +684,69 @@ export class MachineValidator {
     checkImports(machine: Machine, accept: ValidationAcceptor): void {
         const importValidator = new ImportValidator();
         importValidator.checkImports(machine, accept);
+    }
+
+    /**
+     * Check for task nodes with prompts that cannot perform actual work
+     * Warns when a task node has a prompt but:
+     * - Only one outgoing transition (or zero transitions)
+     * - No context write edges
+     * - No meta capabilities
+     * Such nodes will invoke the LLM unnecessarily since they have no work to perform
+     */
+    checkPromptOnlyNodes(machine: Machine, accept: ValidationAcceptor): void {
+        const processNode = (node: Node) => {
+            // Check if node is a task with a prompt
+            const nodeType = node.type?.toLowerCase();
+            const hasPrompt = node.attributes?.some(attr => attr.name === 'prompt');
+
+            if ((nodeType === 'task' || nodeType === 'start') && hasPrompt) {
+                // Count outgoing transitions
+                const outboundEdges = machine.edges.filter(e =>
+                    e.source.some(s => s.$refText === node.name || s.ref?.name === node.name)
+                );
+
+                // Filter out @auto edges
+                const nonAutoEdges = outboundEdges.filter(edge =>
+                    !edge.annotations?.some(ann => ann.name === 'auto')
+                );
+
+                // Count total transitions (accounting for all segments)
+                const totalTransitions = nonAutoEdges.reduce((count, edge) => {
+                    return count + edge.segments.reduce((segCount, segment) => {
+                        return segCount + segment.target.length;
+                    }, 0);
+                }, 0);
+
+                // Check for context write edges
+                const hasContextWriteEdge = outboundEdges.some(edge =>
+                    edge.segments.some(segment => {
+                        const edgeType = segment.type?.toLowerCase();
+                        return edgeType === 'writes' || edgeType === 'stores';
+                    })
+                );
+
+                // Check for meta capability
+                const hasMeta = node.attributes?.some(attr =>
+                    attr.name === 'meta' &&
+                    (attr.value === 'true' || attr.value === 'True')
+                );
+
+                // Warn if node has prompt but only single transition and no other work
+                if (totalTransitions <= 1 && !hasContextWriteEdge && !hasMeta) {
+                    accept('warning',
+                        `Task '${node.name}' has a prompt but no work to perform. ` +
+                        `It has ${totalTransitions} transition(s), no context write edges, and no meta capability. ` +
+                        `Consider removing the prompt or adding edges to enable context writes.`,
+                        { node, property: 'attributes' }
+                    );
+                }
+            }
+
+            // Recursively check child nodes
+            node.nodes.forEach(child => processNode(child));
+        };
+
+        machine.nodes.forEach(node => processNode(node));
     }
 }
