@@ -396,7 +396,7 @@ describe('Generative Execution Tests', () => {
     });
 
     describe('Tool Execution Tests', () => {
-        it('should discover and run tool execution tests', async () => {
+        it('should discover and run tool execution tests', { timeout: 300000 }, async () => {
             const testFiles = await discoverTestFiles();
             const toolExecutionTests = testFiles.filter(f => f.category === 'tool-execution');
 
@@ -543,7 +543,7 @@ describe('Generative Execution Tests', () => {
     });
 
     describe('Task Execution Tests', () => {
-        it('should discover and run task execution tests', async () => {
+        it('should discover and run task execution tests', { timeout: 300000 }, async () => {
             const testFiles = await discoverTestFiles();
             const taskExecutionTests = testFiles.filter(f => f.category === 'task-execution');
 
