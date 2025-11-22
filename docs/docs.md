@@ -12,6 +12,7 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Development
 
+  - [Agent Responder MCP Integration Proposals](development/agent-responder-mcp-integration.md)
   - [Canonical Machine JSON Adoption Review](development/canonical-machine-json-usage.md)
   - [Import System Implementation Summary](development/IMPORT_SYSTEM_IMPLEMENTATION_SUMMARY.md)
   - [Import System Integration with Tools and Code Generation](development/IMPORT_SYSTEM_INTEGRATION.md)
@@ -26,6 +27,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Playground Import System Integration](development/PLAYGROUND_IMPORT_INTEGRATION.md)
   - [Round-Trip Test Analysis - November 3, 2025](development/round-trip-analysis-2025-11-03.md)
   - [Snapshot Testing Guide](development/SNAPSHOTS.md)
+  - [Sub-agent Test Runner](development/sub-agent-test-runner.md)
   - [Test Migration Completion Summary](development/test-migration-completion-summary.md)
   - [Test Refactoring Summary: Interactive Tests to Comprehensive Generative Tests](development/test-refactoring-summary.md)
 
