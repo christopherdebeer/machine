@@ -9,6 +9,44 @@ description: Run DyGram execution tests with intelligent agent responses by acti
 
 This skill enables you to act as the intelligent agent that responds to DyGram test requests. Tests will send LLM invocation requests to a queue, and you'll process them one by one, making intelligent decisions about which tools to use based on context.
 
+## ⚠️ CRITICAL: Manual Responses Only
+
+**DO NOT create automated scripts or loop wrappers** - this defeats the entire purpose of this skill!
+
+The point of this skill is to use **YOUR intelligence** to make thoughtful decisions about tool selection. Creating an automated responder script that pattern-matches transitions:
+- ❌ Defeats the purpose of intelligent testing
+- ❌ Provides no value over the existing heuristic agent
+- ❌ Misses edge cases requiring real reasoning
+- ❌ Doesn't test the actual agent behavior we're validating
+
+**What you SHOULD do:**
+- ✅ Process each request manually with full analysis
+- ✅ Make genuine intelligent decisions based on context
+- ✅ Use your semantic understanding, not pattern matching
+- ✅ Provide thoughtful reasoning for each decision
+
+## 🚀 Performance Optimization
+
+For faster processing without sacrificing intelligence, invoke this skill using the Task tool with `model: "haiku"`:
+
+```typescript
+// Instead of running the skill directly, delegate to a faster sub-agent:
+Task({
+  subagent_type: "general-purpose",
+  model: "haiku",
+  description: "Process DyGram test requests",
+  prompt: "Use the Interactive-generative-test skill to process test requests. Make intelligent decisions about tool selection based on context."
+})
+```
+
+This gives you:
+- **Faster response times** (Haiku is optimized for speed)
+- **Lower cost** per request
+- **Same intelligent reasoning** capabilities
+- **Perfect for high-volume test processing**
+
+Alternative: Load the skill and process manually in the main conversation for full observability.
+
 ## How It Works
 
 ```
@@ -39,25 +77,39 @@ This skill enables you to act as the intelligent agent that responds to DyGram t
 
 ## Agent Responder Modes
 
-### Mode 1: Claude Code Direct (Recommended) 🚀
+### ✅ Primary Mode: Manual Intelligent Processing (Required)
 
-**This mode:** YOU act as the responder using helper scripts
-**No separate process needed** - you ARE the intelligent agent
-**No API key required** - you're already running!
+**This is the ONLY proper way to use this skill.**
+
+**What this means:**
+- YOU manually process each request, one at a time
+- YOU make intelligent decisions using semantic understanding
+- YOU analyze context, tools, and objectives thoughtfully
+- Helper scripts only manage the queue, NOT decision-making
 
 **How it works:**
-- Start tests in background
-- Loop: get request → analyze → decide → submit response
-- Helper scripts manage queue interaction
-- Each request is isolated with fresh context
+1. Start tests in background
+2. Get request → Read and analyze thoroughly
+3. Make intelligent decision based on full context
+4. Submit response with clear reasoning
+5. Repeat for next request
 
-### Mode 2: Heuristic Agent (Fallback)
+**Performance optimization:**
+- For faster processing: Use Task tool with `model: "haiku"`
+- This keeps intelligent decision-making while improving speed
+- See "Performance Optimization" section above
+
+### ⚠️ Fallback Only: Heuristic Agent (CI/Automated Only)
 
 **Script:** `scripts/test-agent-responder.js`
-**Method:** Automated keyword matching heuristics
-**Use when:** You can't actively monitor/respond to requests
+**Method:** Automated keyword matching (NOT intelligent)
+**Use ONLY when:** Claude Code unavailable (CI, overnight runs)
 
-This is a standalone process that uses simple pattern matching. Less intelligent than you, but runs automatically.
+**This is NOT a substitute for proper intelligent testing!**
+- Simple pattern matching without reasoning
+- Cannot handle complex scenarios
+- Significantly lower quality than manual processing
+- See full section below for when this is appropriate
 
 ## Prerequisites
 
@@ -447,12 +499,14 @@ echo '{"requestId": "...", ...}' | node scripts/submit-response.js --request-id 
 - Success message on stderr
 - Exit code 0 on success, 1 on error
 
-## Alternative: Heuristic Agent Mode
+## ⚠️ Fallback Only: Heuristic Agent Mode
 
-If you can't actively respond to requests, use the automated heuristic responder:
+**Use this ONLY when Claude Code cannot participate at all** (e.g., CI environment, overnight runs).
+
+The automated heuristic responder is a fallback for when intelligent testing isn't possible:
 
 ```bash
-# Start heuristic agent
+# Start heuristic agent (fallback only!)
 node scripts/test-agent-responder.js &
 
 # Run tests
@@ -462,7 +516,22 @@ DYGRAM_TEST_MODE=interactive npm test test/validating/
 pkill -f test-agent-responder
 ```
 
-The heuristic agent uses keyword matching but is less intelligent than you.
+**Important limitations:**
+- Uses simple keyword matching, not semantic understanding
+- Cannot handle complex scenarios requiring reasoning
+- No context awareness beyond pattern matching
+- Significantly less capable than Claude Code's intelligence
+
+**When to use:**
+- ❌ NOT for development/testing where you're available
+- ❌ NOT instead of doing proper intelligent testing
+- ✅ ONLY for automated CI runs without human oversight
+- ✅ ONLY when absolutely no other option exists
+
+**Preferred alternatives:**
+1. Process requests manually with this skill (best quality)
+2. Use Task tool with model="haiku" (fast + intelligent)
+3. Schedule testing when you can be actively involved
 
 ## Summary Report Format
 
@@ -518,37 +587,32 @@ Next Steps:
 - Response JSON is valid
 - All required fields present
 
-## Advanced Usage
+## ❌ DO NOT: Automated Processing
 
-### Process Multiple Requests Automatically
+**This section describes what NOT to do.**
 
-Create a simple loop script:
+Creating automated loop scripts or pattern-matching responders is **explicitly discouraged**:
 
 ```bash
+# ❌ DO NOT DO THIS - defeats the purpose
 #!/bin/bash
 while true; do
   REQUEST=$(node scripts/get-next-request.js --timeout 5000 2>/dev/null)
-
-  if [ $? -ne 0 ]; then
-    echo "No more requests (timeout)"
-    break
-  fi
-
-  # Extract info and make decision
-  # (You'd fill this in with your logic)
-
-  # Submit response
-  # ...
+  # Auto-match patterns and respond
+  # This is NOT intelligent testing!
 done
 ```
 
-### Custom Decision Logic
+**Why this is wrong:**
+- Removes your intelligent decision-making
+- Reduces testing to pattern matching
+- Misses edge cases and complex scenarios
+- Provides no value over existing heuristic agent
 
-You can create wrapper scripts that:
-- Parse the request JSON
-- Apply custom heuristics
-- Generate responses
-- Submit via helper script
+**Instead:**
+- Process requests manually, one at a time
+- Or use Task tool with model="haiku" for faster manual processing
+- Make genuine decisions based on full context analysis
 
 ### Recording Analysis
 
