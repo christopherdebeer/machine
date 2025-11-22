@@ -1,0 +1,54 @@
+{
+  "request": {
+    "type": "llm_invocation_request",
+    "requestId": "req-1763810273775-2",
+    "timestamp": "2025-11-22T11:17:53.775Z",
+    "context": {},
+    "messages": [
+      {
+        "role": "user",
+        "content": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: reportTask\n- **Type**: task\n- **Objective**: Generate a comprehensive report from analysis results\n- **Visited Nodes**: 1\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## end\n\n\n# Instructions\nYour primary objective is:\n> Generate a comprehensive report from analysis results\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+      }
+    ],
+    "tools": [
+      {
+        "name": "transition_to_end",
+        "description": "Transition to end",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      }
+    ],
+    "systemPrompt": "[user]: # Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: reportTask\n- **Type**: task\n- **Objective**: Generate a comprehensive report from analysis results\n- **Visited Nodes**: 1\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## end\n\n\n# Instructions\nYour primary objective is:\n> Generate a comprehensive report from analysis results\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+  },
+  "response": {
+    "type": "llm_invocation_response",
+    "requestId": "req-1763810273775-2",
+    "timestamp": "2025-11-22T11:17:53.871Z",
+    "reasoning": "At reportTask, visited 1 nodes. Task completed at reportTask, proceeding to end",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Completed task at reportTask: Generate a comprehensive report from analysis results. Moving to end."
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-auto-1763810273814",
+          "name": "transition_to_end",
+          "input": {
+            "reason": "Task completed at reportTask, proceeding to end"
+          }
+        }
+      ],
+      "stop_reason": "tool_use"
+    }
+  },
+  "recordedAt": "2025-11-22T11:17:53.877Z"
+}

@@ -26,6 +26,10 @@ export interface ExecutionControlsProps {
     executor?: any; // MachineExecutor instance to get logs from
     logLevel?: string; // Current log level
     onLogLevelChange?: (level: string) => void;
+    playbackMode?: boolean; // Whether playback mode is enabled
+    recordingsAvailable?: boolean; // Whether recordings exist for current example
+    onTogglePlaybackMode?: () => void; // Handler to toggle playback mode
+    playbackClient?: any; // Playback client instance for progress tracking
 }
 
 interface LogEntry {
@@ -142,6 +146,41 @@ const LogLevelSelector = styled.select`
     }
 `;
 
+const PlaybackToggle = styled.button<{ $active?: boolean; $available?: boolean }>`
+    background: ${props => props.$active ? '#10b981' : 'rgb(62, 62, 66)'};
+    color: rgb(212, 212, 212);
+    border: 1px solid ${props => props.$active ? '#10b981' : 'rgb(80, 80, 83)'};
+    padding: 0.25em 0.6em;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: ${props => props.$available ? 'pointer' : 'not-allowed'};
+    opacity: ${props => props.$available ? '1' : '0.5'};
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+    transition: all 0.2s;
+
+    &:hover:enabled {
+        background: ${props => props.$active ? '#059669' : 'rgb(72, 72, 76)'};
+        border-color: ${props => props.$active ? '#059669' : '#0e639c'};
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+    }
+`;
+
+const PlaybackProgress = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 12px;
+    color: #10b981;
+    padding: 0.25em 0.6em;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 4px;
+`;
+
 // Main Component
 export const ExecutionControls = React.forwardRef<ExecutionControlsRef, ExecutionControlsProps>(({
     onExecute,
@@ -152,7 +191,11 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
     showLog = true,
     executor,
     logLevel,
-    onLogLevelChange
+    onLogLevelChange,
+    playbackMode = false,
+    recordingsAvailable = false,
+    onTogglePlaybackMode,
+    playbackClient
 }, ref) => {
     const [state, setState] = useState<ExecutionState>({
         status: 'idle',
@@ -367,6 +410,9 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
         }
     };
 
+    // Get playback progress if in playback mode
+    const playbackPosition = playbackClient?.getPlaybackPosition?.() || { current: 0, total: 0 };
+
     return (
         <Container $mobile={mobile} className="execution-panel">
             <Header className="execution-header">
@@ -398,6 +444,24 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
                     >
                         🔄 Reset
                     </Button>
+
+                    {recordingsAvailable && onTogglePlaybackMode && (
+                        <PlaybackToggle
+                            $active={playbackMode}
+                            $available={recordingsAvailable}
+                            onClick={onTogglePlaybackMode}
+                            disabled={!recordingsAvailable}
+                            title={playbackMode ? 'Disable playback mode (use live API)' : 'Enable playback mode (use recordings)'}
+                        >
+                            {playbackMode ? '📼' : '🎬'} {playbackMode ? 'Playback' : 'Live'}
+                        </PlaybackToggle>
+                    )}
+
+                    {playbackMode && playbackPosition.total > 0 && (
+                        <PlaybackProgress title="Playback progress">
+                            📊 {playbackPosition.current}/{playbackPosition.total}
+                        </PlaybackProgress>
+                    )}
                 </ButtonGroup>
 
                 {onLogLevelChange && (

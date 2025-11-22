@@ -37,6 +37,42 @@ export async function extractAstNode<T extends AstNode>(fileName: string, servic
     return (await extractDocument(fileName, services)).parseResult?.value as T;
 }
 
+/**
+ * Test-safe document extraction - throws errors instead of calling process.exit
+ * Use this in test environments where process.exit is not acceptable
+ */
+export async function extractDocumentForTests(fileName: string, services: LangiumCoreServices): Promise<LangiumDocument> {
+    const extensions = services.LanguageMetaData.fileExtensions;
+    if (!extensions.includes(path.extname(fileName))) {
+        throw new Error(`Please choose a file with one of these extensions: ${extensions}`);
+    }
+
+    if (!fs.existsSync(fileName)) {
+        throw new Error(`File ${fileName} does not exist`);
+    }
+
+    const document = await services.shared.workspace.LangiumDocuments.getOrCreateDocument(URI.file(path.resolve(fileName)));
+    await services.shared.workspace.DocumentBuilder.build([document], { validation: true });
+
+    const validationErrors = (document.diagnostics ?? []).filter(e => e.severity === 1);
+    if (validationErrors.length > 0) {
+        const errorMessages = validationErrors.map(e =>
+            `line ${e.range.start.line + 1}: ${e.message} [${document.textDocument.getText(e.range)}]`
+        ).join('\n');
+        throw new Error(`Validation errors:\n${errorMessages}`);
+    }
+
+    return document;
+}
+
+/**
+ * Test-safe AST extraction - throws errors instead of calling process.exit
+ * Use this in test environments where process.exit is not acceptable
+ */
+export async function extractAstNodeForTests<T extends AstNode>(fileName: string, services: LangiumCoreServices): Promise<T> {
+    return (await extractDocumentForTests(fileName, services)).parseResult?.value as T;
+}
+
 interface FilePathData {
     destination: string,
     name: string

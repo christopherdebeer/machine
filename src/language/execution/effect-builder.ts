@@ -84,7 +84,7 @@ function buildSystemPrompt(
 /**
  * Build tools for a node
  */
-function buildTools(
+export function buildTools(
     machineJSON: MachineJSON,
     state: ExecutionState,
     pathId: string,

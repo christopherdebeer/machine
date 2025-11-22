@@ -1,0 +1,54 @@
+{
+  "request": {
+    "type": "llm_invocation_request",
+    "requestId": "req-1763807389146-3",
+    "timestamp": "2025-11-22T10:29:49.146Z",
+    "context": {},
+    "messages": [
+      {
+        "role": "user",
+        "content": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: step3\n- **Type**: task\n- **Objective**: Execute step 3\n- **Visited Nodes**: 2\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## step4\n\n\n# Instructions\nYour primary objective is:\n> Execute step 3\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+      }
+    ],
+    "tools": [
+      {
+        "name": "transition_to_step4",
+        "description": "Transition to step4",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      }
+    ],
+    "systemPrompt": "[user]: # Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: step3\n- **Type**: task\n- **Objective**: Execute step 3\n- **Visited Nodes**: 2\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## step4\n\n\n# Instructions\nYour primary objective is:\n> Execute step 3\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+  },
+  "response": {
+    "type": "llm_invocation_response",
+    "requestId": "req-1763807389146-3",
+    "timestamp": "2025-11-22T10:29:49.883Z",
+    "reasoning": "Only one transition available, proceeding",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Proceeding with transition"
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-32",
+          "name": "transition_to_step4",
+          "input": {
+            "reason": "Single transition available"
+          }
+        }
+      ],
+      "stop_reason": "tool_use"
+    }
+  },
+  "recordedAt": "2025-11-22T10:29:49.956Z"
+}

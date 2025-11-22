@@ -40,13 +40,15 @@ import {
     evaluateAutomatedTransitions,
     requiresAgentDecision,
     getNodeAttributes,
-    getParallelEdges
+    getParallelEdges,
+    getNonAutomatedTransitions
 } from './transition-evaluator.js';
 import {
     buildLLMEffect,
     buildLogEffect,
     buildCompleteEffect,
-    buildErrorEffect
+    buildErrorEffect,
+    buildTools
 } from './effect-builder.js';
 
 /**
@@ -271,8 +273,49 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
         };
     }
 
-    // Check if agent decision required
+    // Check if agent decision required FIRST (before checking transitions)
+    // This ensures task nodes with prompts execute their work before considering transitions
     if (requiresAgentDecision(machineJSON, nodeName)) {
+        // Build tools to determine if node has actual work to do beyond transition selection
+        const tools = buildTools(machineJSON, nextState, path.id, nodeName);
+
+        // Count transition tools vs other tools
+        const transitionTools = tools.filter(t => t.name.startsWith('transition_to_'));
+        const nonTransitionTools = tools.filter(t => !t.name.startsWith('transition_to_'));
+
+        // Optimization: Skip LLM if only work is selecting a single transition
+        // This happens when:
+        // - No context write tools (no actual work to perform)
+        // - No meta tools (no machine modifications)
+        // - Only 1 transition tool (no choice to make)
+        if (nonTransitionTools.length === 0 && transitionTools.length === 1) {
+            // Auto-take the single transition without LLM invocation
+            const transitionTarget = transitionTools[0].name.replace('transition_to_', '');
+            effects.push(buildLogEffect(
+                'info',
+                'transition',
+                `Single transition with no other work: ${nodeName} -> ${transitionTarget} (auto-taking, skipping LLM)`,
+                { reason: 'Only transition tool available, no context writes or meta operations' }
+            ));
+
+            nextState = recordTransition(nextState, path.id, {
+                from: nodeName,
+                to: transitionTarget,
+                transition: 'default'
+            });
+
+            return {
+                nextState,
+                effects,
+                status: 'continue'
+            };
+        }
+
+        // TODO: Terminal nodes with prompts but no tools could represent implicit meta-tasks
+        // (e.g., "summarize execution", "validate results"). Consider whether these should
+        // generate implicit meta-tool invocations or be validated at parse time.
+
+        // Node has actual work to do - invoke LLM
         effects.push(buildLogEffect('info', 'execution', `Agent decision required for ${nodeName}`));
 
         // Build LLM invocation effect
@@ -283,6 +326,31 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
             nextState,
             effects,
             status: 'waiting' // Wait for agent result
+        };
+    }
+
+    // Check for single non-automated transition (auto-take it)
+    // This optimization only applies to nodes that don't require agent work
+    const nonAutomatedTransitions = getNonAutomatedTransitions(machineJSON, nextState, path.id);
+    if (nonAutomatedTransitions.length === 1) {
+        const transition = nonAutomatedTransitions[0];
+        effects.push(buildLogEffect(
+            'info',
+            'transition',
+            `Single transition available: ${nodeName} -> ${transition.target} (auto-taking)`,
+            { reason: 'Only one transition available' }
+        ));
+
+        nextState = recordTransition(nextState, path.id, {
+            from: nodeName,
+            to: transition.target,
+            transition: transition.condition || 'default'
+        });
+
+        return {
+            nextState,
+            effects,
+            status: 'continue'
         };
     }
 

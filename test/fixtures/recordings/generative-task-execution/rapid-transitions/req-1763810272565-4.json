@@ -1,0 +1,54 @@
+{
+  "request": {
+    "type": "llm_invocation_request",
+    "requestId": "req-1763810272565-4",
+    "timestamp": "2025-11-22T11:17:52.565Z",
+    "context": {},
+    "messages": [
+      {
+        "role": "user",
+        "content": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: t4\n- **Type**: task\n- **Objective**: Quick task 4\n- **Visited Nodes**: 3\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## t5\n\n\n# Instructions\nYour primary objective is:\n> Quick task 4\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+      }
+    ],
+    "tools": [
+      {
+        "name": "transition_to_t5",
+        "description": "Transition to t5",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      }
+    ],
+    "systemPrompt": "[user]: # Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: t4\n- **Type**: task\n- **Objective**: Quick task 4\n- **Visited Nodes**: 3\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## t5\n\n\n# Instructions\nYour primary objective is:\n> Quick task 4\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+  },
+  "response": {
+    "type": "llm_invocation_response",
+    "requestId": "req-1763810272565-4",
+    "timestamp": "2025-11-22T11:17:52.688Z",
+    "reasoning": "At t4, visited 3 nodes. Task completed at t4, proceeding to t5",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Completed task at t4: Quick task 4. Moving to t5."
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-auto-1763810272629",
+          "name": "transition_to_t5",
+          "input": {
+            "reason": "Task completed at t4, proceeding to t5"
+          }
+        }
+      ],
+      "stop_reason": "tool_use"
+    }
+  },
+  "recordedAt": "2025-11-22T11:17:52.768Z"
+}

@@ -21,7 +21,7 @@ import { readdir, readFile, stat, writeFile, mkdir } from 'fs/promises';
 import { join, relative, basename, dirname } from 'path';
 import * as fs from 'fs';
 import { createMachineServices } from '../../src/language/machine-module.js';
-import { extractAstNode } from '../../src/cli/cli-util.js';
+import { extractAstNodeForTests } from '../../src/cli/cli-util.js';
 import { generateJSON } from '../../src/language/generator/generator.js';
 import { Machine } from '../../src/language/generated/ast.js';
 import { NodeFileSystem } from 'langium/node';
@@ -45,7 +45,7 @@ function createTestClient(recordingsDir: string) {
         queueDir: '.dygram-test-queue',
         recordResponses: true,
         recordingsDir,
-        timeout: 10000
+        timeout: 60000 // 60 seconds to allow time for manual Claude Code responses
     });
 }
 
@@ -53,14 +53,14 @@ function createTestClient(recordingsDir: string) {
 async function parseDyGramFile(filePath: string) {
     // Use the canonical parsing approach from CLI and codemirror-setup
     const services = createMachineServices(NodeFileSystem).Machine;
-    
-    // Extract the parsed AST using the canonical CLI utility
-    const machine = await extractAstNode<Machine>(filePath, services);
-    
+
+    // Extract the parsed AST using test-safe parser (throws errors instead of process.exit)
+    const machine = await extractAstNodeForTests<Machine>(filePath, services);
+
     // Convert to MachineData format using the canonical generator
     const jsonResult = generateJSON(machine, filePath);
     const machineData = JSON.parse(jsonResult.content);
-    
+
     return machineData;
 }
 
@@ -160,11 +160,42 @@ async function generateComprehensiveTestReport(testResults: any[], category: str
     console.log(`📊 Generated comprehensive test report for ${category} in ${categoryDir}`);
 }
 
+// Load recording data for test result
+function loadRecordings(category: string, testName: string): any[] {
+    const recordingsDir = join(
+        process.cwd(),
+        'test', 'fixtures', 'recordings',
+        `generative-${category}`,
+        testName
+    );
+
+    try {
+        if (!fs.existsSync(recordingsDir)) {
+            return [];
+        }
+
+        const files = fs.readdirSync(recordingsDir).filter(f => f.endsWith('.json'));
+        return files.map(file => {
+            const content = fs.readFileSync(join(recordingsDir, file), 'utf-8');
+            return JSON.parse(content);
+        }).sort((a, b) => {
+            // Sort by request ID (chronological order)
+            return a.request?.requestId.localeCompare(b.request?.requestId) || 0;
+        });
+    } catch (error) {
+        console.warn(`Could not load recordings for ${category}/${testName}:`, error);
+        return [];
+    }
+}
+
 // Generate HTML for individual test result
 function generateTestResultHTML(result: any, category: string): string {
     const status = result.success ? 'PASS' : 'FAIL';
     const statusClass = result.success ? 'success' : 'failure';
-    
+
+    // Load recordings for this test
+    const recordings = loadRecordings(category, result.name);
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -173,24 +204,59 @@ function generateTestResultHTML(result: any, category: string): string {
     <title>${result.name} - ${category} Test Result</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; }
         .content { padding: 30px; }
         .status { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: bold; text-transform: uppercase; }
         .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .failure { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .metric { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 6px; border-left: 4px solid #007bff; }
-        .code { background: #f8f9fa; padding: 15px; border-radius: 6px; font-family: 'Monaco', 'Consolas', monospace; overflow-x: auto; white-space: pre-wrap; }
+        .code { background: #f8f9fa; padding: 15px; border-radius: 6px; font-family: 'Monaco', 'Consolas', monospace; overflow-x: auto; white-space: pre-wrap; font-size: 13px; }
         .execution-log { background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 6px; font-family: monospace; max-height: 400px; overflow-y: auto; }
-        .node-path { display: flex; align-items: center; margin: 10px 0; }
-        .node { background: #e3f2fd; padding: 8px 12px; border-radius: 4px; margin: 0 5px; border: 1px solid #bbdefb; }
-        .arrow { color: #666; margin: 0 10px; }
+        .node-path { display: flex; align-items: center; margin: 10px 0; flex-wrap: wrap; }
+        .node { background: #e3f2fd; padding: 8px 12px; border-radius: 4px; margin: 0 5px 5px 0; border: 1px solid #bbdefb; }
+        .arrow { color: #666; margin: 0 5px; }
         .behaviors { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; margin: 15px 0; }
         .behavior-item { margin: 5px 0; padding: 5px 0; }
         .behavior-pass { color: #28a745; }
         .behavior-fail { color: #dc3545; }
         .behavior-skip { color: #6c757d; }
+
+        /* Recording Styles */
+        .recordings-section { margin-top: 20px; }
+        .recording-item { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0; }
+        .recording-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 2px solid #e9ecef; margin-bottom: 10px; }
+        .recording-number { font-weight: bold; font-size: 16px; color: #495057; }
+        .recording-id { font-family: monospace; font-size: 12px; color: #6c757d; }
+        .request-section { background: #e7f3ff; border-left: 3px solid #1c7ed6; padding: 12px; margin: 8px 0; border-radius: 4px; }
+        .response-section { background: #d3f9d8; border-left: 3px solid #37b24d; padding: 12px; margin: 8px 0; border-radius: 4px; }
+        .reasoning-section { background: #fff3bf; border-left: 3px solid #f59f00; padding: 12px; margin: 8px 0; border-radius: 4px; }
+        .section-title { font-weight: 600; color: #212529; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .json-block { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 12px; font-family: 'Monaco', 'Consolas', monospace; font-size: 11px; max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; }
+        .tool-use { background: #e7f3ff; border: 1px solid #74c0fc; padding: 10px; margin: 8px 0; border-radius: 4px; }
+        .tool-name { font-weight: bold; color: #1864ab; font-family: monospace; }
+        .tool-input { margin-top: 5px; font-size: 12px; color: #495057; }
+        .prompt-text { background: #f8f9fa; padding: 10px; border-radius: 4px; font-size: 13px; line-height: 1.5; color: #212529; margin-top: 5px; }
+        .collapse-toggle { cursor: pointer; color: #1c7ed6; text-decoration: none; font-size: 12px; font-weight: 600; }
+        .collapse-toggle:hover { text-decoration: underline; }
+        .collapsible { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .collapsible.show { max-height: 2000px; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .badge-request { background: #1c7ed6; color: white; }
+        .badge-response { background: #37b24d; color: white; }
     </style>
+    <script>
+        function toggleCollapse(id) {
+            const elem = document.getElementById(id);
+            if (elem) {
+                elem.classList.toggle('show');
+                const toggle = document.querySelector('[onclick*="' + id + '"]');
+                if (toggle && toggle.textContent) {
+                    toggle.textContent = elem.classList.contains('show') ? '▼ Hide Details' : '▶ Show Details';
+                }
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -246,6 +312,96 @@ function generateTestResultHTML(result: any, category: string): string {
                 <div class="code" style="background: #f8d7da; color: #721c24;">${result.error}</div>
             </div>
             ` : ''}
+
+            ${recordings.length > 0 ? `
+            <div class="recordings-section">
+                <div class="metric" style="border-left-color: #20c997;">
+                    <h3>🎬 Agent Interactions (${recordings.length} recordings)</h3>
+                    <p style="color: #6c757d; font-size: 14px; margin-top: 10px;">
+                        Review the LLM requests and agent responses that were recorded during test execution.
+                        Each interaction shows the prompt sent to the agent and the intelligent decision it made.
+                    </p>
+                </div>
+
+                ${recordings.map((recording, index) => {
+                    const req = recording.request;
+                    const res = recording.response;
+                    const requestId = req?.requestId || `unknown-${index}`;
+                    const collapseId = `collapse-${requestId}`;
+
+                    // Extract prompt from request
+                    const userMessage = req?.messages?.find((m: any) => m.role === 'user');
+                    const prompt = userMessage?.content || 'No prompt available';
+
+                    // Extract tool uses from response
+                    const toolUses = res?.response?.content?.filter((c: any) => c.type === 'tool_use') || [];
+                    const textContent = res?.response?.content?.filter((c: any) => c.type === 'text').map((c: any) => c.text).join(' ') || '';
+
+                    return `
+                    <div class="recording-item">
+                        <div class="recording-header">
+                            <span class="recording-number">Interaction #${index + 1}</span>
+                            <span class="recording-id">${requestId}</span>
+                        </div>
+
+                        ${res?.reasoning ? `
+                        <div class="reasoning-section">
+                            <div class="section-title">💭 Agent Reasoning</div>
+                            <div style="color: #495057; font-size: 13px;">${res.reasoning}</div>
+                        </div>
+                        ` : ''}
+
+                        <div class="request-section">
+                            <div class="section-title"><span class="badge badge-request">Request</span> LLM Prompt</div>
+                            <div class="prompt-text">${prompt.substring(0, 500).replace(/</g, '&lt;').replace(/>/g, '&gt;')}${prompt.length > 500 ? '...' : ''}</div>
+                            ${req?.tools && req.tools.length > 0 ? `
+                            <div style="margin-top: 10px;">
+                                <strong style="font-size: 12px;">Available Tools (${req.tools.length}):</strong>
+                                <div style="font-family: monospace; font-size: 11px; color: #6c757d; margin-top: 5px;">
+                                    ${req.tools.map((t: any) => t.name).join(', ')}
+                                </div>
+                            </div>
+                            ` : ''}
+                            <div style="margin-top: 10px;">
+                                <a class="collapse-toggle" onclick="toggleCollapse('${collapseId}-req')">▶ Show Full Request</a>
+                                <div id="${collapseId}-req" class="collapsible">
+                                    <div class="json-block">${JSON.stringify(req, null, 2).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="response-section">
+                            <div class="section-title"><span class="badge badge-response">Response</span> Agent Decision</div>
+                            ${textContent ? `
+                            <div style="color: #495057; font-size: 13px; margin-bottom: 10px;">${textContent}</div>
+                            ` : ''}
+                            ${toolUses.length > 0 ? `
+                            <div>
+                                ${toolUses.map((tool: any) => `
+                                <div class="tool-use">
+                                    <div class="tool-name">🔧 ${tool.name}</div>
+                                    ${tool.input ? `
+                                    <div class="tool-input">
+                                        <strong>Input:</strong>
+                                        <pre style="margin: 5px 0; font-size: 11px;">${JSON.stringify(tool.input, null, 2)}</pre>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                                `).join('')}
+                            </div>
+                            ` : ''}
+                            <div style="margin-top: 10px;">
+                                <a class="collapse-toggle" onclick="toggleCollapse('${collapseId}-res')">▶ Show Full Response</a>
+                                <div id="${collapseId}-res" class="collapsible">
+                                    <div class="json-block">${JSON.stringify(res, null, 2).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('')}
+            </div>
+            ` : '<div class="metric" style="border-left-color: #ffc107;"><h3>⚠️ No Recordings Found</h3><p>No LLM interaction recordings were found for this test. This test may have completed without requiring agent decisions, or recordings may not have been created yet.</p></div>'}
         </div>
     </div>
 </body>
@@ -396,7 +552,7 @@ describe('Generative Execution Tests', () => {
     });
 
     describe('Tool Execution Tests', () => {
-        it('should discover and run tool execution tests', async () => {
+        it('should discover and run tool execution tests', { timeout: 300000 }, async () => {
             const testFiles = await discoverTestFiles();
             const toolExecutionTests = testFiles.filter(f => f.category === 'tool-execution');
 
@@ -522,7 +678,10 @@ describe('Generative Execution Tests', () => {
                     });
 
                     // Basic assertions
-                    expect(finalContext.history.length).toBeGreaterThan(0);
+                    // For isolated machines (no edges), history can be empty
+                    if (machineData.edges && machineData.edges.length > 0) {
+                        expect(finalContext.history.length).toBeGreaterThan(0);
+                    }
                     expect(finalContext.visitedNodes.size).toBeGreaterThanOrEqual(1);
 
                     testResult.success = true;
@@ -543,7 +702,7 @@ describe('Generative Execution Tests', () => {
     });
 
     describe('Task Execution Tests', () => {
-        it('should discover and run task execution tests', async () => {
+        it('should discover and run task execution tests', { timeout: 300000 }, async () => {
             const testFiles = await discoverTestFiles();
             const taskExecutionTests = testFiles.filter(f => f.category === 'task-execution');
 
@@ -664,7 +823,10 @@ describe('Generative Execution Tests', () => {
                     });
 
                     // Basic assertions
-                    expect(finalContext.history.length).toBeGreaterThan(0);
+                    // For isolated machines (no edges), history can be empty
+                    if (machineData.edges && machineData.edges.length > 0) {
+                        expect(finalContext.history.length).toBeGreaterThan(0);
+                    }
                     expect(finalContext.visitedNodes.size).toBeGreaterThanOrEqual(1);
 
                     testResult.success = true;
@@ -681,6 +843,121 @@ describe('Generative Execution Tests', () => {
 
             // Generate comprehensive test report
             await generateComprehensiveTestReport(testResults, 'task-execution');
+        });
+    });
+
+    describe('Execution Features Tests', () => {
+        it('should discover and run execution-features tests', { timeout: 300000 }, async () => {
+            const examplesDir = join(process.cwd(), 'examples', 'execution-features');
+
+            // Try to discover examples
+            let dyFiles: string[] = [];
+            try {
+                dyFiles = fs.readdirSync(examplesDir).filter(f => f.endsWith('.dy'));
+            } catch (error) {
+                console.warn(`Could not discover execution-features examples: ${examplesDir}`);
+            }
+
+            console.log(`Execution features tests: ${dyFiles.length}`);
+
+            if (dyFiles.length === 0) {
+                console.warn(`No .dy files found in ${examplesDir}`);
+                return;
+            }
+
+            const testResults: any[] = [];
+
+            // Process each example
+            for (const file of dyFiles) {
+                const startTime = Date.now();
+                let testResult: any = {
+                    name: basename(file, '.dy'),
+                    category: 'execution-features',
+                    success: false,
+                    metrics: {
+                        nodesVisited: 0,
+                        executionSteps: 0,
+                        finalNode: '',
+                        executionTime: 0,
+                        visitedNodesList: []
+                    },
+                    expectedBehaviors: [],
+                    sourceCode: '',
+                    executionLog: '',
+                    error: null
+                };
+
+                try {
+                    const testFile = {
+                        category: 'execution-features',
+                        name: basename(file, '.dy'),
+                        path: join(examplesDir, file)
+                    };
+
+                    // Read source code for report
+                    testResult.sourceCode = await readFile(testFile.path, 'utf-8');
+
+                    // Determine recordings directory for this test
+                    const recordingsDir = join(
+                        process.cwd(),
+                        'test', 'fixtures', 'recordings',
+                        `generative-${testFile.category}`,
+                        testFile.name
+                    );
+
+                    // In interactive mode, create recordings dir if needed
+                    const testMode = process.env.DYGRAM_TEST_MODE || 'interactive';
+                    if (testMode === 'playback' && !fs.existsSync(recordingsDir)) {
+                        throw new Error(`Recordings directory not found: ${recordingsDir}`);
+                    }
+
+                    // Parse the machine
+                    const machineData = await parseDyGramFile(testFile.path);
+
+                    // Create test client (playback or interactive based on env)
+                    const client = createTestClient(recordingsDir);
+
+                    // Create executor
+                    const executor = new MachineExecutor(machineData, {
+                        llm: client,
+                        logLevel: machineData.logLevel as any || 'info'
+                    });
+
+                    // Execute machine
+                    const finalContext = await executor.execute();
+                    const endTime = Date.now();
+
+                    // Get context for backward compatibility
+                    const context = executor.getContext();
+
+                    // Update test result metrics
+                    testResult.metrics = {
+                        nodesVisited: context.visitedNodes.size,
+                        executionSteps: context.history.length,
+                        finalNode: context.currentNode,
+                        executionTime: endTime - startTime,
+                        visitedNodesList: Array.from(context.visitedNodes)
+                    };
+
+                    // Basic assertions for execution features
+                    // These examples should all complete successfully
+                    expect(finalContext.status).not.toBe('error');
+                    expect(context.visitedNodes.size).toBeGreaterThanOrEqual(1);
+
+                    testResult.success = true;
+                    console.log(`✓ ${testFile.name}: Visited ${context.visitedNodes.size} nodes, ${context.history.length} steps`);
+
+                } catch (error) {
+                    testResult.error = error instanceof Error ? error.message : String(error);
+                    testResult.success = false;
+                    console.log(`✗ ${testResult.name}: ${testResult.error}`);
+                }
+
+                testResults.push(testResult);
+            }
+
+            // Generate comprehensive test report
+            await generateComprehensiveTestReport(testResults, 'execution-features');
         });
     });
 });

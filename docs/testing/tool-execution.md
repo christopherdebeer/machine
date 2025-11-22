@@ -30,8 +30,8 @@ state pathA "Path A selected"
 state pathB "Path B selected"
 end "Execution complete"
 
-start -> pathA @option("option_a")
-start -> pathB @option("option_b")
+start -"option_a"-> pathA
+start -"option_b"-> pathB
 pathA -> end
 pathB -> end
 ```
@@ -63,9 +63,9 @@ state standardPath "Standard processing path"
 state detailedPath "Detailed analysis path"
 end "Processing complete"
 
-start -> fastPath @option("fast")
-start -> standardPath @option("standard")  
-start -> detailedPath @option("detailed")
+start -"fast"-> fastPath
+start -"standard"-> standardPath
+start -"detailed"-> detailedPath
 fastPath -> end
 standardPath -> end
 detailedPath -> end
@@ -103,9 +103,9 @@ end "Final state"
 
 // Multiple decision points
 start -> checkpoint1
-start -> alternate @option("direct_alternate")
-checkpoint1 -> success @option("proceed_success")
-checkpoint1 -> alternate @option("fallback_alternate")
+start -"direct_alternate"-> alternate
+checkpoint1 -"proceed_success"-> success
+checkpoint1 -"fallback_alternate"-> alternate
 success -> end
 alternate -> end
 ```
@@ -206,11 +206,11 @@ state success "Operation succeeded"
 state failure "Operation failed permanently"
 end "Process complete"
 
-start -> success @option("success")
-start -> retry @option("retry")
-start -> failure @option("failure")
-retry -> success @option("retry_success")
-retry -> failure @option("retry_failure")
+start -"success"-> success
+start -"retry"-> retry
+start -"failure"-> failure
+retry -"retry success"-> success
+retry -"retry failure"-> failure
 success -> end
 failure -> end
 ```
@@ -299,9 +299,9 @@ state lowPriority "Low priority processing"
 end "Processing complete"
 
 start -> evaluation
-evaluation -> highPriority @condition("Data.priority == 'high'")
-evaluation -> normalPriority @condition("Data.priority == 'normal'")
-evaluation -> lowPriority @condition("Data.priority == 'low'")
+evaluation -when: "Data.priority == 'high'"-> highPriority
+evaluation -when: "Data.priority == 'normal'"-> normalPriority
+evaluation -when: "Data.priority == 'low'"-> lowPriority
 highPriority -> end
 normalPriority -> end
 lowPriority -> end
@@ -329,6 +329,321 @@ Each test case includes expected behavior specifications that should be validate
 - Error handling and recovery
 - State management and tracking
 - Conditional logic evaluation
+
+## Edge Cases and Transition Bugs
+
+### Tool Disambiguation
+
+Tests handling of multiple tools with similar purposes.
+
+```dygram examples/testing/tool-execution/tool-disambiguation.dy
+machine "Tool Disambiguation Machine" {
+  logLevel: "debug"
+  maxSteps: 15
+}
+
+start "Choose the correct processing method" {
+  prompt: "Select the most appropriate processing tool for this data type"
+}
+
+state method_a "Processing Method A - Fast"
+state method_b "Processing Method B - Accurate"
+state method_c "Processing Method C - Balanced"
+end "Processing selected"
+
+start -"fast processing"-> method_a
+start -"accurate processing"-> method_b
+start -"balanced processing"-> method_c
+method_a -> end
+method_b -> end
+method_c -> end
+```
+
+**Expected Behavior:**
+- Should distinguish between similar transition options
+- Should make intelligent selection based on prompt context
+- Should handle semantic tool selection
+- Should not confuse similar tool names
+- Should provide clear reasoning for choice
+
+### Transition Conflicts
+
+Tests handling when multiple transitions could apply simultaneously.
+
+```dygram examples/testing/tool-execution/transition-conflicts.dy
+machine "Transition Conflict Machine" {
+  logLevel: "debug"
+  maxSteps: 15
+}
+
+context Conditions {
+  criteriaA: true
+  criteriaB: true
+  priority: "A"
+}
+
+start "Evaluate conflicting conditions" {
+  prompt: "Choose path when multiple conditions are met"
+}
+
+state pathA "Path A (Criteria A met)"
+state pathB "Path B (Criteria B met)"
+state pathDefault "Default path"
+end "Conflict resolved"
+
+start -when: "Conditions.criteriaA == true"-> pathA
+start -when: "Conditions.criteriaB == true"-> pathB
+start -when: "true"-> pathDefault
+pathA -> end
+pathB -> end
+pathDefault -> end
+```
+
+**Expected Behavior:**
+- Should resolve transition conflicts deterministically
+- Should apply priority or precedence rules
+- Should document which condition was evaluated first
+- Should handle overlapping conditions gracefully
+- Should maintain consistent behavior across runs
+
+### Diamond Pattern Navigation
+
+Tests execution through diamond-shaped graph structures.
+
+```dygram examples/testing/tool-execution/diamond-pattern.dy
+machine "Diamond Pattern Machine" {
+  logLevel: "debug"
+  maxSteps: 20
+}
+
+start "Fork decision point" {
+  prompt: "Choose initial branch in diamond pattern"
+}
+
+state leftBranch "Left processing branch"
+state rightBranch "Right processing branch"
+
+task convergence "Merge point" {
+  prompt: "Combine results from branches"
+}
+
+end "Diamond complete"
+
+start -"left"-> leftBranch
+start -"right"-> rightBranch
+leftBranch -> convergence
+rightBranch -> convergence
+convergence -> end
+```
+
+**Expected Behavior:**
+- Should navigate through diamond pattern correctly
+- Should handle multiple paths to same node
+- Should reach convergence point from either branch
+- Should not duplicate processing at merge
+- Should track complete execution path
+
+### Self-Referential Transitions
+
+Tests nodes with transitions back to themselves.
+
+```dygram examples/testing/tool-execution/self-referential.dy
+machine "Self-Referential Machine" {
+  logLevel: "debug"
+  maxSteps: 15
+}
+
+context LoopState {
+  iterations: 0
+  maxIterations: 3
+}
+
+start "Processing loop" {
+  prompt: "Process iteration and decide whether to continue"
+}
+
+end "Loop complete"
+
+start -"continue_loop"-> start
+start -"exit_loop"-> end
+```
+
+**Expected Behavior:**
+- Should handle self-referential transitions
+- Should prevent infinite loops via maxSteps
+- Should track iteration count
+- Should provide exit path from loop
+- Should detect cycles appropriately
+
+### No-Op Transitions
+
+Tests transitions that don't change effective state.
+
+```dygram examples/testing/tool-execution/noop-transitions.dy
+machine "No-Op Transition Machine" {
+  logLevel: "debug"
+  maxSteps: 10
+}
+
+state stateA "State A"
+state stateB "State B (functionally same as A)"
+state stateC "State C (distinct)"
+end "No-op complete"
+
+stateA -"move_to_identical"-> stateB
+stateA -"move_to_different"-> stateC
+stateB -> stateC
+stateC -> end
+```
+
+**Expected Behavior:**
+- Should handle semantically null transitions
+- Should track transition even if state similar
+- Should distinguish between identical and different states
+- Should maintain history accuracy
+- Should not optimize away no-op transitions
+
+### Orphaned Tool Detection
+
+Tests detection of tools that cannot be reached.
+
+```dygram examples/testing/tool-execution/orphaned-tools.dy
+machine "Orphaned Tool Machine" {
+  logLevel: "debug"
+  maxSteps: 10
+}
+
+start "Reachable start" {
+  prompt: "Execute from start"
+}
+
+state reachable "Reachable state"
+
+task orphaned "Orphaned task" {
+  prompt: "This task cannot be reached"
+}
+
+end "Execution end"
+
+start -> reachable
+reachable -> end
+```
+
+**Expected Behavior:**
+- Should detect unreachable nodes at validation
+- Should warn about orphaned tool definitions
+- Should execute reachable path successfully
+- Should not crash due to unreachable nodes
+- Should provide graph connectivity analysis
+
+### Transition Tool Name Collisions
+
+Tests handling when tool names might conflict with built-ins.
+
+```dygram examples/testing/tool-execution/name-collisions.dy
+machine "Name Collision Machine" {
+  logLevel: "debug"
+  maxSteps: 10
+}
+
+start "Choose transition carefully" {
+  prompt: "Select the correct custom transition"
+}
+
+state customEnd "Custom end-like state (not actual end)"
+state actualTarget "Actual target state"
+end "Real end node"
+
+start -"goto_custom_end"-> customEnd
+start -"goto_actual"-> actualTarget
+customEnd -> end
+actualTarget -> end
+```
+
+**Expected Behavior:**
+- Should distinguish custom names from reserved words
+- Should not confuse similar naming patterns
+- Should maintain name scoping correctly
+- Should handle potential collisions gracefully
+- Should validate tool names at initialization
+
+### Bi-Directional Transitions
+
+Tests handling of potential back-and-forth transitions.
+
+```dygram examples/testing/tool-execution/bidirectional.dy
+machine "Bidirectional Machine" {
+  logLevel: "debug"
+  maxSteps: 20
+}
+
+context NavigationState {
+  forwardCount: 0
+  backwardCount: 0
+  maxBounces: 3
+}
+
+task nodeA "Node A" {
+  prompt: "Decide whether to move forward or backward"
+}
+
+task nodeB "Node B" {
+  prompt: "Decide whether to continue or return"
+}
+
+end "Navigation complete"
+
+nodeA -"move to B"-> nodeB
+nodeB -"return to A"-> nodeA
+nodeB -"complete"-> end
+```
+
+**Expected Behavior:**
+- Should handle bidirectional navigation
+- Should prevent infinite ping-pong
+- Should enforce bounce limits
+- Should eventually reach completion
+- Should track navigation history accurately
+
+### Transition Priority Resolution
+
+Tests evaluation order when multiple transition conditions exist.
+
+```dygram examples/testing/tool-execution/transition-priority.dy
+machine "Transition Priority Machine" {
+  logLevel: "debug"
+  maxSteps: 15
+}
+
+context Priority {
+  urgency: "high"
+  cost: "low"
+  quality: "standard"
+}
+
+start "Multi-criteria routing" {
+  prompt: "Route based on multiple priority criteria"
+}
+
+state urgent "Urgent path (high urgency)"
+state economical "Economical path (low cost)"
+state quality "Quality path (standard quality)"
+end "Routing complete"
+
+start -when: "Priority.urgency == 'high'"-> urgent
+start -when: "Priority.cost == 'low'"-> economical
+start -when: "Priority.quality == 'standard'"-> quality
+urgent -> end
+economical -> end
+quality -> end
+```
+
+**Expected Behavior:**
+- Should evaluate transitions in priority order
+- Should select highest priority matching condition
+- Should handle multiple valid conditions
+- Should respect priority metadata
+- Should provide deterministic routing
 
 ## Usage
 

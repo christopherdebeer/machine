@@ -283,10 +283,18 @@ export function requiresAgentDecision(
     const node = machineJSON.nodes.find(n => n.name === nodeName);
     if (!node) return false;
 
-    // Task nodes with prompts require agent decisions
+    // Get non-automated outbound edges
+    const outboundEdges = getOutboundEdges(machineJSON, nodeName);
+    const nonAutoEdges = outboundEdges.filter(edge => !edge.hasAutoAnnotation);
+
+    // Task nodes with prompts ALWAYS require agent decisions
+    // The agent must execute the prompt to perform work (call tools, mutate context, emit text)
+    // even if there's only one outgoing transition or no transitions at all
     if (NodeTypeChecker.isTask(node)) {
         const promptAttr = node.attributes?.find(a => a.name === 'prompt');
-        return !!promptAttr;
+        if (promptAttr) {
+            return true;  // Always invoke agent for task nodes with prompts
+        }
     }
 
     // State nodes typically don't require agent decisions
@@ -294,10 +302,7 @@ export function requiresAgentDecision(
         return false;
     }
 
-    // Check if there are multiple non-automatic outbound edges
-    const outboundEdges = getOutboundEdges(machineJSON, nodeName);
-    const nonAutoEdges = outboundEdges.filter(edge => !edge.hasAutoAnnotation);
-
+    // For other node types, require agent if multiple non-automatic edges
     return nonAutoEdges.length > 1;
 }
 

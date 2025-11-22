@@ -494,6 +494,322 @@ These test cases are designed to validate comprehensive task execution capabilit
 
 Each test case includes expected behavior specifications and can be run in both interactive and playback modes for comprehensive validation.
 
+## Edge Cases and Execution Bugs
+
+### Cycle Detection and Prevention
+
+Tests execution behavior with potential infinite loops.
+
+```dygram examples/testing/task-execution/cycle-detection.dy
+machine "Cycle Detection Machine" {
+  logLevel: "debug"
+  maxSteps: 10
+  cycleDetectionWindow: 5
+}
+
+task loopStart "Loop Start" {
+  title: "Loop Start"
+  desc: "Start of potential loop"
+  prompt: "Initialize loop processing"
+}
+
+task loopMiddle "Loop Middle" {
+  title: "Loop Middle"
+  desc: "Middle of loop"
+  prompt: "Process loop iteration"
+}
+
+task loopDecision "Loop Decision" {
+  title: "Loop Decision"
+  desc: "Decide whether to continue loop"
+  prompt: "Evaluate loop continuation criteria"
+}
+
+end "Loop complete"
+
+loopStart -> loopMiddle
+loopMiddle -> loopDecision
+loopDecision -label: "continue"-> loopMiddle
+loopDecision -label: "exit"-> end
+```
+
+**Expected Behavior:**
+- Should detect potential infinite loops
+- Should enforce maxSteps limit
+- Should track node invocation counts
+- Should prevent runaway execution
+- Should provide cycle detection warnings
+
+### Empty and Minimal Machines
+
+Tests execution with minimal valid machines.
+
+```dygram examples/testing/task-execution/empty-machine.dy
+machine "Empty Machine" {
+  logLevel: "debug"
+  maxSteps: 1
+}
+
+end "Immediate end"
+```
+
+**Expected Behavior:**
+- Should handle machine with only end node
+- Should initialize correctly
+- Should terminate immediately
+- Should not throw errors
+- Should have empty execution history
+
+### Single Task No Transitions
+
+Tests task execution when no outgoing transitions exist.
+
+```dygram examples/testing/task-execution/isolated-task.dy
+machine "Isolated Task Machine" {
+  logLevel: "debug"
+  maxSteps: 5
+}
+
+task start "Isolated Task" {
+  title: "Isolated Task"
+  desc: "Task with no outgoing transitions"
+  prompt: "Execute task without explicit transitions"
+}
+```
+
+**Expected Behavior:**
+- Should execute task successfully
+- Should handle missing transitions gracefully
+- Should remain at current node or auto-terminate
+- Should not throw transition errors
+- Should log appropriate warnings
+
+### Parallel Path Convergence
+
+Tests execution with multiple paths converging to same node.
+
+```dygram examples/testing/task-execution/path-convergence.dy
+machine "Path Convergence Machine" {
+  logLevel: "debug"
+  maxSteps: 20
+}
+
+task pathSelector "Path Selector" {
+  title: "Path Selector"
+  desc: "Select execution path"
+  prompt: "Choose between multiple execution paths"
+}
+
+task fastPath "Fast Path" {
+  title: "Fast Path"
+  desc: "Quick processing path"
+  prompt: "Execute fast processing"
+}
+
+task thoroughPath "Thorough Path" {
+  title: "Thorough Path"
+  desc: "Comprehensive processing path"
+  prompt: "Execute thorough processing"
+}
+
+task convergence "Convergence Point" {
+  title: "Convergence Point"
+  desc: "Point where paths merge"
+  prompt: "Handle merged execution paths"
+}
+
+end "Paths converged"
+
+pathSelector -label: "fast"-> fastPath
+pathSelector -label: "thorough"-> thoroughPath
+fastPath -> convergence
+thoroughPath -> convergence
+convergence -> end
+```
+
+**Expected Behavior:**
+- Should handle multiple incoming edges correctly
+- Should track which path was taken
+- Should maintain execution context across paths
+- Should not duplicate processing at convergence
+- Should record complete history
+
+### Deep Nesting and Long Chains
+
+Tests execution with many sequential nodes.
+
+```dygram examples/testing/task-execution/deep-chain.dy
+machine "Deep Chain Machine" {
+  logLevel: "debug"
+  maxSteps: 50
+}
+
+task step1 "Step 1" { prompt: "Execute step 1" }
+task step2 "Step 2" { prompt: "Execute step 2" }
+task step3 "Step 3" { prompt: "Execute step 3" }
+task step4 "Step 4" { prompt: "Execute step 4" }
+task step5 "Step 5" { prompt: "Execute step 5" }
+task step6 "Step 6" { prompt: "Execute step 6" }
+task step7 "Step 7" { prompt: "Execute step 7" }
+task step8 "Step 8" { prompt: "Execute step 8" }
+task step9 "Step 9" { prompt: "Execute step 9" }
+task step10 "Step 10" { prompt: "Execute step 10" }
+
+end "Deep chain complete"
+
+step1 -> step2 -> step3 -> step4 -> step5
+step5 -> step6 -> step7 -> step8 -> step9 -> step10 -> end
+```
+
+**Expected Behavior:**
+- Should handle long execution chains
+- Should not cause stack overflow
+- Should track all intermediate states
+- Should maintain performance
+- Should complete all steps successfully
+
+### Unreachable Nodes
+
+Tests execution with unreachable node structures.
+
+```dygram examples/testing/task-execution/unreachable-nodes.dy
+machine "Unreachable Nodes Machine" {
+  logLevel: "debug"
+  maxSteps: 10
+}
+
+task start "Start Task" {
+  prompt: "Start execution"
+}
+
+task reachable "Reachable Task" {
+  prompt: "Reachable from start"
+}
+
+task unreachable "Unreachable Task" {
+  prompt: "Not reachable from start"
+}
+
+end "Execution complete"
+
+start -> reachable -> end
+```
+
+**Expected Behavior:**
+- Should detect unreachable nodes during validation
+- Should warn about structural issues
+- Should execute reachable path successfully
+- Should not attempt to execute unreachable nodes
+- Should provide graph analysis feedback
+
+### Rapid State Transitions
+
+Tests execution with minimal processing per node.
+
+```dygram examples/testing/task-execution/rapid-transitions.dy
+machine "Rapid Transitions Machine" {
+  logLevel: "debug"
+  maxSteps: 100
+}
+
+task t1 "Rapid 1" { prompt: "Quick task 1" }
+task t2 "Rapid 2" { prompt: "Quick task 2" }
+task t3 "Rapid 3" { prompt: "Quick task 3" }
+task t4 "Rapid 4" { prompt: "Quick task 4" }
+task t5 "Rapid 5" { prompt: "Quick task 5" }
+
+end "Rapid complete"
+
+t1 -> t2 -> t3 -> t4 -> t5 -> end
+```
+
+**Expected Behavior:**
+- Should handle rapid state changes efficiently
+- Should maintain state consistency
+- Should not lose execution context
+- Should track all transitions accurately
+- Should complete without timing issues
+
+### Context Mutation Consistency
+
+Tests that context mutations are properly isolated and tracked.
+
+```dygram examples/testing/task-execution/context-mutations.dy
+machine "Context Mutation Machine" {
+  logLevel: "debug"
+  maxSteps: 15
+}
+
+context MutationTest {
+  counter: 0
+  data: []
+  flags: {
+    modified: false;
+    validated: false;
+  }
+}
+
+task mutator1 "First Mutator" {
+  title: "First Mutator"
+  desc: "Mutate context data"
+  prompt: "Modify context counter and data array"
+}
+
+task mutator2 "Second Mutator" {
+  title: "Second Mutator"
+  desc: "Further mutate context"
+  prompt: "Further modify context and set flags"
+}
+
+task validator "Context Validator" {
+  title: "Context Validator"
+  desc: "Validate context state"
+  prompt: "Validate that all context mutations persisted correctly"
+}
+
+end "Context validated"
+
+mutator1 -> mutator2 -> validator -> end
+```
+
+**Expected Behavior:**
+- Should preserve context mutations across nodes
+- Should not lose context data between transitions
+- Should maintain context consistency
+- Should allow context inspection
+- Should track mutation history
+
+### Missing Node References
+
+Tests execution when edge references non-existent nodes.
+
+```dygram examples/testing/task-execution/missing-references.dy
+machine "Missing References Machine" {
+  logLevel: "debug"
+  maxSteps: 10
+}
+
+task start "Start Task" {
+  prompt: "Start with potential missing reference"
+}
+
+task validTarget "Valid Target" {
+  prompt: "Valid reachable target"
+}
+
+end "Execution end"
+
+start -> validTarget
+validTarget -> end
+```
+
+**Expected Behavior:**
+- Should validate node references at initialization
+- Should catch missing node errors early
+- Should not crash during execution
+- Should provide clear error messages
+- Should fail gracefully if references invalid
+
 ## Usage
 
 To run these tests:
