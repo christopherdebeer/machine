@@ -29,22 +29,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  // Security: Ensure filename doesn't contain path traversal
+  // Security: Validate all path components to prevent path traversal
+  const invalidPathChars = /[.\/\\]/;
+  if (invalidPathChars.test(category)) {
+    return res.status(400).json({ error: 'Invalid category parameter' });
+  }
+  if (invalidPathChars.test(exampleName)) {
+    return res.status(400).json({ error: 'Invalid example parameter' });
+  }
   if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
     return res.status(400).json({ error: 'Invalid filename' });
   }
 
   try {
     // Build recording file path
-    const recordingPath = path.resolve(
+    const recordingsRoot = path.resolve(
       process.cwd(),
       'test',
       'fixtures',
-      'recordings',
+      'recordings'
+    );
+
+    const recordingPath = path.resolve(
+      recordingsRoot,
       `generative-${category}`,
       exampleName,
       filename
     );
+
+    // Security: Verify resolved path is still within the recordings directory
+    const normalizedPath = path.normalize(recordingPath);
+    if (!normalizedPath.startsWith(recordingsRoot + path.sep)) {
+      return res.status(403).json({ error: 'Access denied: path outside recordings directory' });
+    }
 
     // Check if file exists
     if (!fs.existsSync(recordingPath)) {
