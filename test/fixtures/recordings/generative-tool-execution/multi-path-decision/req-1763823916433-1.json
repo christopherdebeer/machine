@@ -1,0 +1,80 @@
+{
+  "request": {
+    "type": "llm_invocation_request",
+    "requestId": "req-1763823916433-1",
+    "timestamp": "2025-11-22T15:05:16.433Z",
+    "context": {},
+    "messages": [
+      {
+        "role": "user",
+        "content": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: start\n- **Type**: unknown\n- **Objective**: Analyze input and select the most appropriate processing path\n- **Visited Nodes**: 0\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## fastPath\n\n## standardPath\n\n## detailedPath\n\n\n# Instructions\nYour primary objective is:\n> Analyze input and select the most appropriate processing path\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+      }
+    ],
+    "tools": [
+      {
+        "name": "transition_to_fastPath",
+        "description": "Transition to fastPath",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      },
+      {
+        "name": "transition_to_standardPath",
+        "description": "Transition to standardPath",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      },
+      {
+        "name": "transition_to_detailedPath",
+        "description": "Transition to detailedPath",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      }
+    ],
+    "systemPrompt": "[user]: # Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: start\n- **Type**: unknown\n- **Objective**: Analyze input and select the most appropriate processing path\n- **Visited Nodes**: 0\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## fastPath\n\n## standardPath\n\n## detailedPath\n\n\n# Instructions\nYour primary objective is:\n> Analyze input and select the most appropriate processing path\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+  },
+  "response": {
+    "type": "llm_invocation_response",
+    "requestId": "req-1763823916433-1",
+    "timestamp": "2025-11-22T15:05:49.861Z",
+    "reasoning": "Objective is to select processing path. Without specific criteria favoring fast or detailed processing, standardPath is the balanced default choice.",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Selected standard processing path."
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-5",
+          "name": "transition_to_standardPath",
+          "input": {
+            "reason": "Standard path chosen as balanced default"
+          }
+        }
+      ],
+      "stop_reason": "tool_use"
+    }
+  },
+  "recordedAt": "2025-11-22T15:05:49.889Z"
+}
