@@ -41,7 +41,7 @@ function createTestClient(recordingsDir: string) {
         queueDir: '.dygram-test-queue',
         recordResponses: true,
         recordingsDir,
-        timeout: 10000
+        timeout: 60000 // 60 seconds to allow time for manual Claude Code responses
     });
 }
 
