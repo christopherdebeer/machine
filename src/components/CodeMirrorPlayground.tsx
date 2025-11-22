@@ -67,6 +67,8 @@ import {
   updateHashParams as updateHashParamsUtil,
   type HashParams as HashParamsType,
 } from "../utils/url-encoding";
+import { checkRecordingsAvailable } from "../api/recordings-api";
+import { BrowserPlaybackClient } from "../language/browser-playback-client";
 
 // CodeMirror highlighting effect for SVG → Editor navigation
 const setHighlightEffect = StateEffect.define<{from: number; to: number} | null>();
@@ -599,6 +601,11 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [logLevel, setLogLevel] = useState<string>('info');
     const [isFormatting, setIsFormatting] = useState(false);
 
+    // Playback mode state
+    const [recordingsAvailable, setRecordingsAvailable] = useState(false);
+    const [isPlaybackMode, setIsPlaybackMode] = useState(false);
+    const [playbackClient, setPlaybackClient] = useState<BrowserPlaybackClient | null>(null);
+
     // Multi-file editor state
     const [openFiles, setOpenFiles] = useState<Array<{ path: string; content: string; name: string }>>([]);
     const [activeFileIndex, setActiveFileIndex] = useState(0);
@@ -915,6 +922,39 @@ export const CodeMirrorPlayground: React.FC = () => {
       sections: encodedSections
     });
   }, [settingsCollapsed, editorCollapsed, outputCollapsed, executionCollapsed, editorSize, outputSize, executionSize, outputFormat, fitToContainer]);
+
+  // Check for recordings when example changes
+  useEffect(() => {
+    const checkRecordings = async () => {
+      if (!selectedExample) {
+        setRecordingsAvailable(false);
+        setIsPlaybackMode(false);
+        setPlaybackClient(null);
+        return;
+      }
+
+      try {
+        // Extract example name from filename (remove extension)
+        const exampleName = selectedExample.filename.replace(/\.(dy|dygram|mach)$/, '');
+
+        // Check if recordings exist
+        const available = await checkRecordingsAvailable(exampleName, selectedExample.category);
+        setRecordingsAvailable(available);
+
+        if (!available) {
+          setIsPlaybackMode(false);
+          setPlaybackClient(null);
+        }
+      } catch (error) {
+        console.warn('Failed to check recordings:', error);
+        setRecordingsAvailable(false);
+        setIsPlaybackMode(false);
+        setPlaybackClient(null);
+      }
+    };
+
+    checkRecordings();
+  }, [selectedExample]);
 
   // Handle settings changes
   const handleModelChange = useCallback(
@@ -1281,8 +1321,14 @@ export const CodeMirrorPlayground: React.FC = () => {
       return;
     }
 
-    if (!outputData.machine || !settings.apiKey) {
-      console.error("No machine parsed or API key missing");
+    if (!outputData.machine) {
+      console.error("No machine parsed");
+      return;
+    }
+
+    // Check if we need API key (not in playback mode)
+    if (!isPlaybackMode && !settings.apiKey) {
+      console.error("API key missing (required for live execution)");
       return;
     }
 
@@ -1293,19 +1339,30 @@ export const CodeMirrorPlayground: React.FC = () => {
       const machineJSON = convertToMachineData(outputData.machine);
       setCurrentMachineData(machineJSON);
 
-      // Create executor with new MachineExecutor
-      const exec = await MachineExecutor.create(machineJSON, {
-        llm: {
-          provider: "anthropic",
-          apiKey: settings.apiKey,
-          modelId: settings.model,
-        },
-      });
+      // Create executor with appropriate client
+      let exec: MachineExecutor;
+
+      if (isPlaybackMode && playbackClient) {
+        // Playback mode - use recordings
+        console.log("Starting playback execution...");
+        exec = await MachineExecutor.create(machineJSON, {
+          llm: playbackClient as any,  // Duck typing - playback client implements same interface
+        });
+      } else {
+        // Live mode - use API
+        console.log("Starting live execution...");
+        exec = await MachineExecutor.create(machineJSON, {
+          llm: {
+            provider: "anthropic",
+            apiKey: settings.apiKey,
+            modelId: settings.model,
+          },
+        });
+      }
 
       setExecutor(exec);
 
       // Execute machine
-      console.log("Starting execution...");
       await exec.execute();
 
       // Update SVG visualization with final execution state
@@ -1321,13 +1378,21 @@ export const CodeMirrorPlayground: React.FC = () => {
     isExecuting,
     outputData.machine,
     settings,
+    isPlaybackMode,
+    playbackClient,
     convertToMachineData,
     updateRuntimeVisualization,
   ]);
 
   const handleStep = useCallback(async () => {
-    if (!outputData.machine || !settings.apiKey) {
-      console.error("No machine parsed or API key missing");
+    if (!outputData.machine) {
+      console.error("No machine parsed");
+      return;
+    }
+
+    // Check if we need API key (not in playback mode)
+    if (!isPlaybackMode && !settings.apiKey) {
+      console.error("API key missing (required for live execution)");
       return;
     }
 
@@ -1339,13 +1404,21 @@ export const CodeMirrorPlayground: React.FC = () => {
         const machineJSON = convertToMachineData(outputData.machine);
         setCurrentMachineData(machineJSON);
 
-        exec = await MachineExecutor.create(machineJSON, {
-          llm: {
-            provider: "anthropic",
-            apiKey: settings.apiKey,
-            modelId: settings.model,
-          },
-        });
+        if (isPlaybackMode && playbackClient) {
+          // Playback mode
+          exec = await MachineExecutor.create(machineJSON, {
+            llm: playbackClient as any,
+          });
+        } else {
+          // Live mode
+          exec = await MachineExecutor.create(machineJSON, {
+            llm: {
+              provider: "anthropic",
+              apiKey: settings.apiKey,
+              modelId: settings.model,
+            },
+          });
+        }
 
         setExecutor(exec);
       }
@@ -1367,6 +1440,8 @@ export const CodeMirrorPlayground: React.FC = () => {
     executor,
     outputData.machine,
     settings,
+    isPlaybackMode,
+    playbackClient,
     convertToMachineData,
     updateRuntimeVisualization,
   ]);
@@ -1451,6 +1526,41 @@ export const CodeMirrorPlayground: React.FC = () => {
       executor.setLogLevel(level as any);
     }
   }, [executor]);
+
+  const handleTogglePlaybackMode = useCallback(async () => {
+    if (!selectedExample || !recordingsAvailable) {
+      console.warn('Cannot toggle playback mode: no recordings available');
+      return;
+    }
+
+    const newPlaybackMode = !isPlaybackMode;
+    setIsPlaybackMode(newPlaybackMode);
+
+    if (newPlaybackMode) {
+      // Enable playback mode - create playback client
+      try {
+        const exampleName = selectedExample.filename.replace(/\.(dy|dygram|mach)$/, '');
+        const client = await BrowserPlaybackClient.create({
+          exampleName,
+          category: selectedExample.category
+        });
+        setPlaybackClient(client);
+        console.log(`Playback mode enabled: ${client.getRecordingCount()} recordings loaded`);
+      } catch (error) {
+        console.error('Failed to create playback client:', error);
+        setIsPlaybackMode(false);
+        setPlaybackClient(null);
+      }
+    } else {
+      // Disable playback mode
+      setPlaybackClient(null);
+      console.log('Playback mode disabled');
+    }
+
+    // Reset executor when toggling modes
+    setExecutor(null);
+    setIsExecuting(false);
+  }, [selectedExample, recordingsAvailable, isPlaybackMode]);
 
   const handleReset = useCallback(async () => {
     console.log("Resetting machine");
@@ -1761,6 +1871,10 @@ export const CodeMirrorPlayground: React.FC = () => {
                         executor={executor}
                         logLevel={logLevel}
                         onLogLevelChange={handleLogLevelChange}
+                        playbackMode={isPlaybackMode}
+                        recordingsAvailable={recordingsAvailable}
+                        onTogglePlaybackMode={handleTogglePlaybackMode}
+                        playbackClient={playbackClient}
                     />
                 </SectionContent>
             </ExecutionSection>
