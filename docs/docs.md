@@ -39,6 +39,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [CLI and API Usage](examples/cli-and-api.md)
   - [Domain-Specific Examples](examples/domain-examples.md)
   - [Edge Syntax Validation Examples](examples/edge-syntax-validation.md)
+  - [Execution Features: Context, Templates, and Meta-Tools](examples/execution-features.md)
   - [Import System Examples](examples/imports.md)
   - [LLM Integration Examples](examples/llm-integration.md)
   - [Examples](examples/README.md)
