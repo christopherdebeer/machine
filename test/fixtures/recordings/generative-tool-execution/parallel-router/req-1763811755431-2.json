@@ -1,0 +1,54 @@
+{
+  "request": {
+    "type": "llm_invocation_request",
+    "requestId": "req-1763811755431-2",
+    "timestamp": "2025-11-22T11:42:35.431Z",
+    "context": {},
+    "messages": [
+      {
+        "role": "user",
+        "content": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: coordinator\n- **Type**: task\n- **Objective**: Coordinate results from parallel processes\n- **Visited Nodes**: 2\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## synchronized\n\n\n# Instructions\nYour primary objective is:\n> Coordinate results from parallel processes\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+      }
+    ],
+    "tools": [
+      {
+        "name": "transition_to_synchronized",
+        "description": "Transition to synchronized",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      }
+    ],
+    "systemPrompt": "[user]: # Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: coordinator\n- **Type**: task\n- **Objective**: Coordinate results from parallel processes\n- **Visited Nodes**: 2\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## synchronized\n\n\n# Instructions\nYour primary objective is:\n> Coordinate results from parallel processes\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+  },
+  "response": {
+    "type": "llm_invocation_response",
+    "requestId": "req-1763811755431-2",
+    "timestamp": "2025-11-22T11:42:48.937Z",
+    "reasoning": "Parallel process coordination at the coordinator node, moving to synchronized state.",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Parallel processes coordinated successfully. Moving to synchronized state."
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-13",
+          "name": "transition_to_synchronized",
+          "input": {
+            "reason": "Parallel process coordination complete, proceeding to synchronization"
+          }
+        }
+      ],
+      "stop_reason": "tool_use"
+    }
+  },
+  "recordedAt": "2025-11-22T11:42:49.031Z"
+}
