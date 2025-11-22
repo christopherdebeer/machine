@@ -206,11 +206,11 @@ state success "Operation succeeded"
 state failure "Operation failed permanently"
 end "Process complete"
 
-start -> success @option("success")
-start -> retry @option("retry")
-start -> failure @option("failure")
-retry -> success @option("retry_success")
-retry -> failure @option("retry_failure")
+start -"success"-> success
+start -"retry"-> retry
+start -"failure"-> failure
+retry -"retry success"-> success
+retry -"retry failure"-> failure
 success -> end
 failure -> end
 ```
@@ -299,9 +299,9 @@ state lowPriority "Low priority processing"
 end "Processing complete"
 
 start -> evaluation
-evaluation -> highPriority @condition("Data.priority == 'high'")
-evaluation -> normalPriority @condition("Data.priority == 'normal'")
-evaluation -> lowPriority @condition("Data.priority == 'low'")
+evaluation -when: "Data.priority == 'high'"-> highPriority
+evaluation -when: "Data.priority == 'normal'"-> normalPriority
+evaluation -when: "Data.priority == 'low'"-> lowPriority
 highPriority -> end
 normalPriority -> end
 lowPriority -> end
@@ -351,9 +351,9 @@ state method_b "Processing Method B - Accurate"
 state method_c "Processing Method C - Balanced"
 end "Processing selected"
 
-start -> method_a @option("fast_processing")
-start -> method_b @option("accurate_processing")
-start -> method_c @option("balanced_processing")
+start -"fast processing"-> method_a
+start -"accurate processing"-> method_b
+start -"balanced processing"-> method_c
 method_a -> end
 method_b -> end
 method_c -> end
@@ -391,9 +391,9 @@ state pathB "Path B (Criteria B met)"
 state pathDefault "Default path"
 end "Conflict resolved"
 
-start -> pathA @condition("Conditions.criteriaA == true")
-start -> pathB @condition("Conditions.criteriaB == true")
-start -> pathDefault @condition("true")
+start -when: "Conditions.criteriaA == true"-> pathA
+start -when: "Conditions.criteriaB == true"-> pathB
+start -when: "true"-> pathDefault
 pathA -> end
 pathB -> end
 pathDefault -> end
@@ -429,8 +429,8 @@ task convergence "Merge point" {
 
 end "Diamond complete"
 
-start -> leftBranch @option("left")
-start -> rightBranch @option("right")
+start -"left"-> leftBranch
+start -"right"-> rightBranch
 leftBranch -> convergence
 rightBranch -> convergence
 convergence -> end
@@ -593,9 +593,9 @@ task nodeB "Node B" {
 
 end "Navigation complete"
 
-nodeA -> nodeB @option("move_to_b")
-nodeB -> nodeA @option("return_to_a")
-nodeB -> end @option("complete")
+nodeA -"move to B"-> nodeB
+nodeB -"return to A"-> nodeA
+nodeB -"complete"-> end
 ```
 
 **Expected Behavior:**
@@ -630,9 +630,9 @@ state economical "Economical path (low cost)"
 state quality "Quality path (standard quality)"
 end "Routing complete"
 
-start -> urgent @condition("Priority.urgency == 'high'", priority: 1)
-start -> economical @condition("Priority.cost == 'low'", priority: 2)
-start -> quality @condition("Priority.quality == 'standard'", priority: 3)
+start -when: "Priority.urgency == 'high'"-> urgent
+start -when: "Priority.cost == 'low'"-> economical
+start -when: "Priority.quality == 'standard'"-> quality
 urgent -> end
 economical -> end
 quality -> end
