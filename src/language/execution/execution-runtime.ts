@@ -272,7 +272,24 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
         };
     }
 
+    // Check if agent decision required FIRST (before checking transitions)
+    // This ensures task nodes with prompts execute their work before considering transitions
+    if (requiresAgentDecision(machineJSON, nodeName)) {
+        effects.push(buildLogEffect('info', 'execution', `Agent decision required for ${nodeName}`));
+
+        // Build LLM invocation effect
+        const llmEffect = buildLLMEffect(machineJSON, nextState, path.id, nodeName);
+        effects.push(llmEffect);
+
+        return {
+            nextState,
+            effects,
+            status: 'waiting' // Wait for agent result
+        };
+    }
+
     // Check for single non-automated transition (auto-take it)
+    // This optimization only applies to nodes that don't require agent work
     const nonAutomatedTransitions = getNonAutomatedTransitions(machineJSON, nextState, path.id);
     if (nonAutomatedTransitions.length === 1) {
         const transition = nonAutomatedTransitions[0];
@@ -293,21 +310,6 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
             nextState,
             effects,
             status: 'continue'
-        };
-    }
-
-    // Check if agent decision required (multiple transitions)
-    if (requiresAgentDecision(machineJSON, nodeName)) {
-        effects.push(buildLogEffect('info', 'execution', `Agent decision required for ${nodeName}`));
-
-        // Build LLM invocation effect
-        const llmEffect = buildLLMEffect(machineJSON, nextState, path.id, nodeName);
-        effects.push(llmEffect);
-
-        return {
-            nextState,
-            effects,
-            status: 'waiting' // Wait for agent result
         };
     }
 

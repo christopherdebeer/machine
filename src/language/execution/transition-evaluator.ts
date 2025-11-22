@@ -287,14 +287,13 @@ export function requiresAgentDecision(
     const outboundEdges = getOutboundEdges(machineJSON, nodeName);
     const nonAutoEdges = outboundEdges.filter(edge => !edge.hasAutoAnnotation);
 
-    // Task nodes with prompts: Only require agent if multiple transitions exist
-    // - 0 transitions: No agent needed (just complete the node)
-    // - 1 transition: No agent needed (take the only path)
-    // - 2+ transitions: Agent must choose between paths
+    // Task nodes with prompts ALWAYS require agent decisions
+    // The agent must execute the prompt to perform work (call tools, mutate context, emit text)
+    // even if there's only one outgoing transition or no transitions at all
     if (NodeTypeChecker.isTask(node)) {
         const promptAttr = node.attributes?.find(a => a.name === 'prompt');
         if (promptAttr) {
-            return nonAutoEdges.length > 1;
+            return true;  // Always invoke agent for task nodes with prompts
         }
     }
 
