@@ -94,6 +94,8 @@ export interface LLMInvocationResponse {
 export class InteractiveTestClient {
     private config: Required<Omit<InteractiveTestConfig, 'apiKey' | 'region'>> & Pick<InteractiveTestConfig, 'apiKey' | 'region'>;
     private requestCounter = 0;
+    private lockFilePath?: string;
+    private heartbeatInterval?: NodeJS.Timeout;
 
     constructor(config: InteractiveTestConfig) {
         this.config = {
@@ -135,6 +137,9 @@ export class InteractiveTestClient {
             }
 
             console.log('[InteractiveTestClient] Initialized file-queue mode:', queuePath);
+
+            // Create lock file for synchronization
+            this.createLockFile(queuePath);
         }
 
         if (this.config.recordResponses) {
@@ -146,6 +151,79 @@ export class InteractiveTestClient {
             // Clean recordings if requested
             if (this.config.cleanBeforeRecording) {
                 this.cleanRecordingsDirectory(recordingsPath);
+            }
+        }
+    }
+
+    /**
+     * Create lock file with heartbeat
+     */
+    private createLockFile(queuePath: string): void {
+        this.lockFilePath = path.join(queuePath, '.test-session.lock');
+
+        const lockData = {
+            pid: process.pid,
+            started: new Date().toISOString(),
+            timestamp: new Date().toISOString(),
+            requestsProcessed: 0
+        };
+
+        fs.writeFileSync(this.lockFilePath, JSON.stringify(lockData, null, 2));
+        console.log('[InteractiveTestClient] Created lock file:', this.lockFilePath);
+
+        // Start heartbeat - update every 2 seconds
+        this.heartbeatInterval = setInterval(() => {
+            this.updateHeartbeat();
+        }, 2000);
+
+        // Cleanup on process exit
+        const cleanup = () => {
+            this.removeLockFile();
+        };
+
+        process.on('exit', cleanup);
+        process.on('SIGINT', cleanup);
+        process.on('SIGTERM', cleanup);
+        process.on('uncaughtException', (error) => {
+            console.error('[InteractiveTestClient] Uncaught exception:', error);
+            cleanup();
+            process.exit(1);
+        });
+    }
+
+    /**
+     * Update heartbeat timestamp in lock file
+     */
+    private updateHeartbeat(): void {
+        if (!this.lockFilePath || !fs.existsSync(this.lockFilePath)) {
+            return;
+        }
+
+        try {
+            const lockData = JSON.parse(fs.readFileSync(this.lockFilePath, 'utf-8'));
+            lockData.timestamp = new Date().toISOString();
+            lockData.requestsProcessed = this.requestCounter;
+            fs.writeFileSync(this.lockFilePath, JSON.stringify(lockData, null, 2));
+        } catch (error) {
+            console.error('[InteractiveTestClient] Failed to update heartbeat:', error);
+        }
+    }
+
+    /**
+     * Remove lock file
+     */
+    private removeLockFile(): void {
+        if (this.heartbeatInterval) {
+            clearInterval(this.heartbeatInterval);
+            this.heartbeatInterval = undefined;
+        }
+
+        if (this.lockFilePath && fs.existsSync(this.lockFilePath)) {
+            try {
+                fs.unlinkSync(this.lockFilePath);
+                console.log('[InteractiveTestClient] Removed lock file');
+            } catch (error) {
+                console.error('[InteractiveTestClient] Failed to remove lock file:', error);
             }
         }
     }

@@ -84,11 +84,44 @@ echo "Tests running as PID: $TEST_PID"
 
 ### Step 2: Process Requests Loop
 
-Now enter a loop where you'll respond to test requests. For each request:
+Now enter a loop where you'll respond to test requests. The get-next-request script uses **lock file synchronization** to automatically detect when tests complete or crash.
+
+**Lock File Synchronization:**
+- Tests create `.test-session.lock` with heartbeat timestamp
+- get-next-request waits for lock file (tests starting)
+- Monitors heartbeat to detect crashed tests (stale if >10s old)
+- Exits gracefully when lock file removed (tests complete)
+
+**Exit Codes:**
+- `0` = Request returned successfully (continue loop)
+- `1` = Error or stale tests (break loop)
+- `2` = Tests completed gracefully (break loop)
 
 #### 2a. Get Next Request
 
-Use the helper script to block until a request is available:
+Use the helper script in a loop:
+
+```bash
+while true; do
+  # Get next request (blocks until available or tests complete)
+  REQUEST=$(node scripts/get-next-request.js --timeout 60000)
+  EXIT_CODE=$?
+
+  # Check exit code
+  if [ $EXIT_CODE -eq 2 ]; then
+    echo "✅ Tests completed"
+    break
+  elif [ $EXIT_CODE -ne 0 ]; then
+    echo "❌ Error or tests crashed"
+    break
+  fi
+
+  # Process the request
+  # ... (steps 2b-2d below)
+done
+```
+
+**Or call once to see the first request:**
 
 ```bash
 node scripts/get-next-request.js --timeout 60000
@@ -309,24 +342,65 @@ All responses must follow this structure:
 }
 ```
 
+## Lock File Synchronization
+
+The test suite and request loop synchronize via `.test-session.lock`:
+
+**Lock File Structure:**
+```json
+{
+  "pid": 12345,
+  "started": "2025-11-21T23:45:00.000Z",
+  "timestamp": "2025-11-21T23:50:00.000Z",
+  "requestsProcessed": 5
+}
+```
+
+**Lifecycle:**
+1. Tests start → Create lock file with initial timestamp
+2. Tests run → Update heartbeat every 2 seconds
+3. Tests complete → Remove lock file
+4. Tests crash → Lock file becomes stale (no heartbeat updates)
+
+**Heartbeat Monitoring:**
+- Updated every 2 seconds by test suite
+- Considered stale if >10 seconds old
+- get-next-request checks before each poll
+
+**Benefits:**
+- No infinite waiting if tests crash
+- Automatic detection of test completion
+- Graceful exit when tests finish
+- Defensive against edge cases
+
 ## Helper Scripts Reference
 
 ### `get-next-request.js`
 
-Blocks until a request is available, outputs JSON to stdout.
+Blocks until a request is available, with lock file synchronization.
 
 **Usage:**
 ```bash
-node scripts/get-next-request.js [--queue-dir <path>] [--timeout <ms>]
+node scripts/get-next-request.js [--queue-dir <path>] [--timeout <ms>] [--lock-timeout <ms>]
 ```
 
 **Options:**
 - `--queue-dir`: Queue directory (default: `.dygram-test-queue`)
-- `--timeout`: Max wait time in ms (default: 30000)
+- `--timeout`: Max wait time for request in ms (default: 60000)
+- `--lock-timeout`: Max wait time for test session to start in ms (default: 30000)
 
 **Output:**
 - JSON request on stdout
-- Exit code 0 on success, 1 on timeout
+- Status messages on stderr
+- Exit codes:
+  - `0` = Request returned successfully
+  - `1` = Error, timeout, or stale tests
+  - `2` = Tests completed gracefully (lock file removed)
+
+**Lock File Synchronization:**
+- Waits for `.test-session.lock` to exist
+- Monitors heartbeat timestamp
+- Exits when lock file removed or stale
 
 ### `submit-response.js`
 
