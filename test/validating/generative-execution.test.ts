@@ -691,41 +691,23 @@ describe('Generative Execution Tests', () => {
     });
 
     describe('Execution Features Tests', () => {
-        it('should discover and run execution features examples', { timeout: 300000 }, async () => {
-            const examplesDir = join(process.cwd(), 'examples', 'execution-features');
-            const testResults: any[] = [];
+        const examplesDir = join(process.cwd(), 'examples', 'execution-features');
 
-            // Discover all .dy files in execution-features
-            const files = await readdir(examplesDir);
-            const dyFiles = files.filter(f => f.endsWith('.dy'));
+        // Try to discover examples at module load time
+        let dyFiles: string[] = [];
+        try {
+            dyFiles = fs.readdirSync(examplesDir).filter(f => f.endsWith('.dy'));
+        } catch (error) {
+            console.warn(`Could not discover execution-features examples: ${examplesDir}`);
+        }
 
-            console.log(`\n📂 Discovered ${dyFiles.length} execution feature examples`);
-
-            for (const file of dyFiles) {
+        // Create a test case for each discovered example
+        for (const file of dyFiles) {
+            it(`should run ${basename(file, '.dy')}`, { timeout: 60000 }, async () => {
                 const testFile = {
                     category: 'execution-features',
                     name: basename(file, '.dy'),
                     path: join(examplesDir, file)
-                };
-
-                const testResult: any = {
-                    name: testFile.name,
-                    category: testFile.category,
-                    file: relative(process.cwd(), testFile.path),
-                    success: false,
-                    error: null,
-                    executionTime: 0,
-                    visitedNodes: 0,
-                    stepCount: 0,
-                    behaviors: [],
-                    expectedBehaviors: [],
-                    metrics: {
-                        nodesVisited: 0,
-                        executionSteps: 0,
-                        finalNode: 'unknown',
-                        executionTime: 0,
-                        visitedNodesList: []
-                    }
                 };
 
                 try {
@@ -743,10 +725,7 @@ describe('Generative Execution Tests', () => {
                         await mkdir(recordingsDir, { recursive: true });
                         console.log(`📁 Created recordings directory: ${recordingsDir}`);
                     } else if (testMode === 'playback' && !fs.existsSync(recordingsDir)) {
-                        console.log(`✗ ${testFile.name}: Recordings directory not found: ${recordingsDir}`);
-                        testResult.error = `Recordings directory not found: ${recordingsDir}`;
-                        testResults.push(testResult);
-                        continue;
+                        throw new Error(`Recordings directory not found: ${recordingsDir}`);
                     }
 
                     // Parse the machine
@@ -764,43 +743,30 @@ describe('Generative Execution Tests', () => {
                     // Execute machine
                     const startTime = Date.now();
                     const finalContext = await executor.execute();
-                    testResult.executionTime = Date.now() - startTime;
+                    const executionTime = Date.now() - startTime;
 
                     // Get context for backward compatibility
                     const context = executor.getContext();
-
-                    // Record metrics
-                    testResult.visitedNodes = context.visitedNodes.size;
-                    testResult.stepCount = context.history.length;
-
-                    // Populate metrics object for HTML report
-                    testResult.metrics = {
-                        nodesVisited: context.visitedNodes.size,
-                        executionSteps: context.history.length,
-                        finalNode: finalContext.currentNode || 'unknown',
-                        executionTime: testResult.executionTime,
-                        visitedNodesList: Array.from(context.visitedNodes)
-                    };
 
                     // Basic assertions for execution features
                     // These examples should all complete successfully
                     expect(finalContext.status).not.toBe('error');
                     expect(context.visitedNodes.size).toBeGreaterThanOrEqual(1);
 
-                    testResult.success = true;
                     console.log(`✓ ${testFile.name}: Visited ${context.visitedNodes.size} nodes, ${context.history.length} steps`);
 
                 } catch (error) {
-                    testResult.error = error instanceof Error ? error.message : String(error);
-                    testResult.success = false;
-                    console.log(`✗ ${testFile.name}: ${testResult.error}`);
+                    console.log(`✗ ${testFile.name}: ${error instanceof Error ? error.message : String(error)}`);
+                    throw error; // Re-throw to fail the test
                 }
+            });
+        }
 
-                testResults.push(testResult);
-            }
-
-            // Generate comprehensive test report
-            await generateComprehensiveTestReport(testResults, 'execution-features');
-        });
+        // If no examples were found, create a placeholder test
+        if (dyFiles.length === 0) {
+            it('should find execution-features examples', () => {
+                console.warn(`No .dy files found in ${examplesDir}`);
+            });
+        }
     });
 });

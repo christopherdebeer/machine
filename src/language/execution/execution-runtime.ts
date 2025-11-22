@@ -271,7 +271,31 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
         };
     }
 
-    // Check if agent decision required
+    // Check for single non-automated transition (auto-take it)
+    const nonAutomatedTransitions = getNonAutomatedTransitions(machineJSON, nextState, path.id);
+    if (nonAutomatedTransitions.length === 1) {
+        const transition = nonAutomatedTransitions[0];
+        effects.push(buildLogEffect(
+            'info',
+            'transition',
+            `Single transition available: ${nodeName} -> ${transition.target} (auto-taking)`,
+            { reason: 'Only one transition available' }
+        ));
+
+        nextState = recordTransition(nextState, path.id, {
+            from: nodeName,
+            to: transition.target,
+            transition: transition.condition || 'default'
+        });
+
+        return {
+            nextState,
+            effects,
+            status: 'continue'
+        };
+    }
+
+    // Check if agent decision required (multiple transitions)
     if (requiresAgentDecision(machineJSON, nodeName)) {
         effects.push(buildLogEffect('info', 'execution', `Agent decision required for ${nodeName}`));
 
