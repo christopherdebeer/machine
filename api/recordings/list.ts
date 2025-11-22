@@ -27,16 +27,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
+  // Security: Validate all path components to prevent path traversal
+  const invalidPathChars = /[.\/\\]/;
+  if (invalidPathChars.test(category)) {
+    return res.status(400).json({ error: 'Invalid category parameter' });
+  }
+  if (invalidPathChars.test(exampleName)) {
+    return res.status(400).json({ error: 'Invalid example parameter' });
+  }
+
   try {
     // Build recordings path: test/fixtures/recordings/generative-{category}/{example}/
-    const recordingsDir = path.resolve(
+    const recordingsRoot = path.resolve(
       process.cwd(),
       'test',
       'fixtures',
-      'recordings',
+      'recordings'
+    );
+
+    const recordingsDir = path.resolve(
+      recordingsRoot,
       `generative-${category}`,
       exampleName
     );
+
+    // Security: Verify resolved path is still within the recordings directory
+    const normalizedPath = path.normalize(recordingsDir);
+    if (!normalizedPath.startsWith(recordingsRoot + path.sep)) {
+      return res.status(403).json({ error: 'Access denied: path outside recordings directory' });
+    }
 
     // Check if directory exists
     if (!fs.existsSync(recordingsDir)) {
