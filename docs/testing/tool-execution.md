@@ -30,8 +30,8 @@ state pathA "Path A selected"
 state pathB "Path B selected"
 end "Execution complete"
 
-start -> pathA @option("option_a")
-start -> pathB @option("option_b")
+start -"option_a"-> pathA
+start -"option_b"-> pathB
 pathA -> end
 pathB -> end
 ```
@@ -63,9 +63,9 @@ state standardPath "Standard processing path"
 state detailedPath "Detailed analysis path"
 end "Processing complete"
 
-start -> fastPath @option("fast")
-start -> standardPath @option("standard")  
-start -> detailedPath @option("detailed")
+start -"fast"-> fastPath
+start -"standard"-> standardPath
+start -"detailed"-> detailedPath
 fastPath -> end
 standardPath -> end
 detailedPath -> end
@@ -103,9 +103,9 @@ end "Final state"
 
 // Multiple decision points
 start -> checkpoint1
-start -> alternate @option("direct_alternate")
-checkpoint1 -> success @option("proceed_success")
-checkpoint1 -> alternate @option("fallback_alternate")
+start -"direct_alternate"-> alternate
+checkpoint1 -"proceed_success"-> success
+checkpoint1 -"fallback_alternate"-> alternate
 success -> end
 alternate -> end
 ```
@@ -464,8 +464,8 @@ start "Processing loop" {
 
 end "Loop complete"
 
-start -> start @option("continue_loop")
-start -> end @option("exit_loop")
+start -"continue_loop"-> start
+start -"exit_loop"-> end
 ```
 
 **Expected Behavior:**
@@ -490,8 +490,8 @@ state stateB "State B (functionally same as A)"
 state stateC "State C (distinct)"
 end "No-op complete"
 
-stateA -> stateB @option("move_to_identical")
-stateA -> stateC @option("move_to_different")
+stateA -"move_to_identical"-> stateB
+stateA -"move_to_different"-> stateC
 stateB -> stateC
 stateC -> end
 ```
@@ -554,8 +554,8 @@ state customEnd "Custom end-like state (not actual end)"
 state actualTarget "Actual target state"
 end "Real end node"
 
-start -> customEnd @option("goto_custom_end")
-start -> actualTarget @option("goto_actual")
+start -"goto_custom_end"-> customEnd
+start -"goto_actual"-> actualTarget
 customEnd -> end
 actualTarget -> end
 ```

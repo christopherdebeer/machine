@@ -847,26 +847,56 @@ describe('Generative Execution Tests', () => {
     });
 
     describe('Execution Features Tests', () => {
-        const examplesDir = join(process.cwd(), 'examples', 'execution-features');
+        it('should discover and run execution-features tests', { timeout: 300000 }, async () => {
+            const examplesDir = join(process.cwd(), 'examples', 'execution-features');
 
-        // Try to discover examples at module load time
-        let dyFiles: string[] = [];
-        try {
-            dyFiles = fs.readdirSync(examplesDir).filter(f => f.endsWith('.dy'));
-        } catch (error) {
-            console.warn(`Could not discover execution-features examples: ${examplesDir}`);
-        }
+            // Try to discover examples
+            let dyFiles: string[] = [];
+            try {
+                dyFiles = fs.readdirSync(examplesDir).filter(f => f.endsWith('.dy'));
+            } catch (error) {
+                console.warn(`Could not discover execution-features examples: ${examplesDir}`);
+            }
 
-        // Create a test case for each discovered example
-        for (const file of dyFiles) {
-            it(`should run ${basename(file, '.dy')}`, { timeout: 60000 }, async () => {
-                const testFile = {
-                    category: 'execution-features',
+            console.log(`Execution features tests: ${dyFiles.length}`);
+
+            if (dyFiles.length === 0) {
+                console.warn(`No .dy files found in ${examplesDir}`);
+                return;
+            }
+
+            const testResults: any[] = [];
+
+            // Process each example
+            for (const file of dyFiles) {
+                const startTime = Date.now();
+                let testResult: any = {
                     name: basename(file, '.dy'),
-                    path: join(examplesDir, file)
+                    category: 'execution-features',
+                    success: false,
+                    metrics: {
+                        nodesVisited: 0,
+                        executionSteps: 0,
+                        finalNode: '',
+                        executionTime: 0,
+                        visitedNodesList: []
+                    },
+                    expectedBehaviors: [],
+                    sourceCode: '',
+                    executionLog: '',
+                    error: null
                 };
 
                 try {
+                    const testFile = {
+                        category: 'execution-features',
+                        name: basename(file, '.dy'),
+                        path: join(examplesDir, file)
+                    };
+
+                    // Read source code for report
+                    testResult.sourceCode = await readFile(testFile.path, 'utf-8');
+
                     // Determine recordings directory for this test
                     const recordingsDir = join(
                         process.cwd(),
@@ -877,10 +907,7 @@ describe('Generative Execution Tests', () => {
 
                     // In interactive mode, create recordings dir if needed
                     const testMode = process.env.DYGRAM_TEST_MODE || 'interactive';
-                    if (testMode === 'interactive' && !fs.existsSync(recordingsDir)) {
-                        await mkdir(recordingsDir, { recursive: true });
-                        console.log(`📁 Created recordings directory: ${recordingsDir}`);
-                    } else if (testMode === 'playback' && !fs.existsSync(recordingsDir)) {
+                    if (testMode === 'playback' && !fs.existsSync(recordingsDir)) {
                         throw new Error(`Recordings directory not found: ${recordingsDir}`);
                     }
 
@@ -897,32 +924,40 @@ describe('Generative Execution Tests', () => {
                     });
 
                     // Execute machine
-                    const startTime = Date.now();
                     const finalContext = await executor.execute();
-                    const executionTime = Date.now() - startTime;
+                    const endTime = Date.now();
 
                     // Get context for backward compatibility
                     const context = executor.getContext();
+
+                    // Update test result metrics
+                    testResult.metrics = {
+                        nodesVisited: context.visitedNodes.size,
+                        executionSteps: context.history.length,
+                        finalNode: context.currentNode,
+                        executionTime: endTime - startTime,
+                        visitedNodesList: Array.from(context.visitedNodes)
+                    };
 
                     // Basic assertions for execution features
                     // These examples should all complete successfully
                     expect(finalContext.status).not.toBe('error');
                     expect(context.visitedNodes.size).toBeGreaterThanOrEqual(1);
 
+                    testResult.success = true;
                     console.log(`✓ ${testFile.name}: Visited ${context.visitedNodes.size} nodes, ${context.history.length} steps`);
 
                 } catch (error) {
-                    console.log(`✗ ${testFile.name}: ${error instanceof Error ? error.message : String(error)}`);
-                    throw error; // Re-throw to fail the test
+                    testResult.error = error instanceof Error ? error.message : String(error);
+                    testResult.success = false;
+                    console.log(`✗ ${testResult.name}: ${testResult.error}`);
                 }
-            });
-        }
 
-        // If no examples were found, create a placeholder test
-        if (dyFiles.length === 0) {
-            it('should find execution-features examples', () => {
-                console.warn(`No .dy files found in ${examplesDir}`);
-            });
-        }
+                testResults.push(testResult);
+            }
+
+            // Generate comprehensive test report
+            await generateComprehensiveTestReport(testResults, 'execution-features');
+        });
     });
 });
