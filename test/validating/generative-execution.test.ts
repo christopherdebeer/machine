@@ -718,11 +718,18 @@ describe('Generative Execution Tests', () => {
                     visitedNodes: 0,
                     stepCount: 0,
                     behaviors: [],
-                    expectedBehaviors: []
+                    expectedBehaviors: [],
+                    metrics: {
+                        nodesVisited: 0,
+                        executionSteps: 0,
+                        finalNode: 'unknown',
+                        executionTime: 0,
+                        visitedNodesList: []
+                    }
                 };
 
                 try {
-                    // Check if recordings exist for this test
+                    // Determine recordings directory for this test
                     const recordingsDir = join(
                         process.cwd(),
                         'test', 'fixtures', 'recordings',
@@ -730,7 +737,12 @@ describe('Generative Execution Tests', () => {
                         testFile.name
                     );
 
-                    if (!fs.existsSync(recordingsDir)) {
+                    // In interactive mode, create recordings dir if needed
+                    const testMode = process.env.DYGRAM_TEST_MODE || 'interactive';
+                    if (testMode === 'interactive' && !fs.existsSync(recordingsDir)) {
+                        await mkdir(recordingsDir, { recursive: true });
+                        console.log(`📁 Created recordings directory: ${recordingsDir}`);
+                    } else if (testMode === 'playback' && !fs.existsSync(recordingsDir)) {
                         console.log(`✗ ${testFile.name}: Recordings directory not found: ${recordingsDir}`);
                         testResult.error = `Recordings directory not found: ${recordingsDir}`;
                         testResults.push(testResult);
@@ -760,6 +772,15 @@ describe('Generative Execution Tests', () => {
                     // Record metrics
                     testResult.visitedNodes = context.visitedNodes.size;
                     testResult.stepCount = context.history.length;
+
+                    // Populate metrics object for HTML report
+                    testResult.metrics = {
+                        nodesVisited: context.visitedNodes.size,
+                        executionSteps: context.history.length,
+                        finalNode: finalContext.currentNode || 'unknown',
+                        executionTime: testResult.executionTime,
+                        visitedNodesList: Array.from(context.visitedNodes)
+                    };
 
                     // Basic assertions for execution features
                     // These examples should all complete successfully

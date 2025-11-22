@@ -1,0 +1,54 @@
+{
+  "request": {
+    "type": "llm_invocation_request",
+    "requestId": "req-1763810182830-3",
+    "timestamp": "2025-11-22T11:16:22.830Z",
+    "context": {},
+    "messages": [
+      {
+        "role": "user",
+        "content": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: step2\n- **Type**: task\n- **Objective**: Execute second processing step\n- **Visited Nodes**: 2\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## validation\n\n\n# Instructions\nYour primary objective is:\n> Execute second processing step\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+      }
+    ],
+    "tools": [
+      {
+        "name": "transition_to_validation",
+        "description": "Transition to validation",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      }
+    ],
+    "systemPrompt": "[user]: # Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: step2\n- **Type**: task\n- **Objective**: Execute second processing step\n- **Visited Nodes**: 2\n- **Error Count**: 0\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## validation\n\n\n# Instructions\nYour primary objective is:\n> Execute second processing step\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+  },
+  "response": {
+    "type": "llm_invocation_response",
+    "requestId": "req-1763810182830-3",
+    "timestamp": "2025-11-22T11:16:23.058Z",
+    "reasoning": "At step2, visited 2 nodes. Task completed at step2, proceeding to validation",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Completed task at step2: Execute second processing step. Moving to validation."
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-auto-1763810182997",
+          "name": "transition_to_validation",
+          "input": {
+            "reason": "Task completed at step2, proceeding to validation"
+          }
+        }
+      ],
+      "stop_reason": "tool_use"
+    }
+  },
+  "recordedAt": "2025-11-22T11:16:23.134Z"
+}
