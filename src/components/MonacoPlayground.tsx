@@ -12,7 +12,16 @@ import { configureMonacoWorkers } from '../setupCommon';
 import { ExecutionControls } from './ExecutionControls';
 import { ExampleButtons } from './ExampleButtons';
 import { loadSettings, saveSettings } from '../language/shared-settings';
-import { OutputPanel } from '../language/playground-output-panel';
+import { OutputPanel, OutputData, OutputFormat } from './OutputPanel';
+import { createMachineServices } from '../language/machine-module';
+import { EmptyFileSystem } from 'langium';
+import { parseHelper } from 'langium/test';
+import { Machine } from '../language/generated/ast';
+import { generateJSON } from '../language/generator/generator';
+import { serializeMachineToJSON } from '../language/json/serializer';
+import { generateGraphvizFromJSON } from '../language/diagram/index';
+import { render as renderGraphviz } from '../language/diagram-controls';
+import { getExampleByKey, type Example } from '../language/shared-examples';
 
 // Styled Components
 const Container = styled.div`
@@ -165,7 +174,9 @@ const OutputSection = styled.div`
 
 const OutputContainer = styled.div`
     flex: 1;
-    overflow: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 `;
 
 const ExecutionSection = styled.div`
@@ -181,10 +192,105 @@ export const MonacoPlayground: React.FC = () => {
     const outputRef = useRef<HTMLDivElement>(null);
     const executionRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<MonacoEditorLanguageClientWrapper | null>(null);
-    const outputPanelRef = useRef<OutputPanel | null>(null);
+    const updateTimeoutRef = useRef<number | null>(null);
 
     const [settings, setSettings] = useState(() => loadSettings());
     const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+    const [outputData, setOutputData] = useState<OutputData>({});
+    const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
+
+    // PNG generation utility
+    const generatePngFromSvg = useCallback(async (svgContent: string): Promise<string | undefined> => {
+        if (!svgContent) return undefined;
+        try {
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            try {
+                const dataUrl = await new Promise<string>((resolve, reject) => {
+                    const image = new Image();
+                    image.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        if (!context) {
+                            reject(new Error('Unable to obtain 2D canvas context'));
+                            return;
+                        }
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        context.drawImage(image, 0, 0);
+                        resolve(canvas.toDataURL('image/png'));
+                    };
+                    image.onerror = () => reject(new Error('Unable to load SVG for PNG conversion'));
+                    image.src = url;
+                });
+                return dataUrl;
+            } finally {
+                URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error('Failed to generate PNG from SVG:', error);
+            return undefined;
+        }
+    }, []);
+
+    // Handle document changes with debouncing
+    const handleDocumentChange = useCallback(async (code: string) => {
+        // Clear previous timeout
+        if (updateTimeoutRef.current !== null) {
+            clearTimeout(updateTimeoutRef.current);
+        }
+
+        // Schedule update with debouncing
+        updateTimeoutRef.current = window.setTimeout(async () => {
+            try {
+                // Initialize Langium services for parsing
+                const services = createMachineServices(EmptyFileSystem);
+                const parse = parseHelper<Machine>(services.Machine);
+
+                // Parse the code
+                const document = await parse(code);
+
+                // Check for parser errors
+                if (document.parseResult.parserErrors.length > 0) {
+                    console.warn('Parse errors detected:', document.parseResult.parserErrors);
+                }
+
+                // Get the machine model
+                const model = document.parseResult.value as Machine;
+                if (!model) {
+                    console.warn('No machine model parsed');
+                    return;
+                }
+
+                // Convert Machine AST to JSON and generate Graphviz DOT
+                const machineJson = serializeMachineToJSON(model);
+                const dotCode = generateGraphvizFromJSON(machineJson);
+
+                // Generate JSON representation
+                const jsonResult = generateJSON(model);
+                const jsonData = jsonResult.content;
+
+                // Render SVG in a temporary div
+                const tempDiv = window.document.createElement('div');
+                await renderGraphviz(dotCode, tempDiv, `${Math.floor(Math.random() * 1000000000)}`);
+
+                // Generate PNG from SVG
+                const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
+
+                // Update output data state
+                setOutputData({
+                    svg: tempDiv.innerHTML,
+                    png: pngDataUrl,
+                    dot: dotCode,
+                    json: jsonData,
+                    machine: model,
+                    ast: model,
+                });
+            } catch (error) {
+                console.error('Error updating diagram:', error);
+            }
+        }, 500); // 500ms debounce
+    }, [generatePngFromSvg]);
 
     // Initialize Monaco workers
     useEffect(() => {
@@ -240,9 +346,9 @@ s1 -catch-> init;
                     const contentHeight = Math.min(1000, editor.getContentHeight());
                     editorRef.current!.style.height = `${contentHeight}px`;
                     try {
-                        editor.layout({ 
-                            width: editorRef.current!.clientWidth, 
-                            height: contentHeight 
+                        editor.layout({
+                            width: editorRef.current!.clientWidth,
+                            height: contentHeight
                         });
                     } catch (e) {
                         // Ignore layout errors
@@ -250,7 +356,16 @@ s1 -catch-> init;
                 };
                 editor.onDidContentSizeChange(updateHeight);
                 updateHeight();
+
+                // Listen for content changes to update diagram
+                editor.onDidChangeModelContent(() => {
+                    const code = editor.getValue();
+                    handleDocumentChange(code);
+                });
             }
+
+            // Trigger initial render
+            handleDocumentChange(defaultCode);
         };
 
         initEditor();
@@ -260,24 +375,7 @@ s1 -catch-> init;
                 wrapperRef.current.dispose();
             }
         };
-    }, [theme]);
-
-    // Initialize output panel
-    useEffect(() => {
-        if (!outputRef.current) return;
-
-        outputPanelRef.current = new OutputPanel({
-            container: outputRef.current,
-            defaultFormat: 'svg',
-            mobile: false
-        });
-
-        return () => {
-            if (outputPanelRef.current) {
-                // Cleanup if needed
-            }
-        };
-    }, []);
+    }, [theme, handleDocumentChange]);
 
     // Handle settings changes
     const handleModelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -316,13 +414,20 @@ s1 -catch-> init;
         }
     }, []);
 
+    // Handle output format change
+    const handleOutputFormatChange = useCallback((format: OutputFormat) => {
+        setOutputFormat(format);
+    }, []);
+
     // Handle example loading
     const handleLoadExample = useCallback((content: string) => {
         const editor = wrapperRef.current?.getEditor();
         if (editor) {
             editor.setValue(content);
+            // Trigger diagram update
+            handleDocumentChange(content);
         }
-    }, []);
+    }, [handleDocumentChange]);
 
     // Execution handlers (to be implemented with MachineExecutor)
     const handleExecute = useCallback(async () => {
@@ -405,7 +510,14 @@ s1 -catch-> init;
                 </EditorSection>
 
                 <OutputSection>
-                    <OutputContainer ref={outputRef} />
+                    <OutputContainer ref={outputRef}>
+                        <OutputPanel
+                            defaultFormat={outputFormat}
+                            mobile={false}
+                            data={outputData}
+                            onFormatChange={handleOutputFormatChange}
+                        />
+                    </OutputContainer>
                 </OutputSection>
             </Wrapper>
 

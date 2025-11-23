@@ -30,6 +30,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Snapshot Testing Guide](development/SNAPSHOTS.md)
   - [Sub-agent Test Runner](development/sub-agent-test-runner.md)
   - [DyGram Syntax Highlighting Investigation](development/syntax-highlighting-investigation.md)
+  - [Template String Parsing Enhancement](development/template-string-parsing-enhancement.md)
   - [Test Migration Completion Summary](development/test-migration-completion-summary.md)
   - [Test Refactoring Summary: Interactive Tests to Comprehensive Generative Tests](development/test-refactoring-summary.md)
 
