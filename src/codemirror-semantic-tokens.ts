@@ -130,13 +130,17 @@ export const semanticHighlightingFromLSP = ViewPlugin.fromClass(class {
     private updateTimeout: number | null = null;
     private cachedCode: string = '';
     private isUpdating: boolean = false;
+    private view: EditorView;
 
     constructor(view: EditorView) {
+        this.view = view;
         this.decorations = Decoration.none;
-        // Don't schedule initial update here - let the first update() call handle it
+        // Schedule initial update for the initial document
+        this.scheduleUpdate(view);
     }
 
     update(update: ViewUpdate) {
+        this.view = update.view;
         // Only regenerate tokens if document actually changed
         if (update.docChanged) {
             this.scheduleUpdate(update.view);
@@ -215,6 +219,9 @@ export const semanticHighlightingFromLSP = ViewPlugin.fromClass(class {
 
             // Update decorations
             this.decorations = Decoration.set(ranges, true);
+
+            // Force view update to display decorations (async decorations require manual refresh)
+            this.view.dispatch({});
 
         } catch (error) {
             console.error('[SemanticTokens] Error generating tokens:', error);
