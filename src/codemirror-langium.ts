@@ -12,6 +12,8 @@ import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
 import { Machine } from './language/generated/ast.js';
 import type { CompletionItemKind } from 'vscode-languageserver-protocol';
+// Import centralized LSP-based semantic highlighting
+import { semanticHighlightingFromLSP } from './codemirror-semantic-tokens.js';
 
 // Initialize Langium services for parsing
 const services = createMachineServices(EmptyFileSystem);
@@ -376,18 +378,31 @@ export function createLangumLinter() {
 
 
 /**
- * Custom theme with semantic token highlighting and diagnostic gutter styling
+ * Enhanced theme with semantic token highlighting and diagnostic gutter styling
+ *
+ * Includes comprehensive token type support for DyGram's full syntax:
+ * - Core tokens: class, variable, property, type, string, keyword, comment, number, operator
+ * - DyGram-specific: decorator, namespace, macro, parameter
  */
 export const semanticHighlightTheme = EditorView.baseTheme({
+    // Core semantic tokens (existing)
     '.cm-semantic-class': { color: '#4ec9b0' },
     '.cm-semantic-variable': { color: '#9cdcfe' },
     '.cm-semantic-property': { color: '#c586c0' },
     '.cm-semantic-type': { color: '#4ec9b0' },
     '.cm-semantic-string': { color: '#ce9178' },
     '.cm-semantic-keyword': { color: '#569cd6' },
-    '.cm-semantic-comment': { color: '#6a9955' },
+    '.cm-semantic-comment': { color: '#6a9955', fontStyle: 'italic' },
     '.cm-semantic-number': { color: '#b5cea8' },
     '.cm-semantic-operator': { color: '#d4d4d4' },
+
+    // Enhanced semantic tokens (new)
+    '.cm-semantic-decorator': { color: '#c586c0', fontWeight: '500' },     // @annotations
+    '.cm-semantic-namespace': { color: '#4ec9b0' },                        // import symbols
+    '.cm-semantic-macro': { color: '#4fc1ff', fontWeight: 'bold' },        // #external IDs
+    '.cm-semantic-parameter': { color: '#9cdcfe', fontStyle: 'italic' },   // multiplicities
+    '.cm-semantic-function': { color: '#dcdcaa' },                         // functions
+    '.cm-semantic-method': { color: '#dcdcaa' },                           // methods
 
     // Diagnostic gutter styling
     '.cm-diagnostic-gutter': {
@@ -504,93 +519,10 @@ export const semanticHighlightTheme = EditorView.baseTheme({
 });
 
 /**
- * Create a decoration for a semantic token
+ * Pattern-based semantic highlighting has been replaced with LSP-based highlighting.
+ * See codemirror-semantic-tokens.ts for the new implementation that uses
+ * MachineSemanticTokenProvider as the single source of truth.
  */
-const semanticMark = (className: string) => Decoration.mark({ class: className });
-
-/**
- * View plugin that provides semantic highlighting based on the Langium AST
- */
-export const semanticHighlighting = ViewPlugin.fromClass(class {
-    decorations: DecorationSet;
-
-    constructor(view: EditorView) {
-        this.decorations = this.buildDecorations(view);
-    }
-
-    update(update: ViewUpdate) {
-        if (update.docChanged || update.viewportChanged) {
-            this.decorations = this.buildDecorations(update.view);
-        }
-    }
-
-    buildDecorations(view: EditorView): DecorationSet {
-        const builder: Range<Decoration>[] = [];
-        const code = view.state.doc.toString();
-
-        // Parse the document asynchronously (we'll use a simplified sync approach for decorations)
-        // In practice, you'd want to cache this or use the results from the linter
-        try {
-            // For now, we'll use basic pattern matching for keywords
-            // A full implementation would use the semantic token provider
-            const keywords = ['machine', 'state', 'task', 'tool', 'context', 'Input', 'Output', 'Task', 'Concept', 'Result'];
-
-            // Simple keyword highlighting
-            for (const keyword of keywords) {
-                const regex = new RegExp(`\\b${keyword}\\b`, 'g');
-                let match;
-                while ((match = regex.exec(code)) !== null) {
-                    const from = match.index;
-                    const to = from + match[0].length;
-                    builder.push(semanticMark('cm-semantic-keyword').range(from, to));
-                }
-            }
-
-            // Highlight string literals
-            const stringRegex = /"[^"]*"/g;
-            let stringMatch;
-            while ((stringMatch = stringRegex.exec(code)) !== null) {
-                const from = stringMatch.index;
-                const to = from + stringMatch[0].length;
-                builder.push(semanticMark('cm-semantic-string').range(from, to));
-            }
-
-            // Highlight node names (identifiers after keywords)
-            const nodeRegex = /\b(state|task|tool|context|Input|Output|Task|Concept|Result)\s+(\w+)/g;
-            let nodeMatch;
-            while ((nodeMatch = nodeRegex.exec(code)) !== null) {
-                const from = nodeMatch.index + nodeMatch[1].length + 1;
-                const to = from + nodeMatch[2].length;
-                builder.push(semanticMark('cm-semantic-variable').range(from, to));
-            }
-
-            // Highlight type annotations
-            const typeRegex = /<(\w+)>/g;
-            let typeMatch;
-            while ((typeMatch = typeRegex.exec(code)) !== null) {
-                const from = typeMatch.index + 1;
-                const to = from + typeMatch[1].length;
-                builder.push(semanticMark('cm-semantic-type').range(from, to));
-            }
-
-            // Highlight property names
-            const propRegex = /(\w+)(?=\s*:)/g;
-            let propMatch;
-            while ((propMatch = propRegex.exec(code)) !== null) {
-                const from = propMatch.index;
-                const to = from + propMatch[1].length;
-                builder.push(semanticMark('cm-semantic-property').range(from, to));
-            }
-
-        } catch (error) {
-            console.error('Error building semantic decorations:', error);
-        }
-
-        return Decoration.set(builder, true);
-    }
-}, {
-    decorations: v => v.decorations
-});
 
 /**
  * Map Langium CompletionItemKind to CodeMirror completion type
@@ -704,6 +636,9 @@ export function createLangiumCompletion() {
 
 /**
  * Create all extensions needed for Langium LSP integration
+ *
+ * Uses centralized LSP-based semantic highlighting from MachineSemanticTokenProvider
+ * for consistent highlighting across CodeMirror and Monaco editors.
  */
 export function createLangiumExtensions() {
     return [
@@ -712,7 +647,7 @@ export function createLangiumExtensions() {
         diagnosticGutter,
         createLangumLinter(),
         createLangiumCompletion(),
-        semanticHighlighting,
+        semanticHighlightingFromLSP,  // NEW: LSP-based highlighting
         semanticHighlightTheme
     ];
 }

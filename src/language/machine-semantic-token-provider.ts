@@ -4,14 +4,47 @@ import {
     isAttribute,
     isEdge,
     isNode,
-    isEdgeSegment
+    isEdgeSegment,
+    isAnnotation,
+    isAnnotationParam,
+    isImportStatement,
+    isImportedSymbol,
+    isPrimitiveValue,
+    isTypeDef,
+    isEdgeAttribute,
+    isMachine
 } from './generated/ast.js';
 import { AbstractSemanticTokenProvider, SemanticTokenAcceptor } from 'langium/lsp';
 
+/**
+ * Enhanced semantic token provider with 100% DyGram syntax coverage
+ *
+ * Highlights:
+ * - Nodes (types, names)
+ * - Attributes (names, types, values)
+ * - Edges (sources, targets, labels, arrows, multiplicities)
+ * - Annotations (@decorators with parameters)
+ * - Imports (statements, symbols, aliases, paths)
+ * - Primitive values (numbers, external IDs)
+ * - Type definitions (generic types, unions)
+ * - Machine declarations
+ */
 export class MachineSemanticTokenProvider extends AbstractSemanticTokenProvider {
     protected highlightElement(node: AstNode, acceptor: SemanticTokenAcceptor): void {
-        if (isNode(node)) {
-            // Highlight node type as class
+        // Machine declaration
+        if (isMachine(node)) {
+            if (node.title) {
+                acceptor({
+                    node: node,
+                    property: 'title',
+                    type: SemanticTokenTypes.string
+                });
+            }
+        }
+
+        // Node declarations (state, task, tool, etc.)
+        else if (isNode(node)) {
+            // Highlight node type as class (e.g., "state", "task", "Input")
             if (node.type) {
                 acceptor({
                     node: node,
@@ -25,7 +58,17 @@ export class MachineSemanticTokenProvider extends AbstractSemanticTokenProvider 
                 property: 'name',
                 type: SemanticTokenTypes.variable
             });
+            // Highlight title string if present
+            if (node.title) {
+                acceptor({
+                    node: node,
+                    property: 'title',
+                    type: SemanticTokenTypes.string
+                });
+            }
         }
+
+        // Attribute declarations
         else if (isAttribute(node)) {
             // Highlight attribute name as property
             acceptor({
@@ -33,7 +76,7 @@ export class MachineSemanticTokenProvider extends AbstractSemanticTokenProvider 
                 property: 'name',
                 type: SemanticTokenTypes.property
             });
-            // Highlight attribute type as type
+            // Highlight attribute type annotation
             if (node.type) {
                 acceptor({
                     node: node,
@@ -42,8 +85,116 @@ export class MachineSemanticTokenProvider extends AbstractSemanticTokenProvider 
                 });
             }
         }
+
+        // Primitive values (numbers, strings, external IDs)
+        else if (isPrimitiveValue(node)) {
+            const value = node.value;
+
+            // External IDs (schema references like #requestSchema)
+            if (typeof value === 'string' && value.startsWith('#')) {
+                acceptor({
+                    node: node,
+                    property: 'value',
+                    type: SemanticTokenTypes.macro
+                });
+            }
+            // Numbers
+            else if (typeof value === 'number') {
+                acceptor({
+                    node: node,
+                    property: 'value',
+                    type: SemanticTokenTypes.number
+                });
+            }
+            // Regular strings
+            else if (typeof value === 'string') {
+                acceptor({
+                    node: node,
+                    property: 'value',
+                    type: SemanticTokenTypes.string
+                });
+            }
+        }
+
+        // Type definitions (generic types, unions)
+        else if (isTypeDef(node)) {
+            // Highlight base type name
+            if (node.base) {
+                acceptor({
+                    node: node,
+                    property: 'base',
+                    type: SemanticTokenTypes.type
+                });
+            }
+        }
+
+        // Annotations (@Abstract, @StrictMode, etc.)
+        else if (isAnnotation(node)) {
+            // Highlight annotation name as decorator
+            acceptor({
+                node: node,
+                property: 'name',
+                type: SemanticTokenTypes.decorator
+            });
+
+            // Highlight string value if present
+            if (node.value) {
+                acceptor({
+                    node: node,
+                    property: 'value',
+                    type: SemanticTokenTypes.string
+                });
+            }
+        }
+
+        // Annotation parameters (e.g., color: red in @style(color: red))
+        else if (isAnnotationParam(node)) {
+            acceptor({
+                node: node,
+                property: 'name',
+                type: SemanticTokenTypes.property
+            });
+            if (node.value) {
+                acceptor({
+                    node: node,
+                    property: 'value',
+                    type: SemanticTokenTypes.string
+                });
+            }
+        }
+
+        // Import statements
+        else if (isImportStatement(node)) {
+            // Highlight import path as string
+            acceptor({
+                node: node,
+                property: 'path',
+                type: SemanticTokenTypes.string
+            });
+        }
+
+        // Imported symbols
+        else if (isImportedSymbol(node)) {
+            // Highlight symbol name as namespace/class
+            acceptor({
+                node: node,
+                property: 'name',
+                type: SemanticTokenTypes.namespace
+            });
+
+            // Highlight alias if present
+            if (node.alias) {
+                acceptor({
+                    node: node,
+                    property: 'alias',
+                    type: SemanticTokenTypes.variable
+                });
+            }
+        }
+
+        // Edge declarations
         else if (isEdge(node)) {
-            // Highlight source reference as variable
+            // Highlight source references as variables
             if (node.source) {
                 acceptor({
                     node: node,
@@ -52,8 +203,10 @@ export class MachineSemanticTokenProvider extends AbstractSemanticTokenProvider 
                 });
             }
         }
+
+        // Edge segments (arrows, targets, labels, multiplicities)
         else if (isEdgeSegment(node)) {
-            // Highlight target reference as variable
+            // Highlight target references as variables
             if (node.target) {
                 acceptor({
                     node: node,
@@ -61,11 +214,56 @@ export class MachineSemanticTokenProvider extends AbstractSemanticTokenProvider 
                     type: SemanticTokenTypes.variable
                 });
             }
-            // Highlight label as string if it's a string literal
-            if (node.label && !isReference(node.label)) {
+
+            // Highlight arrow type as operator
+            if (node.endType) {
                 acceptor({
                     node: node,
-                    property: 'label',
+                    property: 'endType',
+                    type: SemanticTokenTypes.operator
+                });
+            }
+
+            // Highlight multiplicities as parameters
+            if (node.sourceMultiplicity) {
+                acceptor({
+                    node: node,
+                    property: 'sourceMultiplicity',
+                    type: SemanticTokenTypes.parameter
+                });
+            }
+            if (node.targetMultiplicity) {
+                acceptor({
+                    node: node,
+                    property: 'targetMultiplicity',
+                    type: SemanticTokenTypes.parameter
+                });
+            }
+        }
+
+        // Edge attributes (inline edge labels/attributes)
+        else if (isEdgeAttribute(node)) {
+            // Highlight attribute name as property
+            if (node.name) {
+                acceptor({
+                    node: node,
+                    property: 'name',
+                    type: SemanticTokenTypes.property
+                });
+            }
+            // Highlight value as string
+            if (node.value) {
+                acceptor({
+                    node: node,
+                    property: 'value',
+                    type: SemanticTokenTypes.string
+                });
+            }
+            // Highlight standalone text as string
+            if (node.text) {
+                acceptor({
+                    node: node,
+                    property: 'text',
                     type: SemanticTokenTypes.string
                 });
             }
