@@ -98,9 +98,9 @@ function decodeTokens(data: number[], code: string): DecodedToken[] {
 }
 
 describe('Semantic Token Provider - Comprehensive Test', () => {
-    const testCode = `machine "Syntax Test" @StrictMode
+    const testCode = `import { BaseNode } from "lib.dy";
 
-import { BaseNode } from "lib.dy";
+machine "Syntax Test" @StrictMode
 
 context Config {
     apiKey: #secretKey;
@@ -370,7 +370,7 @@ request "1" --> "0..1" process;`;
         const importStmt = machine.imports[0];
         expect(importStmt.symbols).toHaveLength(1);
         expect(importStmt.symbols[0].name).toBe('BaseNode');
-        expect(importStmt.path).toBe('"lib.dy"');
+        expect(importStmt.path).toBe('lib.dy'); // Note: quotes stripped by STRING terminal
 
         console.log('\n✅ Import statement parsed correctly\n');
     });
