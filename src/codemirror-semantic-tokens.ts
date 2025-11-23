@@ -23,34 +23,36 @@ const services = createMachineServices(EmptyFileSystem);
 const parse = parseHelper<Machine>(services.Machine);
 
 /**
- * LSP Semantic Token Types to CodeMirror CSS classes
+ * Langium Semantic Token Types to CodeMirror CSS classes
  *
- * Maps standard LSP token types (0-based enum) to CodeMirror CSS classes.
- * See: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#semanticTokenTypes
+ * IMPORTANT: Langium uses a CUSTOM token type mapping that differs from the LSP standard!
+ * This mapping MUST match AllSemanticTokenTypes from Langium's semantic-token-provider.ts
+ * See: node_modules/langium/src/lsp/semantic-token-provider.ts
  */
 const TOKEN_TYPE_MAP: Record<number, string> = {
-    0: 'cm-semantic-namespace',      // namespace
-    1: 'cm-semantic-class',           // class/type
+    0: 'cm-semantic-class',           // class
+    1: 'cm-semantic-comment',         // comment
     2: 'cm-semantic-enum',            // enum
-    3: 'cm-semantic-interface',       // interface
-    4: 'cm-semantic-struct',          // struct
-    5: 'cm-semantic-type',            // typeParameter
-    6: 'cm-semantic-parameter',       // parameter
-    7: 'cm-semantic-variable',        // variable
-    8: 'cm-semantic-property',        // property
-    9: 'cm-semantic-enum-member',     // enumMember
-    10: 'cm-semantic-decorator',      // decorator
-    11: 'cm-semantic-event',          // event
-    12: 'cm-semantic-function',       // function
-    13: 'cm-semantic-method',         // method
-    14: 'cm-semantic-macro',          // macro
-    15: 'cm-semantic-label',          // label
-    16: 'cm-semantic-comment',        // comment
+    3: 'cm-semantic-enum-member',     // enumMember
+    4: 'cm-semantic-event',           // event
+    5: 'cm-semantic-function',        // function
+    6: 'cm-semantic-interface',       // interface
+    7: 'cm-semantic-keyword',         // keyword
+    8: 'cm-semantic-macro',           // macro
+    9: 'cm-semantic-method',          // method
+    10: 'cm-semantic-modifier',       // modifier
+    11: 'cm-semantic-namespace',      // namespace
+    12: 'cm-semantic-number',         // number
+    13: 'cm-semantic-operator',       // operator
+    14: 'cm-semantic-parameter',      // parameter
+    15: 'cm-semantic-property',       // property
+    16: 'cm-semantic-regexp',         // regexp
     17: 'cm-semantic-string',         // string
-    18: 'cm-semantic-keyword',        // keyword
-    19: 'cm-semantic-number',         // number
-    20: 'cm-semantic-regexp',         // regexp
-    21: 'cm-semantic-operator',       // operator
+    18: 'cm-semantic-struct',         // struct
+    19: 'cm-semantic-type',           // type
+    20: 'cm-semantic-type-parameter', // typeParameter
+    21: 'cm-semantic-variable',       // variable
+    22: 'cm-semantic-decorator',      // decorator
 };
 
 /**

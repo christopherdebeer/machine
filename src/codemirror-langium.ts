@@ -385,7 +385,7 @@ export function createLangumLinter() {
  * - DyGram-specific: decorator, namespace, macro, parameter
  */
 export const semanticHighlightTheme = EditorView.baseTheme({
-    // Core semantic tokens (existing)
+    // Core semantic tokens
     '.cm-semantic-class': { color: '#4ec9b0' },
     '.cm-semantic-variable': { color: '#9cdcfe' },
     '.cm-semantic-property': { color: '#c586c0' },
@@ -396,13 +396,21 @@ export const semanticHighlightTheme = EditorView.baseTheme({
     '.cm-semantic-number': { color: '#b5cea8' },
     '.cm-semantic-operator': { color: '#d4d4d4' },
 
-    // Enhanced semantic tokens (new)
+    // Enhanced semantic tokens
     '.cm-semantic-decorator': { color: '#c586c0', fontWeight: '500' },     // @annotations
     '.cm-semantic-namespace': { color: '#4ec9b0' },                        // import symbols
     '.cm-semantic-macro': { color: '#4fc1ff', fontWeight: 'bold' },        // #external IDs
     '.cm-semantic-parameter': { color: '#9cdcfe', fontStyle: 'italic' },   // multiplicities
     '.cm-semantic-function': { color: '#dcdcaa' },                         // functions
     '.cm-semantic-method': { color: '#dcdcaa' },                           // methods
+    '.cm-semantic-modifier': { color: '#569cd6' },                         // modifiers
+    '.cm-semantic-type-parameter': { color: '#4ec9b0' },                   // type parameters
+    '.cm-semantic-enum': { color: '#4ec9b0' },                             // enums
+    '.cm-semantic-enum-member': { color: '#4fc1ff' },                      // enum members
+    '.cm-semantic-interface': { color: '#4ec9b0' },                        // interfaces
+    '.cm-semantic-struct': { color: '#4ec9b0' },                           // structs
+    '.cm-semantic-event': { color: '#dcdcaa' },                            // events
+    '.cm-semantic-regexp': { color: '#d16969' },                           // regular expressions
 
     // Diagnostic gutter styling
     '.cm-diagnostic-gutter': {

@@ -40,6 +40,42 @@ export class MachineSemanticTokenProvider extends AbstractSemanticTokenProvider 
                     type: SemanticTokenTypes.string
                 });
             }
+
+            // TODO: Manually handle imports (they're not visited by streamAst)
+            // Note: Import highlighting currently not working due to AST traversal issue
+            // where node.imports is empty when highlightElement is called.
+            // This needs further investigation into Langium's AST building/caching.
+            if (node.imports && node.imports.length > 0) {
+                for (const importStmt of node.imports) {
+                    // Highlight import path as string
+                    acceptor({
+                        node: importStmt,
+                        property: 'path',
+                        type: SemanticTokenTypes.string
+                    });
+
+                    // Highlight imported symbols
+                    if (importStmt.symbols) {
+                        for (const symbol of importStmt.symbols) {
+                            // Highlight symbol name as namespace
+                            acceptor({
+                                node: symbol,
+                                property: 'name',
+                                type: SemanticTokenTypes.namespace
+                            });
+
+                            // Highlight alias if present
+                            if (symbol.alias) {
+                                acceptor({
+                                    node: symbol,
+                                    property: 'alias',
+                                    type: SemanticTokenTypes.variable
+                                });
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // Node declarations (state, task, tool, etc.)
@@ -159,35 +195,6 @@ export class MachineSemanticTokenProvider extends AbstractSemanticTokenProvider 
                     node: node,
                     property: 'value',
                     type: SemanticTokenTypes.string
-                });
-            }
-        }
-
-        // Import statements
-        else if (isImportStatement(node)) {
-            // Highlight import path as string
-            acceptor({
-                node: node,
-                property: 'path',
-                type: SemanticTokenTypes.string
-            });
-        }
-
-        // Imported symbols
-        else if (isImportedSymbol(node)) {
-            // Highlight symbol name as namespace/class
-            acceptor({
-                node: node,
-                property: 'name',
-                type: SemanticTokenTypes.namespace
-            });
-
-            // Highlight alias if present
-            if (node.alias) {
-                acceptor({
-                    node: node,
-                    property: 'alias',
-                    type: SemanticTokenTypes.variable
                 });
             }
         }
