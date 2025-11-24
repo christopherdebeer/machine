@@ -390,7 +390,7 @@ async function generateDocumentationIndex(projectRoot) {
         // Sort: directories first, then files, alphabetically
         entries.sort((a, b) => {
             if (a.isDirectory() !== b.isDirectory()) {
-                return a.isDirectory() ? -1 : 1;
+                return a.isDirectory() ? 1 : -1;
             }
             return a.name.localeCompare(b.name);
         });

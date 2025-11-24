@@ -2,6 +2,10 @@
 
 Complete reference to all DyGram documentation organized by topic.
 
+- [Documentation Index](docs.md)
+- [DyGram | Thought → System](README.md)
+- [Custom Styling](styling.md)
+- [Testing with Mock Claude Client](testing-with-mock-client.md)
 ### Api
 
   - [API Reference](api/README.md)
@@ -51,6 +55,8 @@ Complete reference to all DyGram documentation organized by topic.
   - [Styling and Validation](examples/styling-and-validation.md)
   - [Text Wrapping Configuration](examples/text-wrapping-configuration.md)
   - [Workflow Examples](examples/workflows.md)
+  ### Execution
+
 
 ### Getting Started
 
@@ -75,8 +81,3 @@ Complete reference to all DyGram documentation organized by topic.
 
   - [Task Execution Test Cases](testing/task-execution.md)
   - [Tool Execution Test Cases](testing/tool-execution.md)
-
-- [Documentation Index](docs.md)
-- [DyGram | Thought → System](README.md)
-- [Custom Styling](styling.md)
-- [Testing with Mock Claude Client](testing-with-mock-client.md)
