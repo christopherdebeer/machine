@@ -11,11 +11,20 @@ import { generateTaskCode, generateCodeGenerationPrompt } from '../../src/langua
 
 type MachineData = MachineJSON;
 
-// TODO: Update for new EvolutionaryExecutor API
-// The EvolutionaryExecutor uses methods (getMutations, modifyNode, addNode, getContext)
-// that may have changed in the new implementation
-
-describe.skip('Task Evolution', () => {
+/**
+ * DEPRECATED: These tests are for machine mutation methods that were never implemented.
+ *
+ * Investigation (2025-11-24):
+ * - EvolutionaryExecutor exists but lacks mutation methods: addNode(), addEdge(), modifyNode()
+ * - Only modifyNode() is called internally (line 423) but not defined
+ * - The current EvolutionaryExecutor provides: getMachineDefinition(), getContext(),
+ *   getMutations(), getTaskMetrics(), triggerEvolution()
+ * - 464 lines of tests for non-existent functionality
+ *
+ * Recommendation: Either delete this test file entirely, or implement the mutation methods
+ * if this feature is planned for future development.
+ */
+describe.skip('Task Evolution (DEPRECATED - Mutation methods not implemented)', () => {
     let machineData: MachineData;
     let storage: MemoryStorage;
 
