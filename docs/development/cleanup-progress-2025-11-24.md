@@ -125,6 +125,40 @@ This document tracks the progress of the code cleanup and documentation improvem
 
 **Total Documentation Added:** ~2,236 lines of comprehensive documentation
 
+### Phase 5: P0 Documentation Syntax Fixes (COMPLETE)
+
+**Date:** 2025-11-25
+**Test Results:** Parse errors reduced from 72 → 58 (14 fixed)
+
+**Files Modified:**
+
+1. **docs/examples/meta-programming.md**
+   - Removed unsupported `Tool` node type from build-from-node example
+   - Replaced with Task-based implementation using valid DyGram syntax
+   - Example now uses construct_tool meta-tool via prompts
+
+2. **docs/examples/code-generation.md**
+   - Fixed 5 examples with invalid schema syntax
+   - Changed inline object notation `{ key: "value" }` to prompt-based schemas
+   - Moved TypeScript schema documentation to separate code blocks
+   - Examples: multi-step-generation, code-with-schema, schema-definition, complete-workflow, define-schemas
+
+3. **docs/api/checkpoints.md**
+   - Removed invalid `[condition: "!valid"]` edge syntax
+   - Simplified to standard edge declarations
+   - Example: data-pipeline-with-rollback
+
+**Test Impact:**
+- **Before:** 153 failed tests (72 parse errors, 120 snapshot mismatches)
+- **After:** 153 failed tests (58 parse errors, 120 snapshot mismatches)
+- **Improvement:** 14 parse errors fixed
+- **Remaining:** 58 parse errors in pre-existing examples (not P0 docs)
+
+**Next Steps:**
+- Update test snapshots for P0 examples: `UPDATE_SNAPSHOTS=true npm test`
+- Fix remaining 58 parse errors in other documentation files
+- Verify all P0 examples pass after snapshot update
+
 ### Phase 3: Test Suite Analysis (COMPLETE)
 
 **Command:** `npm test`
@@ -402,9 +436,12 @@ This document tracks the progress of the code cleanup and documentation improvem
 - [x] Remove confirmed dead code
 - [x] Document code review findings
 - [x] Create 5 P0 documentation guides
-- [ ] Investigate and fix failing documentation examples (99/428 failed)
+- [x] Investigate failing documentation examples
+- [x] Fix P0 documentation syntax errors (14 parse errors fixed, 72 → 58)
+- [ ] Update test snapshots for P0 examples (120 snapshots needed)
+- [ ] Fix remaining parse errors (58 remaining)
 - [ ] Fix import validator tests (6/9 failed)
-- [ ] Fix broken links (235 total)
+- [ ] Fix broken links (244 total)
 
 ### Short-term Goals (Week 3-4)
 - [ ] Consolidate redundant docs (reduce by 800 lines)
@@ -444,5 +481,5 @@ This document tracks the progress of the code cleanup and documentation improvem
 
 ---
 
-**Last Updated:** 2025-11-24 23:15 UTC
-**Next Update:** After fixing failing documentation examples
+**Last Updated:** 2025-11-25 08:15 UTC
+**Next Update:** After updating test snapshots
