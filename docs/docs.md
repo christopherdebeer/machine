@@ -5,7 +5,6 @@ Complete reference to all DyGram documentation organized by topic.
 - [Documentation Index](docs.md)
 - [DyGram | Thought → System](README.md)
 - [Custom Styling](styling.md)
-- [Testing with Mock Claude Client](testing-with-mock-client.md)
 ### Api
 
   - [API Reference](api/README.md)
@@ -30,6 +29,8 @@ Complete reference to all DyGram documentation organized by topic.
   - [Parse Error Analysis Report](development/parse-error-analysis-2025-11-02.md)
   - [Parse Error Fixes - November 2, 2025](development/parse-error-fixes-2025-11-02.md)
   - [Playground Import System Integration](development/PLAYGROUND_IMPORT_INTEGRATION.md)
+  - [Recording Input Validation System](development/recording-input-validation.md)
+  - [Recording Validation Bugs and Issues](development/recording-validation-bugs.md)
   - [Round-Trip Test Analysis - November 3, 2025](development/round-trip-analysis-2025-11-03.md)
   - [Snapshot Testing Guide](development/SNAPSHOTS.md)
   - [Sub-agent Test Runner](development/sub-agent-test-runner.md)
@@ -55,8 +56,6 @@ Complete reference to all DyGram documentation organized by topic.
   - [Styling and Validation](examples/styling-and-validation.md)
   - [Text Wrapping Configuration](examples/text-wrapping-configuration.md)
   - [Workflow Examples](examples/workflows.md)
-  ### Execution
-
 
 ### Getting Started
 
