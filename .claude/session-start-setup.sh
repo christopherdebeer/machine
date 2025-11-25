@@ -24,10 +24,12 @@ fi
 # Export environment variables for Playwright MCP
 echo "$LOG_PREFIX Setting up environment variables..."
 export PLAYWRIGHT_EXTRA_HTTP_HEADERS="${PLAYWRIGHT_EXTRA_HTTP_HEADERS:-{}}"
+export ENABLE_MCP_CLI=true
 
 # Persist to web session if available
 if [ "$WEB_SESSION" = true ]; then
   echo "export PLAYWRIGHT_EXTRA_HTTP_HEADERS=\"${PLAYWRIGHT_EXTRA_HTTP_HEADERS}\"" >> "$CLAUDE_ENV_FILE"
+  echo "export ENABLE_MCP_CLI=true" >> "$CLAUDE_ENV_FILE"
   echo "$LOG_PREFIX Environment variables written to CLAUDE_ENV_FILE"
 fi
 
