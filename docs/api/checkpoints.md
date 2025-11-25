@@ -498,8 +498,9 @@ Task validate "Validate output"
 Task commit "Commit to database"
 Task rollback "Rollback on error"
 
-loadData -> transform -> validate -> commit
-validate -> rollback [condition: "!valid"]
+loadData -> transform -> validate
+validate -> commit
+validate -> rollback
 ```
 
 ```typescript

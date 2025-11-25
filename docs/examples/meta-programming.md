@@ -260,22 +260,20 @@ reviewTool -> proposeImprovement
 ```dygram examples/meta-programming/build-from-node.dy
 machine "Tool Node Builder"
 
-// Define a Tool node that needs implementation
-Tool customValidator "Custom validation tool" {
-  desc: "Validates data against business rules"
-  schema: { rules: "array", data: "object" }
+Task discoverToolNodes "Find tool requirements" {
+  prompt: "Use get_tool_nodes with include_registered=true to discover what tools are available and identify any that need implementation."
 }
 
-Task discoverToolNodes "Find Tool nodes" {
-  prompt: "Use get_tool_nodes with include_registered=true to find Tool nodes that need implementation."
-}
-
-Task buildToolNode "Build the tool" {
-  prompt: "Use build_tool_from_node to implement 'customValidator' with strategy='agent_backed' and appropriate implementation details."
+Task buildToolNode "Build custom validator" {
+  prompt: "Use build_tool_from_node to create a 'customValidator' tool with strategy='agent_backed' and implementation_details='Validates data against business rules. Accepts rules array and data object.'"
   model: "claude-3-5-sonnet-20241022"
 }
 
-discoverToolNodes -> buildToolNode
+Task validateData "Use the new validator" {
+  prompt: "Use the customValidator tool you just created to validate input data."
+}
+
+discoverToolNodes -> buildToolNode -> validateData
 ```
 
 ## Best Practices

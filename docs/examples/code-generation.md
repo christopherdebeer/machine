@@ -60,23 +60,8 @@ When this machine is first parsed, DyGram:
 machine "Schema-Validated Generation"
 
 Task processOrder "Process customer order" @code {
-  prompt: "Validate order data, calculate totals, apply discounts."
+  prompt: "Validate order data, calculate totals, apply discounts. Input: {order_id: string, items: Array<{id, price, quantity}>, discount_code?: string}. Output: {order_id, subtotal, discount, tax, total, valid: boolean}"
   model: "claude-3-5-sonnet-20241022"
-
-  input_schema: {
-    order_id: "string"
-    items: "Array<{id: string, price: number, quantity: number}>"
-    discount_code: "string?"
-  }
-
-  output_schema: {
-    order_id: "string"
-    subtotal: "number"
-    discount: "number"
-    tax: "number"
-    total: "number"
-    valid: "boolean"
-  }
 }
 
 start -> processOrder -> end
@@ -227,20 +212,7 @@ Schemas ensure type safety and guide code generation:
 machine "Schema-Driven Generation"
 
 Task validateUser "User validation" @code {
-  prompt: "Validate user data against business rules"
-
-  input_schema: {
-    username: "string"
-    email: "string"
-    age: "number"
-    role: "string"  // admin | user | guest
-  }
-
-  output_schema: {
-    valid: "boolean"
-    errors: "Array<string>"
-    sanitized: "{username: string, email: string, age: number, role: string}"
-  }
+  prompt: "Validate user data against business rules. Input: {username: string, email: string, age: number, role: 'admin'|'user'|'guest'}. Output: {valid: boolean, errors: string[], sanitized: {username, email, age, role}}"
 }
 
 start -> validateUser -> end
@@ -343,28 +315,28 @@ start -> robustProcessor -> end
 
 ### Schema-Triggered Regeneration
 
+When task schemas change, code is automatically regenerated:
+
 ```dygram examples/code-generation/schema-regeneration.dy
 machine "Schema Evolution"
 
+// Initial implementation with basic schema
 Task dataProcessor "Adaptive processor" @code {
-  prompt: "Process incoming data"
-
-  // Original schema
-  input_schema: {
-    data: "string"
-  }
-
-  // Updated schema (will trigger regeneration)
-  input_schema: {
-    data: "string"
-    format: "string"  // New field added
-    options: "Record<string, any>?"  // Optional field added
-  }
+  prompt: "Process incoming data. Input: {data: string}. Output: {result: any}"
 }
 
-// Schema change detected → regenerate code to handle new fields
-
 start -> dataProcessor -> end
+```
+
+After updating the schema in the source:
+
+```typescript
+// Updated schema (triggers regeneration)
+input_schema: {
+  data: "string"
+  format: "string"  // New field - code regenerated to handle it
+  options: "Record<string, any>?"  // Optional field added
+}
 ```
 
 ### Manual Regeneration
@@ -463,26 +435,14 @@ machine "Full Code Generation Demo"
 
 // Step 1: Initial generation with @code
 Task parser "CSV parser" @code {
-  prompt: "Parse CSV data into JSON. Handle quoted fields, escaped characters, and empty values."
+  prompt: "Parse CSV data into JSON. Handle quoted fields, escaped characters, and empty values. Input: {csv: string, delimiter?: string, headers?: string[]}. Output: {data: Record<string,string>[], row_count: number, headers: string[]}"
   model: "claude-3-5-sonnet-20241022"
-
-  input_schema: {
-    csv: "string"
-    delimiter: "string?"
-    headers: "Array<string>?"
-  }
-
-  output_schema: {
-    data: "Array<Record<string, string>>"
-    row_count: "number"
-    headers: "Array<string>"
-  }
 }
 
 // Step 2: Generated code referenced
 Task validator "Data validator" {
   prompt: "Validate parsed data"
-  code_path: "./generated/parser.ts"  // References generated code
+  code_path: "./generated/parser.ts"
   evolution_stage: "code_only"
 }
 
@@ -519,21 +479,15 @@ start -> processor_v3 -> end
 machine "Complex Code Generation"
 
 Task step1 "Parse input" @code {
-  prompt: "Parse and validate JSON input"
-  input_schema: { raw: "string" }
-  output_schema: { parsed: "any", valid: "boolean" }
+  prompt: "Parse and validate JSON input. Input: {raw: string}. Output: {parsed: any, valid: boolean}"
 }
 
 Task step2 "Transform data" @code {
-  prompt: "Transform parsed data to target format"
-  input_schema: { parsed: "any" }
-  output_schema: { transformed: "any" }
+  prompt: "Transform parsed data to target format. Input: {parsed: any}. Output: {transformed: any}"
 }
 
 Task step3 "Validate output" @code {
-  prompt: "Validate transformed data against schema"
-  input_schema: { transformed: "any" }
-  output_schema: { valid: "boolean", errors: "Array<string>" }
+  prompt: "Validate transformed data against schema. Input: {transformed: any}. Output: {valid: boolean, errors: Array<string>}"
 }
 
 // All three tasks get generated code
@@ -572,20 +526,7 @@ Schemas guide generation and enable validation.
 machine "Schema Best Practice"
 
 Task withSchema "Type-safe task" @code {
-  prompt: "Process user registration"
-
-  input_schema: {
-    username: "string"
-    email: "string"
-    password: "string"
-    age: "number"
-  }
-
-  output_schema: {
-    user_id: "string"
-    created: "boolean"
-    errors: "Array<string>"
-  }
+  prompt: "Process user registration. Input: {username: string, email: string, password: string, age: number}. Output: {user_id: string, created: boolean, errors: string[]}"
 }
 
 start -> withSchema -> end
