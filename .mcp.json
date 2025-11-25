@@ -2,10 +2,7 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest"],
-      "env": {
-        "PLAYWRIGHT_EXTRA_HTTP_HEADERS": "${PLAYWRIGHT_EXTRA_HTTP_HEADERS:-{}}"
-      }
+      "args": ["@playwright/mcp@latest"]
     }
   },
   "dygramConfig": {
