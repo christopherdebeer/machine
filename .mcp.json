@@ -4,5 +4,4 @@
       "args": ["@playwright/mcp@latest"],
       "env": {}
     }
-  }
 }
