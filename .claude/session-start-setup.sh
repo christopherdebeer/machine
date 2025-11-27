@@ -26,8 +26,9 @@ fi
 
 # Check if bd is available (should work after PATH update and npm ci)
 if ! command -v bd &> /dev/null; then
-    echo "$LOG_PREFIX Warning: bd command not found after installation, skipping issue tracker setup"
-    exit 0
+    # echo "$LOG_PREFIX Warning: bd command not found after installation, skipping issue tracker setup"
+    # exit 0
+    curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
 fi
 
 # Initialize bd if needed
