@@ -62,8 +62,6 @@ Complete reference to all DyGram documentation organized by topic.
   - [Task Evolution: From LLM to Generated Code](examples/task-evolution.md)
   - [Text Wrapping Configuration](examples/text-wrapping-configuration.md)
   - [Workflow Examples](examples/workflows.md)
-  ### Execution
-
 
 ### Getting Started
 

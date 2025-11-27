@@ -220,3 +220,15 @@ When tests fail:
 2. If yes: `UPDATE_SNAPSHOTS=true npm test`
 3. If no: Fix the code that caused the change
 4. Commit both code and snapshots together
+
+
+## Issue Tracking
+
+Use the `bd` command for all issue tracking instead of markdown TODOs:
+
+- Create issues: `bd create "Task description" -p 1 --json`
+- Find work: `bd ready --json`
+- Update status: `bd update <id> --status in_progress --json`
+- View details: `bd show <id> --json`
+
+Use `--json` flags for programmatic parsing.

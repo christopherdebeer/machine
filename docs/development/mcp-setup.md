@@ -25,7 +25,11 @@ The Playwright MCP server provides browser automation capabilities for testing a
 
 1. **Clone the repository** (if not already done)
 2. **Install dependencies**: The Playwright MCP server will be automatically available via `npx`
-3. **Optional environment variables**:
+3. **SessionStart hook**: The repository includes a SessionStart hook (`.claude/session-start-setup.sh`) that automatically:
+   - Sets `ENABLE_MCP_CLI=true` to enable project-scoped MCP servers in web sessions
+   - Exports `PLAYWRIGHT_EXTRA_HTTP_HEADERS` for Playwright configuration
+   - Runs `npm ci` and `npm run prebuild` to prepare the environment
+4. **Optional environment variables**:
    ```bash
    export PLAYWRIGHT_EXTRA_HTTP_HEADERS='{"custom-header": "value"}'
    ```

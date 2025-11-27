@@ -43,3 +43,6 @@ src/data/doc-hierarchy.ts
 
 # Interactive test client channel
 .dygram-test-queue/
+
+# Claude Code startup logs
+.claude.startup.log
