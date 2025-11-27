@@ -85,6 +85,7 @@
         "zod": "^3.24.1"
     },
     "devDependencies": {
+        "@beads/bd": "^0.26.0",
         "@codingame/esbuild-import-meta-url-plugin": "~1.0.2",
         "@mdx-js/rollup": "^3.1.1",
         "@playwright/test": "^1.56.0",

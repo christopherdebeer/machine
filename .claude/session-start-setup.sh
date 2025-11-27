@@ -12,22 +12,28 @@ echo "========================================"
 echo "$LOG_PREFIX $(date)"
 echo "========================================"
 
-# Install bd (beads issue tracker)
-echo "$LOG_PREFIX Installing bd (beads issue tracker)..."
-npm install -g @beads/bd --quiet 2>&1 || {
-    echo "$LOG_PREFIX Warning: Failed to install bd globally, continuing anyway..."
+# Install dependencies (including bd beads issue tracker)
+echo "$LOG_PREFIX Installing dependencies..."
+npm ci --quiet 2>&1 || {
+    echo "$LOG_PREFIX Warning: Failed to install dependencies, continuing anyway..."
 }
 
-# Check if bd is available
+# Add local node_modules/.bin to PATH for this session
+if [ -n "$CLAUDE_ENV_FILE" ]; then
+    echo 'export PATH="$PATH:./node_modules/.bin"' >> "$CLAUDE_ENV_FILE"
+    echo "$LOG_PREFIX Added ./node_modules/.bin to PATH"
+fi
+
+# Check if bd is available (should work after PATH update and npm ci)
 if ! command -v bd &> /dev/null; then
-    echo "$LOG_PREFIX Warning: bd command not found, skipping issue tracker setup"
+    echo "$LOG_PREFIX Warning: bd command not found after installation, skipping issue tracker setup"
     exit 0
 fi
 
 # Initialize bd if needed
 if [ ! -d .beads ]; then
     echo "$LOG_PREFIX Initializing bd..."
-    bd init --no-db --quiet 2>&1 || {
+    bd init --quiet 2>&1 || {
         echo "$LOG_PREFIX Warning: Failed to initialize bd"
         exit 0
     }
@@ -35,7 +41,7 @@ fi
 
 # Show ready work
 echo "$LOG_PREFIX Ready work:"
-bd ready --no-db --limit 5 2>&1 || {
+bd ready --limit 5 2>&1 || {
     echo "$LOG_PREFIX Note: No ready work or bd query failed"
 }
 
