@@ -31,9 +31,10 @@ if ! command -v bd &> /dev/null; then
     curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
 fi
 
-# Initialize bd if needed
-if [ ! -d .beads ]; then
-    echo "$LOG_PREFIX Initializing bd..."
+# Initialize bd if database file is missing
+# (directory may exist but database file could be missing)
+if [ ! -f .beads/beads.db ]; then
+    echo "$LOG_PREFIX Initializing bd database..."
     bd init --quiet 2>&1 || {
         echo "$LOG_PREFIX Warning: Failed to initialize bd"
         exit 0
