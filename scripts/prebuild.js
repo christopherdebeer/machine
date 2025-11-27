@@ -18,6 +18,7 @@ import { readdir, readFile, writeFile, stat, mkdir, rm } from 'fs/promises';
 import { join, dirname, basename, relative } from 'path';
 import { fileURLToPath } from 'url';
 import { extractExamples } from './extract-examples.js';
+import { preprocessMarkdownForMdx } from './mdx-preprocessor.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -466,7 +467,10 @@ async function transformMarkdownToMdx(projectRoot) {
 
     // Transform a single markdown file to MDX
     async function transformFile(mdPath, relativePath) {
-        const content = await readFile(mdPath, 'utf-8');
+        const rawContent = await readFile(mdPath, 'utf-8');
+        
+        // Apply preprocessing to fix MDX compilation issues
+        const content = preprocessMarkdownForMdx(rawContent);
         const lines = content.split('\n');
         const output = [];
         let inCodeBlock = false;
