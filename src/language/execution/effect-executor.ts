@@ -201,11 +201,13 @@ export class EffectExecutor {
                     }
 
                     // Log successful tool execution
+                    // Include reason for transition tools
+                    const reasonSuffix = result.reason ? `\n  Reason: ${result.reason}` : '';
                     this.executeLog({
                         type: 'log',
                         level: 'info',
                         category: 'tool',
-                        message: `✓ ${toolUse.name} executed successfully`,
+                        message: `✓ ${toolUse.name} executed successfully${reasonSuffix}`,
                         data: { input: toolUse.input, output: result }
                     });
 

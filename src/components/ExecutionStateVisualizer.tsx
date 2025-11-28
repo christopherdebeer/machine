@@ -506,7 +506,24 @@ export const ExecutionStateVisualizer = forwardRef<ExecutionStateVisualizerRef, 
             return;
         }
 
+        // Initial update
         updateExecutionState();
+        
+        // Subscribe to state changes for reactive updates
+        if (typeof executor.setOnStateChangeCallback === 'function') {
+            executor.setOnStateChangeCallback(() => {
+                updateExecutionState();
+            });
+            
+            return () => {
+                // Clean up callback on unmount
+                if (typeof executor.setOnStateChangeCallback === 'function') {
+                    executor.setOnStateChangeCallback(undefined);
+                }
+            };
+        }
+        
+        return () => {};
     }, [executor]);
 
     useImperativeHandle(ref, () => ({

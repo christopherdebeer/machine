@@ -58,6 +58,7 @@ export class MachineExecutor {
     private mutations: any[] = [];
     private machineUpdateCallback?: (dsl: string) => void;
     private logger: ExecutionLogger;
+    private onStateChange?: () => void;
 
     constructor(
         machineJSON: MachineJSON,
@@ -159,6 +160,11 @@ export class MachineExecutor {
             }
         }
         this.currentState = nextState;
+
+        // Notify listeners of state change
+        if (this.onStateChange) {
+            this.onStateChange();
+        }
 
         return result.status === 'continue' || result.status === 'waiting';
     }
@@ -341,6 +347,13 @@ export class MachineExecutor {
      */
     clearLogs(): void {
         this.logger.clear();
+    }
+
+    /**
+     * Set callback for state changes (for reactive UI updates)
+     */
+    setOnStateChangeCallback(callback?: () => void): void {
+        this.onStateChange = callback;
     }
 }
 

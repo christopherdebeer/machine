@@ -223,6 +223,9 @@ start -> buildTool -> useTool -> end
 1. `src/language/json/serializer.ts` - Added @meta handling and semantic edge type detection
 2. `src/language/execution/effect-builder.ts` - Updated context tool generation to check multiple fields
 3. `src/language/execution/transition-evaluator.ts` - Added data edge filtering from transitions
+4. `src/language/execution/effect-executor.ts` - Added reason output to tool execution logs
+5. `src/language/executor.ts` - Added state change callback mechanism
+6. `src/components/ExecutionStateVisualizer.tsx` - Added reactive state updates via callback subscription
 
 ## Backward Compatibility
 
@@ -230,6 +233,89 @@ All changes are backward compatible:
 - Existing machines without `@meta` continue to work
 - Existing context edges with explicit `type` field continue to work
 - New semantic detection is additive, checking multiple fields
+
+### 4. Effect Executor Changes (`src/language/execution/effect-executor.ts`)
+
+Added reason output to tool execution logging:
+
+```typescript
+// Log successful tool execution
+// Include reason for transition tools
+const reasonSuffix = result.reason ? `\n  Reason: ${result.reason}` : '';
+this.executeLog({
+    type: 'log',
+    level: 'info',
+    category: 'tool',
+    message: `✓ ${toolUse.name} executed successfully${reasonSuffix}`,
+    data: { input: toolUse.input, output: result }
+});
+```
+
+This ensures that when agents provide reasons for their decisions (especially for transitions), those reasons are displayed in the execution log.
+
+### 5. Executor State Change Callback (`src/language/executor.ts`)
+
+Added reactive state change notification mechanism:
+
+```typescript
+export class MachineExecutor {
+    private onStateChange?: () => void;
+    
+    async step(): Promise<boolean> {
+        // ... existing code ...
+        this.currentState = nextState;
+
+        // Notify listeners of state change
+        if (this.onStateChange) {
+            this.onStateChange();
+        }
+
+        return result.status === 'continue' || result.status === 'waiting';
+    }
+    
+    /**
+     * Set callback for state changes (for reactive UI updates)
+     */
+    setOnStateChangeCallback(callback?: () => void): void {
+        this.onStateChange = callback;
+    }
+}
+```
+
+### 6. ExecutionStateVisualizer Reactive Updates (`src/components/ExecutionStateVisualizer.tsx`)
+
+Updated component to subscribe to state changes:
+
+```typescript
+useEffect(() => {
+    if (!executor) {
+        setVizState(null);
+        setMachineJSON(null);
+        return;
+    }
+
+    // Initial update
+    updateExecutionState();
+    
+    // Subscribe to state changes for reactive updates
+    if (typeof executor.setOnStateChangeCallback === 'function') {
+        executor.setOnStateChangeCallback(() => {
+            updateExecutionState();
+        });
+        
+        return () => {
+            // Clean up callback on unmount
+            if (typeof executor.setOnStateChangeCallback === 'function') {
+                executor.setOnStateChangeCallback(undefined);
+            }
+        };
+    }
+    
+    return () => {};
+}, [executor]);
+```
+
+This matches the pattern used in `ExecutionControls` for reactive log syncing, ensuring the visualization updates automatically during execution.
 
 ## Future Improvements
 
