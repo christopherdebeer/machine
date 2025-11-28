@@ -57,11 +57,27 @@ function executionStateToRuntimeContext(state: ExecutionState): RuntimeContext {
     });
     visitedNodes.add(activePath.currentNode);
 
+    // Extract runtime context values from state.contextState
+    // Format: state.contextState[contextName][attributeName] = value
+    // Convert to: attributes Map with contextName.attributeName keys
+    const attributes = new Map<string, any>();
+    if (state.contextState) {
+        for (const [contextName, contextAttrs] of Object.entries(state.contextState)) {
+            // Add full context object
+            attributes.set(contextName, contextAttrs);
+
+            // Also add individual attributes for template interpolation
+            for (const [attrName, attrValue] of Object.entries(contextAttrs)) {
+                attributes.set(`${contextName}.${attrName}`, attrValue);
+            }
+        }
+    }
+
     return {
         currentNode: activePath.currentNode,
         errorCount: state.metadata.errorCount,
         visitedNodes,
-        attributes: new Map<string, any>(), // Context values not stored in Path
+        attributes,
         history: activePath.history.map(h => ({
             from: h.from,
             to: h.to,
@@ -79,6 +95,7 @@ function executionStateToRuntimeContext(state: ExecutionState): RuntimeContext {
 
 /**
  * Convert VisualizationState to RuntimeContext for diagram generation
+ * Extracts runtime context values from nodeStates[nodeName].contextValues
  */
 function visualizationStateToRuntimeContext(vizState: VisualizationState): RuntimeContext {
     // Use the first active path
@@ -112,11 +129,26 @@ function visualizationStateToRuntimeContext(vizState: VisualizationState): Runti
         }
     });
 
+    // Extract runtime context values from nodeStates[nodeName].contextValues
+    // Context nodes may have contextValues populated by the executor
+    const attributes = new Map<string, any>();
+    Object.entries(vizState.nodeStates).forEach(([nodeName, nodeState]) => {
+        if (nodeState.contextValues && Object.keys(nodeState.contextValues).length > 0) {
+            // Add full context object
+            attributes.set(nodeName, nodeState.contextValues);
+
+            // Also add individual attributes for template interpolation
+            for (const [attrName, attrValue] of Object.entries(nodeState.contextValues)) {
+                attributes.set(`${nodeName}.${attrName}`, attrValue);
+            }
+        }
+    });
+
     return {
         currentNode: activePath.currentNode,
         errorCount: vizState.errorCount,
         visitedNodes,
-        attributes: new Map<string, any>(), // Context values in nodeStates.contextValues
+        attributes,
         history: activePath.history.map(h => ({
             from: h.from,
             to: h.to,

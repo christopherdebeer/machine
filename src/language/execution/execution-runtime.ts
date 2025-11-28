@@ -580,6 +580,24 @@ function getVisualizationState(state: ExecutionState): VisualizationState {
         }
     }
 
+    // Populate runtime context values from state.contextState
+    // For context nodes, add their runtime values to nodeStates
+    if (state.contextState) {
+        for (const [contextName, contextAttrs] of Object.entries(state.contextState)) {
+            // Ensure the context node has an entry in nodeStates
+            if (!nodeStates[contextName]) {
+                nodeStates[contextName] = {
+                    visitCount: 0,
+                    isActive: false,
+                    activeInPaths: [],
+                    contextValues: {}
+                };
+            }
+            // Populate the contextValues with runtime values
+            nodeStates[contextName].contextValues = contextAttrs;
+        }
+    }
+
     // Build available transitions (per active path)
     const availableTransitions: Array<{
         pathId: string;
