@@ -130,12 +130,12 @@ function encodeSectionStates(states: SectionStates): string {
   // eSize = editor size (s/m/b for small/medium/big)
   // oSize = output size (s/m/b)
   // xSize = execution size (s/m/b)
-  // format = output format (0=svg, 1=png, 2=dot, 3=json, 4=ast, 5=cst)
+  // format = output format (0=svg, 1=png, 2=dot, 3=json, 4=ast, 5=cst, 6=src)
   // fit = fit to container (0/1)
 
   const sizeMap: Record<SectionSize, string> = { small: 's', medium: 'm', big: 'b' };
   const formatMap: Record<OutputFormat, string> = {
-    svg: '0', png: '1', dot: '2', json: '3', ast: '4', cst: '5'
+    svg: '0', png: '1', dot: '2', json: '3', ast: '4', cst: '5', src: '6'
   };
 
   return [
@@ -158,7 +158,7 @@ function decodeSectionStates(encoded: string): Partial<SectionStates> {
 
   const sizeMap: Record<string, SectionSize> = { s: 'small', m: 'medium', b: 'big' };
   const formatMap: Record<string, OutputFormat> = {
-    '0': 'svg', '1': 'png', '2': 'dot', '3': 'json', '4': 'ast', '5': 'cst'
+    '0': 'svg', '1': 'png', '2': 'dot', '3': 'json', '4': 'ast', '5': 'cst', '6': 'src'
   };
 
   try {
@@ -1676,6 +1676,8 @@ export const CodeMirrorPlayground: React.FC = () => {
           json: jsonData,
           machine: model,
           ast: model,
+          cst: document.parseResult.value.$cstNode,
+          src: code,
         });
       } catch (error) {
         console.error("Error updating diagram:", error);

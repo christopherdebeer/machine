@@ -9,7 +9,7 @@ import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components';
 import { Machine } from '../language/generated/ast';
 
-export type OutputFormat = 'svg' | 'png' | 'dot' | 'json' | 'ast' | 'cst';
+export type OutputFormat = 'svg' | 'png' | 'dot' | 'json' | 'ast' | 'cst' | 'src';
 
 export interface OutputData {
     svg?: string;
@@ -18,6 +18,7 @@ export interface OutputData {
     json?: string;
     ast?: any;
     cst?: any;
+    src?: string;
     machine?: Machine;
 }
 
@@ -337,7 +338,8 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
         { format: 'dot', label: 'DOT', title: 'Graphviz DOT source' },
         { format: 'json', label: 'JSON', title: 'Machine JSON representation' },
         { format: 'ast', label: 'AST', title: 'Abstract Syntax Tree' },
-        { format: 'cst', label: 'CST', title: 'Concrete Syntax Tree' }
+        { format: 'cst', label: 'CST', title: 'Concrete Syntax Tree' },
+        { format: 'src', label: 'SRC', title: 'Source Dygram definition' }
     ];
 
     const handleFormatChange = useCallback((format: OutputFormat) => {
@@ -465,6 +467,19 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
                 }
                 return <EmptyState>No CST data available</EmptyState>;
 
+            case 'src':
+                if (outputData.src) {
+                    return (
+                        <CodeBlock>
+                            <CodeHeader>Source Definition</CodeHeader>
+                            <CodePre>
+                                <code>{outputData.src}</code>
+                            </CodePre>
+                        </CodeBlock>
+                    );
+                }
+                return <EmptyState>No source available</EmptyState>;
+
             default:
                 return <EmptyState>Unknown format</EmptyState>;
         }
@@ -510,6 +525,8 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
                     }
                 }
                 return null;
+            case 'src':
+                return outputData.src ?? null;
             default:
                 return null;
         }
