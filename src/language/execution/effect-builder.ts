@@ -141,11 +141,31 @@ function buildContextTools(machineJSON: MachineJSON, nodeName: string): ToolDefi
     });
 
     for (const contextNode of contextNodes) {
-        // Check for read permission (edge from context to task, or task to context with -reads->)
-        const hasReadEdge = machineJSON.edges.some(e =>
-            (e.source === contextNode.name && e.target === nodeName) ||
-            (e.source === nodeName && e.target === contextNode.name && e.type === 'reads')
-        );
+        // Check for read permission
+        // Multiple ways to indicate read access:
+        // 1. Edge from context to task (context -> task)
+        // 2. Edge from task to context with type='reads' (task -reads-> context)
+        // 3. Edge with label/text containing 'reads'
+        const hasReadEdge = machineJSON.edges.some(e => {
+            // Direct edge from context to task
+            if (e.source === contextNode.name && e.target === nodeName) {
+                return true;
+            }
+            
+            // Edge from task to context with semantic type
+            if (e.source === nodeName && e.target === contextNode.name) {
+                // Check edge.type field (set by serializer for semantic edges)
+                if (e.type === 'reads') return true;
+                
+                // Check edge label/text for 'reads' keyword
+                const label = e.label || e.value?.text || e.attributes?.text;
+                if (label && typeof label === 'string' && label.toLowerCase().trim() === 'reads') {
+                    return true;
+                }
+            }
+            
+            return false;
+        });
 
         if (hasReadEdge) {
             tools.push({
@@ -164,11 +184,25 @@ function buildContextTools(machineJSON: MachineJSON, nodeName: string): ToolDefi
             });
         }
 
-        // Check for write permission (edge from task to context with -writes-> or -stores->)
-        const hasWriteEdge = machineJSON.edges.some(e =>
-            e.source === nodeName && e.target === contextNode.name &&
-            (e.type === 'writes' || e.type === 'stores')
-        );
+        // Check for write permission
+        // Multiple ways to indicate write access:
+        // 1. Edge from task to context with type='writes' (task -writes-> context)
+        // 2. Edge with label/text containing 'writes' or 'stores'
+        const hasWriteEdge = machineJSON.edges.some(e => {
+            if (e.source === nodeName && e.target === contextNode.name) {
+                // Check edge.type field (set by serializer for semantic edges)
+                if (e.type === 'writes' || e.type === 'stores') return true;
+                
+                // Check edge label/text for write keywords
+                const label = e.label || e.value?.text || e.attributes?.text;
+                if (label && typeof label === 'string') {
+                    const lower = label.toLowerCase().trim();
+                    if (lower === 'writes' || lower === 'stores') return true;
+                }
+            }
+            
+            return false;
+        });
 
         if (hasWriteEdge) {
             tools.push({
