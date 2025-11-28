@@ -1346,6 +1346,52 @@ export const CodeMirrorPlayground: React.FC = () => {
     return Promise.resolve();
   }, []);
 
+  // PNG generation utility
+  const generatePngFromSvg = useCallback(async (svgContent: string): Promise<string | undefined> => {
+    if (!svgContent) {
+      return undefined;
+    }
+
+    try {
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+
+      try {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const image = new Image();
+
+          image.onload = () => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            if (!context) {
+              reject(new Error('Unable to obtain 2D canvas context'));
+              return;
+            }
+
+            canvas.width = image.width;
+            canvas.height = image.height;
+            context.drawImage(image, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          };
+
+          image.onerror = () => {
+            reject(new Error('Unable to load SVG for PNG conversion'));
+          };
+
+          image.src = url;
+        });
+
+        return dataUrl;
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error('Failed to generate PNG preview from SVG:', error);
+      return undefined;
+    }
+  }, []);
+
   // Update SVG visualization with execution state
   const updateRuntimeVisualization = useCallback(
     async (exec: MachineExecutor) => {
@@ -1382,8 +1428,29 @@ export const CodeMirrorPlayground: React.FC = () => {
         console.error('Failed to update runtime visualization:', error);
       }
     },
-    [currentMachineData]
+    [currentMachineData, generatePngFromSvg]
   );
+
+  // Subscribe to executor state changes for reactive SVG updates
+  useEffect(() => {
+    if (!executor) return;
+
+    // Subscribe to state changes
+    if (typeof executor.setOnStateChangeCallback === 'function') {
+      executor.setOnStateChangeCallback(() => {
+        updateRuntimeVisualization(executor);
+      });
+
+      return () => {
+        // Clean up callback
+        if (typeof executor.setOnStateChangeCallback === 'function') {
+          executor.setOnStateChangeCallback(undefined);
+        }
+      };
+    }
+
+    return () => {};
+  }, [executor, updateRuntimeVisualization]);
 
   // Execution handlers
   const handleExecute = useCallback(async () => {
@@ -1674,56 +1741,9 @@ export const CodeMirrorPlayground: React.FC = () => {
         console.error("Error resetting to static diagram:", error);
       }
     }
-  }, [outputData.machine]);
+  }, [outputData.machine, generatePngFromSvg]);
 
-
-    const generatePngFromSvg = useCallback(async (svgContent: string): Promise<string | undefined> => {
-        if (!svgContent) {
-            return undefined;
-        }
-
-        try {
-            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-
-            try {
-                const dataUrl = await new Promise<string>((resolve, reject) => {
-                    const image = new Image();
-
-                    image.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
-
-                        if (!context) {
-                            reject(new Error('Unable to obtain 2D canvas context'));
-                            return;
-                        }
-
-                        canvas.width = image.width;
-                        canvas.height = image.height;
-                        context.drawImage(image, 0, 0);
-                        resolve(canvas.toDataURL('image/png'));
-                    };
-
-                    image.onerror = () => {
-                        reject(new Error('Unable to load SVG for PNG conversion'));
-                    };
-
-                    image.src = url;
-                });
-
-                return dataUrl;
-            } finally {
-                URL.revokeObjectURL(url);
-            }
-        } catch (error) {
-            console.error('Failed to generate PNG preview from SVG:', error);
-            return undefined;
-        }
-    }, []);
-
-
-    return (
+  return (
         <Container>
             <Header>
                 <HeaderTitle>
