@@ -2330,10 +2330,15 @@ function generateEdges(
         ? new Map(edgeStates.map(es => [`${es.source}->${es.target}`, es]))
         : undefined;
 
-    // Evaluate edge conditions in static mode (unless runtime context is provided)
+    // Evaluate edge conditions
     const edgeEvaluator = new EdgeEvaluator();
-    const staticContext = edgeEvaluator.createDefaultContext(machineJson.attributes);
-    const edgeEvaluations = edgeEvaluator.evaluateEdges(machineJson.edges, staticContext);
+    
+    // Use runtime context if available, otherwise use static default context
+    const evaluationContext = options?.runtimeContext 
+        ? edgeEvaluator.createRuntimeContext(options.runtimeContext)
+        : edgeEvaluator.createDefaultContext(machineJson.attributes);
+    
+    const edgeEvaluations = edgeEvaluator.evaluateEdges(machineJson.edges, evaluationContext);
 
     // Process all edges, including parent-to-parent edges using compound edge features
     machineJson.edges.forEach((edge, edgeIndex) => {

@@ -1395,28 +1395,57 @@ export const CodeMirrorPlayground: React.FC = () => {
   // Update SVG visualization with execution state
   const updateRuntimeVisualization = useCallback(
     async (exec: MachineExecutor) => {
-      if (!exec || !currentMachineData) return;
+      console.log('[updateRuntimeVisualization] Called', { 
+        hasExecutor: !!exec, 
+        hasCurrentMachineData: !!currentMachineData 
+      });
+
+      if (!exec) {
+        console.warn('[updateRuntimeVisualization] No executor provided');
+        return;
+      }
+
+      // Get machine data from executor if not available in state
+      const machineData = currentMachineData || exec.getMachineDefinition();
+      if (!machineData) {
+        console.warn('[updateRuntimeVisualization] No machine data available');
+        return;
+      }
 
       try {
         // Get current execution state
         const state = exec.getState();
+        console.log('[updateRuntimeVisualization] Execution state:', {
+          pathCount: state.paths?.length,
+          stepCount: state.metadata?.stepCount,
+          currentNodes: state.paths?.map(p => p.currentNode)
+        });
 
         // Check if there are any paths with execution
-        if (!state.paths || state.paths.length === 0) return;
+        if (!state.paths || state.paths.length === 0) {
+          console.warn('[updateRuntimeVisualization] No execution paths found');
+          return;
+        }
 
         // Generate new Graphviz with ExecutionState (conversion handled internally)
         const { generateRuntimeGraphviz } = await import('../language/diagram/index');
-        const dotWithContext = generateRuntimeGraphviz(currentMachineData, state, {
+        const dotWithContext = generateRuntimeGraphviz(machineData, state, {
           showRuntimeState: true,
           showVisitCounts: true,
           showExecutionPath: true,
         });
 
+        console.log('[updateRuntimeVisualization] Generated runtime DOT, length:', dotWithContext.length);
+
         // Render to SVG
         const tempDiv = window.document.createElement("div");
         const svgResult = await renderGraphviz(dotWithContext, tempDiv);
+        
         // Generate PNG from SVG
         const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
+        
+        console.log('[updateRuntimeVisualization] Rendered SVG, length:', tempDiv.innerHTML.length);
+        
         // Update output panel with new SVG
         setOutputData(prev => ({
           ...prev,
@@ -1424,8 +1453,10 @@ export const CodeMirrorPlayground: React.FC = () => {
           svg: tempDiv.innerHTML,
           png: pngDataUrl,
         }));
+        
+        console.log('[updateRuntimeVisualization] Updated output data');
       } catch (error) {
-        console.error('Failed to update runtime visualization:', error);
+        console.error('[updateRuntimeVisualization] Failed:', error);
       }
     },
     [currentMachineData, generatePngFromSvg]

@@ -175,6 +175,11 @@ export class MachineExecutor {
     async execute(): Promise<ExecutionState> {
         while (true) {
             const continued = await this.step();
+            
+            // Yield to event loop to allow UI updates (React state batching)
+            // This ensures visualization updates are processed between steps
+            await new Promise(resolve => setTimeout(resolve, 0));
+            
             if (!continued) {
                 break;
             }
