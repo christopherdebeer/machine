@@ -14,13 +14,15 @@ import type {
     CompleteEffect,
     ErrorEffect,
     AgentResult,
-    ToolExecutionResult
+    ToolExecutionResult,
+    ExecutionState
 } from './runtime-types.js';
 import type { MachineJSON } from '../json/types.js';
 import { ClaudeClient } from '../claude-client.js';
 import { extractText, extractToolUses } from '../llm-client.js';
 import { CodeExecutor } from './code-executor.js';
 import type { MetaToolManager } from '../meta-tool-manager.js';
+import { getContextValues } from './state-builder.js';
 
 /**
  * Effect executor configuration
@@ -49,6 +51,7 @@ export class EffectExecutor {
     private onComplete: (effect: CompleteEffect) => void;
     private onError: (effect: ErrorEffect) => void;
     private metaToolManager?: MetaToolManager;
+    private currentState?: ExecutionState;  // Current execution state for context access
 
     constructor(config: EffectExecutorConfig = {}) {
         this.llmClient = config.llmClient;
@@ -66,8 +69,13 @@ export class EffectExecutor {
 
     /**
      * Execute a batch of effects
+     * @param effects - Effects to execute
+     * @param state - Current execution state (for context access)
      */
-    async execute(effects: Effect[]): Promise<AgentResult[]> {
+    async execute(effects: Effect[], state?: ExecutionState): Promise<AgentResult[]> {
+        // Store state for context operations
+        this.currentState = state;
+
         const agentResults: AgentResult[] = [];
 
         for (const effect of effects) {
@@ -353,21 +361,59 @@ export class EffectExecutor {
 
         // Context read
         if (toolName.startsWith('read_')) {
-            // TODO: Implement context reading from machine state
+            const contextName = toolName.replace('read_', '');
+
+            // Read from current execution state
+            if (!this.currentState) {
+                throw new Error('No execution state available for context read');
+            }
+
+            const contextValues = getContextValues(this.currentState, contextName);
+
+            // Filter to requested fields if specified
+            const fields = input.fields;
+            const data = fields && Array.isArray(fields)
+                ? Object.fromEntries(fields.map(f => [f, contextValues[f]]))
+                : contextValues;
+
+            this.executeLog({
+                type: 'log',
+                level: 'debug',
+                category: 'context',
+                message: `Read from context ${contextName}`,
+                data: { values: data, fields }
+            });
+
             return {
                 success: true,
-                context: toolName.replace('read_', ''),
-                data: {}
+                context: contextName,
+                data
             };
         }
 
         // Context write
         if (toolName.startsWith('write_')) {
-            // TODO: Implement context writing (needs state mutation)
+            const contextName = toolName.replace('write_', '');
+            const dataToWrite = input.data || {};
+
+            // Log the write operation
+            this.executeLog({
+                type: 'log',
+                level: 'debug',
+                category: 'context',
+                message: `Write to context ${contextName}`,
+                data: { values: dataToWrite }
+            });
+
+            // Return the write operation details
+            // The actual state mutation will be applied by the executor
+            // after receiving the AgentResult
             return {
                 success: true,
-                context: toolName.replace('write_', ''),
-                written: Object.keys(input.data || {})
+                action: 'context_write',
+                context: contextName,
+                written: Object.keys(dataToWrite),
+                values: dataToWrite
             };
         }
 

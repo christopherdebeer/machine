@@ -22,6 +22,7 @@ import type { RuntimeConfig } from './execution/runtime.js';
 import { ClaudeClient } from './claude-client.js';
 import { createLLMClient, type LLMClientConfig } from './llm-client.js';
 import { MetaToolManager } from './meta-tool-manager.js';
+import { updateContextState } from './execution/state-builder.js';
 
 /**
  * Machine executor configuration
@@ -145,8 +146,8 @@ export class MachineExecutor {
     async step(): Promise<boolean> {
         const result = this.runtime.step(this.currentState);
 
-        // Execute effects
-        const agentResults = await this.effectExecutor.execute(result.effects);
+        // Execute effects (passing state for context access)
+        const agentResults = await this.effectExecutor.execute(result.effects, result.nextState);
 
         // Apply each agent result to its corresponding path
         let nextState = result.nextState;
@@ -159,6 +160,10 @@ export class MachineExecutor {
                 );
             }
         }
+
+        // Apply context writes from tool executions
+        nextState = this.applyContextWrites(nextState, agentResults);
+
         this.currentState = nextState;
 
         // Notify listeners of state change
@@ -324,6 +329,35 @@ export class MachineExecutor {
     static deserializeState(json: string): ExecutionState {
         const runtime = createExecutionRuntime();
         return runtime.deserializeState(json);
+    }
+
+    /**
+     * Apply context writes from agent tool executions to state
+     */
+    private applyContextWrites(state: ExecutionState, agentResults: AgentResult[]): ExecutionState {
+        let newState = state;
+
+        for (const agentResult of agentResults) {
+            for (const toolExec of agentResult.toolExecutions) {
+                // Check if this is a context write operation
+                if (toolExec.success && toolExec.output?.action === 'context_write') {
+                    const contextName = toolExec.output.context;
+                    const values = toolExec.output.values || {};
+
+                    // Apply the context write to state
+                    newState = updateContextState(newState, contextName, values);
+
+                    this.logger.log({
+                        level: 'info',
+                        category: 'context',
+                        message: `Context write applied: ${contextName}`,
+                        data: { values }
+                    });
+                }
+            }
+        }
+
+        return newState;
     }
 
     /**

@@ -3,9 +3,84 @@
 ## Investigation Summary
 
 Date: 2025-11-28
-Context: Testing Dynamic Tool Builder example revealed multiple issues with execution visualization and dynamic tool execution.
+Updated: 2025-11-28 (Added context read/write implementation and automated transition fix)
+Context: Testing Dynamic Tool Builder example revealed multiple issues with execution visualization, dynamic tool execution, context state management, and automated transitions.
 
 ## Issues Identified
+
+### 0. Context Read/Write Not Implemented ⚠️ **CRITICAL - NOW FIXED**
+
+**Symptom**: Context read/write tools return success but don't actually read or mutate state
+
+**Status**: ✅ **FIXED** - Full implementation completed
+
+**Changes Made**:
+
+1. **Added contextState to ExecutionState** (`src/language/execution/runtime-types.ts:71`)
+   - Runtime context values now tracked in execution state
+   - Maps context node name to attribute values: `Record<string, Record<string, any>>`
+
+2. **Initialize context state from machine** (`src/language/execution/state-builder.ts:57-115`)
+   - `initializeContextState()` extracts initial values from context nodes
+   - Handles type parsing (number, boolean, JSON, etc.)
+
+3. **Context read/write operations** (`src/language/execution/effect-executor.ts:362-418`)
+   - `read_<contextName>` tools now read from `state.contextState`
+   - `write_<contextName>` tools return write operations with values
+   - Writes applied to state in executor after agent completes
+
+4. **State mutation application** (`src/language/executor.ts:163-164, 337-361`)
+   - `applyContextWrites()` extracts write operations from tool executions
+   - Uses `updateContextState()` to apply mutations immutably
+   - Writes logged for debugging
+
+5. **Runtime context overlay** (`src/language/execution/context-builder.ts:148-158`)
+   - CEL evaluation contexts now include runtime values
+   - Conditions see current context state, not just initial values
+   - Enables proper evaluation of conditions like `-when: "config.result"-> complete`
+
+**Impact**: Context edges now fully functional - agents can read/write context and conditional transitions work correctly!
+
+### 0b. Automated Transitions Bypass Agent Work ⚠️ **CRITICAL - NOW FIXED**
+
+**Symptom**: Task nodes with prompts auto-transition on simple conditions without executing prompt
+
+**Root Cause**: `evaluateAutomatedTransitions()` checked simple deterministic conditions BEFORE checking if agent work required.
+
+**Status**: ✅ **FIXED**
+
+**Change Made** (`src/language/execution/transition-evaluator.ts:164-177`):
+```typescript
+// Check edges with simple deterministic conditions
+// BUT: Don't auto-transition from task nodes with prompts - they need agent work
+const isTaskWithPrompt = NodeTypeChecker.isTask(node) && node.attributes?.find(a => a.name === 'prompt');
+
+if (!isTaskWithPrompt) {
+    // Only auto-transition if NOT a task with prompt
+    for (const edge of outboundEdges) {
+        if (edge.condition && isSimpleCondition(edge.condition)) {
+            if (evaluateCondition(edge.condition, machineJSON, state, pathId)) {
+                return createTransition(nodeName, edge.target, 'Simple deterministic condition', machineJSON);
+            }
+        }
+    }
+}
+```
+
+**Impact**: Task nodes with prompts now ALWAYS execute prompts before evaluating transitions, even if conditional edges have simple deterministic conditions.
+
+### 0c. Catch Edges Not Recognized - NOW FIXED
+
+**Symptom**: `-catch->` edges treated as regular transitions, no semantic error handling
+
+**Status**: ✅ **FIXED**
+
+**Change Made** (`src/language/json/serializer.ts:899-930`):
+- Added `'catch'` and `'error'` to semantic edge type detection
+- Catch edges now marked with `type: 'catch'` in MachineJSON
+- Enables future automatic error catching behavior
+
+**Impact**: Catch edges are now properly identified as semantic edges. Future work can add automatic error transition logic.
 
 ### 1. Dynamic Tool Execution Error
 

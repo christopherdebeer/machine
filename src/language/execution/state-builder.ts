@@ -36,6 +36,9 @@ export function createInitialState(
         startTime: Date.now()
     }));
 
+    // Initialize context state from context nodes in machine
+    const contextState = initializeContextState(machineJSON);
+
     return {
         version: EXECUTION_STATE_VERSION,
         machineSnapshot: JSON.parse(JSON.stringify(machineJSON)), // Deep clone
@@ -46,8 +49,69 @@ export function createInitialState(
             startTime: Date.now(),
             elapsedTime: 0,
             errorCount: 0
-        }
+        },
+        contextState
     };
+}
+
+/**
+ * Initialize context state from context nodes in machine
+ * Extracts initial attribute values from all context nodes
+ */
+function initializeContextState(machineJSON: MachineJSON): Record<string, Record<string, any>> {
+    const contextState: Record<string, Record<string, any>> = {};
+
+    // Find all context nodes
+    const contextNodes = machineJSON.nodes.filter(
+        node => node.type?.toLowerCase() === 'context'
+    );
+
+    for (const node of contextNodes) {
+        if (node.attributes && node.attributes.length > 0) {
+            contextState[node.name] = {};
+            for (const attr of node.attributes) {
+                // Parse attribute value with type handling
+                let value = attr.value;
+                if (typeof value === 'string') {
+                    // Clean quotes
+                    const cleanValue = value.replace(/^["']|["']$/g, '');
+
+                    // Type-specific parsing
+                    switch (attr.type) {
+                        case 'number':
+                        case 'integer':
+                        case 'int':
+                        case 'float':
+                        case 'double':
+                            value = Number(cleanValue);
+                            break;
+                        case 'boolean':
+                            value = cleanValue.toLowerCase() === 'true';
+                            break;
+                        case 'json':
+                        case 'object':
+                        case 'array':
+                            try {
+                                value = JSON.parse(value);
+                            } catch {
+                                value = cleanValue;
+                            }
+                            break;
+                        default:
+                            // Try to auto-detect
+                            try {
+                                value = JSON.parse(value);
+                            } catch {
+                                value = cleanValue;
+                            }
+                    }
+                }
+                contextState[node.name][attr.name] = value;
+            }
+        }
+    }
+
+    return contextState;
 }
 
 /**
@@ -263,6 +327,40 @@ export function incrementErrorCount(state: ExecutionState): ExecutionState {
     return updateMetadata(state, {
         errorCount: state.metadata.errorCount + 1
     });
+}
+
+/**
+ * Update context state (immutable)
+ * Returns new state with updated context values
+ */
+export function updateContextState(
+    state: ExecutionState,
+    contextName: string,
+    updates: Record<string, any>
+): ExecutionState {
+    const newContextState = {
+        ...state.contextState,
+        [contextName]: {
+            ...(state.contextState[contextName] || {}),
+            ...updates
+        }
+    };
+
+    return {
+        ...state,
+        contextState: newContextState
+    };
+}
+
+/**
+ * Get context values from state
+ * Returns the runtime context values for a specific context node
+ */
+export function getContextValues(
+    state: ExecutionState,
+    contextName: string
+): Record<string, any> {
+    return state.contextState[contextName] || {};
 }
 
 /**

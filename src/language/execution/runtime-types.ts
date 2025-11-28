@@ -66,6 +66,9 @@ export interface ExecutionState {
         elapsedTime: number;          // Milliseconds elapsed
         errorCount: number;           // Total errors encountered
     };
+    // Runtime context state (mutable during execution)
+    // Maps context node name to runtime attribute values
+    contextState: Record<string, Record<string, any>>;
 }
 
 /**

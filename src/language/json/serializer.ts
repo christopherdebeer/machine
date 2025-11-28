@@ -898,7 +898,7 @@ class MachineAstSerializer {
     
     /**
      * Detect semantic edge type from edge label/attributes
-     * Recognizes: writes, stores, reads as semantic types for context access
+     * Recognizes: writes, stores, reads, catch, error as semantic types
      */
     private detectSemanticEdgeType(edgeValue: Record<string, unknown> | undefined, labels?: EdgeType[]): string | undefined {
         // Check edge value/attributes for semantic keywords
@@ -908,9 +908,10 @@ class MachineAstSerializer {
                 const lower = text.toLowerCase().trim();
                 if (lower === 'writes' || lower === 'stores') return 'writes';
                 if (lower === 'reads') return 'reads';
+                if (lower === 'catch' || lower === 'error') return 'catch';
             }
         }
-        
+
         // Check edge labels for semantic keywords
         if (labels && labels.length > 0) {
             for (const label of labels) {
@@ -919,11 +920,12 @@ class MachineAstSerializer {
                         const text = ((attr as any).text as string).toLowerCase().trim();
                         if (text === 'writes' || text === 'stores') return 'writes';
                         if (text === 'reads') return 'reads';
+                        if (text === 'catch' || text === 'error') return 'catch';
                     }
                 }
             }
         }
-        
+
         return undefined;
     }
 }
