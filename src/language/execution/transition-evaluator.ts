@@ -162,10 +162,16 @@ export function evaluateAutomatedTransitions(
     }
 
     // Check edges with simple deterministic conditions
-    for (const edge of outboundEdges) {
-        if (edge.condition && isSimpleCondition(edge.condition)) {
-            if (evaluateCondition(edge.condition, machineJSON, state, pathId)) {
-                return createTransition(nodeName, edge.target, 'Simple deterministic condition', machineJSON);
+    // BUT: Don't auto-transition from task nodes with prompts - they need agent work
+    // The agent must execute the prompt first to perform work (call tools, mutate context, emit text)
+    const isTaskWithPrompt = NodeTypeChecker.isTask(node) && node.attributes?.find(a => a.name === 'prompt');
+
+    if (!isTaskWithPrompt) {
+        for (const edge of outboundEdges) {
+            if (edge.condition && isSimpleCondition(edge.condition)) {
+                if (evaluateCondition(edge.condition, machineJSON, state, pathId)) {
+                    return createTransition(nodeName, edge.target, 'Simple deterministic condition', machineJSON);
+                }
             }
         }
     }

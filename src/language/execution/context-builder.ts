@@ -89,7 +89,7 @@ export function buildNodeContext(
     for (const [contextNodeName, permissions] of accessibleContexts.entries()) {
         if (permissions.canRead) {
             const contextNode = machineJSON.nodes.find(n => n.name === contextNodeName);
-            if (contextNode?.attributes && contextNode.attributes.length > 0) {
+            if (contextNode) {
                 // Warn about reserved name collisions
                 if (RESERVED_NAMES.includes(contextNode.name)) {
                     console.warn(
@@ -98,11 +98,15 @@ export function buildNodeContext(
                     );
                 }
 
+                // For context nodes, use initial values from machine definition
+                // (Runtime state values will be overlaid by buildEvaluationContext)
                 context[contextNode.name] = {};
-                for (const attr of contextNode.attributes) {
-                    // Only include specific fields if permissions are restricted
-                    if (!permissions.fields || permissions.fields.includes(attr.name)) {
-                        context[contextNode.name][attr.name] = parseAttributeValue(attr.value, attr.type);
+                if (contextNode.attributes && contextNode.attributes.length > 0) {
+                    for (const attr of contextNode.attributes) {
+                        // Only include specific fields if permissions are restricted
+                        if (!permissions.fields || permissions.fields.includes(attr.name)) {
+                            context[contextNode.name][attr.name] = parseAttributeValue(attr.value, attr.type);
+                        }
                     }
                 }
             }
@@ -114,7 +118,7 @@ export function buildNodeContext(
 
 /**
  * Build complete evaluation context for CEL evaluation
- * This includes built-in variables, node context, and edge-accessible context
+ * This includes built-in variables, node context, runtime context values, and edge-accessible context
  */
 export function buildEvaluationContext(
     nodeName: string,
@@ -138,15 +142,27 @@ export function buildEvaluationContext(
         }
     }
 
-    // Build node-specific context including edge-accessible context
+    // Build node-specific context including edge-accessible context (initial values)
     const nodeContext = buildNodeContext(nodeName, machineJSON, true);
+
+    // Overlay runtime context values on top of initial values
+    // This ensures CEL expressions see the current runtime state
+    for (const [contextName, contextValues] of Object.entries(state.contextState)) {
+        if (nodeContext[contextName]) {
+            // Merge runtime values over initial values
+            nodeContext[contextName] = {
+                ...nodeContext[contextName],
+                ...contextValues
+            };
+        }
+    }
 
     return {
         // Built-in variables (these take precedence over user-defined nodes)
         errorCount: state.metadata.errorCount,
         errors: state.metadata.errorCount, // Alias for backward compatibility
         activeState,
-        // User-defined context (nodes and edge-accessible context)
+        // User-defined context (nodes and edge-accessible context with runtime overlays)
         attributes: nodeContext
     };
 }
