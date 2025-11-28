@@ -307,6 +307,23 @@ export function requiresAgentDecision(
 }
 
 /**
+ * Get machine-level attributes as object
+ */
+export function getMachineAttributes(
+    machineJSON: MachineJSON
+): Record<string, any> {
+    if (!machineJSON.attributes) {
+        return {};
+    }
+
+    const result: Record<string, any> = {};
+    for (const attr of machineJSON.attributes) {
+        result[attr.name] = attr.value;
+    }
+    return result;
+}
+
+/**
  * Get node attributes as object
  */
 export function getNodeAttributes(

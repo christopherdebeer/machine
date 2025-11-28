@@ -15,7 +15,7 @@ import type {
     ToolDefinition
 } from './runtime-types.js';
 import { getPath } from './state-builder.js';
-import { getNonAutomatedTransitions, getNodeAttributes } from './transition-evaluator.js';
+import { getNonAutomatedTransitions, getNodeAttributes, getMachineAttributes } from './transition-evaluator.js';
 import { AgentContextBuilder } from '../agent-context-builder.js';
 
 /**
@@ -114,9 +114,14 @@ export function buildTools(
     const contextTools = buildContextTools(machineJSON, nodeName);
     tools.push(...contextTools);
 
-    // Add meta-tools if node has meta capability
-    const attributes = getNodeAttributes(machineJSON, nodeName);
-    if (attributes.meta === 'true' || attributes.meta === 'True') {
+    // Add meta-tools if machine or node has meta capability
+    const machineAttributes = getMachineAttributes(machineJSON);
+    const nodeAttributes = getNodeAttributes(machineJSON, nodeName);
+
+    const hasMachineMeta = machineAttributes.meta === true || machineAttributes.meta === 'true' || machineAttributes.meta === 'True';
+    const hasNodeMeta = nodeAttributes.meta === 'true' || nodeAttributes.meta === 'True';
+
+    if (hasMachineMeta || hasNodeMeta) {
         tools.push(...buildMetaTools());
     }
 
