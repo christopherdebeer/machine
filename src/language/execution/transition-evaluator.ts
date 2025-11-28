@@ -227,6 +227,33 @@ function createTransition(
 }
 
 /**
+ * Check if an edge is a data/context edge (not a control flow transition)
+ */
+function isDataEdge(edge: AnnotatedEdge, machineJSON: MachineJSON): boolean {
+    // Check if edge has semantic type indicating data flow
+    if (edge.type === 'writes' || edge.type === 'reads' || edge.type === 'stores') {
+        return true;
+    }
+    
+    // Check if target is a context node
+    const targetNode = machineJSON.nodes.find(n => n.name === edge.target);
+    if (targetNode && targetNode.type?.toLowerCase() === 'context') {
+        return true;
+    }
+    
+    // Check edge label/text for data flow keywords
+    const label = edge.label || (edge as any).value?.text || (edge as any).attributes?.text;
+    if (label && typeof label === 'string') {
+        const lower = label.toLowerCase().trim();
+        if (lower === 'writes' || lower === 'reads' || lower === 'stores') {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+/**
  * Get non-automated transitions (require agent decision)
  */
 export function getNonAutomatedTransitions(
@@ -246,6 +273,9 @@ export function getNonAutomatedTransitions(
         .filter(edge => {
             // Skip @auto edges
             if (edge.hasAutoAnnotation) return false;
+
+            // Skip data/context edges (not control flow transitions)
+            if (isDataEdge(edge, machineJSON)) return false;
 
             // Skip edges with simple deterministic conditions that would auto-execute
             if (edge.condition && isSimpleCondition(edge.condition) && evaluateCondition(edge.condition, machineJSON, state, pathId)) {
@@ -304,6 +334,23 @@ export function requiresAgentDecision(
 
     // For other node types, require agent if multiple non-automatic edges
     return nonAutoEdges.length > 1;
+}
+
+/**
+ * Get machine-level attributes as object
+ */
+export function getMachineAttributes(
+    machineJSON: MachineJSON
+): Record<string, any> {
+    if (!machineJSON.attributes) {
+        return {};
+    }
+
+    const result: Record<string, any> = {};
+    for (const attr of machineJSON.attributes) {
+        result[attr.name] = attr.value;
+    }
+    return result;
 }
 
 /**

@@ -36,8 +36,17 @@ class MachineAstSerializer {
     serialize(): MachineJSON {
         const dependencyAnalyzer = new DependencyAnalyzer(this.machine);
         const inferredDeps = dependencyAnalyzer.inferDependencies();
-        const machineAttributes = this.serializeMachineAttributes(this.machine.attributes ?? []);
+        let machineAttributes = this.serializeMachineAttributes(this.machine.attributes ?? []);
         const machineAnnotations = this.machine.annotations?.map(serializeAnnotation);
+        
+        // Handle @meta annotation - convert to meta: true attribute
+        if (machineAnnotations?.some(a => a.name === 'meta')) {
+            const hasMetaAttr = machineAttributes.some(a => a.name === 'meta');
+            if (!hasMetaAttr) {
+                machineAttributes = [...machineAttributes, { name: 'meta', value: true }];
+            }
+        }
+        
         const machineStyle = this.computeMachineStyle(machineAttributes, machineAnnotations);
 
         return {
@@ -58,8 +67,17 @@ class MachineAstSerializer {
 
     private serializeNodes(): MachineNodeJSON[] {
         const flattenNode = (node: Node, parentName?: string): MachineNodeJSON[] => {
-            const serializedAttributes = this.serializeAttributes(node);
+            let serializedAttributes = this.serializeAttributes(node);
             const serializedAnnotations = node.annotations?.map(serializeAnnotation);
+            
+            // Handle @meta annotation - convert to meta: true attribute
+            if (serializedAnnotations?.some(a => a.name === 'meta')) {
+                const hasMetaAttr = serializedAttributes.some(a => a.name === 'meta');
+                if (!hasMetaAttr) {
+                    serializedAttributes = [...serializedAttributes, { name: 'meta', value: true }];
+                }
+            }
+            
             const nodeStyle = this.computeNodeStyle(node, serializedAttributes, serializedAnnotations);
 
             const baseNode: MachineNodeJSON = {
@@ -499,6 +517,12 @@ class MachineAstSerializer {
                             if (edgeStyle && Object.keys(edgeStyle).length > 0) {
                                 record.style = edgeStyle;
                             }
+                            
+                            // Detect semantic edge type from label/attributes
+                            const semanticType = this.detectSemanticEdgeType(edgeValue, segment.label);
+                            if (semanticType) {
+                                record.type = semanticType;
+                            }
 
                             // Add source position metadata for bidirectional highlighting
                             if (segment.$cstNode) {
@@ -869,6 +893,37 @@ class MachineAstSerializer {
             }
         }
 
+        return undefined;
+    }
+    
+    /**
+     * Detect semantic edge type from edge label/attributes
+     * Recognizes: writes, stores, reads as semantic types for context access
+     */
+    private detectSemanticEdgeType(edgeValue: Record<string, unknown> | undefined, labels?: EdgeType[]): string | undefined {
+        // Check edge value/attributes for semantic keywords
+        if (edgeValue) {
+            const text = edgeValue.text as string | undefined;
+            if (text) {
+                const lower = text.toLowerCase().trim();
+                if (lower === 'writes' || lower === 'stores') return 'writes';
+                if (lower === 'reads') return 'reads';
+            }
+        }
+        
+        // Check edge labels for semantic keywords
+        if (labels && labels.length > 0) {
+            for (const label of labels) {
+                for (const attr of label.value) {
+                    if (!attr.name && (attr as any).text) {
+                        const text = ((attr as any).text as string).toLowerCase().trim();
+                        if (text === 'writes' || text === 'stores') return 'writes';
+                        if (text === 'reads') return 'reads';
+                    }
+                }
+            }
+        }
+        
         return undefined;
     }
 }

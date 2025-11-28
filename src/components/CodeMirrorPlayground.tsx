@@ -130,12 +130,12 @@ function encodeSectionStates(states: SectionStates): string {
   // eSize = editor size (s/m/b for small/medium/big)
   // oSize = output size (s/m/b)
   // xSize = execution size (s/m/b)
-  // format = output format (0=svg, 1=png, 2=dot, 3=json, 4=ast, 5=cst)
+  // format = output format (0=svg, 1=png, 2=dot, 3=json, 4=ast, 5=cst, 6=src)
   // fit = fit to container (0/1)
 
   const sizeMap: Record<SectionSize, string> = { small: 's', medium: 'm', big: 'b' };
   const formatMap: Record<OutputFormat, string> = {
-    svg: '0', png: '1', dot: '2', json: '3', ast: '4', cst: '5'
+    svg: '0', png: '1', dot: '2', json: '3', ast: '4', cst: '5', src: '6'
   };
 
   return [
@@ -158,7 +158,7 @@ function decodeSectionStates(encoded: string): Partial<SectionStates> {
 
   const sizeMap: Record<string, SectionSize> = { s: 'small', m: 'medium', b: 'big' };
   const formatMap: Record<string, OutputFormat> = {
-    '0': 'svg', '1': 'png', '2': 'dot', '3': 'json', '4': 'ast', '5': 'cst'
+    '0': 'svg', '1': 'png', '2': 'dot', '3': 'json', '4': 'ast', '5': 'cst', '6': 'src'
   };
 
   try {
@@ -1346,31 +1346,106 @@ export const CodeMirrorPlayground: React.FC = () => {
     return Promise.resolve();
   }, []);
 
+  // PNG generation utility
+  const generatePngFromSvg = useCallback(async (svgContent: string): Promise<string | undefined> => {
+    if (!svgContent) {
+      return undefined;
+    }
+
+    try {
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+
+      try {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const image = new Image();
+
+          image.onload = () => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            if (!context) {
+              reject(new Error('Unable to obtain 2D canvas context'));
+              return;
+            }
+
+            canvas.width = image.width;
+            canvas.height = image.height;
+            context.drawImage(image, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          };
+
+          image.onerror = () => {
+            reject(new Error('Unable to load SVG for PNG conversion'));
+          };
+
+          image.src = url;
+        });
+
+        return dataUrl;
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error('Failed to generate PNG preview from SVG:', error);
+      return undefined;
+    }
+  }, []);
+
   // Update SVG visualization with execution state
   const updateRuntimeVisualization = useCallback(
     async (exec: MachineExecutor) => {
-      if (!exec || !currentMachineData) return;
+      console.log('[updateRuntimeVisualization] Called', { 
+        hasExecutor: !!exec, 
+        hasCurrentMachineData: !!currentMachineData 
+      });
+
+      if (!exec) {
+        console.warn('[updateRuntimeVisualization] No executor provided');
+        return;
+      }
+
+      // Get machine data from executor if not available in state
+      const machineData = currentMachineData || exec.getMachineDefinition();
+      if (!machineData) {
+        console.warn('[updateRuntimeVisualization] No machine data available');
+        return;
+      }
 
       try {
         // Get current execution state
         const state = exec.getState();
+        console.log('[updateRuntimeVisualization] Execution state:', {
+          pathCount: state.paths?.length,
+          stepCount: state.metadata?.stepCount,
+          currentNodes: state.paths?.map(p => p.currentNode)
+        });
 
         // Check if there are any paths with execution
-        if (!state.paths || state.paths.length === 0) return;
+        if (!state.paths || state.paths.length === 0) {
+          console.warn('[updateRuntimeVisualization] No execution paths found');
+          return;
+        }
 
         // Generate new Graphviz with ExecutionState (conversion handled internally)
         const { generateRuntimeGraphviz } = await import('../language/diagram/index');
-        const dotWithContext = generateRuntimeGraphviz(currentMachineData, state, {
+        const dotWithContext = generateRuntimeGraphviz(machineData, state, {
           showRuntimeState: true,
           showVisitCounts: true,
           showExecutionPath: true,
         });
 
+        console.log('[updateRuntimeVisualization] Generated runtime DOT, length:', dotWithContext.length);
+
         // Render to SVG
         const tempDiv = window.document.createElement("div");
         const svgResult = await renderGraphviz(dotWithContext, tempDiv);
+        
         // Generate PNG from SVG
         const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
+        
+        console.log('[updateRuntimeVisualization] Rendered SVG, length:', tempDiv.innerHTML.length);
+        
         // Update output panel with new SVG
         setOutputData(prev => ({
           ...prev,
@@ -1378,12 +1453,35 @@ export const CodeMirrorPlayground: React.FC = () => {
           svg: tempDiv.innerHTML,
           png: pngDataUrl,
         }));
+        
+        console.log('[updateRuntimeVisualization] Updated output data');
       } catch (error) {
-        console.error('Failed to update runtime visualization:', error);
+        console.error('[updateRuntimeVisualization] Failed:', error);
       }
     },
-    [currentMachineData]
+    [currentMachineData, generatePngFromSvg]
   );
+
+  // Subscribe to executor state changes for reactive SVG updates
+  useEffect(() => {
+    if (!executor) return;
+
+    // Subscribe to state changes
+    if (typeof executor.setOnStateChangeCallback === 'function') {
+      executor.setOnStateChangeCallback(() => {
+        updateRuntimeVisualization(executor);
+      });
+
+      return () => {
+        // Clean up callback
+        if (typeof executor.setOnStateChangeCallback === 'function') {
+          executor.setOnStateChangeCallback(undefined);
+        }
+      };
+    }
+
+    return () => {};
+  }, [executor, updateRuntimeVisualization]);
 
   // Execution handlers
   const handleExecute = useCallback(async () => {
@@ -1433,10 +1531,18 @@ export const CodeMirrorPlayground: React.FC = () => {
 
       setExecutor(exec);
 
+      // Set up state change callback BEFORE execution starts
+      // This ensures diagram updates during execution, not just at the end
+      if (typeof exec.setOnStateChangeCallback === 'function') {
+        exec.setOnStateChangeCallback(() => {
+          updateRuntimeVisualization(exec);
+        });
+      }
+
       // Execute machine
       await exec.execute();
 
-      // Update SVG visualization with final execution state
+      // Final update to ensure we have the complete state
       await updateRuntimeVisualization(exec);
 
       console.log("Execution complete");
@@ -1578,6 +1684,8 @@ export const CodeMirrorPlayground: React.FC = () => {
           json: jsonData,
           machine: model,
           ast: model,
+          cst: document.parseResult.value.$cstNode,
+          src: code,
         });
       } catch (error) {
         console.error("Error updating diagram:", error);
@@ -1674,56 +1782,9 @@ export const CodeMirrorPlayground: React.FC = () => {
         console.error("Error resetting to static diagram:", error);
       }
     }
-  }, [outputData.machine]);
+  }, [outputData.machine, generatePngFromSvg]);
 
-
-    const generatePngFromSvg = useCallback(async (svgContent: string): Promise<string | undefined> => {
-        if (!svgContent) {
-            return undefined;
-        }
-
-        try {
-            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-
-            try {
-                const dataUrl = await new Promise<string>((resolve, reject) => {
-                    const image = new Image();
-
-                    image.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
-
-                        if (!context) {
-                            reject(new Error('Unable to obtain 2D canvas context'));
-                            return;
-                        }
-
-                        canvas.width = image.width;
-                        canvas.height = image.height;
-                        context.drawImage(image, 0, 0);
-                        resolve(canvas.toDataURL('image/png'));
-                    };
-
-                    image.onerror = () => {
-                        reject(new Error('Unable to load SVG for PNG conversion'));
-                    };
-
-                    image.src = url;
-                });
-
-                return dataUrl;
-            } finally {
-                URL.revokeObjectURL(url);
-            }
-        } catch (error) {
-            console.error('Failed to generate PNG preview from SVG:', error);
-            return undefined;
-        }
-    }, []);
-
-
-    return (
+  return (
         <Container>
             <Header>
                 <HeaderTitle>

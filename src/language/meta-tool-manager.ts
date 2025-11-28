@@ -255,14 +255,62 @@ export class MetaToolManager {
             case 'code_generation':
                 // Execute provided JavaScript code
                 try {
-                    // Create async function from code (simplified - removed unused variable)
                     handler = async (toolInput: any) => {
+                        // Log the code being executed (for debugging)
+                        console.log(`[Dynamic Tool ${name}] Executing code with input:`, toolInput);
+                        console.log(`[Dynamic Tool ${name}] Code:`, implementation_details);
+
                         try {
-                            // Execute with input in scope
-                            const fn = new Function('input', `return (async () => { ${implementation_details} })()`);
-                            return await fn(toolInput);
+                            // Build parameter destructuring for better ergonomics
+                            // This allows agent code to use parameters directly (e.g., 'n') instead of 'input.n'
+                            const inputObj = toolInput || {};
+                            const paramNames = Object.keys(inputObj);
+                            const paramDestructuring = paramNames.length > 0
+                                ? `const { ${paramNames.join(', ')} } = input || {};`
+                                : '';
+
+                            // Execute with both 'input' object and destructured parameters available
+                            const fnCode = `
+                                'use strict';
+                                ${paramDestructuring}
+
+                                // Execute user code
+                                return (async () => {
+                                    ${implementation_details}
+                                })();
+                            `;
+
+                            const fn = new Function('input', fnCode);
+                            const result = await fn(inputObj);
+
+                            console.log(`[Dynamic Tool ${name}] Raw result:`, result);
+
+                            // Wrap undefined results
+                            if (result === undefined) {
+                                console.warn(`[Dynamic Tool ${name}] Code returned undefined, wrapping in success response`);
+                                return {
+                                    success: true,
+                                    result: null,
+                                    message: 'Code executed but returned no value'
+                                };
+                            }
+
+                            // Wrap raw results in standard format if needed
+                            if (typeof result === 'object' && result !== null && 'success' in result) {
+                                return result;  // Already in standard format
+                            }
+
+                            return {
+                                success: true,
+                                result,
+                                message: 'Tool executed successfully'
+                            };
+
                         } catch (error: any) {
-                            throw new Error(`Tool execution failed: ${error.message}`);
+                            console.error(`[Dynamic Tool ${name}] Execution error:`, error);
+                            console.error(`[Dynamic Tool ${name}] Failed code:`, implementation_details);
+                            console.error(`[Dynamic Tool ${name}] Input was:`, toolInput);
+                            throw new Error(`Tool execution failed: ${error.message}\n\nCode:\n${implementation_details.substring(0, 200)}...`);
                         }
                     };
                 } catch (error: any) {
@@ -433,7 +481,20 @@ export class MetaToolManager {
             throw new Error(`Dynamic tool '${name}' not found`);
         }
 
-        return await tool.handler(input);
+        console.log(`[MetaToolManager] Executing dynamic tool: ${name}`, {
+            strategy: tool.strategy,
+            input,
+            created: tool.created
+        });
+
+        try {
+            const result = await tool.handler(input);
+            console.log(`[MetaToolManager] Tool ${name} completed successfully:`, result);
+            return result;
+        } catch (error) {
+            console.error(`[MetaToolManager] Tool ${name} execution failed:`, error);
+            throw error;
+        }
     }
 
     /**

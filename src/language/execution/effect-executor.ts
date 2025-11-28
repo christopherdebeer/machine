@@ -20,6 +20,7 @@ import type { MachineJSON } from '../json/types.js';
 import { ClaudeClient } from '../claude-client.js';
 import { extractText, extractToolUses } from '../llm-client.js';
 import { CodeExecutor } from './code-executor.js';
+import type { MetaToolManager } from '../meta-tool-manager.js';
 
 /**
  * Effect executor configuration
@@ -47,6 +48,7 @@ export class EffectExecutor {
     private checkpointHandler: (effect: CheckpointEffect) => void;
     private onComplete: (effect: CompleteEffect) => void;
     private onError: (effect: ErrorEffect) => void;
+    private metaToolManager?: MetaToolManager;
 
     constructor(config: EffectExecutorConfig = {}) {
         this.llmClient = config.llmClient;
@@ -102,11 +104,27 @@ export class EffectExecutor {
             throw new Error('LLM client not configured');
         }
 
-        const { pathId, systemPrompt, tools, modelId } = effect;
+        const { pathId, nodeName, systemPrompt, tools, modelId } = effect;
+
+        // Log agent invocation start
+        this.executeLog({
+            type: 'log',
+            level: 'info',
+            category: 'agent',
+            message: `Agent invoked for node: ${nodeName || 'unknown'}`,
+            data: { toolCount: tools.length, hasTools: tools.length > 0 }
+        });
 
         // If no tools, use simple invocation
         if (tools.length === 0) {
             const output = await this.llmClient.invokeModel(systemPrompt);
+            this.executeLog({
+                type: 'log',
+                level: 'info',
+                category: 'agent',
+                message: `Agent completed (no tools available)`,
+                data: { outputLength: output.length }
+            });
             return {
                 pathId,
                 output,
@@ -127,9 +145,16 @@ export class EffectExecutor {
         while (true) {
             const response = await this.llmClient.invokeWithTools(messages, tools);
 
-            // Extract text
+            // Extract and log text reasoning
             const text = extractText(response);
             if (text) {
+                this.executeLog({
+                    type: 'log',
+                    level: 'debug',
+                    category: 'agent',
+                    message: `Agent reasoning: ${text.substring(0, 150)}${text.length > 150 ? '...' : ''}`,
+                    data: { fullText: text }
+                });
                 finalText += (finalText ? '\n' : '') + text;
             }
 
@@ -140,6 +165,16 @@ export class EffectExecutor {
                 break;
             }
 
+            // Log tool use decisions
+            this.executeLog({
+                type: 'log',
+                level: 'info',
+                category: 'agent',
+                message: `Agent selected ${toolUses.length} tool(s): ${toolUses.map(t => t.name).join(', ')}`,
+                data: { tools: toolUses.map(t => ({ name: t.name, input: t.input })) }
+            });
+
+
             // Add assistant message
             messages.push({
                 role: 'assistant',
@@ -149,6 +184,8 @@ export class EffectExecutor {
             // Process tool uses
             const toolResults: any[] = [];
 
+            let dynamicToolConstructed = false;
+
             for (const toolUse of toolUses) {
                 try {
                     const result = await this.handleToolUse(toolUse.name, toolUse.input);
@@ -157,6 +194,22 @@ export class EffectExecutor {
                     if (toolUse.name.startsWith('transition_to_')) {
                         nextNode = result.target;
                     }
+
+                    // Track if a tool was constructed
+                    if (toolUse.name === 'construct_tool' && result.success) {
+                        dynamicToolConstructed = true;
+                    }
+
+                    // Log successful tool execution
+                    // Include reason for transition tools (safely handle undefined result)
+                    const reasonSuffix = (result && result.reason) ? `\n  Reason: ${result.reason}` : '';
+                    this.executeLog({
+                        type: 'log',
+                        level: 'info',
+                        category: 'tool',
+                        message: `✓ ${toolUse.name} executed successfully${reasonSuffix}`,
+                        data: { input: toolUse.input, output: result }
+                    });
 
                     toolExecutions.push({
                         toolName: toolUse.name,
@@ -172,6 +225,15 @@ export class EffectExecutor {
                     });
                 } catch (error) {
                     const errorMessage = error instanceof Error ? error.message : String(error);
+
+                    // Log tool execution error
+                    this.executeLog({
+                        type: 'log',
+                        level: 'error',
+                        category: 'tool',
+                        message: `✗ ${toolUse.name} failed: ${errorMessage}`,
+                        data: { input: toolUse.input, error: errorMessage }
+                    });
 
                     toolExecutions.push({
                         toolName: toolUse.name,
@@ -196,11 +258,43 @@ export class EffectExecutor {
                 content: toolResults
             });
 
+            // If a dynamic tool was constructed, refresh the tool list for next iteration
+            if (dynamicToolConstructed && this.metaToolManager) {
+                const dynamicTools = this.metaToolManager.getDynamicToolDefinitions();
+                // Merge dynamic tools with existing tools (avoiding duplicates)
+                const existingToolNames = new Set(tools.map(t => t.name));
+                for (const dynamicTool of dynamicTools) {
+                    if (!existingToolNames.has(dynamicTool.name)) {
+                        tools.push(dynamicTool);
+                        this.executeLog({
+                            type: 'log',
+                            level: 'info',
+                            category: 'tool',
+                            message: `➕ Added dynamic tool '${dynamicTool.name}' to available tools`,
+                            data: { tool: dynamicTool.name }
+                        });
+                    }
+                }
+            }
+
             // If we got a transition, stop
             if (nextNode) {
                 break;
             }
         }
+
+        // Log final result
+        this.executeLog({
+            type: 'log',
+            level: 'info',
+            category: 'agent',
+            message: `Agent completed with ${toolExecutions.length} tool execution(s)${nextNode ? `, transitioning to: ${nextNode}` : ''}`,
+            data: {
+                toolExecutions: toolExecutions.length,
+                nextNode,
+                outputLength: finalText.length
+            }
+        });
 
         return {
             pathId,
@@ -277,16 +371,54 @@ export class EffectExecutor {
             };
         }
 
-        // Meta tools
-        if (toolName === 'add_node' || toolName === 'add_edge') {
-            // TODO: Implement meta-programming
-            return {
-                success: true,
-                message: `${toolName} executed`
-            };
+        // Meta tools - delegate to MetaToolManager if available
+        if (this.metaToolManager) {
+            switch (toolName) {
+                case 'get_machine_definition':
+                    return await this.metaToolManager.getMachineDefinition(input);
+
+                case 'update_definition':
+                    return await this.metaToolManager.updateDefinition(input);
+
+                case 'construct_tool':
+                    return await this.metaToolManager.constructTool(input);
+
+                case 'list_available_tools':
+                    return await this.metaToolManager.listAvailableTools(input);
+
+                case 'propose_tool_improvement':
+                    return await this.metaToolManager.proposeToolImprovement(input);
+
+                case 'get_tool_nodes':
+                    return await this.metaToolManager.getToolNodesHandler(input);
+
+                case 'build_tool_from_node':
+                    return await this.metaToolManager.buildToolFromNodeHandler(input);
+
+                case 'add_node':
+                case 'add_edge':
+                    // Legacy tools - provide guidance to use update_definition instead
+                    return {
+                        success: false,
+                        message: `'${toolName}' is deprecated. Use 'get_machine_definition' to see current structure, then 'update_definition' to make changes.`
+                    };
+            }
+
+            // Check if it's a dynamically constructed tool
+            const dynamicTool = this.metaToolManager.getDynamicTool(toolName);
+            if (dynamicTool) {
+                return await this.metaToolManager.executeDynamicTool(toolName, input);
+            }
         }
 
         throw new Error(`Unknown tool: ${toolName}`);
+    }
+
+    /**
+     * Set MetaToolManager for meta tool execution
+     */
+    setMetaToolManager(manager: MetaToolManager): void {
+        this.metaToolManager = manager;
     }
 
     /**

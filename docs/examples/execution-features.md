@@ -243,6 +243,7 @@ start -> decidePath -> potentiallyModify -> end
 machine "Dynamic Tool Builder" {
   logLevel: "debug"
   maxSteps: 20
+  meta: true
 }
 
 context Requirements {
@@ -264,6 +265,8 @@ task useTool "Use the fibonacci tool" {
 }
 
 end "Tool construction demo complete"
+
+start, buildTool, useTool -writes-> Requirements;
 
 start -> buildTool -> useTool -> end
 ```

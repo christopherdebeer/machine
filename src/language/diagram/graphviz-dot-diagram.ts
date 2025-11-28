@@ -960,6 +960,8 @@ interface TextWrappingConfig {
     maxAttributeKeyLength: number;
     maxAttributeValueLength: number;
     maxNodeTitleLength: number;
+    maxNodeDescLength: number;
+    maxNodePromptLength: number;
     maxNoteContentLength: number;
 }
 
@@ -1000,6 +1002,8 @@ function getTextWrappingConfig(machineJson: MachineJSON): TextWrappingConfig {
         maxAttributeKeyLength: getAttrValue('maxAttributeKeyLength', 25),
         maxAttributeValueLength: getAttrValue('maxAttributeValueLength', 30),
         maxNodeTitleLength: getAttrValue('maxNodeTitleLength', 40),
+        maxNodeDescLength: getAttrValue('maxNodeDescLength', 60),
+        maxNodePromptLength: getAttrValue('maxNodePromptLength', 100),
         maxNoteContentLength: getAttrValue('maxNoteContentLength', 40),
     };
 }
@@ -1440,11 +1444,15 @@ function generateClusterLabel(node: any, runtimeContext?: RuntimeContext, wrappi
         
         let secondRow = '';
         if (titleText && titleText !== node.name) {
-            secondRow += '<b>' + escapeHtml(titleText) + '</b>';
+            const maxTitleLength = wrappingConfig?.maxNodeTitleLength ?? 40;
+            const titleLines = breakLongText(titleText, maxTitleLength);
+            secondRow += '<b>' + titleLines.map(line => processMarkdown(line)).join('<br/>') + '</b>';
         }
         if (descValue) {
             if (secondRow) secondRow += ' — ';
-            secondRow += '<i>' + escapeHtml(String(descValue)) + '</i>';
+            const maxDescLength = wrappingConfig?.maxNodeDescLength ?? 60;
+            const descLines = breakLongText(String(descValue), maxDescLength);
+            secondRow += '<i>' + descLines.map(line => processMarkdown(line)).join('<br/>') + '</i>';
         }
         
         if (secondRow) {
@@ -1503,7 +1511,18 @@ function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext, wrap
             descValue = interpolateValue(descValue, runtimeContext);
         }
         if (titleText && titleText !== node.name) {
-            htmlLabel += `<tr><td align="left"><b>${ escapeHtml(titleText) }</b>${node.title && descAttr ? ' — ' : ''}<i>${ escapeHtml(String(descValue || '')) }</i></td></tr>`;
+            const maxTitleLength = wrappingConfig?.maxNodeTitleLength ?? 40;
+            const titleLines = breakLongText(titleText, maxTitleLength);
+            const titleHtml = '<b>' + titleLines.map(line => processMarkdown(line)).join('<br/>') + '</b>';
+            
+            let descHtml = '';
+            if (descValue) {
+                const maxDescLength = wrappingConfig?.maxNodeDescLength ?? 60;
+                const descLines = breakLongText(String(descValue), maxDescLength);
+                descHtml = '<i>' + descLines.map(line => processMarkdown(line)).join('<br/>') + '</i>';
+            }
+            
+            htmlLabel += `<tr><td align="left">${titleHtml}${node.title && descAttr ? ' — ' : ''}${descHtml}</td></tr>`;
         }
     }
 
@@ -1790,15 +1809,6 @@ function generateNodeDefinition(
     runtimeState?: RuntimeNodeState,
     machineJson?: MachineJSON
 ): string {
-    const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
-                 node.attributes?.find((a: any) => a.name === 'prompt');
-    let displayValue: any = node.title || desc?.value;
-    if (displayValue && typeof displayValue === 'string') {
-        displayValue = displayValue.replace(/^["']|["']$/g, '');
-        // Interpolate templates if runtime context is available
-        displayValue = interpolateValue(displayValue, options?.runtimeContext, machineJson);
-    }
-
     // Build HTML label
     let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
@@ -1844,11 +1854,47 @@ function generateNodeDefinition(
     htmlLabel += firstRowContent;
     htmlLabel += '</td></tr>';
 
-    // Second row: Title/Description (if different from ID)
-    if (displayValue && displayValue !== node.name) {
+    // Title row (if present and different from ID)
+    if (node.title && node.title !== node.name) {
+        let titleValue = typeof node.title === 'string'
+            ? node.title.replace(/^["']|["']$/g, '')
+            : String(node.title);
+        titleValue = interpolateValue(titleValue, options?.runtimeContext, machineJson);
+
         htmlLabel += '<tr><td align="left">';
-        const titleLines = breakLongText(displayValue, 40);
+        const maxTitleLength = wrappingConfig?.maxNodeTitleLength ?? 40;
+        const titleLines = breakLongText(titleValue, maxTitleLength);
         htmlLabel += titleLines.map(line => processMarkdown(line)).join('<br/>');
+        htmlLabel += '</td></tr>';
+    }
+
+    // Description row (from 'desc' attribute, if present)
+    const descAttr = node.attributes?.find((a: any) => a.name === 'desc');
+    if (descAttr && descAttr.value) {
+        let descValue = typeof descAttr.value === 'string'
+            ? descAttr.value.replace(/^["']|["']$/g, '')
+            : String(descAttr.value);
+        descValue = interpolateValue(descValue, options?.runtimeContext, machineJson);
+
+        htmlLabel += '<tr><td align="left">';
+        const maxDescLength = wrappingConfig?.maxNodeDescLength ?? 60;
+        const descLines = breakLongText(descValue, maxDescLength);
+        htmlLabel += '<font point-size="9"><i>' + descLines.map(line => processMarkdown(line)).join('<br/>') + '</i></font>';
+        htmlLabel += '</td></tr>';
+    }
+
+    // Prompt row (from 'prompt' attribute, if present, with interpolation)
+    const promptAttr = node.attributes?.find((a: any) => a.name === 'prompt');
+    if (promptAttr && promptAttr.value) {
+        let promptValue = typeof promptAttr.value === 'string'
+            ? promptAttr.value.replace(/^["']|["']$/g, '')
+            : String(promptAttr.value);
+        promptValue = interpolateValue(promptValue, options?.runtimeContext, machineJson);
+
+        htmlLabel += '<tr><td align="left">';
+        const maxPromptLength = wrappingConfig?.maxNodePromptLength ?? 100;
+        const promptLines = breakLongText(promptValue, maxPromptLength);
+        htmlLabel += '<font point-size="8" color="#666666">→ ' + promptLines.map(line => processMarkdown(line)).join('<br/>') + '</font>';
         htmlLabel += '</td></tr>';
     }
 
@@ -2284,10 +2330,15 @@ function generateEdges(
         ? new Map(edgeStates.map(es => [`${es.source}->${es.target}`, es]))
         : undefined;
 
-    // Evaluate edge conditions in static mode (unless runtime context is provided)
+    // Evaluate edge conditions
     const edgeEvaluator = new EdgeEvaluator();
-    const staticContext = edgeEvaluator.createDefaultContext(machineJson.attributes);
-    const edgeEvaluations = edgeEvaluator.evaluateEdges(machineJson.edges, staticContext);
+    
+    // Use runtime context if available, otherwise use static default context
+    const evaluationContext = options?.runtimeContext 
+        ? edgeEvaluator.createRuntimeContext(options.runtimeContext)
+        : edgeEvaluator.createDefaultContext(machineJson.attributes);
+    
+    const edgeEvaluations = edgeEvaluator.evaluateEdges(machineJson.edges, evaluationContext);
 
     // Process all edges, including parent-to-parent edges using compound edge features
     machineJson.edges.forEach((edge, edgeIndex) => {

@@ -172,4 +172,32 @@ export class EdgeEvaluator {
             activeState
         };
     }
+
+    /**
+     * Create evaluation context from runtime context
+     * Converts RuntimeContext (with Map) to StaticEvaluationContext (with Record)
+     *
+     * @param runtimeContext - Runtime context from execution
+     * @returns Static evaluation context for edge evaluation
+     */
+    createRuntimeContext(runtimeContext: any): StaticEvaluationContext {
+        const attributes: Record<string, any> = {};
+
+        // Convert Map to Record for CEL evaluation
+        if (runtimeContext.attributes) {
+            if (runtimeContext.attributes instanceof Map) {
+                runtimeContext.attributes.forEach((value: any, key: string) => {
+                    attributes[key] = value;
+                });
+            } else if (typeof runtimeContext.attributes === 'object') {
+                Object.assign(attributes, runtimeContext.attributes);
+            }
+        }
+
+        return {
+            attributes,
+            errorCount: runtimeContext.errorCount ?? 0,
+            activeState: runtimeContext.activeState ?? runtimeContext.currentNode ?? ''
+        };
+    }
 }

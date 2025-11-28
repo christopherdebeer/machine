@@ -15,7 +15,7 @@ import type {
     ToolDefinition
 } from './runtime-types.js';
 import { getPath } from './state-builder.js';
-import { getNonAutomatedTransitions, getNodeAttributes } from './transition-evaluator.js';
+import { getNonAutomatedTransitions, getNodeAttributes, getMachineAttributes } from './transition-evaluator.js';
 import { AgentContextBuilder } from '../agent-context-builder.js';
 
 /**
@@ -114,9 +114,14 @@ export function buildTools(
     const contextTools = buildContextTools(machineJSON, nodeName);
     tools.push(...contextTools);
 
-    // Add meta-tools if node has meta capability
-    const attributes = getNodeAttributes(machineJSON, nodeName);
-    if (attributes.meta === 'true' || attributes.meta === 'True') {
+    // Add meta-tools if machine or node has meta capability
+    const machineAttributes = getMachineAttributes(machineJSON);
+    const nodeAttributes = getNodeAttributes(machineJSON, nodeName);
+
+    const hasMachineMeta = machineAttributes.meta === true || machineAttributes.meta === 'true' || machineAttributes.meta === 'True';
+    const hasNodeMeta = nodeAttributes.meta === 'true' || nodeAttributes.meta === 'True';
+
+    if (hasMachineMeta || hasNodeMeta) {
         tools.push(...buildMetaTools());
     }
 
@@ -136,11 +141,31 @@ function buildContextTools(machineJSON: MachineJSON, nodeName: string): ToolDefi
     });
 
     for (const contextNode of contextNodes) {
-        // Check for read permission (edge from context to task, or task to context with -reads->)
-        const hasReadEdge = machineJSON.edges.some(e =>
-            (e.source === contextNode.name && e.target === nodeName) ||
-            (e.source === nodeName && e.target === contextNode.name && e.type === 'reads')
-        );
+        // Check for read permission
+        // Multiple ways to indicate read access:
+        // 1. Edge from context to task (context -> task)
+        // 2. Edge from task to context with type='reads' (task -reads-> context)
+        // 3. Edge with label/text containing 'reads'
+        const hasReadEdge = machineJSON.edges.some(e => {
+            // Direct edge from context to task
+            if (e.source === contextNode.name && e.target === nodeName) {
+                return true;
+            }
+            
+            // Edge from task to context with semantic type
+            if (e.source === nodeName && e.target === contextNode.name) {
+                // Check edge.type field (set by serializer for semantic edges)
+                if (e.type === 'reads') return true;
+                
+                // Check edge label/text for 'reads' keyword
+                const label = e.label || e.value?.text || e.attributes?.text;
+                if (label && typeof label === 'string' && label.toLowerCase().trim() === 'reads') {
+                    return true;
+                }
+            }
+            
+            return false;
+        });
 
         if (hasReadEdge) {
             tools.push({
@@ -159,11 +184,25 @@ function buildContextTools(machineJSON: MachineJSON, nodeName: string): ToolDefi
             });
         }
 
-        // Check for write permission (edge from task to context with -writes-> or -stores->)
-        const hasWriteEdge = machineJSON.edges.some(e =>
-            e.source === nodeName && e.target === contextNode.name &&
-            (e.type === 'writes' || e.type === 'stores')
-        );
+        // Check for write permission
+        // Multiple ways to indicate write access:
+        // 1. Edge from task to context with type='writes' (task -writes-> context)
+        // 2. Edge with label/text containing 'writes' or 'stores'
+        const hasWriteEdge = machineJSON.edges.some(e => {
+            if (e.source === nodeName && e.target === contextNode.name) {
+                // Check edge.type field (set by serializer for semantic edges)
+                if (e.type === 'writes' || e.type === 'stores') return true;
+                
+                // Check edge label/text for write keywords
+                const label = e.label || e.value?.text || e.attributes?.text;
+                if (label && typeof label === 'string') {
+                    const lower = label.toLowerCase().trim();
+                    if (lower === 'writes' || lower === 'stores') return true;
+                }
+            }
+            
+            return false;
+        });
 
         if (hasWriteEdge) {
             tools.push({
@@ -188,33 +227,155 @@ function buildContextTools(machineJSON: MachineJSON, nodeName: string): ToolDefi
 
 /**
  * Build meta-programming tools
+ * Returns the same rich set of tools that MetaToolManager provides
  */
 function buildMetaTools(): ToolDefinition[] {
     return [
         {
-            name: 'add_node',
-            description: 'Add a new node to the machine',
+            name: 'get_machine_definition',
+            description: 'Get the current machine definition in both JSON and DSL format. Use this to understand the machine structure before making modifications.',
             input_schema: {
                 type: 'object',
                 properties: {
-                    name: { type: 'string', description: 'Unique node name' },
-                    type: { type: 'string', description: 'Node type (e.g., "task", "state")' },
-                    attributes: { type: 'object', description: 'Node attributes' }
-                },
-                required: ['name', 'type']
+                    format: {
+                        type: 'string',
+                        enum: ['json', 'dsl', 'both'],
+                        description: 'Format to return: json (structured), dsl (DyGram source), or both'
+                    }
+                }
             }
         },
         {
-            name: 'add_edge',
-            description: 'Add a new edge between nodes',
+            name: 'update_definition',
+            description: 'Update the machine definition with a new structure. Accepts JSON format and automatically converts to DSL. Use get_machine_definition first to see current structure.',
             input_schema: {
                 type: 'object',
                 properties: {
-                    source: { type: 'string', description: 'Source node name' },
-                    target: { type: 'string', description: 'Target node name' },
-                    type: { type: 'string', description: 'Edge type/label' }
+                    machine: {
+                        type: 'object',
+                        description: 'Complete machine definition in JSON format with title, nodes, and edges'
+                    },
+                    reason: {
+                        type: 'string',
+                        description: 'Brief explanation of why the machine is being modified'
+                    }
                 },
-                required: ['source', 'target']
+                required: ['machine', 'reason']
+            }
+        },
+        {
+            name: 'construct_tool',
+            description: 'Construct a new tool dynamically when one doesn\'t exist in code. Use this when you need a capability that isn\'t available.',
+            input_schema: {
+                type: 'object',
+                properties: {
+                    name: {
+                        type: 'string',
+                        description: 'Tool name (snake_case, descriptive)'
+                    },
+                    description: {
+                        type: 'string',
+                        description: 'Clear description of what the tool does'
+                    },
+                    input_schema: {
+                        type: 'object',
+                        description: 'JSON Schema defining the tool\'s input parameters'
+                    },
+                    implementation_strategy: {
+                        type: 'string',
+                        enum: ['agent_backed', 'code_generation', 'composition'],
+                        description: 'How to implement the tool: agent_backed (LLM executes), code_generation (generate code), composition (combine existing tools)'
+                    },
+                    implementation_details: {
+                        type: 'string',
+                        description: 'For agent_backed: prompt/instructions. For code_generation: JavaScript function code. For composition: JSON describing tool chain.'
+                    }
+                },
+                required: ['name', 'description', 'input_schema', 'implementation_strategy', 'implementation_details']
+            }
+        },
+        {
+            name: 'list_available_tools',
+            description: 'List all available tools (both in-code and dynamically created)',
+            input_schema: {
+                type: 'object',
+                properties: {
+                    include_source: {
+                        type: 'boolean',
+                        description: 'Include implementation source code/details'
+                    },
+                    filter_type: {
+                        type: 'string',
+                        enum: ['all', 'core', 'dynamic', 'meta'],
+                        description: 'Filter tools by type'
+                    }
+                }
+            }
+        },
+        {
+            name: 'propose_tool_improvement',
+            description: 'Propose an improvement to an existing tool. Proposals are recorded for review.',
+            input_schema: {
+                type: 'object',
+                properties: {
+                    tool_name: {
+                        type: 'string',
+                        description: 'Name of the tool to improve'
+                    },
+                    rationale: {
+                        type: 'string',
+                        description: 'Why this improvement is needed'
+                    },
+                    proposed_changes: {
+                        type: 'string',
+                        description: 'Detailed description of proposed changes'
+                    }
+                },
+                required: ['tool_name', 'rationale', 'proposed_changes']
+            }
+        },
+        {
+            name: 'get_tool_nodes',
+            description: 'Get all Tool nodes defined in the machine. Useful for finding loosely-defined tools that need to be built out.',
+            input_schema: {
+                type: 'object',
+                properties: {
+                    include_registered: {
+                        type: 'boolean',
+                        description: 'Include information about whether each tool is already registered dynamically'
+                    }
+                }
+            }
+        },
+        {
+            name: 'build_tool_from_node',
+            description: 'Build and register a dynamic tool from a Tool node definition. Use this when you have a loosely-defined Tool node that needs to be completed and registered.',
+            input_schema: {
+                type: 'object',
+                properties: {
+                    tool_name: {
+                        type: 'string',
+                        description: 'Name of the Tool node to build from'
+                    },
+                    strategy: {
+                        type: 'string',
+                        enum: ['agent_backed', 'code_generation', 'composition'],
+                        description: 'Implementation strategy for the tool'
+                    },
+                    input_schema: {
+                        type: 'object',
+                        description: 'Complete JSON Schema for tool inputs (if not in node)'
+                    },
+                    output_schema: {
+                        type: 'object',
+                        description: 'Complete JSON Schema for tool outputs (if not in node)'
+                    },
+                    implementation_details: {
+                        type: 'string',
+                        description: 'Implementation code/prompt/composition details'
+                    }
+                },
+                required: ['tool_name', 'strategy']
             }
         }
     ];
