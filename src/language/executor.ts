@@ -17,6 +17,7 @@ import type {
 } from './execution/runtime-types.js';
 import { createExecutionRuntime } from './execution/execution-runtime.js';
 import { EffectExecutor, type EffectExecutorConfig } from './execution/effect-executor.js';
+import { ExecutionLogger, type LogEntry } from './execution/logger.js';
 import type { RuntimeConfig } from './execution/runtime.js';
 import { ClaudeClient } from './claude-client.js';
 import { createLLMClient, type LLMClientConfig } from './llm-client.js';
@@ -56,11 +57,18 @@ export class MachineExecutor {
     private metaToolManager: MetaToolManager;
     private mutations: any[] = [];
     private machineUpdateCallback?: (dsl: string) => void;
+    private logger: ExecutionLogger;
 
     constructor(
         machineJSON: MachineJSON,
         config: MachineExecutorConfig = {}
     ) {
+        // Initialize logger FIRST so it's available for everything else
+        this.logger = new ExecutionLogger({
+            level: config.logLevel || 'info',
+            maxEntries: 1000
+        });
+
         // Initialize state
         this.currentState = this.runtime.initialize(machineJSON, {
             limits: config.limits,
@@ -72,10 +80,14 @@ export class MachineExecutor {
             this.llmClient = config.llm as ClaudeClient;
         }
 
-        // Initialize effect executor with LLM client if available
+        // Initialize effect executor with LLM client and logger
         this.effectExecutor = new EffectExecutor({
             llmClient: this.llmClient,
-            vfs: config.vfs
+            vfs: config.vfs,
+            logHandler: (effect) => {
+                // Route all logs through our logger
+                this.logger[effect.level](effect.category, effect.message, effect.data);
+            }
         });
 
         // Initialize meta-tool manager with mutation tracking
@@ -96,6 +108,9 @@ export class MachineExecutor {
                 this.machineUpdateCallback(dsl);
             }
         });
+
+        // Wire MetaToolManager to EffectExecutor
+        this.effectExecutor.setMetaToolManager(this.metaToolManager);
     }
 
     /**
@@ -298,6 +313,34 @@ export class MachineExecutor {
     static deserializeState(json: string): ExecutionState {
         const runtime = createExecutionRuntime();
         return runtime.deserializeState(json);
+    }
+
+    /**
+     * Get logger instance
+     */
+    getLogger(): ExecutionLogger {
+        return this.logger;
+    }
+
+    /**
+     * Get all log entries (for UI display)
+     */
+    getLogs(): LogEntry[] {
+        return this.logger.getEntries();
+    }
+
+    /**
+     * Set log level dynamically
+     */
+    setLogLevel(level: 'debug' | 'info' | 'warn' | 'error' | 'none'): void {
+        this.logger.setLevel(level);
+    }
+
+    /**
+     * Clear logs
+     */
+    clearLogs(): void {
+        this.logger.clear();
     }
 }
 

@@ -21,6 +21,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Centralized Syntax Highlighting Architecture](development/centralized-syntax-highlighting-design.md)
   - [Code Cleanup & Documentation Progress - 2025-11-24](development/cleanup-progress-2025-11-24.md)
   - [DyGram Code Review & Documentation Analysis](development/code-review-2025-11-24.md)
+  - [Execution UI and Meta Tools Analysis](development/execution-ui-and-meta-tools-analysis.md)
   - [Import System Implementation Summary](development/IMPORT_SYSTEM_IMPLEMENTATION_SUMMARY.md)
   - [Import System Integration with Tools and Code Generation](development/IMPORT_SYSTEM_INTEGRATION.md)
   - [Import System - Remaining Work](development/IMPORT_SYSTEM_REMAINING_WORK.md)
