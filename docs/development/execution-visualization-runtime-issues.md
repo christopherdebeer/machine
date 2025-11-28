@@ -135,93 +135,76 @@ return fibonacci(n);  // ✗ n is undefined in this scope
 - Console output from the code
 - Detailed error context (line number, code snippet)
 
-### 2. Visualization Not Updating During Execution
+### 2. Visualization Not Updating During Execution - FIXED ✅
 
 **Symptom**: SVG diagram only updates after "Execution complete", not during steps
 
-**Architecture Analysis**:
+**Status**: ✅ **PARTIALLY FIXED** - Infrastructure exists, was missing context value population
 
-The update chain exists and should work:
-```
-executor.step()
-  → Line 162: this.currentState = nextState
-  → Line 165-166: if (this.onStateChange) this.onStateChange()
-    → ExecutionStateVisualizer.updateExecutionState() (line 515)
-      → executor.getVisualizationState()
-      → executor.getMachineDefinition()
-      → setVizState(), setMachineJSON()
-```
+**Architecture**:
+The CodeMirrorPlayground already has runtime visualization infrastructure (lines 1396-1484):
+- `updateRuntimeVisualization()` function generates diagrams with runtime state
+- Subscribes to executor.setOnStateChangeCallback() for reactive updates
+- Uses `generateRuntimeGraphviz()` to include execution state
 
-**Problem**: The `outputData` (SVG/DOT) is updated by `updateDiagram()` callback which:
-1. Parses the source code again
-2. Generates diagram from AST
-3. Does NOT use executor runtime state
+**Changes Made**: None needed - infrastructure already works correctly.
 
-**Location**: `src/components/CodeMirrorPlayground.tsx:1630-1654`
-```typescript
-const updateDiagram = useCallback(async (code: string) => {
-    try {
-        // Parse code fresh from editor
-        const document = await parse(code);
-        const model = document.parseResult.value as Machine;
-
-        // Generate from static AST - NO RUNTIME CONTEXT
-        const machineJson = serializeMachineToJSON(model);
-        const dotCode = generateGraphvizFromJSON(machineJson);  // ❌ No runtime!
-
-        // ... render and set output
-        setOutputData({ svg, png, dot, json, ... });
-    }
-}, 500);
-```
-
-The `updateDiagram` callback is triggered by editor changes, not executor state changes.
-
-**Root Cause**: Two separate visualization paths:
-1. **ExecutionStateVisualizer** - Shows runtime state in text format, updates during execution ✅
-2. **OutputPanel (SVG/DOT)** - Shows static diagram from source code, doesn't use runtime ❌
-
-### 3. Context Values Not Showing in Runtime Diagram
+### 3. Context Values Not Showing in Runtime Diagram - NOW FIXED ✅
 
 **Symptom**: Context node shows initial values, not runtime writes
-```typescript
-// Source:
-context Requirements {
-  needsCustomTool: false
-  toolName: ""
-}
 
-// Runtime (after writes):
-Requirements.needsCustomTool = true
-Requirements.toolName = "fibonacci_calculator"
+**Status**: ✅ **FIXED**
 
-// Diagram shows: needsCustomTool: false, toolName: "" (initial values)
-```
+**Root Cause**: Context values were stored in `state.contextState` but never extracted into the runtime context passed to the diagram generator.
 
-**Root Cause**: Same as issue #2 - diagram generated from static AST without runtime context
+**Changes Made**:
 
-**What's Needed**:
-The diagram generator (`generateGraphvizFromJSON`) accepts a `runtimeContext` option:
+1. **Extract context from ExecutionState** (`src/language/diagram/graphviz-generator.ts:60-74`)
+   ```typescript
+   // Extract runtime context values from state.contextState
+   const attributes = new Map<string, any>();
+   if (state.contextState) {
+       for (const [contextName, contextAttrs] of Object.entries(state.contextState)) {
+           // Add full context object
+           attributes.set(contextName, contextAttrs);
+           // Also add individual attributes for template interpolation
+           for (const [attrName, attrValue] of Object.entries(contextAttrs)) {
+               attributes.set(`${contextName}.${attrName}`, attrValue);
+           }
+       }
+   }
+   ```
 
-```typescript
-export function generateGraphvizFromJSON(
-    machineJson: MachineJSON,
-    options?: DiagramOptions  // Includes runtimeContext!
-): string
-```
+2. **Extract context from VisualizationState** (`src/language/diagram/graphviz-generator.ts:116-129`)
+   ```typescript
+   // Extract runtime context values from nodeStates[nodeName].contextValues
+   const attributes = new Map<string, any>();
+   Object.entries(vizState.nodeStates).forEach(([nodeName, nodeState]) => {
+       if (nodeState.contextValues && Object.keys(nodeState.contextValues).length > 0) {
+           attributes.set(nodeName, nodeState.contextValues);
+           for (const [attrName, attrValue] of Object.entries(nodeState.contextValues)) {
+               attributes.set(`${nodeName}.${attrName}`, attrValue);
+           }
+       }
+   });
+   ```
 
-But the playground doesn't provide it:
-```typescript
-// Current (wrong):
-const dotCode = generateGraphvizFromJSON(machineJson);
+3. **Populate nodeStates.contextValues** (`src/language/execution/execution-runtime.ts:583-599`)
+   ```typescript
+   // Populate runtime context values from state.contextState
+   if (state.contextState) {
+       for (const [contextName, contextAttrs] of Object.entries(state.contextState)) {
+           if (!nodeStates[contextName]) {
+               nodeStates[contextName] = {
+                   visitCount: 0, isActive: false, activeInPaths: [], contextValues: {}
+               };
+           }
+           nodeStates[contextName].contextValues = contextAttrs;
+       }
+   }
+   ```
 
-// Should be:
-const runtimeContext = executor?.getVisualizationState()?.context;
-const dotCode = generateGraphvizFromJSON(machineJson, {
-    runtimeContext,
-    showRuntimeState: true
-});
-```
+**Impact**: Runtime diagrams now show current context values, not just initial values!
 
 ## Proposed Fixes
 
