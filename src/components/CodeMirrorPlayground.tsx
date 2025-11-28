@@ -1531,10 +1531,18 @@ export const CodeMirrorPlayground: React.FC = () => {
 
       setExecutor(exec);
 
+      // Set up state change callback BEFORE execution starts
+      // This ensures diagram updates during execution, not just at the end
+      if (typeof exec.setOnStateChangeCallback === 'function') {
+        exec.setOnStateChangeCallback(() => {
+          updateRuntimeVisualization(exec);
+        });
+      }
+
       // Execute machine
       await exec.execute();
 
-      // Update SVG visualization with final execution state
+      // Final update to ensure we have the complete state
       await updateRuntimeVisualization(exec);
 
       console.log("Execution complete");

@@ -201,8 +201,8 @@ export class EffectExecutor {
                     }
 
                     // Log successful tool execution
-                    // Include reason for transition tools
-                    const reasonSuffix = result.reason ? `\n  Reason: ${result.reason}` : '';
+                    // Include reason for transition tools (safely handle undefined result)
+                    const reasonSuffix = (result && result.reason) ? `\n  Reason: ${result.reason}` : '';
                     this.executeLog({
                         type: 'log',
                         level: 'info',
