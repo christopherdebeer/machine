@@ -960,6 +960,8 @@ interface TextWrappingConfig {
     maxAttributeKeyLength: number;
     maxAttributeValueLength: number;
     maxNodeTitleLength: number;
+    maxNodeDescLength: number;
+    maxNodePromptLength: number;
     maxNoteContentLength: number;
 }
 
@@ -1000,6 +1002,8 @@ function getTextWrappingConfig(machineJson: MachineJSON): TextWrappingConfig {
         maxAttributeKeyLength: getAttrValue('maxAttributeKeyLength', 25),
         maxAttributeValueLength: getAttrValue('maxAttributeValueLength', 30),
         maxNodeTitleLength: getAttrValue('maxNodeTitleLength', 40),
+        maxNodeDescLength: getAttrValue('maxNodeDescLength', 60),
+        maxNodePromptLength: getAttrValue('maxNodePromptLength', 100),
         maxNoteContentLength: getAttrValue('maxNoteContentLength', 40),
     };
 }
@@ -1440,11 +1444,15 @@ function generateClusterLabel(node: any, runtimeContext?: RuntimeContext, wrappi
         
         let secondRow = '';
         if (titleText && titleText !== node.name) {
-            secondRow += '<b>' + escapeHtml(titleText) + '</b>';
+            const maxTitleLength = wrappingConfig?.maxNodeTitleLength ?? 40;
+            const titleLines = breakLongText(titleText, maxTitleLength);
+            secondRow += '<b>' + titleLines.map(line => processMarkdown(line)).join('<br/>') + '</b>';
         }
         if (descValue) {
             if (secondRow) secondRow += ' — ';
-            secondRow += '<i>' + escapeHtml(String(descValue)) + '</i>';
+            const maxDescLength = wrappingConfig?.maxNodeDescLength ?? 60;
+            const descLines = breakLongText(String(descValue), maxDescLength);
+            secondRow += '<i>' + descLines.map(line => processMarkdown(line)).join('<br/>') + '</i>';
         }
         
         if (secondRow) {
@@ -1503,7 +1511,18 @@ function generateNamespaceLabel(node: any, runtimeContext?: RuntimeContext, wrap
             descValue = interpolateValue(descValue, runtimeContext);
         }
         if (titleText && titleText !== node.name) {
-            htmlLabel += `<tr><td align="left"><b>${ escapeHtml(titleText) }</b>${node.title && descAttr ? ' — ' : ''}<i>${ escapeHtml(String(descValue || '')) }</i></td></tr>`;
+            const maxTitleLength = wrappingConfig?.maxNodeTitleLength ?? 40;
+            const titleLines = breakLongText(titleText, maxTitleLength);
+            const titleHtml = '<b>' + titleLines.map(line => processMarkdown(line)).join('<br/>') + '</b>';
+            
+            let descHtml = '';
+            if (descValue) {
+                const maxDescLength = wrappingConfig?.maxNodeDescLength ?? 60;
+                const descLines = breakLongText(String(descValue), maxDescLength);
+                descHtml = '<i>' + descLines.map(line => processMarkdown(line)).join('<br/>') + '</i>';
+            }
+            
+            htmlLabel += `<tr><td align="left">${titleHtml}${node.title && descAttr ? ' — ' : ''}${descHtml}</td></tr>`;
         }
     }
 
@@ -1843,7 +1862,8 @@ function generateNodeDefinition(
         titleValue = interpolateValue(titleValue, options?.runtimeContext, machineJson);
 
         htmlLabel += '<tr><td align="left">';
-        const titleLines = breakLongText(titleValue, 40);
+        const maxTitleLength = wrappingConfig?.maxNodeTitleLength ?? 40;
+        const titleLines = breakLongText(titleValue, maxTitleLength);
         htmlLabel += titleLines.map(line => processMarkdown(line)).join('<br/>');
         htmlLabel += '</td></tr>';
     }
@@ -1857,7 +1877,9 @@ function generateNodeDefinition(
         descValue = interpolateValue(descValue, options?.runtimeContext, machineJson);
 
         htmlLabel += '<tr><td align="left">';
-        htmlLabel += '<font point-size="9"><i>' + escapeHtml(descValue) + '</i></font>';
+        const maxDescLength = wrappingConfig?.maxNodeDescLength ?? 60;
+        const descLines = breakLongText(descValue, maxDescLength);
+        htmlLabel += '<font point-size="9"><i>' + descLines.map(line => processMarkdown(line)).join('<br/>') + '</i></font>';
         htmlLabel += '</td></tr>';
     }
 
@@ -1869,13 +1891,10 @@ function generateNodeDefinition(
             : String(promptAttr.value);
         promptValue = interpolateValue(promptValue, options?.runtimeContext, machineJson);
 
-        // Show first 100 characters as a preview for long prompts
-        const promptPreview = promptValue.length > 100
-            ? promptValue.substring(0, 100) + '...'
-            : promptValue;
-
         htmlLabel += '<tr><td align="left">';
-        htmlLabel += '<font point-size="8" color="#666666">→ ' + escapeHtml(promptPreview) + '</font>';
+        const maxPromptLength = wrappingConfig?.maxNodePromptLength ?? 100;
+        const promptLines = breakLongText(promptValue, maxPromptLength);
+        htmlLabel += '<font point-size="8" color="#666666">→ ' + promptLines.map(line => processMarkdown(line)).join('<br/>') + '</font>';
         htmlLabel += '</td></tr>';
     }
 
