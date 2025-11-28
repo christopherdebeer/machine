@@ -184,6 +184,8 @@ export class EffectExecutor {
             // Process tool uses
             const toolResults: any[] = [];
 
+            let dynamicToolConstructed = false;
+
             for (const toolUse of toolUses) {
                 try {
                     const result = await this.handleToolUse(toolUse.name, toolUse.input);
@@ -191,6 +193,11 @@ export class EffectExecutor {
                     // Track transition tools
                     if (toolUse.name.startsWith('transition_to_')) {
                         nextNode = result.target;
+                    }
+
+                    // Track if a tool was constructed
+                    if (toolUse.name === 'construct_tool' && result.success) {
+                        dynamicToolConstructed = true;
                     }
 
                     // Log successful tool execution
@@ -248,6 +255,25 @@ export class EffectExecutor {
                 role: 'user',
                 content: toolResults
             });
+
+            // If a dynamic tool was constructed, refresh the tool list for next iteration
+            if (dynamicToolConstructed && this.metaToolManager) {
+                const dynamicTools = this.metaToolManager.getDynamicToolDefinitions();
+                // Merge dynamic tools with existing tools (avoiding duplicates)
+                const existingToolNames = new Set(tools.map(t => t.name));
+                for (const dynamicTool of dynamicTools) {
+                    if (!existingToolNames.has(dynamicTool.name)) {
+                        tools.push(dynamicTool);
+                        this.executeLog({
+                            type: 'log',
+                            level: 'info',
+                            category: 'tool',
+                            message: `➕ Added dynamic tool '${dynamicTool.name}' to available tools`,
+                            data: { tool: dynamicTool.name }
+                        });
+                    }
+                }
+            }
 
             // If we got a transition, stop
             if (nextNode) {
@@ -374,6 +400,12 @@ export class EffectExecutor {
                         success: false,
                         message: `'${toolName}' is deprecated. Use 'get_machine_definition' to see current structure, then 'update_definition' to make changes.`
                     };
+            }
+
+            // Check if it's a dynamically constructed tool
+            const dynamicTool = this.metaToolManager.getDynamicTool(toolName);
+            if (dynamicTool) {
+                return await this.metaToolManager.executeDynamicTool(toolName, input);
             }
         }
 
