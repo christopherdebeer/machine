@@ -1790,15 +1790,6 @@ function generateNodeDefinition(
     runtimeState?: RuntimeNodeState,
     machineJson?: MachineJSON
 ): string {
-    const desc = node.attributes?.find((a: any) => a.name === 'desc') ||
-                 node.attributes?.find((a: any) => a.name === 'prompt');
-    let displayValue: any = node.title || desc?.value;
-    if (displayValue && typeof displayValue === 'string') {
-        displayValue = displayValue.replace(/^["']|["']$/g, '');
-        // Interpolate templates if runtime context is available
-        displayValue = interpolateValue(displayValue, options?.runtimeContext, machineJson);
-    }
-
     // Build HTML label
     let htmlLabel = '<table border="0" cellborder="0" cellspacing="0" cellpadding="4">';
 
@@ -1844,11 +1835,47 @@ function generateNodeDefinition(
     htmlLabel += firstRowContent;
     htmlLabel += '</td></tr>';
 
-    // Second row: Title/Description (if different from ID)
-    if (displayValue && displayValue !== node.name) {
+    // Title row (if present and different from ID)
+    if (node.title && node.title !== node.name) {
+        let titleValue = typeof node.title === 'string'
+            ? node.title.replace(/^["']|["']$/g, '')
+            : String(node.title);
+        titleValue = interpolateValue(titleValue, options?.runtimeContext, machineJson);
+
         htmlLabel += '<tr><td align="left">';
-        const titleLines = breakLongText(displayValue, 40);
+        const titleLines = breakLongText(titleValue, 40);
         htmlLabel += titleLines.map(line => processMarkdown(line)).join('<br/>');
+        htmlLabel += '</td></tr>';
+    }
+
+    // Description row (from 'desc' attribute, if present)
+    const descAttr = node.attributes?.find((a: any) => a.name === 'desc');
+    if (descAttr && descAttr.value) {
+        let descValue = typeof descAttr.value === 'string'
+            ? descAttr.value.replace(/^["']|["']$/g, '')
+            : String(descAttr.value);
+        descValue = interpolateValue(descValue, options?.runtimeContext, machineJson);
+
+        htmlLabel += '<tr><td align="left">';
+        htmlLabel += '<font point-size="9"><i>' + escapeHtml(descValue) + '</i></font>';
+        htmlLabel += '</td></tr>';
+    }
+
+    // Prompt row (from 'prompt' attribute, if present, with interpolation)
+    const promptAttr = node.attributes?.find((a: any) => a.name === 'prompt');
+    if (promptAttr && promptAttr.value) {
+        let promptValue = typeof promptAttr.value === 'string'
+            ? promptAttr.value.replace(/^["']|["']$/g, '')
+            : String(promptAttr.value);
+        promptValue = interpolateValue(promptValue, options?.runtimeContext, machineJson);
+
+        // Show first 100 characters as a preview for long prompts
+        const promptPreview = promptValue.length > 100
+            ? promptValue.substring(0, 100) + '...'
+            : promptValue;
+
+        htmlLabel += '<tr><td align="left">';
+        htmlLabel += '<font point-size="8" color="#666666">→ ' + escapeHtml(promptPreview) + '</font>';
         htmlLabel += '</td></tr>';
     }
 
