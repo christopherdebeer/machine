@@ -1,7 +1,18 @@
 /**
  * Monaco Playground - React Application
- * 
+ *
  * Full React implementation of the Monaco editor playground with styled-components
+ *
+ * @deprecated This playground uses the legacy example loading system with embedded examples.
+ *
+ * TODO: Migrate to Files API to match CodeMirror playground:
+ * - Replace ExampleButtons with UnifiedFileTree component
+ * - Use FileAccessService to load examples from /api/files/list
+ * - Deprecate shared-examples.ts embedded example system
+ * - Load examples dynamically from examples/ directory via API
+ * - Enable file creation/editing like CodeMirrorPlayground
+ *
+ * See src/components/CodeMirrorPlayground.tsx for reference implementation.
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
@@ -10,6 +21,7 @@ import { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper';
 import { setupConfigExtended } from '../setupExtended';
 import { configureMonacoWorkers } from '../setupCommon';
 import { ExecutionControls } from './ExecutionControls';
+// @deprecated TODO: Replace ExampleButtons with UnifiedFileTree - migrate to Files API
 import { ExampleButtons } from './ExampleButtons';
 import { loadSettings, saveSettings } from '../language/shared-settings';
 import { OutputPanel, OutputData, OutputFormat } from './OutputPanel';
@@ -21,6 +33,7 @@ import { generateJSON } from '../language/generator/generator';
 import { serializeMachineToJSON } from '../language/json/serializer';
 import { generateGraphvizFromJSON } from '../language/diagram/index';
 import { render as renderGraphviz } from '../language/diagram-controls';
+// @deprecated TODO: Replace shared-examples with FileAccessService - migrate to Files API
 import { getExampleByKey, type Example } from '../language/shared-examples';
 
 // Styled Components

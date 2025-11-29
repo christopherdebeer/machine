@@ -1,7 +1,18 @@
 /**
  * ExampleButtons Component
- * 
+ *
  * Renders example buttons for loading code examples into the playground
+ *
+ * @deprecated This component uses embedded examples from shared-examples.ts.
+ *
+ * TODO: Migrate to UnifiedFileTree component which uses the Files API:
+ * - Loads examples dynamically from examples/ directory via /api/files/list
+ * - Supports both API files and VirtualFileSystem
+ * - Enables file creation, editing, and deletion
+ * - Provides better file organization with directory navigation
+ *
+ * See src/components/UnifiedFileTree.tsx for the modern replacement.
+ * This component is only used by MonacoPlayground which also needs migration.
  */
 
 import React, { useEffect, useState } from 'react';

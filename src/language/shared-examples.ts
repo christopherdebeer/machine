@@ -2,6 +2,19 @@
  * Shared example loader for both Monaco and CodeMirror playgrounds
  * Provides dynamic example loading with category-based navigation
  * Supports both API-based loading (local + Vercel) and fallback to embedded examples
+ *
+ * @deprecated This module uses embedded examples from generated/examples-list.json.
+ *
+ * TODO: Deprecate in favor of FileAccessService and Files API:
+ * - FileAccessService (src/playground/file-access-service.ts) provides unified API
+ * - Loads examples dynamically from /api/files/list endpoint
+ * - No need for embedded examples-list.json generation
+ * - Examples extracted by prebuild.js remain in examples/ directory
+ * - CodeMirrorPlayground already uses this modern approach
+ * - MonacoPlayground still uses this legacy system and needs migration
+ *
+ * See src/playground/file-access-service.ts and src/components/UnifiedFileTree.tsx
+ * for the modern file access pattern.
  */
 
 import examplesList from '../generated/examples-list.json';
