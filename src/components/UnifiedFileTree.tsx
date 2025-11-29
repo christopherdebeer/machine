@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { FileAccessService, type FileAccessFile } from '../playground/file-access-service';
+import { checkRecordingsAvailable } from '../api/recordings-api';
 
 interface UnifiedFileTreeProps {
     fileService: FileAccessService;
@@ -143,6 +144,13 @@ const FileSourceBadge = styled.span<{ $source: 'api' | 'vfs' }>`
     opacity: 0.7;
 `;
 
+const RecordingsBadge = styled.span`
+    font-size: 11px;
+    margin-left: 4px;
+    opacity: 0.8;
+    title: 'Has playback recordings';
+`;
+
 const EmptyMessage = styled.div`
     padding: 12px;
     text-align: center;
@@ -227,6 +235,7 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
     const [files, setFiles] = useState<FileAccessFile[]>([]);
     const [loading, setLoading] = useState(true);
     const [apiAvailable, setApiAvailable] = useState<boolean | null>(null);
+    const [recordingsMap, setRecordingsMap] = useState<Map<string, boolean>>(new Map());
 
     const loadFiles = useCallback(async () => {
         setLoading(true);
@@ -236,6 +245,29 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
 
             const allFiles = await fileService.listAllFiles();
             setFiles(allFiles);
+
+            // Check for recordings availability for each file
+            const recordingsChecks = new Map<string, boolean>();
+            for (const file of allFiles) {
+                // Extract category and example name from path
+                // Path format: examples/{category}/{example-name}.{ext}
+                const pathParts = file.path.split('/');
+                if (pathParts.length >= 3 && pathParts[0] === 'examples') {
+                    const category = pathParts[1];
+                    const filename = pathParts[pathParts.length - 1];
+                    const exampleName = filename.replace(/\.(dy|dygram|mach)$/, '');
+
+                    try {
+                        const hasRecordings = await checkRecordingsAvailable(exampleName, category);
+                        if (hasRecordings) {
+                            recordingsChecks.set(file.path, true);
+                        }
+                    } catch (error) {
+                        // Silently ignore recording check errors
+                    }
+                }
+            }
+            setRecordingsMap(recordingsChecks);
         } catch (error) {
             console.error('Error loading files:', error);
         } finally {
@@ -401,6 +433,7 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
         // Render files in current directory
         for (const file of currentDirNode.files) {
             const fileName = file.path.split('/').pop() || file.path;
+            const hasRecordings = recordingsMap.get(file.path) || false;
             nodes.push(
                 <FileItem
                     key={file.path}
@@ -408,9 +441,10 @@ export const UnifiedFileTree: React.FC<UnifiedFileTreeProps> = ({
                     $active={file.path === activeFile}
                     $source={file.source}
                     onClick={() => handleFileClick(file)}
-                    title={`${file.path} (${file.source})`}
+                    title={`${file.path} (${file.source})${hasRecordings ? ' - Has playback recordings' : ''}`}
                 >
                     📄 {fileName}
+                    {hasRecordings && <RecordingsBadge title="Has playback recordings">📼</RecordingsBadge>}
                     <FileSourceBadge $source={file.source}>
                         {file.source.toUpperCase()}
                     </FileSourceBadge>
