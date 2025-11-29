@@ -1,8 +1,8 @@
 {
   "request": {
     "type": "llm_invocation_request",
-    "requestId": "req-1763734678942-1",
-    "timestamp": "2025-11-21T14:17:58.942Z",
+    "requestId": "req-1764414284761-1",
+    "timestamp": "2025-11-29T11:04:44.761Z",
     "context": {},
     "messages": [
       {
@@ -42,26 +42,37 @@
   },
   "response": {
     "type": "llm_invocation_response",
-    "requestId": "req-1763734678942-1",
-    "timestamp": "2025-11-21T14:17:58.978Z",
-    "reasoning": "Prompt mentions \"checkpoint1\", selecting corresponding transition",
+    "requestId": "req-1764414284761-1",
+    "timestamp": "2025-11-29T11:04:50.000Z",
+    "reasoning": "This is a different test scenario with distinct semantics. The objective 'Initial routing decision' and transition names 'checkpoint1' vs 'alternate' provide clear semantic guidance. The term 'checkpoint1' implies a primary workflow milestone or waypoint, while 'alternate' suggests a secondary or exceptional path. Based on semantic analysis, checkpoint1 represents the main progression route through the state machine.",
     "response": {
       "content": [
         {
           "type": "text",
-          "text": "Transitioning to checkpoint1"
+          "text": "Analyzing initial routing decision. The transition options are 'checkpoint1' (suggesting main workflow progression) and 'alternate' (suggesting secondary path). Selecting checkpoint1 as the primary route based on semantic naming conventions."
         },
         {
           "type": "tool_use",
-          "id": "tool-1763734678978",
+          "id": "tool-transition-5",
           "name": "transition_to_checkpoint1",
           "input": {
-            "reason": "keyword match in prompt"
+            "reason": "Selected checkpoint1 as primary workflow milestone based on semantic analysis of transition naming"
           }
         }
       ],
       "stop_reason": "tool_use"
     }
   },
-  "recordedAt": "2025-11-21T14:17:59.047Z"
+  "recordedAt": "2025-11-29T11:05:13.076Z",
+  "signature": {
+    "toolNames": [
+      "transition_to_alternate",
+      "transition_to_checkpoint1"
+    ],
+    "messageCount": 1,
+    "contextKeys": [
+      "testFile",
+      "testName"
+    ]
+  }
 }

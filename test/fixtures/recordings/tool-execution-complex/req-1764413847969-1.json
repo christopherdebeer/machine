@@ -1,8 +1,8 @@
 {
   "request": {
     "type": "llm_invocation_request",
-    "requestId": "req-1763736698084-1",
-    "timestamp": "2025-11-21T14:51:38.085Z",
+    "requestId": "req-1764413847969-1",
+    "timestamp": "2025-11-29T10:57:27.969Z",
     "context": {},
     "messages": [
       {
@@ -42,26 +42,37 @@
   },
   "response": {
     "type": "llm_invocation_response",
-    "requestId": "req-1763736698084-1",
-    "timestamp": "2025-11-21T14:51:38.135Z",
-    "reasoning": "Prompt mentions \"checkpoint1\", selecting corresponding transition",
+    "requestId": "req-1764413847969-1",
+    "timestamp": "2025-11-29T10:58:08.128Z",
+    "reasoning": "The objective is 'Initial routing decision' with two available transitions: checkpoint1 and alternate. Based on semantic analysis, 'checkpoint1' represents a primary workflow milestone while 'alternate' suggests a secondary path. For an initial routing decision in a standard workflow, the checkpoint path is the appropriate choice.",
     "response": {
       "content": [
         {
           "type": "text",
-          "text": "Transitioning to checkpoint1"
+          "text": "Making initial routing decision: Analyzing available transitions. The 'checkpoint1' path represents the primary workflow progression, appropriate for standard execution flow."
         },
         {
           "type": "tool_use",
-          "id": "tool-1763736698135",
+          "id": "tool-transition-2",
           "name": "transition_to_checkpoint1",
           "input": {
-            "reason": "keyword match in prompt"
+            "reason": "Primary workflow path selected for initial routing - checkpoint represents main progression milestone"
           }
         }
       ],
       "stop_reason": "tool_use"
     }
   },
-  "recordedAt": "2025-11-21T14:51:38.186Z"
+  "recordedAt": "2025-11-29T10:58:08.157Z",
+  "signature": {
+    "toolNames": [
+      "transition_to_alternate",
+      "transition_to_checkpoint1"
+    ],
+    "messageCount": 1,
+    "contextKeys": [
+      "testFile",
+      "testName"
+    ]
+  }
 }
