@@ -21,7 +21,10 @@ Complete reference to all DyGram documentation organized by topic.
   - [Centralized Syntax Highlighting Architecture](development/centralized-syntax-highlighting-design.md)
   - [Code Cleanup & Documentation Progress - 2025-11-24](development/cleanup-progress-2025-11-24.md)
   - [DyGram Code Review & Documentation Analysis](development/code-review-2025-11-24.md)
+  - [Context Read/Write Implementation Status and Issues](development/context-read-write-implementation.md)
+  - [Context Write Implementation Missing](development/context-write-implementation-missing.md)
   - [Execution UI and Meta Tools Analysis](development/execution-ui-and-meta-tools-analysis.md)
+  - [Execution Visualization and Runtime Issues](development/execution-visualization-runtime-issues.md)
   - [Import System Implementation Summary](development/IMPORT_SYSTEM_IMPLEMENTATION_SUMMARY.md)
   - [Import System Integration with Tools and Code Generation](development/IMPORT_SYSTEM_INTEGRATION.md)
   - [Import System - Remaining Work](development/IMPORT_SYSTEM_REMAINING_WORK.md)
@@ -36,6 +39,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Parse Error Fixes - November 2, 2025](development/parse-error-fixes-2025-11-02.md)
   - [Playground Import System Integration](development/PLAYGROUND_IMPORT_INTEGRATION.md)
   - [Recording Input Validation System](development/recording-input-validation.md)
+  - [Recording Signature Matching System](development/recording-signature-matching.md)
   - [Recording Validation Bugs and Issues](development/recording-validation-bugs.md)
   - [Round-Trip Test Analysis - November 3, 2025](development/round-trip-analysis-2025-11-03.md)
   - [Snapshot Testing Guide](development/SNAPSHOTS.md)
@@ -65,8 +69,6 @@ Complete reference to all DyGram documentation organized by topic.
   - [Task Evolution: From LLM to Generated Code](examples/task-evolution.md)
   - [Text Wrapping Configuration](examples/text-wrapping-configuration.md)
   - [Workflow Examples](examples/workflows.md)
-  ### Execution
-
 
 ### Getting Started
 

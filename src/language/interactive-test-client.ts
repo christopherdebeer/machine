@@ -23,6 +23,7 @@ import type {
     ModelResponse,
     ToolDefinition
 } from './claude-client.js';
+import type { RequestSignature } from './playback-test-client.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { setTimeout as delay } from 'timers/promises';
@@ -431,10 +432,18 @@ export class InteractiveTestClient {
             `${request.requestId}.json`
         );
 
+        // Compute request signature for intelligent playback matching
+        const signature: RequestSignature = {
+            toolNames: request.tools.map(t => t.name).sort(),
+            messageCount: request.messages.length,
+            contextKeys: Object.keys(request.context).sort()
+        };
+
         const recording = {
             request,
             response,
-            recordedAt: new Date().toISOString()
+            recordedAt: new Date().toISOString(),
+            signature // Add signature for v2 matching
         };
 
         // Check if we should overwrite existing recording
@@ -451,6 +460,7 @@ export class InteractiveTestClient {
         }
 
         console.log(`[InteractiveTestClient] Recorded response: ${request.requestId}`);
+        console.log(`  Signature: ${signature.toolNames.length} tools, ${signature.messageCount} messages`);
     }
 
     /**
