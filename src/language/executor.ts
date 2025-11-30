@@ -111,6 +111,9 @@ export class MachineExecutor {
             }
         });
 
+        // Initialize tools from machine definition (restores dynamically created tools)
+        this.metaToolManager.initializeToolsFromMachine();
+
         // Wire MetaToolManager to EffectExecutor
         this.effectExecutor.setMetaToolManager(this.metaToolManager);
     }

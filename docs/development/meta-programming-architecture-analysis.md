@@ -286,16 +286,133 @@ function initializeToolsFromMachine(machineJSON: MachineJSON) {
 
 ## Implementation Checklist
 
-- [ ] Modify `MetaToolManager.constructTool()` to create tool node
-- [ ] Add tool node to `_machineData.nodes`
-- [ ] Generate updated DSL and call `onMachineUpdate`
-- [ ] Add `MetaToolManager.registerToolFromNode()` helper
-- [ ] Add tool initialization in executor startup
-- [ ] Update grammar to support `tool` node type (if not already)
-- [ ] Update DSL generator to serialize tool nodes
-- [ ] Test: Create tool → execution ends → new execution → tool still exists
-- [ ] Test: Tool node appears in machine definition JSON and DSL
-- [ ] Document: Tool node syntax and attributes
+- [x] Modify `MetaToolManager.constructTool()` to create tool node
+- [x] Add tool node to `_machineData.nodes`
+- [x] Generate updated DSL and call `onMachineUpdate`
+- [x] Add `MetaToolManager.initializeToolsFromMachine()` helper
+- [x] Add tool initialization in executor startup
+- [x] Update grammar to support `tool` node type (already supported via NodeTypeChecker)
+- [x] Update DSL generator to serialize tool nodes (handled by existing generateDSL)
+- [x] Test: Create tool → execution ends → new execution → tool still exists
+- [x] Test: Tool node appears in machine definition JSON and DSL
+- [x] Document: Tool node syntax and attributes
+
+## Implementation Summary
+
+**Date**: 2025-11-30
+**Status**: ✅ IMPLEMENTED
+
+The persistent tool architecture has been successfully implemented. Dynamic tools created via `construct_tool` now persist in the machine definition and are automatically restored on subsequent executions.
+
+### Changes Made
+
+1. **`src/language/meta-tool-manager.ts`** (lines 375-407):
+   - Modified `constructTool()` to create tool nodes in `_machineData.nodes`
+   - Tool nodes include all necessary attributes (input_schema, implementation_strategy, implementation)
+   - Generates updated DSL and calls `onMachineUpdate()` callback
+   - Returns updated DSL in the result
+
+2. **`src/language/meta-tool-manager.ts`** (lines 65-188):
+   - Added `initializeToolsFromMachine()` method
+   - Scans machine definition for tool nodes on startup
+   - Creates handlers for each strategy (agent_backed, code_generation, composition)
+   - Registers tools with dynamicTools Map and ToolRegistry
+   - Logs initialization for debugging
+
+3. **`src/language/executor.ts`** (line 115):
+   - Added call to `metaToolManager.initializeToolsFromMachine()` after creating MetaToolManager
+   - Ensures tools from machine definition are loaded before execution starts
+
+4. **`test/integration/meta-tool-manager.test.ts`** (lines 463-618):
+   - Added "Tool Persistence" test suite with 3 comprehensive tests:
+     - Test tool nodes persist in machine definition
+     - Test tools initialize from machine definition
+     - Test tools loaded from definition execute correctly
+
+### How It Works
+
+#### Tool Creation Flow
+```
+Agent calls construct_tool({
+    name: "fibonacci_calculator",
+    description: "...",
+    input_schema: {...},
+    implementation_strategy: "code_generation",
+    implementation_details: "function fib(n) {...}"
+})
+    ↓
+MetaToolManager.constructTool():
+    1. Create handler (in-memory, for immediate use)
+    2. Register with ToolRegistry (for current execution)
+    3. Create tool node in MachineJSON format
+    4. Add to _machineData.nodes
+    5. Generate updated DSL
+    6. Call onMachineUpdate(dsl, _machineData)
+        ↓
+        → Updates executor.currentState.machineSnapshot
+        → Calls user callback with new DSL (for saving to file)
+    7. Return success + updated DSL
+```
+
+#### Tool Initialization Flow
+```
+Executor.constructor():
+    1. Create MetaToolManager(machineJSON, ...)
+    2. Set machine update callback
+    3. Call metaToolManager.initializeToolsFromMachine()
+        ↓
+        For each tool node in machineJSON.nodes:
+            - Extract attributes (input_schema, implementation_strategy, implementation)
+            - Create handler based on strategy
+            - Register in dynamicTools Map
+            - Register with ToolRegistry
+        ↓
+    4. Continue with normal execution
+```
+
+### Tool Node Structure
+
+Tool nodes in the machine definition have this structure:
+
+```json
+{
+    "name": "fibonacci_calculator",
+    "type": "tool",
+    "description": "Calculate Fibonacci number",
+    "attributes": [
+        {
+            "name": "input_schema",
+            "value": {
+                "type": "object",
+                "properties": {
+                    "n": { "type": "number", "description": "Position in sequence" }
+                },
+                "required": ["n"]
+            },
+            "type": "json"
+        },
+        {
+            "name": "implementation_strategy",
+            "value": "code_generation",
+            "type": "string"
+        },
+        {
+            "name": "implementation",
+            "value": "function fib(n) { if (n <= 1) return n; return fib(n-1) + fib(n-2); } return fib(n);",
+            "type": "string"
+        }
+    ]
+}
+```
+
+### Benefits Achieved
+
+1. ✅ **Persistence**: Tools survive across executions
+2. ✅ **Inspectability**: Tools visible in machine definition JSON and DSL
+3. ✅ **Editability**: Users can edit tool implementations in DSL (via machine definition)
+4. ✅ **Shareability**: Machines with tools can be shared as DSL files
+5. ✅ **Consistency**: Tool creation follows same pattern as `update_definition`
+6. ✅ **Meta-programming vision**: Machine truly evolves during execution
 
 ## Benefits of This Approach
 

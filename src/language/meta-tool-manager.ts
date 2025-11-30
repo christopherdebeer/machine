@@ -63,6 +63,131 @@ export class MetaToolManager {
     }
 
     /**
+     * Initialize tools from existing tool nodes in the machine definition
+     * This restores dynamically created tools from previous executions
+     */
+    initializeToolsFromMachine(): void {
+        // Find all tool nodes in the machine definition
+        const toolNodes = this._machineData.nodes.filter(node =>
+            node.type?.toLowerCase() === 'tool'
+        );
+
+        for (const toolNode of toolNodes) {
+            const name = toolNode.name;
+            const description = toolNode.description || '';
+
+            // Extract tool attributes
+            const attrs = toolNode.attributes || [];
+            const input_schema = attrs.find(a => a.name === 'input_schema')?.value;
+            const implementation_strategy = attrs.find(a => a.name === 'implementation_strategy')?.value as 'agent_backed' | 'code_generation' | 'composition';
+            const implementation_details = attrs.find(a => a.name === 'implementation')?.value || '';
+
+            if (!implementation_strategy) {
+                console.warn(`[MetaToolManager] Tool node '${name}' missing implementation_strategy, skipping`);
+                continue;
+            }
+
+            // Create handler based on strategy (same logic as constructTool)
+            let handler: (input: any) => Promise<any>;
+
+            switch (implementation_strategy) {
+                case 'agent_backed':
+                    handler = async (toolInput: any) => ({
+                        result: 'Tool execution placeholder - will be replaced with agent invocation',
+                        prompt: implementation_details,
+                        input: toolInput
+                    });
+                    break;
+
+                case 'code_generation':
+                    handler = async (toolInput: any) => {
+                        try {
+                            const inputObj = toolInput || {};
+                            const paramNames = Object.keys(inputObj);
+                            const paramDestructuring = paramNames.length > 0
+                                ? `const { ${paramNames.join(', ')} } = input || {};`
+                                : '';
+
+                            const fnCode = `
+                                'use strict';
+                                ${paramDestructuring}
+
+                                return (async () => {
+                                    ${implementation_details}
+                                })();
+                            `;
+
+                            const fn = new Function('input', fnCode);
+                            const result = await fn(inputObj);
+
+                            if (result === undefined) {
+                                return {
+                                    success: true,
+                                    result: null,
+                                    message: 'Code executed but returned no value'
+                                };
+                            }
+
+                            if (typeof result === 'object' && result !== null && 'success' in result) {
+                                return result;
+                            }
+
+                            return {
+                                success: true,
+                                result,
+                                message: 'Tool executed successfully'
+                            };
+                        } catch (error: any) {
+                            throw new Error(`Tool execution failed: ${error.message}`);
+                        }
+                    };
+                    break;
+
+                case 'composition':
+                    handler = async (toolInput: any) => {
+                        try {
+                            const composition = JSON.parse(implementation_details);
+                            return {
+                                result: 'Composition execution placeholder',
+                                composition,
+                                input: toolInput
+                            };
+                        } catch (error: any) {
+                            throw new Error(`Invalid composition definition: ${error.message}`);
+                        }
+                    };
+                    break;
+
+                default:
+                    console.warn(`[MetaToolManager] Unknown implementation strategy '${implementation_strategy}' for tool '${name}', skipping`);
+                    continue;
+            }
+
+            // Register the tool
+            const dynamicTool: DynamicTool = {
+                definition: { name, description, input_schema },
+                handler,
+                created: new Date().toISOString(),
+                strategy: implementation_strategy,
+                implementation: implementation_details
+            };
+
+            this.dynamicTools.set(name, dynamicTool);
+
+            // Register with ToolRegistry if available
+            if (this.toolRegistry) {
+                this.toolRegistry.registerStatic(dynamicTool.definition, handler);
+            }
+
+            console.log(`[MetaToolManager] Initialized tool '${name}' from machine definition (strategy: ${implementation_strategy})`);
+        }
+
+        if (toolNodes.length > 0) {
+            console.log(`[MetaToolManager] Initialized ${toolNodes.length} tool(s) from machine definition`);
+        }
+    }
+
+    /**
      * Register meta-tools for agent use
      */
     getMetaTools(): ToolDefinition[] {
@@ -372,6 +497,30 @@ export class MetaToolManager {
             }
         });
 
+        // CREATE TOOL NODE IN MACHINE DEFINITION (for persistence)
+        const toolNode = {
+            name,
+            type: 'tool',
+            description,
+            attributes: [
+                { name: 'input_schema', value: input_schema, type: 'json' },
+                { name: 'implementation_strategy', value: implementation_strategy, type: 'string' },
+                { name: 'implementation', value: implementation_details, type: 'string' }
+            ]
+        };
+
+        // Add to machine definition
+        this._machineData.nodes.push(toolNode);
+
+        // Generate updated DSL
+        const { generateDSL } = await import('./generator/generator.js');
+        const dsl = generateDSL(this._machineData);
+
+        // Persist changes via callback
+        if (this.onMachineUpdate) {
+            this.onMachineUpdate(dsl, this._machineData);
+        }
+
         return {
             success: true,
             message: `Tool '${name}' constructed and registered`,
@@ -379,7 +528,8 @@ export class MetaToolManager {
                 name,
                 description,
                 strategy: implementation_strategy
-            }
+            },
+            dsl  // Include updated DSL in response
         };
     }
 

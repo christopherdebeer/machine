@@ -459,4 +459,161 @@ describe('MetaToolManager - Dynamic Tool Construction', () => {
             expect(result.message).toContain('not found');
         });
     });
+
+    describe('Tool Persistence', () => {
+        it('should persist tool nodes in machine definition', async () => {
+            let updatedDSL: string | undefined;
+            let updatedMachineData: MachineJSON | undefined;
+
+            const manager = new MetaToolManager(machineData, (mutation) => {
+                mutations.push(mutation);
+            });
+
+            // Set up callback to capture machine updates
+            manager.setMachineUpdateCallback((dsl, machineData) => {
+                updatedDSL = dsl;
+                updatedMachineData = machineData;
+            });
+
+            // Construct a tool
+            const result = await manager.constructTool({
+                name: 'calculate_fibonacci',
+                description: 'Calculate Fibonacci number',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        n: { type: 'number', description: 'Position in sequence' }
+                    },
+                    required: ['n']
+                },
+                implementation_strategy: 'code_generation',
+                implementation_details: `
+                    function fib(n) {
+                        if (n <= 1) return n;
+                        return fib(n-1) + fib(n-2);
+                    }
+                    return { result: fib(n) };
+                `
+            });
+
+            // Verify tool was constructed
+            expect(result.success).toBe(true);
+            expect(result.dsl).toBeDefined();
+
+            // Verify machine update callback was called
+            expect(updatedDSL).toBeDefined();
+            expect(updatedMachineData).toBeDefined();
+
+            // Verify tool node was added to machine definition
+            expect(updatedMachineData?.nodes).toHaveLength(1);
+            const toolNode = updatedMachineData?.nodes[0];
+            expect(toolNode?.name).toBe('calculate_fibonacci');
+            expect(toolNode?.type).toBe('tool');
+            expect(toolNode?.description).toBe('Calculate Fibonacci number');
+
+            // Verify tool node has correct attributes
+            const attrs = toolNode?.attributes || [];
+            expect(attrs).toHaveLength(3);
+            expect(attrs.find(a => a.name === 'input_schema')).toBeDefined();
+            expect(attrs.find(a => a.name === 'implementation_strategy')?.value).toBe('code_generation');
+            expect(attrs.find(a => a.name === 'implementation')?.value).toContain('function fib');
+
+            // Verify DSL contains tool definition
+            expect(updatedDSL).toContain('tool calculate_fibonacci');
+        });
+
+        it('should initialize tools from machine definition', async () => {
+            // Create machine with existing tool node
+            const machineWithTool: MachineJSON = {
+                title: 'Machine with Tool',
+                nodes: [
+                    {
+                        name: 'double_number',
+                        type: 'tool',
+                        description: 'Double a number',
+                        attributes: [
+                            {
+                                name: 'input_schema',
+                                value: {
+                                    type: 'object',
+                                    properties: {
+                                        n: { type: 'number' }
+                                    }
+                                },
+                                type: 'json'
+                            },
+                            {
+                                name: 'implementation_strategy',
+                                value: 'code_generation',
+                                type: 'string'
+                            },
+                            {
+                                name: 'implementation',
+                                value: 'return { result: n * 2 };',
+                                type: 'string'
+                            }
+                        ]
+                    }
+                ],
+                edges: []
+            };
+
+            const manager = new MetaToolManager(machineWithTool, () => {});
+
+            // Initialize tools from machine definition
+            manager.initializeToolsFromMachine();
+
+            // Verify tool is available
+            const result = await manager.listAvailableTools({ filter_type: 'dynamic' });
+            expect(result.dynamicTools).toHaveLength(1);
+            expect(result.dynamicTools[0].name).toBe('double_number');
+            expect(result.dynamicTools[0].strategy).toBe('code_generation');
+        });
+
+        it('should execute tools loaded from machine definition', async () => {
+            // Create machine with tool that performs calculation
+            const machineWithTool: MachineJSON = {
+                title: 'Machine with Tool',
+                nodes: [
+                    {
+                        name: 'add_ten',
+                        type: 'tool',
+                        description: 'Add 10 to a number',
+                        attributes: [
+                            {
+                                name: 'input_schema',
+                                value: {
+                                    type: 'object',
+                                    properties: {
+                                        value: { type: 'number' }
+                                    }
+                                },
+                                type: 'json'
+                            },
+                            {
+                                name: 'implementation_strategy',
+                                value: 'code_generation',
+                                type: 'string'
+                            },
+                            {
+                                name: 'implementation',
+                                value: 'return value + 10;',
+                                type: 'string'
+                            }
+                        ]
+                    }
+                ],
+                edges: []
+            };
+
+            const manager = new MetaToolManager(machineWithTool, () => {});
+            manager.initializeToolsFromMachine();
+
+            // Execute the tool
+            const result = await manager.executeDynamicTool('add_ten', { value: 5 });
+
+            // The handler wraps the result in { success: true, result: ..., message: ... }
+            expect(result.result).toBe(15);
+        });
+    });
 });
