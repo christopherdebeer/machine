@@ -33,6 +33,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Interactive Testing Implementation Status](development/interactive-testing-status.md)
   - [MCP Setup for Local Development](development/mcp-setup.md)
   - [Meta Annotation and Context Edge Fixes](development/meta-context-edge-fixes-2025-11-28.md)
+  - [Meta-Programming Architecture Analysis: Dynamic Tools](development/meta-programming-architecture-analysis.md)
   - [Meta Tools and Machine Updates](development/meta-tools-machine-updates.md)
   - [Offline Testing for Tool and Task Execution](development/offline-testing-proposal.md)
   - [Parse Error Analysis Report](development/parse-error-analysis-2025-11-02.md)

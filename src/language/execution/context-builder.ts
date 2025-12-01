@@ -145,15 +145,46 @@ export function buildEvaluationContext(
     // Build node-specific context including edge-accessible context (initial values)
     const nodeContext = buildNodeContext(nodeName, machineJSON, true);
 
+    // Get permissions to filter runtime context values
+    const accessibleContexts = ContextPermissionsResolver.getAccessibleContextNodes(
+        nodeName,
+        machineJSON,
+        {
+            includeInboundEdges: true,
+            includeStore: true,
+            enableLogging: false,
+            permissionsMode: 'strict',
+            includeInheritedContext: true
+        }
+    );
+
     // Overlay runtime context values on top of initial values
-    // This ensures CEL expressions see the current runtime state
+    // IMPORTANT: Respect field-level permissions - only merge permitted fields
     for (const [contextName, contextValues] of Object.entries(state.contextState)) {
         if (nodeContext[contextName]) {
-            // Merge runtime values over initial values
-            nodeContext[contextName] = {
-                ...nodeContext[contextName],
-                ...contextValues
-            };
+            // Check if this context has field-level restrictions
+            const permissions = accessibleContexts.get(contextName);
+
+            if (permissions && permissions.fields) {
+                // Field-level restrictions apply - only merge permitted fields
+                const permittedValues: Record<string, any> = {};
+                for (const [attrName, attrValue] of Object.entries(contextValues)) {
+                    if (permissions.fields.includes(attrName)) {
+                        permittedValues[attrName] = attrValue;
+                    }
+                }
+                // Merge only permitted runtime values over initial values
+                nodeContext[contextName] = {
+                    ...nodeContext[contextName],
+                    ...permittedValues
+                };
+            } else {
+                // No field restrictions - merge all runtime values
+                nodeContext[contextName] = {
+                    ...nodeContext[contextName],
+                    ...contextValues
+                };
+            }
         }
     }
 

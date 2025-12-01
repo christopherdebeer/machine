@@ -1553,9 +1553,17 @@ export const CodeMirrorPlayground: React.FC = () => {
       // Set up state change callback BEFORE execution starts
       // This ensures diagram updates during execution, not just at the end
       if (typeof exec.setOnStateChangeCallback === 'function') {
-        exec.setOnStateChangeCallback(() => {
+        exec.setOnStateChangeCallback((...args) => {
+          exec.getLogger().info('sync', `CodeMirror playground OnStateChangeCallback called`, args)
           updateRuntimeVisualization(exec);
         });
+      }
+
+      if (typeof exec.setMachineUpdateCallback === 'function') {
+        exec.setMachineUpdateCallback((...args)=> {
+          exec.getLogger().info('sync', `CodeMirror playground MachineUpdateCallback called`, args)
+          updateRuntimeVisualization(exec)
+        })
       }
 
       // Execute machine

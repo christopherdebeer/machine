@@ -77,6 +77,7 @@ export class ExecutionLogger {
      * Log a message at the specified level
      */
     private log(level: LogLevel, category: LogCategory, message: string, data?: Record<string, any>): void {
+        console.log(`[ExecutionLogger] ${level} [${category}] ${message}`, data)
         if (!this.shouldLog(level)) {
             return;
         }
