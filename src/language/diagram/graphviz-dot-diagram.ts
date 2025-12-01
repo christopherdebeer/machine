@@ -1909,9 +1909,24 @@ function generateNodeDefinition(
     const attributes = getNodeDisplayAttributes(node);
     const hasStaticAttrs = attributes.length > 0;
     
-    // Collect runtime-only values (not in static attributes)
+    // For context nodes, update static attribute values with runtime values (no separate section)
+    // For other nodes, collect runtime-only values to show separately
+    const isContextNode = node.type?.toLowerCase() === 'context';
     const runtimeOnlyValues: any[] = [];
-    if (runtimeState?.runtimeValues && Object.keys(runtimeState.runtimeValues).length > 0 && options?.showRuntimeState !== false) {
+    
+    if (isContextNode && runtimeState?.runtimeValues) {
+        // Update static attributes with runtime values for context nodes
+        const runtimeVals = runtimeState.runtimeValues;
+        attributes.forEach(attr => {
+            const runtimeKey = `${node.name}.${attr.name}`;
+            if (runtimeVals[runtimeKey] !== undefined) {
+                // Update the attribute value with runtime value
+                attr.value = runtimeVals[runtimeKey];
+            }
+        });
+        // Don't show separate runtime section for context nodes
+    } else if (runtimeState?.runtimeValues && Object.keys(runtimeState.runtimeValues).length > 0 && options?.showRuntimeState !== false) {
+        // For non-context nodes, collect runtime-only values
         const staticAttrNames = new Set(attributes.map((a: any) => a.name));
         
         Object.entries(runtimeState.runtimeValues).forEach(([key, value]) => {
