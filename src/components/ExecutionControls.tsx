@@ -26,10 +26,19 @@ export interface ExecutionControlsProps {
     executor?: any; // MachineExecutor instance to get logs from
     logLevel?: string; // Current log level
     onLogLevelChange?: (level: string) => void;
+
+    // Playback mode
     playbackMode?: boolean; // Whether playback mode is enabled
     recordingsAvailable?: boolean; // Whether recordings exist for current example
     onTogglePlaybackMode?: () => void; // Handler to toggle playback mode
     playbackClient?: any; // Playback client instance for progress tracking
+
+    // Recording mode
+    recordingMode?: boolean; // Whether recording mode is enabled
+    onToggleRecordingMode?: () => void; // Handler to toggle recording mode
+    recordingClient?: any; // Recording client instance for count tracking
+    onExportRecordings?: () => void; // Handler to export/download recordings
+    onClearRecordings?: () => void; // Handler to clear recordings
 }
 
 interface LogEntry {
@@ -181,6 +190,56 @@ const PlaybackProgress = styled.div`
     border-radius: 4px;
 `;
 
+const RecordingToggle = styled.button<{ $active?: boolean }>`
+    background: ${props => props.$active ? '#dc2626' : 'rgb(62, 62, 66)'};
+    color: rgb(212, 212, 212);
+    border: 1px solid ${props => props.$active ? '#dc2626' : 'rgb(80, 80, 83)'};
+    padding: 0.25em 0.6em;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+    transition: all 0.2s;
+
+    &:hover {
+        background: ${props => props.$active ? '#b91c1c' : 'rgb(72, 72, 76)'};
+        border-color: ${props => props.$active ? '#b91c1c' : '#0e639c'};
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+`;
+
+const RecordingIndicator = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 12px;
+    color: #dc2626;
+    padding: 0.25em 0.6em;
+    background: rgba(220, 38, 38, 0.1);
+    border-radius: 4px;
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    &::before {
+        content: '●';
+        animation: pulse 2s ease-in-out infinite;
+    }
+`;
+
+const RecordingActions = styled.div`
+    display: flex;
+    gap: 0.3em;
+`;
+
 // Main Component
 export const ExecutionControls = React.forwardRef<ExecutionControlsRef, ExecutionControlsProps>(({
     onExecute,
@@ -195,7 +254,12 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
     playbackMode = false,
     recordingsAvailable = false,
     onTogglePlaybackMode,
-    playbackClient
+    playbackClient,
+    recordingMode = false,
+    onToggleRecordingMode,
+    recordingClient,
+    onExportRecordings,
+    onClearRecordings
 }, ref) => {
     const [state, setState] = useState<ExecutionState>({
         status: 'idle',
@@ -413,6 +477,9 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
     // Get playback progress if in playback mode
     const playbackPosition = playbackClient?.getPlaybackPosition?.() || { current: 0, total: 0 };
 
+    // Get recording count if in recording mode
+    const recordingCount = recordingClient?.getRecordingCount?.() || 0;
+
     return (
         <Container $mobile={mobile} className="execution-panel">
             <Header className="execution-header">
@@ -461,6 +528,43 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
                         <PlaybackProgress title="Playback progress">
                             📊 {playbackPosition.current}/{playbackPosition.total}
                         </PlaybackProgress>
+                    )}
+
+                    {onToggleRecordingMode && !playbackMode && (
+                        <RecordingToggle
+                            $active={recordingMode}
+                            onClick={onToggleRecordingMode}
+                            title={recordingMode ? 'Stop recording (switch to live mode)' : 'Start recording (capture responses)'}
+                        >
+                            {recordingMode ? '🔴' : '⚪'} {recordingMode ? 'Recording' : 'Record'}
+                        </RecordingToggle>
+                    )}
+
+                    {recordingMode && recordingCount > 0 && (
+                        <RecordingIndicator title="Recording in progress">
+                            {recordingCount} recording{recordingCount !== 1 ? 's' : ''}
+                        </RecordingIndicator>
+                    )}
+
+                    {recordingMode && recordingCount > 0 && (
+                        <RecordingActions>
+                            {onExportRecordings && (
+                                <Button
+                                    onClick={onExportRecordings}
+                                    title="Download recordings as JSON"
+                                >
+                                    💾 Export
+                                </Button>
+                            )}
+                            {onClearRecordings && (
+                                <Button
+                                    onClick={onClearRecordings}
+                                    title="Clear all recordings"
+                                >
+                                    🗑️ Clear
+                                </Button>
+                            )}
+                        </RecordingActions>
                     )}
                 </ButtonGroup>
 

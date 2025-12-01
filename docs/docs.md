@@ -41,6 +41,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Parse Error Fixes - November 2, 2025](development/parse-error-fixes-2025-11-02.md)
   - [Playground Import System Integration](development/PLAYGROUND_IMPORT_INTEGRATION.md)
   - [Recording Input Validation System](development/recording-input-validation.md)
+  - [Recording Signature Matching System](development/recording-signature-matching.md)
   - [Recording Validation Bugs and Issues](development/recording-validation-bugs.md)
   - [Round-Trip Test Analysis - November 3, 2025](development/round-trip-analysis-2025-11-03.md)
   - [Snapshot Testing Guide](development/SNAPSHOTS.md)

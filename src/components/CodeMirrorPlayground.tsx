@@ -70,6 +70,7 @@ import {
 } from "../utils/url-encoding";
 import { checkRecordingsAvailable } from "../api/recordings-api";
 import { BrowserPlaybackClient } from "../language/browser-playback-client";
+import { BrowserRecordingClient } from "../language/browser-recording-client";
 
 // CodeMirror highlighting effect for SVG → Editor navigation
 const setHighlightEffect = StateEffect.define<{from: number; to: number} | null>();
@@ -646,6 +647,10 @@ export const CodeMirrorPlayground: React.FC = () => {
     const [isPlaybackMode, setIsPlaybackMode] = useState(false);
     const [playbackClient, setPlaybackClient] = useState<BrowserPlaybackClient | null>(null);
 
+    // Recording mode state
+    const [isRecordingMode, setIsRecordingMode] = useState(false);
+    const [recordingClient, setRecordingClient] = useState<any | null>(null);
+
     // Multi-file editor state
     const [openFiles, setOpenFiles] = useState<Array<{ path: string; content: string; name: string }>>([]);
     const [activeFileIndex, setActiveFileIndex] = useState(0);
@@ -970,6 +975,8 @@ export const CodeMirrorPlayground: React.FC = () => {
         setRecordingsAvailable(false);
         setIsPlaybackMode(false);
         setPlaybackClient(null);
+        setIsRecordingMode(false);
+        setRecordingClient(null);
         return;
       }
 
@@ -985,11 +992,17 @@ export const CodeMirrorPlayground: React.FC = () => {
           setIsPlaybackMode(false);
           setPlaybackClient(null);
         }
+
+        // Reset recording mode when switching examples
+        setIsRecordingMode(false);
+        setRecordingClient(null);
       } catch (error) {
         console.warn('Failed to check recordings:', error);
         setRecordingsAvailable(false);
         setIsPlaybackMode(false);
         setPlaybackClient(null);
+        setIsRecordingMode(false);
+        setRecordingClient(null);
       }
     };
 
@@ -1517,6 +1530,12 @@ export const CodeMirrorPlayground: React.FC = () => {
         exec = await MachineExecutor.create(machineJSON, {
           llm: playbackClient as any,  // Duck typing - playback client implements same interface
         });
+      } else if (isRecordingMode && recordingClient) {
+        // Recording mode - use recording client (transparently records)
+        console.log("Starting recording execution...");
+        exec = await MachineExecutor.create(machineJSON, {
+          llm: recordingClient as any,  // Duck typing - recording client implements same interface
+        });
       } else {
         // Live mode - use API
         console.log("Starting live execution...");
@@ -1534,7 +1553,8 @@ export const CodeMirrorPlayground: React.FC = () => {
       // Set up state change callback BEFORE execution starts
       // This ensures diagram updates during execution, not just at the end
       if (typeof exec.setOnStateChangeCallback === 'function') {
-        exec.setOnStateChangeCallback(() => {
+        exec.setOnStateChangeCallback((...args) => {
+          exec.getLogger().info('sync', `CodeMirror playground OnStateChangeCallback called`, args)
           updateRuntimeVisualization(exec);
         });
       }
@@ -1562,6 +1582,11 @@ export const CodeMirrorPlayground: React.FC = () => {
           // Mark as dirty so user knows to save
           setIsDirty(true);
         });
+      if (typeof exec.setMachineUpdateCallback === 'function') {
+        exec.setMachineUpdateCallback((...args)=> {
+          exec.getLogger().info('sync', `CodeMirror playground MachineUpdateCallback called`, args)
+          updateRuntimeVisualization(exec)
+        })
       }
 
       // Execute machine
@@ -1796,6 +1821,77 @@ export const CodeMirrorPlayground: React.FC = () => {
     setExecutor(null);
     setIsExecuting(false);
   }, [selectedExample, recordingsAvailable, isPlaybackMode]);
+
+  const handleToggleRecordingMode = useCallback(async () => {
+    if (!selectedExample || !settings.apiKey) {
+      if (!settings.apiKey) {
+        alert('API key required for recording mode. Please set your Anthropic API key in settings.');
+      }
+      return;
+    }
+
+    const newRecordingMode = !isRecordingMode;
+    setIsRecordingMode(newRecordingMode);
+
+    if (newRecordingMode) {
+      // Enable recording mode - create recording client
+      try {
+        const exampleName = selectedExample.filename.replace(/\.(dy|dygram|mach)$/, '');
+        const client = await BrowserRecordingClient.create({
+          apiKey: settings.apiKey,
+          modelId: settings.model,
+          exampleName,
+          category: selectedExample.category,
+          userNotes: `Recording for ${selectedExample.name}`
+        });
+        setRecordingClient(client);
+        console.log(`Recording mode enabled for ${selectedExample.category}/${exampleName}`);
+      } catch (error) {
+        console.error('Failed to create recording client:', error);
+        alert(`Failed to enable recording mode: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        setIsRecordingMode(false);
+        setRecordingClient(null);
+      }
+    } else {
+      // Disable recording mode
+      if (recordingClient && recordingClient.getRecordingCount() > 0) {
+        const count = recordingClient.getRecordingCount();
+        if (confirm(`You have ${count} recording(s). Export before disabling recording mode?`)) {
+          recordingClient.downloadRecordings();
+        }
+      }
+      setRecordingClient(null);
+      console.log('Recording mode disabled');
+    }
+
+    // Reset executor when toggling modes
+    setExecutor(null);
+    setIsExecuting(false);
+  }, [selectedExample, settings.apiKey, settings.model, isRecordingMode, recordingClient]);
+
+  const handleExportRecordings = useCallback(() => {
+    if (!recordingClient) return;
+
+    try {
+      recordingClient.downloadRecordings();
+      console.log('Recordings exported successfully');
+    } catch (error) {
+      console.error('Failed to export recordings:', error);
+      alert(`Failed to export recordings: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }, [recordingClient]);
+
+  const handleClearRecordings = useCallback(() => {
+    if (!recordingClient) return;
+
+    const count = recordingClient.getRecordingCount();
+    if (count === 0) return;
+
+    if (confirm(`Clear all ${count} recording(s)? This cannot be undone.`)) {
+      recordingClient.clearRecordings();
+      console.log('Recordings cleared');
+    }
+  }, [recordingClient]);
 
   const handleReset = useCallback(async () => {
     console.log("Resetting machine");
@@ -2078,6 +2174,11 @@ export const CodeMirrorPlayground: React.FC = () => {
                         recordingsAvailable={recordingsAvailable}
                         onTogglePlaybackMode={handleTogglePlaybackMode}
                         playbackClient={playbackClient}
+                        recordingMode={isRecordingMode}
+                        onToggleRecordingMode={handleToggleRecordingMode}
+                        recordingClient={recordingClient}
+                        onExportRecordings={handleExportRecordings}
+                        onClearRecordings={handleClearRecordings}
                     />
                 </SectionContent>
             </ExecutionSection>

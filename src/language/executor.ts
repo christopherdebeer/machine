@@ -17,7 +17,7 @@ import type {
 } from './execution/runtime-types.js';
 import { createExecutionRuntime } from './execution/execution-runtime.js';
 import { EffectExecutor, type EffectExecutorConfig } from './execution/effect-executor.js';
-import { ExecutionLogger, type LogEntry } from './execution/logger.js';
+import { ExecutionLogger, LogCategory, type LogEntry } from './execution/logger.js';
 import type { RuntimeConfig } from './execution/runtime.js';
 import { ClaudeClient } from './claude-client.js';
 import { createLLMClient, type LLMClientConfig } from './llm-client.js';
@@ -88,7 +88,7 @@ export class MachineExecutor {
             vfs: config.vfs,
             logHandler: (effect) => {
                 // Route all logs through our logger
-                this.logger[effect.level](effect.category, effect.message, effect.data);
+                this.logger[effect.level](effect.category as LogCategory, effect.message, effect.data);
             }
         });
 
@@ -102,6 +102,7 @@ export class MachineExecutor {
 
         // Set up internal machine update handler
         this.metaToolManager.setMachineUpdateCallback((dsl: string, machineData: MachineJSON) => {
+            this.logger.info('sync', 'Executor machine udpate callback called.', {dsl, machineData})
             // Update the machine snapshot in the current state
             this.currentState.machineSnapshot = machineData;
 

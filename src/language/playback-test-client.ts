@@ -22,6 +22,7 @@ import type {
 } from './claude-client.js';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as crypto from 'crypto';
 import { setTimeout as delay } from 'timers/promises';
 
 export interface PlaybackTestConfig extends ClaudeClientConfig {
@@ -36,6 +37,28 @@ export interface PlaybackTestConfig extends ClaudeClientConfig {
 
     /** Strict mode: fail if no recording found */
     strict?: boolean;
+
+    /**
+     * Matching mode: how to select recordings
+     * - 'signature': Match by request signature (tools, messages) - RECOMMENDED
+     * - 'sequential': Use recordings in order (legacy behavior)
+     * - 'hybrid': Try signature first, fall back to sequential
+     */
+    matchingMode?: 'signature' | 'sequential' | 'hybrid';
+}
+
+/**
+ * Request signature for intelligent recording matching
+ */
+export interface RequestSignature {
+    /** Sorted tool names (order-independent) */
+    toolNames: string[];
+
+    /** Number of messages in conversation */
+    messageCount: number;
+
+    /** Hash of context keys (what data is available) */
+    contextKeys: string[];
 }
 
 export interface Recording {
@@ -56,6 +79,9 @@ export interface Recording {
         response: ModelResponse;
     };
     recordedAt: string;
+
+    /** Optional signature for intelligent matching (added in v2) */
+    signature?: RequestSignature;
 }
 
 /**
@@ -64,9 +90,10 @@ export interface Recording {
  * Replays pre-recorded agent responses for deterministic testing.
  */
 export class PlaybackTestClient {
-    private config: Required<PlaybackTestConfig>;
+    private config: Required<PlaybackTestConfig> & { matchingMode: 'signature' | 'sequential' | 'hybrid' };
     private recordings: Recording[] = [];
     private playbackIndex = 0;
+    private usedRecordings = new Set<number>(); // Track which recordings have been used (for signature mode)
 
     constructor(config: PlaybackTestConfig) {
         this.config = {
@@ -75,6 +102,7 @@ export class PlaybackTestClient {
             simulateDelay: config.simulateDelay !== false,
             delay: config.delay || 150,
             strict: config.strict !== false,
+            matchingMode: config.matchingMode || 'hybrid',
             modelId: config.modelId || 'playback-mode',
             apiKey: config.apiKey,
             region: config.region
@@ -131,7 +159,7 @@ export class PlaybackTestClient {
     }
 
     /**
-     * Invoke with tools - plays back next recording
+     * Invoke with tools - plays back matching recording
      */
     async invokeWithTools(
         messages: ConversationMessage[],
@@ -143,42 +171,215 @@ export class PlaybackTestClient {
             await delay(this.config.delay);
         }
 
-        // Get next recording
-        if (this.playbackIndex >= this.recordings.length) {
-            if (this.config.strict) {
+        let recording: Recording | null = null;
+        let recordingIndex: number = -1;
+
+        // Try signature-based matching first (if enabled)
+        if (this.config.matchingMode === 'signature' || this.config.matchingMode === 'hybrid') {
+            const currentSignature = this.computeRequestSignature(messages, tools);
+            const match = this.findMatchingRecording(currentSignature);
+
+            if (match) {
+                recording = match.recording;
+                recordingIndex = match.index;
+                console.log(`[PlaybackTestClient] Matched recording by signature`);
+                console.log(`   Tools: ${currentSignature.toolNames.join(', ')}`);
+            } else if (this.config.matchingMode === 'signature') {
+                // Strict signature mode - fail if no match
                 throw new Error(
-                    `No more recordings available (index: ${this.playbackIndex}, total: ${this.recordings.length})`
+                    this.formatNoMatchError(currentSignature, tools)
                 );
             }
-
-            // Fallback: return empty response
-            console.warn('[PlaybackTestClient] No recording available, returning empty response');
-            return {
-                content: [
-                    { type: 'text', text: 'Playback: No recording available' }
-                ],
-                stop_reason: 'end_turn'
-            };
         }
 
-        const recording = this.recordings[this.playbackIndex];
-        this.playbackIndex++;
+        // Fall back to sequential mode if no signature match
+        if (!recording && (this.config.matchingMode === 'sequential' || this.config.matchingMode === 'hybrid')) {
+            if (this.playbackIndex >= this.recordings.length) {
+                if (this.config.strict) {
+                    throw new Error(
+                        `No more recordings available (index: ${this.playbackIndex}, total: ${this.recordings.length})`
+                    );
+                }
 
-        console.log(`[PlaybackTestClient] Playing back recording ${this.playbackIndex}/${this.recordings.length}`);
+                // Fallback: return empty response
+                console.warn('[PlaybackTestClient] No recording available, returning empty response');
+                return {
+                    content: [
+                        { type: 'text', text: 'Playback: No recording available' }
+                    ],
+                    stop_reason: 'end_turn'
+                };
+            }
+
+            recording = this.recordings[this.playbackIndex];
+            recordingIndex = this.playbackIndex;
+            this.playbackIndex++;
+            console.log(`[PlaybackTestClient] Using sequential recording ${this.playbackIndex}/${this.recordings.length}`);
+        }
+
+        if (!recording) {
+            throw new Error('Internal error: No recording selected');
+        }
+
+        // Mark recording as used (for signature mode)
+        this.usedRecordings.add(recordingIndex);
+
         console.log(`   Request ID: ${recording.request.requestId}`);
         console.log(`   Recorded: ${recording.recordedAt}`);
         if (recording.response.reasoning) {
             console.log(`   Reasoning: ${recording.response.reasoning}`);
         }
 
-        // Validate tools match (optional, helpful for debugging)
-        if (tools.length > 0 && recording.request.tools.length !== tools.length) {
+        // Validate tools match (warn if mismatch)
+        this.validateToolsMatch(tools, recording.request.tools);
+
+        return recording.response.response;
+    }
+
+    /**
+     * Compute request signature for matching
+     */
+    private computeRequestSignature(
+        messages: ConversationMessage[],
+        tools: ToolDefinition[]
+    ): RequestSignature {
+        return {
+            toolNames: tools.map(t => t.name).sort(),
+            messageCount: messages.length,
+            contextKeys: [] // Context keys can be added if needed
+        };
+    }
+
+    /**
+     * Find recording that matches the given signature
+     */
+    private findMatchingRecording(signature: RequestSignature): { recording: Recording; index: number } | null {
+        for (let i = 0; i < this.recordings.length; i++) {
+            // Skip already used recordings
+            if (this.usedRecordings.has(i)) {
+                continue;
+            }
+
+            const recording = this.recordings[i];
+
+            // If recording has signature metadata, use it
+            if (recording.signature) {
+                if (this.signaturesMatch(recording.signature, signature)) {
+                    return { recording, index: i };
+                }
+            } else {
+                // Legacy recording without signature - compute from request
+                const recordedSignature = this.computeRequestSignature(
+                    recording.request.messages,
+                    recording.request.tools
+                );
+                if (this.signaturesMatch(recordedSignature, signature)) {
+                    return { recording, index: i };
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if two signatures match
+     */
+    private signaturesMatch(recorded: RequestSignature, current: RequestSignature): boolean {
+        // Tool names must match exactly (order-independent)
+        if (!this.arraysEqual(recorded.toolNames, current.toolNames)) {
+            return false;
+        }
+
+        // Message count should match (allows for some flexibility)
+        if (recorded.messageCount !== current.messageCount) {
+            return false;
+        }
+
+        // Context keys should match if present
+        if (recorded.contextKeys.length > 0 || current.contextKeys.length > 0) {
+            if (!this.arraysEqual(recorded.contextKeys, current.contextKeys)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Compare arrays for equality (order matters for sorted arrays)
+     */
+    private arraysEqual<T>(a: T[], b: T[]): boolean {
+        if (a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] !== b[i]) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Validate that tools match between request and recording
+     */
+    private validateToolsMatch(currentTools: ToolDefinition[], recordedTools: ToolDefinition[]): void {
+        if (currentTools.length !== recordedTools.length) {
             console.warn(
-                `[PlaybackTestClient] Tool count mismatch: expected ${recording.request.tools.length}, got ${tools.length}`
+                `[PlaybackTestClient] Tool count mismatch: current has ${currentTools.length}, recording has ${recordedTools.length}`
+            );
+            return;
+        }
+
+        const currentNames = currentTools.map(t => t.name).sort();
+        const recordedNames = recordedTools.map(t => t.name).sort();
+
+        for (let i = 0; i < currentNames.length; i++) {
+            if (currentNames[i] !== recordedNames[i]) {
+                console.warn(
+                    `[PlaybackTestClient] Tool name mismatch at index ${i}: current="${currentNames[i]}", recorded="${recordedNames[i]}"`
+                );
+            }
+        }
+    }
+
+    /**
+     * Format error message when no matching recording found
+     */
+    private formatNoMatchError(signature: RequestSignature, tools: ToolDefinition[]): string {
+        const lines = [
+            '❌ No matching recording found for request',
+            '',
+            'Current Request:',
+            `  Tools (${signature.toolNames.length}): ${signature.toolNames.join(', ')}`,
+            `  Message count: ${signature.messageCount}`,
+            '',
+            'Available Recordings:',
+        ];
+
+        for (let i = 0; i < this.recordings.length; i++) {
+            const recording = this.recordings[i];
+            const used = this.usedRecordings.has(i) ? ' (USED)' : '';
+            const recordedSig = recording.signature || this.computeRequestSignature(
+                recording.request.messages,
+                recording.request.tools
+            );
+
+            lines.push(
+                `  [${i}] ${recording.request.requestId}${used}`,
+                `      Tools: ${recordedSig.toolNames.join(', ')}`,
+                `      Messages: ${recordedSig.messageCount}`
             );
         }
 
-        return recording.response.response;
+        lines.push(
+            '',
+            'Troubleshooting:',
+            '  1. Regenerate recordings if source file changed',
+            '  2. Check that tool names match exactly',
+            '  3. Use matchingMode: "hybrid" for backward compatibility',
+            '',
+            `  Recordings directory: ${this.config.recordingsDir}`
+        );
+
+        return lines.join('\n');
     }
 
     /**

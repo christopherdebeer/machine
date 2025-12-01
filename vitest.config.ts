@@ -16,6 +16,7 @@ export default defineConfig({
         extensions: ['.ts', '.js', '.json']
     },
     test: {
+        testTimeout: 30000, // 30 second timeout for interactive tests
        coverage: {
             provider: 'v8',
             reporter: ['text', 'html', 'json-summary', 'json'],
