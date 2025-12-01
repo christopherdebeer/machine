@@ -1153,11 +1153,32 @@ examples/
 
 ## Conclusion
 
-Intra-step (turn-level) execution is **fully implemented** in the executor and browser UI, but **not exposed** in the CLI. The proposed approach is:
+Intra-step (turn-level) execution is **fully implemented** in the executor and browser UI, but **not exposed** in the CLI.
 
-1. **Phase 1**: Add `--interactive` flag to `execute` command with basic turn-level stepping
-2. **Phase 2**: Enhance display and add manual response injection
-3. **Phase 3**: Full REPL if needed
+### ⚠️ UPDATE: Better Design Identified
+
+After testing REPL interaction with agents, we discovered that **continuous REPL sessions are problematic for agents**.
+
+**New Recommended Approach**: **Stateless calls with persistent state** (see `cli-stateful-execution-design.md`)
+
+Instead of a continuous REPL:
+- Each CLI call is an isolated process
+- Execution state persists in `.dygram/executions/<id>/`
+- Auto-resumes from last execution
+- Agent-friendly: simple stateless calls, no process management
+
+```bash
+# Each call executes one turn, saves state, exits
+dygram execute --interactive ./myMachine.dy   # turn 1
+dygram execute --interactive ./myMachine.dy   # turn 2 (auto-resumes)
+dygram execute --interactive ./myMachine.dy   # turn 3
+```
+
+See **`docs/development/cli-stateful-execution-design.md`** for full design.
+
+### Original REPL Approaches (Archived)
+
+The designs below (Design Options A, B, C) used continuous REPL sessions, which are **not recommended for agent usage**. They remain here for reference but should not be implemented.
 
 All required infrastructure exists:
 - ✅ `MachineExecutor.stepTurn()` API
@@ -1168,9 +1189,10 @@ All required infrastructure exists:
 Implementation is straightforward and builds on existing solid foundations.
 
 **Next Steps**:
-1. Get approval on Design Option A (--interactive flag)
-2. Implement basic interactive loop
-3. Add playback/record support
-4. Test and document
+1. Review stateful execution design (`cli-stateful-execution-design.md`)
+2. Implement state persistence mechanism
+3. Add `--interactive` flag with state management
+4. Add execution management commands (`exec list/status/clean/rm`)
+5. Test and document
 
-**Questions**: See "Open Questions" section above
+**Questions**: See "Open Questions" in both documents
