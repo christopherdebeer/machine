@@ -1428,11 +1428,7 @@ export const CodeMirrorPlayground: React.FC = () => {
       try {
         // Get current execution state
         const state = exec.getState();
-        console.log('[updateRuntimeVisualization] Execution state:', {
-          pathCount: state.paths?.length,
-          stepCount: state.metadata?.stepCount,
-          currentNodes: state.paths?.map(p => p.currentNode)
-        });
+        console.log('[updateRuntimeVisualization] Execution state:', {state, machineData});
 
         // Check if there are any paths with execution
         if (!state.paths || state.paths.length === 0) {
@@ -1694,6 +1690,105 @@ export const CodeMirrorPlayground: React.FC = () => {
       }
     } catch (error) {
       console.error("Step error:", error);
+    }
+  }, [
+    executor,
+    outputData.machine,
+    settings,
+    isPlaybackMode,
+    playbackClient,
+    convertToMachineData,
+    updateRuntimeVisualization,
+  ]);
+
+  const handleStepTurn = useCallback(async () => {
+    if (!outputData.machine) {
+      console.error("No machine parsed");
+      return;
+    }
+
+    // Check if we need API key (not in playback mode)
+    if (!isPlaybackMode && !settings.apiKey) {
+      console.error("API key missing (required for live execution)");
+      return;
+    }
+
+    try {
+      let exec = executor;
+
+      // Create executor if not exists (first turn step)
+      if (!exec) {
+        const machineJSON = convertToMachineData(outputData.machine);
+        setCurrentMachineData(machineJSON);
+
+        if (isPlaybackMode && playbackClient) {
+          // Playback mode
+          exec = await MachineExecutor.create(machineJSON, {
+            llm: playbackClient as any,
+          });
+        } else {
+          // Live mode
+          exec = await MachineExecutor.create(machineJSON, {
+            llm: {
+              provider: "anthropic",
+              apiKey: settings.apiKey,
+              modelId: settings.model,
+            },
+          });
+        }
+
+        setExecutor(exec);
+
+        // Set up callbacks for new executor
+        if (typeof exec.setOnStateChangeCallback === 'function') {
+          exec.setOnStateChangeCallback(() => {
+            updateRuntimeVisualization(exec);
+          });
+        }
+
+        if (typeof exec.setMachineUpdateCallback === 'function') {
+          exec.setMachineUpdateCallback((dsl: string) => {
+            console.log('[Playground] Machine updated via meta-programming (turn step mode), updating editor');
+
+            // Update editor with new DSL
+            if (editorViewRef.current) {
+              editorViewRef.current.dispatch({
+                changes: {
+                  from: 0,
+                  to: editorViewRef.current.state.doc.length,
+                  insert: dsl
+                }
+              });
+            }
+
+            // Update machine data
+            const updatedMachineData = exec.getMachineDefinition();
+            setCurrentMachineData(updatedMachineData);
+
+            // Mark as dirty
+            setIsDirty(true);
+          });
+        }
+      }
+
+      // Execute one turn
+      console.log("Executing turn step...");
+      const result = await exec.stepTurn();
+
+      console.log(`Turn step result: ${result.status}`);
+      console.log(`Tools used: ${result.toolExecutions.length}`);
+      console.log(`Text output: ${result.text.substring(0, 100)}...`);
+
+      // Update SVG visualization with execution context
+      await updateRuntimeVisualization(exec);
+
+      if (result.status === 'complete') {
+        console.log("Turn complete");
+      } else if (result.status === 'error') {
+        console.error("Turn error:", result.error);
+      }
+    } catch (error) {
+      console.error("Turn step error:", error);
     }
   }, [
     executor,
@@ -2164,6 +2259,7 @@ export const CodeMirrorPlayground: React.FC = () => {
                     <ExecutionControls
                         onExecute={handleExecute}
                         onStep={handleStep}
+                        onStepTurn={handleStepTurn}
                         onStop={handleStop}
                         onReset={handleReset}
                         mobile={false}

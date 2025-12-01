@@ -1371,16 +1371,16 @@ function generateAttributesTable(attributes: any[], runtimeContext?: RuntimeCont
         // Preserve existing line breaks for multiline strings and formatted JSON
         if (typeof displayValue === 'string') {
             const lines = breakLongText(displayValue, maxValueLength, { preserveLineBreaks: true });
-            displayValue = lines.map(line => processMarkdown(line)).join('<br align="left"/>');
+            displayValue = lines.map(line => processMarkdown(line)).join('<BR/>');
         } else {
             displayValue = escapeHtml(String(displayValue));
         }
 
-        // Break long attribute names into multiple lines - process Markdown BEFORE joining with <br/>
+        // Break long attribute names into multiple lines - process Markdown BEFORE joining with <BR/>
         let attrName = attr.name;
         if (attrName && attrName.length > maxKeyLength) {
             const lines = breakLongText(attrName, maxKeyLength);
-            attrName = lines.map(line => processMarkdown(line)).join('<br align="left"/>');
+            attrName = lines.map(line => processMarkdown(line)).join('<BR/>');
         } else {
             attrName = processMarkdown(attrName);
         }
@@ -1905,21 +1905,30 @@ function generateNodeDefinition(
         htmlLabel += '</td></tr>';
     }
 
-    // Static Attributes table (always show static attributes)
+    // Combine static attributes and runtime values in a single table
     const attributes = getNodeDisplayAttributes(node);
-
-    if (attributes.length > 0) {
-        htmlLabel += '<tr><td>';
-        htmlLabel += generateAttributesTable(attributes, options?.runtimeContext, wrappingConfig);
-        htmlLabel += '</td></tr>';
-    }
-
-    // Runtime Values table (supplementary, additive only)
-    // Show runtime values that don't have corresponding static attributes
-    if (runtimeState?.runtimeValues && Object.keys(runtimeState.runtimeValues).length > 0 && options?.showRuntimeState !== false) {
+    const hasStaticAttrs = attributes.length > 0;
+    
+    // For context nodes, update static attribute values with runtime values (no separate section)
+    // For other nodes, collect runtime-only values to show separately
+    const isContextNode = node.type?.toLowerCase() === 'context';
+    const runtimeOnlyValues: any[] = [];
+    
+    if (isContextNode && runtimeState?.runtimeValues) {
+        // Update static attributes with runtime values for context nodes
+        const runtimeVals = runtimeState.runtimeValues;
+        attributes.forEach(attr => {
+            const runtimeKey = `${node.name}.${attr.name}`;
+            if (runtimeVals[runtimeKey] !== undefined) {
+                // Update the attribute value with runtime value
+                attr.value = runtimeVals[runtimeKey];
+            }
+        });
+        // Don't show separate runtime section for context nodes
+    } else if (runtimeState?.runtimeValues && Object.keys(runtimeState.runtimeValues).length > 0 && options?.showRuntimeState !== false) {
+        // For non-context nodes, collect runtime-only values
         const staticAttrNames = new Set(attributes.map((a: any) => a.name));
-        const runtimeOnlyValues: any[] = [];
-
+        
         Object.entries(runtimeState.runtimeValues).forEach(([key, value]) => {
             // Only show runtime values that aren't already in static attributes
             if (!staticAttrNames.has(key)) {
@@ -1930,13 +1939,88 @@ function generateNodeDefinition(
                 });
             }
         });
+    }
 
-        if (runtimeOnlyValues.length > 0) {
-            htmlLabel += '<tr><td>';
-            htmlLabel += '<font point-size="8"><i>Runtime Values:</i></font><br/>';
-            htmlLabel += generateAttributesTable(runtimeOnlyValues, options?.runtimeContext, wrappingConfig);
-            htmlLabel += '</td></tr>';
+    // Generate unified attributes table (no nesting)
+    if (hasStaticAttrs || runtimeOnlyValues.length > 0) {
+        htmlLabel += '<tr><td>';
+        htmlLabel += '<table border="0" cellborder="1" cellspacing="0" cellpadding="2" align="left">';
+        
+        // Static attributes first
+        if (hasStaticAttrs) {
+            const entries = computeAttributePortEntries(attributes);
+            entries.forEach(({ attr, keyPort, valuePort }) => {
+                let displayValue = attr.value?.value ?? attr.value;
+                displayValue = formatAttributeValueForDisplay(displayValue);
+
+                if (typeof displayValue === 'string' && options?.runtimeContext) {
+                    displayValue = interpolateValue(displayValue, options.runtimeContext);
+                }
+
+                const maxValueLength = wrappingConfig?.maxAttributeValueLength ?? 30;
+                const maxKeyLength = wrappingConfig?.maxAttributeKeyLength ?? 25;
+
+                if (typeof displayValue === 'string') {
+                    const lines = breakLongText(displayValue, maxValueLength, { preserveLineBreaks: true });
+                    displayValue = lines.map(line => processMarkdown(line)).join('<BR/>');
+                } else {
+                    displayValue = escapeHtml(String(displayValue));
+                }
+
+                let attrName = attr.name;
+                if (attrName && attrName.length > maxKeyLength) {
+                    const lines = breakLongText(attrName, maxKeyLength);
+                    attrName = lines.map(line => processMarkdown(line)).join('<BR/>');
+                } else {
+                    attrName = processMarkdown(attrName);
+                }
+
+                const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
+                htmlLabel += '<tr>';
+                htmlLabel += `<td port="${keyPort}" align="left" balign="left">${attrName}${typeStr}</td>`;
+                htmlLabel += `<td port="${valuePort}" align="left" balign="left">${displayValue}</td>`;
+                htmlLabel += '</tr>';
+            });
         }
+        
+        // Runtime values section (if any)
+        if (runtimeOnlyValues.length > 0) {
+            // Add separator row
+            htmlLabel += '<tr><td colspan="2" bgcolor="#F5F5F5"><font point-size="8"><i>Runtime Values:</i></font></td></tr>';
+            
+            // Add runtime value rows
+            const runtimeEntries = computeAttributePortEntries(runtimeOnlyValues);
+            runtimeEntries.forEach(({ attr, keyPort, valuePort }) => {
+                let displayValue = formatAttributeValueForDisplay(attr.value);
+                
+                const maxValueLength = wrappingConfig?.maxAttributeValueLength ?? 30;
+                const maxKeyLength = wrappingConfig?.maxAttributeKeyLength ?? 25;
+
+                if (typeof displayValue === 'string') {
+                    const lines = breakLongText(displayValue, maxValueLength, { preserveLineBreaks: true });
+                    displayValue = lines.map(line => processMarkdown(line)).join('<BR/>');
+                } else {
+                    displayValue = escapeHtml(String(displayValue));
+                }
+
+                let attrName = attr.name;
+                if (attrName && attrName.length > maxKeyLength) {
+                    const lines = breakLongText(attrName, maxKeyLength);
+                    attrName = lines.map(line => processMarkdown(line)).join('<BR/>');
+                } else {
+                    attrName = processMarkdown(attrName);
+                }
+
+                const typeStr = attr.type ? ' : ' + escapeHtml(attr.type) : '';
+                htmlLabel += '<tr>';
+                htmlLabel += `<td port="${keyPort}" align="left" balign="left">${attrName}${typeStr}</td>`;
+                htmlLabel += `<td port="${valuePort}" align="left" balign="left">${displayValue}</td>`;
+                htmlLabel += '</tr>';
+            });
+        }
+        
+        htmlLabel += '</table>';
+        htmlLabel += '</td></tr>';
     }
 
     // Add inline validation warnings if enabled
@@ -2649,13 +2733,18 @@ function buildNodeStates(machineJson: MachineJSON, context: RuntimeContext): Run
 
         const runtimeValues: Record<string, any> = {};
 
-        // For Context nodes, show all runtime values regardless of current node
-        // For other nodes, only show runtime values when they are the current node
+        // Only context nodes show runtime values
+        // This keeps the visualization clean and semantically correct
         const isContextNode = node.type?.toLowerCase() === 'context';
 
-        if (isContextNode || isCurrent) {
+        if (isContextNode) {
+            // Context nodes show only their own attributes
             context.attributes.forEach((value, key) => {
-                runtimeValues[key] = value;
+                // Filter to this context's attributes only
+                // Include: "Requirements" and "Requirements.needsCustomTool", etc.
+                if (key === node.name || key.startsWith(`${node.name}.`)) {
+                    runtimeValues[key] = value;
+                }
             });
         }
 

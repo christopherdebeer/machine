@@ -247,7 +247,7 @@ export function generateRuntimeGraphviz(
         ...options
     };
 
-    return generateRuntimeDotDiagram(json, context, runtimeOptions);
+    return generateDotDiagram(json, { ...runtimeOptions, runtimeContext: context });
 }
 
 /**
@@ -328,36 +328,6 @@ export async function generateRuntimeGraphvizSVG(
 ): Promise<string> {
     const dot = generateRuntimeGraphviz(json, stateOrContext, options);
     return renderDotToSVG(dot, engine);
-}
-
-/**
- * Generate a mobile-optimized Graphviz diagram
- *
- * This is a convenience function that generates a diagram optimized
- * for mobile display (smaller, less detailed).
- * Supports ExecutionState, VisualizationState, or RuntimeContext.
- *
- * @param json - Machine definition in JSON format
- * @param stateOrContext - Optional execution state or runtime context
- * @param options - Generation options
- * @returns Mobile-optimized DOT diagram
- */
-export function generateMobileGraphviz(
-    json: MachineJSON,
-    stateOrContext?: RuntimeContext | ExecutionState | VisualizationState,
-    options: DiagramOptions = {}
-): string {
-    const mobileOptions: DiagramOptions = {
-        ...options,
-        mobileOptimized: true,
-        showExecutionPath: false, // Reduce clutter on mobile
-    };
-
-    if (stateOrContext) {
-        return generateRuntimeGraphviz(json, stateOrContext, mobileOptions);
-    } else {
-        return generateGraphvizFromJSON(json, mobileOptions);
-    }
 }
 
 // Re-export types for convenience

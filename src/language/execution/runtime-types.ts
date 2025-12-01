@@ -69,6 +69,9 @@ export interface ExecutionState {
     // Runtime context state (mutable during execution)
     // Maps context node name to runtime attribute values
     contextState: Record<string, Record<string, any>>;
+    // Turn-level execution state (for fine-grained stepping)
+    // Import from turn-types to avoid duplication
+    turnState?: import('./turn-types.js').TurnState;
 }
 
 /**
