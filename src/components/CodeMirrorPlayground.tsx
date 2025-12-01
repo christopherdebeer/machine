@@ -1539,6 +1539,31 @@ export const CodeMirrorPlayground: React.FC = () => {
         });
       }
 
+      // Set up machine update callback to capture meta-programming changes
+      if (typeof exec.setMachineUpdateCallback === 'function') {
+        exec.setMachineUpdateCallback((dsl: string) => {
+          console.log('[Playground] Machine updated via meta-programming, updating editor');
+
+          // Update editor with new DSL
+          if (editorViewRef.current) {
+            editorViewRef.current.dispatch({
+              changes: {
+                from: 0,
+                to: editorViewRef.current.state.doc.length,
+                insert: dsl
+              }
+            });
+          }
+
+          // Update machine data
+          const updatedMachineData = exec.getMachineDefinition();
+          setCurrentMachineData(updatedMachineData);
+
+          // Mark as dirty so user knows to save
+          setIsDirty(true);
+        });
+      }
+
       // Execute machine
       await exec.execute();
 
@@ -1598,6 +1623,37 @@ export const CodeMirrorPlayground: React.FC = () => {
         }
 
         setExecutor(exec);
+
+        // Set up callbacks for new executor
+        if (typeof exec.setOnStateChangeCallback === 'function') {
+          exec.setOnStateChangeCallback(() => {
+            updateRuntimeVisualization(exec);
+          });
+        }
+
+        if (typeof exec.setMachineUpdateCallback === 'function') {
+          exec.setMachineUpdateCallback((dsl: string) => {
+            console.log('[Playground] Machine updated via meta-programming (step mode), updating editor');
+
+            // Update editor with new DSL
+            if (editorViewRef.current) {
+              editorViewRef.current.dispatch({
+                changes: {
+                  from: 0,
+                  to: editorViewRef.current.state.doc.length,
+                  insert: dsl
+                }
+              });
+            }
+
+            // Update machine data
+            const updatedMachineData = exec.getMachineDefinition();
+            setCurrentMachineData(updatedMachineData);
+
+            // Mark as dirty
+            setIsDirty(true);
+          });
+        }
       }
 
       // Execute one step
