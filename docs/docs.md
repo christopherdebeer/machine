@@ -50,6 +50,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Template String Parsing Enhancement](development/template-string-parsing-enhancement.md)
   - [Test Migration Completion Summary](development/test-migration-completion-summary.md)
   - [Test Refactoring Summary: Interactive Tests to Comprehensive Generative Tests](development/test-refactoring-summary.md)
+  - [Turn-Level Execution Implementation](development/turn-level-execution-implementation.md)
 
 ### Examples
 
@@ -71,6 +72,8 @@ Complete reference to all DyGram documentation organized by topic.
   - [Task Evolution: From LLM to Generated Code](examples/task-evolution.md)
   - [Text Wrapping Configuration](examples/text-wrapping-configuration.md)
   - [Workflow Examples](examples/workflows.md)
+  ### Execution
+
 
 ### Getting Started
 

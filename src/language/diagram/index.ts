@@ -39,7 +39,6 @@
 export {
     generateGraphvizFromJSON,
     generateRuntimeGraphviz,
-    generateMobileGraphviz,
     renderDotToSVG,
     generateGraphvizSVG,
     generateRuntimeGraphvizSVG

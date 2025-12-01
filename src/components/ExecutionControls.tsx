@@ -8,7 +8,7 @@
 import React, { useState, useCallback, useRef, useEffect, useImperativeHandle } from 'react';
 import styled from 'styled-components';
 
-export type ExecutionStatus = 'idle' | 'running' | 'stepping' | 'complete' | 'error';
+export type ExecutionStatus = 'idle' | 'running' | 'stepping' | 'paused' | 'complete' | 'error';
 
 export interface ExecutionState {
     status: ExecutionStatus;
@@ -19,6 +19,7 @@ export interface ExecutionState {
 export interface ExecutionControlsProps {
     onExecute?: () => Promise<void>;
     onStep?: () => Promise<void>;
+    onStepTurn?: () => Promise<void>; // NEW: Handler for turn-level stepping
     onStop?: () => void;
     onReset?: () => void;
     mobile?: boolean;
@@ -244,6 +245,7 @@ const RecordingActions = styled.div`
 export const ExecutionControls = React.forwardRef<ExecutionControlsRef, ExecutionControlsProps>(({
     onExecute,
     onStep,
+    onStepTurn,
     onStop,
     onReset,
     mobile = false,
@@ -345,6 +347,31 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
     }), [updateState, addLogEntry, clearLog, state]);
 
     const handleExecute = useCallback(async () => {
+        // Handle resume from paused state
+        if (state.status === 'paused') {
+            updateState({ status: 'running' });
+            addLogEntry('Resuming execution...', 'info');
+            
+            if (executor?.clearPauseRequest) {
+                executor.clearPauseRequest();
+            }
+            
+            if (onExecute) {
+                try {
+                    await onExecute();
+                    updateState({ status: 'complete' });
+                    addLogEntry('Execution complete', 'success');
+                } catch (error) {
+                    updateState({ status: 'error' });
+                    addLogEntry(
+                        `Execution error: ${error instanceof Error ? error.message : String(error)}`,
+                        'error'
+                    );
+                }
+            }
+            return;
+        }
+
         if (state.status === 'running' || state.status === 'stepping') {
             addLogEntry('Execution already in progress', 'warning');
             return;
@@ -370,7 +397,7 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
                 );
             }
         }
-    }, [state.status, onExecute, addLogEntry, updateState]);
+    }, [state.status, executor, onExecute, addLogEntry, updateState]);
 
     const handleStep = useCallback(async () => {
         if (state.status === 'idle') {
@@ -405,6 +432,46 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
             }
         }
     }, [state.status, state.stepCount, onStep, addLogEntry, updateState]);
+
+    const handleStepTurn = useCallback(async () => {
+        if (state.status === 'running') {
+            addLogEntry('Cannot step turn while running', 'warning');
+            return;
+        }
+
+        // Handle resume from paused state (single turn only)
+        if (state.status === 'paused') {
+            updateState({ status: 'stepping' });
+            addLogEntry('Resuming with single turn step...', 'info');
+            
+            if (executor?.clearPauseRequest) {
+                executor.clearPauseRequest();
+            }
+        }
+
+        // Enter turn stepping mode if idle
+        if (state.status === 'idle') {
+            updateState({ status: 'stepping' });
+            addLogEntry('Entered turn-by-turn stepping mode', 'info');
+        }
+
+        addLogEntry('Executing turn...', 'info');
+
+        if (onStepTurn) {
+            try {
+                await onStepTurn();
+                updateState({
+                    stepCount: state.stepCount + 1
+                });
+            } catch (error) {
+                updateState({ status: 'error' });
+                addLogEntry(
+                    `Turn step error: ${error instanceof Error ? error.message : String(error)}`,
+                    'error'
+                );
+            }
+        }
+    }, [state.status, state.stepCount, executor, onStepTurn, addLogEntry, updateState]);
 
     const handleStop = useCallback(() => {
         if (state.status === 'idle') return;
@@ -447,6 +514,7 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
             case 'idle': return 'Not Running';
             case 'running': return 'Running';
             case 'stepping': return 'Step Mode';
+            case 'paused': return 'Paused';
             case 'complete': return 'Complete';
             case 'error': return 'Error';
             default: return 'Unknown';
@@ -458,11 +526,25 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
             case 'idle': return '#858585';
             case 'running': return '#4ec9b0';
             case 'stepping': return '#ffa500';
+            case 'paused': return '#ffa500';
             case 'complete': return '#4ec9b0';
             case 'error': return '#f48771';
             default: return '#858585';
         }
     };
+
+    const handlePause = useCallback(() => {
+        if (state.status !== 'running') {
+            addLogEntry('Can only pause during execution', 'warning');
+            return;
+        }
+
+        if (executor?.requestPause) {
+            executor.requestPause();
+            updateState({ status: 'paused' });
+            addLogEntry('Pause requested - will stop at next turn boundary', 'info');
+        }
+    }, [executor, state.status, addLogEntry, updateState]);
 
     const getLogColor = (type: LogEntry['type']): string => {
         switch (type) {
@@ -495,8 +577,25 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
                         onClick={handleStep}
                         disabled={state.status === 'running'}
                         className="exec-btn"
+                        title="Step through nodes one at a time"
                     >
                         ⏭️ Step
+                    </Button>
+                    <Button
+                        onClick={handleStepTurn}
+                        disabled={state.status === 'running'}
+                        className="exec-btn"
+                        title="Step through individual LLM turns within agent nodes"
+                    >
+                        ⏩ Step Turn
+                    </Button>
+                    <Button
+                        onClick={handlePause}
+                        disabled={state.status !== 'running'}
+                        className="exec-btn"
+                        title="Pause execution at next turn boundary"
+                    >
+                        ⏸️ Pause
                     </Button>
                     <Button
                         onClick={handleStop}
@@ -598,6 +697,28 @@ export const ExecutionControls = React.forwardRef<ExecutionControlsRef, Executio
                     <StatusLabel>Steps:</StatusLabel>
                     <StatusValue>{state.stepCount}</StatusValue>
                 </StatusItem>
+                {executor?.isInTurn?.() && (
+                    <>
+                        <StatusItem>
+                            <StatusLabel>Turn:</StatusLabel>
+                            <StatusValue $color="#ffa500">
+                                {executor.getTurnState()?.turnCount || 0}
+                            </StatusValue>
+                        </StatusItem>
+                        <StatusItem>
+                            <StatusLabel>Node:</StatusLabel>
+                            <StatusValue $color="#4ec9b0">
+                                {executor.getTurnState()?.nodeName}
+                            </StatusValue>
+                        </StatusItem>
+                        <StatusItem>
+                            <StatusLabel>Tools Used:</StatusLabel>
+                            <StatusValue>
+                                {executor.getTurnState()?.conversationState.toolExecutions.length || 0}
+                            </StatusValue>
+                        </StatusItem>
+                    </>
+                )}
             </StatusBar>
 
             {showLog && (

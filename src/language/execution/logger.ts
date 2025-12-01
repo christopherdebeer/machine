@@ -4,7 +4,7 @@
  */
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'none';
-export type LogCategory = 'execution' | 'transition' | 'context' | 'path' | 'safety' | 'annotation' | 'sync' | 'error';
+export type LogCategory = 'execution' | 'transition' | 'context' | 'path' | 'safety' | 'annotation' | 'sync' | 'error' | 'turn' | 'tool' | 'agent';
 
 export interface LogEntry {
     timestamp: number;
