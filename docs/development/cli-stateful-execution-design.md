@@ -73,7 +73,8 @@ interface ExecutionStateFile {
 ```typescript
 interface ExecutionMetadata {
     id: string;                           // Execution ID
-    machineFile: string;                  // Original machine file path
+    machineFile?: string;                 // Original machine file path (if from file)
+    machineSource: 'file' | 'stdin';      // Source type
     startedAt: string;                    // ISO timestamp
     lastExecutedAt: string;               // ISO timestamp
     turnCount: number;                    // Total turns executed
@@ -175,7 +176,15 @@ Removed execution: my-session
 
 ### Input via stdin
 
+**stdin Behavior**:
+- **No file argument** + stdin → Machine source from stdin
+- **File argument** + stdin → Input/response data for execution
+
 ```bash
+# Machine source from stdin (no file argument)
+$ cat myMachine.dy | dygram execute --interactive
+$ echo 'machine "Test" { state Start }' | dygram e -i
+
 # Provide response via stdin (for manual mode - future)
 $ echo '{"action": "continue"}' | dygram e -i ./myMachine.dy
 
@@ -191,6 +200,9 @@ $ dygram e -i ./myMachine.dy <<EOF
   ]
 }
 EOF
+
+# Chain: generate machine, then execute
+$ dygram generate template.dy | dygram execute --interactive
 ```
 
 ### Playback Mode
@@ -231,7 +243,8 @@ $ dygram e -i ./myMachine.dy  # continues recording
 
 ```typescript
 interface LoadExecutionOptions {
-    machineFile: string;
+    machineSource: string;       // File path or machine DSL source
+    isStdin?: boolean;           // True if source is stdin (not file)
     executionId?: string;        // Explicit ID, or undefined for "last"
     playback?: string;           // Playback directory
     record?: string;             // Recording directory
@@ -268,7 +281,14 @@ async function loadOrCreateExecution(
     const metadataFile = path.join(execDir, 'metadata.json');
 
     // Load or create machine
-    const machineData = await loadMachine(opts.machineFile);
+    let machineData: MachineJSON;
+    if (opts.isStdin) {
+        // Parse machine from stdin source
+        machineData = await parseMachineFromSource(opts.machineSource);
+    } else {
+        // Load machine from file
+        machineData = await loadMachine(opts.machineSource);
+    }
     const machineHash = hashMachine(machineData);
 
     let executor: MachineExecutor;
@@ -287,7 +307,8 @@ async function loadOrCreateExecution(
         // Create metadata
         metadata = {
             id: executionId,
-            machineFile: opts.machineFile,
+            machineFile: opts.isStdin ? undefined : opts.machineSource,
+            machineSource: opts.isStdin ? 'stdin' : 'file',
             startedAt: new Date().toISOString(),
             lastExecutedAt: new Date().toISOString(),
             turnCount: 0,
@@ -568,6 +589,30 @@ function displayFinalResults(executor: MachineExecutor, metadata: ExecutionMetad
     logger.info(`  Status: ${result.status}`);
     logger.info(`  Duration: ${calculateDuration(metadata.startedAt, metadata.lastExecutedAt)}`);
 }
+
+async function parseMachineFromSource(source: string): Promise<MachineJSON> {
+    // Write source to temp file
+    const tempFile = path.join(os.tmpdir(), `dygram-stdin-${Date.now()}.dygram`);
+    await fs.writeFile(tempFile, source);
+
+    try {
+        // Parse using existing infrastructure
+        const services = createMachineServices(NodeFileSystem).Machine;
+        const model = await extractAstNode<Machine>(tempFile, services);
+        const jsonContent = generateJSON(model, tempFile);
+        return JSON.parse(jsonContent.content) as MachineJSON;
+    } finally {
+        // Clean up temp file
+        await fs.unlink(tempFile).catch(() => {});
+    }
+}
+
+async function loadMachine(filePath: string): Promise<MachineJSON> {
+    const services = createMachineServices(NodeFileSystem).Machine;
+    const model = await extractAstNode<Machine>(filePath, services);
+    const jsonContent = generateJSON(model, filePath);
+    return JSON.parse(jsonContent.content) as MachineJSON;
+}
 ```
 
 ---
@@ -614,7 +659,7 @@ program
 program
     .command('execute')
     .aliases(['exec', 'e'])
-    .argument('<file>', `source file (${fileExtensions})`)
+    .argument('[file]', `source file (${fileExtensions}) or stdin if omitted`)
     .option('-i, --interactive', 'interactive turn-by-turn execution')
     .option('--id <id>', 'execution ID (for managing multiple executions)')
     .option('--force', 'force new execution (ignore existing state)')
@@ -626,34 +671,77 @@ program
     .option('-q, --quiet', 'quiet output (errors only)')
     .description('executes a machine program')
     .action(async (fileName, opts) => {
-        if (opts.interactive) {
-            // Read stdin if provided
-            let input;
-            if (!process.stdin.isTTY) {
-                const stdin = await readStdin();
-                if (stdin) {
-                    input = JSON.parse(stdin);
+        // Determine machine source
+        let machineSource: string | undefined = fileName;
+        let inputData: any = undefined;
+
+        if (!process.stdin.isTTY) {
+            const stdin = await readStdin();
+
+            if (!fileName) {
+                // No file argument: stdin is machine source
+                machineSource = stdin;
+            } else {
+                // File argument provided: stdin is input/response data
+                try {
+                    inputData = JSON.parse(stdin);
+                } catch (e) {
+                    logger.error('Invalid JSON input from stdin');
+                    process.exit(1);
                 }
             }
+        }
 
-            await executeInteractiveTurn(fileName, {
+        if (!machineSource) {
+            logger.error('No machine source provided (file or stdin)');
+            process.exit(1);
+        }
+
+        if (opts.interactive) {
+            await executeInteractiveTurn(machineSource, {
                 id: opts.id,
                 playback: opts.playback,
                 record: opts.record,
                 force: opts.force,
                 verbose: opts.verbose,
-                input
+                input: inputData,
+                isStdin: !fileName  // Flag to indicate source is stdin, not file
             });
         } else {
             // Original full execution
-            await executeAction(fileName, opts);
+            await executeAction(machineSource, opts);
         }
     });
+
+async function readStdin(): Promise<string> {
+    return new Promise((resolve) => {
+        let data = '';
+        process.stdin.on('data', chunk => data += chunk);
+        process.stdin.on('end', () => resolve(data));
+    });
+}
 ```
 
 ---
 
 ## Usage Examples
+
+### Machine from stdin
+
+```bash
+# Pipe machine source from stdin
+$ cat myMachine.dy | dygram execute --interactive
+
+# Generate and execute in pipeline
+$ dygram generate template.dy | dygram execute --interactive
+
+# Inline machine definition
+$ echo 'machine "Test" {
+  state Start "Initial State"
+  state End "Final State"
+  Start --> End
+}' | dygram execute --interactive
+```
 
 ### Agent Usage Pattern
 
