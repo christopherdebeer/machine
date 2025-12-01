@@ -1582,6 +1582,7 @@ export const CodeMirrorPlayground: React.FC = () => {
           // Mark as dirty so user knows to save
           setIsDirty(true);
         });
+      }
       if (typeof exec.setMachineUpdateCallback === 'function') {
         exec.setMachineUpdateCallback((...args)=> {
           exec.getLogger().info('sync', `CodeMirror playground MachineUpdateCallback called`, args)
