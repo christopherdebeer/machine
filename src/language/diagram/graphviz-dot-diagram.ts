@@ -2721,11 +2721,11 @@ function getStatusEmoji(status: 'current' | 'visited' | 'pending'): string {
 function getRuntimeNodeStyle(node: RuntimeNodeState): string {
     switch (node.status) {
         case 'current':
-            return 'fillcolor="#4CAF50", style=filled, color="#2E7D32", penwidth=3';
+            return 'fillcolor="#4CAF5012", style=filled, color="#2E7D32", penwidth=3';
         case 'visited':
-            return 'fillcolor="#2196F3", style=filled, color="#1565C0", penwidth=2';
+            return 'fillcolor="#2196F312", style=filled, color="#1565C0", penwidth=2';
         case 'pending':
-            return 'fillcolor="#FFC107", style=filled, color="#F57F17"';
+            return 'fillcolor="#FFC10712", style=filled, color="#F57F17"';
         default:
             return 'fillcolor="#FFFFFF", style=filled, color="#000000"';
     }
