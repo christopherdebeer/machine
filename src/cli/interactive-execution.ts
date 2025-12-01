@@ -35,7 +35,6 @@ import {
     saveMachineSnapshot,
     loadMachineSnapshot,
     appendTurnHistory,
-    getExecutionDir,
     STATE_CONFIG
 } from './execution-state.js';
 
@@ -136,8 +135,9 @@ export async function loadOrCreateExecution(
 
     if (!executionId && !opts.force) {
         // Try to use "last" execution
-        executionId = await getLastExecutionId();
-        if (executionId) {
+        const lastId = await getLastExecutionId();
+        if (lastId) {
+            executionId = lastId;
             logger.info(chalk.blue(`⚡ Resuming execution: ${executionId}`));
         }
     }
@@ -254,6 +254,21 @@ export async function loadOrCreateExecution(
 }
 
 /**
+ * Get execution status from state
+ */
+function getExecutionStatus(state: any): 'in_progress' | 'complete' | 'error' | 'paused' {
+    if (!state.paths || state.paths.length === 0) {
+        return 'in_progress';
+    }
+
+    const activePath = state.paths[0];
+    if (activePath.status === 'complete') return 'complete';
+    if (activePath.status === 'error') return 'error';
+    if (state.turnState) return 'paused';
+    return 'in_progress';
+}
+
+/**
  * Save current execution state
  */
 export async function saveCurrentExecutionState(
@@ -262,22 +277,29 @@ export async function saveCurrentExecutionState(
     metadata: ExecutionMetadata
 ): Promise<void> {
     // Get current state from executor
-    const executionState = executor.getExecutionState();
-    const machineData = executor.getMachineData();
+    const execState = executor.getState();
+    const machineData = executor.getMachineDefinition();
+
+    // Get the active path (first path)
+    const activePath = execState.paths[0];
 
     // Create state file
     const state: ExecutionStateFile = {
         version: STATE_CONFIG.stateVersion,
         machineHash: hashMachine(machineData),
         executionState: {
-            currentNode: executionState.currentNode,
-            pathId: executionState.pathId,
-            visitedNodes: Array.from(executionState.visitedNodes || []),
-            attributes: Object.fromEntries(executionState.attributes || []),
-            contextValues: executionState.contextValues || {},
-            turnState: executionState.turnState
+            currentNode: activePath?.currentNode || '',
+            pathId: activePath?.id || '',
+            visitedNodes: activePath ? Array.from(new Set([
+                ...activePath.history.map(t => t.from),
+                ...activePath.history.map(t => t.to),
+                activePath.currentNode
+            ])) : [],
+            attributes: {},
+            contextValues: execState.contextState || {},
+            turnState: execState.turnState
         },
-        status: executor.getStatus() as any,
+        status: getExecutionStatus(execState),
         lastUpdated: new Date().toISOString()
     };
 
@@ -285,7 +307,8 @@ export async function saveCurrentExecutionState(
 
     // Update metadata
     metadata.lastExecutedAt = new Date().toISOString();
-    metadata.status = executor.getStatus() as any;
+    metadata.status = state.status;
+    metadata.stepCount = activePath?.stepCount || 0;
     if (executor.isInTurn()) {
         metadata.turnCount = executor.getTurnState()?.turnCount || metadata.turnCount;
     }
@@ -302,7 +325,7 @@ function displayTurnResult(result: any): void {
     logger.success(chalk.green('✓ Turn completed'));
 
     if (result.toolExecutions && result.toolExecutions.length > 0) {
-        logger.info(chalk.blue('  Tools:'), result.toolExecutions.map((t: any) => t.toolName).join(', '));
+        logger.info(chalk.blue('  Tools: ') + result.toolExecutions.map((t: any) => t.toolName).join(', '));
 
         // Show tool details in verbose mode
         if (logger['level'] === 'verbose') {
@@ -320,11 +343,11 @@ function displayTurnResult(result: any): void {
 
     if (result.text) {
         const preview = result.text.slice(0, 100);
-        logger.info(chalk.blue('  Output:'), preview + (result.text.length > 100 ? '...' : ''));
+        logger.info(chalk.blue('  Output: ') + preview + (result.text.length > 100 ? '...' : ''));
     }
 
     if (result.nextNode) {
-        logger.info(chalk.blue('  Next:'), chalk.bold(result.nextNode));
+        logger.info(chalk.blue('  Next: ') + chalk.bold(result.nextNode));
     }
 }
 
@@ -332,19 +355,20 @@ function displayTurnResult(result: any): void {
  * Display final results
  */
 function displayFinalResults(executor: MachineExecutor, metadata: ExecutionMetadata): void {
-    const result = executor.getExecutionResult();
+    const state = executor.getState();
+    const activePath = state.paths[0];
 
     logger.heading(chalk.bold('\n📊 Final Results:'));
     logger.info(`  Execution ID: ${metadata.id}`);
     logger.info(`  Total turns: ${metadata.turnCount}`);
-    logger.info(`  Total steps: ${result.history.length}`);
-    logger.info(`  Status: ${result.status}`);
+    logger.info(`  Total steps: ${metadata.stepCount}`);
+    logger.info(`  Status: ${metadata.status}`);
     logger.info(`  Started: ${new Date(metadata.startedAt).toLocaleString()}`);
     logger.info(`  Completed: ${new Date(metadata.lastExecutedAt).toLocaleString()}`);
 
-    if (result.history.length > 0) {
+    if (activePath && activePath.history.length > 0) {
         logger.info(chalk.blue('\n  Execution path:'));
-        result.history.forEach((step: any) => {
+        activePath.history.forEach((step: any) => {
             logger.info(chalk.cyan(`    ${step.from}`) + chalk.gray(` --(${step.transition})--> `) + chalk.cyan(`${step.to}`));
         });
     }
@@ -366,7 +390,7 @@ export async function executeInteractiveTurn(
     }
 ): Promise<void> {
     // Load or create execution
-    const { executor, metadata, isNew } = await loadOrCreateExecution({
+    const { executor, metadata } = await loadOrCreateExecution({
         machineSource,
         executionId: opts.id,
         playback: opts.playback,
@@ -378,7 +402,9 @@ export async function executeInteractiveTurn(
     const executionId = metadata.id;
 
     // Check if already complete
-    if (executor.getStatus() === 'complete') {
+    const state = executor.getState();
+    const status = getExecutionStatus(state);
+    if (status === 'complete') {
         logger.success(chalk.green('✅ Execution already complete!'));
         displayFinalResults(executor, metadata);
         return;
@@ -386,7 +412,7 @@ export async function executeInteractiveTurn(
 
     // Handle stdin input (for manual mode - future)
     if (opts.input) {
-        logger.debug('Received input:', opts.input);
+        logger.debug('Received input: ' + JSON.stringify(opts.input));
         // TODO: Apply input to executor for manual mode
     }
 
@@ -401,7 +427,8 @@ export async function executeInteractiveTurn(
             result = await executor.stepTurn();
         } else {
             // Start new turn (step to next node if needed)
-            const currentNode = executor.getCurrentNode();
+            const currentState = executor.getState();
+            const currentNode = currentState.paths[0]?.currentNode || '';
             logger.info(chalk.cyan(`\n📍 Current Node: ${currentNode}`));
             result = await executor.stepTurn();
         }
@@ -410,10 +437,11 @@ export async function executeInteractiveTurn(
         displayTurnResult(result);
 
         // Create history entry
+        const updatedState = executor.getState();
         const historyEntry: TurnHistoryEntry = {
             turn: result.turnCount || metadata.turnCount + 1,
             timestamp: new Date().toISOString(),
-            node: result.nodeName || executor.getCurrentNode(),
+            node: result.nodeName || updatedState.paths[0]?.currentNode || '',
             tools: result.toolExecutions?.map((t: any) => t.toolName) || [],
             output: result.text?.slice(0, 100),
             status: result.status
@@ -431,7 +459,8 @@ export async function executeInteractiveTurn(
         await saveCurrentExecutionState(executionId, executor, metadata);
 
         // Check if complete
-        if (executor.getStatus() === 'complete') {
+        const finalStatus = getExecutionStatus(executor.getState());
+        if (finalStatus === 'complete') {
             logger.success(chalk.green('\n✅ Execution complete!'));
             displayFinalResults(executor, metadata);
         }
