@@ -17,6 +17,7 @@ import { NodeFileSystem } from 'langium/node';
 import { generateJSON } from '../language/generator/generator.js';
 import { PlaybackTestClient } from '../language/playback-test-client.js';
 import { InteractiveTestClient } from '../language/interactive-test-client.js';
+import { StdinResponseClient, PendingResponseError } from '../language/stdin-response-client.js';
 import { logger } from './logger.js';
 import {
     type LoadExecutionOptions,
@@ -81,6 +82,17 @@ async function loadMachineFromFile(filePath: string): Promise<MachineJSON> {
  * Configure LLM client based on options
  */
 function configureClient(opts: LoadExecutionOptions): any {
+    // Interactive mode with stdin/stdout
+    if (opts.isInteractive && !opts.playback && !opts.record) {
+        return {
+            llm: new StdinResponseClient({
+                provider: 'stdin' as any,
+                modelId: 'cli-interactive',
+                responseInput: opts.input ? JSON.stringify(opts.input) : undefined
+            })
+        };
+    }
+
     if (opts.playback) {
         return {
             llm: new PlaybackTestClient({
@@ -405,6 +417,7 @@ export async function executeInteractiveTurn(
         verbose?: boolean;
         input?: any;
         isStdin?: boolean;
+        interactive?: boolean;
     }
 ): Promise<void> {
     // Load or create execution
@@ -414,7 +427,9 @@ export async function executeInteractiveTurn(
         playback: opts.playback,
         record: opts.record,
         force: opts.force,
-        isStdin: opts.isStdin
+        isStdin: opts.isStdin,
+        isInteractive: opts.interactive,
+        input: opts.input
     });
 
     const executionId = metadata.id;
@@ -426,12 +441,6 @@ export async function executeInteractiveTurn(
         logger.success(chalk.green('✅ Execution already complete!'));
         displayFinalResults(executor, metadata);
         return;
-    }
-
-    // Handle stdin input (for manual mode - future)
-    if (opts.input) {
-        logger.debug('Received input: ' + JSON.stringify(opts.input));
-        // TODO: Apply input to executor for manual mode
     }
 
     // Execute next turn
@@ -484,6 +493,26 @@ export async function executeInteractiveTurn(
         }
 
     } catch (error) {
+        // Handle pending response (interactive mode)
+        if (error instanceof PendingResponseError) {
+            logger.info(chalk.yellow('\n⏸️  Waiting for LLM response...\n'));
+            logger.output(chalk.dim('─'.repeat(60)));
+            logger.output(chalk.bold('LLM REQUEST:'));
+            logger.output(error.request);
+            logger.output(chalk.dim('─'.repeat(60)));
+            logger.output(chalk.bold('\nEXAMPLE RESPONSE:'));
+            logger.output(error.exampleResponse);
+            logger.output(chalk.dim('─'.repeat(60)));
+            logger.info(chalk.cyan('\n💡 Provide response via stdin:'));
+            logger.info(chalk.gray(`   echo '<response-json>' | dygram execute <machine> --interactive\n`));
+
+            // Save state as paused
+            metadata.status = 'paused';
+            await saveCurrentExecutionState(executionId, executor, metadata);
+            return;
+        }
+
+        // Other errors
         logger.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : String(error)}`));
 
         // Save error state

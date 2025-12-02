@@ -20,6 +20,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Canonical Machine JSON Adoption Review](development/canonical-machine-json-usage.md)
   - [Centralized Syntax Highlighting Architecture](development/centralized-syntax-highlighting-design.md)
   - [Code Cleanup & Documentation Progress - 2025-11-24](development/cleanup-progress-2025-11-24.md)
+  - [CLI Interactive Execution - Implementation Summary](development/cli-interactive-execution-implementation.md)
   - [CLI Intra-Step Execution Research](development/cli-intra-step-execution-research.md)
   - [CLI Stateful Execution Design](development/cli-stateful-execution-design.md)
   - [DyGram Code Review & Documentation Analysis](development/code-review-2025-11-24.md)
@@ -96,6 +97,7 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Testing
 
+  - [CLI Interactive Execution - Test Results](testing/cli-interactive-execution-test-results-2025-12-02.md)
   - [Recording and Playback: Testing Without LLM Costs](testing/recording-playback.md)
   - [Task Execution Test Cases](testing/task-execution.md)
   - [Tool Execution Test Cases](testing/tool-execution.md)

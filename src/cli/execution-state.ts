@@ -71,6 +71,8 @@ export interface LoadExecutionOptions {
     playback?: string;           // Playback directory
     record?: string;             // Recording directory
     force?: boolean;             // Force new execution even if state exists
+    isInteractive?: boolean;     // Interactive mode with stdin/stdout
+    input?: any;                 // Input data for this turn (LLM response)
 }
 
 /**

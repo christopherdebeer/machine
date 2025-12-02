@@ -361,13 +361,39 @@ export const parseAndValidate = async (fileName: string, opts?: { verbose?: bool
 };
 
 /**
- * Read stdin if available
+ * Read stdin if available (with timeout)
  */
 async function readStdin(): Promise<string> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         let data = '';
-        process.stdin.on('data', chunk => data += chunk);
-        process.stdin.on('end', () => resolve(data));
+        let resolved = false;
+
+        const timeout = setTimeout(() => {
+            if (!resolved) {
+                resolved = true;
+                resolve(''); // Return empty string on timeout
+            }
+        }, 100); // 100ms timeout
+
+        process.stdin.on('data', chunk => {
+            data += chunk;
+        });
+
+        process.stdin.on('end', () => {
+            if (!resolved) {
+                resolved = true;
+                clearTimeout(timeout);
+                resolve(data);
+            }
+        });
+
+        process.stdin.on('error', (err) => {
+            if (!resolved) {
+                resolved = true;
+                clearTimeout(timeout);
+                resolve(''); // Return empty on error
+            }
+        });
     });
 }
 
@@ -396,19 +422,23 @@ export const executeAction = async (fileName: string | undefined, opts: {
         let machineSource: string | undefined = fileName;
         let inputData: any = undefined;
 
+        // Only read stdin if data is being piped in (not a TTY)
         if (!process.stdin.isTTY) {
             const stdin = await readStdin();
 
-            if (!fileName) {
-                // No file argument: stdin is machine source
-                machineSource = stdin;
-            } else {
-                // File argument provided: stdin is input/response data
-                try {
-                    inputData = JSON.parse(stdin);
-                } catch (e) {
-                    logger.error('Invalid JSON input from stdin');
-                    process.exit(1);
+            // Only process if stdin has content
+            if (stdin && stdin.trim()) {
+                if (!fileName) {
+                    // No file argument: stdin is machine source
+                    machineSource = stdin;
+                } else {
+                    // File argument provided: stdin is input/response data
+                    try {
+                        inputData = JSON.parse(stdin);
+                    } catch (e) {
+                        logger.error('Invalid JSON input from stdin');
+                        process.exit(1);
+                    }
                 }
             }
         }
@@ -425,7 +455,8 @@ export const executeAction = async (fileName: string | undefined, opts: {
             force: opts.force,
             verbose: opts.verbose,
             input: inputData,
-            isStdin: !fileName
+            isStdin: !fileName,
+            interactive: opts.interactive
         });
 
         return;
