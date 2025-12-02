@@ -55,7 +55,7 @@ Tests are organized by language feature:
 - Typed nodes (task, state, init, context)
 - Node labels
 
-**Examples:** `examples/basic/*.dygram`
+**Examples:** `examples/basic/*.dy`
 
 ### Attributes
 - Typed attributes (string, number, boolean, array)
@@ -63,7 +63,7 @@ Tests are organized by language feature:
 - Complex attribute values
 - Multiple attributes per node
 
-**Examples:** `examples/attributes/*.dygram`
+**Examples:** `examples/attributes/*.dy`
 
 ### Edges
 - Basic edges
@@ -71,14 +71,14 @@ Tests are organized by language feature:
 - Edge labels (simple, quoted, with attributes)
 - Chained edges
 
-**Examples:** `examples/edges/*.dygram`
+**Examples:** `examples/edges/*.dy`
 
 ### Nesting
 - Multiple levels of hierarchy
 - Mixed nesting patterns
 - Deep nesting (5+ levels)
 
-**Examples:** `examples/nesting/*.dygram`
+**Examples:** `examples/nesting/*.dy`
 
 ### Complex Features
 - Context definitions
@@ -86,14 +86,14 @@ Tests are organized by language feature:
 - Conditional edges
 - Unicode support
 
-**Examples:** `examples/complex/*.dygram`
+**Examples:** `examples/complex/*.dy`
 
 ### Stress Tests
 - Large machines (50+ nodes)
 - Many edges and cross-connections
 - Performance validation
 
-**Examples:** `examples/stress/*.dygram`
+**Examples:** `examples/stress/*.dy`
 
 ### Edge Cases
 - Special characters in identifiers
@@ -101,7 +101,7 @@ Tests are organized by language feature:
 - Multiple edges from single node
 - Boundary conditions
 
-**Examples:** `examples/edge-cases/*.dygram`
+**Examples:** `examples/edge-cases/*.dy`
 
 ## Test Implementation
 
@@ -109,7 +109,7 @@ Tests are implemented in `test/integration/generative.test.ts`:
 
 ```typescript
 test('Basic: Minimal Machine', async () => {
-    const source = fs.readFileSync('examples/basic/minimal.dygram', 'utf-8');
+    const source = fs.readFileSync('examples/basic/minimal.dy', 'utf-8');
     const result = await runGenerativeTest('Minimal Machine', source);
     expect(result.passed).toBe(true);
 });
@@ -240,7 +240,7 @@ echo 'machine "New Feature"\\nnewNode;' > examples/basic/new-feature.dygram
 
 ```typescript
 test('Basic: New Feature', async () => {
-    const source = fs.readFileSync('examples/basic/new-feature.dygram', 'utf-8');
+    const source = fs.readFileSync('examples/basic/new-feature.dy', 'utf-8');
     const result = await runGenerativeTest('New Feature', source);
     expect(result.passed).toBe(true);
 });

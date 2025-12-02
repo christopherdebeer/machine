@@ -46,7 +46,7 @@ interface ExecutionCheckpoint {
 
 Use the `@checkpoint` annotation to automatically capture state when a node executes.
 
-```dygram
+```dy
 machine "Auto Checkpoint Example"
 
 context ProcessState {
@@ -123,7 +123,7 @@ When a checkpoint is restored:
 
 ### Example: Try-Restore Pattern
 
-```dygram
+```dy
 machine "Transactional Workflow"
 
 context Transaction {
@@ -402,7 +402,7 @@ await executor.run();
 
 Create multiple execution branches from a single checkpoint.
 
-```dygram
+```dy
 machine "Branching Experiment"
 
 context Experiment {
@@ -483,7 +483,7 @@ await debugger.stepForward(executor); // Forward to Step 1
 
 Implement rollback on error.
 
-```dygram
+```dy
 machine "Data Pipeline with Rollback"
 
 context Pipeline {

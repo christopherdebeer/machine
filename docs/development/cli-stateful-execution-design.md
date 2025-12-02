@@ -284,10 +284,10 @@ async function loadOrCreateExecution(
     let machineData: MachineJSON;
     if (opts.isStdin) {
         // Parse machine from stdin source
-        machineData = await parseMachineFromSource(opts.machineSource);
+        machineData = await parseMachineFromSource(opts.dySource);
     } else {
         // Load machine from file
-        machineData = await loadMachine(opts.machineSource);
+        machineData = await loadMachine(opts.dySource);
     }
     const machineHash = hashMachine(machineData);
 
@@ -307,7 +307,7 @@ async function loadOrCreateExecution(
         // Create metadata
         metadata = {
             id: executionId,
-            machineFile: opts.isStdin ? undefined : opts.machineSource,
+            machineFile: opts.isStdin ? undefined : opts.dySource,
             machineSource: opts.isStdin ? 'stdin' : 'file',
             startedAt: new Date().toISOString(),
             lastExecutedAt: new Date().toISOString(),
@@ -336,7 +336,7 @@ async function loadOrCreateExecution(
         metadata = JSON.parse(await fs.readFile(metadataFile, 'utf-8'));
 
         // Verify machine hasn't changed
-        if (state.machineHash !== machineHash) {
+        if (state.dyHash !== machineHash) {
             throw new Error(
                 `Machine definition has changed since execution started.\n` +
                 `Use --force to start a new execution.`
@@ -592,7 +592,7 @@ function displayFinalResults(executor: MachineExecutor, metadata: ExecutionMetad
 
 async function parseMachineFromSource(source: string): Promise<MachineJSON> {
     // Write source to temp file
-    const tempFile = path.join(os.tmpdir(), `dygram-stdin-${Date.now()}.dygram`);
+    const tempFile = path.join(os.tmpdir(), `dygram-stdin-${Date.now()}.dy`);
     await fs.writeFile(tempFile, source);
 
     try {

@@ -19,7 +19,7 @@ DyGram supports multiple start nodes for concurrent execution workflows. Start n
 
 ### Example: Parallel Data Pipeline
 
-```dygram
+```dy
 machine "Parallel Pipeline" {
   logLevel: "debug"
   maxSteps: 100
@@ -56,7 +56,7 @@ DyGram supports semantic edge types with different arrow syntaxes:
 
 ### Example: Data Transformation Flow
 
-```dygram
+```dy
 machine "Data Transform" {
   logLevel: "info"
 }
@@ -88,7 +88,7 @@ Annotations provide declarative control over node execution behavior.
 
 The `@retry(N)` annotation automatically retries a node on failure.
 
-```dygram
+```dy
 machine "Retry Example" {
   logLevel: "debug"
 }
@@ -105,7 +105,7 @@ FetchAPI -when: "error";-> HandleError
 
 The `@timeout(milliseconds)` annotation limits node execution time.
 
-```dygram
+```dy
 machine "Timeout Example" {
   logLevel: "debug"
 }
@@ -122,7 +122,7 @@ LongRunningTask -when: "timeout";-> Timeout
 
 The `@checkpoint` annotation marks a node as a checkpoint for state capture.
 
-```dygram
+```dy
 machine "Checkpoint Example" {
   logLevel: "info"
 }
@@ -138,7 +138,7 @@ Initialize -> ImportantState -> ProcessMore
 
 Control execution strategy with `@eager` and `@lazy` annotations.
 
-```dygram
+```dy
 machine "Execution Modes" {
   logLevel: "debug"
 }
@@ -158,7 +158,7 @@ Machine-level annotations control error handling behavior across all execution p
 
 The `@errorHandling("fail-fast")` annotation stops all paths on any failure.
 
-```dygram
+```dy
 machine "Fail Fast" @errorHandling("fail-fast") {
   logLevel: "debug"
 }
@@ -180,7 +180,7 @@ Path2 -> Task2A -> Task2B
 
 The `@errorHandling("continue")` annotation isolates path failures.
 
-```dygram
+```dy
 machine "Continue On Error" @errorHandling("continue") {
   logLevel: "debug"
 }
@@ -200,7 +200,7 @@ Process2 -> TaskB
 
 The `@errorHandling("compensate")` annotation triggers rollback on failure.
 
-```dygram
+```dy
 machine "Compensating Transactions" @errorHandling("compensate") {
   logLevel: "info"
 }
@@ -221,7 +221,7 @@ The safety manager provides circuit breaker protection and resource limits.
 
 ### Example: Circuit Breaker Protection
 
-```dygram
+```dy
 machine "Circuit Breaker Demo" {
   logLevel: "debug"
   circuitBreakerThreshold: 5
@@ -240,7 +240,7 @@ CallService -when: "circuitOpen";-> CircuitOpen
 
 ### Example: Resource Limits
 
-```dygram
+```dy
 machine "Resource Limits" @concurrent("4") {
   logLevel: "info"
   maxSteps: 1000
@@ -268,7 +268,7 @@ Use barriers to coordinate multiple execution paths.
 
 ### Example: Barrier Synchronization
 
-```dygram
+```dy
 machine "Barrier Example" {
   logLevel: "debug"
 }
@@ -289,7 +289,7 @@ WaitPoint -> MergeAndContinue
 
 Control transition priority with `@priority(N)` annotation.
 
-```dygram
+```dy
 machine "Priority Edges" {
   logLevel: "debug"
 }
@@ -315,7 +315,7 @@ Create and restore checkpoints during execution.
 
 ### Example: Checkpoint and Restore
 
-```dygram
+```dy
 machine "Checkpoint Demo" {
   logLevel: "info"
   maxCheckpoints: 10
@@ -363,7 +363,7 @@ Control execution logging verbosity with the `logLevel` attribute.
 
 ### Example: Detailed Execution Logging
 
-```dygram
+```dy
 machine "Debug Logging" {
   logLevel: "debug"
 }

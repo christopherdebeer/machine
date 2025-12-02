@@ -18,7 +18,7 @@ dygram generate examples/basic/hello.dygram
 
 Generate visualization:
 ```bash
-dygram generate examples/workflows/pipeline.dygram --format html
+dygram generate examples/workflows/pipeline.dy --format html
 ```
 
 ### Execution with LLM
@@ -35,7 +35,7 @@ dygram execute examples/llm/basic-task.dygram
 
 Execute with options:
 ```bash
-dygram execute examples/llm/basic-task.dygram \
+dygram execute examples/llm/basic-task.dy \
   --model claude-3-5-sonnet-20241022 \
   --temperature 0.7 \
   --max-tokens 2048
@@ -50,13 +50,13 @@ dygram parseAndValidate examples/**/*.dygram
 
 Generate with output file:
 ```bash
-dygram generate examples/basic/hello.dygram \
+dygram generate examples/basic/hello.dy \
   --output output/hello.json
 ```
 
 Watch mode (auto-regenerate):
 ```bash
-dygram generate examples/basic/hello.dygram \
+dygram generate examples/basic/hello.dy \
   --watch \
   --format html
 ```
@@ -74,7 +74,7 @@ const services = createMachineServices(NodeFileSystem).Machine;
 
 // Parse a file
 const document = services.shared.workspace.LangiumDocuments.getOrCreateDocument(
-    URI.file('examples/basic/hello.dygram')
+    URI.file('examples/basic/hello.dy')
 );
 
 // Build and validate
@@ -96,12 +96,12 @@ import { extractAstNode } from 'dygram/utils';
 // Extract AST
 const services = createMachineServices(NodeFileSystem).Machine;
 const machine = await extractAstNode(
-    'examples/basic/hello.dygram',
+    'examples/basic/hello.dy',
     services
 );
 
 // Generate JSON
-const result = generateJSON(machine, 'hello.dygram');
+const result = generateJSON(machine, 'hello.dy');
 console.log(result.content);
 ```
 
@@ -306,7 +306,7 @@ import { DygramPlugin } from 'dygram-webpack-plugin';
 export default {
     plugins: [
         new DygramPlugin({
-            include: '**/*.dygram',
+            include: '**/*.dy',
             generateJson: true,
             generateDiagrams: true,
             outputDir: 'dist/machines'
@@ -324,7 +324,7 @@ import { dygram } from 'dygram-vite-plugin';
 export default {
     plugins: [
         dygram({
-            include: ['**/*.dygram'],
+            include: ['**/*.dy'],
             hot: true  // Hot reload on changes
         })
     ]
@@ -340,14 +340,14 @@ import { createMachineServices } from 'dygram';
 describe('Machine Tests', () => {
     it('should parse machine without errors', async () => {
         const services = createMachineServices(NodeFileSystem).Machine;
-        const machine = await extractAstNode('test.dygram', services);
+        const machine = await extractAstNode('test.dy', services);
 
         expect(machine).toBeDefined();
         expect(machine.nodes.length).toBeGreaterThan(0);
     });
 
     it('should generate valid JSON', () => {
-        const json = generateJSON(machine, 'test.dygram');
+        const json = generateJSON(machine, 'test.dy');
 
         expect(json.content).toContain('"title"');
         expect(json.content).toContain('"nodes"');

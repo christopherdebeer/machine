@@ -22,7 +22,7 @@ Machine is the DSL at the heart of DyGram. It's a lean, executable language for 
 
 #### What file extension should I use?
 
-Use `.dygram` for Machine language files. The legacy `.mach` extension is still supported for backward compatibility, but `.dygram` is preferred going forward.
+Use `.dy` for Machine language files. The legacy `.dy` extension is still supported for backward compatibility, but `.dy` is preferred going forward.
 
 ---
 
@@ -187,10 +187,10 @@ See [Evolution System](evolution.html) for the full concept.
 
 ### Troubleshooting
 
-#### My .dygram file isn't being recognized
+#### My .dy file isn't being recognized
 
 Make sure:
-1. The file has the correct extension (`.dygram` or `.mach`)
+1. The file has the correct extension (`.dy` or `.dy`)
 2. The VS Code extension is installed and enabled
 3. The language ID is set to `machine`
 

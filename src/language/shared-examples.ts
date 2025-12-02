@@ -17,8 +17,8 @@
  * for the modern file access pattern.
  */
 
-import examplesList from '../generated/examples-list.json';
-import { listFiles, isFileApiAvailable, type FileInfo } from '../api/files-api';
+import examplesList from '../generated/examples-list.json' with { type: 'json' };
+import { listFiles, isFileApiAvailable, type FileInfo } from '../api/files-api.js'
 
 export interface Example {
     path: string;

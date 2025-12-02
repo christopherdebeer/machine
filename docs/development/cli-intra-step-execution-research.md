@@ -326,13 +326,13 @@ Add interactive mode to existing `execute` command:
 dygram execute app.dygram
 
 # Interactive mode with turn-level control
-dygram execute app.dygram --interactive
+dygram execute app.dy --interactive
 
 # Interactive mode with playback
-dygram execute app.dygram --interactive --playback recordings/
+dygram execute app.dy --interactive --playback recordings/
 
 # Interactive mode with recording
-dygram execute app.dygram --interactive --record recordings/
+dygram execute app.dy --interactive --record recordings/
 ```
 
 **Implementation**:
@@ -521,10 +521,10 @@ Create a dedicated command for interactive execution:
 dygram interactive app.dygram
 
 # With playback
-dygram interactive app.dygram --playback recordings/
+dygram interactive app.dy --playback recordings/
 
 # With recording
-dygram interactive app.dygram --record recordings/
+dygram interactive app.dy --record recordings/
 ```
 
 **Pros**:
@@ -622,7 +622,7 @@ Start with `--interactive` flag on `execute` command:
 Enable manual LLM response injection:
 
 ```bash
-dygram execute app.dygram --interactive --manual
+dygram execute app.dy --interactive --manual
 ```
 
 In interactive mode:
@@ -670,10 +670,10 @@ dygram repl app.dygram
 
 ```bash
 # Record a session interactively
-dygram execute app.dygram --interactive --record recordings/demo-session/
+dygram execute app.dy --interactive --record recordings/demo-session/
 
 # Playback the session
-dygram execute app.dygram --playback recordings/demo-session/
+dygram execute app.dy --playback recordings/demo-session/
 ```
 
 **Benefits**:
@@ -691,7 +691,7 @@ dygram execute app.dygram --playback recordings/demo-session/
 node scripts/test-agent-responder.js
 
 # Terminal 2: Run interactive execution
-dygram execute app.dygram --interactive --record recordings/live-session/
+dygram execute app.dy --interactive --record recordings/live-session/
 ```
 
 **Benefits**:
@@ -769,7 +769,7 @@ async function resumeFromCheckpoint(checkpointPath: string): Promise<MachineExec
         await fs.readFile(checkpointPath, 'utf-8')
     );
 
-    const executor = await MachineExecutor.create(checkpoint.machineData);
+    const executor = await MachineExecutor.create(checkpoint.dyData);
     // Restore state (may need executor method for this)
 
     return executor;
@@ -880,24 +880,24 @@ Test full CLI execution:
 
 ```bash
 # Test playback mode
-npm run test:cli -- test/fixtures/cli-integration/basic.dygram --interactive --playback test/fixtures/recordings/basic
+npm run test:cli -- test/fixtures/cli-integration/basic.dy --interactive --playback test/fixtures/recordings/basic
 
 # Test recording mode (with mock agent responder)
-npm run test:cli -- test/fixtures/cli-integration/basic.dygram --interactive --record /tmp/cli-test-recording
+npm run test:cli -- test/fixtures/cli-integration/basic.dy --interactive --record /tmp/cli-test-recording
 ```
 
 ### Manual Testing
 
 ```bash
 # Test basic interactive mode
-dygram execute examples/codegen-schema.dygram --interactive --verbose
+dygram execute examples/codegen-schema.dy --interactive --verbose
 
 # Test with playback
-dygram execute examples/codegen-schema.dygram --interactive --playback examples/recordings/codegen-schema/
+dygram execute examples/codegen-schema.dy --interactive --playback examples/recordings/codegen-schema/
 
 # Test with recording (requires agent responder)
 node scripts/test-agent-responder.js &
-dygram execute examples/codegen-schema.dygram --interactive --record /tmp/test-recording/
+dygram execute examples/codegen-schema.dy --interactive --record /tmp/test-recording/
 ```
 
 ---
@@ -929,10 +929,10 @@ Options:
   -h, --help                  display help for command
 
 Examples:
-  dygram execute app.dygram                                    # full execution
-  dygram execute app.dygram --interactive                      # interactive turn-by-turn
-  dygram execute app.dygram --playback recordings/demo/        # playback recorded session
-  dygram execute app.dygram --interactive --record recordings/ # record while executing
+  dygram execute app.dy                                    # full execution
+  dygram execute app.dy --interactive                      # interactive turn-by-turn
+  dygram execute app.dy --playback recordings/demo/        # playback recorded session
+  dygram execute app.dy --interactive --record recordings/ # record while executing
 ```
 
 ### 2. User Guide
@@ -1080,7 +1080,7 @@ examples/
 
 ### Minimum Viable Product (Phase 1)
 
-1. ✅ User can run `dygram execute app.dygram --interactive`
+1. ✅ User can run `dygram execute app.dy --interactive`
 2. ✅ CLI steps through turns one at a time
 3. ✅ User can type `n` for next turn, `c` for continue, `q` for quit
 4. ✅ Turn results displayed clearly (tools, output, status)

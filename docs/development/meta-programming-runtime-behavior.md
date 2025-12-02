@@ -14,25 +14,25 @@ During execution, the runtime visualization shows the updated machine (with new 
 1. **During Execution**:
    - Meta tools (e.g., `construct_tool`) modify the machine definition
    - `MetaToolManager.onMachineUpdate(dsl, machineData)` is called
-   - Executor updates `currentState.machineSnapshot` with new machine data
+   - Executor updates `currentState.dySnapshot` with new machine data
    - Runtime visualization correctly displays the updated machine
    - ✅ **New nodes/edges ARE immediately available to the executor**
 
 2. **After Execution Completes**:
-   - Executor holds the updated machine in `currentState.machineSnapshot`
+   - Executor holds the updated machine in `currentState.dySnapshot`
    - BUT: Playground doesn't capture the updated DSL
    - Editor still shows original source code
    - ❌ **Machine updates are lost when execution ends**
 
 ### Why New Nodes/Edges ARE Available During Execution
 
-The execution runtime uses `state.machineSnapshot` for all operations:
+The execution runtime uses `state.dySnapshot` for all operations:
 
 **File**: `src/language/execution/execution-runtime.ts:186`
 ```typescript
 function step(state: ExecutionState): StepResult {
     // ...
-    const machineJSON = state.machineSnapshot;  // ← Uses snapshot!
+    const machineJSON = state.dySnapshot;  // ← Uses snapshot!
 
     // All operations use machineJSON from snapshot:
     const node = machineJSON.nodes.find(n => n.name === nodeName);
@@ -52,11 +52,11 @@ This means:
 ```
 Step 1: Agent calls construct_tool("fibonacci")
     ↓
-    Tool node added to state.machineSnapshot
+    Tool node added to state.dySnapshot
     ↓
 Step 2: Agent can immediately use "fibonacci" tool
     ↓
-    Executor finds tool in state.machineSnapshot.nodes
+    Executor finds tool in state.dySnapshot.nodes
     ↓
     Tool executes successfully
 ```
@@ -74,18 +74,18 @@ constructor(machineJSON: MachineJSON, config: MachineExecutorConfig = {}) {
     // Internal machine update handler
     this.metaToolManager.setMachineUpdateCallback((dsl: string, machineData: MachineJSON) => {
         // 1. Update snapshot (for runtime use)
-        this.currentState.machineSnapshot = machineData;
+        this.currentState.dySnapshot = machineData;
 
         // 2. Call user callback (for UI/persistence)
-        if (this.machineUpdateCallback) {
-            this.machineUpdateCallback(dsl);  // ← This is the missing link!
+        if (this.dyUpdateCallback) {
+            this.dyUpdateCallback(dsl);  // ← This is the missing link!
         }
     });
 }
 
 // Public API to set callback
 setMachineUpdateCallback(callback: (dsl: string) => void): void {
-    this.machineUpdateCallback = callback;
+    this.dyUpdateCallback = callback;
 }
 ```
 
@@ -169,9 +169,9 @@ const handleExecute = useCallback(async () => {
 
 **A**: ✅ **YES, immediately available!**
 
-The executor uses `state.machineSnapshot` which is updated in real-time during execution. When meta tools modify the machine:
+The executor uses `state.dySnapshot` which is updated in real-time during execution. When meta tools modify the machine:
 
-1. `state.machineSnapshot` is updated
+1. `state.dySnapshot` is updated
 2. All subsequent `step()` calls use the updated snapshot
 3. New nodes/edges are immediately usable
 
@@ -183,7 +183,7 @@ The executor uses `state.machineSnapshot` which is updated in real-time during e
 
 The executor correctly maintains the updated machine in memory, but the playground doesn't capture it because `setMachineUpdateCallback` is never called. After execution:
 
-- Executor has updated machine in `currentState.machineSnapshot`
+- Executor has updated machine in `currentState.dySnapshot`
 - Playground still has original source in editor
 - No persistence mechanism to save updates
 

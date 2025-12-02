@@ -38,7 +38,7 @@ describe('Edge Evaluator - Documentation Examples', () => {
 
                     if (entry.isDirectory()) {
                         files.push(...await scanExamples(fullPath, relPath));
-                    } else if (entry.name.endsWith('.dygram') || entry.name.endsWith('.mach')) {
+                    } else if (entry.name.endsWith('.dy') || entry.name.endsWith('.mach')) {
                         const content = await readFile(fullPath, 'utf-8');
                         files.push({
                             path: fullPath,

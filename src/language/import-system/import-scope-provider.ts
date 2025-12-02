@@ -29,7 +29,7 @@ export class ImportScopeProvider extends MachineScopeProvider {
 
         // If we're resolving node references, add imported symbols
         if (context.property === 'source' || context.property === 'target') {
-            const machine = this.getMachineContainer(context.container);
+            const machine = this.findMachineContainer(context.container);
             if (machine && machine.imports && machine.imports.length > 0) {
                 // Get imported symbols
                 const importedDescriptions = this.getImportedSymbolDescriptions(machine);
@@ -175,9 +175,9 @@ export class ImportScopeProvider extends MachineScopeProvider {
     }
 
     /**
-     * Helper to get the Machine container (from parent class, made accessible)
+     * Helper to find the Machine container
      */
-    private getMachineContainer(node: AstNode): Machine | undefined {
+    private findMachineContainer(node: AstNode): Machine | undefined {
         let current: AstNode | undefined = node;
         while (current && !('title' in current && 'imports' in current)) {
             current = current.$container;

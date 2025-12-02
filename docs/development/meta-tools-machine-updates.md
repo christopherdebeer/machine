@@ -17,11 +17,11 @@ MetaToolManager.updateDefinition()
     ↓ updates
     ├─→ _machineData (internal copy)
     ├─→ onMutation callback → MachineExecutor.mutations[]
-    └─→ onMachineUpdate callback → MachineExecutor.currentState.machineSnapshot
+    └─→ onMachineUpdate callback → MachineExecutor.currentState.dySnapshot
         ↓ used by
 ExecutionRuntime.step()
     ↓ reads from
-state.machineSnapshot
+state.dySnapshot
 ```
 
 ### Key Files
@@ -31,7 +31,7 @@ state.machineSnapshot
 | `src/language/meta-tool-manager.ts` | Manages meta tools, handles machine updates |
 | `src/language/executor.ts` | Wires MetaToolManager, tracks mutations, provides callbacks |
 | `src/language/execution/effect-executor.ts` | Routes tool calls to MetaToolManager |
-| `src/language/execution/execution-runtime.ts` | Uses `state.machineSnapshot` for node/edge lookups |
+| `src/language/execution/execution-runtime.ts` | Uses `state.dySnapshot` for node/edge lookups |
 | `src/language/execution/runtime-types.ts` | Defines `ExecutionState` with `machineSnapshot` |
 
 ## Implementation Details
@@ -52,11 +52,11 @@ this.metaToolManager = new MetaToolManager(
 // Set up internal machine update handler
 this.metaToolManager.setMachineUpdateCallback((dsl: string, machineData: MachineJSON) => {
     // Update the machine snapshot in the current state
-    this.currentState.machineSnapshot = machineData;
+    this.currentState.dySnapshot = machineData;
 
     // Call user callback if set
-    if (this.machineUpdateCallback) {
-        this.machineUpdateCallback(dsl);
+    if (this.dyUpdateCallback) {
+        this.dyUpdateCallback(dsl);
     }
 });
 ```
@@ -64,7 +64,7 @@ this.metaToolManager.setMachineUpdateCallback((dsl: string, machineData: Machine
 **Key Points**:
 - MetaToolManager is constructed with the initial `machineJSON`
 - Mutation callback pushes to `executor.mutations` array for tracking
-- Update callback updates `currentState.machineSnapshot` for runtime use
+- Update callback updates `currentState.dySnapshot` for runtime use
 - User callback (if set) receives the updated DSL string
 
 ### 2. Machine Update Flow
@@ -96,7 +96,7 @@ async updateDefinition(input: { machine: any; reason: string }): Promise<any> {
         data: { mutationType: 'machine_updated', reason, machine: {...} }
     });
 
-    // 5. Notify callback (updates currentState.machineSnapshot)
+    // 5. Notify callback (updates currentState.dySnapshot)
     if (this.onMachineUpdate) {
         this.onMachineUpdate(dsl, JSON.parse(JSON.stringify(this._machineData)));
     }
@@ -109,17 +109,17 @@ async updateDefinition(input: { machine: any; reason: string }): Promise<any> {
 
 **Location**: `src/language/execution/execution-runtime.ts`
 
-The execution runtime uses `state.machineSnapshot` for all machine definition lookups:
+The execution runtime uses `state.dySnapshot` for all machine definition lookups:
 
 **Finding nodes** (line 186-189):
 ```typescript
-const machineJSON = state.machineSnapshot;
+const machineJSON = state.dySnapshot;
 const node = machineJSON.nodes.find(n => n.name === nodeName);
 ```
 
 **Finding edges** (line 593):
 ```typescript
-const edges = state.machineSnapshot.edges.filter(e => e.source === path.currentNode);
+const edges = state.dySnapshot.edges.filter(e => e.source === path.currentNode);
 ```
 
 **Critical Insight**: Updates to `machineSnapshot` take effect on the **next step()** call, not immediately within the current node execution.
@@ -151,8 +151,8 @@ The `machineSnapshot` field is described as "Machine state at this point (immuta
 
 1. **Immediate**: `MetaToolManager._machineData` is updated immediately
 2. **Immediate**: Mutation is recorded in `executor.mutations[]`
-3. **Immediate**: `currentState.machineSnapshot` is updated
-4. **Next Step**: Runtime reads from `state.machineSnapshot` in next `step()` call
+3. **Immediate**: `currentState.dySnapshot` is updated
+4. **Next Step**: Runtime reads from `state.dySnapshot` in next `step()` call
 
 ### What Gets Updated
 
@@ -174,12 +174,12 @@ When `update_definition` is called with a new machine structure:
 ```
 T0: Agent in node "analyzer" calls update_definition
     → MetaToolManager._machineData updated
-    → currentState.machineSnapshot updated
+    → currentState.dySnapshot updated
     → Agent continues in "analyzer" with old tool list
 
 T1: Agent completes "analyzer", transitions to next node
     → Runtime calls step()
-    → step() reads from state.machineSnapshot (now has updated definition)
+    → step() reads from state.dySnapshot (now has updated definition)
     → New node structure and edges are used
 
 T2: If agent transitions to newly-added node
@@ -219,7 +219,7 @@ if (dynamicToolConstructed && this.metaToolManager) {
 
 **Set by**: `MachineExecutor` constructor (line 102-110)
 **Called when**: `update_definition` succeeds
-**Purpose**: Update `currentState.machineSnapshot` for runtime use
+**Purpose**: Update `currentState.dySnapshot` for runtime use
 
 ### 3. User Machine Update Callback
 

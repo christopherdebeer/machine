@@ -7,7 +7,7 @@ Full DyGram language support in Visual Studio Code.
 <div className="feature-grid">
     <div className="feature">
         <h3 className="feature-title">SYNTAX HIGHLIGHTING</h3>
-        <p>Beautiful, semantic syntax highlighting for .mach files with support for:</p>
+        <p>Beautiful, semantic syntax highlighting for .dy files with support for:</p>
         <ul style={{ marginTop: '1rem', lineHeight: 1.8 }}>
             <li>Keywords and entity types</li>
             <li>Relationships and connections</li>
@@ -95,7 +95,7 @@ code .`}</pre>
 <div style={{ marginTop: '4rem' }}>
     <h2 className="section-title" style={{ fontSize: '2rem' }}>Usage</h2>
     <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>
-        Create a new file with the <code>.mach</code> extension and start typing. The extension will automatically activate and provide language support.
+        Create a new file with the <code>.dy</code> extension and start typing. The extension will automatically activate and provide language support.
     </p>
     <p style={{ fontSize: '1.2rem' }}>
         Press <strong>F5</strong> to launch a development instance of VS Code with the extension loaded.

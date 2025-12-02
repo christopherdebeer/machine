@@ -8,7 +8,7 @@ DyGram supports markdown formatting in text fields throughout your diagrams. Mar
 
 Use `**text**` or `__text__` for bold formatting:
 
-```dygram examples/syntax/markdown-bold.dygram
+```dy examples/syntax/markdown-bold.dygram
 machine "Markdown Demo"
 
 state Process "**Important** processing step"
@@ -18,7 +18,7 @@ state Process "**Important** processing step"
 
 Use `*text*` or `_text_` for italic formatting:
 
-```dygram examples/syntax/markdown-italic.dygram
+```dy examples/syntax/markdown-italic.dygram
 machine "Markdown Demo"
 
 state Review "*Review carefully* before proceeding"
@@ -28,7 +28,7 @@ state Review "*Review carefully* before proceeding"
 
 Use `~~text~~` for strikethrough:
 
-```dygram examples/syntax/markdown-strikethrough.dygram
+```dy examples/syntax/markdown-strikethrough.dygram
 machine "Markdown Demo"
 
 state Deprecated "~~Old method~~ Use new API"
@@ -38,7 +38,7 @@ state Deprecated "~~Old method~~ Use new API"
 
 Use backticks for inline code with monospace font:
 
-```dygram examples/syntax/markdown-code.dygram
+```dy examples/syntax/markdown-code.dygram
 machine "Markdown Demo"
 
 state Execute "Run `npm install` to install dependencies"
@@ -48,7 +48,7 @@ state Execute "Run `npm install` to install dependencies"
 
 Use `[text](url)` for links (shown as underlined text):
 
-```dygram examples/syntax/markdown-links.dygram
+```dy examples/syntax/markdown-links.dygram
 machine "Markdown Demo"
 
 state Docs "See [documentation](https://example.com) for details"
@@ -58,7 +58,7 @@ state Docs "See [documentation](https://example.com) for details"
 
 You can combine multiple markdown styles:
 
-```dygram examples/syntax/markdown-combined.dygram
+```dy examples/syntax/markdown-combined.dygram
 machine "Markdown Demo"
 
 state Task "**Critical**: Run `npm test` *before* deployment"
@@ -70,7 +70,7 @@ state Task "**Critical**: Run `npm test` *before* deployment"
 
 Markdown formatting in node title strings:
 
-```dygram examples/syntax/markdown-node-titles.dygram
+```dy examples/syntax/markdown-node-titles.dygram
 machine "Markdown in Nodes"
 
 state Validate "**Validate** input with `schema.check()`"
@@ -83,7 +83,7 @@ Validate --> Transform
 
 Markdown in desc and prompt attributes:
 
-```dygram examples/syntax/markdown-descriptions.dygram
+```dy examples/syntax/markdown-descriptions.dygram
 machine "Markdown in Descriptions"
 
 state Process {
@@ -101,7 +101,7 @@ Process --> Verify
 
 Markdown in attribute values:
 
-```dygram examples/syntax/markdown-attributes.dygram
+```dy examples/syntax/markdown-attributes.dygram
 machine "Markdown in Attributes"
 
 state Deploy {
@@ -115,7 +115,7 @@ state Deploy {
 
 Markdown in edge labels:
 
-```dygram examples/syntax/markdown-edges.dygram
+```dy examples/syntax/markdown-edges.dygram
 machine "Markdown in Edges"
 
 state Start
@@ -128,7 +128,7 @@ Start --> End { text: "**Success** with `status=200`" }
 
 Markdown in note content:
 
-```dygram examples/syntax/markdown-notes.dygram
+```dy examples/syntax/markdown-notes.dygram
 machine "Markdown in Notes"
 
 state Process
@@ -140,7 +140,7 @@ note Process "**Important**: Use `--force` flag *only* in [test environment](htt
 
 A comprehensive example showing markdown in various locations:
 
-```dygram examples/syntax/markdown-comprehensive.dygram
+```dy examples/syntax/markdown-comprehensive.dygram
 machine "**API Gateway** Documentation"
 
 state Config {

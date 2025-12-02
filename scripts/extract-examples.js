@@ -299,7 +299,7 @@ export async function extractExamples(projectRoot) {
             log(`  ${block.sourceFile}:${block.sourceLine} → ${block.generatedPath}`, 'warn');
         }
         console.log(`\n${colors.dim}To fix: Add filename after language identifier, e.g.:${colors.reset}`);
-        log(`  \`\`\`dygram examples/category/filename.dygram`, 'info');
+        log(`  \`\`\`dygram examples/category/filename.dy`, 'info');
         console.log('');
     }
 

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { MetaTags } from './MetaTags';
-import { Navigation } from './Navigation';
-import { Footer } from './Footer';
-import hierarchyData from '../data/doc-hierarchy';
+import { MetaTags } from './MetaTags.js'
+import { Navigation } from './Navigation.js'
+import { Footer } from './Footer.js'
+import hierarchyData from '../data/doc-hierarchy.js'
 
 interface PageLayoutProps {
     children: React.ReactNode;

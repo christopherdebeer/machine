@@ -1,6 +1,6 @@
 # Code Generation: From Prompts to TypeScript
 
-DyGram can automatically generate TypeScript code for tasks using the `@code` annotation. Generated code lives alongside your `.dygram` files and is referenced externally, enabling fast execution while maintaining declarative workflow definitions.
+DyGram can automatically generate TypeScript code for tasks using the `@code` annotation. Generated code lives alongside your `.dy` files and is referenced externally, enabling fast execution while maintaining declarative workflow definitions.
 
 ## Table of Contents
 
@@ -22,7 +22,7 @@ Code generation in DyGram:
 2. **Generates** TypeScript functions from task prompts
 3. **Validates** against input/output schemas
 4. **Regenerates** on errors or schema mismatches
-5. **References** external .ts files from .dygram files
+5. **References** external .ts files from .dy files
 
 **Benefits:**
 - Performance: Near-instant execution vs LLM latency
@@ -36,7 +36,7 @@ The `@code` annotation triggers immediate code generation.
 
 ### Basic Usage
 
-```dygram examples/code-generation/basic-code-annotation.dy
+```dy examples/code-generation/basic-code-annotation.dy
 machine "Simple Code Generation"
 
 Task calculateTax "Calculate sales tax" @code {
@@ -56,7 +56,7 @@ When this machine is first parsed, DyGram:
 
 ### With Schema
 
-```dygram examples/code-generation/code-with-schema.dy
+```dy examples/code-generation/code-with-schema.dy
 machine "Schema-Validated Generation"
 
 Task processOrder "Process customer order" @code {
@@ -208,7 +208,7 @@ All generated code must export:
 
 Schemas ensure type safety and guide code generation:
 
-```dygram examples/code-generation/schema-definition.dy
+```dy examples/code-generation/schema-definition.dy
 machine "Schema-Driven Generation"
 
 Task validateUser "User validation" @code {
@@ -291,7 +291,7 @@ Code is automatically regenerated when:
 
 ### Error-Triggered Regeneration
 
-```dygram examples/code-generation/error-regeneration.dy
+```dy examples/code-generation/error-regeneration.dy
 machine "Self-Healing Code"
 
 Context CodeHealth {
@@ -317,7 +317,7 @@ start -> robustProcessor -> end
 
 When task schemas change, code is automatically regenerated:
 
-```dygram examples/code-generation/schema-regeneration.dy
+```dy examples/code-generation/schema-regeneration.dy
 machine "Schema Evolution"
 
 // Initial implementation with basic schema
@@ -341,7 +341,7 @@ input_schema: {
 
 ### Manual Regeneration
 
-```dygram examples/code-generation/manual-regeneration.dy
+```dy examples/code-generation/manual-regeneration.dy
 machine "Manual Code Refresh"
 
 Task processor "Updatable processor" @code {
@@ -366,7 +366,7 @@ Generated code lives in external files referenced by `code_path`.
 ```
 project/
 ├── workflows/
-│   └── data-pipeline.dygram      # Your machine definition
+│   └── data-pipeline.dy      # Your machine definition
 ├── generated/
 │   ├── validateInput.ts          # Generated code
 │   ├── processData.ts            # Generated code
@@ -379,7 +379,7 @@ project/
 
 ### Reference Format
 
-```dygram examples/code-generation/external-reference.dy
+```dy examples/code-generation/external-reference.dy
 machine "External Code References"
 
 Task validate "Input validator" {
@@ -430,7 +430,7 @@ async function customPipeline(data: any) {
 
 ### Complete Generation Workflow
 
-```dygram examples/code-generation/complete-workflow.dy
+```dy examples/code-generation/complete-workflow.dy
 machine "Full Code Generation Demo"
 
 // Step 1: Initial generation with @code
@@ -452,7 +452,7 @@ start -> parser -> validator -> end
 
 ### Progressive Enhancement
 
-```dygram examples/code-generation/progressive-enhancement.dy
+```dy examples/code-generation/progressive-enhancement.dy
 machine "Progressive Code Enhancement"
 
 // Version 1: Basic implementation
@@ -475,7 +475,7 @@ start -> processor_v3 -> end
 
 ### Multi-Step Generation
 
-```dygram examples/code-generation/multi-step-generation.dy
+```dy examples/code-generation/multi-step-generation.dy
 machine "Complex Code Generation"
 
 Task step1 "Parse input" @code {
@@ -502,7 +502,7 @@ step1 -> step2 -> step3
 
 Provide comprehensive implementation details in prompts.
 
-```dygram examples/code-generation/clear-prompt.dy
+```dy examples/code-generation/clear-prompt.dy
 machine "Clear Prompt Example"
 
 Task goodPrompt "Well-defined task" @code {
@@ -522,7 +522,7 @@ start -> goodPrompt -> end
 
 Schemas guide generation and enable validation.
 
-```dygram examples/code-generation/define-schemas.dy
+```dy examples/code-generation/define-schemas.dy
 machine "Schema Best Practice"
 
 Task withSchema "Type-safe task" @code {
@@ -536,7 +536,7 @@ start -> withSchema -> end
 
 Always test generated code before production use.
 
-```dygram examples/code-generation/test-generated.dy
+```dy examples/code-generation/test-generated.dy
 machine "Tested Generation"
 
 Task implementation "Core logic" @code {
@@ -559,7 +559,7 @@ implementation -> testSuite -> approveOrRegenerate
 
 Track generated code versions for rollback.
 
-```dygram examples/code-generation/version-code.dy
+```dy examples/code-generation/version-code.dy
 machine "Versioned Code Generation"
 
 Context CodeVersions {
@@ -579,7 +579,7 @@ start -> generateWithVersion -> end
 
 Include edge case handling in generation prompts.
 
-```dygram examples/code-generation/edge-cases.dy
+```dy examples/code-generation/edge-cases.dy
 machine "Edge Case Handling"
 
 Task robustParser "Comprehensive parser" @code {

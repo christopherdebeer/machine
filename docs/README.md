@@ -293,7 +293,7 @@ Concept Language "DSL for Dynamic Systems" @Abstract {
 
 Process Compilation {
 
-    State SourceCode "User .dygram file" @Entry;
+    State SourceCode "User .dyfile" @Entry;
 
     Task Parse "Langium Parser" @Critical {
         input<string>: "{{ SourceCode }}";

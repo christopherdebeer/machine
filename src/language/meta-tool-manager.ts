@@ -67,10 +67,13 @@ export class MetaToolManager {
      * This restores dynamically created tools from previous executions
      */
     initializeToolsFromMachine(): void {
+        console.error(`[MetaToolManager] Initializing tools from machine with ${this._machineData.nodes.length} nodes`);
+        console.error(`[MetaToolManager] Node names: ${this._machineData.nodes.map(n => n.name).join(', ')}`);
         // Find all tool nodes in the machine definition
         const toolNodes = this._machineData.nodes.filter(node =>
             node.type?.toLowerCase() === 'tool'
         );
+        console.error(`[MetaToolManager] Found ${toolNodes.length} tool nodes to initialize: ${toolNodes.map(n => n.name).join(', ')}`);
 
         for (const toolNode of toolNodes) {
             const name = toolNode.name;

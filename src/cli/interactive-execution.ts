@@ -53,7 +53,7 @@ export interface LoadedExecution {
  */
 async function parseMachineFromSource(source: string): Promise<MachineJSON> {
     // Write source to temp file
-    const tempFile = path.join(os.tmpdir(), `dygram-stdin-${Date.now()}.dygram`);
+    const tempFile = path.join(os.tmpdir(), `dygram-stdin-${Date.now()}.dy`);
     await fs.writeFile(tempFile, source);
 
     try {
@@ -82,13 +82,13 @@ async function loadMachineFromFile(filePath: string): Promise<MachineJSON> {
  * Configure LLM client based on options
  */
 function configureClient(opts: LoadExecutionOptions): any {
-    // Interactive mode with stdin/stdout
-    if (opts.isInteractive && !opts.playback && !opts.record) {
+    // Interactive mode with stdin/stdout (with or without recording)
+    if (opts.isInteractive && !opts.playback) {
         return {
             llm: new StdinResponseClient({
-                provider: 'stdin' as any,
                 modelId: 'cli-interactive',
-                responseInput: opts.input ? JSON.stringify(opts.input) : undefined
+                responseInput: opts.input ? JSON.stringify(opts.input) : undefined,
+                recordingsDir: opts.record  // Enable recording if --record is set
             })
         };
     }
@@ -105,7 +105,10 @@ function configureClient(opts: LoadExecutionOptions): any {
         };
     }
 
+    // Legacy: --record without --interactive uses InteractiveTestClient (file-queue mode)
+    // This is deprecated in favor of --interactive --record
     if (opts.record) {
+        console.warn('⚠️  Using --record without --interactive is deprecated. Use: dy e -i machine.dy --record <dir>');
         return {
             llm: new InteractiveTestClient({
                 mode: 'file-queue',
@@ -161,23 +164,22 @@ export async function loadOrCreateExecution(
         logger.info(chalk.blue(`⚡ Starting interactive execution: ${executionId}`));
     }
 
-    // Load or create machine
-    let machineData: MachineJSON;
-    if (opts.isStdin) {
-        // Parse machine from stdin source
-        machineData = await parseMachineFromSource(opts.machineSource);
-    } else {
-        // Load machine from file
-        machineData = await loadMachineFromFile(opts.machineSource);
-    }
-    const machineHash = hashMachine(machineData);
-
     let executor: MachineExecutor;
     let metadata: ExecutionMetadata;
+    let machineData: MachineJSON;
 
     if (isNew || !(await executionExists(executionId))) {
         // Create new execution
         logger.debug('Creating new execution');
+
+        // Load or create machine from source
+        if (opts.isStdin) {
+            // Parse machine from stdin source
+            machineData = await parseMachineFromSource(opts.machineSource);
+        } else {
+            // Load machine from file
+            machineData = await loadMachineFromFile(opts.machineSource);
+        }
 
         // Configure client
         const clientConfig = configureClient(opts);
@@ -217,24 +219,14 @@ export async function loadOrCreateExecution(
         await updateLastSymlink(executionId);
 
     } else {
-        // Resume existing execution
+        // Resume existing execution - load from snapshot (not source file)
         logger.debug('Resuming existing execution');
 
         const state: ExecutionStateFile = await loadExecutionState(executionId);
         metadata = await loadExecutionMetadata(executionId);
 
-        // Verify machine hasn't changed
-        if (state.machineHash !== machineHash) {
-            throw new Error(
-                `Machine definition has changed since execution started.\n` +
-                `   Original hash: ${state.machineHash.slice(0, 8)}...\n` +
-                `   Current hash:  ${machineHash.slice(0, 8)}...\n\n` +
-                `   Options:\n` +
-                `   - Use --force to start a new execution\n` +
-                `   - Restore original machine definition\n` +
-                `   - Use --id to start a parallel execution`
-            );
-        }
+        // Load machine from snapshot (which may have been modified by meta-tools)
+        machineData = await loadMachineSnapshot(executionId);
 
         // Show mode info
         if (metadata.mode === 'playback') {
@@ -250,10 +242,7 @@ export async function loadOrCreateExecution(
             record: metadata.clientConfig?.recordingsDir
         });
 
-        // Load machine from snapshot
-        machineData = await loadMachineSnapshot(executionId);
-
-        // Recreate executor
+        // Recreate executor with snapshot machine
         executor = await MachineExecutor.create(machineData, clientConfig);
 
         // Restore execution state
@@ -309,14 +298,17 @@ export async function saveCurrentExecutionState(
     // Get current state from executor
     const execState = executor.getState();
     const machineData = executor.getMachineDefinition();
+    
+    logger.debug(`Saving machine with ${machineData.nodes.length} nodes: ${machineData.nodes.map(n => n.name).join(', ')}`);
 
     // Get the active path (first path)
     const activePath = execState.paths[0];
 
-    // Create state file
+    // Create state file with updated machine hash
+    const updatedMachineHash = hashMachine(machineData);
     const state: ExecutionStateFile = {
         version: STATE_CONFIG.stateVersion,
-        machineHash: hashMachine(machineData),
+        machineHash: updatedMachineHash,  // Updated hash to reflect machine modifications
         executionState: {
             currentNode: activePath?.currentNode || '',
             pathId: activePath?.id || '',
@@ -334,6 +326,9 @@ export async function saveCurrentExecutionState(
     };
 
     await saveExecutionState(executionId, state);
+
+    // Save machine snapshot (in case it was modified by meta-tools)
+    await saveMachineSnapshot(executionId, machineData);
 
     // Update metadata
     metadata.lastExecutedAt = new Date().toISOString();
@@ -504,7 +499,7 @@ export async function executeInteractiveTurn(
             logger.output(error.exampleResponse);
             logger.output(chalk.dim('─'.repeat(60)));
             logger.info(chalk.cyan('\n💡 Provide response via stdin:'));
-            logger.info(chalk.gray(`   echo '<response-json>' | dygram execute <machine> --interactive\n`));
+            logger.info(chalk.gray(`   echo '<response-json>' | dygram execute <machine> --interactive --id ${executionId}\n`));
 
             // Save state as paused
             metadata.status = 'paused';

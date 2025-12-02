@@ -12,13 +12,13 @@ This document summarizes the fixes applied to resolve parse errors identified in
 **Files Fixed**: `docs/syntax/annotations.md`
 
 **Before**:
-```dygram
+```dy
 @Annotation
 @AnotherAnnotation
 ```
 
 **After**:
-```dygram
+```dy
 machine "Example" @Annotation {
     Task foo @AnotherAnnotation "Bar";
 }
@@ -32,13 +32,13 @@ machine "Example" @Annotation {
 **Files Fixed**: `docs/syntax/attributes.md`, `docs/syntax/types.md`
 
 **Before**:
-```dygram
+```dy
 count<number>: 42;
 price: 19.99;
 ```
 
 **After**:
-```dygram
+```dy
 machine "Example" {
     count<number>: 42;
     price: 19.99;
@@ -55,12 +55,12 @@ machine "Example" {
 **Files Fixed**: `docs/styling.md`
 
 **Before**:
-```dygram
+```dy
 Task a @style(rank: same:group1;) "Task A";
 ```
 
 **After**:
-```dygram
+```dy
 Task a @style(rank: "same:group1") "Task A";
 ```
 
@@ -124,7 +124,7 @@ Task a @style(rank: "same:group1") "Task A";
 **Tests Affected**: 2
 **Root Cause**: Parser struggles with nested objects/arrays in certain contexts
 **Examples**:
-```dygram
+```dy
 required<Array<string>>: ["email", "name"];
 constraints: {
     email: #emailRegex;

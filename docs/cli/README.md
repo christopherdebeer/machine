@@ -4,6 +4,33 @@ Complete reference for the DyGram command-line interface.
 
 ## Table of Contents
 
+- [Installation](#installation)
+- [Commands](#commands)
+  - [generate](#dygram-generate)
+  - [batch](#dygram-batch)
+  - [execute](#dygram-execute)
+  - [parseAndValidate](#dygram-parseandvalidate)
+  - [debug](#dygram-debug)
+- [Interactive Mode](#interactive-mode) - Turn-by-turn execution with state persistence
+- [Output Formats](#output-formats)
+- [Examples](#examples)
+- [Error Handling](#error-handling)
+
+## Interactive Mode
+
+For detailed documentation on interactive turn-by-turn execution with persistent state, see:
+
+**[Interactive Mode Guide](./interactive-mode.md)**
+
+Quick example:
+```bash
+# Start interactive execution
+dygram execute --interactive myMachine.dygram
+
+# Continue execution (auto-resumes)
+dygram execute --interactive myMachine.dygram
+```
+
 ## Installation
 
 ```bash
@@ -30,7 +57,7 @@ dygram generate <file> [options]
 ```
 
 **Arguments**:
-- `<file>` - Source file (.dygram, .mach) or JSON file for backward compilation
+- `<file>` - Source file (.dy, .dy) or JSON file for backward compilation
 
 **Options**:
 - `-d, --destination <dir>` - Output directory for generated files
@@ -49,12 +76,12 @@ dygram generate workflow.dygram
 
 Generate multiple formats:
 ```bash
-dygram generate workflow.dygram --format json,html,mermaid
+dygram generate workflow.dy --format json,html,mermaid
 ```
 
 Save to specific directory:
 ```bash
-dygram generate workflow.dygram --destination ./output
+dygram generate workflow.dy --destination ./output
 ```
 
 Backward compilation (JSON to DSL):
@@ -76,7 +103,7 @@ dygram batch <pattern> [options]
 ```
 
 **Arguments**:
-- `<pattern>` - Glob pattern for files (e.g., `"examples/**/*.dygram"`)
+- `<pattern>` - Glob pattern for files (e.g., `"examples/**/*.dy"`)
 
 **Options**:
 - `-d, --destination <dir>` - Output directory for generated files
@@ -89,12 +116,12 @@ dygram batch <pattern> [options]
 
 Process all DyGram files in examples:
 ```bash
-dygram batch "examples/**/*.dygram"
+dygram batch "examples/**/*.dy"
 ```
 
 Generate HTML for all files with error handling:
 ```bash
-dygram batch "src/**/*.dygram" --format html --continue-on-error
+dygram batch "src/**/*.dy" --format html --continue-on-error
 ```
 
 ---
@@ -139,7 +166,7 @@ dygram execute workflow.dygram
 
 Execute with specific model:
 ```bash
-dygram execute workflow.dygram --model claude-3-5-sonnet-20241022
+dygram execute workflow.dy --model claude-3-5-sonnet-20241022
 ```
 
 ---
@@ -195,7 +222,7 @@ dygram debug <file> [options]
 
 Debug with text regions:
 ```bash
-dygram debug workflow.dygram --text-regions
+dygram debug workflow.dy --text-regions
 ```
 
 ---
@@ -268,7 +295,7 @@ Generate DyGram source from JSON (backward compilation).
 - Programmatic generation
 - Format migration
 
-**Output**: `<filename>.dygram`
+**Output**: `<filename>.dy`
 
 ## Examples
 
@@ -282,14 +309,14 @@ dygram parseAndValidate my-machine.dygram
 dygram generate my-machine.dygram
 
 # 3. Generate visualization
-dygram generate my-machine.dygram --format html
+dygram generate my-machine.dy --format html
 ```
 
 ### Batch Processing
 
 ```bash
 # Process all examples
-dygram batch "examples/**/*.dygram" --format json,html --destination ./output
+dygram batch "examples/**/*.dy" --format json,html --destination ./output
 ```
 
 ### Execution
@@ -299,14 +326,14 @@ dygram batch "examples/**/*.dygram" --format json,html --destination ./output
 export ANTHROPIC_API_KEY=your_api_key
 
 # Execute machine
-dygram execute workflow.dygram --verbose
+dygram execute workflow.dy --verbose
 ```
 
 ### Development Workflow
 
 ```bash
 # Watch mode: validate on save (use with file watcher)
-while inotifywait -e modify workflow.dygram; do
+while inotifywait -e modify workflow.dy; do
     dygram parseAndValidate workflow.dygram
 done
 ```
@@ -325,8 +352,8 @@ Use `--verbose` for detailed error information and stack traces.
 ## File Extensions
 
 DyGram recognizes the following file extensions:
-- `.dygram` (recommended)
-- `.mach` (legacy)
+- `.dy` (recommended)
+- `.dy` (legacy)
 
 ## Exit Codes
 

@@ -4,7 +4,7 @@ This directory contains examples demonstrating DyGram's comprehensive validation
 
 ## Examples
 
-### `type-checking.dygram`
+### `type-checking.dy`
 Type checking and type validation:
 - Primitive type validation (string, number, boolean)
 - Collection type validation (arrays)
@@ -14,7 +14,7 @@ Type checking and type validation:
 - Template variable type checking
 - Type mismatch detection
 
-### `graph-validation.dygram`
+### `graph-validation.dy`
 Graph structure validation:
 - Unreachable node detection
 - Cycle detection in workflows
@@ -24,7 +24,7 @@ Graph structure validation:
 - Connected components analysis
 - Max nesting depth validation
 
-### `semantic-validation.dygram`
+### `semantic-validation.dy`
 Semantic validation of DyGram patterns:
 - Init node validation (must have outgoing edges)
 - Context node validation (shouldn't have incoming edges)
@@ -34,7 +34,7 @@ Semantic validation of DyGram patterns:
 - @Abstract validation (not on init nodes)
 - Best practice enforcement
 
-### `complete-validated.dygram`
+### `complete-validated.dy`
 Complete example with all validation features:
 - Type-checked attributes
 - Valid graph structure
@@ -143,7 +143,7 @@ npx dygram parseAndValidate examples/validation/type-checking.dygram
 
 ### Generate with Validation
 ```bash
-npx dygram generate examples/validation/complete-validated.dygram -f json,html
+npx dygram generate examples/validation/complete-validated.dy -f json,html
 ```
 
 ### Run Tests
@@ -158,7 +158,7 @@ npm test -- --grep validation
 - [Testing Approach](../../docs/testing-approach.md) - Validation methodology
 - [Syntax Guide](../../docs/syntax-guide.md) - Language syntax
 
-### `complete-validated.dygram`
+### `complete-validated.dy`
 
 Phase 4: Complete Validated Example
 
@@ -337,7 +337,7 @@ note ProcessingComplete "Exit point - has no outgoing edges (expected)"
 
 ```
 
-### `type-checking.dygram`
+### `type-checking.dy`
 
 Phase 4: Type Checking Examples
 
@@ -413,7 +413,7 @@ task edgeCases {
 
 ```
 
-### `graph-validation.dygram`
+### `graph-validation.dy`
 
 Phase 4: Graph Validation Examples
 
@@ -481,7 +481,7 @@ context config {
 
 ```
 
-### `semantic-validation.dygram`
+### `semantic-validation.dy`
 
 Phase 4: Semantic Validation Examples
 

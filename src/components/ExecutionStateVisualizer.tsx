@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
-import type { MachineExecutor } from '../language/executor';
-import type { VisualizationState } from '../language/execution/runtime-types';
-import type { MachineJSON } from '../language/json/types';
+import type { MachineExecutor } from '../language/executor.js'
+import type { VisualizationState } from '../language/execution/runtime-types.js'
+import type { MachineJSON } from '../language/json/types.js'
 
 interface ExecutionStateVisualizerProps {
     executor: MachineExecutor | null;

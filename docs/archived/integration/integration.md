@@ -79,7 +79,7 @@ const result = await executor.execute();`}</pre>
 - name: Validate DyGram files
   run: |
     npm install -g dygram
-    dygram validate **/*.mach`}</pre>
+    dygram validate **/*.dy`}</pre>
         </div>
     </div>
 
@@ -90,7 +90,7 @@ const result = await executor.execute();`}</pre>
             <pre style={{ background: 'var(--code-bg)', color: 'var(--light)', padding: '1.5rem', overflowX: 'auto', borderRadius: '4px', fontSize: '0.9rem' }}>{`# Generate Mermaid diagram
 dygram export --format mermaid file.mach
 
-dygram export --format json file.mach`}</pre>
+dygram export --format json file.dy`}</pre>
         </div>
     </div>
 </div>

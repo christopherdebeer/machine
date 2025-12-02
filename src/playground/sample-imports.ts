@@ -15,9 +15,9 @@ export const IMPORT_EXAMPLES: ImportExample[] = [
     {
         name: "Basic Authentication Flow",
         description: "Simple two-file example with reusable authentication components",
-        entryPoint: "/app.dygram",
+        entryPoint: "/app.dy",
         files: {
-            "/lib.dygram": `// Authentication Library
+            "/lib.dy": `// Authentication Library
 machine "Auth Library"
 
 state LoginPage "User Login"
@@ -26,8 +26,8 @@ state UserSession "Active Session"
 
 LoginPage --> AuthService --> UserSession`,
 
-            "/app.dygram": `// Main Application
-import { LoginPage, UserSession } from "./lib.dygram"
+            "/app.dy": `// Main Application
+import { LoginPage, UserSession } from "./lib.dy"
 
 machine "Main Application"
 
@@ -40,9 +40,9 @@ LoginPage --> Dashboard --> Profile --> UserSession`
     {
         name: "E-Commerce Workflow",
         description: "Multi-file example with cart, checkout, and payment modules",
-        entryPoint: "/app.dygram",
+        entryPoint: "/app.dy",
         files: {
-            "/cart.dygram": `// Shopping Cart Module
+            "/cart.dy": `// Shopping Cart Module
 machine "Shopping Cart"
 
 state BrowseCatalog "Browse Products"
@@ -53,7 +53,7 @@ state UpdateQuantity "Update Quantity"
 BrowseCatalog --> AddToCart --> ViewCart
 ViewCart --> UpdateQuantity --> ViewCart`,
 
-            "/checkout.dygram": `// Checkout Module
+            "/checkout.dy": `// Checkout Module
 machine "Checkout Process"
 
 state ShippingInfo "Shipping Information"
@@ -63,9 +63,9 @@ state ConfirmOrder "Confirm Order"
 
 ShippingInfo --> PaymentInfo --> ReviewOrder --> ConfirmOrder`,
 
-            "/app.dygram": `// Complete E-Commerce Application
-import { ViewCart } from "./cart.dygram"
-import { ShippingInfo, ConfirmOrder } from "./checkout.dygram"
+            "/app.dy": `// Complete E-Commerce Application
+import { ViewCart } from "./cart.dy"
+import { ShippingInfo, ConfirmOrder } from "./checkout.dy"
 
 machine "E-Commerce Platform"
 
@@ -79,9 +79,9 @@ Home --> ViewCart --> ShippingInfo --> ConfirmOrder --> OrderComplete --> ThankY
     {
         name: "Import Aliasing",
         description: "Demonstrates import aliasing to avoid name collisions",
-        entryPoint: "/app.dygram",
+        entryPoint: "/app.dy",
         files: {
-            "/module-a.dygram": `// Module A
+            "/module-a.dy": `// Module A
 machine "Module A"
 
 state Start "Start State"
@@ -90,7 +90,7 @@ state End "End State"
 
 Start --> Process --> End`,
 
-            "/module-b.dygram": `// Module B
+            "/module-b.dy": `// Module B
 machine "Module B"
 
 state Start "Start State"
@@ -99,9 +99,9 @@ state End "End State"
 
 Start --> Process --> End`,
 
-            "/app.dygram": `// Application Using Aliasing
-import { Start as StartA, Process as ProcessA } from "./module-a.dygram"
-import { Start as StartB, Process as ProcessB } from "./module-b.dygram"
+            "/app.dy": `// Application Using Aliasing
+import { Start as StartA, Process as ProcessA } from "./module-a.dy"
+import { Start as StartB, Process as ProcessB } from "./module-b.dy"
 
 machine "Combined Application"
 
@@ -114,9 +114,9 @@ Init --> StartA --> ProcessA --> ProcessB --> StartB --> Final`
     {
         name: "Workflow Orchestration",
         description: "Complex example with multiple workflow stages",
-        entryPoint: "/orchestrator.dygram",
+        entryPoint: "/orchestrator.dy",
         files: {
-            "/data-ingestion.dygram": `// Data Ingestion Workflow
+            "/data-ingestion.dy": `// Data Ingestion Workflow
 machine "Data Ingestion"
 
 state FetchData "Fetch External Data"
@@ -126,7 +126,7 @@ state StoreData "Store in Database"
 
 FetchData --> ValidateData --> TransformData --> StoreData`,
 
-            "/data-processing.dygram": `// Data Processing Workflow
+            "/data-processing.dy": `// Data Processing Workflow
 machine "Data Processing"
 
 state LoadData "Load Data"
@@ -136,7 +136,7 @@ state CacheResults "Cache Results"
 
 LoadData --> AnalyzeData --> GenerateReport --> CacheResults`,
 
-            "/notification.dygram": `// Notification System
+            "/notification.dy": `// Notification System
 machine "Notifications"
 
 state PrepareMessage "Prepare Message"
@@ -147,10 +147,10 @@ state LogNotification "Log Notification"
 PrepareMessage --> SendEmail --> LogNotification
 PrepareMessage --> SendSMS --> LogNotification`,
 
-            "/orchestrator.dygram": `// Orchestrator
-import { FetchData, StoreData } from "./data-ingestion.dygram"
-import { LoadData, CacheResults } from "./data-processing.dygram"
-import { PrepareMessage, LogNotification } from "./notification.dygram"
+            "/orchestrator.dy": `// Orchestrator
+import { FetchData, StoreData } from "./data-ingestion.dy"
+import { LoadData, CacheResults } from "./data-processing.dy"
+import { PrepareMessage, LogNotification } from "./notification.dy"
 
 machine "Data Pipeline Orchestrator"
 

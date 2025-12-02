@@ -15,7 +15,7 @@ The Rails-Based Architecture treats your machine definition as "rails" that guid
 
 ## Examples
 
-### 1. `auto-transitions.mach`
+### 1. `auto-transitions.dy`
 **Demonstrates:** Automated vs agent-controlled transitions
 
 Shows how state nodes, `@auto` edges, and simple conditions automatically transition without invoking the agent, improving efficiency.
@@ -33,7 +33,7 @@ dygram exec examples/rails/auto-transitions.mach
 
 ---
 
-### 2. `dynamic-tool-construction.mach`
+### 2. `dynamic-tool-construction.dy`
 **Demonstrates:** Dynamic tool creation by the agent
 
 Shows how an agent with `meta: true` can construct new tools when they don't exist in the codebase.
@@ -51,7 +51,7 @@ dygram exec examples/rails/dynamic-tool-construction.mach
 
 ---
 
-### 3. `self-improving-pipeline.mach`
+### 3. `self-improving-pipeline.dy`
 **Demonstrates:** Complete meta-programming workflow
 
 The canonical Rails-Based Architecture example showing a pipeline that constructs tools, uses them, reviews them, improves them, and runs again with better tools.
@@ -70,7 +70,7 @@ dygram exec examples/rails/self-improving-pipeline.mach
 
 ---
 
-### 4. `phase-specific-context.mach`
+### 4. `phase-specific-context.dy`
 **Demonstrates:** Permission-based context access
 
 Shows how agents receive only relevant context at each node, based on edge permissions. Demonstrates security through least-privilege access.
@@ -88,7 +88,7 @@ dygram exec examples/rails/phase-specific-context.mach
 
 ---
 
-### 5. `tool-review-improvement.mach`
+### 5. `tool-review-improvement.dy`
 **Demonstrates:** Tool review and improvement workflow
 
 Shows how an agent can inspect existing tool implementations, identify deficiencies, propose improvements, and apply them.
@@ -109,15 +109,15 @@ dygram exec examples/rails/tool-review-improvement.mach
 ## Learning Path
 
 **Beginner:**
-1. Start with `auto-transitions.mach` to understand the rails pattern
-2. Move to `phase-specific-context.mach` to see permission model
+1. Start with `auto-transitions.dy` to understand the rails pattern
+2. Move to `phase-specific-context.dy` to see permission model
 
 **Intermediate:**
-3. Study `dynamic-tool-construction.mach` for meta-programming basics
-4. Explore `tool-review-improvement.mach` for tool evolution
+3. Study `dynamic-tool-construction.dy` for meta-programming basics
+4. Explore `tool-review-improvement.dy` for tool evolution
 
 **Advanced:**
-5. Master `self-improving-pipeline.mach` for complete meta-programming
+5. Master `self-improving-pipeline.dy` for complete meta-programming
 
 ## Execution Requirements
 
@@ -217,12 +217,12 @@ review -writes-> toolRegistry;
 ## Contributing
 
 Have a Rails-Based Architecture pattern to share? Submit a PR with:
-1. A new `.mach` file demonstrating the pattern
+1. A new `.dy` file demonstrating the pattern
 2. Comprehensive inline comments explaining behavior
 3. Update this README with the example description
 4. Add test coverage if applicable
 
-### `auto-transitions.mach`
+### `auto-transitions.dy`
 
 Automated Transitions Demo
 
@@ -290,7 +290,7 @@ complete -> idle;   // Restart after completion
 
 ```
 
-### `dynamic-tool-construction.mach`
+### `dynamic-tool-construction.dy`
 
 Dynamic Tool Construction Demo
 
@@ -359,7 +359,7 @@ complete -> idle;
 
 ```
 
-### `phase-specific-context.mach`
+### `phase-specific-context.dy`
 
 Phase-Specific Context Demo
 
@@ -467,7 +467,7 @@ complete -> idle;
 
 ```
 
-### `self-improving-pipeline.mach`
+### `self-improving-pipeline.dy`
 
 Self-Improving Data Pipeline
 
@@ -571,7 +571,7 @@ complete -> idle;                         // Loop back
 
 ```
 
-### `tool-review-improvement.mach`
+### `tool-review-improvement.dy`
 
 Tool Review and Improvement Demo
 

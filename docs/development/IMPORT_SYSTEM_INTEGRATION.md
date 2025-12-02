@@ -60,9 +60,9 @@ interface SourceMetadata {
             "name": "LoginPage",
             "type": "state",
             "source": {
-                "file": "/auth/login.dygram",
+                "file": "/auth/login.dy",
                 "line": 5,
-                "importedBy": ["/app.dygram"]
+                "importedBy": ["/app.dy"]
             }
         }
     ]
@@ -95,18 +95,18 @@ When machines are composed from imports, modification tools need to respect modu
 
 ```json
 {
-    "entryPoint": "/app.dygram",
+    "entryPoint": "/app.dy",
     "imports": [
         {
-            "path": "/auth/login.dygram",
+            "path": "/auth/login.dy",
             "symbols": ["LoginPage", "LoginForm"],
-            "transitiveImports": ["/auth/session.dygram"]
+            "transitiveImports": ["/auth/session.dy"]
         }
     ],
     "dependencyOrder": [
-        "/auth/session.dygram",
-        "/auth/login.dygram",
-        "/app.dygram"
+        "/auth/session.dy",
+        "/auth/login.dy",
+        "/app.dy"
     ]
 }
 ```
@@ -177,8 +177,8 @@ Context access tools should expose imported contexts:
             "name": "config",
             "attributes": {...},
             "source": {
-                "file": "/config.dygram",
-                "importedBy": ["/app.dygram"]
+                "file": "/config.dy",
+                "importedBy": ["/app.dy"]
             }
         }
     ]
@@ -239,19 +239,19 @@ The `MultiFileGenerator` merges all imports into a single machine. JSON generati
 
 ```json
 {
-    "entryPoint": "/app.dygram",
+    "entryPoint": "/app.dy",
     "modules": [
         {
-            "path": "/auth/login.dygram",
+            "path": "/auth/login.dy",
             "exports": ["LoginPage", "LoginForm"],
             "nodes": [...],
             "edges": [...]
         },
         {
-            "path": "/app.dygram",
+            "path": "/app.dy",
             "imports": [
                 {
-                    "from": "/auth/login.dygram",
+                    "from": "/auth/login.dy",
                     "symbols": ["LoginPage"]
                 }
             ],
@@ -283,7 +283,7 @@ Graphviz output should visually distinguish imported vs. local nodes:
 ```dot
 digraph G {
     subgraph cluster_auth {
-        label = "auth/login.dygram";
+        label = "auth/login.dy";
         style = "dashed";
         color = "blue";
 
@@ -292,7 +292,7 @@ digraph G {
     }
 
     subgraph cluster_main {
-        label = "app.dygram";
+        label = "app.dy";
 
         Dashboard [shape=box];
     }
@@ -306,7 +306,7 @@ digraph G {
 ```dot
 digraph G {
     # Imported nodes in different color
-    LoginPage [shape=box, color=blue, label="LoginPage\n[from: auth/login.dygram]"];
+    LoginPage [shape=box, color=blue, label="LoginPage\n[from: auth/login.dy]"];
 
     # Local nodes in default color
     Dashboard [shape=box, label="Dashboard"];
@@ -319,8 +319,8 @@ digraph G {
 
 ```dot
 digraph G {
-    LoginPage [shape=box, tooltip="Imported from auth/login.dygram"];
-    Dashboard [shape=box, tooltip="Defined in app.dygram"];
+    LoginPage [shape=box, tooltip="Imported from auth/login.dy"];
+    Dashboard [shape=box, tooltip="Defined in app.dy"];
 
     LoginPage -> Dashboard;
 }
@@ -333,7 +333,7 @@ digraph G {
 **Goal:** Generate valid DyGram syntax that preserves imports.
 
 **Single File Output:**
-When generating a single .dygram file (e.g., via `bundle` command), merge all imports:
+When generating a single .dy file (e.g., via `bundle` command), merge all imports:
 
 ```dy
 machine "Bundled Application"
@@ -351,7 +351,7 @@ LoginPage --> Dashboard
 **Multi-File Output:**
 When generating multi-file output (e.g., refactoring or splitting), preserve import structure:
 
-**File: auth/login.dygram**
+**File: auth/login.dy**
 ```dy
 machine "Authentication"
 
@@ -361,9 +361,9 @@ state LoginForm "Login Form"
 LoginPage --> LoginForm
 ```
 
-**File: app.dygram**
+**File: app.dy**
 ```dy
-import { LoginPage } from "./auth/login.dygram"
+import { LoginPage } from "./auth/login.dy"
 
 machine "Application"
 
@@ -387,7 +387,7 @@ state Session
 
 ```dy
 // app.dygram
-import { Login } from "./auth.dygram"
+import { Login } from "./auth.dy"
 
 machine "App"
 state Dashboard
@@ -449,7 +449,7 @@ class TypeScriptGenerator implements CodeGenerator {
             .map(s => s.alias ? `${s.name} as ${s.alias}` : s.name)
             .join(', ');
 
-        const path = importStmt.path.replace('.dygram', '');
+        const path = importStmt.path.replace('.dy', '');
         return `import { ${symbols} } from "${path}";`;
     }
 }
@@ -485,10 +485,10 @@ class TypeScriptGenerator implements CodeGenerator {
     "error": "Invalid transition from LoginPage",
     "node": "LoginPage",
     "source": {
-        "file": "/auth/login.dygram",
+        "file": "/auth/login.dy",
         "line": 12
     },
-    "importedBy": ["/app.dygram"]
+    "importedBy": ["/app.dy"]
 }
 ```
 
@@ -500,7 +500,7 @@ Developer can immediately locate the error in the source file.
 
 ```typescript
 add_import({
-    path: "/library/auth.dygram",
+    path: "/library/auth.dy",
     symbols: ["Login", "Session"]
 })
 ```
@@ -511,7 +511,7 @@ Generator reflects the new import in output JSON:
 {
     "imports": [
         {
-            "from": "/library/auth.dygram",
+            "from": "/library/auth.dy",
             "symbols": ["Login", "Session"],
             "addedAt": "runtime",
             "addedBy": "agent"
@@ -525,11 +525,11 @@ Generator reflects the new import in output JSON:
 **Scenario:** Convert DyGram workflow to TypeScript state machine:
 
 ```bash
-dygram generate app.dygram --format typescript --preserve-imports
+dygram generate app.dy --format typescript --preserve-imports
 ```
 
 Outputs:
-- `auth.ts` - Exported classes from `auth.dygram`
+- `auth.ts` - Exported classes from `auth.dy`
 - `app.ts` - Main app with imports from `auth.ts`
 - `index.ts` - Entry point tying it all together
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CodeEditor } from './CodeEditor';
+import { CodeEditor } from './CodeEditor.js'
 
 interface ExampleLoaderProps {
     path: string;
@@ -18,7 +18,7 @@ interface ExampleLoaderProps {
  *
  * @example
  * ```mdx
- * import { ExampleLoader } from '../components/ExampleLoader';
+ * import { ExampleLoader } from '../components/ExampleLoader.js'
  *
  * <ExampleLoader
  *   path="examples/advanced/annotations.dygram"

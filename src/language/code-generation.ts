@@ -2,7 +2,7 @@
  * Pragmatic Code Generation for DyGram
  *
  * Simple @code annotation triggers immediate TypeScript generation.
- * Code lives alongside .dygram files, uses external references.
+ * Code lives alongside .dy files, uses external references.
  * Regenerates on errors or schema mismatches.
  */
 
@@ -79,7 +79,7 @@ export class CodeGenerator {
         const code = await this.llmClient.invokeModel(prompt);
 
         // Determine file path: <dygramfile>.<taskname>.ts
-        const baseName = pathUtils.basename(input.dygramFilePath, '.dygram');
+        const baseName = pathUtils.basename(input.dygramFilePath, '.dy');
         const dirName = pathUtils.dirname(input.dygramFilePath);
         const filePath = pathUtils.join(dirName, `${baseName}.${input.taskName}.ts`);
 
@@ -97,7 +97,7 @@ export class CodeGenerator {
             console.log(`📝 Generated code (not saved - no file system): ${filePath}`);
         }
 
-        // External reference (for use in .dygram file)
+        // External reference (for use in .dy file)
         const externalRef = `#${input.taskName}`;
 
         console.log(`✨ Generated code: ${filePath}`);
@@ -117,7 +117,7 @@ export class CodeGenerator {
         const code = await this.llmClient.invokeModel(prompt);
 
         // Determine file path (same as original)
-        const baseName = pathUtils.basename(input.dygramFilePath, '.dygram');
+        const baseName = pathUtils.basename(input.dygramFilePath, '.dy');
         const dirName = pathUtils.dirname(input.dygramFilePath);
         const filePath = pathUtils.join(dirName, `${baseName}.${input.taskName}.ts`);
 
@@ -272,7 +272,7 @@ Return ONLY the improved TypeScript code, no markdown formatting or explanations
             ...Object.entries(metadata).map(([key, value]) => ` * ${key}: ${value}`),
             ' * ',
             ' * DO NOT EDIT - This file is auto-generated',
-            ' * To make changes, update the prompt in the .dygram file',
+            ' * To make changes, update the prompt in the .dy file',
             ' */'
         ];
 
@@ -286,7 +286,7 @@ Return ONLY the improved TypeScript code, no markdown formatting or explanations
 export function resolveCodePath(externalRef: string, dygramFilePath: string): string {
     // #taskname → <dygramfile>.taskname.ts
     const taskName = externalRef.startsWith('#') ? externalRef.substring(1) : externalRef;
-    const baseName = pathUtils.basename(dygramFilePath, '.dygram');
+    const baseName = pathUtils.basename(dygramFilePath, '.dy');
     const dirName = pathUtils.dirname(dygramFilePath);
 
     // Try <filename>.<taskname>.ts

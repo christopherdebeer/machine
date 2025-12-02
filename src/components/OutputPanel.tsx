@@ -7,7 +7,7 @@
 
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
-import { Machine } from '../language/generated/ast';
+import { Machine } from '../language/generated/ast.js'
 
 export type OutputFormat = 'svg' | 'png' | 'dot' | 'json' | 'ast' | 'cst' | 'src';
 

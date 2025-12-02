@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { listFiles, isFileApiAvailable, type FileInfo } from '../api/files-api';
+import { listFiles, isFileApiAvailable, type FileInfo } from '../api/files-api.js'
 
 interface FileTreeProps {
     onSelectFile: (path: string, content: string) => void;

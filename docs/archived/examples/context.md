@@ -4,21 +4,21 @@ This directory contains examples demonstrating context nodes and context value m
 
 ## Examples
 
-### `context-management.mach`
+### `context-management.dy`
 Enhanced context value management with storage and retrieval:
 - Using `set_context_value` tool to store values dynamically
 - Using `get_context_value` tool to retrieve stored values
 - Type-safe context attribute management
 - Context nodes as data stores during execution
 
-### `template-variables.mach`
+### `template-variables.dy`
 Template variable resolution and dynamic prompts:
 - Using `{{nodeName.attributeName}}` syntax in prompts
 - Dynamic value substitution during execution
 - Automatic dependency inference from template variables
 - Context-driven task execution
 
-### `nested-access.dygram`
+### `nested-access.dy`
 Nested attribute access patterns:
 - Multi-level context structures
 - Dot notation for nested access: `{{context.level1.level2.attribute}}`
@@ -60,7 +60,7 @@ When `meta: true` is set on a Task node, these tools become available:
 - [Context & Schema Guide](../../docs/context-and-schema-guide.md) - Detailed context patterns
 - [Advanced Features](../../docs/advanced-features.md) - Dependency inference
 
-### `nested-access.dygram`
+### `nested-access.dy`
 Nested Attribute Access Patterns
 
 ```dy examples/context/nested-access.dygram
@@ -293,7 +293,7 @@ note typedConfig "Type safety in nested structures:
 
 ```
 
-### `context-management.mach`
+### `context-management.dy`
 
 Enhanced Task Management with Context
 
@@ -331,7 +331,7 @@ summary --> end;
 
 ```
 
-### `template-variables.mach`
+### `template-variables.dy`
 
 Template Variable Demo
 

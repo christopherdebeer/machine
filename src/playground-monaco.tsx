@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MonacoPlayground } from './components/MonacoPlayground';
+import { MonacoPlayground } from './components/MonacoPlayground.js'
 
 // Initialize the playground
 const container = document.getElementById('root');

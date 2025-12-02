@@ -28,7 +28,7 @@ describe('ImportValidator', () => {
     describe('empty symbols validation', () => {
         it('should error on import with no symbols', async () => {
             const doc = await parse(`
-                import { } from "./lib.dygram"
+                import { } from "./lib.dy"
                 state a
             `);
 
@@ -41,7 +41,7 @@ describe('ImportValidator', () => {
     describe('symbol collision detection', () => {
         it('should detect collision between imported and local symbols', async () => {
             const doc = await parse(`
-                import { foo } from "./lib.dygram"
+                import { foo } from "./lib.dy"
                 state foo
             `);
 
@@ -54,8 +54,8 @@ describe('ImportValidator', () => {
 
         it('should detect collision between multiple imports', async () => {
             const doc = await parse(`
-                import { foo } from "./lib1.dygram"
-                import { foo } from "./lib2.dygram"
+                import { foo } from "./lib1.dy"
+                import { foo } from "./lib2.dy"
                 state a
             `);
 
@@ -70,7 +70,7 @@ describe('ImportValidator', () => {
     describe('HTTP warning', () => {
         it('should warn on insecure HTTP imports', async () => {
             const doc = await parse(`
-                import { foo } from "http://example.com/lib.dygram"
+                import { foo } from "http://example.com/lib.dy"
                 state a
             `);
 
@@ -83,7 +83,7 @@ describe('ImportValidator', () => {
 
         it('should not warn on HTTPS imports', async () => {
             const doc = await parse(`
-                import { foo } from "https://example.com/lib.dygram"
+                import { foo } from "https://example.com/lib.dy"
                 state a
             `);
 
@@ -98,7 +98,7 @@ describe('ImportValidator', () => {
     describe('valid imports', () => {
         it('should accept valid relative import', async () => {
             const doc = await parse(`
-                import { foo, bar } from "./lib.dygram"
+                import { foo, bar } from "./lib.dy"
                 state a
             `);
 
@@ -110,7 +110,7 @@ describe('ImportValidator', () => {
 
         it('should accept import with alias', async () => {
             const doc = await parse(`
-                import { foo as myFoo } from "./lib.dygram"
+                import { foo as myFoo } from "./lib.dy"
                 state a
             `);
 
@@ -121,7 +121,7 @@ describe('ImportValidator', () => {
 
         it('should accept qualified name import', async () => {
             const doc = await parse(`
-                import { workflows.auth, workflows.payment } from "./lib.dygram"
+                import { workflows.auth, workflows.payment } from "./lib.dy"
                 state a
             `);
 

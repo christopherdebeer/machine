@@ -70,7 +70,7 @@ if (toolName.startsWith('write_')) {
 ```
 
 **Example That Fails**:
-```dygram
+```dy
 task start {
   prompt: "Update config.result with 'done'"
 }
@@ -325,7 +325,7 @@ if (toolExecutionFailed) {
 
 ### Test 1: Context Write and Read
 
-```dygram
+```dy
 machine "Context Test" {
   logLevel: "debug"
 }
@@ -354,7 +354,7 @@ write -> read
 
 ### Test 2: Prompt Execution Before Auto-Transition
 
-```dygram
+```dy
 machine "Prompt Priority Test" {
   logLevel: "debug"
 }
@@ -379,7 +379,7 @@ work -when: "result.done"-> complete
 
 ### Test 3: Catch Edge Error Handling
 
-```dygram
+```dy
 machine "Error Test" {
   logLevel: "debug"
 }

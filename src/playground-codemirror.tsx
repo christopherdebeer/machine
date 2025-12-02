@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { CodeMirrorPlayground } from './components/CodeMirrorPlayground';
+import { CodeMirrorPlayground } from './components/CodeMirrorPlayground.js'
 
 // Initialize the playground
 const container = document.getElementById('root');

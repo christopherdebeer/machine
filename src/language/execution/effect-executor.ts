@@ -112,7 +112,25 @@ export class EffectExecutor {
             throw new Error('LLM client not configured');
         }
 
-        const { pathId, nodeName, systemPrompt, tools, modelId } = effect;
+        let { pathId, nodeName, systemPrompt, tools, modelId } = effect;
+        
+        // Inject dynamic tools from MetaToolManager if available
+        if (this.metaToolManager) {
+            const dynamicTools = this.metaToolManager.getDynamicToolDefinitions();
+            if (dynamicTools.length > 0) {
+                // Cast to runtime ToolDefinition type (types are compatible at runtime)
+                const runtimeTools = dynamicTools.map(dt => ({
+                    name: dt.name,
+                    description: dt.description,
+                    input_schema: {
+                        type: 'object' as const,
+                        properties: dt.input_schema.properties,
+                        required: dt.input_schema.required
+                    }
+                }));
+                tools = [...tools, ...runtimeTools];
+            }
+        }
 
         // Log agent invocation start
         this.executeLog({
@@ -273,7 +291,17 @@ export class EffectExecutor {
                 const existingToolNames = new Set(tools.map(t => t.name));
                 for (const dynamicTool of dynamicTools) {
                     if (!existingToolNames.has(dynamicTool.name)) {
-                        tools.push(dynamicTool);
+                        // Cast to runtime ToolDefinition type
+                        const runtimeTool = {
+                            name: dynamicTool.name,
+                            description: dynamicTool.description,
+                            input_schema: {
+                                type: 'object' as const,
+                                properties: dynamicTool.input_schema.properties,
+                                required: dynamicTool.input_schema.required
+                            }
+                        };
+                        tools.push(runtimeTool);
                         this.executeLog({
                             type: 'log',
                             level: 'info',

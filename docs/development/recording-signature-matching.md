@@ -29,7 +29,7 @@ this.playbackIndex++;
 
 ### Real-World Example
 
-```dygram
+```dy
 # Before (recording created)
 start -> pathA
 start -> pathB
@@ -37,7 +37,7 @@ start -> pathB
 
 Recording has tools: `transition_to_pathA`, `transition_to_pathB`
 
-```dygram
+```dy
 # After (source modified)
 start -> fastPath
 start -> slowPath
@@ -284,7 +284,7 @@ Troubleshooting:
 
 ### Example: Valid Changes That DON'T Invalidate
 
-```dygram
+```dy
 # Before
 machine "Test"
 Task start "Begin" {
@@ -297,7 +297,7 @@ start -> pathA
 start -> pathB
 ```
 
-```dygram
+```dy
 # After - ALL THESE CHANGES ARE OK:
 machine "Test v2"  # ✅ Renamed machine
 Task start "Begin Here" {  # ✅ Updated title
@@ -323,13 +323,13 @@ Recording remains valid! ✅
 
 ### Example: Invalid Changes That SHOULD Invalidate
 
-```dygram
+```dy
 # Before
 start -> pathA
 start -> pathB
 ```
 
-```dygram
+```dy
 # After - THESE INVALIDATE RECORDINGS:
 start -> fastRoute  # ❌ NEW tool: transition_to_fastRoute
 start -> slowRoute  # ❌ NEW tool: transition_to_slowRoute

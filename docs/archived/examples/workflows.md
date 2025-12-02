@@ -4,7 +4,7 @@ Real-world workflow examples demonstrating practical applications of the DyGram 
 
 ## Examples
 
-### `user-onboarding.dygram`
+### `user-onboarding.dy`
 User registration and onboarding workflow with:
 - Multiple states (registration, verification, profile setup)
 - Timeout handling
@@ -13,10 +13,10 @@ User registration and onboarding workflow with:
 
 **Test it:**
 ```bash
-npx dygram generate examples/workflows/user-onboarding.dygram -f json,html -d output/
+npx dygram generate examples/workflows/user-onboarding.dy -f json,html -d output/
 ```
 
-### `order-processing.dygram`
+### `order-processing.dy`
 E-commerce order processing system with:
 - Order lifecycle states
 - Payment flow
@@ -25,10 +25,10 @@ E-commerce order processing system with:
 
 **Test it:**
 ```bash
-npx dygram generate examples/workflows/order-processing.dygram -f mermaid -d output/
+npx dygram generate examples/workflows/order-processing.dy -f mermaid -d output/
 ```
 
-### `ci-cd-pipeline.dygram`
+### `ci-cd-pipeline.dy`
 Continuous Integration/Deployment pipeline with:
 - Build, test, and deploy stages
 - Security scanning
@@ -37,10 +37,10 @@ Continuous Integration/Deployment pipeline with:
 
 **Test it:**
 ```bash
-npx dygram generate examples/workflows/ci-cd-pipeline.dygram -f html -d output/
+npx dygram generate examples/workflows/ci-cd-pipeline.dy -f html -d output/
 ```
 
-### `smart-task-prioritizer.dygram`
+### `smart-task-prioritizer.dy`
 AI-powered task prioritization workflow with:
 - Task analysis using LLM
 - Priority assignment with reasoning
@@ -53,7 +53,7 @@ export ANTHROPIC_API_KEY=your_api_key_here
 npx dygram execute examples/workflows/smart-task-prioritizer.dygram
 ```
 
-### `code-generation-demo.dygram`
+### `code-generation-demo.dy`
 Complete code generation workflow demonstrating:
 - Requirements definition via LLM
 - JavaScript code generation
@@ -89,12 +89,12 @@ Generate in multiple formats:
 ```bash
 npx dygram generate examples/workflows/user-onboarding.dygram
 
-npx dygram generate examples/workflows/user-onboarding.dygram -f json,mermaid,html -d output/
+npx dygram generate examples/workflows/user-onboarding.dy -f json,mermaid,html -d output/
 
 ls output/
 ```
 
-### `data-pipeline.dygram`
+### `data-pipeline.dy`
 Data Pipeline ETL Workflow
 
 ```dy examples/workflows/data-pipeline.dygram
@@ -342,7 +342,7 @@ note recordMetrics "Pipeline Metrics:
 
 ```
 
-### `ci-cd-pipeline.dygram`
+### `ci-cd-pipeline.dy`
 
 CI/CD Pipeline
 
@@ -409,7 +409,7 @@ integration_test -failure-> failed;
 
 ```
 
-### `code-generation-demo.dygram`
+### `code-generation-demo.dy`
 
 Code Generation Workflow
 
@@ -488,7 +488,7 @@ validation_result -> complete;
 
 ```
 
-### `order-processing.dygram`
+### `order-processing.dy`
 
 E-Commerce Order Processing
 
@@ -547,7 +547,7 @@ preparing -cancel_request-> refunded;
 
 ```
 
-### `smart-task-prioritizer.dygram`
+### `smart-task-prioritizer.dy`
 
 Smart Task Prioritization System
 
@@ -597,7 +597,7 @@ finalize -> complete;
 
 ```
 
-### `user-onboarding.dygram`
+### `user-onboarding.dy`
 
 User Onboarding Workflow
 

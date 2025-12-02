@@ -151,7 +151,7 @@ The system automatically converts the JSON back to DyGram DSL using the `generat
 
 **Playground**: The Monaco editor is automatically updated with the new DSL source.
 
-**CLI**: The updated DSL is saved to `{filename}-updated.machine` in the output directory.
+**CLI**: The updated DSL is saved to `{filename}-updated.dy` in the output directory.
 
 ## Example: Self-Healing Pipeline
 
@@ -219,7 +219,7 @@ dygram exec self-healing.machine
 ```bash
 cat self-healing-updated.machine
 
-dygram generate self-healing-updated.machine -f mermaid
+dygram generate self-healing-updated.dy -f mermaid
 
 dygram exec self-healing-updated.machine
 ```

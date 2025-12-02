@@ -88,7 +88,6 @@ function setupLogger(opts: { verbose?: boolean; quiet?: boolean }): void {
 
 async function generateWithImports(fileName: string, opts: GenerateOptions, formats: GenerateFormat[]): Promise<void> {
     const services = createMachineServices(NodeFileSystem).Machine;
-    const workingDir = path.dirname(path.resolve(fileName));
     const resolver = new FileSystemResolver();
     const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
@@ -188,7 +187,6 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
     }
 
     // Check if file has imports and --no-imports is not set
-    const fileUri = pathToFileURL(path.resolve(fileName)).toString();
     const document = await extractDocument(fileName, services);
     const machine = document.parseResult.value as Machine;
 
@@ -276,7 +274,7 @@ async function generateDSLAction(fileName: string, opts: GenerateOptions, format
                 if (opts.destination) {
                     // Write to file
                     const data = extractDestinationAndName(fileName, opts.destination);
-                    const outputPath = path.join(data.destination, `${data.name}.dygram`);
+                    const outputPath = path.join(data.destination, `${data.name}.dy`);
                     await fs.mkdir(data.destination, { recursive: true });
                     await fs.writeFile(outputPath, dslContent);
                     results.push(`Generated DSL: ${outputPath}`);
@@ -364,36 +362,48 @@ export const parseAndValidate = async (fileName: string, opts?: { verbose?: bool
  * Read stdin if available (with timeout)
  */
 async function readStdin(): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         let data = '';
         let resolved = false;
 
-        const timeout = setTimeout(() => {
+        const cleanup = () => {
+            process.stdin.removeAllListeners('data');
+            process.stdin.removeAllListeners('end');
+            process.stdin.removeAllListeners('error');
+            process.stdin.pause();
+        };
+
+        const finish = (result: string) => {
             if (!resolved) {
                 resolved = true;
-                resolve(''); // Return empty string on timeout
+                clearTimeout(timeout);
+                cleanup();
+                resolve(result);
             }
+        };
+
+        const timeout = setTimeout(() => {
+            finish(''); // Return empty string on timeout
         }, 100); // 100ms timeout
 
-        process.stdin.on('data', chunk => {
-            data += chunk;
-        });
+        const onData = (chunk: Buffer) => {
+            data += chunk.toString();
+        };
 
-        process.stdin.on('end', () => {
-            if (!resolved) {
-                resolved = true;
-                clearTimeout(timeout);
-                resolve(data);
-            }
-        });
+        const onEnd = () => {
+            finish(data);
+        };
 
-        process.stdin.on('error', (err) => {
-            if (!resolved) {
-                resolved = true;
-                clearTimeout(timeout);
-                resolve(''); // Return empty on error
-            }
-        });
+        const onError = () => {
+            finish(''); // Return empty on error
+        };
+
+        process.stdin.on('data', onData);
+        process.stdin.on('end', onEnd);
+        process.stdin.on('error', onError);
+
+        // Resume stdin to start reading
+        process.stdin.resume();
     });
 }
 
@@ -482,7 +492,6 @@ export const executeAction = async (fileName: string | undefined, opts: {
     if (useImportSystem) {
         logger.debug('File has imports, using multi-file compilation');
 
-        const workingDir = path.dirname(path.resolve(fileName));
         const resolver = new FileSystemResolver();
         const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
@@ -603,7 +612,10 @@ export const executeAction = async (fileName: string | undefined, opts: {
         console.log(chalk.gray(`   Updated DSL saved to: ${updatedPath}`));
     });
 
-    const executionResult = await executor.execute();
+    await executor.execute();
+
+    // Get execution context for results
+    const context = executor.getContext();
 
     // Write execution results
     const data = extractDestinationAndName(fileName, opts.destination);
@@ -612,16 +624,18 @@ export const executeAction = async (fileName: string | undefined, opts: {
     const resultPath = path.join(data.destination, `${data.name}-result.json`);
     await fs.writeFile(resultPath, JSON.stringify(
         {
-            ...executionResult,
-            visitedNodes: Array.from(executionResult.visitedNodes),
-            attributes: Object.fromEntries(executionResult.attributes)
+            currentNode: context.currentNode,
+            visitedNodes: Array.from(context.visitedNodes),
+            attributes: Object.fromEntries(context.attributes),
+            history: context.history,
+            errorCount: context.errorCount
         },
         null,
         2
     ));
     logger.success(`\n✓ Execution results written to: ${resultPath}`);
     logger.info(chalk.blue('\n📋 Execution path:'));
-    executionResult.history.forEach(step => {
+    context.history.forEach((step: any) => {
         logger.info(chalk.cyan(`  ${step.from}`) + chalk.gray(` --(${step.transition})--> `) + chalk.cyan(`${step.to}`));
         if (step.output) {
             logger.info(chalk.gray(`    Output: ${step.output}`));
@@ -657,7 +671,6 @@ export const checkImportsAction = async (fileName: string, opts?: { verbose?: bo
     setupLogger(opts || {});
 
     const services = createMachineServices(NodeFileSystem).Machine;
-    const workingDir = path.dirname(path.resolve(fileName));
     const resolver = new FileSystemResolver();
     const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
@@ -676,13 +689,15 @@ export const checkImportsAction = async (fileName: string, opts?: { verbose?: bo
         const graph = workspace.dependencyGraph;
         const order = graph.topologicalSort();
 
-        order.forEach((uri, i) => {
-            const filePath = fileURLToPath(uri);
-            const relativePath = path.relative(process.cwd(), filePath);
-            logger.info(`  ${i + 1}. ${relativePath}`);
-        });
+        if (order) {
+            order.forEach((uri, i) => {
+                const filePath = fileURLToPath(uri.toString());
+                const relativePath = path.relative(process.cwd(), filePath);
+                logger.info(`  ${i + 1}. ${relativePath}`);
+            });
 
-        logger.info(`\nTotal files: ${order.length}`);
+            logger.info(`\nTotal files: ${order.length}`);
+        }
 
     } catch (error) {
         if (error instanceof CircularDependencyError) {
@@ -707,7 +722,6 @@ export const bundleAction = async (fileName: string, opts: { output?: string; ve
     setupLogger(opts);
 
     const services = createMachineServices(NodeFileSystem).Machine;
-    const workingDir = path.dirname(path.resolve(fileName));
     const resolver = new FileSystemResolver();
     const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
@@ -737,7 +751,7 @@ export const bundleAction = async (fileName: string, opts: { output?: string; ve
         const bundledDsl = generateDSL(machineData);
 
         // Write to output file
-        const outputFile = opts.output || fileName.replace(/\.dygram$/, '.bundled.dygram');
+        const outputFile = opts.output || fileName.replace(/\.dy/, '.bundled.dy');
         await fs.writeFile(outputFile, bundledDsl);
 
         logger.success(`\n✓ Bundled to: ${outputFile}`);
@@ -1007,12 +1021,29 @@ export const cleanExecutionsAction = async (opts?: {
 }): Promise<void> => {
     setupLogger(opts || {});
 
-    const cleaned = await cleanCompletedExecutions({ all: opts?.all });
+    const result = await cleanCompletedExecutions({ all: opts?.all });
 
-    if (cleaned === 0) {
+    if (result.cleaned === 0) {
         logger.info('No executions to clean');
     } else {
-        logger.success(`Cleaned ${cleaned} execution(s)`);
+        logger.success(`Cleaned ${result.cleaned} execution(s)`);
+    }
+
+    // Show remaining executions when --all was not provided
+    if (!opts?.all && (result.pending > 0 || result.error > 0)) {
+        const remaining: string[] = [];
+        if (result.pending > 0) {
+            remaining.push(`${result.pending} in progress/paused`);
+        }
+        if (result.error > 0) {
+            remaining.push(`${result.error} with errors`);
+        }
+        logger.info(`Remaining: ${remaining.join(', ')}. use --all to force.`);
+    }
+
+    // Show failed removals if any
+    if (result.failed > 0) {
+        logger.warn(`Failed to remove: ${result.failed} execution(s)`);
     }
 }
 
@@ -1050,13 +1081,13 @@ function initializeCLI(): Promise<void> {
                     .option('--no-imports', 'disable import resolution (treat as single file)', false)
                     .option('-v, --verbose', 'verbose output')
                     .option('-q, --quiet', 'quiet output (errors only)')
-                    .description('generates output in specified formats\n\nExamples:\n  dygram generate file.dygram --format json,html\n  dygram generate file.json --format dsl  # backward compilation')
+                    .description('generates output in specified formats\n\nExamples:\n  dygram generate file.dy--format json,html\n  dygram generate file.json --format dsl  # backward compilation')
                     .action(generateAction);
 
                 program
                     .command('batch')
                     .aliases(['b'])
-                    .argument('<pattern>', 'glob pattern for files to process (e.g., "examples/**/*.dygram")')
+                    .argument('<pattern>', 'glob pattern for files to process (e.g., "examples/**/*.dy")')
                     .option('-d, --destination <dir>', 'destination directory for generated files')
                     .option('-f, --format <formats>',
                         'comma-separated list of output formats (json,graphviz,dot,html). Default: json',
@@ -1064,7 +1095,7 @@ function initializeCLI(): Promise<void> {
                     .option('--continue-on-error', 'continue processing remaining files if an error occurs', false)
                     .option('-v, --verbose', 'verbose output')
                     .option('-q, --quiet', 'quiet output (errors only)')
-                    .description('batch process multiple files matching a glob pattern\n\nExamples:\n  dygram batch "examples/**/*.dygram" --format json\n  dygram batch "src/**/*.dygram" --format json,html --destination ./output')
+                    .description('batch process multiple files matching a glob pattern\n\nExamples:\n  dygram batch "examples/**/*.dy --format json\n  dygram batch "src/**/*.dy --format json,html --destination ./output')
                     .action(batchAction);
 
                 program
@@ -1101,7 +1132,7 @@ function initializeCLI(): Promise<void> {
                     .option('-v, --verbose', 'verbose output')
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .option('--no-imports', 'disable import resolution (treat as single file)')
-                    .description('executes a machine program\n\nExamples:\n  dygram execute app.dygram\n  dygram execute app.dygram --interactive\n  cat app.dygram | dygram execute --interactive\n  dygram execute app.dygram --playback recordings/\n  echo \'{"input": "..."}\' | dygram e -i app.dygram')
+                    .description('executes a machine program\n\nExamples:\n  dygram execute app.dy\n  dygram execute app.dy --interactive\n  cat app.dy| dygram execute --interactive\n  dygram execute app.dy--playback recordings/\n  echo \'{"input": "..."}\' | dygram e -i app.dy')
                     .action(executeAction);
 
                 program
@@ -1110,7 +1141,7 @@ function initializeCLI(): Promise<void> {
                     .argument('<file>', `source file to check (${fileExtensions})`)
                     .option('-v, --verbose', 'verbose output')
                     .option('-q, --quiet', 'quiet output (errors only)')
-                    .description('validate imports and show dependency graph\n\nExamples:\n  dygram check-imports app.dygram')
+                    .description('validate imports and show dependency graph\n\nExamples:\n  dygram check-imports app.dy')
                     .action(checkImportsAction);
 
                 program
@@ -1119,7 +1150,7 @@ function initializeCLI(): Promise<void> {
                     .option('-o, --output <file>', 'output file path')
                     .option('-v, --verbose', 'verbose output')
                     .option('-q, --quiet', 'quiet output (errors only)')
-                    .description('bundle multi-file machine into single file\n\nExamples:\n  dygram bundle app.dygram\n  dygram bundle app.dygram --output dist/app.bundled.dygram')
+                    .description('bundle multi-file machine into single file\n\nExamples:\n  dygram bundle app.dyn  dygram bundle app.dy--output dist/app.bundled.dy')
                     .action(bundleAction);
 
                 program

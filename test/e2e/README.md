@@ -71,7 +71,7 @@ npx playwright show-report
 
 ## How It Works
 
-1. **Load DyGram Files**: Tests load example `.dygram` files from the `examples/` directory
+1. **Load DyGram Files**: Tests load example `.dy` files from the `examples/` directory
 2. **Generate Mermaid**: DyGram source is parsed and transformed to Mermaid format
 3. **Render in Browser**: A Chromium browser instance loads the Mermaid diagram
 4. **Validate SVG**: The test confirms that an SVG element is successfully generated
@@ -94,7 +94,7 @@ Each test follows this pattern:
 
 ```typescript
 test('Example Test', async ({ page }) => {
-    const source = loadExample('category', 'filename.dygram');
+    const source = loadExample('category', 'filename.dy');
     const result = await testMermaidRendering(page, 'Test Name', source);
     expect(result.success, `Rendering failed: ${result.errorMessage}`).toBe(true);
     expect(result.svgGenerated, 'SVG was not generated').toBe(true);
@@ -125,12 +125,12 @@ When a test fails:
 
 To add tests for new example files:
 
-1. Add the `.dygram` file to the appropriate `examples/` subdirectory
+1. Add the `.dy` file to the appropriate `examples/` subdirectory
 2. Add a test case in `mermaid-rendering.test.ts`:
 
 ```typescript
 test('Category: Test Name', async ({ page }) => {
-    const source = loadExample('category', 'filename.dygram');
+    const source = loadExample('category', 'filename.dy');
     const result = await testMermaidRendering(page, 'Test Name', source);
     expect(result.success, `Rendering failed: ${result.errorMessage}`).toBe(true);
     expect(result.svgGenerated, 'SVG was not generated').toBe(true);

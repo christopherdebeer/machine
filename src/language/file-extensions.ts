@@ -11,7 +11,7 @@ import { MachineLanguageMetaData } from './generated/module.js';
  * Get the list of supported file extensions for DyGram files.
  * These extensions are configured in langium-config.json.
  *
- * @returns Array of file extensions (e.g., ['.dygram', '.mach', '.dy'])
+ * @returns Array of file extensions (e.g., ['.dy', '.mach', '.dy'])
  */
 export function getFileExtensions(): string[] {
     return MachineLanguageMetaData.fileExtensions;
@@ -20,7 +20,7 @@ export function getFileExtensions(): string[] {
 /**
  * Get the primary/preferred file extension for DyGram files.
  *
- * @returns The first extension from the list (e.g., '.dygram')
+ * @returns The first extension from the list (e.g., '.dy')
  */
 export function getPrimaryExtension(): string {
     return MachineLanguageMetaData.fileExtensions[0];

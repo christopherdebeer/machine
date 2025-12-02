@@ -523,7 +523,7 @@ async function transformMarkdownToMdx(projectRoot) {
                                 codeBlockLang = null;
                                 output.push('```' + match[1]);
                             } else {
-                                // Extract filename (e.g., filename="examples/state-machine.dygram")
+                                // Extract filename (e.g., filename="examples/state-machine.dy")
                                 const filenameMatch = metadataStr.match(/filename=["']([^"']+)["']/);
                                 if (filenameMatch) {
                                     codeBlockFilename = filenameMatch[1];
@@ -855,7 +855,7 @@ async function generateEntries(projectRoot) {
     <title>DyGram | ${page.title}</title>
     <link rel="stylesheet" href="${baseUrl}static/styles/main.css">
     <link rel="stylesheet" href="${baseUrl}static/styles/carousel.css">
-    <link rel="icon" type="image/jpeg" href="${baseUrl}icon.jpg">
+    <link rel="icon" type="image/png" href="${baseUrl}static/icon.png">
 </head>
 <body>
     <div id="root"></div>

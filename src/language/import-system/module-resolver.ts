@@ -46,7 +46,7 @@ export interface ModuleResolver {
 
 /**
  * Filesystem-based module resolver
- * Handles relative paths (./file, ../file) and resolves .dygram extensions
+ * Handles relative paths (./file, ../file) and resolves .dy extensions
  */
 export class FileSystemResolver implements ModuleResolver {
     constructor(

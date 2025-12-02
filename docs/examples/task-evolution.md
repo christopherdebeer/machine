@@ -20,7 +20,7 @@ Tasks progress through four evolution stages:
 
 Pure LLM execution - the agent reasons about and executes the task.
 
-```dygram examples/task-evolution/llm-only-stage.dy
+```dy examples/task-evolution/llm-only-stage.dy
 machine "LLM-Only Task"
 
 Task classify "Classify sentiment" {
@@ -48,7 +48,7 @@ start -> classify -> end
 
 Generated code handles common patterns, LLM handles edge cases.
 
-```dygram examples/task-evolution/hybrid-stage.dy
+```dy examples/task-evolution/hybrid-stage.dy
 machine "Hybrid Task"
 
 Task classify "Sentiment classifier" {
@@ -77,7 +77,7 @@ start -> classify -> end
 
 Generated code runs first, LLM only if confidence is low.
 
-```dygram examples/task-evolution/code-first-stage.dy
+```dy examples/task-evolution/code-first-stage.dy
 machine "Code-First Task"
 
 Task classify "Fast classifier" {
@@ -105,7 +105,7 @@ start -> classify -> end
 
 Pure generated code execution - no LLM involvement.
 
-```dygram examples/task-evolution/code-only-stage.dy
+```dy examples/task-evolution/code-only-stage.dy
 machine "Code-Only Task"
 
 Task classify "Production classifier" {
@@ -135,7 +135,7 @@ Evolution is triggered automatically based on performance metrics and execution 
 
 ### Automatic Evolution
 
-```dygram examples/task-evolution/automatic-evolution.dy
+```dy examples/task-evolution/automatic-evolution.dy
 machine "Auto-Evolving System"
 
 Task processData "Data processor" {
@@ -153,7 +153,7 @@ start -> processData -> end
 
 ### Manual Evolution Control
 
-```dygram examples/task-evolution/manual-evolution.dy
+```dy examples/task-evolution/manual-evolution.dy
 machine "Controlled Evolution"
 
 Context EvolutionControl {
@@ -183,7 +183,7 @@ Evolution occurs automatically when thresholds are met:
 - **Success Rate:** greater than 90%
 - **Pattern Stability:** Consistent output formats
 
-```dygram examples/task-evolution/implicit-trigger.dy
+```dy examples/task-evolution/implicit-trigger.dy
 machine "Threshold-Based Evolution"
 
 Task analyze "Data analyzer" {
@@ -209,7 +209,7 @@ start -> analyze -> end
 
 Use the `EvolutionaryExecutor` API to manually trigger evolution:
 
-```dygram examples/task-evolution/explicit-trigger.dy
+```dy examples/task-evolution/explicit-trigger.dy
 machine "Manual Evolution Trigger"
 
 Task checkMetrics "Review task metrics" {
@@ -239,7 +239,7 @@ CODE_FIRST_CONFIDENCE = 0.7     // Threshold for code_first stage
 
 Override defaults per task:
 
-```dygram examples/task-evolution/custom-thresholds.dy
+```dy examples/task-evolution/custom-thresholds.dy
 machine "Custom Evolution Thresholds"
 
 Task criticalTask "High-stakes operation" {
@@ -268,7 +268,7 @@ start -> criticalTask -> standardTask -> end
 
 Evolution decisions are based on performance metrics:
 
-```dygram examples/task-evolution/performance-tracking.dy
+```dy examples/task-evolution/performance-tracking.dy
 machine "Performance-Tracked System"
 
 Context TaskMetrics {
@@ -309,7 +309,7 @@ For each task, the system tracks:
 
 ### Complete Evolution Lifecycle
 
-```dygram examples/task-evolution/complete-lifecycle.dy
+```dy examples/task-evolution/complete-lifecycle.dy
 machine "Evolution Lifecycle Demo"
 
 Context Evolution {
@@ -349,7 +349,7 @@ start -> dataProcessor -> end
 
 ### Rollback on Failure
 
-```dygram examples/task-evolution/rollback-on-failure.dy
+```dy examples/task-evolution/rollback-on-failure.dy
 machine "Evolution with Rollback"
 
 Context HealthCheck {
@@ -377,7 +377,7 @@ advancedProcessor -> monitorHealth -> rollbackIfNeeded
 
 ### Multi-Task Evolution
 
-```dygram examples/task-evolution/multi-task-evolution.dy
+```dy examples/task-evolution/multi-task-evolution.dy
 machine "Multiple Evolving Tasks"
 
 Task classifier "Sentiment classifier" {
@@ -411,7 +411,7 @@ start -> classifier -> extractor -> aggregator -> end
 
 Always begin new tasks at the `llm_only` stage.
 
-```dygram examples/task-evolution/start-llm-only.dy
+```dy examples/task-evolution/start-llm-only.dy
 machine "Proper Evolution Start"
 
 Task newTask "Undefined new task" {
@@ -427,7 +427,7 @@ start -> newTask -> end
 
 Track performance before allowing evolution.
 
-```dygram examples/task-evolution/monitor-before-evolve.dy
+```dy examples/task-evolution/monitor-before-evolve.dy
 machine "Monitored Evolution"
 
 Context Metrics {
@@ -452,7 +452,7 @@ operation -> checkReadiness
 
 Test generated code thoroughly before code_only stage.
 
-```dygram examples/task-evolution/validate-generated-code.dy
+```dy examples/task-evolution/validate-generated-code.dy
 machine "Code Validation"
 
 Task validateCode "Test generated code" {
@@ -471,7 +471,7 @@ validateCode -> promoteIfValid
 
 Always keep previous stage code for rollback.
 
-```dygram examples/task-evolution/maintain-rollback.dy
+```dy examples/task-evolution/maintain-rollback.dy
 machine "Rollback-Ready System"
 
 Context VersionControl {
@@ -496,7 +496,7 @@ checkPerformance -> rollbackIfWorse
 
 Record why and when evolution occurs.
 
-```dygram examples/task-evolution/document-evolution.dy
+```dy examples/task-evolution/document-evolution.dy
 machine "Documented Evolution"
 
 Context EvolutionLog {

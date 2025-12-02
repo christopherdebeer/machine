@@ -19,7 +19,7 @@ Implemented machine-level and edge annotation support in DSL generator, improvin
   - Attributed annotations: `@style(rankdir: LR)`
 
 **Examples**:
-```dygram
+```dy
 machine "API Service" @Version("1.0") {
     environment: "production";
     timeout: 30;
@@ -36,7 +36,7 @@ machine "API Service" @Version("1.0") {
 - Support for annotations with values and attribute-style parameters
 
 **Examples**:
-```dygram
+```dy
 Start -@Critical-> Process;
 a -@style(color: "red"; weight: 2;)-> b;
 ```
@@ -79,7 +79,7 @@ JSON stores node types in lowercase (`"type": "task"`), but DSL syntax requires 
 #### Example
 
 **Original DSL**:
-```dygram
+```dy
 machine "Configured Tasks"
 
 Task analyze {
@@ -102,7 +102,7 @@ Input data {
 ```
 
 **Regenerated DSL (fails to parse)**:
-```dygram
+```dy
 machine "Configured Tasks"
 
 task analyze {

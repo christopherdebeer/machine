@@ -582,7 +582,7 @@ async function langiumCompletionSource(context: CompletionContext): Promise<Comp
         // Create LSP-compatible completion params
         const completionParams = {
             textDocument: {
-                uri: 'inmemory://playground.dygram'
+                uri: 'inmemory://playground.dy'
             },
             position: {
                 line: lineNumber,
