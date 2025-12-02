@@ -12,11 +12,11 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Cli
 
+  - [Interactive Mode](cli/interactive-mode.md)
   - [CLI Reference](cli/README.md)
 
 ### Development
 
-  - [Agent Responder MCP Integration Proposals](development/agent-responder-mcp-integration.md)
   - [Canonical Machine JSON Adoption Review](development/canonical-machine-json-usage.md)
   - [Centralized Syntax Highlighting Architecture](development/centralized-syntax-highlighting-design.md)
   - [Code Cleanup & Documentation Progress - 2025-11-24](development/cleanup-progress-2025-11-24.md)
@@ -48,12 +48,17 @@ Complete reference to all DyGram documentation organized by topic.
   - [Recording Validation Bugs and Issues](development/recording-validation-bugs.md)
   - [Round-Trip Test Analysis - November 3, 2025](development/round-trip-analysis-2025-11-03.md)
   - [Snapshot Testing Guide](development/SNAPSHOTS.md)
-  - [Sub-agent Test Runner](development/sub-agent-test-runner.md)
   - [DyGram Syntax Highlighting Investigation](development/syntax-highlighting-investigation.md)
   - [Template String Parsing Enhancement](development/template-string-parsing-enhancement.md)
   - [Test Migration Completion Summary](development/test-migration-completion-summary.md)
   - [Test Refactoring Summary: Interactive Tests to Comprehensive Generative Tests](development/test-refactoring-summary.md)
   - [Turn-Level Execution Implementation](development/turn-level-execution-implementation.md)
+  ### Archive
+
+    - [Agent Responder MCP Integration Proposals](development/archive/agent-responder-mcp-integration.md)
+    - [Archived Development Documents](development/archive/README.md)
+    - [Sub-agent Test Runner](development/archive/sub-agent-test-runner.md)
+
 
 ### Examples
 
@@ -75,6 +80,8 @@ Complete reference to all DyGram documentation organized by topic.
   - [Task Evolution: From LLM to Generated Code](examples/task-evolution.md)
   - [Text Wrapping Configuration](examples/text-wrapping-configuration.md)
   - [Workflow Examples](examples/workflows.md)
+  ### Execution
+
 
 ### Getting Started
 

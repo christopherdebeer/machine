@@ -21,7 +21,7 @@ import { dirname } from 'node:path';
 import { WorkspaceManager, FileSystemResolver, MultiFileGenerator } from '../language/import-system/index.js';
 import { CircularDependencyError, ModuleNotFoundError } from '../language/import-system/import-errors.js';
 import { executeInteractiveTurn } from './interactive-execution.js';
-import { listExecutions, loadExecutionMetadata, removeExecution, cleanCompletedExecutions } from './execution-state.js';
+import { listExecutions, loadExecutionMetadata, removeExecution, cleanCompletedExecutions, type CleanExecutionsResult } from './execution-state.js';
 
 // Handle both bundled and unbundled cases
 let __dirname: string;
@@ -1007,12 +1007,29 @@ export const cleanExecutionsAction = async (opts?: {
 }): Promise<void> => {
     setupLogger(opts || {});
 
-    const cleaned = await cleanCompletedExecutions({ all: opts?.all });
+    const result = await cleanCompletedExecutions({ all: opts?.all });
 
-    if (cleaned === 0) {
+    if (result.cleaned === 0) {
         logger.info('No executions to clean');
     } else {
-        logger.success(`Cleaned ${cleaned} execution(s)`);
+        logger.success(`Cleaned ${result.cleaned} execution(s)`);
+    }
+
+    // Show remaining executions when --all was not provided
+    if (!opts?.all && (result.pending > 0 || result.error > 0)) {
+        const remaining: string[] = [];
+        if (result.pending > 0) {
+            remaining.push(`${result.pending} in progress/paused`);
+        }
+        if (result.error > 0) {
+            remaining.push(`${result.error} with errors`);
+        }
+        logger.info(`Remaining: ${remaining.join(', ')}. use --all to force.`);
+    }
+
+    // Show failed removals if any
+    if (result.failed > 0) {
+        logger.warn(`Failed to remove: ${result.failed} execution(s)`);
     }
 }
 

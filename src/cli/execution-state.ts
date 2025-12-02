@@ -339,22 +339,46 @@ export async function removeExecution(executionId: string): Promise<void> {
 }
 
 /**
+ * Result of cleaning executions
+ */
+export interface CleanExecutionsResult {
+    cleaned: number;    // Successfully removed
+    pending: number;    // In progress or paused (not cleaned when --all not provided)
+    error: number;      // With error status (not cleaned when --all not provided)
+    failed: number;     // Failed to remove
+}
+
+/**
  * Clean completed executions
  */
-export async function cleanCompletedExecutions(options: { all?: boolean } = {}): Promise<number> {
+export async function cleanCompletedExecutions(options: { all?: boolean } = {}): Promise<CleanExecutionsResult> {
     const executions = await listExecutions();
-    let cleaned = 0;
+    const result: CleanExecutionsResult = {
+        cleaned: 0,
+        pending: 0,
+        error: 0,
+        failed: 0
+    };
 
     for (const execution of executions) {
         if (options.all || execution.status === 'complete') {
             try {
                 await removeExecution(execution.id);
-                cleaned++;
+                result.cleaned++;
             } catch {
-                // Skip on error
+                // Failed to remove
+                result.failed++;
+            }
+        } else {
+            // Not cleaned - categorize by status
+            if (execution.status === 'error') {
+                result.error++;
+            } else {
+                // in_progress or paused
+                result.pending++;
             }
         }
     }
 
-    return cleaned;
+    return result;
 }

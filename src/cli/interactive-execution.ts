@@ -504,7 +504,7 @@ export async function executeInteractiveTurn(
             logger.output(error.exampleResponse);
             logger.output(chalk.dim('─'.repeat(60)));
             logger.info(chalk.cyan('\n💡 Provide response via stdin:'));
-            logger.info(chalk.gray(`   echo '<response-json>' | dygram execute <machine> --interactive\n`));
+            logger.info(chalk.gray(`   echo '<response-json>' | dygram execute <machine> --interactive --id ${executionId}\n`));
 
             // Save state as paused
             metadata.status = 'paused';
