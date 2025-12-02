@@ -160,23 +160,22 @@ export async function loadOrCreateExecution(
         logger.info(chalk.blue(`⚡ Starting interactive execution: ${executionId}`));
     }
 
-    // Load or create machine
-    let machineData: MachineJSON;
-    if (opts.isStdin) {
-        // Parse machine from stdin source
-        machineData = await parseMachineFromSource(opts.machineSource);
-    } else {
-        // Load machine from file
-        machineData = await loadMachineFromFile(opts.machineSource);
-    }
-    const machineHash = hashMachine(machineData);
-
     let executor: MachineExecutor;
     let metadata: ExecutionMetadata;
+    let machineData: MachineJSON;
 
     if (isNew || !(await executionExists(executionId))) {
         // Create new execution
         logger.debug('Creating new execution');
+
+        // Load or create machine from source
+        if (opts.isStdin) {
+            // Parse machine from stdin source
+            machineData = await parseMachineFromSource(opts.machineSource);
+        } else {
+            // Load machine from file
+            machineData = await loadMachineFromFile(opts.machineSource);
+        }
 
         // Configure client
         const clientConfig = configureClient(opts);
@@ -216,24 +215,14 @@ export async function loadOrCreateExecution(
         await updateLastSymlink(executionId);
 
     } else {
-        // Resume existing execution
+        // Resume existing execution - load from snapshot (not source file)
         logger.debug('Resuming existing execution');
 
         const state: ExecutionStateFile = await loadExecutionState(executionId);
         metadata = await loadExecutionMetadata(executionId);
 
-        // Verify machine hasn't changed
-        if (state.machineHash !== machineHash) {
-            throw new Error(
-                `Machine definition has changed since execution started.\n` +
-                `   Original hash: ${state.machineHash.slice(0, 8)}...\n` +
-                `   Current hash:  ${machineHash.slice(0, 8)}...\n\n` +
-                `   Options:\n` +
-                `   - Use --force to start a new execution\n` +
-                `   - Restore original machine definition\n` +
-                `   - Use --id to start a parallel execution`
-            );
-        }
+        // Load machine from snapshot (which may have been modified by meta-tools)
+        machineData = await loadMachineSnapshot(executionId);
 
         // Show mode info
         if (metadata.mode === 'playback') {
@@ -249,10 +238,7 @@ export async function loadOrCreateExecution(
             record: metadata.clientConfig?.recordingsDir
         });
 
-        // Load machine from snapshot
-        machineData = await loadMachineSnapshot(executionId);
-
-        // Recreate executor
+        // Recreate executor with snapshot machine
         executor = await MachineExecutor.create(machineData, clientConfig);
 
         // Restore execution state
@@ -314,10 +300,11 @@ export async function saveCurrentExecutionState(
     // Get the active path (first path)
     const activePath = execState.paths[0];
 
-    // Create state file
+    // Create state file with updated machine hash
+    const updatedMachineHash = hashMachine(machineData);
     const state: ExecutionStateFile = {
         version: STATE_CONFIG.stateVersion,
-        machineHash: hashMachine(machineData),
+        machineHash: updatedMachineHash,  // Updated hash to reflect machine modifications
         executionState: {
             currentNode: activePath?.currentNode || '',
             pathId: activePath?.id || '',
@@ -340,7 +327,6 @@ export async function saveCurrentExecutionState(
     await saveMachineSnapshot(executionId, machineData);
 
     // Update metadata
-    metadata.machineHash = hashMachine(machineData);  // Update hash to reflect machine modifications
     metadata.lastExecutedAt = new Date().toISOString();
     metadata.status = state.status;
     metadata.stepCount = activePath?.stepCount || 0;
