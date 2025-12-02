@@ -1058,7 +1058,7 @@ function initializeCLI(): Promise<void> {
 
                 program
                     .command('execute')
-                    .aliases(['exec', 'e'])
+                    .aliases(['e'])
                     .argument('[file]', `source file (${fileExtensions}) or stdin if omitted`)
                     .option('-i, --interactive', 'interactive turn-by-turn execution')
                     .option('--id <id>', 'execution ID (for managing multiple executions)')

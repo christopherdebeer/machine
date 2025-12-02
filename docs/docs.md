@@ -20,6 +20,8 @@ Complete reference to all DyGram documentation organized by topic.
   - [Canonical Machine JSON Adoption Review](development/canonical-machine-json-usage.md)
   - [Centralized Syntax Highlighting Architecture](development/centralized-syntax-highlighting-design.md)
   - [Code Cleanup & Documentation Progress - 2025-11-24](development/cleanup-progress-2025-11-24.md)
+  - [CLI Intra-Step Execution Research](development/cli-intra-step-execution-research.md)
+  - [CLI Stateful Execution Design](development/cli-stateful-execution-design.md)
   - [DyGram Code Review & Documentation Analysis](development/code-review-2025-11-24.md)
   - [Context Read/Write Implementation Status and Issues](development/context-read-write-implementation.md)
   - [Context Write Implementation Missing](development/context-write-implementation-missing.md)
@@ -72,8 +74,6 @@ Complete reference to all DyGram documentation organized by topic.
   - [Task Evolution: From LLM to Generated Code](examples/task-evolution.md)
   - [Text Wrapping Configuration](examples/text-wrapping-configuration.md)
   - [Workflow Examples](examples/workflows.md)
-  ### Execution
-
 
 ### Getting Started
 
