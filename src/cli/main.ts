@@ -21,7 +21,7 @@ import { dirname } from 'node:path';
 import { WorkspaceManager, FileSystemResolver, MultiFileGenerator } from '../language/import-system/index.js';
 import { CircularDependencyError, ModuleNotFoundError } from '../language/import-system/import-errors.js';
 import { executeInteractiveTurn } from './interactive-execution.js';
-import { listExecutions, loadExecutionMetadata, removeExecution, cleanCompletedExecutions, type CleanExecutionsResult } from './execution-state.js';
+import { listExecutions, loadExecutionMetadata, removeExecution, cleanCompletedExecutions } from './execution-state.js';
 
 // Handle both bundled and unbundled cases
 let __dirname: string;
@@ -88,7 +88,6 @@ function setupLogger(opts: { verbose?: boolean; quiet?: boolean }): void {
 
 async function generateWithImports(fileName: string, opts: GenerateOptions, formats: GenerateFormat[]): Promise<void> {
     const services = createMachineServices(NodeFileSystem).Machine;
-    const workingDir = path.dirname(path.resolve(fileName));
     const resolver = new FileSystemResolver();
     const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
@@ -188,7 +187,6 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
     }
 
     // Check if file has imports and --no-imports is not set
-    const fileUri = pathToFileURL(path.resolve(fileName)).toString();
     const document = await extractDocument(fileName, services);
     const machine = document.parseResult.value as Machine;
 
@@ -364,36 +362,48 @@ export const parseAndValidate = async (fileName: string, opts?: { verbose?: bool
  * Read stdin if available (with timeout)
  */
 async function readStdin(): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         let data = '';
         let resolved = false;
 
-        const timeout = setTimeout(() => {
+        const cleanup = () => {
+            process.stdin.removeAllListeners('data');
+            process.stdin.removeAllListeners('end');
+            process.stdin.removeAllListeners('error');
+            process.stdin.pause();
+        };
+
+        const finish = (result: string) => {
             if (!resolved) {
                 resolved = true;
-                resolve(''); // Return empty string on timeout
+                clearTimeout(timeout);
+                cleanup();
+                resolve(result);
             }
+        };
+
+        const timeout = setTimeout(() => {
+            finish(''); // Return empty string on timeout
         }, 100); // 100ms timeout
 
-        process.stdin.on('data', chunk => {
-            data += chunk;
-        });
+        const onData = (chunk: Buffer) => {
+            data += chunk.toString();
+        };
 
-        process.stdin.on('end', () => {
-            if (!resolved) {
-                resolved = true;
-                clearTimeout(timeout);
-                resolve(data);
-            }
-        });
+        const onEnd = () => {
+            finish(data);
+        };
 
-        process.stdin.on('error', (err) => {
-            if (!resolved) {
-                resolved = true;
-                clearTimeout(timeout);
-                resolve(''); // Return empty on error
-            }
-        });
+        const onError = () => {
+            finish(''); // Return empty on error
+        };
+
+        process.stdin.on('data', onData);
+        process.stdin.on('end', onEnd);
+        process.stdin.on('error', onError);
+
+        // Resume stdin to start reading
+        process.stdin.resume();
     });
 }
 
@@ -482,7 +492,6 @@ export const executeAction = async (fileName: string | undefined, opts: {
     if (useImportSystem) {
         logger.debug('File has imports, using multi-file compilation');
 
-        const workingDir = path.dirname(path.resolve(fileName));
         const resolver = new FileSystemResolver();
         const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
@@ -603,7 +612,10 @@ export const executeAction = async (fileName: string | undefined, opts: {
         console.log(chalk.gray(`   Updated DSL saved to: ${updatedPath}`));
     });
 
-    const executionResult = await executor.execute();
+    await executor.execute();
+
+    // Get execution context for results
+    const context = executor.getContext();
 
     // Write execution results
     const data = extractDestinationAndName(fileName, opts.destination);
@@ -612,16 +624,18 @@ export const executeAction = async (fileName: string | undefined, opts: {
     const resultPath = path.join(data.destination, `${data.name}-result.json`);
     await fs.writeFile(resultPath, JSON.stringify(
         {
-            ...executionResult,
-            visitedNodes: Array.from(executionResult.visitedNodes),
-            attributes: Object.fromEntries(executionResult.attributes)
+            currentNode: context.currentNode,
+            visitedNodes: Array.from(context.visitedNodes),
+            attributes: Object.fromEntries(context.attributes),
+            history: context.history,
+            errorCount: context.errorCount
         },
         null,
         2
     ));
     logger.success(`\n✓ Execution results written to: ${resultPath}`);
     logger.info(chalk.blue('\n📋 Execution path:'));
-    executionResult.history.forEach(step => {
+    context.history.forEach((step: any) => {
         logger.info(chalk.cyan(`  ${step.from}`) + chalk.gray(` --(${step.transition})--> `) + chalk.cyan(`${step.to}`));
         if (step.output) {
             logger.info(chalk.gray(`    Output: ${step.output}`));
@@ -657,7 +671,6 @@ export const checkImportsAction = async (fileName: string, opts?: { verbose?: bo
     setupLogger(opts || {});
 
     const services = createMachineServices(NodeFileSystem).Machine;
-    const workingDir = path.dirname(path.resolve(fileName));
     const resolver = new FileSystemResolver();
     const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
@@ -676,13 +689,15 @@ export const checkImportsAction = async (fileName: string, opts?: { verbose?: bo
         const graph = workspace.dependencyGraph;
         const order = graph.topologicalSort();
 
-        order.forEach((uri, i) => {
-            const filePath = fileURLToPath(uri);
-            const relativePath = path.relative(process.cwd(), filePath);
-            logger.info(`  ${i + 1}. ${relativePath}`);
-        });
+        if (order) {
+            order.forEach((uri, i) => {
+                const filePath = fileURLToPath(uri.toString());
+                const relativePath = path.relative(process.cwd(), filePath);
+                logger.info(`  ${i + 1}. ${relativePath}`);
+            });
 
-        logger.info(`\nTotal files: ${order.length}`);
+            logger.info(`\nTotal files: ${order.length}`);
+        }
 
     } catch (error) {
         if (error instanceof CircularDependencyError) {
@@ -707,7 +722,6 @@ export const bundleAction = async (fileName: string, opts: { output?: string; ve
     setupLogger(opts);
 
     const services = createMachineServices(NodeFileSystem).Machine;
-    const workingDir = path.dirname(path.resolve(fileName));
     const resolver = new FileSystemResolver();
     const workspace = new WorkspaceManager(services.shared.workspace.LangiumDocuments, resolver);
 
@@ -1073,7 +1087,7 @@ function initializeCLI(): Promise<void> {
                 program
                     .command('batch')
                     .aliases(['b'])
-                    .argument('<pattern>', 'glob pattern for files to process (e.g., "examples/**/*.dy)')
+                    .argument('<pattern>', 'glob pattern for files to process (e.g., "examples/**/*.dy")')
                     .option('-d, --destination <dir>', 'destination directory for generated files')
                     .option('-f, --format <formats>',
                         'comma-separated list of output formats (json,graphviz,dot,html). Default: json',

@@ -4,7 +4,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import { ANTHROPIC_MODELS } from './shared-settings';
+import { ANTHROPIC_MODELS } from './shared-settings.js'
 
 const CACHE_KEY = 'dygram_models_cache';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours

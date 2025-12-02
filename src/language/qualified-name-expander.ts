@@ -131,8 +131,11 @@ export class QualifiedNameExpander {
         } else {
             // Create: add the leaf node with its simple name
             node.name = leafName; // Update name to simple form
+            // @ts-ignore - Langium AST properties are read-only but we need to set them during expansion
             node.$container = currentContainer;
+            // @ts-ignore
             node.$containerProperty = 'nodes';
+            // @ts-ignore
             node.$containerIndex = currentNodes.length;
             currentNodes.push(node);
         }
@@ -230,8 +233,11 @@ export class QualifiedNameExpander {
 
             for (const annotation of newNode.annotations) {
                 if (!existingAnnotationNames.has(annotation.name)) {
+                    // @ts-ignore - Langium AST properties are read-only but we need to set them during expansion
                     annotation.$container = existingNode;
+                    // @ts-ignore
                     annotation.$containerProperty = 'annotations';
+                    // @ts-ignore
                     annotation.$containerIndex = existingNode.annotations.length;
                     existingNode.annotations.push(annotation);
                 }
@@ -247,14 +253,20 @@ export class QualifiedNameExpander {
 
                 if (existingAttrIndex >= 0) {
                     // Replace existing attribute
+                    // @ts-ignore - Langium AST properties are read-only but we need to set them during expansion
                     newAttr.$container = existingNode;
+                    // @ts-ignore
                     newAttr.$containerProperty = 'attributes';
+                    // @ts-ignore
                     newAttr.$containerIndex = existingAttrIndex;
                     existingNode.attributes[existingAttrIndex] = newAttr;
                 } else {
                     // Add new attribute
+                    // @ts-ignore - Langium AST properties are read-only but we need to set them during expansion
                     newAttr.$container = existingNode;
+                    // @ts-ignore
                     newAttr.$containerProperty = 'attributes';
+                    // @ts-ignore
                     newAttr.$containerIndex = existingNode.attributes.length;
                     existingNode.attributes.push(newAttr);
                 }
@@ -273,8 +285,11 @@ export class QualifiedNameExpander {
                     this.mergeNodes(existingChild, childNode, isStrictMode);
                 } else {
                     // Add new child node
+                    // @ts-ignore - Langium AST properties are read-only but we need to set them during expansion
                     childNode.$container = existingNode;
+                    // @ts-ignore
                     childNode.$containerProperty = 'nodes';
+                    // @ts-ignore
                     childNode.$containerIndex = existingNode.nodes.length;
                     existingNode.nodes.push(childNode);
                 }
@@ -284,8 +299,11 @@ export class QualifiedNameExpander {
         // Merge edges
         if (newNode.edges && newNode.edges.length > 0) {
             for (const edge of newNode.edges) {
+                // @ts-ignore - Langium AST properties are read-only but we need to set them during expansion
                 edge.$container = existingNode;
+                // @ts-ignore
                 edge.$containerProperty = 'edges';
+                // @ts-ignore
                 edge.$containerIndex = existingNode.edges.length;
                 existingNode.edges.push(edge);
             }

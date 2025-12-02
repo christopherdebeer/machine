@@ -53,7 +53,7 @@ export class StdinResponseClient extends ClaudeClient {
     /**
      * Override invokeWithTools to implement request/response cycle
      */
-    async invokeWithTools(
+    override async invokeWithTools(
         messages: ConversationMessage[],
         tools: ToolDefinition[],
         modelIdOverride?: string

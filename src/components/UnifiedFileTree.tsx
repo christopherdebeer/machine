@@ -7,8 +7,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { FileAccessService, type FileAccessFile } from '../playground/file-access-service';
-import { checkRecordingsAvailable } from '../api/recordings-api';
+import { FileAccessService, type FileAccessFile } from '../playground/file-access-service.js'
+import { checkRecordingsAvailable } from '../api/recordings-api.js'
 
 interface UnifiedFileTreeProps {
     fileService: FileAccessService;

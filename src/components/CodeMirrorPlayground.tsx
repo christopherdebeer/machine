@@ -37,40 +37,40 @@ import {
 } from "@codemirror/language";
 import { lintKeymap } from "@codemirror/lint";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { ExecutionControls } from "./ExecutionControls";
-import { ExecutionStateVisualizer } from "./ExecutionStateVisualizer";
-import { UnifiedFileTree } from "./UnifiedFileTree";
-import { loadSettings, saveSettings } from "../language/shared-settings";
-import { fetchAnthropicModels, clearModelsCache, type ModelInfo } from "../language/model-fetcher";
-import { VirtualFileSystem } from "../playground/virtual-filesystem";
-import { FileAccessService } from "../playground/file-access-service";
-import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel";
-import { createLangiumExtensions } from "../codemirror-langium";
-import { createMachineServices } from "../language/machine-module";
-import { isFileApiAvailable, writeFile } from "../api/files-api";
+import { ExecutionControls } from "./ExecutionControls.js"
+import { ExecutionStateVisualizer } from "./ExecutionStateVisualizer.js"
+import { UnifiedFileTree } from "./UnifiedFileTree.js"
+import { loadSettings, saveSettings } from "../language/shared-settings.js"
+import { fetchAnthropicModels, clearModelsCache, type ModelInfo } from "../language/model-fetcher.js"
+import { VirtualFileSystem } from "../playground/virtual-filesystem.js"
+import { FileAccessService } from "../playground/file-access-service.js"
+import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel.js"
+import { createLangiumExtensions } from "../codemirror-langium.js"
+import { createMachineServices } from "../language/machine-module.js"
+import { isFileApiAvailable, writeFile } from "../api/files-api.js"
 import { EmptyFileSystem } from "langium";
 import { parseHelper } from "langium/test";
-import { Machine } from "../language/generated/ast";
+import { Machine } from "../language/generated/ast.js"
 import {
   generateJSON,
   generateDSL,
-} from "../language/generator/generator";
-import { serializeMachineToJSON } from "../language/json/serializer";
-import { generateGraphvizFromJSON } from "../language/diagram/index";
-import { render as renderGraphviz } from "../language/diagram-controls";
-import { MachineExecutor } from "../language/executor";
-import type { MachineJSON } from "../language/json/types";
-import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples";
+} from "../language/generator/generator.js"
+import { serializeMachineToJSON } from "../language/json/serializer.js"
+import { generateGraphvizFromJSON } from "../language/diagram/index.js"
+import { render as renderGraphviz } from "../language/diagram-controls.js"
+import { MachineExecutor } from "../language/executor.js"
+import type { MachineJSON } from "../language/json/types.js"
+import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples.js"
 import {
   base64UrlEncode,
   base64UrlDecode,
   parseHashParams as parseHashParamsUtil,
   updateHashParams as updateHashParamsUtil,
   type HashParams as HashParamsType,
-} from "../utils/url-encoding";
-import { checkRecordingsAvailable } from "../api/recordings-api";
-import { BrowserPlaybackClient } from "../language/browser-playback-client";
-import { BrowserRecordingClient } from "../language/browser-recording-client";
+} from "../utils/url-encoding.js"
+import { checkRecordingsAvailable } from "../api/recordings-api.js"
+import { BrowserPlaybackClient } from "../language/browser-playback-client.js"
+import { BrowserRecordingClient } from "../language/browser-recording-client.js"
 
 // CodeMirror highlighting effect for SVG → Editor navigation
 const setHighlightEffect = StateEffect.define<{from: number; to: number} | null>();
@@ -1437,7 +1437,7 @@ export const CodeMirrorPlayground: React.FC = () => {
         }
 
         // Generate new Graphviz with ExecutionState (conversion handled internally)
-        const { generateRuntimeGraphviz } = await import('../language/diagram/index');
+        const { generateRuntimeGraphviz } = await import('../language/diagram/index.js');
         const dotWithContext = generateRuntimeGraphviz(machineData, state, {
           showRuntimeState: true,
           showVisitCounts: true,

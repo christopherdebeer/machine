@@ -43,14 +43,14 @@ import {
 } from '@codemirror/language';
 import { lintKeymap } from '@codemirror/lint';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { createLangiumExtensions } from '../codemirror-langium';
-import { getSharedServices, registerFile, unregisterFile, updateFile } from '../shared-services';
-import { base64UrlEncode } from '../utils/url-encoding';
-import { Machine } from '../language/generated/ast';
+import { createLangiumExtensions } from '../codemirror-langium.js'
+import { getSharedServices, registerFile, unregisterFile, updateFile } from '../shared-services.js'
+import { base64UrlEncode } from '../utils/url-encoding.js'
+import { Machine } from '../language/generated/ast.js'
 import { parseHelper } from 'langium/test';
-import { generateGraphvizFromJSON } from '../language/diagram/index';
-import { serializeMachineToJSON } from '../language/json/serializer';
-import { render as renderGraphviz } from '../language/diagram-controls';
+import { generateGraphvizFromJSON } from '../language/diagram/index.js'
+import { serializeMachineToJSON } from '../language/json/serializer.js'
+import { render as renderGraphviz } from '../language/diagram-controls.js'
 import styled from 'styled-components';
 
 // CodeMirror highlighting effect for SVG → Editor navigation

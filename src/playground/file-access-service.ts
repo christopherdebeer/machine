@@ -5,8 +5,8 @@
  * but falls back to VirtualFileSystem when API is unavailable.
  */
 
-import { VirtualFileSystem, type VirtualFile } from './virtual-filesystem';
-import { isFileApiAvailable, listFiles, readFile as readFileApi, writeFile as writeFileApi, type FileInfo } from '../api/files-api';
+import { VirtualFileSystem, type VirtualFile } from './virtual-filesystem.js'
+import { isFileApiAvailable, listFiles, readFile as readFileApi, writeFile as writeFileApi, type FileInfo } from '../api/files-api.js'
 
 export interface FileAccessFile {
     path: string;

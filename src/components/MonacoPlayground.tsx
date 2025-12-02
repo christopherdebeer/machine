@@ -18,23 +18,23 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper';
-import { setupConfigExtended } from '../setupExtended';
-import { configureMonacoWorkers } from '../setupCommon';
-import { ExecutionControls } from './ExecutionControls';
+import { setupConfigExtended } from '../setupExtended.js'
+import { configureMonacoWorkers } from '../setupCommon.js'
+import { ExecutionControls } from './ExecutionControls.js'
 // @deprecated TODO: Replace ExampleButtons with UnifiedFileTree - migrate to Files API
-import { ExampleButtons } from './ExampleButtons';
-import { loadSettings, saveSettings } from '../language/shared-settings';
-import { OutputPanel, OutputData, OutputFormat } from './OutputPanel';
-import { createMachineServices } from '../language/machine-module';
+import { ExampleButtons } from './ExampleButtons.js'
+import { loadSettings, saveSettings } from '../language/shared-settings.js'
+import { OutputPanel, OutputData, OutputFormat } from './OutputPanel.js'
+import { createMachineServices } from '../language/machine-module.js'
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
-import { Machine } from '../language/generated/ast';
-import { generateJSON } from '../language/generator/generator';
-import { serializeMachineToJSON } from '../language/json/serializer';
-import { generateGraphvizFromJSON } from '../language/diagram/index';
-import { render as renderGraphviz } from '../language/diagram-controls';
+import { Machine } from '../language/generated/ast.js'
+import { generateJSON } from '../language/generator/generator.js'
+import { serializeMachineToJSON } from '../language/json/serializer.js'
+import { generateGraphvizFromJSON } from '../language/diagram/index.js'
+import { render as renderGraphviz } from '../language/diagram-controls.js'
 // @deprecated TODO: Replace shared-examples with FileAccessService - migrate to Files API
-import { getExampleByKey, type Example } from '../language/shared-examples';
+import { getExampleByKey, type Example } from '../language/shared-examples.js'
 
 // Styled Components
 const Container = styled.div`

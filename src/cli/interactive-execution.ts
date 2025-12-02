@@ -86,7 +86,6 @@ function configureClient(opts: LoadExecutionOptions): any {
     if (opts.isInteractive && !opts.playback && !opts.record) {
         return {
             llm: new StdinResponseClient({
-                provider: 'stdin' as any,
                 modelId: 'cli-interactive',
                 responseInput: opts.input ? JSON.stringify(opts.input) : undefined
             })
@@ -309,6 +308,8 @@ export async function saveCurrentExecutionState(
     // Get current state from executor
     const execState = executor.getState();
     const machineData = executor.getMachineDefinition();
+    
+    logger.debug(`Saving machine with ${machineData.nodes.length} nodes: ${machineData.nodes.map(n => n.name).join(', ')}`);
 
     // Get the active path (first path)
     const activePath = execState.paths[0];
@@ -335,7 +336,11 @@ export async function saveCurrentExecutionState(
 
     await saveExecutionState(executionId, state);
 
+    // Save machine snapshot (in case it was modified by meta-tools)
+    await saveMachineSnapshot(executionId, machineData);
+
     // Update metadata
+    metadata.machineHash = hashMachine(machineData);  // Update hash to reflect machine modifications
     metadata.lastExecutedAt = new Date().toISOString();
     metadata.status = state.status;
     metadata.stepCount = activePath?.stepCount || 0;

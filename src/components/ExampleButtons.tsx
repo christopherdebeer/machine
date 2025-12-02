@@ -17,7 +17,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { getAllExamples, type Example } from '../language/shared-examples';
+import { getAllExamples, type Example } from '../language/shared-examples.js'
 
 interface ExampleButtonsProps {
     onLoadExample: (content: string, example: Example) => void;

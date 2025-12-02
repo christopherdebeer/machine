@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { VirtualFileSystem, type VirtualFile } from '../playground/virtual-filesystem';
+import { VirtualFileSystem, type VirtualFile } from '../playground/virtual-filesystem.js'
 
 interface VirtualFileTreeProps {
     vfs: VirtualFileSystem;

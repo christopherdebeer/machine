@@ -9,7 +9,7 @@
  *
  * ### Static Diagrams with Graphviz
  * ```typescript
- * import { generateGraphvizFromJSON, renderDotToSVG } from './language/diagram';
+ * import { generateGraphvizFromJSON, renderDotToSVG } from './language/diagram.js'
  *
  * const dot = generateGraphvizFromJSON(machineJson, {
  *   title: 'My Machine'
@@ -19,7 +19,7 @@
  *
  * ### Runtime Diagrams
  * ```typescript
- * import { generateRuntimeGraphviz } from './language/diagram';
+ * import { generateRuntimeGraphviz } from './language/diagram.js'
  *
  * const runtimeDot = generateRuntimeGraphviz(machineJson, executionContext, {
  *   showRuntimeState: true,
@@ -29,7 +29,7 @@
  *
  * ### Convenience SVG Generation
  * ```typescript
- * import { generateGraphvizSVG } from './language/diagram';
+ * import { generateGraphvizSVG } from './language/diagram.js'
  *
  * const svg = await generateGraphvizSVG(machineJson, { title: 'My Machine' });
  * ```

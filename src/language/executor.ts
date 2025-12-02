@@ -106,9 +106,11 @@ export class MachineExecutor {
 
         // Set up internal machine update handler
         this.metaToolManager.setMachineUpdateCallback((dsl: string, machineData: MachineJSON) => {
-            this.logger.info('sync', 'Executor machine udpate callback called.', {dsl, machineData})
+            this.logger.info('sync', 'Executor machine update callback called.', {dsl, machineData})
+            this.logger.info('sync', `Updating machine snapshot with ${machineData.nodes.length} nodes: ${machineData.nodes.map(n => n.name).join(', ')}`);
             // Update the machine snapshot in the current state
             this.currentState.machineSnapshot = machineData;
+            this.logger.info('sync', `Machine snapshot updated. Current snapshot now has ${this.currentState.machineSnapshot.nodes.length} nodes`);
 
             // Call user callback if set
             if (this.machineUpdateCallback) {
@@ -484,6 +486,29 @@ export class MachineExecutor {
             this.logger[level as 'debug' | 'info' | 'warn' | 'error'](category as LogCategory, message, data);
         });
 
+        // Inject dynamic tools into the effect before initializing conversation
+        const dynamicTools = this.metaToolManager.getDynamicToolDefinitions();
+        this.logger.debug('turn', `Dynamic tools available: ${dynamicTools.length}`, {
+            toolNames: dynamicTools.map(t => t.name)
+        });
+        if (dynamicTools.length > 0) {
+            // Cast to runtime ToolDefinition type
+            const runtimeTools = dynamicTools.map(dt => ({
+                name: dt.name,
+                description: dt.description,
+                input_schema: {
+                    type: 'object' as const,
+                    properties: dt.input_schema.properties,
+                    required: dt.input_schema.required
+                }
+            }));
+            llmEffect.tools = [...llmEffect.tools, ...runtimeTools];
+            this.logger.debug('turn', `Injected ${runtimeTools.length} dynamic tools into LLM effect`, {
+                beforeCount: llmEffect.tools.length - runtimeTools.length,
+                afterCount: llmEffect.tools.length
+            });
+        }
+
         // Initialize conversation
         const conversationState = turnExecutor.initializeConversation(llmEffect);
 
@@ -502,8 +527,11 @@ export class MachineExecutor {
             modelId: llmEffect.modelId
         };
 
+        // Preserve the potentially updated machineSnapshot from meta-tool operations
+        const preservedMachineSnapshot = this.currentState.machineSnapshot;
         this.currentState = {
             ...stepResult.nextState,
+            machineSnapshot: preservedMachineSnapshot,  // Preserve machine updates
             turnState: turnResult.isComplete ? undefined : turnState
         };
 
