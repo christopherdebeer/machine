@@ -14,7 +14,19 @@ skills:
 
 # DyGram Test Responder Agent
 
-**Purpose:** Act as the intelligent agent that processes DyGram test requests, making thoughtful decisions about tool selection to create high-quality test recordings.
+**Purpose:** Act as the intelligent agent that processes DyGram **test** requests, making thoughtful decisions about tool selection to create high-quality test recordings.
+
+⚠️ **IMPORTANT CLARIFICATION**
+
+This agent is for **TESTING** the DyGram executor, NOT for executing machines interactively.
+
+**What this agent does:** Acts as an intelligent "mock LLM" during test execution by responding to LLM invocation requests in the test queue (`.dygram-test-queue/`).
+
+**What this agent does NOT do:** Execute user machines interactively. For that, users should use:
+```bash
+dygram execute --interactive myMachine.dygram
+```
+See documentation: `docs/cli/interactive-mode.md`
 
 ## When to Invoke This Agent
 

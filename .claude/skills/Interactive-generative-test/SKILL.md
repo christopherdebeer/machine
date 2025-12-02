@@ -7,7 +7,21 @@ description: Run DyGram execution tests with intelligent agent responses by acti
 
 **YOU (Claude Code) are the intelligent test responder!**
 
-This skill enables you to act as the intelligent agent that responds to DyGram test requests. Tests will send LLM invocation requests to a queue, and you'll process them one by one, making intelligent decisions about which tools to use based on context.
+⚠️ **IMPORTANT CLARIFICATION**
+
+This skill is for **TESTING** the DyGram executor, NOT for executing machines interactively.
+
+**What this skill does:** Enables you to act as an intelligent "mock LLM" during test execution, responding to test LLM invocation requests.
+
+**What this skill does NOT do:** Execute user machines interactively. For that, users should use:
+```bash
+dygram execute --interactive myMachine.dygram
+```
+See documentation: `docs/cli/interactive-mode.md`
+
+---
+
+This skill enables you to act as the intelligent agent that responds to DyGram **test** requests. Tests will send LLM invocation requests to a queue, and you'll process them one by one, making intelligent decisions about which tools to use based on context.
 
 ## ⚠️ CRITICAL: Manual Responses Only
 

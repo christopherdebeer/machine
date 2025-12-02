@@ -4,6 +4,33 @@ Complete reference for the DyGram command-line interface.
 
 ## Table of Contents
 
+- [Installation](#installation)
+- [Commands](#commands)
+  - [generate](#dygram-generate)
+  - [batch](#dygram-batch)
+  - [execute](#dygram-execute)
+  - [parseAndValidate](#dygram-parseandvalidate)
+  - [debug](#dygram-debug)
+- [Interactive Mode](#interactive-mode) - Turn-by-turn execution with state persistence
+- [Output Formats](#output-formats)
+- [Examples](#examples)
+- [Error Handling](#error-handling)
+
+## Interactive Mode
+
+For detailed documentation on interactive turn-by-turn execution with persistent state, see:
+
+**[Interactive Mode Guide](./interactive-mode.md)**
+
+Quick example:
+```bash
+# Start interactive execution
+dygram execute --interactive myMachine.dygram
+
+# Continue execution (auto-resumes)
+dygram execute --interactive myMachine.dygram
+```
+
 ## Installation
 
 ```bash
