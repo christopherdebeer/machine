@@ -244,10 +244,28 @@ export async function loadOrCreateExecution(
         // Recreate executor
         executor = await MachineExecutor.create(machineData, clientConfig);
 
-        // TODO: Restore execution state
-        // This requires a new method on MachineExecutor: executor.restoreState(state.executionState)
-        // For now, we'll note this limitation
-        logger.warn(chalk.yellow('   Note: State restoration not yet fully implemented'));
+        // Restore execution state
+        const currentExecState = executor.getState();
+        const restoredState = {
+            ...currentExecState,
+            contextState: state.executionState.contextValues,
+            turnState: state.executionState.turnState,
+            paths: currentExecState.paths.map((path, index) => {
+                if (index === 0) {
+                    // Restore the active path state
+                    return {
+                        ...path,
+                        currentNode: state.executionState.currentNode,
+                        // Note: We keep the newly initialized history as the executor
+                        // will properly reconstruct it during execution
+                    };
+                }
+                return path;
+            })
+        };
+        executor.setState(restoredState);
+
+        logger.debug(chalk.gray(`   State restored: ${state.executionState.currentNode}`));
     }
 
     return { executor, metadata, isNew };
