@@ -1,653 +1,738 @@
 ---
-name: dygram-test-execution
-description: Run DyGram execution tests with intelligent agent responses by acting as the test responder. Use this skill when you need to execute DyGram tests with real Claude Code reasoning - YOU will make the intelligent decisions about tool selection.
+name: cli-interactive-testing
+description: Test and validate DyGram machines using CLI interactive mode. Step through execution, provide intelligent responses, debug behavior, and create test recordings.
 ---
 
-# DyGram Test Execution Skill
+# CLI Interactive Testing Skill
 
-**YOU (Claude Code) are the intelligent test responder!**
+Execute and validate DyGram machines using **CLI interactive mode** for intelligent turn-by-turn testing.
 
-⚠️ **IMPORTANT CLARIFICATION**
+## Purpose
 
-This skill is for **TESTING** the DyGram executor, NOT for executing machines interactively.
+This skill guides you through using the CLI interactive mode to:
+- **Test machines** by executing them step-by-step
+- **Debug behavior** by observing state at each turn
+- **Provide intelligent responses** when LLM decisions are needed
+- **Create test recordings** for automated CI/CD playback
+- **Validate multiple scenarios** (success, error, edge cases)
 
-**What this skill does:** Enables you to act as an intelligent "mock LLM" during test execution, responding to test LLM invocation requests.
+## Quick Start
 
-**What this skill does NOT do:** Execute user machines interactively. For that, users should use:
-```bash
-dygram execute --interactive myMachine.dygram
-```
-See documentation: `docs/cli/interactive-mode.md`
-
----
-
-This skill enables you to act as the intelligent agent that responds to DyGram **test** requests. Tests will send LLM invocation requests to a queue, and you'll process them one by one, making intelligent decisions about which tools to use based on context.
-
-## ⚠️ CRITICAL: Manual Responses Only
-
-**DO NOT create automated scripts or loop wrappers** - this defeats the entire purpose of this skill!
-
-The point of this skill is to use **YOUR intelligence** to make thoughtful decisions about tool selection. Creating an automated responder script that pattern-matches transitions:
-- ❌ Defeats the purpose of intelligent testing
-- ❌ Provides no value over the existing heuristic agent
-- ❌ Misses edge cases requiring real reasoning
-- ❌ Doesn't test the actual agent behavior we're validating
-
-**What you SHOULD do:**
-- ✅ Process each request manually with full analysis
-- ✅ Make genuine intelligent decisions based on context
-- ✅ Use your semantic understanding, not pattern matching
-- ✅ Provide thoughtful reasoning for each decision
-
-## 🚀 Performance Optimization
-
-For faster processing without sacrificing intelligence, invoke this skill using the Task tool with `model: "haiku"`:
-
-```typescript
-// Instead of running the skill directly, delegate to a faster sub-agent:
-Task({
-  subagent_type: "general-purpose",
-  model: "haiku",
-  description: "Process DyGram test requests",
-  prompt: "Use the Interactive-generative-test skill to process test requests. Make intelligent decisions about tool selection based on context."
-})
-```
-
-This gives you:
-- **Faster response times** (Haiku is optimized for speed)
-- **Lower cost** per request
-- **Same intelligent reasoning** capabilities
-- **Perfect for high-volume test processing**
-
-Alternative: Load the skill and process manually in the main conversation for full observability.
-
-## How It Works
-
-```
-┌─────────────────┐
-│ Tests running   │
-│ in background   │
-└────────┬────────┘
-         │ Writes requests
-         ▼
-┌─────────────────┐
-│ File Queue      │
-│ .dygram-test-   │
-│  queue/         │
-└────────┬────────┘
-         │
-         │ YOU poll queue with helper scripts
-         ▼
-┌─────────────────┐
-│ Claude Code     │◄── This is YOU!
-│ (This Session)  │    No API key needed!
-│                 │
-│ 1. Get request  │    Fresh context each time
-│ 2. Analyze      │    All info in request
-│ 3. Decide       │    Use your intelligence
-│ 4. Respond      │
-└─────────────────┘
-```
-
-## Agent Responder Modes
-
-### ✅ Primary Mode: Manual Intelligent Processing (Required)
-
-**This is the ONLY proper way to use this skill.**
-
-**What this means:**
-- YOU manually process each request, one at a time
-- YOU make intelligent decisions using semantic understanding
-- YOU analyze context, tools, and objectives thoughtfully
-- Helper scripts only manage the queue, NOT decision-making
-
-**How it works:**
-1. Start tests in background
-2. Get request → Read and analyze thoroughly
-3. Make intelligent decision based on full context
-4. Submit response with clear reasoning
-5. Repeat for next request
-
-**Performance optimization:**
-- For faster processing: Use Task tool with `model: "haiku"`
-- This keeps intelligent decision-making while improving speed
-- See "Performance Optimization" section above
-
-### ⚠️ Fallback Only: Heuristic Agent (CI/Automated Only)
-
-**Script:** `scripts/test-agent-responder.js`
-**Method:** Automated keyword matching (NOT intelligent)
-**Use ONLY when:** Claude Code unavailable (CI, overnight runs)
-
-**This is NOT a substitute for proper intelligent testing!**
-- Simple pattern matching without reasoning
-- Cannot handle complex scenarios
-- Significantly lower quality than manual processing
-- See full section below for when this is appropriate
-
-## Prerequisites
-
-- Node.js and npm installed
-- Tests located in `test/validating/`
-- **No API key needed for Claude Code mode!**
-
-## Step-by-Step Workflow (Claude Code Mode)
-
-### Step 0: Install Dependencies and Build
-
-**IMPORTANT:** Before running tests, ensure dependencies are installed and the project is built:
+### Basic Testing Workflow
 
 ```bash
-# Install dependencies
-npm ci
+# 1. Start interactive execution
+dygram execute --interactive machine.dygram --id test-01
 
-# Build the project (includes langium generation)
-npm run build
+# 2. Continue execution turn-by-turn
+dygram execute --interactive machine.dygram --id test-01
+
+# 3. Check status at any time
+dygram exec status test-01
+
+# 4. Provide response when needed
+echo '{"response": "Continue", "tools": [...]}' | \
+  dygram execute --interactive machine.dygram --id test-01
 ```
 
-**What this does:**
-- Installs all npm dependencies
-- Runs prebuild (extracts examples, generates docs)
-- Generates Langium parser and syntax files
-- Compiles TypeScript
-- Bundles web assets
+## Core Concepts
 
-**Skip this step if:**
-- Dependencies are already installed
-- Project is already built
-- You just ran the build recently
+### Turn-by-Turn Execution
 
-### Step 1: Start Tests in Background
+Each CLI call executes **one turn** (one LLM invocation):
+- State persists to disk (`.dygram/executions/<id>/`)
+- Machine snapshot prevents definition changes mid-execution
+- History logs all turns (`history.jsonl`)
+- Auto-resumes from last state
 
-Run the execution tests in interactive mode:
+### Response Modes
+
+**1. Auto-continue (no stdin):**
+```bash
+dygram e -i machine.dygram --id test
+```
+Used for: Task nodes without LLM, simple transitions
+
+**2. Manual response (stdin):**
+```bash
+echo '{"response": "...", "tools": [...]}' | dygram e -i machine.dygram --id test
+```
+Used for: Agent nodes, complex decisions, testing specific paths
+
+**3. Playback mode (recordings):**
+```bash
+dygram e -i machine.dygram --playback recordings/golden/ --id test
+```
+Used for: Deterministic testing, CI/CD validation
+
+## Detailed Workflow
+
+### Step 1: Understand the Machine
+
+Before testing, read and understand the machine:
 
 ```bash
-DYGRAM_TEST_MODE=interactive npm test test/validating/ 2>&1 | tee /tmp/dygram-test-output.log &
+# Read machine definition
+cat machines/payment-workflow.dygram
+
+# Generate visualization
+dygram generate machines/payment-workflow.dygram --format html
+
+# Validate syntax
+dygram parseAndValidate machines/payment-workflow.dygram
 ```
 
-Save the process ID:
+### Step 2: Start Interactive Execution
+
+Choose execution mode based on goal:
+
+**For debugging/exploration:**
 ```bash
-TEST_PID=$!
-echo "Tests running as PID: $TEST_PID"
+dygram e -i machines/payment-workflow.dygram --id debug
 ```
 
-### Step 2: Process Requests Loop
+**For creating test recordings:**
+```bash
+dygram e -i machines/payment-workflow.dygram \
+  --record recordings/payment-workflow/ \
+  --id recording-001
+```
 
-Now enter a loop where you'll respond to test requests. The get-next-request script uses **lock file synchronization** to automatically detect when tests complete or crash.
+**For validating with existing recordings:**
+```bash
+dygram e -i machines/payment-workflow.dygram \
+  --playback recordings/payment-workflow/ \
+  --id playback-001
+```
 
-**Lock File Synchronization:**
-- Tests create `.test-session.lock` with heartbeat timestamp
-- get-next-request waits for lock file (tests starting)
-- Monitors heartbeat to detect crashed tests (stale if >10s old)
-- Exits gracefully when lock file removed (tests complete)
+### Step 3: Execute Turn-by-Turn
 
-**Exit Codes:**
-- `0` = Request returned successfully (continue loop)
-- `1` = Error or stale tests (break loop)
-- `2` = Tests completed gracefully (break loop)
-
-#### 2a. Get Next Request
-
-Use the helper script in a loop:
+Continue execution, observing and providing input as needed:
 
 ```bash
-while true; do
-  # Get next request (blocks until available or tests complete)
-  REQUEST=$(node scripts/get-next-request.js --timeout 60000)
-  EXIT_CODE=$?
+# Execute next turn
+dygram e -i machines/payment-workflow.dygram --id debug
 
-  # Check exit code
-  if [ $EXIT_CODE -eq 2 ]; then
-    echo "✅ Tests completed"
-    break
-  elif [ $EXIT_CODE -ne 0 ]; then
-    echo "❌ Error or tests crashed"
-    break
-  fi
+# Check what happened
+dygram exec status debug
 
-  # Process the request
-  # ... (steps 2b-2d below)
+# View execution history
+cat .dygram/executions/debug/history.jsonl | tail -5
+
+# Check current state
+cat .dygram/executions/debug/state.json | jq '.executionState.currentNode'
+```
+
+### Step 4: Provide Intelligent Responses
+
+When machine needs LLM decision, analyze and provide response:
+
+```bash
+# First, understand what's needed
+cat .dygram/executions/debug/state.json | jq '.executionState.turnState'
+
+# Provide thoughtful response
+echo '{
+  "response": "Validating payment credentials",
+  "tools": [
+    {"name": "validate_payment", "params": {"amount": 100}}
+  ]
+}' | dygram e -i machines/payment-workflow.dygram --id debug
+```
+
+### Step 5: Continue Until Complete
+
+```bash
+# Option 1: Manual stepping
+dygram e -i machines/payment-workflow.dygram --id debug
+dygram e -i machines/payment-workflow.dygram --id debug
+# ... until complete
+
+# Option 2: Loop (with manual responses when needed)
+while dygram e -i machines/payment-workflow.dygram --id debug 2>&1 | \
+  grep -q "Turn completed"; do
+  echo "Turn completed, continuing..."
 done
 ```
 
-**Or call once to see the first request:**
+### Step 6: Validate Results
 
 ```bash
-node scripts/get-next-request.js --timeout 60000
+# Check final status
+dygram exec status debug
+
+# Review full history
+cat .dygram/executions/debug/history.jsonl
+
+# Check final state
+cat .dygram/executions/debug/state.json | jq '.status'
+
+# If recording mode, verify recordings
+ls -la recordings/payment-workflow/
 ```
 
-**This will output a JSON request like:**
+## Providing Intelligent Responses
+
+### Response Format
+
 ```json
 {
-  "requestId": "req-12345-1",
-  "context": {
-    "testName": "should transition to correct state",
-    "machineTitle": "Payment Flow",
-    "currentNode": "PaymentStart"
-  },
-  "systemPrompt": "Transition to the success state after payment validation",
+  "response": "Your reasoning and explanation",
   "tools": [
     {
-      "name": "transition_to_PaymentSuccess",
-      "description": "Transition to PaymentSuccess state",
-      "input_schema": {
-        "type": "object",
-        "properties": {
-          "reason": { "type": "string" }
-        }
-      }
-    },
-    {
-      "name": "transition_to_PaymentError",
-      "description": "Transition to PaymentError state",
-      "input_schema": {
-        "type": "object",
-        "properties": {
-          "reason": { "type": "string" }
-        }
+      "name": "tool_name",
+      "params": {
+        "param1": "value1",
+        "param2": "value2"
       }
     }
   ]
 }
 ```
 
-#### 2b. Analyze Request
+### Decision-Making Process
 
-Look at the request carefully:
-- **System Prompt:** What is the test asking you to do?
-- **Context:** What machine, what test, what state?
-- **Tools:** What are the available options?
+1. **Analyze Context**
+   - What node are we at?
+   - What tools are available?
+   - What is the task prompt asking for?
 
-**Example Analysis:**
-- System prompt says "success state after payment validation"
-- Tools available: `transition_to_PaymentSuccess`, `transition_to_PaymentError`
-- Prompt mentions "success" → Should use `transition_to_PaymentSuccess`
+2. **Understand Intent**
+   - What is the machine trying to accomplish?
+   - What would a real agent do here?
+   - Are there multiple valid paths?
 
-#### 2c. Make Intelligent Decision
+3. **Choose Semantically**
+   - Don't just pattern-match keywords
+   - Consider the machine's goal
+   - Test different scenarios (success/error/edge)
 
-Based on your analysis, decide which tool to use. Consider:
-- Keywords in the system prompt
-- Tool descriptions and names
-- Test context and machine state
-- Semantic meaning of the request
+4. **Document Reasoning**
+   - Include clear explanation in response
+   - This helps understand recordings later
 
-#### 2d. Submit Response
+### Example Responses
 
-Create a response JSON and submit it:
-
+**Simple continuation:**
 ```bash
-cat << 'EOF' > /tmp/response.json
-{
-  "requestId": "req-12345-1",
-  "reasoning": "The system prompt mentions 'success state after payment validation', which clearly indicates we should transition to PaymentSuccess rather than PaymentError.",
-  "response": {
-    "content": [
-      {
-        "type": "text",
-        "text": "Transitioning to success state as payment validation succeeded."
-      },
-      {
-        "type": "tool_use",
-        "id": "tool-1",
-        "name": "transition_to_PaymentSuccess",
-        "input": {
-          "reason": "Payment validation successful"
-        }
-      }
-    ],
-    "stop_reason": "tool_use"
-  }
-}
-EOF
-
-node scripts/submit-response.js --file /tmp/response.json
+echo '{"action": "continue"}' | dygram e -i machine.dygram --id test
 ```
 
-**Or use piping:**
+**File operation:**
 ```bash
 echo '{
-  "requestId": "req-12345-1",
-  "reasoning": "System prompt indicates success path",
+  "response": "Reading configuration file to determine environment",
+  "tools": [
+    {"name": "read_file", "params": {"path": "config.json"}}
+  ]
+}' | dygram e -i machine.dygram --id test
+```
+
+**Transition decision:**
+```bash
+echo '{
+  "response": "Payment validation succeeded, transitioning to confirmation state",
+  "tools": [
+    {"name": "transition_to_confirmation", "params": {}}
+  ]
+}' | dygram e -i machine.dygram --id test
+```
+
+**Multiple tools:**
+```bash
+cat <<'EOF' | dygram e -i machine.dygram --id test
+{
+  "response": "Analyzing data and generating report",
+  "tools": [
+    {"name": "read_file", "params": {"path": "data.json"}},
+    {"name": "analyze_data", "params": {"format": "summary"}},
+    {"name": "write_file", "params": {
+      "path": "report.txt",
+      "content": "Analysis complete"
+    }}
+  ]
+}
+EOF
+```
+
+## Testing Patterns
+
+### Pattern 1: Debug Single Execution
+
+Step through to understand behavior:
+
+```bash
+# Start
+dygram e -i machine.dygram --id debug --verbose
+
+# Step through with observation
+for i in {1..10}; do
+  echo "=== Turn $i ==="
+  dygram e -i machine.dygram --id debug
+
+  # Check state
+  dygram exec status debug
+
+  # Review last history entry
+  tail -1 .dygram/executions/debug/history.jsonl | jq '.'
+
+  # Pause for review
+  read -p "Continue? (y/n) " -n 1 -r
+  echo
+  [[ ! $REPLY =~ ^[Yy]$ ]] && break
+done
+```
+
+### Pattern 2: Create Golden Recording
+
+```bash
+# Start with recording
+dygram e -i machine.dygram \
+  --record recordings/golden-test/ \
+  --id golden
+
+# Execute with intelligent responses
+# (provide responses as machine requires them)
+
+# Continue until complete
+while dygram e -i machine.dygram --id golden; do
+  echo "Turn completed"
+done
+
+# Verify recording
+ls -la recordings/golden-test/
+dygram e -i machine.dygram \
+  --playback recordings/golden-test/ \
+  --id verify
+
+# Commit to git
+git add recordings/golden-test/
+git commit -m "Add golden recording for machine"
+```
+
+### Pattern 3: Test Multiple Scenarios
+
+```bash
+# Success path
+dygram e -i machine.dygram --record recordings/success/ --id success
+# ... provide success responses ...
+
+# Error path
+dygram e -i machine.dygram --record recordings/error/ --id error
+# ... provide error responses ...
+
+# Edge case
+dygram e -i machine.dygram --record recordings/edge/ --id edge
+# ... provide edge case responses ...
+
+# Validate all scenarios
+for scenario in success error edge; do
+  echo "Testing $scenario..."
+  dygram e -i machine.dygram \
+    --playback "recordings/$scenario/" \
+    --id "test-$scenario"
+done
+```
+
+### Pattern 4: Batch Test Multiple Machines
+
+```bash
+#!/bin/bash
+for machine in machines/*.dygram; do
+  name=$(basename "$machine" .dygram)
+  echo "Testing: $name"
+
+  # Start with recording
+  dygram e -i "$machine" \
+    --record "recordings/$name/" \
+    --id "$name" \
+    --verbose 2>&1 | tee "logs/$name.log"
+
+  # Continue until complete or error
+  attempts=0
+  max_attempts=20
+  while [ $attempts -lt $max_attempts ]; do
+    if dygram e -i "$machine" --id "$name"; then
+      ((attempts++))
+    else
+      echo "Completed or errored after $attempts turns"
+      break
+    fi
+  done
+
+  # Check result
+  if dygram exec status "$name" | grep -q "complete"; then
+    echo "✓ $name: SUCCESS"
+  else
+    echo "✗ $name: FAILED or INCOMPLETE"
+  fi
+
+  # Clean up
+  dygram exec rm "$name"
+done
+```
+
+### Pattern 5: Compare Before/After
+
+Test behavior changes:
+
+```bash
+# Record baseline
+git checkout main
+dygram e -i machine.dygram --record recordings/baseline/ --id baseline
+# ... execute ...
+
+# Record with changes
+git checkout feature-branch
+dygram e -i machine.dygram --record recordings/feature/ --id feature
+# ... execute ...
+
+# Compare recordings
+diff -u recordings/baseline/ recordings/feature/
+
+# Validate both still work
+dygram e -i machine.dygram --playback recordings/baseline/ --id test-baseline
+dygram e -i machine.dygram --playback recordings/feature/ --id test-feature
+```
+
+## Recording Management
+
+### Creating Recordings
+
+Recordings capture LLM responses for deterministic replay:
+
+```bash
+dygram e -i machine.dygram --record recordings/test-case/ --id test
+```
+
+**Recording structure:**
+```
+recordings/test-case/
+  ├── turn-1.json    # First LLM invocation
+  ├── turn-2.json    # Second LLM invocation
+  └── turn-3.json    # Third LLM invocation
+```
+
+**Recording content:**
+```json
+{
+  "request": {
+    "systemPrompt": "...",
+    "tools": [...]
+  },
   "response": {
-    "content": [
-      {"type": "text", "text": "Proceeding with success transition"},
-      {
-        "type": "tool_use",
-        "id": "tool-1",
-        "name": "transition_to_PaymentSuccess",
-        "input": {"reason": "Success condition met"}
-      }
-    ],
+    "content": [...],
     "stop_reason": "tool_use"
   }
-}' | node scripts/submit-response.js --request-id req-12345-1
-```
-
-#### 2e. Repeat
-
-Continue the loop - get next request, analyze, decide, respond - until tests complete.
-
-### Step 3: Monitor Test Progress
-
-Check if tests are still running:
-
-```bash
-ps -p $TEST_PID > /dev/null && echo "Tests still running" || echo "Tests completed"
-```
-
-View test output:
-```bash
-tail -f /tmp/dygram-test-output.log
-```
-
-### Step 4: Analyze Results
-
-After tests complete:
-
-```bash
-# Check test summary
-grep -E "Test Files|Tests" /tmp/dygram-test-output.log | tail -2
-
-# Count new recordings
-git status --short test/fixtures/recordings/ | grep "^??" | wc -l
-
-# List recording categories
-ls -1 test/fixtures/recordings/
-```
-
-### Step 5: Cleanup
-
-Clean up the queue:
-
-```bash
-rm -rf .dygram-test-queue
-```
-
-## Decision-Making Guidelines
-
-When analyzing requests, use this process:
-
-### 1. Read the System Prompt Carefully
-Extract the key intent: What is being asked?
-
-### 2. Identify Keywords
-- "error", "fail" → Error path tools
-- "success", "complete" → Success path tools
-- Specific state names → Match tool names
-
-### 3. Match Tool Names
-Look for tools whose names align with the prompt:
-- Prompt: "transition to error" → `transition_to_ErrorState`
-- Prompt: "add new node called Foo" → `add_node` with name="Foo"
-
-### 4. Consider Context
-- Test name might give hints
-- Machine title indicates the domain
-- Current node shows where you are
-
-### 5. Use Semantic Understanding
-You're Claude - use your intelligence! Don't just match keywords.
-Understand what the test is trying to verify and choose accordingly.
-
-## Response Structure
-
-All responses must follow this structure:
-
-```json
-{
-  "requestId": "req-xxx",
-  "reasoning": "Brief explanation of why you chose this tool",
-  "response": {
-    "content": [
-      {
-        "type": "text",
-        "text": "Your reasoning or explanation"
-      },
-      {
-        "type": "tool_use",
-        "id": "unique-tool-id",
-        "name": "tool_name_from_request",
-        "input": {
-          // Tool input based on schema
-        }
-      }
-    ],
-    "stop_reason": "tool_use"
-  }
 }
 ```
 
-**If no tool needed:**
-```json
-{
-  "requestId": "req-xxx",
-  "reasoning": "No tool use required",
-  "response": {
-    "content": [
-      {"type": "text", "text": "Task completed"}
-    ],
-    "stop_reason": "end_turn"
-  }
-}
-```
-
-## Lock File Synchronization
-
-The test suite and request loop synchronize via `.test-session.lock`:
-
-**Lock File Structure:**
-```json
-{
-  "pid": 12345,
-  "started": "2025-11-21T23:45:00.000Z",
-  "timestamp": "2025-11-21T23:50:00.000Z",
-  "requestsProcessed": 5
-}
-```
-
-**Lifecycle:**
-1. Tests start → Create lock file with initial timestamp
-2. Tests run → Update heartbeat every 2 seconds
-3. Tests complete → Remove lock file
-4. Tests crash → Lock file becomes stale (no heartbeat updates)
-
-**Heartbeat Monitoring:**
-- Updated every 2 seconds by test suite
-- Considered stale if >10 seconds old
-- get-next-request checks before each poll
-
-**Benefits:**
-- No infinite waiting if tests crash
-- Automatic detection of test completion
-- Graceful exit when tests finish
-- Defensive against edge cases
-
-## Helper Scripts Reference
-
-### `get-next-request.js`
-
-Blocks until a request is available, with lock file synchronization.
-
-**Usage:**
-```bash
-node scripts/get-next-request.js [--queue-dir <path>] [--timeout <ms>] [--lock-timeout <ms>]
-```
-
-**Options:**
-- `--queue-dir`: Queue directory (default: `.dygram-test-queue`)
-- `--timeout`: Max wait time for request in ms (default: 60000)
-- `--lock-timeout`: Max wait time for test session to start in ms (default: 30000)
-
-**Output:**
-- JSON request on stdout
-- Status messages on stderr
-- Exit codes:
-  - `0` = Request returned successfully
-  - `1` = Error, timeout, or stale tests
-  - `2` = Tests completed gracefully (lock file removed)
-
-**Lock File Synchronization:**
-- Waits for `.test-session.lock` to exist
-- Monitors heartbeat timestamp
-- Exits when lock file removed or stale
-
-### `submit-response.js`
-
-Writes response to queue and cleans up request file.
-
-**Usage:**
-```bash
-# From file
-node scripts/submit-response.js --file response.json
-
-# From stdin
-echo '{"requestId": "...", ...}' | node scripts/submit-response.js --request-id <id>
-```
-
-**Options:**
-- `--queue-dir`: Queue directory (default: `.dygram-test-queue`)
-- `--request-id`: Request ID (required if not in JSON)
-- `--file`: Read response from file instead of stdin
-
-**Output:**
-- Success message on stderr
-- Exit code 0 on success, 1 on error
-
-## ⚠️ Fallback Only: Heuristic Agent Mode
-
-**Use this ONLY when Claude Code cannot participate at all** (e.g., CI environment, overnight runs).
-
-The automated heuristic responder is a fallback for when intelligent testing isn't possible:
+### Using Recordings
 
 ```bash
-# Start heuristic agent (fallback only!)
-node scripts/test-agent-responder.js &
+# Playback deterministically
+dygram e -i machine.dygram --playback recordings/test-case/ --id playback
 
-# Run tests
-DYGRAM_TEST_MODE=interactive npm test test/validating/
-
-# Cleanup
-pkill -f test-agent-responder
+# Continue playback
+while dygram e -i machine.dygram --id playback; do :; done
 ```
 
-**Important limitations:**
-- Uses simple keyword matching, not semantic understanding
-- Cannot handle complex scenarios requiring reasoning
-- No context awareness beyond pattern matching
-- Significantly less capable than Claude Code's intelligence
+### Organizing Recordings
 
-**When to use:**
-- ❌ NOT for development/testing where you're available
-- ❌ NOT instead of doing proper intelligent testing
-- ✅ ONLY for automated CI runs without human oversight
-- ✅ ONLY when absolutely no other option exists
+Recommended structure:
+```
+recordings/
+  ├── golden/                    # Golden path tests
+  │   ├── basic-workflow/
+  │   ├── payment-flow/
+  │   └── approval-process/
+  ├── edge-cases/               # Edge case scenarios
+  │   ├── empty-input/
+  │   ├── max-length/
+  │   └── special-chars/
+  ├── error-handling/           # Error scenarios
+  │   ├── missing-file/
+  │   ├── invalid-data/
+  │   └── timeout/
+  └── regression/               # Regression tests
+      ├── bug-123-fix/
+      ├── bug-456-fix/
+      └── feature-789/
+```
 
-**Preferred alternatives:**
-1. Process requests manually with this skill (best quality)
-2. Use Task tool with model="haiku" (fast + intelligent)
-3. Schedule testing when you can be actively involved
+### Maintaining Recordings
 
-## Summary Report Format
+```bash
+# Update recording when behavior intentionally changes
+dygram e -i machine.dygram \
+  --record recordings/golden/workflow/ \
+  --id update \
+  --force  # Force new recording
 
-After completing test execution, provide a summary:
+# Validate all recordings still work
+for dir in recordings/golden/*/; do
+  name=$(basename "$dir")
+  echo "Testing: $name"
+  dygram e -i "machines/$name.dygram" \
+    --playback "$dir" \
+    --id "validate-$name"
+done
+```
+
+## State Management
+
+### Execution State Files
+
+State is stored in `.dygram/executions/<id>/`:
 
 ```
-🧪 DyGram Test Execution Summary
-================================
+.dygram/executions/test-01/
+  ├── state.json       # Current execution state
+  ├── metadata.json    # Execution metadata
+  ├── machine.json     # Machine snapshot (prevents mid-execution changes)
+  └── history.jsonl    # Turn-by-turn history log
+```
 
-Test Results:
-  ✅ Passed: X tests
-  ❌ Failed: Y tests
-  ⏭️  Skipped: Z tests
+### Inspecting State
 
-Agent Responses:
-  📨 Requests processed: N
-  🧠 Intelligent decisions made: N
-  ✅ Responses submitted: N
+```bash
+# View current node
+cat .dygram/executions/test-01/state.json | jq '.executionState.currentNode'
 
-Recordings:
-  📝 New recordings: N files
-  📁 Categories updated: [list]
-  💾 Total size: X KB
+# View turn state (if in turn)
+cat .dygram/executions/test-01/state.json | jq '.executionState.turnState'
 
-Status: SUCCESS/FAILURE
+# View visited nodes
+cat .dygram/executions/test-01/state.json | jq '.executionState.visitedNodes'
 
-Next Steps:
-  - Commit recordings if tests passed
-  - Investigate failures in /tmp/dygram-test-output.log
-  - Review decision quality if unexpected results
+# View attributes
+cat .dygram/executions/test-01/state.json | jq '.executionState.attributes'
+
+# View metadata
+cat .dygram/executions/test-01/metadata.json | jq '.'
+```
+
+### Managing Executions
+
+```bash
+# List all executions
+dygram exec list
+
+# Show specific execution status
+dygram exec status test-01
+
+# Remove execution
+dygram exec rm test-01
+
+# Clean completed executions
+dygram exec clean
 ```
 
 ## Troubleshooting
 
-### No requests appearing
+### Execution Not Progressing
 
-**Check:**
-- Tests actually running? `ps -p $TEST_PID`
-- Queue directory exists? `ls -la .dygram-test-queue`
-- Test mode set? Check `DYGRAM_TEST_MODE=interactive`
+**Check if waiting for input:**
+```bash
+dygram exec status <id>
+cat .dygram/executions/<id>/state.json | jq '.executionState.turnState'
+```
 
-### Timeout waiting for request
+**Provide required response:**
+```bash
+echo '{"response": "...", "tools": [...]}' | dygram e -i machine.dygram --id <id>
+```
 
-**Causes:**
-- Tests completed already
-- Tests not in interactive mode
-- Queue in wrong location
+### Wrong Path Taken
 
-### Response not accepted
+**Restart from beginning:**
+```bash
+dygram exec rm <id>
+dygram e -i machine.dygram --id <id> --force
+```
 
-**Check:**
-- `requestId` matches the request
-- Response JSON is valid
-- All required fields present
+**Or start new execution:**
+```bash
+dygram e -i machine.dygram --id <id>-retry
+```
 
-## ❌ DO NOT: Automated Processing
+### Recording Playback Mismatch
 
-**This section describes what NOT to do.**
+**Check recording content:**
+```bash
+ls -la recordings/test-case/
+cat recordings/test-case/turn-1.json | jq '.'
+```
 
-Creating automated loop scripts or pattern-matching responders is **explicitly discouraged**:
+**Verify machine hasn't changed:**
+```bash
+# Compare machine hashes
+cat .dygram/executions/<id>/metadata.json | jq '.machineHash'
+```
+
+**Re-record if machine changed:**
+```bash
+dygram e -i machine.dygram --record recordings/test-case/ --id new --force
+```
+
+### State Corruption
+
+**View error details:**
+```bash
+cat .dygram/executions/<id>/state.json | jq '.status'
+```
+
+**Force fresh start:**
+```bash
+dygram exec rm <id>
+dygram e -i machine.dygram --id <id> --force
+```
+
+## Best Practices
+
+### 1. Always Use Explicit IDs
 
 ```bash
-# ❌ DO NOT DO THIS - defeats the purpose
-#!/bin/bash
-while true; do
-  REQUEST=$(node scripts/get-next-request.js --timeout 5000 2>/dev/null)
-  # Auto-match patterns and respond
-  # This is NOT intelligent testing!
+# Good: Explicit ID for tracking
+dygram e -i machine.dygram --id test-payment-success
+
+# Avoid: Auto-generated IDs are hard to track
+dygram e -i machine.dygram
+```
+
+### 2. Create Recordings for Important Tests
+
+```bash
+# Record golden path
+dygram e -i machine.dygram --record recordings/golden/ --id golden
+
+# Commit to git
+git add recordings/golden/
+git commit -m "Add golden recording for regression testing"
+```
+
+### 3. Use Verbose Mode for Debugging
+
+```bash
+dygram e -i machine.dygram --id debug --verbose
+```
+
+### 4. Check State Frequently
+
+```bash
+# After each significant turn
+dygram e -i machine.dygram --id test
+dygram exec status test
+```
+
+### 5. Clean Up Test Executions
+
+```bash
+# After testing
+dygram exec rm test-01
+dygram exec clean
+```
+
+### 6. Document Test Scenarios
+
+```bash
+# Create a test plan
+cat > TEST_PLAN.md <<'EOF'
+# Payment Workflow Tests
+
+## Scenarios
+1. Success path: recordings/payment-success/
+2. Invalid card: recordings/payment-invalid/
+3. Timeout: recordings/payment-timeout/
+4. Retry success: recordings/payment-retry/
+
+## Run Tests
+for scenario in success invalid timeout retry; do
+  dygram e -i payment.dygram \
+    --playback recordings/payment-$scenario/ \
+    --id test-$scenario
 done
+EOF
 ```
 
-**Why this is wrong:**
-- Removes your intelligent decision-making
-- Reduces testing to pattern matching
-- Misses edge cases and complex scenarios
-- Provides no value over existing heuristic agent
+## Integration with CI/CD
 
-**Instead:**
-- Process requests manually, one at a time
-- Or use Task tool with model="haiku" for faster manual processing
-- Make genuine decisions based on full context analysis
-
-### Recording Analysis
+### Local Development
 
 ```bash
-# Find all tool uses
-find test/fixtures/recordings -name "*.json" -exec jq -r '.response.response.content[]? | select(.type=="tool_use") | .name' {} \; | sort | uniq -c
+# 1. Develop machine
+vim machines/workflow.dygram
 
-# Show reasoning patterns
-find test/fixtures/recordings -name "*.json" -exec jq -r '.response.reasoning' {} \; | head -10
+# 2. Test interactively
+dygram e -i machines/workflow.dygram \
+  --record recordings/workflow/ \
+  --id workflow-test
+
+# 3. Commit machine and recordings
+git add machines/workflow.dygram recordings/workflow/
+git commit -m "Add workflow machine with tests"
 ```
+
+### CI Configuration
+
+```yaml
+# .github/workflows/test.yml
+name: Test DyGram Machines
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install DyGram
+        run: npm install -g dygram
+
+      - name: Test All Machines
+        run: |
+          for recording in recordings/golden/*/; do
+            machine=$(basename "$recording")
+            echo "Testing: $machine"
+
+            dygram execute --interactive \
+              "machines/$machine.dygram" \
+              --playback "$recording" \
+              --id "ci-$machine"
+
+            # Check result
+            if ! dygram exec status "ci-$machine" | grep -q "complete"; then
+              echo "FAILED: $machine"
+              exit 1
+            fi
+
+            echo "PASSED: $machine"
+          done
+```
+
+## Summary Checklist
+
+When testing a machine, ensure you:
+
+- [ ] Read and understand the machine definition
+- [ ] Start with explicit execution ID
+- [ ] Use `--record` if creating test recordings
+- [ ] Step through execution observing state
+- [ ] Provide intelligent responses when needed
+- [ ] Check status frequently with `dygram exec status`
+- [ ] Validate final state and results
+- [ ] Verify recordings if created
+- [ ] Clean up test executions when done
+- [ ] Commit recordings for CI/CD if appropriate
 
 ## See Also
 
-- Documentation: `docs/development/agent-responder-mcp-integration.md`
-- Test documentation: `test/CLAUDE.md`
-- Helper scripts:
-  - `scripts/get-next-request.js` - Get requests from queue
-  - `scripts/submit-response.js` - Submit responses to queue
-  - `scripts/test-agent-responder.js` - Heuristic fallback agent
-- Interactive test client: `src/language/interactive-test-client.ts`
+- **CLI Interactive Mode Guide:** `docs/cli/interactive-mode.md`
+- **CLI Reference:** `docs/cli/README.md`
+- **Agent:** `dygram-test-responder` (auto-loaded)
+- **Examples:** `examples/` directory
 
-## Remember
+---
 
-**You ARE the intelligent agent!** Trust your analysis, use your reasoning capabilities, and make genuinely intelligent decisions. Each request is a fresh context - all information you need is in the request object.
+**Remember:** You have intelligent reasoning - use it! Understand context, make semantic decisions, and test edge cases. Don't just pattern-match; think about what the machine is trying to accomplish.
