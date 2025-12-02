@@ -218,6 +218,13 @@ export class MachineExecutor {
         return this.currentState;
     }
 
+    /**
+     * Set execution state (for resuming from saved state)
+     */
+    setState(state: ExecutionState): void {
+        this.currentState = state;
+    }
+
 
     /**
      * Get visualization state

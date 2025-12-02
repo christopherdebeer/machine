@@ -20,6 +20,8 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 import { WorkspaceManager, FileSystemResolver, MultiFileGenerator } from '../language/import-system/index.js';
 import { CircularDependencyError, ModuleNotFoundError } from '../language/import-system/import-errors.js';
+import { executeInteractiveTurn } from './interactive-execution.js';
+import { listExecutions, loadExecutionMetadata, removeExecution, cleanCompletedExecutions } from './execution-state.js';
 
 // Handle both bundled and unbundled cases
 let __dirname: string;
@@ -359,12 +361,112 @@ export const parseAndValidate = async (fileName: string, opts?: { verbose?: bool
 };
 
 /**
+ * Read stdin if available (with timeout)
+ */
+async function readStdin(): Promise<string> {
+    return new Promise((resolve, reject) => {
+        let data = '';
+        let resolved = false;
+
+        const timeout = setTimeout(() => {
+            if (!resolved) {
+                resolved = true;
+                resolve(''); // Return empty string on timeout
+            }
+        }, 100); // 100ms timeout
+
+        process.stdin.on('data', chunk => {
+            data += chunk;
+        });
+
+        process.stdin.on('end', () => {
+            if (!resolved) {
+                resolved = true;
+                clearTimeout(timeout);
+                resolve(data);
+            }
+        });
+
+        process.stdin.on('error', (err) => {
+            if (!resolved) {
+                resolved = true;
+                clearTimeout(timeout);
+                resolve(''); // Return empty on error
+            }
+        });
+    });
+}
+
+/**
  * Execute a machine program
  * @param fileName Program to execute
  * @param opts Execution options
  */
-export const executeAction = async (fileName: string, opts: { destination?: string; model?: string; verbose?: boolean; quiet?: boolean; noImports?: boolean }): Promise<void> => {
+export const executeAction = async (fileName: string | undefined, opts: {
+    destination?: string;
+    model?: string;
+    verbose?: boolean;
+    quiet?: boolean;
+    noImports?: boolean;
+    interactive?: boolean;
+    id?: string;
+    force?: boolean;
+    playback?: string;
+    record?: string;
+}): Promise<void> => {
     setupLogger(opts);
+
+    // Handle interactive mode
+    if (opts.interactive) {
+        // Determine machine source and input data
+        let machineSource: string | undefined = fileName;
+        let inputData: any = undefined;
+
+        // Only read stdin if data is being piped in (not a TTY)
+        if (!process.stdin.isTTY) {
+            const stdin = await readStdin();
+
+            // Only process if stdin has content
+            if (stdin && stdin.trim()) {
+                if (!fileName) {
+                    // No file argument: stdin is machine source
+                    machineSource = stdin;
+                } else {
+                    // File argument provided: stdin is input/response data
+                    try {
+                        inputData = JSON.parse(stdin);
+                    } catch (e) {
+                        logger.error('Invalid JSON input from stdin');
+                        process.exit(1);
+                    }
+                }
+            }
+        }
+
+        if (!machineSource) {
+            logger.error('No machine source provided (file or stdin)');
+            process.exit(1);
+        }
+
+        await executeInteractiveTurn(machineSource, {
+            id: opts.id,
+            playback: opts.playback,
+            record: opts.record,
+            force: opts.force,
+            verbose: opts.verbose,
+            input: inputData,
+            isStdin: !fileName,
+            interactive: opts.interactive
+        });
+
+        return;
+    }
+
+    // Non-interactive mode (original implementation)
+    if (!fileName) {
+        logger.error('File argument required for non-interactive execution');
+        process.exit(1);
+    }
 
     // retrieve the services for our language
     const services = createMachineServices(NodeFileSystem).Machine;
@@ -804,6 +906,128 @@ export const serverAction = async (directory?: string, opts?: { port?: string; v
     });
 };
 
+/**
+ * List all executions
+ */
+export const listExecutionsAction = async (opts?: { verbose?: boolean; quiet?: boolean }): Promise<void> => {
+    setupLogger(opts || {});
+
+    const executions = await listExecutions();
+
+    if (executions.length === 0) {
+        logger.info('No executions found');
+        return;
+    }
+
+    logger.heading('Active executions:');
+    for (const exec of executions) {
+        const ago = timeAgo(new Date(exec.lastExecutedAt));
+        const machineSource = exec.machineFile || '(stdin)';
+        const status = exec.status === 'complete' ? chalk.green(exec.status) :
+                      exec.status === 'error' ? chalk.red(exec.status) :
+                      chalk.yellow(exec.status);
+
+        logger.info(`  ${chalk.bold(exec.id)}`);
+        logger.info(`    Machine: ${machineSource}`);
+        logger.info(`    Status: ${status}`);
+        logger.info(`    Turns: ${exec.turnCount}`);
+        logger.info(`    Last updated: ${ago}`);
+
+        if (opts?.verbose) {
+            logger.info(`    Mode: ${exec.mode}`);
+            if (exec.clientConfig) {
+                logger.info(`    Client: ${exec.clientConfig.type}`);
+            }
+        }
+    }
+}
+
+/**
+ * Show execution status
+ */
+export const showExecutionStatusAction = async (
+    id: string,
+    opts?: { verbose?: boolean; quiet?: boolean }
+): Promise<void> => {
+    setupLogger(opts || {});
+
+    try {
+        const metadata = await loadExecutionMetadata(id);
+
+        logger.heading(`Execution: ${chalk.bold(id)}`);
+        logger.info(`  Machine: ${metadata.machineFile || '(stdin)'}`);
+        logger.info(`  Status: ${metadata.status}`);
+        logger.info(`  Mode: ${metadata.mode}`);
+        logger.info(`  Turns: ${metadata.turnCount}`);
+        logger.info(`  Steps: ${metadata.stepCount}`);
+        logger.info(`  Started: ${new Date(metadata.startedAt).toLocaleString()}`);
+        logger.info(`  Last updated: ${new Date(metadata.lastExecutedAt).toLocaleString()}`);
+
+        if (metadata.clientConfig) {
+            logger.info(`\n  Client Config:`);
+            logger.info(`    Type: ${metadata.clientConfig.type}`);
+            if (metadata.clientConfig.playbackDir) {
+                logger.info(`    Playback: ${metadata.clientConfig.playbackDir}`);
+            }
+            if (metadata.clientConfig.recordingsDir) {
+                logger.info(`    Recordings: ${metadata.clientConfig.recordingsDir}`);
+            }
+        }
+    } catch (error) {
+        logger.error(`Execution not found: ${id}`);
+        process.exit(1);
+    }
+}
+
+/**
+ * Remove execution
+ */
+export const removeExecutionAction = async (
+    id: string,
+    opts?: { verbose?: boolean; quiet?: boolean }
+): Promise<void> => {
+    setupLogger(opts || {});
+
+    try {
+        await removeExecution(id);
+        logger.success(`Removed execution: ${id}`);
+    } catch (error) {
+        logger.error(`Failed to remove execution: ${id}`);
+        process.exit(1);
+    }
+}
+
+/**
+ * Clean completed executions
+ */
+export const cleanExecutionsAction = async (opts?: {
+    all?: boolean;
+    verbose?: boolean;
+    quiet?: boolean;
+}): Promise<void> => {
+    setupLogger(opts || {});
+
+    const cleaned = await cleanCompletedExecutions({ all: opts?.all });
+
+    if (cleaned === 0) {
+        logger.info('No executions to clean');
+    } else {
+        logger.success(`Cleaned ${cleaned} execution(s)`);
+    }
+}
+
+/**
+ * Format time ago
+ */
+function timeAgo(date: Date): string {
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+
+    if (seconds < 60) return `${seconds} seconds ago`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    return `${Math.floor(seconds / 86400)} days ago`;
+}
+
 // Initialize CLI
 function initializeCLI(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -865,13 +1089,19 @@ function initializeCLI(): Promise<void> {
 
                 program
                     .command('execute')
-                    .aliases(['exec', 'e'])
-                    .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
+                    .aliases(['e'])
+                    .argument('[file]', `source file (${fileExtensions}) or stdin if omitted`)
+                    .option('-i, --interactive', 'interactive turn-by-turn execution')
+                    .option('--id <id>', 'execution ID (for managing multiple executions)')
+                    .option('--force', 'force new execution (ignore existing state)')
+                    .option('--playback <dir>', 'playback from recordings directory')
+                    .option('--record <dir>', 'record execution to directory')
                     .option('-d, --destination <dir>', 'destination directory for execution results')
                     .option('-m, --model <model>', 'model ID to use (e.g., claude-3-5-haiku-20241022, claude-3-5-sonnet-20241022)')
                     .option('-v, --verbose', 'verbose output')
                     .option('-q, --quiet', 'quiet output (errors only)')
-                    .description('executes a machine program')
+                    .option('--no-imports', 'disable import resolution (treat as single file)')
+                    .description('executes a machine program\n\nExamples:\n  dygram execute app.dygram\n  dygram execute app.dygram --interactive\n  cat app.dygram | dygram execute --interactive\n  dygram execute app.dygram --playback recordings/\n  echo \'{"input": "..."}\' | dygram e -i app.dygram')
                     .action(executeAction);
 
                 program
@@ -900,6 +1130,43 @@ function initializeCLI(): Promise<void> {
                     .option('-v, --verbose', 'verbose output')
                     .description('starts local development server with API and playground\n\nExamples:\n  dygram server\n  dygram server ./my-machines\n  dygram server --port 3000')
                     .action(serverAction);
+
+                // Execution management commands
+                const execCmd = program
+                    .command('exec')
+                    .description('manage interactive executions');
+
+                execCmd
+                    .command('list')
+                    .aliases(['ls'])
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('list all executions\n\nExamples:\n  dygram exec list\n  dygram exec ls -v')
+                    .action(listExecutionsAction);
+
+                execCmd
+                    .command('status')
+                    .argument('<id>', 'execution ID')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('show execution status\n\nExamples:\n  dygram exec status exec-20251201-143022')
+                    .action(showExecutionStatusAction);
+
+                execCmd
+                    .command('rm')
+                    .argument('<id>', 'execution ID')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('remove execution\n\nExamples:\n  dygram exec rm exec-20251201-143022')
+                    .action(removeExecutionAction);
+
+                execCmd
+                    .command('clean')
+                    .option('--all', 'clean all executions including incomplete')
+                    .option('-v, --verbose', 'verbose output')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .description('clean up completed executions\n\nExamples:\n  dygram exec clean\n  dygram exec clean --all')
+                    .action(cleanExecutionsAction);
 
                 program.parse(process.argv);
                 resolve();

@@ -21,6 +21,8 @@
         "build:all": "npm run prebuild && npm run build:web",
         "build:extension": "tsc -b tsconfig.src.json && node esbuild.mjs",
         "build:web": "vite build && node scripts/generate-sitemap.js",
+        "build:cli": "npm run langium:generate && node esbuild-cli.mjs",
+        "watch:cli": "npm run langium:generate && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild-cli.mjs --watch\"",
         "watch": "npm run prebuild && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild.mjs --watch\"",
         "dev": "npm run prebuild && concurrently -n watch,web -c blue,yellow \"npm run watch:extension\" \"npm run dev:web\"",
         "watch:extension": "concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.src.json --watch\" \"node esbuild.mjs --watch\"",
@@ -170,6 +172,7 @@
     "main": "./out/extension/main.cjs",
     "bin": {
         "dygram": "./bin/cli.js",
+        "dy": "./bin/cli.js",
         "machine": "./bin/cli.js"
     }
 }
