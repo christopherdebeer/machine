@@ -1,0 +1,143 @@
+{
+  "json": {
+    "title": "Evolution with Rollback",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "HealthCheck",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "errorRate",
+            "value": 0
+          },
+          {
+            "name": "lastStage",
+            "value": "llm_only"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "advancedProcessor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process data"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "code_first"
+          },
+          {
+            "name": "code_path",
+            "value": "./generated/processor.ts"
+          }
+        ],
+        "title": "Evolved processor",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "monitorHealth",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Track HealthCheck.errorRate. If it exceeds 0.15, rollback to HealthCheck.lastStage."
+          }
+        ],
+        "title": "Monitor error rate",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "rollbackIfNeeded",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "If error rate is too high, revert evolution stage and regenerate code."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Conditional rollback",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "advancedProcessor",
+        "target": "monitorHealth",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 18
+          },
+          "end": {
+            "line": 23,
+            "character": 34
+          }
+        }
+      },
+      {
+        "source": "monitorHealth",
+        "target": "rollbackIfNeeded",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 35
+          },
+          "end": {
+            "line": 23,
+            "character": 54
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Evolution with Rollback</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"HealthCheck\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>HealthCheck</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"errorRate__key\" align=\"left\" balign=\"left\">errorRate</td><td port=\"errorRate__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"lastStage__key\" align=\"left\" balign=\"left\">lastStage</td><td port=\"lastStage__value\" align=\"left\" balign=\"left\">llm_only</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:1\"];\n  \"advancedProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>advancedProcessor</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Evolved processor</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process data</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">code_first</td></tr><tr><td port=\"code_path__key\" align=\"left\" balign=\"left\">code_path</td><td port=\"code_path__value\" align=\"left\" balign=\"left\">./generated/processor.ts</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-12:1\"];\n  \"monitorHealth\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>monitorHealth</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Monitor error rate</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Track HealthCheck.errorRate. If it exceeds 0.15, rollback to HealthCheck.lastStage.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-16:1\"];\n  \"rollbackIfNeeded\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>rollbackIfNeeded</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Conditional rollback</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ If error rate is too high, revert evolution stage and regenerate code.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L18:0-21:1\"];\n\n  // Edges\n  \"advancedProcessor\" -> \"monitorHealth\" [labelOverlay=\"75%\", edgeURL=\"#L23:18-23:34\"];\n  \"monitorHealth\" -> \"rollbackIfNeeded\" [labelOverlay=\"75%\", edgeURL=\"#L23:35-23:54\"];\n}",
+  "svgHash": "03c60c6f0f050d7a9308ac30ff093069884e86f5c37ec9523ca14654af4e5569"
+}

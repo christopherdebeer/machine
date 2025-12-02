@@ -1,0 +1,201 @@
+{
+  "json": {
+    "title": "Context Mutation Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 15
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "MutationTest",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "counter",
+            "value": 0
+          },
+          {
+            "name": "data",
+            "value": []
+          },
+          {
+            "name": "flags",
+            "value": {
+              "modified": false,
+              "validated": false
+            }
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "mutator1",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "First Mutator"
+          },
+          {
+            "name": "desc",
+            "value": "Mutate context data"
+          },
+          {
+            "name": "prompt",
+            "value": "Modify context counter and data array"
+          }
+        ],
+        "title": "First Mutator",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "mutator2",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Second Mutator"
+          },
+          {
+            "name": "desc",
+            "value": "Further mutate context"
+          },
+          {
+            "name": "prompt",
+            "value": "Further modify context and set flags"
+          }
+        ],
+        "title": "Second Mutator",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "validator",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Context Validator"
+          },
+          {
+            "name": "desc",
+            "value": "Validate context state"
+          },
+          {
+            "name": "prompt",
+            "value": "Validate that all context mutations persisted correctly"
+          }
+        ],
+        "title": "Context Validator",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 0
+          },
+          "end": {
+            "line": 31,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Context validated",
+        "$sourceRange": {
+          "start": {
+            "line": 33,
+            "character": 0
+          },
+          "end": {
+            "line": 33,
+            "character": 23
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "mutator1",
+        "target": "mutator2",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 9
+          },
+          "end": {
+            "line": 35,
+            "character": 20
+          }
+        }
+      },
+      {
+        "source": "mutator2",
+        "target": "validator",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 21
+          },
+          "end": {
+            "line": 35,
+            "character": 33
+          }
+        }
+      },
+      {
+        "source": "validator",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 34
+          },
+          "end": {
+            "line": 35,
+            "character": 40
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Context Mutation Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">15</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"MutationTest\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>MutationTest</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"counter__key\" align=\"left\" balign=\"left\">counter</td><td port=\"counter__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"data__key\" align=\"left\" balign=\"left\">data</td><td port=\"data__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"flags__key\" align=\"left\" balign=\"left\">flags</td><td port=\"flags__value\" align=\"left\" balign=\"left\">{<BR/>  &quot;modified&quot;: false,<BR/>  &quot;validated&quot;: false<BR/>}</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-13:1\"];\n  \"mutator1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>mutator1</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">First Mutator</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Mutate context data</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Modify context counter and data array</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">First Mutator</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L15:0-19:1\"];\n  \"mutator2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>mutator2</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Second Mutator</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Further mutate context</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Further modify context and set flags</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Second Mutator</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L21:0-25:1\"];\n  \"validator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validator</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Context Validator</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Validate context state</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Validate that all context mutations persisted correctly</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Context Validator</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L27:0-31:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Context validated</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L33:0-33:23\"];\n\n  // Edges\n  \"mutator1\" -> \"mutator2\" [labelOverlay=\"75%\", edgeURL=\"#L35:9-35:20\"];\n  \"mutator2\" -> \"validator\" [labelOverlay=\"75%\", edgeURL=\"#L35:21-35:33\"];\n  \"validator\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L35:34-35:40\"];\n}",
+  "svgHash": "f1c7689f95d7c79aaa30b322b41437a2b1b117c20dc807f7f1554543b19b4cc9"
+}

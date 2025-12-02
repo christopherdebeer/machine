@@ -1,0 +1,97 @@
+{
+  "json": {
+    "title": "Documented Evolution",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "EvolutionLog",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "history",
+            "value": []
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "evolve",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Before evolving, record in EvolutionLog.history: timestamp, from_stage, to_stage, reason (execution count, success rate, metrics), and confidence level."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Advance evolution stage",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "evolve",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 6
+          },
+          "end": {
+            "line": 12,
+            "character": 15
+          }
+        }
+      },
+      {
+        "source": "evolve",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 16
+          },
+          "end": {
+            "line": 12,
+            "character": 22
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Documented Evolution</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"EvolutionLog\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>EvolutionLog</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"history__key\" align=\"left\" balign=\"left\">history</td><td port=\"history__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-5:1\"];\n  \"evolve\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>evolve</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Advance evolution stage</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Before evolving, record in EvolutionLog.history: timestamp, from_stage, to_stage, reason (execution<br/>count, success rate, metrics), and confidence level.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-10:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"evolve\" [labelOverlay=\"75%\", edgeURL=\"#L12:6-12:15\"];\n  \"evolve\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L12:16-12:22\"];\n}",
+  "svgHash": "ad903b09f09b77a3c06d575f473f12705b3e7d824cfe876cad2ab4b6fae53a89"
+}

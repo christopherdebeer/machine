@@ -1,0 +1,78 @@
+{
+  "json": {
+    "title": "Schema Evolution",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "dataProcessor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process incoming data. Input: {data: string}. Output: {result: any}"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Adaptive processor",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "dataProcessor",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 6
+          },
+          "end": {
+            "line": 8,
+            "character": 22
+          }
+        }
+      },
+      {
+        "source": "dataProcessor",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 23
+          },
+          "end": {
+            "line": 8,
+            "character": 29
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Schema Evolution</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"dataProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataProcessor</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Adaptive processor</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process incoming data. Input: {data: string}. Output: {result: any}</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-6:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"dataProcessor\" [labelOverlay=\"75%\", edgeURL=\"#L8:6-8:22\"];\n  \"dataProcessor\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L8:23-8:29\"];\n}",
+  "svgHash": "ea27e4d31584e1bf1ac76f70d2e72866bb15cfb4177eb528fac725eeb761b10b"
+}

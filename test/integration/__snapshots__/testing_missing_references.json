@@ -1,0 +1,110 @@
+{
+  "json": {
+    "title": "Missing References Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 10
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "start",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Start with potential missing reference"
+          }
+        ],
+        "title": "Start Task",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "validTarget",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Valid reachable target"
+          }
+        ],
+        "title": "Valid Target",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Execution end",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 19
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "validTarget",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 6
+          },
+          "end": {
+            "line": 16,
+            "character": 20
+          }
+        }
+      },
+      {
+        "source": "validTarget",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 12
+          },
+          "end": {
+            "line": 17,
+            "character": 18
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Missing References Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Start Task</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Start with potential missing reference</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-8:1\"];\n  \"validTarget\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validTarget</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Valid Target</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Valid reachable target</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-12:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Execution end</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L14:0-14:19\"];\n\n  // Edges\n  \"start\" -> \"validTarget\" [labelOverlay=\"75%\", edgeURL=\"#L16:6-16:20\"];\n  \"validTarget\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L17:12-17:18\"];\n}",
+  "svgHash": "250605edb83891010737f84538ebd77130e80413d5628a8b82dfe0d18ea29490"
+}

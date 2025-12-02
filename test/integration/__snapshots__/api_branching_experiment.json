@@ -1,0 +1,167 @@
+{
+  "json": {
+    "title": "Branching Experiment",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Experiment",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "algorithm",
+            "value": "baseline"
+          },
+          {
+            "name": "score",
+            "value": 0
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "Setup",
+        "type": "state",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "checkpoint"
+          }
+        ],
+        "title": "Setup experiment",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 42
+          }
+        }
+      },
+      {
+        "name": "Baseline",
+        "type": "state",
+        "attributes": [],
+        "title": "Run baseline",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 29
+          }
+        }
+      },
+      {
+        "name": "Experimental",
+        "type": "state",
+        "attributes": [],
+        "title": "Run experimental",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 37
+          }
+        }
+      },
+      {
+        "name": "Compare",
+        "type": "state",
+        "attributes": [],
+        "title": "Compare results",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 31
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "Setup",
+        "target": "Baseline",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 6
+          },
+          "end": {
+            "line": 13,
+            "character": 17
+          }
+        }
+      },
+      {
+        "source": "Setup",
+        "target": "Experimental",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 6
+          },
+          "end": {
+            "line": 14,
+            "character": 21
+          }
+        }
+      },
+      {
+        "source": "Baseline",
+        "target": "Compare",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 9
+          },
+          "end": {
+            "line": 15,
+            "character": 19
+          }
+        }
+      },
+      {
+        "source": "Experimental",
+        "target": "Compare",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 13
+          },
+          "end": {
+            "line": 16,
+            "character": 23
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Branching Experiment</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Experiment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Experiment</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"algorithm__key\" align=\"left\" balign=\"left\">algorithm</td><td port=\"algorithm__value\" align=\"left\" balign=\"left\">baseline</td></tr><tr><td port=\"score__key\" align=\"left\" balign=\"left\">score</td><td port=\"score__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:1\"];\n  \"Setup\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Setup</b> <i>&lt;state&gt;</i> <i>@checkpoint</i></td></tr><tr><td align=\"left\">Setup experiment</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L8:0-8:42\"];\n  \"Baseline\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Baseline</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Run baseline</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L9:0-9:29\"];\n  \"Experimental\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Experimental</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Run experimental</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:37\"];\n  \"Compare\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Compare</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Compare results</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:31\"];\n\n  // Edges\n  \"Setup\" -> \"Baseline\" [labelOverlay=\"75%\", edgeURL=\"#L13:6-13:17\"];\n  \"Setup\" -> \"Experimental\" [labelOverlay=\"75%\", edgeURL=\"#L14:6-14:21\"];\n  \"Baseline\" -> \"Compare\" [labelOverlay=\"75%\", edgeURL=\"#L15:9-15:19\"];\n  \"Experimental\" -> \"Compare\" [labelOverlay=\"75%\", edgeURL=\"#L16:13-16:23\"];\n}",
+  "svgHash": "b0095525646d8feaea1c494b9eccccec3e11d41284607ad27e08fc92bf1ef5e7"
+}

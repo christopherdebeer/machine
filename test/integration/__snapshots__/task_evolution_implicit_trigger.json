@@ -1,0 +1,89 @@
+{
+  "json": {
+    "title": "Threshold-Based Evolution",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "analyze",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Analyze data and identify patterns"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "llm_only"
+          },
+          {
+            "name": "execution_count",
+            "value": 0
+          },
+          {
+            "name": "success_count",
+            "value": 0
+          }
+        ],
+        "title": "Data analyzer",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "analyze",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 6
+          },
+          "end": {
+            "line": 19,
+            "character": 16
+          }
+        }
+      },
+      {
+        "source": "analyze",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 17
+          },
+          "end": {
+            "line": 19,
+            "character": 23
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Threshold-Based Evolution</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"analyze\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyze</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data analyzer</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Analyze data and identify patterns</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">llm_only</td></tr><tr><td port=\"execution_count__key\" align=\"left\" balign=\"left\">execution_count</td><td port=\"execution_count__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"success_count__key\" align=\"left\" balign=\"left\">success_count</td><td port=\"success_count__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-9:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"analyze\" [labelOverlay=\"75%\", edgeURL=\"#L19:6-19:16\"];\n  \"analyze\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L19:17-19:23\"];\n}",
+  "svgHash": "ff70feda12e5d381f9b66a8ef8e2d1e0fc7e0dcfd4136e3d58eef79d51c834bd"
+}

@@ -1,0 +1,209 @@
+{
+  "json": {
+    "title": "State Tracking Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 20
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "ProcessState",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "currentStep",
+            "value": 0
+          },
+          {
+            "name": "processedItems",
+            "value": []
+          },
+          {
+            "name": "status",
+            "value": "initializing"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Initialize the state tracking process"
+          }
+        ],
+        "title": "Initialize process",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "step1",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute first processing step"
+          }
+        ],
+        "title": "Process step 1",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "step2",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute second processing step"
+          }
+        ],
+        "title": "Process step 2",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "validation",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate processing results"
+          }
+        ],
+        "title": "Validate results",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 26,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Process validated",
+        "$sourceRange": {
+          "start": {
+            "line": 28,
+            "character": 0
+          },
+          "end": {
+            "line": 28,
+            "character": 23
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "step1",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 6
+          },
+          "end": {
+            "line": 30,
+            "character": 14
+          }
+        }
+      },
+      {
+        "source": "step1",
+        "target": "step2",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 6
+          },
+          "end": {
+            "line": 31,
+            "character": 14
+          }
+        }
+      },
+      {
+        "source": "step2",
+        "target": "validation",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 32,
+            "character": 6
+          },
+          "end": {
+            "line": 32,
+            "character": 19
+          }
+        }
+      },
+      {
+        "source": "validation",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 33,
+            "character": 11
+          },
+          "end": {
+            "line": 33,
+            "character": 17
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>State Tracking Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">20</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ProcessState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessState</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"currentStep__key\" align=\"left\" balign=\"left\">currentStep</td><td port=\"currentStep__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"processedItems__key\" align=\"left\" balign=\"left\">processedItems</td><td port=\"processedItems__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"status__key\" align=\"left\" balign=\"left\">status</td><td port=\"status__value\" align=\"left\" balign=\"left\">initializing</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-10:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Initialize process</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Initialize the state tracking process</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-14:1\"];\n  \"step1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step1</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process step 1</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute first processing step</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L16:0-18:1\"];\n  \"step2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step2</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Process step 2</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute second processing step</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L20:0-22:1\"];\n  \"validation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validation</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Validate results</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Validate processing results</font></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L24:0-26:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Process validated</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L28:0-28:23\"];\n\n  // Edges\n  \"start\" -> \"step1\" [labelOverlay=\"75%\", edgeURL=\"#L30:6-30:14\"];\n  \"step1\" -> \"step2\" [labelOverlay=\"75%\", edgeURL=\"#L31:6-31:14\"];\n  \"step2\" -> \"validation\" [labelOverlay=\"75%\", edgeURL=\"#L32:6-32:19\"];\n  \"validation\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L33:11-33:17\"];\n}",
+  "svgHash": "a2177bb62f21da231d789e1f744b9a329279a1bc693fc248cd7b34b70d64d6c4"
+}

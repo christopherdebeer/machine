@@ -1,0 +1,205 @@
+{
+  "json": {
+    "title": "Context Operations",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 20
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "UserProfile",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "userId",
+            "value": ""
+          },
+          {
+            "name": "name",
+            "value": ""
+          },
+          {
+            "name": "email",
+            "value": ""
+          },
+          {
+            "name": "preferences",
+            "value": {}
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "SessionData",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "loginTime",
+            "value": 0
+          },
+          {
+            "name": "activityCount",
+            "value": 0
+          },
+          {
+            "name": "lastAction",
+            "value": ""
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Set the UserProfile.userId to 'user-12345', UserProfile.name to 'Alice Johnson', and UserProfile.email to 'alice@example.com'. Then set SessionData.loginTime to current timestamp."
+          }
+        ],
+        "title": "Initialize user session",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "updateActivity",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Increment SessionData.activityCount by 1 and set SessionData.lastAction to 'profile_view"
+          }
+        ],
+        "title": "Track user activity",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "displaySummary",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Display all context values: UserProfile and SessionData"
+          }
+        ],
+        "title": "Show session summary",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 0
+          },
+          "end": {
+            "line": 29,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Session tracking complete",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 0
+          },
+          "end": {
+            "line": 31,
+            "character": 31
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "updateActivity",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 33,
+            "character": 6
+          },
+          "end": {
+            "line": 33,
+            "character": 23
+          }
+        }
+      },
+      {
+        "source": "updateActivity",
+        "target": "displaySummary",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 33,
+            "character": 24
+          },
+          "end": {
+            "line": 33,
+            "character": 41
+          }
+        }
+      },
+      {
+        "source": "displaySummary",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 33,
+            "character": 42
+          },
+          "end": {
+            "line": 33,
+            "character": 48
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Context Operations</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">20</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"UserProfile\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UserProfile</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"userId__key\" align=\"left\" balign=\"left\">userId</td><td port=\"userId__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"name__key\" align=\"left\" balign=\"left\">name</td><td port=\"name__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"email__key\" align=\"left\" balign=\"left\">email</td><td port=\"email__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"preferences__key\" align=\"left\" balign=\"left\">preferences</td><td port=\"preferences__value\" align=\"left\" balign=\"left\">{}</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-11:1\"];\n  \"SessionData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>SessionData</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"loginTime__key\" align=\"left\" balign=\"left\">loginTime</td><td port=\"loginTime__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"activityCount__key\" align=\"left\" balign=\"left\">activityCount</td><td port=\"activityCount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"lastAction__key\" align=\"left\" balign=\"left\">lastAction</td><td port=\"lastAction__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L13:0-17:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Initialize user session</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Set the UserProfile.userId to 'user-12345', UserProfile.name to 'Alice Johnson', and<br/>UserProfile.email to 'alice@example.com'. Then set SessionData.loginTime to current timestamp.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:0-21:1\"];\n  \"updateActivity\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>updateActivity</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Track user activity</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Increment SessionData.activityCount by 1 and set SessionData.lastAction to 'profile_view</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L23:0-25:1\"];\n  \"displaySummary\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>displaySummary</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Show session summary</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Display all context values: UserProfile and SessionData</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L27:0-29:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Session tracking complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L31:0-31:31\"];\n\n  // Edges\n  \"start\" -> \"updateActivity\" [labelOverlay=\"75%\", edgeURL=\"#L33:6-33:23\"];\n  \"updateActivity\" -> \"displaySummary\" [labelOverlay=\"75%\", edgeURL=\"#L33:24-33:41\"];\n  \"displaySummary\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L33:42-33:48\"];\n}",
+  "svgHash": "516093700274e766a5569d63eb04d030dc1012b781217eeeae5621c8853f5211"
+}

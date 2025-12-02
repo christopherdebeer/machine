@@ -1,0 +1,137 @@
+{
+  "json": {
+    "title": "Custom Evolution Thresholds",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "criticalTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process critical data"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "llm_only"
+          },
+          {
+            "name": "min_executions",
+            "value": 200
+          },
+          {
+            "name": "success_rate_threshold",
+            "value": 0.95
+          },
+          {
+            "name": "hybrid_confidence",
+            "value": 0.9
+          }
+        ],
+        "title": "High-stakes operation",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "standardTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process standard data"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "llm_only"
+          }
+        ],
+        "title": "Standard operation",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "criticalTask",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 6
+          },
+          "end": {
+            "line": 22,
+            "character": 21
+          }
+        }
+      },
+      {
+        "source": "criticalTask",
+        "target": "standardTask",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 22
+          },
+          "end": {
+            "line": 22,
+            "character": 37
+          }
+        }
+      },
+      {
+        "source": "standardTask",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 38
+          },
+          "end": {
+            "line": 22,
+            "character": 44
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Custom Evolution Thresholds</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"criticalTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>criticalTask</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">High-stakes operation</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process critical data</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">llm_only</td></tr><tr><td port=\"min_executions__key\" align=\"left\" balign=\"left\">min_executions</td><td port=\"min_executions__value\" align=\"left\" balign=\"left\">200</td></tr><tr><td port=\"success_rate_threshold__key\" align=\"left\" balign=\"left\">success_rate_threshold</td><td port=\"success_rate_threshold__value\" align=\"left\" balign=\"left\">0.95</td></tr><tr><td port=\"hybrid_confidence__key\" align=\"left\" balign=\"left\">hybrid_confidence</td><td port=\"hybrid_confidence__value\" align=\"left\" balign=\"left\">0.9</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-12:1\"];\n  \"standardTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>standardTask</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Standard operation</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process standard data</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">llm_only</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-20:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"criticalTask\" [labelOverlay=\"75%\", edgeURL=\"#L22:6-22:21\"];\n  \"criticalTask\" -> \"standardTask\" [labelOverlay=\"75%\", edgeURL=\"#L22:22-22:37\"];\n  \"standardTask\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L22:38-22:44\"];\n}",
+  "svgHash": "f64f30b4e2d1e10a665c18f30469b03c548d85ff6705085b6344a71c795ee503"
+}

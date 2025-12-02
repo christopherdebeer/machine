@@ -1,0 +1,126 @@
+{
+  "json": {
+    "title": "Full Code Generation Demo",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "parser",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Parse CSV data into JSON. Handle quoted fields, escaped characters, and empty values. Input: {csv: string, delimiter?: string, headers?: string[]}. Output: {data: Record<string,string>[], row_count: number, headers: string[]}"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "CSV parser",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "validator",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate parsed data"
+          },
+          {
+            "name": "code_path",
+            "value": "./generated/parser.ts"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "code_only"
+          }
+        ],
+        "title": "Data validator",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "parser",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 6
+          },
+          "end": {
+            "line": 17,
+            "character": 15
+          }
+        }
+      },
+      {
+        "source": "parser",
+        "target": "validator",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 16
+          },
+          "end": {
+            "line": 17,
+            "character": 28
+          }
+        }
+      },
+      {
+        "source": "validator",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 29
+          },
+          "end": {
+            "line": 17,
+            "character": 35
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Full Code Generation Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"parser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>parser</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">CSV parser</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Parse CSV data into JSON. Handle quoted fields, escaped characters, and empty values. Input: {csv:<br/>string, delimiter?: string, headers?: string[]}. Output: {data: Record&lt;string,string&gt;[], row_count:<br/>number, headers: string[]}</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-7:1\"];\n  \"validator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validator</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data validator</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Validate parsed data</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"code_path__key\" align=\"left\" balign=\"left\">code_path</td><td port=\"code_path__value\" align=\"left\" balign=\"left\">./generated/parser.ts</td></tr><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">code_only</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-14:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"parser\" [labelOverlay=\"75%\", edgeURL=\"#L17:6-17:15\"];\n  \"parser\" -> \"validator\" [labelOverlay=\"75%\", edgeURL=\"#L17:16-17:28\"];\n  \"validator\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L17:29-17:35\"];\n}",
+  "svgHash": "a7daddc1fa867da4b275115b73479fbe9c2869335682e7cae3f11a5b963a291a"
+}

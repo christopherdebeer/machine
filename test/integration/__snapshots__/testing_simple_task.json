@@ -1,0 +1,156 @@
+{
+  "json": {
+    "title": "Test Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 10
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "start",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Test Task"
+          },
+          {
+            "name": "desc",
+            "value": "A test task description"
+          },
+          {
+            "name": "prompt",
+            "value": "Please process this test task"
+          }
+        ],
+        "title": "Test Task",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "analysis",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Analysis Task"
+          },
+          {
+            "name": "desc",
+            "value": "An analysis task"
+          },
+          {
+            "name": "prompt",
+            "value": "Please analyze this data"
+          },
+          {
+            "name": "taskType",
+            "value": "analysis"
+          }
+        ],
+        "title": "Analysis Task",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Task complete",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 19
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "analysis",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 6
+          },
+          "end": {
+            "line": 21,
+            "character": 17
+          }
+        }
+      },
+      {
+        "source": "analysis",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 18
+          },
+          "end": {
+            "line": 21,
+            "character": 24
+          }
+        }
+      },
+      {
+        "source": "analysis",
+        "target": "analysis",
+        "value": {
+          "attribute": "taskType",
+          "text": "taskType",
+          "sourceAttribute": "taskType"
+        },
+        "attributes": {
+          "attribute": "taskType",
+          "text": "taskType",
+          "sourceAttribute": "taskType"
+        },
+        "type": "inferred",
+        "sourceAttribute": "taskType",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 2
+          },
+          "end": {
+            "line": 16,
+            "character": 22
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Test Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Test Task</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>A test task description</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Please process this test task</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Test Task</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-10:1\"];\n  \"analysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analysis</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analysis Task</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>An analysis task</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Please analyze this data</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Analysis Task</td></tr><tr><td port=\"taskType__key\" align=\"left\" balign=\"left\">taskType</td><td port=\"taskType__value\" align=\"left\" balign=\"left\">analysis</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-17:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Task complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L19:0-19:19\"];\n\n  // Edges\n  \"start\" -> \"analysis\" [labelOverlay=\"75%\", edgeURL=\"#L21:6-21:17\"];\n  \"analysis\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L21:18-21:24\"];\n  \"analysis\":\"taskType__value\" -> \"analysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>taskType</b></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">attribute</td><td align=\"left\" balign=\"left\">taskType</td></tr><tr><td align=\"left\" balign=\"left\">type</td><td align=\"left\" balign=\"left\">undefined</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L16:2-16:22\"];\n}",
+  "svgHash": "b06d23a06dd25ad55402a9a8d3edf9d204936ee82c18f959d0019ac42ebfc0ac"
+}

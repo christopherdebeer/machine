@@ -1,0 +1,112 @@
+{
+  "json": {
+    "title": "Clear Prompt Example",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "goodPrompt",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Calculate compound interest. Formula: A = P(1 + r/n)^(nt) where P=principal, r=annual rate, n=compounds per year, t=years. Input validation: all numbers must be positive, rate should be less than 1 (as decimal). Round result to 2 decimal places. Return both final amount and interest earned."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Well-defined task",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "badPrompt",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Calculate interest"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Vague task",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "goodPrompt",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 6
+          },
+          "end": {
+            "line": 13,
+            "character": 19
+          }
+        }
+      },
+      {
+        "source": "goodPrompt",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 20
+          },
+          "end": {
+            "line": 13,
+            "character": 26
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Clear Prompt Example</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"goodPrompt\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>goodPrompt</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Well-defined task</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Calculate compound interest. Formula: A = P(1 + r/n)^(nt) where P=principal, r=annual rate,<br/>n=compounds per year, t=years. Input validation: all numbers must be positive, rate should be less<br/>than 1 (as decimal). Round result to 2 decimal places. Return both final amount and interest earned.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-6:1\"];\n  \"badPrompt\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>badPrompt</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Vague task</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Calculate interest</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-11:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"goodPrompt\" [labelOverlay=\"75%\", edgeURL=\"#L13:6-13:19\"];\n  \"goodPrompt\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L13:20-13:26\"];\n}",
+  "svgHash": "c3f55cee94c8225873f612210cd1f5c2fa38d39f7007a6ffcd2d393e2f19cbc6"
+}

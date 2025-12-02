@@ -1,0 +1,332 @@
+{
+  "json": {
+    "title": "Conditional Task Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 20
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "TaskContext",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "dataQuality",
+            "value": "unknown"
+          },
+          {
+            "name": "processingMode",
+            "value": "standard"
+          },
+          {
+            "name": "errorCount",
+            "value": 0
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "qualityCheck",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Data Quality Check"
+          },
+          {
+            "name": "desc",
+            "value": "Assess data quality"
+          },
+          {
+            "name": "prompt",
+            "value": "Evaluate data quality and set processing mode"
+          },
+          {
+            "name": "checks",
+            "value": [
+              "completeness",
+              "accuracy",
+              "consistency"
+            ]
+          }
+        ],
+        "title": "Quality Assessment",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "standardProcessing",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Standard Processing"
+          },
+          {
+            "name": "desc",
+            "value": "Standard data processing"
+          },
+          {
+            "name": "prompt",
+            "value": "Process data using standard algorithms"
+          },
+          {
+            "name": "mode",
+            "value": "standard"
+          }
+        ],
+        "title": "Standard Processing",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 24,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "enhancedProcessing",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Enhanced Processing"
+          },
+          {
+            "name": "desc",
+            "value": "Enhanced data processing with quality improvements"
+          },
+          {
+            "name": "prompt",
+            "value": "Process data with enhanced quality controls"
+          },
+          {
+            "name": "mode",
+            "value": "enhanced"
+          }
+        ],
+        "title": "Enhanced Processing",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 0
+          },
+          "end": {
+            "line": 31,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "errorHandling",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Error Handling"
+          },
+          {
+            "name": "desc",
+            "value": "Handle processing errors"
+          },
+          {
+            "name": "prompt",
+            "value": "Handle and recover from processing errors"
+          },
+          {
+            "name": "mode",
+            "value": "recovery"
+          }
+        ],
+        "title": "Error Handling",
+        "$sourceRange": {
+          "start": {
+            "line": 33,
+            "character": 0
+          },
+          "end": {
+            "line": 38,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Processing complete",
+        "$sourceRange": {
+          "start": {
+            "line": 40,
+            "character": 0
+          },
+          "end": {
+            "line": 40,
+            "character": 25
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "qualityCheck",
+        "target": "standardProcessing",
+        "arrowType": "->",
+        "attributes": {
+          "when": "TaskContext.dataQuality == 'good'"
+        },
+        "value": {
+          "when": "TaskContext.dataQuality == 'good'"
+        },
+        "style": {
+          "when": "TaskContext.dataQuality == 'good"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 42,
+            "character": 13
+          },
+          "end": {
+            "line": 42,
+            "character": 76
+          }
+        }
+      },
+      {
+        "source": "qualityCheck",
+        "target": "enhancedProcessing",
+        "arrowType": "->",
+        "attributes": {
+          "when": "TaskContext.dataQuality == 'poor'"
+        },
+        "value": {
+          "when": "TaskContext.dataQuality == 'poor'"
+        },
+        "style": {
+          "when": "TaskContext.dataQuality == 'poor"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 43,
+            "character": 13
+          },
+          "end": {
+            "line": 43,
+            "character": 76
+          }
+        }
+      },
+      {
+        "source": "qualityCheck",
+        "target": "errorHandling",
+        "arrowType": "->",
+        "attributes": {
+          "when": "TaskContext.errorCount > 0"
+        },
+        "value": {
+          "when": "TaskContext.errorCount > 0"
+        },
+        "style": {
+          "when": "TaskContext.errorCount > 0"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 44,
+            "character": 13
+          },
+          "end": {
+            "line": 44,
+            "character": 64
+          }
+        }
+      },
+      {
+        "source": "standardProcessing",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 46,
+            "character": 19
+          },
+          "end": {
+            "line": 46,
+            "character": 25
+          }
+        }
+      },
+      {
+        "source": "enhancedProcessing",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 19
+          },
+          "end": {
+            "line": 47,
+            "character": 25
+          }
+        }
+      },
+      {
+        "source": "errorHandling",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 48,
+            "character": 14
+          },
+          "end": {
+            "line": 48,
+            "character": 20
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "qualityCheck",
+        "target": "TaskContext",
+        "reason": "condition references TaskContext",
+        "path": "TaskContext.dataQuality == "
+      },
+      {
+        "source": "qualityCheck",
+        "target": "TaskContext",
+        "reason": "condition references TaskContext",
+        "path": "TaskContext.errorCount > 0"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Conditional Task Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">20</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"TaskContext\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>TaskContext</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"dataQuality__key\" align=\"left\" balign=\"left\">dataQuality</td><td port=\"dataQuality__value\" align=\"left\" balign=\"left\">unknown</td></tr><tr><td port=\"processingMode__key\" align=\"left\" balign=\"left\">processingMode</td><td port=\"processingMode__value\" align=\"left\" balign=\"left\">standard</td></tr><tr><td port=\"errorCount__key\" align=\"left\" balign=\"left\">errorCount</td><td port=\"errorCount__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-10:1\"];\n  \"qualityCheck\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>qualityCheck</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Quality Assessment</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Assess data quality</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Evaluate data quality and set processing mode</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Data Quality Check</td></tr><tr><td port=\"checks__key\" align=\"left\" balign=\"left\">checks</td><td port=\"checks__value\" align=\"left\" balign=\"left\">[<BR/>  &quot;completeness&quot;,<BR/>  &quot;accuracy&quot;,<BR/>  &quot;consistency&quot;<BR/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-17:1\"];\n  \"standardProcessing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>standardProcessing</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Standard Processing</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Standard data processing</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process data using standard algorithms</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Standard Processing</td></tr><tr><td port=\"mode__key\" align=\"left\" balign=\"left\">mode</td><td port=\"mode__value\" align=\"left\" balign=\"left\">standard</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:0-24:1\"];\n  \"enhancedProcessing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>enhancedProcessing</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Enhanced Processing</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Enhanced data processing with quality improvements</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process data with enhanced quality controls</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Enhanced Processing</td></tr><tr><td port=\"mode__key\" align=\"left\" balign=\"left\">mode</td><td port=\"mode__value\" align=\"left\" balign=\"left\">enhanced</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L26:0-31:1\"];\n  \"errorHandling\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>errorHandling</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Error Handling</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Handle processing errors</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Handle and recover from processing errors</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Error Handling</td></tr><tr><td port=\"mode__key\" align=\"left\" balign=\"left\">mode</td><td port=\"mode__value\" align=\"left\" balign=\"left\">recovery</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L33:0-38:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Processing complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L40:0-40:25\"];\n\n  // Edges\n  \"qualityCheck\" -> \"standardProcessing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">TaskContext.dataQuality == 'good'</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L42:13-42:76\", when=\"TaskContext.dataQuality == 'good\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"qualityCheck\" -> \"enhancedProcessing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">TaskContext.dataQuality == 'poor'</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L43:13-43:76\", when=\"TaskContext.dataQuality == 'poor\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"qualityCheck\" -> \"errorHandling\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">TaskContext.errorCount &gt; 0</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L44:13-44:64\", when=\"TaskContext.errorCount > 0\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"standardProcessing\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L46:19-46:25\"];\n  \"enhancedProcessing\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L47:19-47:25\"];\n  \"errorHandling\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L48:14-48:20\"];\n\n  // Inferred Dependencies\n  \"qualityCheck\" -> \"TaskContext\" [label=\"condition references TaskContext\", style=dashed, color=blue];\n  \"qualityCheck\" -> \"TaskContext\" [label=\"condition references TaskContext\", style=dashed, color=blue];\n}",
+  "svgHash": "ecadcd7d618ead219d235398517d121b8c0e5593779a3a2291d98cd6a1a3fc64"
+}

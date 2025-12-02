@@ -1,0 +1,113 @@
+{
+  "json": {
+    "title": "Adaptive Workflow",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "detectNeeds",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Analyze the workflow and determine if additional processing steps are needed based on data characteristics."
+          }
+        ],
+        "title": "Detect missing capabilities",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "addSteps",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use update_definition to add a data validation step between processing and output if validation is needed. Provide reason for modification."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Add required steps",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "detectNeeds",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 6
+          },
+          "end": {
+            "line": 12,
+            "character": 20
+          }
+        }
+      },
+      {
+        "source": "detectNeeds",
+        "target": "addSteps",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 21
+          },
+          "end": {
+            "line": 12,
+            "character": 32
+          }
+        }
+      },
+      {
+        "source": "addSteps",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 33
+          },
+          "end": {
+            "line": 12,
+            "character": 39
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Adaptive Workflow</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"detectNeeds\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>detectNeeds</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Detect missing capabilities</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Analyze the workflow and determine if additional processing steps are needed based on data<br/>characteristics.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-5:1\"];\n  \"addSteps\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>addSteps</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Add required steps</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use update_definition to add a data validation step between processing and output if validation is<br/>needed. Provide reason for modification.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-10:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"detectNeeds\" [labelOverlay=\"75%\", edgeURL=\"#L12:6-12:20\"];\n  \"detectNeeds\" -> \"addSteps\" [labelOverlay=\"75%\", edgeURL=\"#L12:21-12:32\"];\n  \"addSteps\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L12:33-12:39\"];\n}",
+  "svgHash": "72d13036ed0b64040df45913640c97f78aba1092c8e4a33b9a6c8de2c569912f"
+}

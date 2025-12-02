@@ -1,0 +1,90 @@
+{
+  "json": {
+    "title": "Versioned Modifications",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "MachineHistory",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "version",
+            "value": 1
+          },
+          {
+            "name": "modifications",
+            "value": []
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "recordChange",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Before using update_definition, record current machine state in MachineHistory.modifications with timestamp and reason. Increment version."
+          }
+        ],
+        "title": "Record modification",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "applyChange",
+        "type": "task",
+        "attributes": [],
+        "title": "Apply modification",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 37
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "recordChange",
+        "target": "applyChange",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 13
+          },
+          "end": {
+            "line": 14,
+            "character": 27
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Versioned Modifications</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"MachineHistory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>MachineHistory</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"version__key\" align=\"left\" balign=\"left\">version</td><td port=\"version__value\" align=\"left\" balign=\"left\">1</td></tr><tr><td port=\"modifications__key\" align=\"left\" balign=\"left\">modifications</td><td port=\"modifications__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:1\"];\n  \"recordChange\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>recordChange</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Record modification</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Before using update_definition, record current machine state in MachineHistory.modifications with<br/>timestamp and reason. Increment version.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-10:1\"];\n  \"applyChange\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>applyChange</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Apply modification</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-12:37\"];\n\n  // Edges\n  \"recordChange\" -> \"applyChange\" [labelOverlay=\"75%\", edgeURL=\"#L14:13-14:27\"];\n}",
+  "svgHash": "dcb930fb73e6f1d21544ae25e6745e293400a48fec2147e47676199946f80890"
+}

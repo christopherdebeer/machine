@@ -1,0 +1,277 @@
+{
+  "json": {
+    "title": "Shopping Cart",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 30
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Cart",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "items",
+            "value": []
+          },
+          {
+            "name": "total",
+            "value": 0
+          },
+          {
+            "name": "discount",
+            "value": 0
+          },
+          {
+            "name": "currency",
+            "value": "USD"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "User",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "id",
+            "value": ""
+          },
+          {
+            "name": "loyaltyPoints",
+            "value": 0
+          },
+          {
+            "name": "tier",
+            "value": "standard"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Set User.id to 'customer-789', User.loyaltyPoints to 150, and User.tier to 'gold'. Initialize Cart.items as empty array."
+          }
+        ],
+        "title": "Initialize cart",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "addItem",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Add an item to Cart.items: {productId: 'prod-001', name: 'Laptop', price: 999, quantity: 1}. Update Cart.total to 999."
+          }
+        ],
+        "title": "Add product to cart",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "addSecondItem",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Add second item to Cart.items: {productId: 'prod-002', name: 'Mouse', price: 49, quantity: 2}. Update Cart.total to 1097 (999 + 49*2)."
+          }
+        ],
+        "title": "Add another product",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 0
+          },
+          "end": {
+            "line": 29,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "applyDiscount",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Since User.tier is 'gold', apply 10% discount. Set Cart.discount to 109.7 (10% of 1097). Calculate final total."
+          }
+        ],
+        "title": "Apply loyalty discount",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 0
+          },
+          "end": {
+            "line": 33,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "reviewOrder",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Display Cart.items array, Cart.total, Cart.discount, final amount, and User.tier status"
+          }
+        ],
+        "title": "Display final order",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 0
+          },
+          "end": {
+            "line": 37,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Order ready for checkout",
+        "$sourceRange": {
+          "start": {
+            "line": 39,
+            "character": 0
+          },
+          "end": {
+            "line": 39,
+            "character": 30
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "addItem",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 6
+          },
+          "end": {
+            "line": 41,
+            "character": 16
+          }
+        }
+      },
+      {
+        "source": "addItem",
+        "target": "addSecondItem",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 17
+          },
+          "end": {
+            "line": 41,
+            "character": 33
+          }
+        }
+      },
+      {
+        "source": "addSecondItem",
+        "target": "applyDiscount",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 34
+          },
+          "end": {
+            "line": 41,
+            "character": 50
+          }
+        }
+      },
+      {
+        "source": "applyDiscount",
+        "target": "reviewOrder",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 51
+          },
+          "end": {
+            "line": 41,
+            "character": 65
+          }
+        }
+      },
+      {
+        "source": "reviewOrder",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 66
+          },
+          "end": {
+            "line": 41,
+            "character": 72
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Shopping Cart</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">30</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Cart\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Cart</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"items__key\" align=\"left\" balign=\"left\">items</td><td port=\"items__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"total__key\" align=\"left\" balign=\"left\">total</td><td port=\"total__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"discount__key\" align=\"left\" balign=\"left\">discount</td><td port=\"discount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"currency__key\" align=\"left\" balign=\"left\">currency</td><td port=\"currency__value\" align=\"left\" balign=\"left\">USD</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-11:1\"];\n  \"User\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>User</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"id__key\" align=\"left\" balign=\"left\">id</td><td port=\"id__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"loyaltyPoints__key\" align=\"left\" balign=\"left\">loyaltyPoints</td><td port=\"loyaltyPoints__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"tier__key\" align=\"left\" balign=\"left\">tier</td><td port=\"tier__value\" align=\"left\" balign=\"left\">standard</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L13:0-17:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Initialize cart</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Set User.id to 'customer-789', User.loyaltyPoints to 150, and User.tier to 'gold'. Initialize<br/>Cart.items as empty array.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:0-21:1\"];\n  \"addItem\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>addItem</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Add product to cart</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Add an item to Cart.items: {productId: 'prod-001', name: 'Laptop', price: 999, quantity: 1}. Update<br/>Cart.total to 999.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L23:0-25:1\"];\n  \"addSecondItem\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>addSecondItem</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Add another product</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Add second item to Cart.items: {productId: 'prod-002', name: 'Mouse', price: 49, quantity: 2}.<br/>Update Cart.total to 1097 (999 + 49*2).</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L27:0-29:1\"];\n  \"applyDiscount\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>applyDiscount</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Apply loyalty discount</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Since User.tier is 'gold', apply 10% discount. Set Cart.discount to 109.7 (10% of 1097). Calculate<br/>final total.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L31:0-33:1\"];\n  \"reviewOrder\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>reviewOrder</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Display final order</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Display Cart.items array, Cart.total, Cart.discount, final amount, and User.tier status</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L35:0-37:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Order ready for checkout</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L39:0-39:30\"];\n\n  // Edges\n  \"start\" -> \"addItem\" [labelOverlay=\"75%\", edgeURL=\"#L41:6-41:16\"];\n  \"addItem\" -> \"addSecondItem\" [labelOverlay=\"75%\", edgeURL=\"#L41:17-41:33\"];\n  \"addSecondItem\" -> \"applyDiscount\" [labelOverlay=\"75%\", edgeURL=\"#L41:34-41:50\"];\n  \"applyDiscount\" -> \"reviewOrder\" [labelOverlay=\"75%\", edgeURL=\"#L41:51-41:65\"];\n  \"reviewOrder\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L41:66-41:72\"];\n}",
+  "svgHash": "978c98330b471015c933b316d523a620b695cfe873891519fd66dde89e4dcf44"
+}

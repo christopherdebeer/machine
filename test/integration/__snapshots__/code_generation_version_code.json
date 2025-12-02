@@ -1,0 +1,106 @@
+{
+  "json": {
+    "title": "Versioned Code Generation",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "CodeVersions",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "current",
+            "value": "v1.0"
+          },
+          {
+            "name": "history",
+            "value": []
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "generateWithVersion",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Before generating, record current version in CodeVersions.history. Increment CodeVersions.current. Save code to ./generated/{taskName}_v{version}.ts"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Versioned generation",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "generateWithVersion",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 6
+          },
+          "end": {
+            "line": 13,
+            "character": 28
+          }
+        }
+      },
+      {
+        "source": "generateWithVersion",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 29
+          },
+          "end": {
+            "line": 13,
+            "character": 35
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Versioned Code Generation</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"CodeVersions\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CodeVersions</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"current__key\" align=\"left\" balign=\"left\">current</td><td port=\"current__value\" align=\"left\" balign=\"left\">v1.0</td></tr><tr><td port=\"history__key\" align=\"left\" balign=\"left\">history</td><td port=\"history__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:1\"];\n  \"generateWithVersion\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generateWithVersion</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Versioned generation</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Before generating, record current version in CodeVersions.history. Increment CodeVersions.current.<br/>Save code to ./generated/{taskName}_v{version}.ts</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-11:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"generateWithVersion\" [labelOverlay=\"75%\", edgeURL=\"#L13:6-13:28\"];\n  \"generateWithVersion\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L13:29-13:35\"];\n}",
+  "svgHash": "3025c4f525a1fe1c4c6e897971db06976cb4a7b7b6733ae9d62cf2b4eb6e8367"
+}

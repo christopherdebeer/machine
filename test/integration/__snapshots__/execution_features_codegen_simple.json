@@ -1,0 +1,268 @@
+{
+  "json": {
+    "title": "API Client Generator",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 20
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "APISpec",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "baseUrl",
+            "value": "https://api.example.com"
+          },
+          {
+            "name": "endpoint",
+            "value": "/users"
+          },
+          {
+            "name": "method",
+            "value": "GET"
+          },
+          {
+            "name": "authType",
+            "value": "bearer"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "Generated",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "code",
+            "value": ""
+          },
+          {
+            "name": "language",
+            "value": "javascript"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Review APISpec context. Set APISpec.baseUrl to a real API you want to generate a client for (or use the default). Set APISpec.method and APISpec.endpoint appropriately."
+          }
+        ],
+        "title": "Define API specification",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "generateClient",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Generate {{ Generated.language }} code for an API client that calls {{ APISpec.method }} {{ APISpec.baseUrl }}{{ APISpec.endpoint }} with {{ APISpec.authType }} authentication. Store the generated code in Generated.code. Include error handling and proper async/await patterns."
+          }
+        ],
+        "title": "Generate API client code",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 0
+          },
+          "end": {
+            "line": 24,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "validateGenerated",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Review the code in Generated.code. Check for: 1) Proper error handling, 2) Correct HTTP method usage, 3) Authentication headers, 4) Async/await syntax. List any issues found."
+          }
+        ],
+        "title": "Validate generated code",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 0
+          },
+          "end": {
+            "line": 28,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "displayCode",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Display the final generated code from Generated.code with syntax highlighting markers"
+          }
+        ],
+        "title": "Display generated code",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 0
+          },
+          "end": {
+            "line": 32,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Code generation complete",
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 0
+          },
+          "end": {
+            "line": 34,
+            "character": 30
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "generateClient",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 6
+          },
+          "end": {
+            "line": 36,
+            "character": 23
+          }
+        }
+      },
+      {
+        "source": "generateClient",
+        "target": "validateGenerated",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 24
+          },
+          "end": {
+            "line": 36,
+            "character": 44
+          }
+        }
+      },
+      {
+        "source": "validateGenerated",
+        "target": "displayCode",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 45
+          },
+          "end": {
+            "line": 36,
+            "character": 59
+          }
+        }
+      },
+      {
+        "source": "displayCode",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 60
+          },
+          "end": {
+            "line": 36,
+            "character": 66
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "generateClient",
+        "target": "Generated",
+        "reason": "reads Generated.language",
+        "path": "Generated.language"
+      },
+      {
+        "source": "generateClient",
+        "target": "APISpec",
+        "reason": "reads APISpec.method",
+        "path": "APISpec.method"
+      },
+      {
+        "source": "generateClient",
+        "target": "APISpec",
+        "reason": "reads APISpec.baseUrl",
+        "path": "APISpec.baseUrl"
+      },
+      {
+        "source": "generateClient",
+        "target": "APISpec",
+        "reason": "reads APISpec.endpoint",
+        "path": "APISpec.endpoint"
+      },
+      {
+        "source": "generateClient",
+        "target": "APISpec",
+        "reason": "reads APISpec.authType",
+        "path": "APISpec.authType"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>API Client Generator</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">20</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"APISpec\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>APISpec</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"baseUrl__key\" align=\"left\" balign=\"left\">baseUrl</td><td port=\"baseUrl__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">/users</td></tr><tr><td port=\"method__key\" align=\"left\" balign=\"left\">method</td><td port=\"method__value\" align=\"left\" balign=\"left\">GET</td></tr><tr><td port=\"authType__key\" align=\"left\" balign=\"left\">authType</td><td port=\"authType__value\" align=\"left\" balign=\"left\">bearer</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-11:1\"];\n  \"Generated\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Generated</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"code__key\" align=\"left\" balign=\"left\">code</td><td port=\"code__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"language__key\" align=\"left\" balign=\"left\">language</td><td port=\"language__value\" align=\"left\" balign=\"left\">javascript</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L13:0-16:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Define API specification</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Review APISpec context. Set APISpec.baseUrl to a real API you want to generate a client for (or use<br/>the default). Set APISpec.method and APISpec.endpoint appropriately.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L18:0-20:1\"];\n  \"generateClient\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generateClient</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate API client code</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Generate javascript code for an API client that calls GET https://api.example.com/users with bearer<br/>authentication. Store the generated code in Generated.code. Include error handling and proper<br/>async/await patterns.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L22:0-24:1\"];\n  \"validateGenerated\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateGenerated</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate generated code</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Review the code in Generated.code. Check for: 1) Proper error handling, 2) Correct HTTP method<br/>usage, 3) Authentication headers, 4) Async/await syntax. List any issues found.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L26:0-28:1\"];\n  \"displayCode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>displayCode</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Display generated code</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Display the final generated code from Generated.code with syntax highlighting markers</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L30:0-32:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Code generation complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L34:0-34:30\"];\n\n  // Edges\n  \"start\" -> \"generateClient\" [labelOverlay=\"75%\", edgeURL=\"#L36:6-36:23\"];\n  \"generateClient\" -> \"validateGenerated\" [labelOverlay=\"75%\", edgeURL=\"#L36:24-36:44\"];\n  \"validateGenerated\" -> \"displayCode\" [labelOverlay=\"75%\", edgeURL=\"#L36:45-36:59\"];\n  \"displayCode\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L36:60-36:66\"];\n\n  // Inferred Dependencies\n  \"generateClient\" -> \"Generated\" [label=\"reads Generated.language\", style=dashed, color=blue];\n  \"generateClient\" -> \"APISpec\" [label=\"reads APISpec.method\", style=dashed, color=blue];\n  \"generateClient\" -> \"APISpec\" [label=\"reads APISpec.baseUrl\", style=dashed, color=blue];\n  \"generateClient\" -> \"APISpec\" [label=\"reads APISpec.endpoint\", style=dashed, color=blue];\n  \"generateClient\" -> \"APISpec\" [label=\"reads APISpec.authType\", style=dashed, color=blue];\n}",
+  "svgHash": "1dac031e186bfb0b56db8f426fa220a84d6db9eb2efe504c5ecb5965b079edb7"
+}

@@ -1,0 +1,198 @@
+{
+  "json": {
+    "title": "Diamond Pattern Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 20
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Choose initial branch in diamond pattern"
+          }
+        ],
+        "title": "Fork decision point",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "leftBranch",
+        "type": "state",
+        "attributes": [],
+        "title": "Left processing branch",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 41
+          }
+        }
+      },
+      {
+        "name": "rightBranch",
+        "type": "state",
+        "attributes": [],
+        "title": "Right processing branch",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 43
+          }
+        }
+      },
+      {
+        "name": "convergence",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Combine results from branches"
+          }
+        ],
+        "title": "Merge point",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Diamond complete",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 22
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "leftBranch",
+        "arrowType": "->",
+        "attributes": {
+          "text": "left"
+        },
+        "value": {
+          "text": "left"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 6
+          },
+          "end": {
+            "line": 19,
+            "character": 26
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "rightBranch",
+        "arrowType": "->",
+        "attributes": {
+          "text": "right"
+        },
+        "value": {
+          "text": "right"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 6
+          },
+          "end": {
+            "line": 20,
+            "character": 28
+          }
+        }
+      },
+      {
+        "source": "leftBranch",
+        "target": "convergence",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 11
+          },
+          "end": {
+            "line": 21,
+            "character": 25
+          }
+        }
+      },
+      {
+        "source": "rightBranch",
+        "target": "convergence",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 12
+          },
+          "end": {
+            "line": 22,
+            "character": 26
+          }
+        }
+      },
+      {
+        "source": "convergence",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 12
+          },
+          "end": {
+            "line": 23,
+            "character": 18
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Diamond Pattern Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">20</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Fork decision point</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Choose initial branch in diamond pattern</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-8:1\"];\n  \"leftBranch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>leftBranch</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Left processing branch</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:41\"];\n  \"rightBranch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>rightBranch</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Right processing branch</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:43\"];\n  \"convergence\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>convergence</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Merge point</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Combine results from branches</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L13:0-15:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Diamond complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L17:0-17:22\"];\n\n  // Edges\n  \"start\" -> \"leftBranch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>left</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L19:6-19:26\"];\n  \"start\" -> \"rightBranch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>right</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L20:6-20:28\"];\n  \"leftBranch\" -> \"convergence\" [labelOverlay=\"75%\", edgeURL=\"#L21:11-21:25\"];\n  \"rightBranch\" -> \"convergence\" [labelOverlay=\"75%\", edgeURL=\"#L22:12-22:26\"];\n  \"convergence\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L23:12-23:18\"];\n}",
+  "svgHash": "d332dcb810cd3c0306b5fc1eafdbb1bce9b13dfee4773e34c3a6811ef826fdef"
+}

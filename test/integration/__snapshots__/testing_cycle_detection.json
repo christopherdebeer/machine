@@ -1,0 +1,207 @@
+{
+  "json": {
+    "title": "Cycle Detection Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 10
+      },
+      {
+        "name": "cycleDetectionWindow",
+        "value": 5
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "loopStart",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Loop Start"
+          },
+          {
+            "name": "desc",
+            "value": "Start of potential loop"
+          },
+          {
+            "name": "prompt",
+            "value": "Initialize loop processing"
+          }
+        ],
+        "title": "Loop Start",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "loopMiddle",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Loop Middle"
+          },
+          {
+            "name": "desc",
+            "value": "Middle of loop"
+          },
+          {
+            "name": "prompt",
+            "value": "Process loop iteration"
+          }
+        ],
+        "title": "Loop Middle",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "loopDecision",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Loop Decision"
+          },
+          {
+            "name": "desc",
+            "value": "Decide whether to continue loop"
+          },
+          {
+            "name": "prompt",
+            "value": "Evaluate loop continuation criteria"
+          }
+        ],
+        "title": "Loop Decision",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 23,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Loop complete",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 19
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "loopStart",
+        "target": "loopMiddle",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 10
+          },
+          "end": {
+            "line": 27,
+            "character": 23
+          }
+        }
+      },
+      {
+        "source": "loopMiddle",
+        "target": "loopDecision",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 28,
+            "character": 11
+          },
+          "end": {
+            "line": 28,
+            "character": 26
+          }
+        }
+      },
+      {
+        "source": "loopDecision",
+        "target": "loopMiddle",
+        "arrowType": "->",
+        "attributes": {
+          "label": "continue"
+        },
+        "value": {
+          "label": "continue"
+        },
+        "style": {
+          "label": "continue"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 13
+          },
+          "end": {
+            "line": 29,
+            "character": 44
+          }
+        }
+      },
+      {
+        "source": "loopDecision",
+        "target": "end",
+        "arrowType": "->",
+        "attributes": {
+          "label": "exit"
+        },
+        "value": {
+          "label": "exit"
+        },
+        "style": {
+          "label": "exit"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 13
+          },
+          "end": {
+            "line": 30,
+            "character": 33
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Cycle Detection Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">10</td></tr><tr><td port=\"cycleDetectionWindow__key\" align=\"left\" balign=\"left\">cycleDetectionWindow</td><td port=\"cycleDetectionWindow__value\" align=\"left\" balign=\"left\">5</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"loopStart\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>loopStart</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Loop Start</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Start of potential loop</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Initialize loop processing</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Loop Start</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-11:1\"];\n  \"loopMiddle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>loopMiddle</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Loop Middle</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Middle of loop</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process loop iteration</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Loop Middle</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L13:0-17:1\"];\n  \"loopDecision\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>loopDecision</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Loop Decision</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Decide whether to continue loop</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Evaluate loop continuation criteria</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Loop Decision</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:0-23:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Loop complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L25:0-25:19\"];\n\n  // Edges\n  \"loopStart\" -> \"loopMiddle\" [labelOverlay=\"75%\", edgeURL=\"#L27:10-27:23\"];\n  \"loopMiddle\" -> \"loopDecision\" [labelOverlay=\"75%\", edgeURL=\"#L28:11-28:26\"];\n  \"loopDecision\" -> \"loopMiddle\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">label</td><td align=\"left\" balign=\"left\">continue</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L29:13-29:44\", label=\"continue\"];\n  \"loopDecision\" -> \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">label</td><td align=\"left\" balign=\"left\">exit</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L30:13-30:33\", label=\"exit\"];\n}",
+  "svgHash": "fbce4f25501ca850c26972cf901d9f35868d1bc2bf424889149cc422b3030c8f"
+}

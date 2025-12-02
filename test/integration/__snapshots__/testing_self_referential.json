@@ -1,0 +1,124 @@
+{
+  "json": {
+    "title": "Self-Referential Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 15
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "LoopState",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "iterations",
+            "value": 0
+          },
+          {
+            "name": "maxIterations",
+            "value": 3
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process iteration and decide whether to continue"
+          }
+        ],
+        "title": "Processing loop",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Loop complete",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 19
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "start",
+        "arrowType": "->",
+        "attributes": {
+          "text": "continue_loop"
+        },
+        "value": {
+          "text": "continue_loop"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 6
+          },
+          "end": {
+            "line": 17,
+            "character": 30
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "end",
+        "arrowType": "->",
+        "attributes": {
+          "text": "exit_loop"
+        },
+        "value": {
+          "text": "exit_loop"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 6
+          },
+          "end": {
+            "line": 18,
+            "character": 24
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Self-Referential Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">15</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"LoopState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>LoopState</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"iterations__key\" align=\"left\" balign=\"left\">iterations</td><td port=\"iterations__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"maxIterations__key\" align=\"left\" balign=\"left\">maxIterations</td><td port=\"maxIterations__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-9:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Processing loop</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process iteration and decide whether to continue</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L11:0-13:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Loop complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L15:0-15:19\"];\n\n  // Edges\n  \"start\" -> \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>continue_loop</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L17:6-17:30\"];\n  \"start\" -> \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>exit_loop</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L18:6-18:24\"];\n}",
+  "svgHash": "16a735640a68d95098aea25f9717a0b3ff7e0a233f6a393d5df41dfc2bf91b00"
+}

@@ -1,0 +1,290 @@
+{
+  "json": {
+    "title": "Conditional Router",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 25
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Data",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "itemCount",
+            "value": 0
+          },
+          {
+            "name": "priority",
+            "value": "normal"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Analyze the input data and set context values"
+          }
+        ],
+        "title": "Analyze input data",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "evaluation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Evaluate data conditions for routing decision"
+          }
+        ],
+        "title": "Evaluate conditions",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "highPriority",
+        "type": "state",
+        "attributes": [],
+        "title": "High priority processing",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 45
+          }
+        }
+      },
+      {
+        "name": "normalPriority",
+        "type": "state",
+        "attributes": [],
+        "title": "Normal priority processing",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 49
+          }
+        }
+      },
+      {
+        "name": "lowPriority",
+        "type": "state",
+        "attributes": [],
+        "title": "Low priority processing",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 43
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Processing complete",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 25
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "evaluation",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 6
+          },
+          "end": {
+            "line": 24,
+            "character": 19
+          }
+        }
+      },
+      {
+        "source": "evaluation",
+        "target": "highPriority",
+        "arrowType": "->",
+        "attributes": {
+          "when": "Data.priority == 'high'"
+        },
+        "value": {
+          "when": "Data.priority == 'high'"
+        },
+        "style": {
+          "when": "Data.priority == 'high"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 11
+          },
+          "end": {
+            "line": 25,
+            "character": 58
+          }
+        }
+      },
+      {
+        "source": "evaluation",
+        "target": "normalPriority",
+        "arrowType": "->",
+        "attributes": {
+          "when": "Data.priority == 'normal'"
+        },
+        "value": {
+          "when": "Data.priority == 'normal'"
+        },
+        "style": {
+          "when": "Data.priority == 'normal"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 11
+          },
+          "end": {
+            "line": 26,
+            "character": 62
+          }
+        }
+      },
+      {
+        "source": "evaluation",
+        "target": "lowPriority",
+        "arrowType": "->",
+        "attributes": {
+          "when": "Data.priority == 'low'"
+        },
+        "value": {
+          "when": "Data.priority == 'low'"
+        },
+        "style": {
+          "when": "Data.priority == 'low"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 11
+          },
+          "end": {
+            "line": 27,
+            "character": 56
+          }
+        }
+      },
+      {
+        "source": "highPriority",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 28,
+            "character": 13
+          },
+          "end": {
+            "line": 28,
+            "character": 19
+          }
+        }
+      },
+      {
+        "source": "normalPriority",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 15
+          },
+          "end": {
+            "line": 29,
+            "character": 21
+          }
+        }
+      },
+      {
+        "source": "lowPriority",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 12
+          },
+          "end": {
+            "line": 30,
+            "character": 18
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "evaluation",
+        "target": "Data",
+        "reason": "condition references Data",
+        "path": "Data.priority == "
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Conditional Router</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">25</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Data\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Data</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"itemCount__key\" align=\"left\" balign=\"left\">itemCount</td><td port=\"itemCount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority</td><td port=\"priority__value\" align=\"left\" balign=\"left\">normal</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-9:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Analyze input data</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Analyze the input data and set context values</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L11:0-13:1\"];\n  \"evaluation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>evaluation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Evaluate conditions</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Evaluate data conditions for routing decision</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L15:0-17:1\"];\n  \"highPriority\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>highPriority</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">High priority processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L19:0-19:45\"];\n  \"normalPriority\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>normalPriority</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Normal priority processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L20:0-20:49\"];\n  \"lowPriority\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>lowPriority</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Low priority processing</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L21:0-21:43\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Processing complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L22:0-22:25\"];\n\n  // Edges\n  \"start\" -> \"evaluation\" [labelOverlay=\"75%\", edgeURL=\"#L24:6-24:19\"];\n  \"evaluation\" -> \"highPriority\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Data.priority == 'high'</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L25:11-25:58\", when=\"Data.priority == 'high\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"evaluation\" -> \"normalPriority\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Data.priority == 'normal'</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L26:11-26:62\", when=\"Data.priority == 'normal\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"evaluation\" -> \"lowPriority\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Data.priority == 'low'</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L27:11-27:56\", when=\"Data.priority == 'low\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"highPriority\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L28:13-28:19\"];\n  \"normalPriority\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L29:15-29:21\"];\n  \"lowPriority\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L30:12-30:18\"];\n\n  // Inferred Dependencies\n  \"evaluation\" -> \"Data\" [label=\"condition references Data\", style=dashed, color=blue];\n}",
+  "svgHash": "4750ed87fa4e4b31523899292fe265f87dc4bde25d31a40341983b01193e6112"
+}

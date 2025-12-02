@@ -1,0 +1,267 @@
+{
+  "json": {
+    "title": "Context Aware Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 30
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "UserSession",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "userId",
+            "value": "user123"
+          },
+          {
+            "name": "sessionId",
+            "value": "session456"
+          },
+          {
+            "name": "preferences",
+            "value": {
+              "language": "en",
+              "timezone": "UTC",
+              "format": "json"
+            }
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "ProcessingState",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "currentStep",
+            "value": 0
+          },
+          {
+            "name": "completedTasks",
+            "value": []
+          },
+          {
+            "name": "pendingTasks",
+            "value": []
+          },
+          {
+            "name": "errors",
+            "value": []
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "sessionValidation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Session Validation"
+          },
+          {
+            "name": "desc",
+            "value": "Validate user session"
+          },
+          {
+            "name": "prompt",
+            "value": "Validate user session and load preferences"
+          },
+          {
+            "name": "requiresAuth",
+            "value": true
+          },
+          {
+            "name": "contextFields",
+            "value": [
+              "userId",
+              "sessionId"
+            ]
+          }
+        ],
+        "title": "Session Validation",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 0
+          },
+          "end": {
+            "line": 29,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "personalizedProcessing",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Personalized Processing"
+          },
+          {
+            "name": "desc",
+            "value": "Process data with user preferences"
+          },
+          {
+            "name": "prompt",
+            "value": "Process data according to user preferences and context"
+          },
+          {
+            "name": "usePreferences",
+            "value": true
+          },
+          {
+            "name": "contextFields",
+            "value": [
+              "preferences",
+              "currentStep"
+            ]
+          }
+        ],
+        "title": "Personalized Processing",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 0
+          },
+          "end": {
+            "line": 37,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "stateUpdate",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "State Update"
+          },
+          {
+            "name": "desc",
+            "value": "Update processing state"
+          },
+          {
+            "name": "prompt",
+            "value": "Update processing state and track progress"
+          },
+          {
+            "name": "trackProgress",
+            "value": true
+          },
+          {
+            "name": "contextFields",
+            "value": [
+              "completedTasks",
+              "pendingTasks"
+            ]
+          }
+        ],
+        "title": "State Update",
+        "$sourceRange": {
+          "start": {
+            "line": 39,
+            "character": 0
+          },
+          "end": {
+            "line": 45,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Context processing complete",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 0
+          },
+          "end": {
+            "line": 47,
+            "character": 33
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "sessionValidation",
+        "target": "personalizedProcessing",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 49,
+            "character": 18
+          },
+          "end": {
+            "line": 49,
+            "character": 43
+          }
+        }
+      },
+      {
+        "source": "personalizedProcessing",
+        "target": "stateUpdate",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 49,
+            "character": 44
+          },
+          "end": {
+            "line": 49,
+            "character": 58
+          }
+        }
+      },
+      {
+        "source": "stateUpdate",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 49,
+            "character": 59
+          },
+          "end": {
+            "line": 49,
+            "character": 65
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Context Aware Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">30</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"UserSession\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>UserSession</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"userId__key\" align=\"left\" balign=\"left\">userId</td><td port=\"userId__value\" align=\"left\" balign=\"left\">user123</td></tr><tr><td port=\"sessionId__key\" align=\"left\" balign=\"left\">sessionId</td><td port=\"sessionId__value\" align=\"left\" balign=\"left\">session456</td></tr><tr><td port=\"preferences__key\" align=\"left\" balign=\"left\">preferences</td><td port=\"preferences__value\" align=\"left\" balign=\"left\">{<BR/>  &quot;language&quot;: &quot;en&quot;,<BR/>  &quot;timezone&quot;: &quot;UTC&quot;,<BR/>  &quot;format&quot;: &quot;json&quot;<BR/>}</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-14:1\"];\n  \"ProcessingState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ProcessingState</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"currentStep__key\" align=\"left\" balign=\"left\">currentStep</td><td port=\"currentStep__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"completedTasks__key\" align=\"left\" balign=\"left\">completedTasks</td><td port=\"completedTasks__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"pendingTasks__key\" align=\"left\" balign=\"left\">pendingTasks</td><td port=\"pendingTasks__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"errors__key\" align=\"left\" balign=\"left\">errors</td><td port=\"errors__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L16:0-21:1\"];\n  \"sessionValidation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>sessionValidation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Session Validation</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Validate user session</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Validate user session and load preferences</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Session Validation</td></tr><tr><td port=\"requiresAuth__key\" align=\"left\" balign=\"left\">requiresAuth</td><td port=\"requiresAuth__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"contextFields__key\" align=\"left\" balign=\"left\">contextFields</td><td port=\"contextFields__value\" align=\"left\" balign=\"left\">[<br/>  &quot;userId&quot;,<br/>  &quot;sessionId&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L23:0-29:1\"];\n  \"personalizedProcessing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>personalizedProcessing</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Personalized Processing</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Process data with user preferences</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process data according to user preferences and context</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Personalized Processing</td></tr><tr><td port=\"usePreferences__key\" align=\"left\" balign=\"left\">usePreferences</td><td port=\"usePreferences__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"contextFields__key\" align=\"left\" balign=\"left\">contextFields</td><td port=\"contextFields__value\" align=\"left\" balign=\"left\">[<BR/>  &quot;preferences&quot;,<BR/>  &quot;currentStep&quot;<BR/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L31:0-37:1\"];\n  \"stateUpdate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>stateUpdate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">State Update</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Update processing state</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Update processing state and track progress</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">State Update</td></tr><tr><td port=\"trackProgress__key\" align=\"left\" balign=\"left\">trackProgress</td><td port=\"trackProgress__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"contextFields__key\" align=\"left\" balign=\"left\">contextFields</td><td port=\"contextFields__value\" align=\"left\" balign=\"left\">[<BR/>  &quot;completedTasks&quot;,<BR/>  &quot;pendingTasks&quot;<BR/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L39:0-45:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Context processing complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L47:0-47:33\"];\n\n  // Edges\n  \"sessionValidation\" -> \"personalizedProcessing\" [labelOverlay=\"75%\", edgeURL=\"#L49:18-49:43\"];\n  \"personalizedProcessing\" -> \"stateUpdate\" [labelOverlay=\"75%\", edgeURL=\"#L49:44-49:58\"];\n  \"stateUpdate\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L49:59-49:65\"];\n}",
+  "svgHash": "c7172dfb648ee2cf7fe6e9fdf22c8ec87919c39eb55964df52e62bb7306b2438"
+}

@@ -1,0 +1,161 @@
+{
+  "json": {
+    "title": "Transactional Workflow",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Transaction",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "committed",
+            "value": false
+          },
+          {
+            "name": "rollbackPoint",
+            "value": ""
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "begin",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Initialize transaction and create checkpoint"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Begin transaction",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "process",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "checkpoint"
+          }
+        ],
+        "title": "Process data",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 39
+          }
+        }
+      },
+      {
+        "name": "validate",
+        "type": "task",
+        "attributes": [],
+        "title": "Validate results",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 32
+          }
+        }
+      },
+      {
+        "name": "commit",
+        "type": "task",
+        "attributes": [],
+        "title": "Commit transaction",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 32
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "begin",
+        "target": "process",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 6
+          },
+          "end": {
+            "line": 17,
+            "character": 16
+          }
+        }
+      },
+      {
+        "source": "process",
+        "target": "validate",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 17
+          },
+          "end": {
+            "line": 17,
+            "character": 28
+          }
+        }
+      },
+      {
+        "source": "validate",
+        "target": "commit",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 29
+          },
+          "end": {
+            "line": 17,
+            "character": 38
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Transactional Workflow</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Transaction\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Transaction</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"committed__key\" align=\"left\" balign=\"left\">committed</td><td port=\"committed__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"rollbackPoint__key\" align=\"left\" balign=\"left\">rollbackPoint</td><td port=\"rollbackPoint__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:1\"];\n  \"begin\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>begin</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Begin transaction</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Initialize transaction and create checkpoint</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-11:1\"];\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i> <i>@checkpoint</i></td></tr><tr><td align=\"left\">Process data</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L13:0-13:39\"];\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate results</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-14:32\"];\n  \"commit\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>commit</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Commit transaction</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L15:0-15:32\"];\n\n  // Edges\n  \"begin\" -> \"process\" [labelOverlay=\"75%\", edgeURL=\"#L17:6-17:16\"];\n  \"process\" -> \"validate\" [labelOverlay=\"75%\", edgeURL=\"#L17:17-17:28\"];\n  \"validate\" -> \"commit\" [labelOverlay=\"75%\", edgeURL=\"#L17:29-17:38\"];\n}",
+  "svgHash": "96c75d3ef6779fee09a785d961d30013417af475121cc76911291612b34242f0"
+}

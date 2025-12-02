@@ -1,0 +1,99 @@
+{
+  "json": {
+    "title": "Controlled Evolution",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "EvolutionControl",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "readyToEvolve",
+            "value": false
+          },
+          {
+            "name": "metrics",
+            "value": {}
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "monitor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Track execution metrics. Set EvolutionControl.readyToEvolve to true if success rate is greater than 95% over 50 executions."
+          }
+        ],
+        "title": "Monitor task performance",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "evolveIfReady",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "If EvolutionControl.readyToEvolve is true, trigger evolution of the target task to next stage."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Evolve the task",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "monitor",
+        "target": "evolveIfReady",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 8
+          },
+          "end": {
+            "line": 17,
+            "character": 24
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Controlled Evolution</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"EvolutionControl\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>EvolutionControl</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"readyToEvolve__key\" align=\"left\" balign=\"left\">readyToEvolve</td><td port=\"readyToEvolve__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"metrics__key\" align=\"left\" balign=\"left\">metrics</td><td port=\"metrics__value\" align=\"left\" balign=\"left\">{}</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:1\"];\n  \"monitor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>monitor</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Monitor task performance</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Track execution metrics. Set EvolutionControl.readyToEvolve to true if success rate is greater than<br/>95% over 50 executions.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-10:1\"];\n  \"evolveIfReady\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>evolveIfReady</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Evolve the task</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ If EvolutionControl.readyToEvolve is true, trigger evolution of the target task to next stage.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-15:1\"];\n\n  // Edges\n  \"monitor\" -> \"evolveIfReady\" [labelOverlay=\"75%\", edgeURL=\"#L17:8-17:24\"];\n}",
+  "svgHash": "41efc65178dc56edb3485ff650c0a3a7bbf9e5de2cbfe0b1ece8b4c8086dff7b"
+}

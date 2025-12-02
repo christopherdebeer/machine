@@ -1,0 +1,131 @@
+{
+  "json": {
+    "title": "Unreachable Nodes Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 10
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "start",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Start execution"
+          }
+        ],
+        "title": "Start Task",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "reachable",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Reachable from start"
+          }
+        ],
+        "title": "Reachable Task",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "unreachable",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Not reachable from start"
+          }
+        ],
+        "title": "Unreachable Task",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Execution complete",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 24
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "reachable",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 6
+          },
+          "end": {
+            "line": 20,
+            "character": 18
+          }
+        }
+      },
+      {
+        "source": "reachable",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 19
+          },
+          "end": {
+            "line": 20,
+            "character": 25
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Unreachable Nodes Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Start Task</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Start execution</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-8:1\"];\n  \"reachable\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>reachable</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Reachable Task</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Reachable from start</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-12:1\"];\n  \"unreachable\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>unreachable</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Unreachable Task</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Not reachable from start</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-16:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Execution complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L18:0-18:24\"];\n\n  // Edges\n  \"start\" -> \"reachable\" [labelOverlay=\"75%\", edgeURL=\"#L20:6-20:18\"];\n  \"reachable\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L20:19-20:25\"];\n}",
+  "svgHash": "092b779e8f5bee6d543b85b339bf611fcd254ef45747b39b720ab8444d79bac5"
+}

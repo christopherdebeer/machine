@@ -1,0 +1,78 @@
+{
+  "json": {
+    "title": "Schema-Driven Generation",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "validateUser",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate user data against business rules. Input: {username: string, email: string, age: number, role: 'admin'|'user'|'guest'}. Output: {valid: boolean, errors: string[], sanitized: {username, email, age, role}}"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "User validation",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "validateUser",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 6
+          },
+          "end": {
+            "line": 7,
+            "character": 21
+          }
+        }
+      },
+      {
+        "source": "validateUser",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 22
+          },
+          "end": {
+            "line": 7,
+            "character": 28
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Schema-Driven Generation</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"validateUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateUser</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">User validation</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Validate user data against business rules. Input: {username: string, email: string, age: number,<br/>role: 'admin'|'user'|'guest'}. Output: {valid: boolean, errors: string[], sanitized: {username,<br/>email, age, role}}</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-5:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"validateUser\" [labelOverlay=\"75%\", edgeURL=\"#L7:6-7:21\"];\n  \"validateUser\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L7:22-7:28\"];\n}",
+  "svgHash": "e51e1008784e8f753c579b976294e1478cc8e271dbede67f54b2a8358d93f976"
+}

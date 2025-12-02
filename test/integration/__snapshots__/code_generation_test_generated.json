@@ -1,0 +1,116 @@
+{
+  "json": {
+    "title": "Tested Generation",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "implementation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Implement business logic"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Core logic",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "testSuite",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Run comprehensive tests on generated code: unit tests, integration tests, edge cases. Report results."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Validate implementation",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "approveOrRegenerate",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "If tests pass, approve for production. If tests fail, regenerate code with test failure information."
+          }
+        ],
+        "title": "Quality gate",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "implementation",
+        "target": "testSuite",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 15
+          },
+          "end": {
+            "line": 16,
+            "character": 27
+          }
+        }
+      },
+      {
+        "source": "testSuite",
+        "target": "approveOrRegenerate",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 28
+          },
+          "end": {
+            "line": 16,
+            "character": 50
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Tested Generation</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"implementation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>implementation</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Core logic</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Implement business logic</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-5:1\"];\n  \"testSuite\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>testSuite</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate implementation</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Run comprehensive tests on generated code: unit tests, integration tests, edge cases. Report<br/>results.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-10:1\"];\n  \"approveOrRegenerate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>approveOrRegenerate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Quality gate</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ If tests pass, approve for production. If tests fail, regenerate code with test failure information.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-14:1\"];\n\n  // Edges\n  \"implementation\" -> \"testSuite\" [labelOverlay=\"75%\", edgeURL=\"#L16:15-16:27\"];\n  \"testSuite\" -> \"approveOrRegenerate\" [labelOverlay=\"75%\", edgeURL=\"#L16:28-16:50\"];\n}",
+  "svgHash": "945188a53ee9aa8a8623b1389be04af37b0f1898dcb5249843424dea517c8c79"
+}

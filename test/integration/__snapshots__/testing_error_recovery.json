@@ -1,0 +1,246 @@
+{
+  "json": {
+    "title": "Error Recovery Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 15
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Attempt operation that might fail"
+          }
+        ],
+        "title": "Risky operation",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "retry",
+        "type": "state",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Retry the failed operation"
+          }
+        ],
+        "title": "Retry operation",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "success",
+        "type": "state",
+        "attributes": [],
+        "title": "Operation succeeded",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 35
+          }
+        }
+      },
+      {
+        "name": "failure",
+        "type": "state",
+        "attributes": [],
+        "title": "Operation failed permanently",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 44
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Process complete",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 22
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "success",
+        "arrowType": "->",
+        "attributes": {
+          "text": "success"
+        },
+        "value": {
+          "text": "success"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 6
+          },
+          "end": {
+            "line": 18,
+            "character": 26
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "retry",
+        "arrowType": "->",
+        "attributes": {
+          "text": "retry"
+        },
+        "value": {
+          "text": "retry"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 6
+          },
+          "end": {
+            "line": 19,
+            "character": 22
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "failure",
+        "arrowType": "->",
+        "attributes": {
+          "text": "failure"
+        },
+        "value": {
+          "text": "failure"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 6
+          },
+          "end": {
+            "line": 20,
+            "character": 26
+          }
+        }
+      },
+      {
+        "source": "retry",
+        "target": "success",
+        "arrowType": "->",
+        "attributes": {
+          "text": "retry success"
+        },
+        "value": {
+          "text": "retry success"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 6
+          },
+          "end": {
+            "line": 21,
+            "character": 32
+          }
+        }
+      },
+      {
+        "source": "retry",
+        "target": "failure",
+        "arrowType": "->",
+        "attributes": {
+          "text": "retry failure"
+        },
+        "value": {
+          "text": "retry failure"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 6
+          },
+          "end": {
+            "line": 22,
+            "character": 32
+          }
+        }
+      },
+      {
+        "source": "success",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 8
+          },
+          "end": {
+            "line": 23,
+            "character": 14
+          }
+        }
+      },
+      {
+        "source": "failure",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 8
+          },
+          "end": {
+            "line": 24,
+            "character": 14
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Error Recovery Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">15</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Risky operation</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Attempt operation that might fail</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-8:1\"];\n  \"retry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>retry</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Retry operation</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Retry the failed operation</font></td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-12:1\"];\n  \"success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>success</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Operation succeeded</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L14:0-14:35\"];\n  \"failure\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>failure</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Operation failed permanently</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L15:0-15:44\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Process complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L16:0-16:22\"];\n\n  // Edges\n  \"start\" -> \"success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>success</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L18:6-18:26\"];\n  \"start\" -> \"retry\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>retry</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L19:6-19:22\"];\n  \"start\" -> \"failure\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>failure</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L20:6-20:26\"];\n  \"retry\" -> \"success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>retry success</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L21:6-21:32\"];\n  \"retry\" -> \"failure\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>retry failure</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L22:6-22:32\"];\n  \"success\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L23:8-23:14\"];\n  \"failure\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L24:8-24:14\"];\n}",
+  "svgHash": "04808721dcf11f2f1b213c2bfb67d54db6c9e7238c629ab0ca918ae73d1d4a4b"
+}

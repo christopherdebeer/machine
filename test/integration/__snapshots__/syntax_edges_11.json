@@ -119,6 +119,7 @@
         "value": {
           "text": "error"
         },
+        "type": "catch",
         "$sourceRange": {
           "start": {
             "line": 5,

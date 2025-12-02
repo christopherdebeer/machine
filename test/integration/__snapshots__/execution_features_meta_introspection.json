@@ -1,0 +1,173 @@
+{
+  "json": {
+    "title": "Self-Modifying Workflow",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 25
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Analysis",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "complexity",
+            "value": ""
+          },
+          {
+            "name": "requiresValidation",
+            "value": false
+          },
+          {
+            "name": "stepsNeeded",
+            "value": 0
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Analyze the task complexity. Set Analysis.complexity to 'simple', 'moderate', or 'complex'. Set Analysis.requiresValidation to true if complexity is not 'simple'. Set Analysis.stepsNeeded based on complexity (simple=2, moderate=4, complex=6)."
+          }
+        ],
+        "title": "Analyze requirements",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "decidePath",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use get_machine_definition meta-tool to inspect the current machine structure. Based on Analysis.complexity, decide if the current machine structure is sufficient or if you need to add validation steps."
+          }
+        ],
+        "title": "Determine execution path",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "potentiallyModify",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "If Analysis.requiresValidation is true and current machine lacks validation nodes, use update_definition meta-tool to add a validation node between current node and end. Otherwise, proceed directly."
+          }
+        ],
+        "title": "Modify machine if needed",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Workflow complete",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 24,
+            "character": 23
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "decidePath",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 6
+          },
+          "end": {
+            "line": 26,
+            "character": 19
+          }
+        }
+      },
+      {
+        "source": "decidePath",
+        "target": "potentiallyModify",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 20
+          },
+          "end": {
+            "line": 26,
+            "character": 40
+          }
+        }
+      },
+      {
+        "source": "potentiallyModify",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 41
+          },
+          "end": {
+            "line": 26,
+            "character": 47
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Self-Modifying Workflow</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">25</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Analysis\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Analysis</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"complexity__key\" align=\"left\" balign=\"left\">complexity</td><td port=\"complexity__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"requiresValidation__key\" align=\"left\" balign=\"left\">requiresValidation</td><td port=\"requiresValidation__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"stepsNeeded__key\" align=\"left\" balign=\"left\">stepsNeeded</td><td port=\"stepsNeeded__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-10:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Analyze requirements</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Analyze the task complexity. Set Analysis.complexity to 'simple', 'moderate', or 'complex'. Set<br/>Analysis.requiresValidation to true if complexity is not 'simple'. Set Analysis.stepsNeeded based on<br/>complexity (simple=2, moderate=4, complex=6).</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-14:1\"];\n  \"decidePath\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>decidePath</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Determine execution path</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use get_machine_definition meta-tool to inspect the current machine structure. Based on<br/>Analysis.complexity, decide if the current machine structure is sufficient or if you need to add<br/>validation steps.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L16:0-18:1\"];\n  \"potentiallyModify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>potentiallyModify</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Modify machine if needed</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ If Analysis.requiresValidation is true and current machine lacks validation nodes, use<br/>update_definition meta-tool to add a validation node between current node and end. Otherwise,<br/>proceed directly.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L20:0-22:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Workflow complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L24:0-24:23\"];\n\n  // Edges\n  \"start\" -> \"decidePath\" [labelOverlay=\"75%\", edgeURL=\"#L26:6-26:19\"];\n  \"decidePath\" -> \"potentiallyModify\" [labelOverlay=\"75%\", edgeURL=\"#L26:20-26:40\"];\n  \"potentiallyModify\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L26:41-26:47\"];\n}",
+  "svgHash": "0bdc88a2dc5b86754172ad2a0013dcccc8b832a2522d159545880f472a2f38f4"
+}

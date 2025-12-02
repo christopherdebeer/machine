@@ -1,0 +1,130 @@
+{
+  "json": {
+    "title": "Self-Adapting Workflow",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "ExecutionMetrics",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "errorRate",
+            "value": 0
+          },
+          {
+            "name": "avgDuration",
+            "value": 0
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "monitorPerformance",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Track error rate and duration. Store in ExecutionMetrics."
+          }
+        ],
+        "title": "Monitor execution",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "optimizeWorkflow",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "If ExecutionMetrics.errorRate is greater than 0.1, use update_definition to add an error handling node after critical steps. If ExecutionMetrics.avgDuration is greater than 5000ms, add parallel execution paths."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Optimize if needed",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "continueExecution",
+        "type": "task",
+        "attributes": [],
+        "title": "Continue with optimized workflow",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 57
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "monitorPerformance",
+        "target": "optimizeWorkflow",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 19
+          },
+          "end": {
+            "line": 19,
+            "character": 38
+          }
+        }
+      },
+      {
+        "source": "optimizeWorkflow",
+        "target": "continueExecution",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 39
+          },
+          "end": {
+            "line": 19,
+            "character": 59
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Self-Adapting Workflow</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ExecutionMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ExecutionMetrics</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"errorRate__key\" align=\"left\" balign=\"left\">errorRate</td><td port=\"errorRate__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"avgDuration__key\" align=\"left\" balign=\"left\">avgDuration</td><td port=\"avgDuration__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:1\"];\n  \"monitorPerformance\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>monitorPerformance</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Monitor execution</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Track error rate and duration. Store in ExecutionMetrics.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-10:1\"];\n  \"optimizeWorkflow\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>optimizeWorkflow</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Optimize if needed</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ If ExecutionMetrics.errorRate is greater than 0.1, use update_definition to add an error handling<br/>node after critical steps. If ExecutionMetrics.avgDuration is greater than 5000ms, add parallel<br/>execution paths.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-15:1\"];\n  \"continueExecution\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>continueExecution</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Continue with optimized workflow</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L17:0-17:57\"];\n\n  // Edges\n  \"monitorPerformance\" -> \"optimizeWorkflow\" [labelOverlay=\"75%\", edgeURL=\"#L19:19-19:38\"];\n  \"optimizeWorkflow\" -> \"continueExecution\" [labelOverlay=\"75%\", edgeURL=\"#L19:39-19:59\"];\n}",
+  "svgHash": "f1ca07aa981d6f3f75a711ecb5a007267f89d713c41a78ceba73aaf24025db5d"
+}

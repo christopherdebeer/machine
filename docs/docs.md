@@ -17,6 +17,7 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Development
 
+  - [Build and Test Failure Analysis - December 2, 2025](development/build-test-failure-analysis-2025-12-02.md)
   - [Canonical Machine JSON Adoption Review](development/canonical-machine-json-usage.md)
   - [Centralized Syntax Highlighting Architecture](development/centralized-syntax-highlighting-design.md)
   - [Code Cleanup & Documentation Progress - 2025-11-24](development/cleanup-progress-2025-11-24.md)

@@ -1,0 +1,78 @@
+{
+  "json": {
+    "title": "Schema Best Practice",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "withSchema",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process user registration. Input: {username: string, email: string, password: string, age: number}. Output: {user_id: string, created: boolean, errors: string[]}"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Type-safe task",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "withSchema",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 6
+          },
+          "end": {
+            "line": 7,
+            "character": 19
+          }
+        }
+      },
+      {
+        "source": "withSchema",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 20
+          },
+          "end": {
+            "line": 7,
+            "character": 26
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Schema Best Practice</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"withSchema\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>withSchema</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Type-safe task</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process user registration. Input: {username: string, email: string, password: string, age: number}.<br/>Output: {user_id: string, created: boolean, errors: string[]}</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-5:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"withSchema\" [labelOverlay=\"75%\", edgeURL=\"#L7:6-7:19\"];\n  \"withSchema\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L7:20-7:26\"];\n}",
+  "svgHash": "9890e6397e1ae066718500c6fd8b0ee5937ff09effbc72383bd33c16dee3da72"
+}
