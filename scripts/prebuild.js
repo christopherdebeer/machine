@@ -855,7 +855,7 @@ async function generateEntries(projectRoot) {
     <title>DyGram | ${page.title}</title>
     <link rel="stylesheet" href="${baseUrl}static/styles/main.css">
     <link rel="stylesheet" href="${baseUrl}static/styles/carousel.css">
-    <link rel="icon" type="image/jpeg" href="${baseUrl}icon.jpg">
+    <link rel="icon" type="image/png" href="${baseUrl}static/icon.png">
 </head>
 <body>
     <div id="root"></div>
