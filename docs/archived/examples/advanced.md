@@ -4,7 +4,7 @@ This directory contains examples demonstrating advanced DyGram features includin
 
 ## Examples
 
-### `annotations.dygram`
+### `annotations.dy`
 
 Annotation system demonstrating metadata on nodes:
 - `@Abstract` - Abstract base classes that cannot be instantiated
@@ -95,7 +95,7 @@ ConfigManager --> FetchData;
 
 ```
 
-### `multiplicity.dygram`
+### `multiplicity.dy`
 Multiplicity and cardinality in relationships:
 - `"1"` - Exactly one (one-to-one)
 - `"*"` - Zero or more (one-to-many)
@@ -180,7 +180,7 @@ Team "1" --> "3..10" Developer;
 ```
 
 
-### `dependency-inference.dygram`
+### `dependency-inference.dy`
 Automatic dependency inference from template variables:
 - Template variable syntax: `{{nodeName.attributeName}}`
 - Automatic dependency edge creation
@@ -188,7 +188,7 @@ Automatic dependency inference from template variables:
 - Nested attribute references
 - Compile-time validation of references
 
-### `complete-example.dygram`
+### `complete-example.dy`
 Comprehensive example combining many features:
 - All relationship types
 - Multiplicity annotations
@@ -335,7 +335,7 @@ task legacyProcessor @Deprecated("Use transformData instead - removed in v3.0") 
 
 ```
 
-### `error-handling.dygram`
+### `error-handling.dy`
 Common error handling patterns:
 - Try-Catch-Finally pattern
 - Retry with exponential backoff
@@ -545,7 +545,7 @@ note protectedCall "Circuit breaker states:
 
 ```
 
-### `cel-conditions.dygram`
+### `cel-conditions.dy`
 
 CEL Condition Examples
 
@@ -744,7 +744,7 @@ note checkEnvironment "Best practices:
 
 ```
 
-### `optional-types.dygram`
+### `optional-types.dy`
 Optional types and null handling:
 - Optional type syntax with `?` suffix
 - Null value handling
@@ -931,7 +931,7 @@ note formValidation "Required vs Optional guidelines:
 ```
 
 
-### `dependency-inference.dygram`
+### `dependency-inference.dy`
 
 Dependency Inference Examples
 

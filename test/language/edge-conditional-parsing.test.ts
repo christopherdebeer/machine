@@ -29,7 +29,7 @@ Processing -unless: '(errorCount > 0)';-> Continue;
 
         const document = services.shared.workspace.LangiumDocumentFactory.fromString(
             content,
-            'test-quoted-syntax.dygram'
+            'test-quoted-syntax.dy'
         );
 
         await services.shared.workspace.DocumentBuilder.build([document], {});
@@ -99,7 +99,7 @@ Processing -unless: errorCount > 0-> Continue;
 
         const document = services.shared.workspace.LangiumDocumentFactory.fromString(
             content,
-            'test-unquoted-syntax.dygram'
+            'test-unquoted-syntax.dy'
         );
 
         await services.shared.workspace.DocumentBuilder.build([document], {});

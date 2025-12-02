@@ -23,9 +23,9 @@ import * as fs from 'fs/promises';
 const services = createMachineServices(NodeFileSystem).Machine;
 
 // Read and parse file
-const content = await fs.readFile('workflow.dygram', 'utf-8');
+const content = await fs.readFile('workflow.dy', 'utf-8');
 const document = await services.shared.workspace.LangiumDocuments.getOrCreateDocument(
-    URI.file('workflow.dygram'),
+    URI.file('workflow.dy'),
     content
 );
 
@@ -38,7 +38,7 @@ const machine = document.parseResult.value as Machine;
 ```typescript
 import { generateJSON } from 'dygram/generator';
 
-const result = generateJSON(machine, 'workflow.dygram');
+const result = generateJSON(machine, 'workflow.dy');
 console.log(result.content); // JSON string
 ```
 
@@ -132,7 +132,7 @@ interface Attribute {
 ```typescript
 import { parseAndValidate } from 'dygram/cli';
 
-await parseAndValidate('workflow.dygram', { verbose: true });
+await parseAndValidate('workflow.dy', { verbose: true });
 ```
 
 ### Access Parse Errors

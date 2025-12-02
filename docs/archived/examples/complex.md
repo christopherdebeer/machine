@@ -1,5 +1,5 @@
 
-### `complex-machine.dygram`
+### `complex-machine.dy`
 
 Complex Generated Machine
 
@@ -45,7 +45,7 @@ recovery -timeout: 30000;-> process1;
 cleanup -if: '(config.debug == true)';-> startup;
 ```
 
-### `context-heavy.dygram`
+### `context-heavy.dy`
 
 Context Heavy Machine
 
@@ -71,7 +71,7 @@ state ready;
 bootstrap -> ready;
 ```
 
-### `unicode-machine.dygram`
+### `unicode-machine.dy`
 
 Unicode Machine 🔄
 

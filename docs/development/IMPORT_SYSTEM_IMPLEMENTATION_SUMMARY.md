@@ -151,17 +151,17 @@ This document summarizes the implementation of Phases 1-6 of the DyGram import s
 
 ```dy
 // Import specific symbols
-import { symbol1, symbol2 } from "./path/to/file.dygram"
+import { symbol1, symbol2 } from "./path/to/file.dy"
 
 // Import with aliasing
-import { LoginPage as Login } from "./auth.dygram"
+import { LoginPage as Login } from "./auth.dy"
 
 // Import qualified names
-import { workflows.auth, workflows.payment } from "./workflows.dygram"
+import { workflows.auth, workflows.payment } from "./workflows.dy"
 
 // Multiple imports
-import { StateA, StateB } from "./lib1.dygram"
-import { StateC } from "./lib2.dygram"
+import { StateA, StateB } from "./lib1.dy"
+import { StateC } from "./lib2.dy"
 ```
 
 ### Usage
@@ -173,7 +173,7 @@ state LoginPage "Login Page"
 state Dashboard "Dashboard"
 
 // app.dygram
-import { LoginPage } from "./lib.dygram"
+import { LoginPage } from "./lib.dy"
 
 machine "App"
 state HomePage "Home"
@@ -219,8 +219,8 @@ HomePage --> LoginPage --> Dashboard
 
 Example files demonstrating the import system:
 
-- `examples/imports/lib.dygram` - Reusable library
-- `examples/imports/app.dygram` - App with imports
+- `examples/imports/lib.dy` - Reusable library
+- `examples/imports/app.dy` - App with imports
 - `examples/imports/README.md` - Documentation
 
 ---
@@ -295,13 +295,13 @@ To split a large machine into modules:
 **Commands:**
 ```bash
 # Generate with imports
-dygram generate app.dygram --format json,html
+dygram generate app.dy --format json,html
 
 # Check imports and show graph
 dygram check-imports app.dygram
 
 # Bundle multiple files into one
-dygram bundle app.dygram --output dist/app.bundled.dygram
+dygram bundle app.dy --output dist/app.bundled.dygram
 
 # Execute multi-file machine
 dygram execute app.dygram

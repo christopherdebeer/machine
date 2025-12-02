@@ -14,14 +14,14 @@ The Machine DSL supports flexible model ID configuration with the following prio
 
 ## Examples
 
-### Task-Specific Models (`task-specific-models.dygram`)
+### Task-Specific Models (`task-specific-models.dy`)
 
 Demonstrates using different models for different tasks based on complexity:
 
 
 **Use case**: Cost optimization by using fast/cheap models for simple tasks and more capable models only when needed.
 
-### Machine-Level Model (`machine-level-model.dygram`)
+### Machine-Level Model (`machine-level-model.dy`)
 
 Demonstrates setting a default model for all tasks in a machine:
 
@@ -37,7 +37,7 @@ dygram execute examples/model-configuration/task-specific-models.dygram
 
 ### Override via CLI (all tasks use sonnet):
 ```bash
-dygram execute examples/model-configuration/task-specific-models.dygram --model claude-3-5-sonnet-20241022
+dygram execute examples/model-configuration/task-specific-models.dy --model claude-3-5-sonnet-20241022
 ```
 
 ### Override via environment:
@@ -59,7 +59,7 @@ dygram execute examples/model-configuration/task-specific-models.dygram
 3. **Document choices**: Add comments explaining why specific models are chosen
 4. **Test with different models**: Use CLI override to test performance/cost trade-offs
 
-### `machine-level-model.dygram`
+### `machine-level-model.dy`
 Cost-Optimized System
 
 ```dy examples/model-configuration/machine-level-model.dygram
@@ -102,7 +102,7 @@ complex_task -> complete;
 
 ```
 
-### `task-specific-models.dygram`
+### `task-specific-models.dy`
 
 Multi-Model Task System
 

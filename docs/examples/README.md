@@ -142,4 +142,4 @@ While working on these examples, we've identified several areas for enhancement:
 
 ---
 
-**Note**: Examples use the `.dygram` extension and can be validated with `dygram parseAndValidate <file>`
+**Note**: Examples use the `.dy` extension and can be validated with `dygram parseAndValidate <file>`

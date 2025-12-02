@@ -140,12 +140,13 @@
                 "aliases": [
                     "Machine",
                     "machine",
-                    "Dygram"
+                    "Dygram",
+                    "dy"
                 ],
                 "extensions": [
-                    ".mach",
+                    ".dy",
                     ".dygram",
-                    ".dy"
+                    ".mach"
                 ],
                 "configuration": "./language-configuration.json"
             }
@@ -160,6 +161,11 @@
                 "language": "DyGram",
                 "scopeName": "source.dygram",
                 "path": "syntaxes/machine.tmLanguage.json"
+            },
+            {
+                "language": "DyGram",
+                "scopeName": "source.dy",
+                "path": "syntaxes/machine.tmLanguage.json"
             }
         ],
         "commands": [
@@ -171,8 +177,8 @@
     },
     "main": "./out/extension/main.cjs",
     "bin": {
-        "dygram": "./bin/cli.js",
         "dy": "./bin/cli.js",
+        "dygram": "./bin/cli.js",
         "machine": "./bin/cli.js"
     }
 }

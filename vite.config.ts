@@ -80,7 +80,7 @@ function getStaticCopyTargets() {
                     const ext = path.extname(fileName);
 
                     // Only add supported extensions
-                    if (['.dy', '.dygram', '.mach', '.machine', '.json', '.txt', '.md'].includes(ext)) {
+                    if (['.dy', '.dy', '.mach', '.machine', '.json', '.txt', '.md'].includes(ext)) {
                         targets.push({
                             src: `examples/${relativePath}`,
                             dest: `examples/${dirGlob}`

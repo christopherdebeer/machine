@@ -586,7 +586,7 @@ enum CustomSemanticTokenTypes {
 
 ### Current Implementation
 
-```dygram
+```dy
 machine "Demo" @StrictMode          // @StrictMode not highlighted
 // Comment not highlighted specially
 Input request {                     // Input highlighted, request highlighted
@@ -605,7 +605,7 @@ Child <|-- Parent;                  // <|-- looks same as ->
 
 ### Improved Implementation
 
-```dygram
+```dy
 machine "Demo" @StrictMode          // @StrictMode highlighted as decorator (purple)
 // Comment highlighted in green, de-emphasized
 Input request {                     // Input: keyword (blue), request: variable (light blue)

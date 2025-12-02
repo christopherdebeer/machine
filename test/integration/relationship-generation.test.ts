@@ -19,7 +19,7 @@ describe('Relationship type generation', () => {
         `);
 
         const machine = document.parseResult.value;
-        const result = generateJSON(machine, 'test.dygram', undefined);
+        const result = generateJSON(machine, 'test.dy', undefined);
         const json: MachineJSON = JSON.parse(result.content);
 
         expect(json.edges.length).toBe(1);
@@ -37,7 +37,7 @@ describe('Relationship type generation', () => {
         `);
 
         const machine = document.parseResult.value;
-        const result = generateJSON(machine, 'test.dygram', undefined);
+        const result = generateJSON(machine, 'test.dy', undefined);
         const json: MachineJSON = JSON.parse(result.content);
 
         expect(json.edges.length).toBe(1);
@@ -53,7 +53,7 @@ describe('Relationship type generation', () => {
         `);
 
         const machine = document.parseResult.value;
-        const result = generateJSON(machine, 'test.dygram', undefined);
+        const result = generateJSON(machine, 'test.dy', undefined);
         const json: MachineJSON = JSON.parse(result.content);
 
         expect(json.edges.length).toBe(1);
@@ -69,7 +69,7 @@ describe('Relationship type generation', () => {
         `);
 
         const machine = document.parseResult.value;
-        const result = generateJSON(machine, 'test.dygram', undefined);
+        const result = generateJSON(machine, 'test.dy', undefined);
         const json: MachineJSON = JSON.parse(result.content);
 
         expect(json.edges[0].arrowType).toBe('-->');
@@ -93,7 +93,7 @@ describe('Relationship type generation', () => {
         `);
 
         const machine = document.parseResult.value;
-        const result = generateJSON(machine, 'test.dygram', undefined);
+        const result = generateJSON(machine, 'test.dy', undefined);
         const json: MachineJSON = JSON.parse(result.content);
 
         expect(json.edges.length).toBe(4);
@@ -114,7 +114,7 @@ describe('Node label generation', () => {
         `);
 
         const machine = document.parseResult.value;
-        const result = generateJSON(machine, 'test.dygram', undefined);
+        const result = generateJSON(machine, 'test.dy', undefined);
         const json: MachineJSON = JSON.parse(result.content);
 
         expect(json.nodes.length).toBe(1);

@@ -259,7 +259,7 @@ Tasks with `meta: true` can:
 
 Production machines often require parallel workflows:
 
-```dygram
+```dy
 machine "Data Pipeline"
 
 // Three independent start nodes
@@ -352,7 +352,7 @@ class ContextManager {
 
 Wait for multiple paths to reach a point:
 
-```dygram
+```dy
 // Parallel processing with synchronization
 init Worker1, Worker2, Worker3
 
@@ -368,7 +368,7 @@ Worker3 -> Process3 -> @barrier("sync_point")
 
 Paths communicate via context channels:
 
-```dygram
+```dy
 context Channel { messages: [] }
 
 init Producer "Generate messages"
@@ -412,7 +412,7 @@ any -> cancelled: External cancellation
 - Global execution timeout
 - Memory limits
 
-```dygram
+```dy
 machine "With Limits" {
   maxSteps: 1000              // Global limit
   maxConcurrentPaths: 10      // Concurrent paths
@@ -632,7 +632,7 @@ function getContextPermissions(task, context):
 
 Introduce explicit edge types via arrow syntax and annotations:
 
-```dygram
+```dy
 // Control flow (default)
 Start -> Process -> End
 
@@ -678,7 +678,7 @@ Different node types have different execution strategies:
 
 **Examples**:
 
-```dygram
+```dy
 // Multiple explicit starts
 init Workflow1, Workflow2, Workflow3
 
@@ -698,7 +698,7 @@ machine "MyMachine" {
 ### Annotation System
 
 **Node annotations**:
-```dygram
+```dy
 task MyTask @retry(3) @timeout(5000) {
   prompt: "Do work"
 }
@@ -713,7 +713,7 @@ context Data @persistent {
 ```
 
 **Edge annotations**:
-```dygram
+```dy
 A -[@auto, @log("Moving to B")]-> B
 C -[@parallel]-> D, E
 F -[@priority(1)]-> G
@@ -721,7 +721,7 @@ F -[@priority(2)]-> H
 ```
 
 **Machine annotations**:
-```dygram
+```dy
 machine "My Machine" @concurrent(4) @retryPolicy("exponential") {
   maxSteps: 1000
   timeout: 300000
@@ -731,7 +731,7 @@ machine "My Machine" @concurrent(4) @retryPolicy("exponential") {
 ### Progressive Enhancement
 
 **Level 1: Sketch** (minimal syntax)
-```dygram
+```dy
 machine "Quick Test"
 
 Start -> Process -> End
@@ -739,7 +739,7 @@ Start -> Process -> End
 Behavior: Auto-transitions through states
 
 **Level 2: Basic tasks** (add prompts)
-```dygram
+```dy
 machine "With Tasks"
 
 Start -> Analyze -> Report -> End
@@ -755,7 +755,7 @@ task Report {
 Behavior: Agent decisions at tasks, auto-transitions between
 
 **Level 3: Data flow** (add context)
-```dygram
+```dy
 machine "With Context"
 
 context Data { value: 0 }
@@ -771,7 +771,7 @@ Compute --> Data  // write
 Behavior: Tasks can read/write context
 
 **Level 4: Conditions** (add logic)
-```dygram
+```dy
 machine "With Conditions"
 
 context Counter { count: 0 }
@@ -790,7 +790,7 @@ Process --> Counter
 Behavior: Loop with exit condition
 
 **Level 5: Advanced** (annotations, meta)
-```dygram
+```dy
 machine "Advanced" @concurrent(2) {
   maxSteps: 500
 }

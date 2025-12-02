@@ -30,7 +30,7 @@ dygram --version
 
 ## Your First Machine
 
-Create a file called `hello.dygram`:
+Create a file called `hello.dy`:
 
 ```dy examples/getting-started/hello.dygram
 machine "Hello World"

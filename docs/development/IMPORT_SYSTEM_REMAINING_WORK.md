@@ -555,7 +555,7 @@ export default defineConfig({
 
 1. **Module Prefixes** (`import * as auth`):
 ```dy
-import * as auth from "./auth.dygram"
+import * as auth from "./auth.dy"
 
 machine "App" {
   start -> auth.LoginTask -> auth.ValidateUser -> end;
@@ -564,13 +564,13 @@ machine "App" {
 
 2. **Re-exports**:
 ```dy
-export { LoginTask, LogoutTask } from "./auth.dygram"
-export { UserProfile, UserSettings } from "./user.dygram"
+export { LoginTask, LogoutTask } from "./auth.dy"
+export { UserProfile, UserSettings } from "./user.dy"
 ```
 
 3. **Type-only imports**:
 ```dy
-import type { UserType, SessionType } from "./types.dygram"
+import type { UserType, SessionType } from "./types.dy"
 ```
 
 4. **Private symbols**:
@@ -626,7 +626,7 @@ dygram publish                 # Publish to registry
 describe('Performance: Large Projects', () => {
   it('should compile 50-file project in <500ms', async () => {
     const start = Date.now();
-    await workspace.linkAll('main.dygram');
+    await workspace.linkAll('main.dy');
     const duration = Date.now() - start;
     expect(duration).toBeLessThan(500);
   });

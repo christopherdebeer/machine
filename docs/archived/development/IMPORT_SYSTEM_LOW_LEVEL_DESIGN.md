@@ -7,7 +7,7 @@ This document provides a comprehensive low-level design for implementing an impo
 ### Preferred Syntax (Initial Implementation)
 
 ```dy
-import { nodeX, nameSpace, qualified.subNamespace, typeFoo } from "./lib/core.dygram"
+import { nodeX, nameSpace, qualified.subNamespace, typeFoo } from "./lib/core.dy"
 ```
 
 ### Design Principles
@@ -189,20 +189,20 @@ export interface ImportedSymbol extends AstNode {
 
 ```dy
 // Import individual symbols
-import { LoginTask, AuthContext } from "./auth.dygram"
+import { LoginTask, AuthContext } from "./auth.dy"
 
 // Import with qualified names
-import { workflows.auth, workflows.payment } from "./workflows.dygram"
+import { workflows.auth, workflows.payment } from "./workflows.dy"
 
 // Import with aliasing to avoid conflicts
-import { start as authStart, end as authEnd } from "./auth.dygram"
+import { start as authStart, end as authEnd } from "./auth.dy"
 
 // Import from URL
-import { HttpClient, JsonParser } from "https://stdlib.dygram.io/http/v1.dygram"
+import { HttpClient, JsonParser } from "https://stdlib.dy.io/http/v1.dy"
 
 // Multiple imports
-import { A, B, C } from "./file1.dygram"
-import { X, Y, Z } from "./file2.dygram"
+import { A, B, C } from "./file1.dy"
+import { X, Y, Z } from "./file2.dy"
 
 machine "MyApp" {
   // Use imported symbols directly
@@ -559,7 +559,7 @@ export class MultiFileMachineLinker extends MachineLinker {
 ```typescript
 // Usage in CLI or playground
 const workspace = new MachineWorkspaceManager(services, resolver);
-await workspace.linkAll('file:///path/to/main.dygram');
+await workspace.linkAll('file:///path/to/main.dy');
 
 // All documents are now parsed, linked, and ready for validation
 ```
@@ -791,7 +791,7 @@ export class MultiFileGenerator extends Generator {
 
     // Annotate all nodes in entry machine
     for (const node of machine.nodes) {
-      annotate(node, allMachines.find(m => m.machine === machine)?.uri);
+      annotate(node, allMachines.find(m => m.dy === machine)?.uri);
     }
   }
 }
@@ -816,7 +816,7 @@ const machineData = await generator.generateMachineData(entryDoc, workspace);
       "name": "start",
       "type": "init",
       "annotations": [
-        { "name": "SourceFile", "value": "file:///main.dygram" }
+        { "name": "SourceFile", "value": "file:///main.dy" }
       ]
     },
     {
@@ -824,7 +824,7 @@ const machineData = await generator.generateMachineData(entryDoc, workspace);
       "type": "task",
       "annotations": [
         { "name": "Imported", "value": "LoginTask" },
-        { "name": "SourceFile", "value": "file:///auth.dygram" }
+        { "name": "SourceFile", "value": "file:///auth.dy" }
       ],
       "attributes": [...]
     },
@@ -855,7 +855,7 @@ const machineData = await generator.generateMachineData(entryDoc, workspace);
 export class RailsExecutor {
 
   private getNodeSourceFile(nodeName: string): string | undefined {
-    const node = this.machineData.nodes.find(n => n.name === nodeName);
+    const node = this.dyData.nodes.find(n => n.name === nodeName);
     const sourceAnnotation = node?.annotations?.find(a => a.name === 'SourceFile');
     return sourceAnnotation?.value as string | undefined;
   }
@@ -942,9 +942,9 @@ export class FileSystemResolver implements ImportResolver {
       resolvedPath = path.resolve(this.workingDir, cleanPath);
     }
 
-    // Ensure .dygram extension
-    if (!resolvedPath.endsWith('.dygram')) {
-      resolvedPath += '.dygram';
+    // Ensure .dy extension
+    if (!resolvedPath.endsWith('.dy')) {
+      resolvedPath += '.dy';
     }
 
     // Check file exists
@@ -1073,7 +1073,7 @@ export class VirtualFSResolver implements ImportResolver {
       return cleanPath;
     }
 
-    // Parse current file URI (format: vfs:///path/to/file.dygram)
+    // Parse current file URI (format: vfs:///path/to/file.dy)
     const currentPath = currentFileUri.replace('vfs://', '');
     const currentDir = this.getDirectory(currentPath);
 
@@ -1090,9 +1090,9 @@ export class VirtualFSResolver implements ImportResolver {
       resolvedPath = this.resolvePath(this.currentDirectory, cleanPath);
     }
 
-    // Ensure .dygram extension
-    if (!resolvedPath.endsWith('.dygram')) {
-      resolvedPath += '.dygram';
+    // Ensure .dy extension
+    if (!resolvedPath.endsWith('.dy')) {
+      resolvedPath += '.dy';
     }
 
     // Check if file exists in VFS
@@ -1363,11 +1363,11 @@ const resolver = new FileSystemResolver(process.cwd());
 const workspace = new MachineWorkspaceManager(services, resolver);
 
 // Load and link all files
-await workspace.linkAll('file:///path/to/main.dygram');
+await workspace.linkAll('file:///path/to/main.dy');
 
 // Generate unified MachineData
 const generator = new MultiFileGenerator();
-const entryDoc = workspace.documents.get('file:///path/to/main.dygram')!;
+const entryDoc = workspace.documents.get('file:///path/to/main.dy')!;
 const machineData = await generator.generateMachineData(entryDoc, workspace);
 
 // Execute (existing code)
@@ -1392,7 +1392,7 @@ interface ExecutionHistoryEntry {
 
 // In RailsExecutor
 async executeNode(nodeName: string): Promise<ExecutionResult> {
-  const node = this.machineData.nodes.find(n => n.name === nodeName);
+  const node = this.dyData.nodes.find(n => n.name === nodeName);
   const sourceFile = node?.annotations
     ?.find(a => a.name === 'SourceFile')
     ?.value as string | undefined;
@@ -1523,7 +1523,7 @@ cli.command('bundle <file>')
     // Reverse-compile to DSL (existing feature)
     const bundledDsl = await generator.generateDSL(machineData);
 
-    const outputFile = options.output || file.replace('.dygram', '.bundled.dygram');
+    const outputFile = options.output || file.replace('.dy', '.bundled.dy');
     await fs.writeFile(outputFile, bundledDsl);
     console.log(`✓ Bundled to ${outputFile}`);
   });
@@ -1667,16 +1667,16 @@ export class VirtualFileSystem {
 // src/components/CodeMirrorPlayground.tsx (enhanced)
 export function CodeMirrorPlayground() {
   const [vfs] = useState(() => new VirtualFileSystem());
-  const [currentFile, setCurrentFile] = useState('/main.dygram');
-  const [openFiles, setOpenFiles] = useState<string[]>(['/main.dygram']);
+  const [currentFile, setCurrentFile] = useState('/main.dy');
+  const [openFiles, setOpenFiles] = useState<string[]>(['/main.dy']);
 
   // Initialize VFS with example or load from localStorage
   useEffect(() => {
     vfs.loadFromLocalStorage();
 
-    if (!vfs.exists('/main.dygram')) {
+    if (!vfs.exists('/main.dy')) {
       // Initialize with default example
-      vfs.writeFile('/main.dygram', defaultExample);
+      vfs.writeFile('/main.dy', defaultExample);
     }
   }, []);
 
@@ -2465,7 +2465,7 @@ export class SandboxedExecutor extends RailsExecutor {
 
 2. **Module Prefixes**
    ```dy
-   import * as auth from "./auth.dygram"
+   import * as auth from "./auth.dy"
 
    machine "App" {
      start -> auth.LoginTask -> auth.ValidateUser -> end;
@@ -2474,8 +2474,8 @@ export class SandboxedExecutor extends RailsExecutor {
 
 3. **Re-exports**
    ```dy
-   export { LoginTask, LogoutTask } from "./auth.dygram"
-   export { UserProfile, UserSettings } from "./user.dygram"
+   export { LoginTask, LogoutTask } from "./auth.dy"
+   export { UserProfile, UserSettings } from "./user.dy"
    ```
 
 4. **Private Symbols**
@@ -2489,7 +2489,7 @@ export class SandboxedExecutor extends RailsExecutor {
 
 6. **Type Imports**
    ```dy
-   import type { UserType, SessionType } from "./types.dygram"
+   import type { UserType, SessionType } from "./types.dy"
    ```
 
 ---
@@ -2500,20 +2500,20 @@ export class SandboxedExecutor extends RailsExecutor {
 
 ```
 my-project/
-├── main.dygram          # Entry point
+├── main.dy          # Entry point
 ├── lib/
-│   ├── auth.dygram      # Authentication flows
-│   ├── payment.dygram   # Payment processing
-│   └── common.dygram    # Shared utilities
+│   ├── auth.dy      # Authentication flows
+│   ├── payment.dy   # Payment processing
+│   └── common.dy    # Shared utilities
 └── types/
-    └── user.dygram      # User-related types
+    └── user.dy      # User-related types
 ```
 
-**main.dygram**:
+**main.dy**:
 ```dy
-import { LoginTask, ValidateSession } from "./lib/auth.dygram"
-import { ProcessPayment, RefundPayment } from "./lib/payment.dygram"
-import { ErrorHandler, Logger } from "./lib/common.dygram"
+import { LoginTask, ValidateSession } from "./lib/auth.dy"
+import { ProcessPayment, RefundPayment } from "./lib/payment.dy"
+import { ErrorHandler, Logger } from "./lib/common.dy"
 
 machine "E-Commerce App" {
   use ErrorHandler;
@@ -2526,7 +2526,7 @@ machine "E-Commerce App" {
 }
 ```
 
-**lib/auth.dygram**:
+**lib/auth.dy**:
 ```dy
 machine "Authentication" {
   task LoginTask {
@@ -2548,9 +2548,9 @@ machine "Authentication" {
 }
 ```
 
-**lib/payment.dygram**:
+**lib/payment.dy**:
 ```dy
-import { UserSession } from "./auth.dygram"
+import { UserSession } from "./auth.dy"
 
 machine "Payment Processing" {
   task ProcessPayment {
@@ -2572,7 +2572,7 @@ machine "Payment Processing" {
 }
 ```
 
-**lib/common.dygram**:
+**lib/common.dy**:
 ```dy
 machine "Common Utilities" {
   task ErrorHandler {

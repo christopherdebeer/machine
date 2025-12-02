@@ -14,7 +14,7 @@ This document outlines the design considerations for implementing an import/modu
 ### Basic Import
 
 ```dy
-import "shared/templates.dygram" as templates;
+import "shared/templates.dy" as templates;
 
 machine "MyMachine" {
     use templates.ErrorHandling;
@@ -26,7 +26,7 @@ machine "MyMachine" {
 ### Selective Import
 
 ```dy
-import { ErrorHandling, Logging } from "shared/templates.dygram";
+import { ErrorHandling, Logging } from "shared/templates.dy";
 
 machine "MyMachine" {
     use ErrorHandling;
@@ -40,10 +40,10 @@ machine "MyMachine" {
 
 ```dy
 // Relative to current file
-import "./shared/types.dygram" as types;
+import "./shared/types.dy" as types;
 
 // Absolute from working directory
-import "/common/templates.dygram" as common;
+import "/common/templates.dy" as common;
 
 // Package-style imports (future)
 import "@dygram/stdlib/http" as http;
@@ -246,10 +246,10 @@ class MultiFileExecutor {
 
 ```bash
 # Check imports and dependencies
-dygram check myfile.dygram --show-deps
+dygram check myfile.dy --show-deps
 
 # Compile with imports
-dygram compile myfile.dygram --output dist/
+dygram compile myfile.dy --output dist/
 
 # Server mode with import resolution
 dygram server ./machines --watch
@@ -264,7 +264,7 @@ class FileWatcher {
     private dependencyGraph: DependencyGraph;
 
     watch(entryPoint: string) {
-        const watcher = chokidar.watch('**/*.dygram');
+        const watcher = chokidar.watch('**/*.dy');
 
         watcher.on('change', async (filepath) => {
             // Find all files that depend on changed file

@@ -397,7 +397,7 @@ useEffect(() => {
 ## Testing Plan
 
 ### Test 1: Dynamic Tool Execution
-```dygram
+```dy
 machine "Tool Test" {
     meta: true
 }
@@ -421,7 +421,7 @@ create -> use
 - Result is 8
 
 ### Test 2: Runtime Diagram Updates
-```dygram
+```dy
 context Counter {
     value: 0
 }

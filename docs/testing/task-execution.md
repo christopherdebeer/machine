@@ -16,7 +16,7 @@ This document contains comprehensive test scenarios for task node execution feat
 
 Tests basic task node execution with standard attributes.
 
-```dygram examples/testing/task-execution/simple-task.dy
+```dy examples/testing/task-execution/simple-task.dy
 machine "Test Machine" {
   logLevel: "debug"
   maxSteps: 10
@@ -51,7 +51,7 @@ start -> analysis -> end
 
 Tests task execution with minimal attributes (graceful degradation).
 
-```dygram examples/testing/task-execution/minimal-task.dy
+```dy examples/testing/task-execution/minimal-task.dy
 machine "Minimal Machine" {
   logLevel: "debug"
   maxSteps: 5
@@ -76,7 +76,7 @@ start -> end
 
 Tests task execution with comprehensive attribute sets.
 
-```dygram examples/testing/task-execution/comprehensive-attributes.dy
+```dy examples/testing/task-execution/comprehensive-attributes.dy
 machine "Comprehensive Task Machine" {
   logLevel: "debug"
   maxSteps: 15
@@ -125,7 +125,7 @@ dataCollection -> dataProcessing -> dataValidation -> end
 
 Tests task execution with template-specific attributes.
 
-```dygram examples/testing/task-execution/template-tasks.dy
+```dy examples/testing/task-execution/template-tasks.dy
 machine "Template Task Machine" {
   logLevel: "debug"
   maxSteps: 20
@@ -176,7 +176,7 @@ analysisTask -> reportTask -> end
 
 Tests sequential task execution with data flow.
 
-```dygram examples/testing/task-execution/processing-pipeline.dy
+```dy examples/testing/task-execution/processing-pipeline.dy
 machine "Processing Pipeline" {
   logLevel: "debug"
   maxSteps: 25
@@ -236,7 +236,7 @@ ingestion -> transformation -> aggregation -> output -> end
 
 Tests task execution with conditional branching.
 
-```dygram examples/testing/task-execution/conditional-tasks.dy
+```dy examples/testing/task-execution/conditional-tasks.dy
 machine "Conditional Task Machine" {
   logLevel: "debug"
   maxSteps: 20
@@ -299,7 +299,7 @@ errorHandling -> end
 
 Tests task execution with error handling and retry mechanisms.
 
-```dygram examples/testing/task-execution/retry-recovery.dy
+```dy examples/testing/task-execution/retry-recovery.dy
 machine "Retry Recovery Machine" {
   logLevel: "debug"
   maxSteps: 30
@@ -360,7 +360,7 @@ success -> end
 
 Tests task execution with timeout and circuit breaker patterns.
 
-```dygram examples/testing/task-execution/timeout-circuit-breaker.dy
+```dy examples/testing/task-execution/timeout-circuit-breaker.dy
 machine "Timeout Circuit Breaker Machine" {
   logLevel: "debug"
   maxSteps: 25
@@ -424,7 +424,7 @@ circuitOpenHandler -> end
 
 Tests task execution with rich context integration.
 
-```dygram examples/testing/task-execution/context-aware.dy
+```dy examples/testing/task-execution/context-aware.dy
 machine "Context Aware Machine" {
   logLevel: "debug"
   maxSteps: 30
@@ -500,7 +500,7 @@ Each test case includes expected behavior specifications and can be run in both 
 
 Tests execution behavior with potential infinite loops.
 
-```dygram examples/testing/task-execution/cycle-detection.dy
+```dy examples/testing/task-execution/cycle-detection.dy
 machine "Cycle Detection Machine" {
   logLevel: "debug"
   maxSteps: 10
@@ -544,7 +544,7 @@ loopDecision -label: "exit"-> end
 
 Tests execution with minimal valid machines.
 
-```dygram examples/testing/task-execution/empty-machine.dy
+```dy examples/testing/task-execution/empty-machine.dy
 machine "Empty Machine" {
   logLevel: "debug"
   maxSteps: 1
@@ -564,7 +564,7 @@ end "Immediate end"
 
 Tests task execution when no outgoing transitions exist.
 
-```dygram examples/testing/task-execution/isolated-task.dy
+```dy examples/testing/task-execution/isolated-task.dy
 machine "Isolated Task Machine" {
   logLevel: "debug"
   maxSteps: 5
@@ -588,7 +588,7 @@ task start "Isolated Task" {
 
 Tests execution with multiple paths converging to same node.
 
-```dygram examples/testing/task-execution/path-convergence.dy
+```dy examples/testing/task-execution/path-convergence.dy
 machine "Path Convergence Machine" {
   logLevel: "debug"
   maxSteps: 20
@@ -638,7 +638,7 @@ convergence -> end
 
 Tests execution with many sequential nodes.
 
-```dygram examples/testing/task-execution/deep-chain.dy
+```dy examples/testing/task-execution/deep-chain.dy
 machine "Deep Chain Machine" {
   logLevel: "debug"
   maxSteps: 50
@@ -672,7 +672,7 @@ step5 -> step6 -> step7 -> step8 -> step9 -> step10 -> end
 
 Tests execution with unreachable node structures.
 
-```dygram examples/testing/task-execution/unreachable-nodes.dy
+```dy examples/testing/task-execution/unreachable-nodes.dy
 machine "Unreachable Nodes Machine" {
   logLevel: "debug"
   maxSteps: 10
@@ -706,7 +706,7 @@ start -> reachable -> end
 
 Tests execution with minimal processing per node.
 
-```dygram examples/testing/task-execution/rapid-transitions.dy
+```dy examples/testing/task-execution/rapid-transitions.dy
 machine "Rapid Transitions Machine" {
   logLevel: "debug"
   maxSteps: 100
@@ -734,7 +734,7 @@ t1 -> t2 -> t3 -> t4 -> t5 -> end
 
 Tests that context mutations are properly isolated and tracked.
 
-```dygram examples/testing/task-execution/context-mutations.dy
+```dy examples/testing/task-execution/context-mutations.dy
 machine "Context Mutation Machine" {
   logLevel: "debug"
   maxSteps: 15
@@ -783,7 +783,7 @@ mutator1 -> mutator2 -> validator -> end
 
 Tests execution when edge references non-existent nodes.
 
-```dygram examples/testing/task-execution/missing-references.dy
+```dy examples/testing/task-execution/missing-references.dy
 machine "Missing References Machine" {
   logLevel: "debug"
   maxSteps: 10

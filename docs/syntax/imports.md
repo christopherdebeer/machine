@@ -15,7 +15,7 @@ Imports allow you to:
 Import named nodes from other files using familiar ES6-style syntax:
 
 ```dy examples/imports/basic-import.dygram
-import { LoginPage, UserSession } from "./auth-lib.dygram"
+import { LoginPage, UserSession } from "./auth-lib.dy"
 
 machine "Main Application"
 
@@ -25,7 +25,7 @@ state Profile "User Profile"
 LoginPage --> Dashboard --> Profile --> UserSession
 ```
 
-The imported file (`auth-lib.dygram`):
+The imported file (`auth-lib.dy`):
 
 ```dy examples/imports/auth-lib.dygram
 machine "Auth Library"
@@ -44,7 +44,7 @@ LoginPage --> AuthService --> UserSession
 Import specific nodes by name:
 
 ```dy examples/imports/named-imports.dygram
-import { Start, Process, End } from "./workflow.dygram"
+import { Start, Process, End } from "./workflow.dy"
 
 machine "Extended Workflow"
 
@@ -59,8 +59,8 @@ Init --> Start --> Process --> End --> Finalize
 Rename imported nodes to avoid name collisions:
 
 ```dy examples/imports/import-aliasing.dygram
-import { Start as StartA, Process as ProcessA } from "./module-a.dygram"
-import { Start as StartB, Process as ProcessB } from "./module-b.dygram"
+import { Start as StartA, Process as ProcessA } from "./module-a.dy"
+import { Start as StartB, Process as ProcessB } from "./module-b.dy"
 
 machine "Combined Application"
 
@@ -75,7 +75,7 @@ Init --> StartA --> ProcessA --> ProcessB --> StartB --> Final
 Import nodes with qualified names for better organization:
 
 ```dy examples/imports/qualified-imports.dygram
-import { Workflow.Validate, Workflow.Process } from "./workflows.dygram"
+import { Workflow.Validate, Workflow.Process } from "./workflows.dy"
 
 machine "Simplified App"
 
@@ -90,9 +90,9 @@ Start --> Workflow.Validate --> Workflow.Process --> End
 Import from multiple files:
 
 ```dy examples/imports/multiple-imports.dygram
-import { LoginPage } from "./auth.dygram"
-import { ShoppingCart } from "./cart.dygram"
-import { Checkout } from "./payment.dygram"
+import { LoginPage } from "./auth.dy"
+import { ShoppingCart } from "./cart.dy"
+import { Checkout } from "./payment.dy"
 
 machine "E-Commerce Application"
 
@@ -111,9 +111,9 @@ DyGram resolves imports using multiple strategies depending on the execution con
 Use `./` and `../` for relative imports:
 
 ```dy
-import { Task } from "./tasks.dygram"        // Same directory
-import { Config } from "../config.dygram"    // Parent directory
-import { Utils } from "../../shared/utils.dygram"  // Multiple levels up
+import { Task } from "./tasks.dy"        // Same directory
+import { Config } from "../config.dy"    // Parent directory
+import { Utils } from "../../shared/utils.dy"  // Multiple levels up
 ```
 
 ### Filesystem Resolution (CLI)
@@ -122,7 +122,7 @@ When using the CLI, imports are resolved relative to the current file's location
 
 ```bash
 dygram generate app.dygram
-# Resolves imports relative to app.dygram's directory
+# Resolves imports relative to app.dy's directory
 ```
 
 ### Virtual Filesystem (Playground)
@@ -130,8 +130,8 @@ dygram generate app.dygram
 In the browser playground, imports are resolved from the virtual filesystem stored in localStorage:
 
 ```dy
-import { Component } from "/components/ui.dygram"  // Absolute VFS path
-import { Helper } from "./utils.dygram"            // Relative VFS path
+import { Component } from "/components/ui.dy"  // Absolute VFS path
+import { Helper } from "./utils.dy"            // Relative VFS path
 ```
 
 ### URL Imports (Future)
@@ -139,7 +139,7 @@ import { Helper } from "./utils.dygram"            // Relative VFS path
 URL imports will be supported for loading remote modules:
 
 ```dy
-import { Template } from "https://cdn.dygram.dev/templates/auth.dygram"
+import { Template } from "https://cdn.dy.dev/templates/auth.dy"
 ```
 
 ## Automatic Exports
@@ -158,7 +158,7 @@ Task PublicTask "This too"
 Any file can import these nodes:
 
 ```dy examples/imports/auto-export-usage.dygram
-import { PublicStateA, PublicTask } from "./auto-export-lib.dygram"
+import { PublicStateA, PublicTask } from "./auto-export-lib.dy"
 
 machine "Consumer"
 
@@ -177,7 +177,7 @@ Circular imports are detected and reported:
 
 ```
 Error: Circular dependency detected
-  /app.dygram → /lib.dygram → /app.dygram
+  /app.dy → /lib.dy → /app.dygram
 ```
 
 ### Symbol Collision Detection
@@ -196,8 +196,8 @@ Importing the same symbol name from different files:
 
 ```
 Error: Symbol name collision - 'Process' imported from multiple sources
-  ./workflow-a.dygram exports Process
-  ./workflow-b.dygram exports Process
+  ./workflow-a.dy exports Process
+  ./workflow-b.dy exports Process
   Suggestion: Use import aliasing to resolve collision
 ```
 
@@ -206,7 +206,7 @@ Error: Symbol name collision - 'Process' imported from multiple sources
 Importing non-existent symbols:
 
 ```
-Error: Symbol 'NonExistent' not found in './lib.dygram'
+Error: Symbol 'NonExistent' not found in './lib.dy'
   Available symbols: LoginPage, AuthService, UserSession
 ```
 
@@ -217,9 +217,9 @@ Error: Symbol 'NonExistent' not found in './lib.dygram'
 Choose descriptive filenames that reflect the module's purpose:
 
 ```
-auth.dygram           # Authentication components
-cart.dygram          # Shopping cart logic
-payment.dygram       # Payment processing
+auth.dy           # Authentication components
+cart.dy          # Shopping cart logic
+payment.dy       # Payment processing
 ```
 
 ### 2. Organize by Domain
@@ -243,8 +243,8 @@ Structure files by domain or feature:
 When importing similar components, use aliases:
 
 ```dy
-import { Validate as ValidateAuth } from "./auth.dygram"
-import { Validate as ValidatePayment } from "./payment.dygram"
+import { Validate as ValidateAuth } from "./auth.dy"
+import { Validate as ValidatePayment } from "./payment.dy"
 ```
 
 ### 4. Keep Dependencies Shallow
@@ -252,8 +252,8 @@ import { Validate as ValidatePayment } from "./payment.dygram"
 Avoid deep import chains. If you find yourself importing from imports, consider restructuring:
 
 ```
-❌ app.dygram → utils.dygram → helpers.dygram → core.dygram (too deep)
-✅ app.dygram → utils.dygram, helpers.dygram (flatter structure)
+❌ app.dy → utils.dy → helpers.dy → core.dy (too deep)
+✅ app.dy → utils.dy, helpers.dy (flatter structure)
 ```
 
 ### 5. Create Shared Libraries
@@ -307,7 +307,7 @@ dygram check-imports app.dygram
 Merge multi-file projects into a single file:
 
 ```bash
-dygram bundle app.dygram --output dist/app.bundled.dygram
+dygram bundle app.dy --output dist/app.bundled.dygram
 # Creates a single file with all imports merged
 ```
 
@@ -316,7 +316,7 @@ dygram bundle app.dygram --output dist/app.bundled.dygram
 Skip import resolution when needed:
 
 ```bash
-dygram generate app.dygram --no-imports
+dygram generate app.dy --no-imports
 # Treats file as standalone (imports not resolved)
 ```
 
@@ -337,7 +337,7 @@ When URL imports are enabled, only HTTPS URLs are allowed by default:
 
 ```
 Warning: HTTP import detected - consider using HTTPS
-  http://example.com/lib.dygram → Security risk
+  http://example.com/lib.dy → Security risk
 ```
 
 ## Technical Details
@@ -368,9 +368,9 @@ The multi-file generator tracks the origin of all nodes:
 ```typescript
 {
   node: "LoginPage",
-  sourceFile: "/auth.dygram",
+  sourceFile: "/auth.dy",
   sourceLine: 5,
-  importedBy: ["/app.dygram"]
+  importedBy: ["/app.dy"]
 }
 ```
 
@@ -378,8 +378,8 @@ The multi-file generator tracks the origin of all nodes:
 
 ### Current Limitations
 
-1. **No wildcard imports**: `import * as Auth from "./auth.dygram"` not yet supported
-2. **No re-exports**: `export { X } from "./lib.dygram"` not yet supported
+1. **No wildcard imports**: `import * as Auth from "./auth.dy"` not yet supported
+2. **No re-exports**: `export { X } from "./lib.dy"` not yet supported
 3. **No dynamic imports**: `import()` expressions not supported
 4. **No package imports**: npm-style packages not yet supported
 
@@ -388,7 +388,7 @@ The multi-file generator tracks the origin of all nodes:
 Planned features for future releases:
 
 - **Package manager integration**: Import from published packages
-- **Module prefixes**: `import * as Auth from "./auth.dygram"`
+- **Module prefixes**: `import * as Auth from "./auth.dy"`
 - **Re-exports**: Aggregate and re-export modules
 - **CDN support**: Load modules from CDN with caching
 - **Import maps**: Configure module resolution mappings

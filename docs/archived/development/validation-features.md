@@ -372,7 +372,7 @@ task processor @Abstract;  // ✅ Valid
 
 ## Integration
 
-Validation validations are automatically integrated into the DyGram validation pipeline. When you save a `.dygram` file or run validation, all checks are performed:
+Validation validations are automatically integrated into the DyGram validation pipeline. When you save a `.dy` file or run validation, all checks are performed:
 
 ### Validation Flow
 

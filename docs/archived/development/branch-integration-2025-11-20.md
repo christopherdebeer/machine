@@ -352,7 +352,7 @@ console.log(`Completed: ${vizState.completedPathCount}`);
 
 ### Multi-Path Execution
 
-```dygram
+```dy
 machine "Parallel Processing"
 
 @start
@@ -373,7 +373,7 @@ Runtime automatically detects both start nodes and creates two paths.
 
 ### @parallel Fork
 
-```dygram
+```dy
 machine "Fork and Join"
 
 Task Start {
@@ -396,7 +396,7 @@ Task Join { prompt: "Merge results" }
 
 ### @code Task Execution
 
-```dygram
+```dy
 machine "Code Generation Example"
 
 Task Validate @code {

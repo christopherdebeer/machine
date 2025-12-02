@@ -53,7 +53,7 @@ export interface LoadedExecution {
  */
 async function parseMachineFromSource(source: string): Promise<MachineJSON> {
     // Write source to temp file
-    const tempFile = path.join(os.tmpdir(), `dygram-stdin-${Date.now()}.dygram`);
+    const tempFile = path.join(os.tmpdir(), `dygram-stdin-${Date.now()}.dy`);
     await fs.writeFile(tempFile, source);
 
     try {

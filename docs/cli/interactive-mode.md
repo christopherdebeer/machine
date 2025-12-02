@@ -31,7 +31,7 @@ Repeat until complete:
 
 ```bash
 # Keep running until execution finishes
-while dygram execute --interactive myMachine.dygram; do :; done
+while dygram execute --interactive myMachine.dy; do :; done
 ```
 
 ## How It Works
@@ -68,13 +68,13 @@ State is stored in `.dygram/executions/` with:
 Start with specific ID:
 
 ```bash
-dygram execute --interactive myMachine.dygram --id my-session
+dygram execute --interactive myMachine.dy --id my-session
 ```
 
 Resume specific execution:
 
 ```bash
-dygram execute --interactive myMachine.dygram --id my-session
+dygram execute --interactive myMachine.dy --id my-session
 ```
 
 ### Force New Execution
@@ -82,7 +82,7 @@ dygram execute --interactive myMachine.dygram --id my-session
 Start fresh even if state exists:
 
 ```bash
-dygram execute --interactive myMachine.dygram --force
+dygram execute --interactive myMachine.dy --force
 ```
 
 ### List Executions
@@ -142,7 +142,7 @@ Record execution for later playback:
 
 ```bash
 # Start recording
-dygram execute --interactive myMachine.dygram --record recordings/golden/
+dygram execute --interactive myMachine.dy --record recordings/golden/
 
 # Continue recording (mode persists)
 dygram execute --interactive myMachine.dygram
@@ -156,7 +156,7 @@ Replay a recorded execution:
 
 ```bash
 # Start playback
-dygram execute --interactive myMachine.dygram --playback recordings/golden/
+dygram execute --interactive myMachine.dy --playback recordings/golden/
 
 # Continue playback (mode persists)
 dygram execute --interactive myMachine.dygram
@@ -172,13 +172,13 @@ Provide machine definition via stdin when no file argument given:
 
 ```bash
 # Pipe machine source
-cat myMachine.dygram | dygram execute --interactive
+cat myMachine.dy | dygram execute --interactive
 
 # Inline machine
 echo 'machine "Test" { state Start; state End; Start --> End }' | dygram execute --interactive
 
 # Chain commands
-dygram generate template.dygram | dygram execute --interactive
+dygram generate template.dy | dygram execute --interactive
 ```
 
 ### Response Input via stdin
@@ -190,7 +190,7 @@ Provide LLM response via stdin (for manual control):
 echo '{"action": "continue"}' | dygram execute --interactive myMachine.dygram
 
 # Multi-line input
-dygram execute --interactive myMachine.dygram <<EOF
+dygram execute --interactive myMachine.dy <<EOF
 {
   "response": "Analyze the data",
   "tools": [{"name": "read_file", "params": {"path": "data.json"}}]
@@ -229,7 +229,7 @@ Combine agent execution with human intervention:
 
 ```bash
 # Agent starts
-dygram execute --interactive ./process.dygram --record recordings/session1/
+dygram execute --interactive ./process.dy --record recordings/session1/
 
 # Agent continues...
 dygram execute --interactive ./process.dygram
@@ -267,7 +267,7 @@ $ dygram execute --interactive myMachine.dygram
 If playback directory doesn't exist:
 
 ```bash
-$ dygram execute --interactive myMachine.dygram --playback recordings/missing/
+$ dygram execute --interactive myMachine.dy --playback recordings/missing/
 ❌ Error: Playback directory not found: recordings/missing/
 
    Available recordings:
@@ -349,25 +349,25 @@ dygram exec status
 
 ```bash
 # Record golden execution
-dygram e -i workflow.dygram --record recordings/golden/ --id golden-test
+dygram e -i workflow.dy --record recordings/golden/ --id golden-test
 
 # Continue until complete
-while dygram e -i workflow.dygram --id golden-test; do :; done
+while dygram e -i workflow.dy --id golden-test; do :; done
 
 # Later: replay for testing
-dygram e -i workflow.dygram --playback recordings/golden/ --id test-run
-while dygram e -i workflow.dygram --id test-run; do :; done
+dygram e -i workflow.dy --playback recordings/golden/ --id test-run
+while dygram e -i workflow.dy --id test-run; do :; done
 ```
 
 ### Batch Process with Agent
 
 ```bash
 #!/bin/bash
-for machine in workflows/*.dygram; do
+for machine in workflows/*.dy; do
     echo "Processing $machine..."
 
     # Start with unique ID
-    id=$(basename "$machine" .dygram)
+    id=$(basename "$machine" .dy)
     dygram e -i "$machine" --id "$id"
 
     # Continue until complete

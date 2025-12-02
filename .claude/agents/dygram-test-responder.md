@@ -76,10 +76,10 @@ Begin execution with recording enabled:
 
 ```bash
 # Start with recording
-dygram execute --interactive ./test-machine.dygram --record recordings/test-session/ --id test-01
+dygram execute --interactive ./test-machine.dy --record recordings/test-session/ --id test-01
 
 # Or for quick testing without recording
-dygram execute --interactive ./test-machine.dygram --id debug-session
+dygram execute --interactive ./test-machine.dy --id debug-session
 ```
 
 ### Step 2: Execute Turn-by-Turn
@@ -88,11 +88,11 @@ Continue execution, providing responses when needed:
 
 ```bash
 # Simple continuation (for non-LLM turns)
-dygram execute --interactive ./test-machine.dygram --id test-01
+dygram execute --interactive ./test-machine.dy --id test-01
 
 # Provide LLM response via stdin when needed
 echo '{"response": "Analyze the configuration", "tools": [{"name": "read_file", "params": {"path": "config.json"}}]}' | \
-  dygram execute --interactive ./test-machine.dygram --id test-01
+  dygram execute --interactive ./test-machine.dy --id test-01
 ```
 
 ### Step 3: Monitor Progress
@@ -122,7 +122,7 @@ cat .dygram/executions/test-01/state.json
 ls -la recordings/test-session/
 
 # Verify with playback
-dygram execute --interactive ./test-machine.dygram --playback recordings/test-session/ --id playback-test
+dygram execute --interactive ./test-machine.dy --playback recordings/test-session/ --id playback-test
 ```
 
 ## Usage Patterns
@@ -133,12 +133,12 @@ Execute a machine step-by-step to understand its behavior:
 
 ```bash
 # Start execution
-dygram e -i machine.dygram --id debug
+dygram e -i machine.dy --id debug
 
 # Step through each turn manually
-dygram e -i machine.dygram --id debug
+dygram e -i machine.dy --id debug
 # ... observe output, check state ...
-dygram e -i machine.dygram --id debug
+dygram e -i machine.dy --id debug
 # ... continue until complete or issue found ...
 
 # Check current state at any point
@@ -151,14 +151,14 @@ Create a golden recording for automated testing:
 
 ```bash
 # Start with recording
-dygram e -i workflow.dygram --record recordings/golden-workflow/ --id golden
+dygram e -i workflow.dy --record recordings/golden-workflow/ --id golden
 
 # Execute with intelligent responses
 # For task nodes or agent nodes, provide appropriate responses:
-echo '{"action": "continue"}' | dygram e -i workflow.dygram --id golden
+echo '{"action": "continue"}' | dygram e -i workflow.dy --id golden
 
 # Continue until complete
-while dygram e -i workflow.dygram --id golden; do
+while dygram e -i workflow.dy --id golden; do
   echo "Turn completed"
 done
 
@@ -172,15 +172,15 @@ Test a machine with different inputs/paths:
 
 ```bash
 # Scenario 1: Success path
-dygram e -i machine.dygram --record recordings/success/ --id scenario-success
+dygram e -i machine.dy --record recordings/success/ --id scenario-success
 # ... provide success responses ...
 
 # Scenario 2: Error path
-dygram e -i machine.dygram --record recordings/error/ --id scenario-error
+dygram e -i machine.dy --record recordings/error/ --id scenario-error
 # ... provide error-inducing responses ...
 
 # Scenario 3: Edge case
-dygram e -i machine.dygram --record recordings/edge/ --id scenario-edge
+dygram e -i machine.dy --record recordings/edge/ --id scenario-edge
 # ... provide edge case responses ...
 
 # Now you have recordings for all scenarios
@@ -192,8 +192,8 @@ Test a collection of machines:
 
 ```bash
 #!/bin/bash
-for machine in test-machines/*.dygram; do
-  id=$(basename "$machine" .dygram)
+for machine in test-machines/*.dy; do
+  id=$(basename "$machine" .dy)
   echo "Testing $id..."
 
   # Start execution with recording
@@ -237,24 +237,24 @@ When a machine needs an LLM response (agent nodes, decision points), provide via
 
 **Simple task continuation:**
 ```bash
-echo '{"action": "continue"}' | dygram e -i machine.dygram --id test
+echo '{"action": "continue"}' | dygram e -i machine.dy --id test
 ```
 
 **Read file tool:**
 ```bash
 echo '{"response": "Reading configuration", "tools": [{"name": "read_file", "params": {"path": "config.json"}}]}' | \
-  dygram e -i machine.dygram --id test
+  dygram e -i machine.dy --id test
 ```
 
 **Transition decision:**
 ```bash
 echo '{"response": "Proceeding to success state", "tools": [{"name": "transition_to_success", "params": {}}]}' | \
-  dygram e -i machine.dygram --id test
+  dygram e -i machine.dy --id test
 ```
 
 **Multi-line response:**
 ```bash
-dygram e -i machine.dygram --id test <<EOF
+dygram e -i machine.dy --id test <<EOF
 {
   "response": "Analyzing data and writing results",
   "tools": [
@@ -302,7 +302,7 @@ When creating recordings, include clear reasoning in responses:
 Recordings are automatically created when using `--record`:
 
 ```bash
-dygram e -i machine.dygram --record recordings/test-case-1/ --id test1
+dygram e -i machine.dy --record recordings/test-case-1/ --id test1
 ```
 
 Recording structure:
@@ -319,10 +319,10 @@ Test with deterministic playback:
 
 ```bash
 # Playback a recorded session
-dygram e -i machine.dygram --playback recordings/test-case-1/ --id playback1
+dygram e -i machine.dy --playback recordings/test-case-1/ --id playback1
 
 # Continue playback
-while dygram e -i machine.dygram --id playback1; do :; done
+while dygram e -i machine.dy --id playback1; do :; done
 ```
 
 ### Organizing Recordings
@@ -349,20 +349,20 @@ recordings/
 ### 1. Start Simple
 Begin with basic execution to understand the machine:
 ```bash
-dygram e -i machine.dygram --id explore
+dygram e -i machine.dy --id explore
 dygram exec status explore
 ```
 
 ### 2. Use Verbose Mode
 Get detailed execution information:
 ```bash
-dygram e -i machine.dygram --id debug --verbose
+dygram e -i machine.dy --id debug --verbose
 ```
 
 ### 3. Checkpoint Frequently
 Check state after each significant turn:
 ```bash
-dygram e -i machine.dygram --id test
+dygram e -i machine.dy --id test
 cat .dygram/executions/test/state.json | jq '.executionState.currentNode'
 ```
 
@@ -397,7 +397,7 @@ dygram exec clean  # Remove all completed
     # Run with playback mode (deterministic)
     for recording in recordings/golden/*; do
       machine=$(basename $recording)
-      dygram e -i "machines/$machine.dygram" \
+      dygram e -i "machines/$machine.dy" \
         --playback "$recording" \
         --id "ci-$machine"
     done
@@ -437,7 +437,7 @@ User: "Test the payment workflow machine and create a golden recording"
 Agent should:
 ```bash
 # 1. Start with recording
-dygram e -i machines/payment-workflow.dygram \
+dygram e -i machines/payment-workflow.dy \
   --record recordings/golden/payment-workflow/ \
   --id payment-test-001
 
@@ -470,7 +470,7 @@ cat .dygram/executions/<id>/state.json | jq '.status'
 Remove execution and restart:
 ```bash
 dygram exec rm <id>
-dygram e -i machine.dygram --id <id> --force
+dygram e -i machine.dy --id <id> --force
 ```
 
 ### Recording Issues

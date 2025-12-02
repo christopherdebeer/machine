@@ -36,7 +36,7 @@ Added logic to detect `@meta` annotation and convert to attribute:
 if (machineAnnotations?.some(a => a.name === 'meta')) {
     const hasMetaAttr = machineAttributes.some(a => a.name === 'meta');
     if (!hasMetaAttr) {
-        machineAttributes = [...machineAttributes, { name: 'meta', value: true }];
+        machineAttributes = [...dyAttributes, { name: 'meta', value: true }];
     }
 }
 

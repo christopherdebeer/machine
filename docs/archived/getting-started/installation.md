@@ -141,7 +141,7 @@ If the extension isn't in the marketplace:
 ### Extension Features
 
 Once installed, you get:
-- Syntax highlighting for `.dygram` and `.mach` files
+- Syntax highlighting for `.dy` and `.dy` files
 - IntelliSense (auto-completion)
 - Real-time validation and diagnostics
 - Go-to-definition
@@ -226,7 +226,7 @@ npx dygram export --format mermaid examples/basic/simple-state.dygram
 
 ### Test VS Code Extension
 
-1. Create a new file: `test.dygram`
+1. Create a new file: `test.dy`
 2. Start typing:
    ```dy examples/basic/start-only.dygram
    machine "Test"
@@ -286,7 +286,7 @@ Language configuration in `langium-config.json`:
   "projectName": "machine-lang",
   "languages": [{
     "id": "machine",
-    "extensions": [".dygram", ".mach"]
+    "extensions": [".dy", ".dy"]
   }]
 }
 ```
@@ -324,7 +324,7 @@ npm install
 
 1. Reload VS Code: `Ctrl+Shift+P` → "Reload Window"
 2. Check extension is enabled
-3. Verify file extension is `.dygram` or `.mach`
+3. Verify file extension is `.dy` or `.dy`
 4. Check Output panel for errors: View → Output → Select "Machine Language Server"
 
 ---

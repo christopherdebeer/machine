@@ -73,7 +73,7 @@ npx dygram validate <file>
 ```bash
 npx dygram validate my-machine.dygram
 
-npx dygram validate file1.dygram file2.dygram
+npx dygram validate file1.dy file2.dygram
 
 npx dygram validate **/*.dygram
 ```
@@ -293,7 +293,7 @@ npx dygram my-machine.dygram
 ```bash
 echo 'machine "Test" state start;' | npx dygram execute -
 
-cat my-machine.dygram | npx dygram validate -
+cat my-machine.dy | npx dygram validate -
 ```
 
 ### Use in Shell Scripts
@@ -301,7 +301,7 @@ cat my-machine.dygram | npx dygram validate -
 ```bash
 #!/bin/bash
 
-if npx dygram validate my-machine.dygram; then
+if npx dygram validate my-machine.dy; then
     echo "Validation passed, executing..."
     npx dygram execute my-machine.dygram
 else
@@ -313,11 +313,11 @@ fi
 ### Batch Processing
 
 ```bash
-for file in *.dygram; do
+for file in *.dy; do
     npx dygram validate "$file"
 done
 
-find ./machines -name "*.dygram" -exec npx dygram execute {} \;
+find ./machines -name "*.dy" -exec npx dygram execute {} \;
 ```
 
 ---
@@ -371,7 +371,7 @@ Create `.git/hooks/pre-commit`:
 ```bash
 #!/bin/bash
 
-git diff --cached --name-only --diff-filter=ACM | grep '\.dygram$' | while read file; do
+git diff --cached --name-only --diff-filter=ACM | grep '\.dy$' | while read file; do
     npx dygram validate "$file"
     if [ $? -ne 0 ]; then
         echo "Validation failed for $file"
@@ -391,7 +391,7 @@ For more control, use the TypeScript API:
 ```typescript
 
 const executor = new MachineExecutor();
-const result = await executor.execute('my-machine.dygram');
+const result = await executor.execute('my-machine.dy');
 console.log(result);
 ```
 
@@ -426,9 +426,9 @@ NODE_OPTIONS="--max-old-space-size=4096" npx dygram execute large-machine.dygram
 Execute multiple machines in parallel:
 
 ```bash
-ls *.dygram | parallel npx dygram execute {}
+ls *.dy | parallel npx dygram execute {}
 
-find . -name "*.dygram" | xargs -P 4 -I {} npx dygram execute {}
+find . -name "*.dy" | xargs -P 4 -I {} npx dygram execute {}
 ```
 
 ---

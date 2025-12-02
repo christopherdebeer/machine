@@ -25,7 +25,7 @@ Common issues and their solutions when working with DyGram and the Machine DSL.
 **Solutions**:
 - Verify the extension is installed and enabled
 - Reload VS Code: Press `Ctrl+Shift+P` (or `Cmd+Shift+P`), type "Reload Window"
-- Check file extension is `.dygram` or `.mach`
+- Check file extension is `.dy` or `.dy`
 - Manually set language mode: Click language indicator in status bar → Select "Machine"
 
 ---
@@ -111,7 +111,7 @@ context data {
 **Problem**: Runtime execution errors
 
 **Solutions**:
-1. Validate first: `npx dygram validate file.dygram`
+1. Validate first: `npx dygram validate file.dy`
 2. Check for circular dependencies
 3. Ensure all required nodes are reachable from start
 4. Verify context schemas are correct
@@ -186,18 +186,18 @@ start --> end;
 **Problem**: CLI not in PATH
 
 **Solutions**:
-- Use npx: `npx dygram file.dygram`
+- Use npx: `npx dygram file.dy`
 - Install globally: `npm install -g .`
-- Use npm script: `npm run cli -- file.dygram`
+- Use npm script: `npm run cli -- file.dy`
 
 ### File Not Found Errors
 
-**Problem**: CLI can't find .dygram file
+**Problem**: CLI can't find .dy file
 
 **Solutions**:
-- Use absolute paths: `/full/path/to/file.dygram`
+- Use absolute paths: `/full/path/to/file.dy`
 - Check current directory: `pwd`
-- Verify file exists: `ls file.dygram`
+- Verify file exists: `ls file.dy`
 - Check file extension is correct
 
 ### Export Command Fails
@@ -205,7 +205,7 @@ start --> end;
 **Problem**: `npx dygram export` produces errors
 
 **Solutions**:
-- Validate file first: `npx dygram validate file.dygram`
+- Validate file first: `npx dygram validate file.dy`
 - Specify format explicitly: `--format mermaid` or `--format json`
 - Check output directory permissions
 - Ensure file is valid Machine code
@@ -258,7 +258,7 @@ start --> end;
 
 ### Large File Handling
 
-**Problem**: Editor sluggish with large .dygram files
+**Problem**: Editor sluggish with large .dy files
 
 **Solutions**:
 - Split into multiple files with imports

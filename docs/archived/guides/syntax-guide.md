@@ -11,7 +11,7 @@ Every file starts with a machine declaration:
 machine "Machine Title"
 ```
 
-[Example: examples/basic/minimal.dygram](../examples/basic/minimal.dygram)
+[Example: examples/basic/minimal.dy](../examples/basic/minimal.dy)
 
 ## Node Declarations
 
@@ -21,7 +21,7 @@ machine "Machine Title"
 nodeName;
 ```
 
-[Example: examples/basic/simple-nodes-3.dygram](../examples/basic/simple-nodes-3.dygram)
+[Example: examples/basic/simple-nodes-3.dy](../examples/basic/simple-nodes-3.dy)
 
 ### Typed Nodes
 
@@ -32,7 +32,7 @@ init initNode;
 context contextNode;
 ```
 
-[Example: examples/basic/typed-nodes.dygram](../examples/basic/typed-nodes.dygram)
+[Example: examples/basic/typed-nodes.dy](../examples/basic/typed-nodes.dy)
 
 ### Nodes with Labels
 
@@ -41,7 +41,7 @@ task processData "Process User Data";
 state waiting "Waiting for Input";
 ```
 
-[Example: examples/basic/all-node-types.dygram](../examples/basic/all-node-types.dygram)
+[Example: examples/basic/all-node-types.dy](../examples/basic/all-node-types.dy)
 
 ### Nodes with Attributes
 
@@ -58,7 +58,7 @@ nodeName {
 - **Array**: `items: ["a", "b", "c"];`
 - **Untyped**: `setting: "value";`
 
-[Example: examples/attributes/basic-attributes.dygram](../examples/attributes/basic-attributes.dygram)
+[Example: examples/attributes/basic-attributes.dy](../examples/attributes/basic-attributes.dy)
 
 ## Edge Declarations
 
@@ -68,7 +68,7 @@ nodeName {
 source -> target;
 ```
 
-[Example: examples/edges/basic-edges.dygram](../examples/edges/basic-edges.dygram)
+[Example: examples/edges/basic-edges.dy](../examples/edges/basic-edges.dy)
 
 ### Arrow Types
 - `->` - Standard arrow
@@ -76,7 +76,7 @@ source -> target;
 - `=>` - Thick arrow
 - `← -->` - Bidirectional arrow
 
-[Example: examples/edges/mixed-arrow-types.dygram](../examples/edges/mixed-arrow-types.dygram)
+[Example: examples/edges/mixed-arrow-types.dy](../examples/edges/mixed-arrow-types.dy)
 
 ### Edge Labels
 
@@ -99,7 +99,7 @@ error -retry: 3; timeout: 5000;-> start;
 end -if: '(count > 10)';-> start;
 ```
 
-[Example: examples/edges/labeled-edges.dygram](../examples/edges/labeled-edges.dygram)
+[Example: examples/edges/labeled-edges.dy](../examples/edges/labeled-edges.dy)
 
 ### Chained Edges
 
@@ -107,7 +107,7 @@ end -if: '(count > 10)';-> start;
 a -> b -> c -> d;
 ```
 
-[Example: examples/edge-cases/edge-cases-collection.dygram](../examples/edge-cases/edge-cases-collection.dygram)
+[Example: examples/edge-cases/edge-cases-collection.dy](../examples/edge-cases/edge-cases-collection.dy)
 
 ## Nesting
 
@@ -132,7 +132,7 @@ level1 {
 }
 ```
 
-[Example: examples/nesting/deep-nested-5-levels.dygram](../examples/nesting/deep-nested-5-levels.dygram)
+[Example: examples/nesting/deep-nested-5-levels.dy](../examples/nesting/deep-nested-5-levels.dy)
 
 ### Mixed Nesting with Attributes
 
@@ -145,7 +145,7 @@ parent {
 }
 ```
 
-[Example: examples/nesting/complex-nesting.dygram](../examples/nesting/complex-nesting.dygram)
+[Example: examples/nesting/complex-nesting.dy](../examples/nesting/complex-nesting.dy)
 
 ## Context Definitions
 
@@ -158,7 +158,7 @@ context configName {
 }
 ```
 
-[Example: examples/complex/context-heavy.dygram](../examples/complex/context-heavy.dygram)
+[Example: examples/complex/context-heavy.dy](../examples/complex/context-heavy.dy)
 
 ## Complete Example
 
@@ -206,7 +206,7 @@ recovery -timeout: 30000;-> process1;
 cleanup -if: '(config.debug == true)';-> startup;
 ```
 
-[Example: examples/complex/complex-machine.dygram](../examples/complex/complex-machine.dygram)
+[Example: examples/complex/complex-machine.dy](../examples/complex/complex-machine.dy)
 
 ## Identifiers
 
@@ -214,7 +214,7 @@ cleanup -if: '(config.debug == true)';-> startup;
 - Start with letter or underscore: `_node`, `node1`, `myNode`
 - Contain letters, numbers, underscores: `node_123`, `my_node_2`
 
-[Example: examples/edge-cases/special-characters.dygram](../examples/edge-cases/special-characters.dygram)
+[Example: examples/edge-cases/special-characters.dy](../examples/edge-cases/special-characters.dy)
 
 ### Unicode Identifiers
 Full Unicode support in identifiers and labels:
@@ -224,7 +224,7 @@ start "開始";
 process "処理";
 ```
 
-[Example: examples/complex/unicode-machine.dygram](../examples/complex/unicode-machine.dygram)
+[Example: examples/complex/unicode-machine.dy](../examples/complex/unicode-machine.dy)
 
 ## Known Limitations
 

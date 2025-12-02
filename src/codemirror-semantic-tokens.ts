@@ -199,7 +199,7 @@ export const semanticHighlightingFromLSP = ViewPlugin.fromClass(class {
             // Request semantic tokens (LSP format)
             const params = {
                 textDocument: {
-                    uri: 'inmemory://codemirror.dygram'
+                    uri: 'inmemory://codemirror.dy'
                 }
             };
 

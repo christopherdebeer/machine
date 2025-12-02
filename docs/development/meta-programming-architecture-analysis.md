@@ -83,10 +83,10 @@ async updateDefinition(input: { machine: any; reason: string }): Promise<any> {
         data: { mutationType: 'machine_updated', reason, machine: {...} }
     });
 
-    // 5. Notify callback → updates currentState.machineSnapshot
+    // 5. Notify callback → updates currentState.dySnapshot
     if (this.onMachineUpdate) {
         this.onMachineUpdate(dsl, this._machineData);
-        // ↑ This updates executor.currentState.machineSnapshot
+        // ↑ This updates executor.currentState.dySnapshot
         // ↑ This calls user callback with new DSL
     }
 
@@ -124,7 +124,7 @@ From the DyGram meta-programming vision:
 
 ### Example: Tool Node in Machine Definition
 
-```dygram
+```dy
 machine "Dynamic Tool Example"
 
 tool fibonacci_calculator {
@@ -244,14 +244,14 @@ MetaToolManager.constructTool():
     3. Generate updated DSL
     4. Call onMachineUpdate(dsl, _machineData)
         ↓
-        → Updates executor.currentState.machineSnapshot (tool now in machine!)
+        → Updates executor.currentState.dySnapshot (tool now in machine!)
         → Calls user callback with new DSL (playground can save to editor)
     5. Create handler and register for immediate use
     ↓
 Return success
 
 Subsequent execution step:
-    - Runtime sees tool node in state.machineSnapshot
+    - Runtime sees tool node in state.dySnapshot
     - Can extract handler from tool node attributes
     - Tool is permanent part of the machine
 ```
@@ -349,7 +349,7 @@ MetaToolManager.constructTool():
     5. Generate updated DSL
     6. Call onMachineUpdate(dsl, _machineData)
         ↓
-        → Updates executor.currentState.machineSnapshot
+        → Updates executor.currentState.dySnapshot
         → Calls user callback with new DSL (for saving to file)
     7. Return success + updated DSL
 ```

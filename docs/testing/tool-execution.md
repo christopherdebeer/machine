@@ -16,7 +16,7 @@ This document contains comprehensive test scenarios for tool-based execution fea
 
 Tests basic transition from start node to another node with tool-based decision making.
 
-```dygram examples/testing/tool-execution/simple-router.dy
+```dy examples/testing/tool-execution/simple-router.dy
 machine "Test Router Machine" {
   logLevel: "debug"
   maxSteps: 10
@@ -48,7 +48,7 @@ pathB -> end
 
 Tests handling of multiple transition options with intelligent path selection.
 
-```dygram examples/testing/tool-execution/multi-path-decision.dy
+```dy examples/testing/tool-execution/multi-path-decision.dy
 machine "Multi-Path Router" {
   logLevel: "debug"
   maxSteps: 15
@@ -83,7 +83,7 @@ detailedPath -> end
 
 Tests machine with multiple decision points and complex routing logic.
 
-```dygram examples/testing/tool-execution/multi-stage-router.dy
+```dy examples/testing/tool-execution/multi-stage-router.dy
 machine "Complex Router" {
   logLevel: "debug"
   maxSteps: 20
@@ -120,7 +120,7 @@ alternate -> end
 
 Tests concurrent path execution with tool-based coordination.
 
-```dygram examples/testing/tool-execution/parallel-router.dy
+```dy examples/testing/tool-execution/parallel-router.dy
 machine "Parallel Processing Router" {
   logLevel: "debug"
   maxSteps: 25
@@ -167,7 +167,7 @@ synchronized -> end
 
 Tests graceful handling of machines with no available transitions.
 
-```dygram examples/testing/tool-execution/isolated-machine.dy
+```dy examples/testing/tool-execution/isolated-machine.dy
 machine "Isolated Machine" {
   logLevel: "debug"
   maxSteps: 5
@@ -188,7 +188,7 @@ start "Process isolated task" {
 
 Tests error handling and recovery mechanisms.
 
-```dygram examples/testing/tool-execution/error-recovery.dy
+```dy examples/testing/tool-execution/error-recovery.dy
 machine "Error Recovery Machine" {
   logLevel: "debug"
   maxSteps: 15
@@ -227,7 +227,7 @@ failure -> end
 
 Tests comprehensive state transition tracking and history management.
 
-```dygram examples/testing/tool-execution/state-tracking.dy
+```dy examples/testing/tool-execution/state-tracking.dy
 machine "State Tracking Machine" {
   logLevel: "debug"
   maxSteps: 20
@@ -274,7 +274,7 @@ validation -> end
 
 Tests conditional transitions based on context and state.
 
-```dygram examples/testing/tool-execution/conditional-routing.dy
+```dy examples/testing/tool-execution/conditional-routing.dy
 machine "Conditional Router" {
   logLevel: "debug"
   maxSteps: 25
@@ -336,7 +336,7 @@ Each test case includes expected behavior specifications that should be validate
 
 Tests handling of multiple tools with similar purposes.
 
-```dygram examples/testing/tool-execution/tool-disambiguation.dy
+```dy examples/testing/tool-execution/tool-disambiguation.dy
 machine "Tool Disambiguation Machine" {
   logLevel: "debug"
   maxSteps: 15
@@ -370,7 +370,7 @@ method_c -> end
 
 Tests handling when multiple transitions could apply simultaneously.
 
-```dygram examples/testing/tool-execution/transition-conflicts.dy
+```dy examples/testing/tool-execution/transition-conflicts.dy
 machine "Transition Conflict Machine" {
   logLevel: "debug"
   maxSteps: 15
@@ -410,7 +410,7 @@ pathDefault -> end
 
 Tests execution through diamond-shaped graph structures.
 
-```dygram examples/testing/tool-execution/diamond-pattern.dy
+```dy examples/testing/tool-execution/diamond-pattern.dy
 machine "Diamond Pattern Machine" {
   logLevel: "debug"
   maxSteps: 20
@@ -447,7 +447,7 @@ convergence -> end
 
 Tests nodes with transitions back to themselves.
 
-```dygram examples/testing/tool-execution/self-referential.dy
+```dy examples/testing/tool-execution/self-referential.dy
 machine "Self-Referential Machine" {
   logLevel: "debug"
   maxSteps: 15
@@ -479,7 +479,7 @@ start -"exit_loop"-> end
 
 Tests transitions that don't change effective state.
 
-```dygram examples/testing/tool-execution/noop-transitions.dy
+```dy examples/testing/tool-execution/noop-transitions.dy
 machine "No-Op Transition Machine" {
   logLevel: "debug"
   maxSteps: 10
@@ -507,7 +507,7 @@ stateC -> end
 
 Tests detection of tools that cannot be reached.
 
-```dygram examples/testing/tool-execution/orphaned-tools.dy
+```dy examples/testing/tool-execution/orphaned-tools.dy
 machine "Orphaned Tool Machine" {
   logLevel: "debug"
   maxSteps: 10
@@ -540,7 +540,7 @@ reachable -> end
 
 Tests handling when tool names might conflict with built-ins.
 
-```dygram examples/testing/tool-execution/name-collisions.dy
+```dy examples/testing/tool-execution/name-collisions.dy
 machine "Name Collision Machine" {
   logLevel: "debug"
   maxSteps: 10
@@ -571,7 +571,7 @@ actualTarget -> end
 
 Tests handling of potential back-and-forth transitions.
 
-```dygram examples/testing/tool-execution/bidirectional.dy
+```dy examples/testing/tool-execution/bidirectional.dy
 machine "Bidirectional Machine" {
   logLevel: "debug"
   maxSteps: 20
@@ -609,7 +609,7 @@ nodeB -"complete"-> end
 
 Tests evaluation order when multiple transition conditions exist.
 
-```dygram examples/testing/tool-execution/transition-priority.dy
+```dy examples/testing/tool-execution/transition-priority.dy
 machine "Transition Priority Machine" {
   logLevel: "debug"
   maxSteps: 15

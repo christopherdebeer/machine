@@ -295,7 +295,7 @@ Runtime applies these effects to state. Keeps EffectExecutor pure.
 ## Testing
 
 Once implemented, test with:
-```dygram
+```dy
 context Counter {
     value: 0
 }

@@ -1,5 +1,5 @@
 
-### `basic-edges.dygram`
+### `basic-edges.dy`
 
 Edges Machine
 
@@ -20,7 +20,7 @@ node1 -> node3;
 node2 -> node4;
 ```
 
-### `relationship-types.dygram`
+### `relationship-types.dy`
 
 Relationship Types Demonstration
 

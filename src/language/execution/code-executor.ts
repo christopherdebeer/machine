@@ -221,10 +221,10 @@ export class CodeExecutor {
             dygramFilePath
         });
 
-        // TODO: Auto-add external reference to .dygram file
+        // TODO: Auto-add external reference to .dy file
         // For now, user must manually add: code: #taskname;
         console.log(`✅ Generated code saved to: ${result.filePath}`);
-        console.log(`📝 Add to .dygram file: code: ${result.externalRef};`);
+        console.log(`📝 Add to .dy file: code: ${result.externalRef};`);
     }
 
     /**

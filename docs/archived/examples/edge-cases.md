@@ -1,5 +1,5 @@
 
-### `edge-cases-collection.dygram`
+### `edge-cases-collection.dy`
 
 Edge Cases Collection
 
@@ -22,7 +22,7 @@ multipleEdges -> target3;
 target1 -> target2 -> target3 -> empty;
 ```
 
-### `special-characters.dygram`
+### `special-characters.dy`
 
 Special Characters Test 🚀
 
@@ -39,7 +39,7 @@ node123 -"emoji: 🎉"-> _privateNode;
 ```
 
 
-### `interleaved.dygram`
+### `interleaved.dy`
 
 Interleaved nodes, edges and attributes (including at root)
 

@@ -255,7 +255,7 @@ docs/examples/runtime-execution.md        - Multiple incomplete examples
 ### Homepage (`docs/README.md`)
 - **Quality:** Excellent progressive examples (Stage 1-4)
 - **Completeness:** ✅ Shows evolution from simple to complex
-- **Issue:** References `examples/homepage/*.dygram` files - verify these exist
+- **Issue:** References `examples/homepage/*.dy` files - verify these exist
 
 ### Documentation Index (`docs/docs.md`)
 - **Structure:** Well-organized by category

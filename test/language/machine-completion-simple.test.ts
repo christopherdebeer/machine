@@ -22,7 +22,7 @@ state myState {
         const doc = await parseDocument(services.Machine, text);
 
         // Create a text document
-        const textDoc = TextDocument.create('test://test.dygram', 'machine', 0, text);
+        const textDoc = TextDocument.create('test://test.dy', 'machine', 0, text);
 
         // Position inside the state block
         const position = Position.create(2, 4); // Line 2, character 4

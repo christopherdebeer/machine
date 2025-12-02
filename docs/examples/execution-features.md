@@ -15,7 +15,7 @@ DyGram provides powerful context management for storing and sharing state across
 
 ### Basic Context Getting and Setting
 
-```dygram examples/execution-features/context-basic.dy
+```dy examples/execution-features/context-basic.dy
 machine "Context Operations" {
   logLevel: "debug"
   maxSteps: 20
@@ -59,7 +59,7 @@ start -> updateActivity -> displaySummary -> end
 
 ### Context with Complex Objects
 
-```dygram examples/execution-features/context-complex.dy
+```dy examples/execution-features/context-complex.dy
 machine "Shopping Cart" {
   logLevel: "debug"
   maxSteps: 30
@@ -115,7 +115,7 @@ Templates allow dynamic prompts and descriptions using context values. This enab
 
 ### Simple Template Substitution
 
-```dygram examples/execution-features/template-simple.dy
+```dy examples/execution-features/template-simple.dy
 machine "Personalized Workflow" {
   logLevel: "debug"
   maxSteps: 15
@@ -151,7 +151,7 @@ start -> fetchData -> compileReport -> end
 
 ### Conditional Templates with Expressions
 
-```dygram examples/execution-features/template-conditional.dy
+```dy examples/execution-features/template-conditional.dy
 machine "Smart Notification System" {
   logLevel: "debug"
   maxSteps: 20
@@ -202,7 +202,7 @@ Meta-tools enable agents to modify machines, construct new tools, and adapt beha
 
 ### Machine Introspection and Modification
 
-```dygram examples/execution-features/meta-introspection.dy
+```dy examples/execution-features/meta-introspection.dy
 machine "Self-Modifying Workflow" {
   logLevel: "debug"
   maxSteps: 25
@@ -239,7 +239,7 @@ start -> decidePath -> potentiallyModify -> end
 
 ### Dynamic Tool Construction
 
-```dygram examples/execution-features/meta-construct-tool.dy
+```dy examples/execution-features/meta-construct-tool.dy
 machine "Dynamic Tool Builder" {
   logLevel: "debug"
   maxSteps: 20
@@ -280,7 +280,7 @@ start -> buildTool -> useTool -> end
 
 ### Tool Review and Improvement
 
-```dygram examples/execution-features/meta-improve-tool.dy
+```dy examples/execution-features/meta-improve-tool.dy
 machine "Tool Quality Improvement" {
   logLevel: "debug"
   maxSteps: 30
@@ -325,7 +325,7 @@ DyGram can generate executable code based on specifications and context.
 
 ### Simple Code Generation
 
-```dygram examples/execution-features/codegen-simple.dy
+```dy examples/execution-features/codegen-simple.dy
 machine "API Client Generator" {
   logLevel: "debug"
   maxSteps: 20
@@ -372,7 +372,7 @@ start -> generateClient -> validateGenerated -> displayCode -> end
 
 ### Test Generation
 
-```dygram examples/execution-features/codegen-tests.dy
+```dy examples/execution-features/codegen-tests.dy
 machine "Test Suite Generator" {
   logLevel: "debug"
   maxSteps: 25
@@ -419,7 +419,7 @@ start -> identifyTestCases -> generateTests -> reviewCoverage -> end
 
 ### Schema-Driven Code Generation
 
-```dygram examples/execution-features/codegen-schema.dy
+```dy examples/execution-features/codegen-schema.dy
 machine "Database Model Generator" {
   logLevel: "debug"
   maxSteps: 30
@@ -473,7 +473,7 @@ start -> generateModel -> generateMigration -> generateValidation -> verifyConsi
 
 ### Adaptive Workflow with Full Feature Integration
 
-```dygram examples/execution-features/combined-advanced.dy
+```dy examples/execution-features/combined-advanced.dy
 machine "Adaptive Data Processor" {
   logLevel: "debug"
   maxSteps: 50

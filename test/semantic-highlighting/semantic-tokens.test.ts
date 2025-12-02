@@ -136,7 +136,7 @@ request "1" --> "0..1" process;`;
         const document = await parse(testCode);
 
         const params = {
-            textDocument: { uri: 'test://semantic-tokens.dygram' }
+            textDocument: { uri: 'test://semantic-tokens.dy' }
         };
 
         const result = await tokenProvider!.semanticHighlight(document, params);
@@ -152,7 +152,7 @@ request "1" --> "0..1" process;`;
         const document = await parse(testCode);
 
         const params = {
-            textDocument: { uri: 'test://semantic-tokens.dygram' }
+            textDocument: { uri: 'test://semantic-tokens.dy' }
         };
 
         const result = await tokenProvider!.semanticHighlight(document, params);
@@ -298,7 +298,7 @@ request "1" --> "0..1" process;`;
         const document = await parse(testCode);
 
         const params = {
-            textDocument: { uri: 'test://semantic-tokens.dygram' }
+            textDocument: { uri: 'test://semantic-tokens.dy' }
         };
 
         const result = await tokenProvider!.semanticHighlight(document, params);
@@ -323,7 +323,7 @@ request "1" --> "0..1" process;`;
         const document = await parse(testCode);
 
         const params = {
-            textDocument: { uri: 'test://semantic-tokens.dygram' }
+            textDocument: { uri: 'test://semantic-tokens.dy' }
         };
 
         const result = await tokenProvider!.semanticHighlight(document, params);

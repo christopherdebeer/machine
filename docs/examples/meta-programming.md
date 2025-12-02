@@ -30,7 +30,7 @@ DyGram provides seven core meta-tools for runtime introspection and modification
 
 Query the current machine structure in JSON, DSL, or both formats.
 
-```dygram examples/meta-programming/machine-introspection.dy
+```dy examples/meta-programming/machine-introspection.dy
 machine "Self-Aware System"
 
 Task analyze "Analyze current machine structure" {
@@ -52,7 +52,7 @@ analyze -> report
 
 Modify the machine definition by providing a complete new structure.
 
-```dygram examples/meta-programming/machine-modification.dy
+```dy examples/meta-programming/machine-modification.dy
 machine "Adaptive Workflow"
 
 Task detectNeeds "Detect missing capabilities" {
@@ -76,7 +76,7 @@ start -> detectNeeds -> addSteps -> end
 
 Create new tools dynamically when capabilities don't exist.
 
-```dygram examples/meta-programming/dynamic-tool-creation.dy
+```dy examples/meta-programming/dynamic-tool-creation.dy
 machine "Tool Constructor"
 
 Task assessToolNeed "Assess tool requirements" {
@@ -106,7 +106,7 @@ assessToolNeed -> buildTools -> useTools
 
 Tools where the LLM handles execution directly.
 
-```dygram examples/meta-programming/agent-backed-tool.dy
+```dy examples/meta-programming/agent-backed-tool.dy
 machine "Agent-Backed Tool Example"
 
 Task createSentimentTool "Create sentiment analysis tool" {
@@ -130,7 +130,7 @@ createSentimentTool -> useSentimentTool
 
 Tools with generated JavaScript implementations.
 
-```dygram examples/meta-programming/code-generation-tool.dy
+```dy examples/meta-programming/code-generation-tool.dy
 machine "Code Generation Tool"
 
 Task createValidatorTool "Create email validator" {
@@ -154,7 +154,7 @@ createValidatorTool -> validateEmails
 
 Tools that chain existing tools together.
 
-```dygram examples/meta-programming/composition-tool.dy
+```dy examples/meta-programming/composition-tool.dy
 machine "Tool Composition"
 
 Task listTools "List available tools" {
@@ -180,7 +180,7 @@ listTools -> composeDataPipeline
 
 Machines can modify their own workflow structure.
 
-```dygram examples/meta-programming/workflow-adaptation.dy
+```dy examples/meta-programming/workflow-adaptation.dy
 machine "Self-Adapting Workflow"
 
 Context ExecutionMetrics {
@@ -206,7 +206,7 @@ monitorPerformance -> optimizeWorkflow -> continueExecution
 
 Dynamically insert validation nodes.
 
-```dygram examples/meta-programming/dynamic-validation.dy
+```dy examples/meta-programming/dynamic-validation.dy
 machine "Validation Injector"
 
 Task analyzeData "Analyze input data" {
@@ -225,7 +225,7 @@ analyzeData -> injectValidator
 
 ### Listing Available Tools
 
-```dygram examples/meta-programming/tool-discovery.dy
+```dy examples/meta-programming/tool-discovery.dy
 machine "Tool Explorer"
 
 Task discoverTools "Find available tools" {
@@ -240,7 +240,7 @@ discoverTools -> reportCapabilities
 
 ### Tool Improvement Proposals
 
-```dygram examples/meta-programming/tool-improvement.dy
+```dy examples/meta-programming/tool-improvement.dy
 machine "Tool Reviewer"
 
 Task reviewTool "Review existing tool" {
@@ -257,7 +257,7 @@ reviewTool -> proposeImprovement
 
 ### Building Tools from Node Definitions
 
-```dygram examples/meta-programming/build-from-node.dy
+```dy examples/meta-programming/build-from-node.dy
 machine "Tool Node Builder"
 
 Task discoverToolNodes "Find tool requirements" {
@@ -282,7 +282,7 @@ discoverToolNodes -> buildToolNode -> validateData
 
 Always check if a tool exists before constructing a new one.
 
-```dygram examples/meta-programming/check-before-create.dy
+```dy examples/meta-programming/check-before-create.dy
 machine "Smart Tool Creation"
 
 Task checkExisting "Check for existing tools" {
@@ -301,7 +301,7 @@ checkExisting -> createIfNeeded
 
 When modifying machine structure, always provide clear reasoning.
 
-```dygram examples/meta-programming/clear-rationale.dy
+```dy examples/meta-programming/clear-rationale.dy
 machine "Documented Changes"
 
 Task modifyMachine "Make informed change" {
@@ -316,7 +316,7 @@ start -> modifyMachine -> end
 
 Choose the right implementation strategy for each tool.
 
-```dygram examples/meta-programming/strategy-selection.dy
+```dy examples/meta-programming/strategy-selection.dy
 machine "Strategy Selector"
 
 Task selectStrategy "Choose implementation approach" {
@@ -333,7 +333,7 @@ selectStrategy -> createTools
 
 Track changes to machine structure.
 
-```dygram examples/meta-programming/version-tracking.dy
+```dy examples/meta-programming/version-tracking.dy
 machine "Versioned Modifications"
 
 Context MachineHistory {
@@ -354,7 +354,7 @@ recordChange -> applyChange
 
 ### Self-Healing Workflows
 
-```dygram examples/meta-programming/self-healing.dy
+```dy examples/meta-programming/self-healing.dy
 machine "Self-Healing System"
 
 Context HealthMetrics {
@@ -376,7 +376,7 @@ monitorHealth -> healWorkflow
 
 ### Adaptive Complexity
 
-```dygram examples/meta-programming/adaptive-complexity.dy
+```dy examples/meta-programming/adaptive-complexity.dy
 machine "Complexity Adapter"
 
 Task assessComplexity "Assess data complexity" {

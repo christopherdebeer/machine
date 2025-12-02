@@ -15,7 +15,7 @@ When a Task node has `meta: true`, the agent executing that task gains access to
 
 ## Examples
 
-### `tool-creation.dygram`
+### `tool-creation.dy`
 Demonstrates dynamic tool construction using Tool nodes.
 
 **Features:**
@@ -31,7 +31,7 @@ export ANTHROPIC_API_KEY=your_api_key_here
 npx dygram exec examples/meta-programming/tool-creation.dygram
 ```
 
-### `self-healing.dygram`
+### `self-healing.dy`
 Self-healing pipeline that monitors error metrics and adds error handling nodes when needed.
 
 **Features:**
@@ -48,7 +48,7 @@ npx dygram exec examples/meta-programming/self-healing.dygram
 cat self-healing-updated.machine
 ```
 
-### `self-modifying-pipeline.dygram`
+### `self-modifying-pipeline.dy`
 Basic meta-programming example where an agent optimizes a simple pipeline.
 
 **Features:**
@@ -63,7 +63,7 @@ export ANTHROPIC_API_KEY=your_api_key_here
 npx dygram exec examples/meta-programming/self-modifying-pipeline.dygram
 ```
 
-### `conditional-evolution.dygram`
+### `conditional-evolution.dy`
 Context-driven machine evolution based on configuration and performance metrics.
 
 **Features:**
@@ -78,7 +78,7 @@ export ANTHROPIC_API_KEY=your_api_key_here
 npx dygram exec examples/meta-programming/conditional-evolution.dygram
 ```
 
-### `rails-meta-example.dygram`
+### `rails-meta-example.dy`
 Meta-programming with rails-based execution model showing mutation tracking.
 
 **Features:**
@@ -130,7 +130,7 @@ Task analyzer {
 ### CLI Integration
 
 When an agent modifies the machine:
-- Updated DSL is saved to `{filename}-updated.machine`
+- Updated DSL is saved to `{filename}-updated.dy`
 - Mutations are logged in the result JSON
 - Original machine file is never modified
 
@@ -258,7 +258,7 @@ Connect tasks to tools using edges:
 - [Rails-Based Architecture](../../docs/RailsBasedArchitecture.md)
 - [Context & Schema Guide](../../docs/ContextAndSchemaGuide.mdx)
 
-### `tool-creation.dygram`
+### `tool-creation.dy`
 
 Tool Creation Example
 
@@ -301,7 +301,7 @@ processor -> complete;
 
 ```
 
-### `self-healing.dygram`
+### `self-healing.dy`
 
 Self-Healing Pipeline
 
@@ -337,7 +337,7 @@ processing -> complete;
 
 ```
 
-### `self-modifying-pipeline.dygram`
+### `self-modifying-pipeline.dy`
 
 Self-Modifying Pipeline
 
@@ -368,7 +368,7 @@ processing -> complete;
 
 ```
 
-### `conditional-evolution.dygram`
+### `conditional-evolution.dy`
 
 Conditional Evolution System
 
@@ -416,7 +416,7 @@ processing -> complete;
 
 ```
 
-### `rails-meta-example.dygram`
+### `rails-meta-example.dy`
 
 Rails-Based Meta-Programming
 

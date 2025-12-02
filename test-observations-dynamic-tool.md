@@ -74,7 +74,7 @@ Tasks with prompts are skipping LLM invocation when:
 **B. Recording Mode Confusion**
 The docs say:
 ```bash
-dygram e -i machine.dygram --record recordings/test/ --id test
+dygram e -i machine.dy --record recordings/test/ --id test
 ```
 
 But don't explain:
@@ -153,7 +153,7 @@ The agent guide says to "provide intelligent responses when LLM decisions are ne
        ],
        "stop_reason": "tool_use"
      }
-   }' | dygram e -i machine.dygram --id test-001
+   }' | dygram e -i machine.dy --id test-001
    ```
    ```
 

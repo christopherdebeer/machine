@@ -4,7 +4,7 @@ This directory contains examples demonstrating documentation features in DyGram,
 
 ## Examples
 
-### `notes-and-generics.dygram`
+### `notes-and-generics.dy`
 Documentation notes and generic types:
 - Using `note nodeName "content"` syntax
 - Multiline notes with `\n`
@@ -13,7 +13,7 @@ Documentation notes and generic types:
 - Nested generics: `Promise<Array<Result>>`
 - Type documentation in diagrams
 
-### `complete-phase3.dygram`
+### `complete-phase3.dy`
 Complete example combining Phase 3 features:
 - Documentation notes for complex logic
 - Generic type annotations
@@ -163,7 +163,7 @@ Map<K,V> → Map~K,V~
 - [Language Overview](../../docs/language-overview.md) - Core concepts
 - [Syntax Guide](../../docs/syntax-guide.md) - Syntax reference
 
-### `complete-phase3.dygram`
+### `complete-phase3.dy`
 Phase 3: Complete Feature Demo
 
 ```dy examples/documentation/complete-phase3.dygram
@@ -221,7 +221,7 @@ Note Error "Error state with optional error message. Triggered on API failures o
 
 ```
 
-### `notes-and-generics.dygram`
+### `notes-and-generics.dy`
 
 Phase 3: Notes and Generic Types
 

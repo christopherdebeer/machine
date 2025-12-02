@@ -22,17 +22,17 @@ This skill guides you through using the CLI interactive mode to:
 
 ```bash
 # 1. Start interactive execution
-dygram execute --interactive machine.dygram --id test-01
+dygram execute --interactive machine.dy --id test-01
 
 # 2. Continue execution turn-by-turn
-dygram execute --interactive machine.dygram --id test-01
+dygram execute --interactive machine.dy --id test-01
 
 # 3. Check status at any time
 dygram exec status test-01
 
 # 4. Provide response when needed
 echo '{"response": "Continue", "tools": [...]}' | \
-  dygram execute --interactive machine.dygram --id test-01
+  dygram execute --interactive machine.dy --id test-01
 ```
 
 ## Core Concepts
@@ -49,19 +49,19 @@ Each CLI call executes **one turn** (one LLM invocation):
 
 **1. Auto-continue (no stdin):**
 ```bash
-dygram e -i machine.dygram --id test
+dygram e -i machine.dy --id test
 ```
 Used for: Task nodes without LLM, simple transitions
 
 **2. Manual response (stdin):**
 ```bash
-echo '{"response": "...", "tools": [...]}' | dygram e -i machine.dygram --id test
+echo '{"response": "...", "tools": [...]}' | dygram e -i machine.dy --id test
 ```
 Used for: Agent nodes, complex decisions, testing specific paths
 
 **3. Playback mode (recordings):**
 ```bash
-dygram e -i machine.dygram --playback recordings/golden/ --id test
+dygram e -i machine.dy --playback recordings/golden/ --id test
 ```
 Used for: Deterministic testing, CI/CD validation
 
@@ -73,13 +73,13 @@ Before testing, read and understand the machine:
 
 ```bash
 # Read machine definition
-cat machines/payment-workflow.dygram
+cat machines/payment-workflow.dy
 
 # Generate visualization
-dygram generate machines/payment-workflow.dygram --format html
+dygram generate machines/payment-workflow.dy --format html
 
 # Validate syntax
-dygram parseAndValidate machines/payment-workflow.dygram
+dygram parseAndValidate machines/payment-workflow.dy
 ```
 
 ### Step 2: Start Interactive Execution
@@ -88,19 +88,19 @@ Choose execution mode based on goal:
 
 **For debugging/exploration:**
 ```bash
-dygram e -i machines/payment-workflow.dygram --id debug
+dygram e -i machines/payment-workflow.dy --id debug
 ```
 
 **For creating test recordings:**
 ```bash
-dygram e -i machines/payment-workflow.dygram \
+dygram e -i machines/payment-workflow.dy \
   --record recordings/payment-workflow/ \
   --id recording-001
 ```
 
 **For validating with existing recordings:**
 ```bash
-dygram e -i machines/payment-workflow.dygram \
+dygram e -i machines/payment-workflow.dy \
   --playback recordings/payment-workflow/ \
   --id playback-001
 ```
@@ -111,7 +111,7 @@ Continue execution, observing and providing input as needed:
 
 ```bash
 # Execute next turn
-dygram e -i machines/payment-workflow.dygram --id debug
+dygram e -i machines/payment-workflow.dy --id debug
 
 # Check what happened
 dygram exec status debug
@@ -137,19 +137,19 @@ echo '{
   "tools": [
     {"name": "validate_payment", "params": {"amount": 100}}
   ]
-}' | dygram e -i machines/payment-workflow.dygram --id debug
+}' | dygram e -i machines/payment-workflow.dy --id debug
 ```
 
 ### Step 5: Continue Until Complete
 
 ```bash
 # Option 1: Manual stepping
-dygram e -i machines/payment-workflow.dygram --id debug
-dygram e -i machines/payment-workflow.dygram --id debug
+dygram e -i machines/payment-workflow.dy --id debug
+dygram e -i machines/payment-workflow.dy --id debug
 # ... until complete
 
 # Option 2: Loop (with manual responses when needed)
-while dygram e -i machines/payment-workflow.dygram --id debug 2>&1 | \
+while dygram e -i machines/payment-workflow.dy --id debug 2>&1 | \
   grep -q "Turn completed"; do
   echo "Turn completed, continuing..."
 done
@@ -215,7 +215,7 @@ ls -la recordings/payment-workflow/
 
 **Simple continuation:**
 ```bash
-echo '{"action": "continue"}' | dygram e -i machine.dygram --id test
+echo '{"action": "continue"}' | dygram e -i machine.dy --id test
 ```
 
 **File operation:**
@@ -225,7 +225,7 @@ echo '{
   "tools": [
     {"name": "read_file", "params": {"path": "config.json"}}
   ]
-}' | dygram e -i machine.dygram --id test
+}' | dygram e -i machine.dy --id test
 ```
 
 **Transition decision:**
@@ -235,12 +235,12 @@ echo '{
   "tools": [
     {"name": "transition_to_confirmation", "params": {}}
   ]
-}' | dygram e -i machine.dygram --id test
+}' | dygram e -i machine.dy --id test
 ```
 
 **Multiple tools:**
 ```bash
-cat <<'EOF' | dygram e -i machine.dygram --id test
+cat <<'EOF' | dygram e -i machine.dy --id test
 {
   "response": "Analyzing data and generating report",
   "tools": [
@@ -263,12 +263,12 @@ Step through to understand behavior:
 
 ```bash
 # Start
-dygram e -i machine.dygram --id debug --verbose
+dygram e -i machine.dy --id debug --verbose
 
 # Step through with observation
 for i in {1..10}; do
   echo "=== Turn $i ==="
-  dygram e -i machine.dygram --id debug
+  dygram e -i machine.dy --id debug
 
   # Check state
   dygram exec status debug
@@ -287,7 +287,7 @@ done
 
 ```bash
 # Start with recording
-dygram e -i machine.dygram \
+dygram e -i machine.dy \
   --record recordings/golden-test/ \
   --id golden
 
@@ -295,13 +295,13 @@ dygram e -i machine.dygram \
 # (provide responses as machine requires them)
 
 # Continue until complete
-while dygram e -i machine.dygram --id golden; do
+while dygram e -i machine.dy --id golden; do
   echo "Turn completed"
 done
 
 # Verify recording
 ls -la recordings/golden-test/
-dygram e -i machine.dygram \
+dygram e -i machine.dy \
   --playback recordings/golden-test/ \
   --id verify
 
@@ -314,21 +314,21 @@ git commit -m "Add golden recording for machine"
 
 ```bash
 # Success path
-dygram e -i machine.dygram --record recordings/success/ --id success
+dygram e -i machine.dy --record recordings/success/ --id success
 # ... provide success responses ...
 
 # Error path
-dygram e -i machine.dygram --record recordings/error/ --id error
+dygram e -i machine.dy --record recordings/error/ --id error
 # ... provide error responses ...
 
 # Edge case
-dygram e -i machine.dygram --record recordings/edge/ --id edge
+dygram e -i machine.dy --record recordings/edge/ --id edge
 # ... provide edge case responses ...
 
 # Validate all scenarios
 for scenario in success error edge; do
   echo "Testing $scenario..."
-  dygram e -i machine.dygram \
+  dygram e -i machine.dy \
     --playback "recordings/$scenario/" \
     --id "test-$scenario"
 done
@@ -338,8 +338,8 @@ done
 
 ```bash
 #!/bin/bash
-for machine in machines/*.dygram; do
-  name=$(basename "$machine" .dygram)
+for machine in machines/*.dy; do
+  name=$(basename "$machine" .dy)
   echo "Testing: $name"
 
   # Start with recording
@@ -379,20 +379,20 @@ Test behavior changes:
 ```bash
 # Record baseline
 git checkout main
-dygram e -i machine.dygram --record recordings/baseline/ --id baseline
+dygram e -i machine.dy --record recordings/baseline/ --id baseline
 # ... execute ...
 
 # Record with changes
 git checkout feature-branch
-dygram e -i machine.dygram --record recordings/feature/ --id feature
+dygram e -i machine.dy --record recordings/feature/ --id feature
 # ... execute ...
 
 # Compare recordings
 diff -u recordings/baseline/ recordings/feature/
 
 # Validate both still work
-dygram e -i machine.dygram --playback recordings/baseline/ --id test-baseline
-dygram e -i machine.dygram --playback recordings/feature/ --id test-feature
+dygram e -i machine.dy --playback recordings/baseline/ --id test-baseline
+dygram e -i machine.dy --playback recordings/feature/ --id test-feature
 ```
 
 ## Recording Management
@@ -402,7 +402,7 @@ dygram e -i machine.dygram --playback recordings/feature/ --id test-feature
 Recordings capture LLM responses for deterministic replay:
 
 ```bash
-dygram e -i machine.dygram --record recordings/test-case/ --id test
+dygram e -i machine.dy --record recordings/test-case/ --id test
 ```
 
 **Recording structure:**
@@ -431,10 +431,10 @@ recordings/test-case/
 
 ```bash
 # Playback deterministically
-dygram e -i machine.dygram --playback recordings/test-case/ --id playback
+dygram e -i machine.dy --playback recordings/test-case/ --id playback
 
 # Continue playback
-while dygram e -i machine.dygram --id playback; do :; done
+while dygram e -i machine.dy --id playback; do :; done
 ```
 
 ### Organizing Recordings
@@ -464,7 +464,7 @@ recordings/
 
 ```bash
 # Update recording when behavior intentionally changes
-dygram e -i machine.dygram \
+dygram e -i machine.dy \
   --record recordings/golden/workflow/ \
   --id update \
   --force  # Force new recording
@@ -473,7 +473,7 @@ dygram e -i machine.dygram \
 for dir in recordings/golden/*/; do
   name=$(basename "$dir")
   echo "Testing: $name"
-  dygram e -i "machines/$name.dygram" \
+  dygram e -i "machines/$name.dy" \
     --playback "$dir" \
     --id "validate-$name"
 done
@@ -540,7 +540,7 @@ cat .dygram/executions/<id>/state.json | jq '.executionState.turnState'
 
 **Provide required response:**
 ```bash
-echo '{"response": "...", "tools": [...]}' | dygram e -i machine.dygram --id <id>
+echo '{"response": "...", "tools": [...]}' | dygram e -i machine.dy --id <id>
 ```
 
 ### Wrong Path Taken
@@ -548,12 +548,12 @@ echo '{"response": "...", "tools": [...]}' | dygram e -i machine.dygram --id <id
 **Restart from beginning:**
 ```bash
 dygram exec rm <id>
-dygram e -i machine.dygram --id <id> --force
+dygram e -i machine.dy --id <id> --force
 ```
 
 **Or start new execution:**
 ```bash
-dygram e -i machine.dygram --id <id>-retry
+dygram e -i machine.dy --id <id>-retry
 ```
 
 ### Recording Playback Mismatch
@@ -567,12 +567,12 @@ cat recordings/test-case/turn-1.json | jq '.'
 **Verify machine hasn't changed:**
 ```bash
 # Compare machine hashes
-cat .dygram/executions/<id>/metadata.json | jq '.machineHash'
+cat .dygram/executions/<id>/metadata.json | jq '.dyash'
 ```
 
 **Re-record if machine changed:**
 ```bash
-dygram e -i machine.dygram --record recordings/test-case/ --id new --force
+dygram e -i machine.dy --record recordings/test-case/ --id new --force
 ```
 
 ### State Corruption
@@ -585,7 +585,7 @@ cat .dygram/executions/<id>/state.json | jq '.status'
 **Force fresh start:**
 ```bash
 dygram exec rm <id>
-dygram e -i machine.dygram --id <id> --force
+dygram e -i machine.dy --id <id> --force
 ```
 
 ## Best Practices
@@ -594,17 +594,17 @@ dygram e -i machine.dygram --id <id> --force
 
 ```bash
 # Good: Explicit ID for tracking
-dygram e -i machine.dygram --id test-payment-success
+dygram e -i machine.dy --id test-payment-success
 
 # Avoid: Auto-generated IDs are hard to track
-dygram e -i machine.dygram
+dygram e -i machine.dy
 ```
 
 ### 2. Create Recordings for Important Tests
 
 ```bash
 # Record golden path
-dygram e -i machine.dygram --record recordings/golden/ --id golden
+dygram e -i machine.dy --record recordings/golden/ --id golden
 
 # Commit to git
 git add recordings/golden/
@@ -614,14 +614,14 @@ git commit -m "Add golden recording for regression testing"
 ### 3. Use Verbose Mode for Debugging
 
 ```bash
-dygram e -i machine.dygram --id debug --verbose
+dygram e -i machine.dy --id debug --verbose
 ```
 
 ### 4. Check State Frequently
 
 ```bash
 # After each significant turn
-dygram e -i machine.dygram --id test
+dygram e -i machine.dy --id test
 dygram exec status test
 ```
 
@@ -648,7 +648,7 @@ cat > TEST_PLAN.md <<'EOF'
 
 ## Run Tests
 for scenario in success invalid timeout retry; do
-  dygram e -i payment.dygram \
+  dygram e -i payment.dy \
     --playback recordings/payment-$scenario/ \
     --id test-$scenario
 done
@@ -661,15 +661,15 @@ EOF
 
 ```bash
 # 1. Develop machine
-vim machines/workflow.dygram
+vim machines/workflow.dy
 
 # 2. Test interactively
-dygram e -i machines/workflow.dygram \
+dygram e -i machines/workflow.dy \
   --record recordings/workflow/ \
   --id workflow-test
 
 # 3. Commit machine and recordings
-git add machines/workflow.dygram recordings/workflow/
+git add machines/workflow.dy recordings/workflow/
 git commit -m "Add workflow machine with tests"
 ```
 
@@ -697,7 +697,7 @@ jobs:
             echo "Testing: $machine"
 
             dygram execute --interactive \
-              "machines/$machine.dygram" \
+              "machines/$machine.dy" \
               --playback "$recording" \
               --id "ci-$machine"
 

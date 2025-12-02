@@ -58,22 +58,22 @@ This document describes the integration of the DyGram import system into the bro
 ### Import Examples
 
 #### 1. Basic Authentication Flow (2 files)
-- Entry: `/app.dygram`
+- Entry: `/app.dy`
 - Demonstrates simple two-file import structure
 - Library module + application module
 
 #### 2. E-Commerce Workflow (3 files)
-- Entry: `/app.dygram`
+- Entry: `/app.dy`
 - Cart module, checkout module, main app
 - Multiple imports from different modules
 
 #### 3. Import Aliasing (3 files)
-- Entry: `/app.dygram`
+- Entry: `/app.dy`
 - Demonstrates `import { X as Y }` syntax
 - Resolves name collisions
 
 #### 4. Workflow Orchestration (4 files)
-- Entry: `/orchestrator.dygram`
+- Entry: `/orchestrator.dy`
 - Complex multi-file example
 - Data ingestion, processing, notifications
 
@@ -325,10 +325,10 @@ export const IMPORT_EXAMPLES: ImportExample[] = [
     {
         name: "Your Example Name",
         description: "Description here",
-        entryPoint: "/main.dygram",
+        entryPoint: "/main.dy",
         files: {
-            "/main.dygram": "...",
-            "/lib.dygram": "..."
+            "/main.dy": "...",
+            "/lib.dy": "..."
         }
     }
 ];

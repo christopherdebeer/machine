@@ -158,7 +158,7 @@ context appConfig {
 }
 ```
 
-[Example: examples/complex/context-heavy.dygram](../examples/complex/context-heavy.dygram)
+[Example: examples/complex/context-heavy.dy](../examples/complex/context-heavy.dy)
 
 ### Enhanced Context Management
 Tasks can dynamically read and write context values using built-in tools:
@@ -185,8 +185,8 @@ Task processData {
 };
 ```
 
-[Example: examples/context/context-management.mach](../examples/context/context-management.mach)
-[Example: examples/context/template-variables.mach](../examples/context/template-variables.mach)
+[Example: examples/context/context-management.dy(../examples/context/context-management.dy
+[Example: examples/context/template-variables.dy(../examples/context/template-variables.dy
 
 **Available Context Tools:**
 - `set_context_value(nodeName, attributeName, value)` - Store values with type validation
@@ -217,7 +217,7 @@ authenticate -retry: config.maxRetries;-> locked;
 locked -timeout: config.timeout;-> landing;
 ```
 
-[Example: examples/complex/complex-machine.dygram](../examples/complex/complex-machine.dygram)
+[Example: examples/complex/complex-machine.dy](../examples/complex/complex-machine.dy)
 
 ## Unicode Support
 
@@ -232,7 +232,7 @@ end "終了";
 start -"ユーザーイベント"-> process;
 ```
 
-[Example: examples/complex/unicode-machine.dygram](../examples/complex/unicode-machine.dygram)
+[Example: examples/complex/unicode-machine.dy](../examples/complex/unicode-machine.dy)
 
 ## Advanced Features
 

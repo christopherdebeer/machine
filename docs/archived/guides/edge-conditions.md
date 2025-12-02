@@ -316,5 +316,5 @@ If a condition fails to evaluate (syntax error, undefined variable, etc.), the c
 
 - [Advanced Features](./AdvancedFeatures.mdx)
 - [Syntax Guide](./SyntaxGuide.mdx)
-- [Error Handling Examples](../examples/advanced/error-handling.dygram)
+- [Error Handling Examples](../examples/advanced/error-handling.dy)
 - [CEL Language Specification](https://github.com/google/cel-spec)

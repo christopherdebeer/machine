@@ -39,7 +39,7 @@ docs/
 ````markdown
 ## Example: Basic Machine
 
-```dygram
+```dy
 machine "My Machine"
 
 state Start "Initial State"
@@ -50,7 +50,7 @@ Start --> End
 ````
 
 The build system will:
-1. Extract this to `examples/basic/basic-machine.dygram`
+1. Extract this to `examples/basic/basic-machine.dy`
 2. Generate test snapshots in `test/integration/__snapshots__/`
 3. Run comprehensive tests in `test/integration/comprehensive-generative.test.ts`
 

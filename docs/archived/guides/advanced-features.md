@@ -37,7 +37,7 @@ client -> server;
 
 **Mermaid Output:** `-->`
 
-[Example: examples/edges/relationship-types.dygram](../examples/edges/relationship-types.dygram)
+[Example: examples/edges/relationship-types.dy](../examples/edges/relationship-types.dy)
 
 #### 2. Dependency (`-->`)
 **Meaning:** Source depends on target but doesn't own it.
@@ -205,7 +205,7 @@ The validator checks:
 - ✅ Lower bound ≤ upper bound in ranges
 - ⚠️ Warns if multiplicity seems unusual (e.g., `"5..*"`)
 
-[Example: examples/advanced/multiplicity.dygram](../examples/advanced/multiplicity.dygram)
+[Example: examples/advanced/multiplicity.dy](../examples/advanced/multiplicity.dy)
 
 ---
 
@@ -280,7 +280,7 @@ The validator enforces:
 - ✅ `@Abstract` not on init nodes
 - ⚠️ Warns on deprecated node usage
 
-[Example: examples/advanced/annotations.dygram](../examples/advanced/annotations.dygram)
+[Example: examples/advanced/annotations.dy](../examples/advanced/annotations.dy)
 
 ---
 
@@ -348,7 +348,7 @@ The validator checks:
 - ✅ Type compatibility
 - ⚠️ Warns on circular dependencies
 
-[Example: examples/advanced/dependency-inference.dygram](../examples/advanced/dependency-inference.dygram)
+[Example: examples/advanced/dependency-inference.dy](../examples/advanced/dependency-inference.dy)
 
 ---
 
@@ -416,7 +416,7 @@ task cacheResults {
 fetchUsers -> cacheResults;
 ```
 
-[Example: examples/documentation/notes-and-generics.dygram](../examples/documentation/notes-and-generics.dygram)
+[Example: examples/documentation/notes-and-generics.dy](../examples/documentation/notes-and-generics.dy)
 
 ---
 
@@ -448,7 +448,7 @@ Uses JWT tokens for session management."
 - **Context:** Provide background information for maintainers
 - **Checklists:** Outline steps or requirements
 
-[Example: examples/documentation/notes-and-generics.dygram](../examples/documentation/notes-and-generics.dygram)
+[Example: examples/documentation/notes-and-generics.dy](../examples/documentation/notes-and-generics.dy)
 
 ---
 
@@ -554,7 +554,7 @@ task inferred {
 | **Warning** | Type inference ambiguity | `Could not infer type for attribute` |
 | **Info** | Type widening | `Type widened from integer to number` |
 
-[Example: examples/validation/type-checking.dygram](../examples/validation/type-checking.dygram)
+[Example: examples/validation/type-checking.dy](../examples/validation/type-checking.dy)
 
 ---
 
@@ -627,7 +627,7 @@ The validator provides:
 | **Warning** | Potential issue | Should review |
 | **Info** | Interesting fact | FYI |
 
-[Example: examples/validation/graph-validation.dygram](../examples/validation/graph-validation.dygram)
+[Example: examples/validation/graph-validation.dy](../examples/validation/graph-validation.dy)
 
 ---
 
@@ -701,7 +701,7 @@ context AppConfig @Singleton {
 4. **Annotations** - Follow semantic rules
 5. **Cycles** - Document intentional loops
 
-[Example: examples/validation/semantic-validation.dygram](../examples/validation/semantic-validation.dygram)
+[Example: examples/validation/semantic-validation.dy](../examples/validation/semantic-validation.dy)
 
 ---
 
@@ -763,7 +763,7 @@ Retries up to {{ AppConfig.maxRetries }} times on failure."
 - ✅ Type validation
 - ✅ Semantic validation
 
-[Example: examples/validation/complete-validated.dygram](../examples/validation/complete-validated.dygram)
+[Example: examples/validation/complete-validated.dy](../examples/validation/complete-validated.dy)
 
 ---
 

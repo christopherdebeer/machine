@@ -79,7 +79,7 @@ export interface LoadExecutionOptions {
  * State directory configuration
  */
 export const STATE_CONFIG = {
-    baseDir: '.dygram',
+    baseDir: '.dy',
     executionsDir: 'executions',
     lastSymlink: 'last',
     stateFileName: 'state.json',

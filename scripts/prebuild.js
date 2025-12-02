@@ -523,7 +523,7 @@ async function transformMarkdownToMdx(projectRoot) {
                                 codeBlockLang = null;
                                 output.push('```' + match[1]);
                             } else {
-                                // Extract filename (e.g., filename="examples/state-machine.dygram")
+                                // Extract filename (e.g., filename="examples/state-machine.dy")
                                 const filenameMatch = metadataStr.match(/filename=["']([^"']+)["']/);
                                 if (filenameMatch) {
                                     codeBlockFilename = filenameMatch[1];

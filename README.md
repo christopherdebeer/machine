@@ -47,19 +47,19 @@ npm test
 
 ```bash
 # Generate machine outputs
-npx dygram generate your-file.dygram --format json,html
+npx dygram generate your-file.dy --format json,html
 
 # Execute a machine
-npx dygram execute your-file.dygram
+npx dygram execute your-file.dy
 
 # Execute with specific model
-npx dygram execute your-file.dygram --model claude-3-5-sonnet-20241022
+npx dygram execute your-file.dy --model claude-3-5-sonnet-20241022
 
 # Execute with verbose logging
-npx dygram execute your-file.dygram --verbose
+npx dygram execute your-file.dy --verbose
 
 # Batch process multiple files
-npx dygram batch "examples/**/*.dygram" --format json
+npx dygram batch "examples/**/*.dy" --format json
 ```
 
 **Model Selection:**
@@ -71,7 +71,7 @@ Models can be specified via (in priority order):
 5. **Default** (lowest): `claude-3-5-haiku-20241022`
 
 **Example:**
-```dygram examples/model-configuration/basic.dygram
+```dy examples/model-configuration/basic.dy
 config {
     modelId: "claude-3-5-haiku-20241022";  // Machine default
 };
@@ -121,7 +121,7 @@ DyGram features a unique execution model where your machine definition acts as "
 - **📊 Phase-Specific Context**: Agents receive only relevant data at each node
 
 **Example:**
-```dygram
+```dy
 machine "Smart Pipeline"
 
 State idle;
@@ -143,7 +143,7 @@ Learn more: [Rails-Based Architecture Documentation](docs/RailsBasedArchitecture
 
 ### Basic Structure
 
-```dygram
+```dy
 machine "My System"
 
 // Define nodes
@@ -157,7 +157,7 @@ start -> process -> end;
 
 ### Typed Concepts
 
-```dygram examples/types/concepts.dygram
+```dy examples/types/concepts.dy
 machine "Task System"
 
 Concept task "User Story" {
@@ -176,7 +176,7 @@ task -drives-> implementation;
 
 ### Generative Tasks
 
-```dygram examples/workflows/generative.dygram
+```dy examples/workflows/generative.dy
 machine "AI Pipeline"
 
 Input query {
@@ -198,7 +198,7 @@ query -> analyze -> output;
 
 DyGram supports semantic nesting with qualified names and automatic context inheritance:
 
-```dygram examples/nesting/data-pipeline.dygram
+```dy examples/nesting/data-pipeline.dy
 machine "Data Pipeline"
 
 // Global configuration
@@ -250,7 +250,7 @@ DataPipeline -writes-> DataPipeline.pipelineState;
 
 Below is DyGram describing itself - a comprehensive demonstration of the language, its architecture, and capabilities:
 
-```dygram
+```dy
 machine "DyGram: Dynamic State Machine DSL" @Version("0.3.7")
 
 // ═══════════════════════════════════════════════════════════
@@ -268,7 +268,7 @@ context config @Singleton {
 // CORE ARCHITECTURE PIPELINE
 // ═══════════════════════════════════════════════════════════
 
-State SourceCode "User's .dygram file" @Entry;
+State SourceCode "User's .dy file" @Entry;
 
 Task Parse "Parse via Langium" @Critical {
     input<string>: "{{ SourceCode }}";

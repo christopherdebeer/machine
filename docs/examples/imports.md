@@ -31,7 +31,7 @@ LoginPage --> AuthService --> UserSession
 Import and use the library components:
 
 ```dy examples/imports/simple-consumer.dygram
-import { LoginPage, UserSession } from "./simple-library.dygram"
+import { LoginPage, UserSession } from "./simple-library.dy"
 
 machine "Main Application"
 
@@ -47,7 +47,7 @@ LoginPage --> Dashboard --> Profile --> UserSession
 
 Build a comprehensive authentication system across multiple files.
 
-**Session Management** (`auth/session.dygram`):
+**Session Management** (`auth/session.dy`):
 
 ```dy examples/imports/auth-session.dygram
 machine "Session Management"
@@ -62,7 +62,7 @@ ValidateSession --> RefreshSession --> ValidateSession
 ValidateSession --> EndSession
 ```
 
-**Login Flow** (`auth/login.dygram`):
+**Login Flow** (`auth/login.dy`):
 
 ```dy examples/imports/auth-login.dygram
 machine "Login Flow"
@@ -78,11 +78,11 @@ ValidateCredentials -success-> TwoFactorAuth --> LoginSuccess
 ValidateCredentials -failure-> LoginFailure
 ```
 
-**Main Application** (`app.dygram`):
+**Main Application** (`app.dy`):
 
 ```dy examples/imports/auth-main.dygram
-import { LoginForm, LoginSuccess } from "./auth-login.dygram"
-import { CreateSession, ValidateSession } from "./auth-session.dygram"
+import { LoginForm, LoginSuccess } from "./auth-login.dy"
+import { CreateSession, ValidateSession } from "./auth-session.dy"
 
 machine "Secure Application"
 
@@ -102,7 +102,7 @@ SecureArea --> Logout
 
 Create a complete e-commerce platform with separate modules for different concerns.
 
-**Product Catalog** (`ecommerce/catalog.dygram`):
+**Product Catalog** (`ecommerce/catalog.dy`):
 
 ```dy examples/imports/ecommerce-catalog.dygram
 machine "Product Catalog"
@@ -119,7 +119,7 @@ ViewProduct --> CompareProducts
 ViewProduct --> AddToWishlist
 ```
 
-**Shopping Cart** (`ecommerce/cart.dygram`):
+**Shopping Cart** (`ecommerce/cart.dy`):
 
 ```dy examples/imports/ecommerce-cart.dygram
 machine "Shopping Cart"
@@ -137,7 +137,7 @@ ViewCart --> UpdateQuantity --> CalculateTotal --> ViewCart
 ViewCart --> ApplyCoupon --> CalculateTotal
 ```
 
-**Checkout Process** (`ecommerce/checkout.dygram`):
+**Checkout Process** (`ecommerce/checkout.dy`):
 
 ```dy examples/imports/ecommerce-checkout.dygram
 machine "Checkout Process"
@@ -155,12 +155,12 @@ ProcessPayment -success-> OrderConfirmation
 ProcessPayment -failure-> PaymentInfo
 ```
 
-**Complete Platform** (`ecommerce/platform.dygram`):
+**Complete Platform** (`ecommerce/platform.dy`):
 
 ```dy examples/imports/ecommerce-platform.dygram
-import { BrowseProducts, ViewProduct } from "./ecommerce-catalog.dygram"
-import { AddItem, ViewCart, CalculateTotal } from "./ecommerce-cart.dygram"
-import { ShippingAddress, OrderConfirmation } from "./ecommerce-checkout.dygram"
+import { BrowseProducts, ViewProduct } from "./ecommerce-catalog.dy"
+import { AddItem, ViewCart, CalculateTotal } from "./ecommerce-cart.dy"
+import { ShippingAddress, OrderConfirmation } from "./ecommerce-checkout.dy"
 
 machine "E-Commerce Platform"
 
@@ -182,7 +182,7 @@ Home --> CustomerSupport
 
 Build a complex data processing pipeline with multiple stages.
 
-**Data Ingestion** (`pipeline/ingestion.dygram`):
+**Data Ingestion** (`pipeline/ingestion.dy`):
 
 ```dy examples/imports/pipeline-ingestion.dygram
 machine "Data Ingestion"
@@ -197,7 +197,7 @@ FetchExternal --> ValidateFormat --> SanitizeData
 SanitizeData --> DetectSchema --> StoreRaw
 ```
 
-**Data Transformation** (`pipeline/transformation.dygram`):
+**Data Transformation** (`pipeline/transformation.dy`):
 
 ```dy examples/imports/pipeline-transformation.dygram
 machine "Data Transformation"
@@ -214,7 +214,7 @@ TransformStructure --> EnrichData --> ValidateOutput
 ValidateOutput --> StoreProcessed
 ```
 
-**Data Analysis** (`pipeline/analysis.dygram`):
+**Data Analysis** (`pipeline/analysis.dy`):
 
 ```dy examples/imports/pipeline-analysis.dygram
 machine "Data Analysis"
@@ -229,7 +229,7 @@ LoadProcessed --> ComputeMetrics --> GenerateInsights
 GenerateInsights --> CreateVisualizations --> PublishResults
 ```
 
-**Notification System** (`pipeline/notifications.dygram`):
+**Notification System** (`pipeline/notifications.dy`):
 
 ```dy examples/imports/pipeline-notifications.dygram
 machine "Notifications"
@@ -245,13 +245,13 @@ PrepareMessage --> SendSlack --> LogNotification
 LogNotification --> UpdateDashboard
 ```
 
-**Pipeline Orchestrator** (`pipeline/orchestrator.dygram`):
+**Pipeline Orchestrator** (`pipeline/orchestrator.dy`):
 
 ```dy examples/imports/pipeline-orchestrator.dygram
-import { FetchExternal, StoreRaw } from "./pipeline-ingestion.dygram"
-import { LoadRaw, StoreProcessed } from "./pipeline-transformation.dygram"
-import { LoadProcessed, PublishResults } from "./pipeline-analysis.dygram"
-import { PrepareMessage, UpdateDashboard } from "./pipeline-notifications.dygram"
+import { FetchExternal, StoreRaw } from "./pipeline-ingestion.dy"
+import { LoadRaw, StoreProcessed } from "./pipeline-transformation.dy"
+import { LoadProcessed, PublishResults } from "./pipeline-analysis.dy"
+import { PrepareMessage, UpdateDashboard } from "./pipeline-notifications.dy"
 
 machine "Data Pipeline Orchestrator"
 
@@ -279,7 +279,7 @@ HandleError --> PrepareMessage
 
 Demonstrate how different teams can work on separate modules.
 
-**Team A: Frontend Components** (`teams/frontend.dygram`):
+**Team A: Frontend Components** (`teams/frontend.dy`):
 
 ```dy examples/imports/teams-frontend.dygram
 machine "Frontend Components"
@@ -295,7 +295,7 @@ LandingPage --> SearchInterface --> ProductDisplay
 LandingPage --> UserDashboard
 ```
 
-**Team B: Backend Services** (`teams/backend.dygram`):
+**Team B: Backend Services** (`teams/backend.dy`):
 
 ```dy examples/imports/teams-backend.dygram
 machine "Backend Services"
@@ -312,7 +312,7 @@ DatabaseLayer --> CacheLayer
 APIGateway --> EventBus
 ```
 
-**Team C: Business Logic** (`teams/business.dygram`):
+**Team C: Business Logic** (`teams/business.dy`):
 
 ```dy examples/imports/teams-business.dygram
 machine "Business Logic"
@@ -327,12 +327,12 @@ ValidateOrder --> CalculatePricing --> ApplyDiscounts
 ApplyDiscounts --> ProcessPayment --> UpdateInventory
 ```
 
-**System Integration** (`teams/integration.dygram`):
+**System Integration** (`teams/integration.dy`):
 
 ```dy examples/imports/teams-integration.dygram
-import { LandingPage, ProductDisplay, UserDashboard } from "./teams-frontend.dygram"
-import { APIGateway, AuthService, DatabaseLayer } from "./teams-backend.dygram"
-import { ValidateOrder, ProcessPayment, UpdateInventory } from "./teams-business.dygram"
+import { LandingPage, ProductDisplay, UserDashboard } from "./teams-frontend.dy"
+import { APIGateway, AuthService, DatabaseLayer } from "./teams-backend.dy"
+import { ValidateOrder, ProcessPayment, UpdateInventory } from "./teams-business.dy"
 
 machine "Integrated System"
 
@@ -356,7 +356,7 @@ UpdateInventory --> SystemReady
 
 When multiple modules export symbols with the same name, use import aliasing.
 
-**Module A** (`collision/module-a.dygram`):
+**Module A** (`collision/module-a.dy`):
 
 ```dy examples/imports/collision-module-a.dygram
 machine "Module A"
@@ -369,7 +369,7 @@ state Complete "Complete A"
 Initialize --> Process --> Validate --> Complete
 ```
 
-**Module B** (`collision/module-b.dygram`):
+**Module B** (`collision/module-b.dy`):
 
 ```dy examples/imports/collision-module-b.dygram
 machine "Module B"
@@ -382,7 +382,7 @@ state Complete "Complete B"
 Initialize --> Process --> Validate --> Complete
 ```
 
-**Module C** (`collision/module-c.dygram`):
+**Module C** (`collision/module-c.dy`):
 
 ```dy examples/imports/collision-module-c.dygram
 machine "Module C"
@@ -395,12 +395,12 @@ state Complete "Complete C"
 Initialize --> Process --> Validate --> Complete
 ```
 
-**Application with Aliasing** (`collision/app.dygram`):
+**Application with Aliasing** (`collision/app.dy`):
 
 ```dy examples/imports/collision-app.dygram
-import { Initialize as InitA, Process as ProcessA, Complete as CompleteA } from "./collision-module-a.dygram"
-import { Initialize as InitB, Process as ProcessB, Complete as CompleteB } from "./collision-module-b.dygram"
-import { Initialize as InitC, Process as ProcessC, Complete as CompleteC } from "./collision-module-c.dygram"
+import { Initialize as InitA, Process as ProcessA, Complete as CompleteA } from "./collision-module-a.dy"
+import { Initialize as InitB, Process as ProcessB, Complete as CompleteB } from "./collision-module-b.dy"
+import { Initialize as InitC, Process as ProcessC, Complete as CompleteC } from "./collision-module-c.dy"
 
 machine "Multi-Module Application"
 
@@ -444,8 +444,8 @@ Process Authorization {
 Import nested nodes using qualified names:
 
 ```dy examples/imports/hierarchical-app.dygram
-import { Authentication.Login, Authentication.Session } from "./hierarchical-lib.dygram"
-import { Authorization.CheckPermissions, Authorization.GrantAccess } from "./hierarchical-lib.dygram"
+import { Authentication.Login, Authentication.Session } from "./hierarchical-lib.dy"
+import { Authorization.CheckPermissions, Authorization.GrantAccess } from "./hierarchical-lib.dy"
 
 machine "Secure Application"
 
@@ -462,7 +462,7 @@ Authorization.CheckPermissions --> Authorization.GrantAccess --> Protected --> S
 
 Organize imports by architectural layers:
 
-**Data Layer** (`layers/data.dygram`):
+**Data Layer** (`layers/data.dy`):
 
 ```dy examples/imports/layers-data.dygram
 machine "Data Layer"
@@ -475,10 +475,10 @@ state CacheUpdate "Update Cache"
 DatabaseConnect --> QueryExecute --> ResultTransform --> CacheUpdate
 ```
 
-**Business Layer** (`layers/business.dygram`):
+**Business Layer** (`layers/business.dy`):
 
 ```dy examples/imports/layers-business.dygram
-import { QueryExecute, ResultTransform } from "./layers-data.dygram"
+import { QueryExecute, ResultTransform } from "./layers-data.dy"
 
 machine "Business Layer"
 
@@ -490,11 +490,11 @@ ValidateInput --> ApplyRules --> ExecuteLogic
 ExecuteLogic --> QueryExecute --> ResultTransform
 ```
 
-**Presentation Layer** (`layers/presentation.dygram`):
+**Presentation Layer** (`layers/presentation.dy`):
 
 ```dy examples/imports/layers-presentation.dygram
-import { ValidateInput } from "./layers-business.dygram"
-import { ResultTransform } from "./layers-data.dygram"
+import { ValidateInput } from "./layers-business.dy"
+import { ResultTransform } from "./layers-data.dy"
 
 machine "Presentation Layer"
 
@@ -513,9 +513,9 @@ ValidateInput --> ResultTransform --> DisplayResult --> RenderUI
 Each file should have a single, clear purpose:
 
 ```
-✅ auth.dygram         - Authentication only
-✅ cart.dygram         - Shopping cart logic
-❌ auth-cart-user.dygram - Multiple concerns (avoid)
+✅ auth.dy         - Authentication only
+✅ cart.dy         - Shopping cart logic
+❌ auth-cart-user.dy - Multiple concerns (avoid)
 ```
 
 ### 2. Use Meaningful Names
@@ -547,7 +547,7 @@ Use machine names and comments to clarify module purpose:
 ```dy
 machine "Authentication Module"
 // Provides login, session management, and two-factor authentication
-// Used by: app.dygram, admin.dygram
+// Used by: app.dy, admin.dygram
 ```
 
 ### 5. Minimize Cross-Module Dependencies
@@ -555,9 +555,9 @@ machine "Authentication Module"
 Keep import chains shallow and dependencies clear:
 
 ```
-✅ app.dygram → auth.dygram
-✅ app.dygram → cart.dygram
-❌ app.dygram → utils.dygram → helpers.dygram → core.dygram
+✅ app.dy → auth.dygram
+✅ app.dy → cart.dygram
+❌ app.dy → utils.dy → helpers.dy → core.dygram
 ```
 
 ## CLI Usage
@@ -565,7 +565,7 @@ Keep import chains shallow and dependencies clear:
 ### Generate with Imports
 
 ```bash
-dygram generate app.dygram --format html
+dygram generate app.dy --format html
 # Automatically resolves all imports
 ```
 
@@ -583,7 +583,7 @@ dygram check-imports app.dygram
 ### Bundle Multi-File Project
 
 ```bash
-dygram bundle app.dygram --output dist/app.bundled.dygram
+dygram bundle app.dy --output dist/app.bundled.dygram
 # Creates single file with all imports merged
 ```
 

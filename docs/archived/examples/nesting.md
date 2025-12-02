@@ -41,19 +41,19 @@ Child nodes automatically inherit **read-only** access to context nodes accessib
 
 ## Examples in this Directory
 
-### `nested-2-levels.dygram`
+### `nested-2-levels.dy`
 Simple 2-level nesting structure demonstrating basic hierarchy.
 
-### `nested-3-levels.dygram`
+### `nested-3-levels.dy`
 3-level nesting showing deeper hierarchies.
 
-### `complex-nesting.dygram`
+### `complex-nesting.dy`
 Complex nesting with multiple branches up to 4 levels deep.
 
-### `deep-nested-5-levels.dygram`
+### `deep-nested-5-levels.dy`
 Demonstrates 5-level deep nesting to test parser depth limits.
 
-### `semantic-nesting-example.dygram` ⭐ **Phase 1**
+### `semantic-nesting-example.dy` ⭐ **Phase 1**
 Comprehensive example showing qualified names and context inheritance:
 - Qualified names for referencing nested nodes
 - Context inheritance across multiple levels
@@ -61,7 +61,7 @@ Comprehensive example showing qualified names and context inheritance:
 - Mix of inherited and explicit context access
 - Notes explaining the inheritance behavior
 
-### `state-modules-example.dygram` ⭐⭐ **Phase 2**
+### `state-modules-example.dy` ⭐⭐ **Phase 2**
 Comprehensive example showing state modules and workflow composition:
 - State modules as workflow components
 - Module entry and exit routing
@@ -71,7 +71,7 @@ Comprehensive example showing state modules and workflow composition:
 - Error handling across modules
 - Complete ETL pipeline example
 
-### `optional-types-example.dygram` ⭐⭐⭐ **Phase 3**
+### `optional-types-example.dy` ⭐⭐⭐ **Phase 3**
 Comprehensive example showing optional type inference:
 - Task inference from `prompt` attribute
 - Context inference from naming patterns and data attributes
@@ -288,7 +288,7 @@ When multiple rules could apply, priority determines the type:
 - [Workflows Examples](../workflows/README.md) - Complex workflow patterns
 - [Advanced Examples](../advanced/README.md) - Advanced language features
 
-### `nested-2-levels.dygram`
+### `nested-2-levels.dy`
 Nested Machine
 
 ```dy examples/nesting/nested-2-levels.dygram
@@ -299,7 +299,7 @@ level1 {
 }
 ```
 
-### `nested-3-levels.dygram`
+### `nested-3-levels.dy`
 Nested Machine
 
 ```dy examples/nesting/nested-3-levels.dygram
@@ -316,7 +316,7 @@ level1 {
 }
 ```
 
-### `optional-types-example.dygram`
+### `optional-types-example.dy`
 Optional Types Example
 
 ```dy examples/nesting/optional-types-example.dygram
@@ -506,7 +506,7 @@ Pipeline -> waiting -> processing;
 
 ```
 
-### `semantic-nesting-example.dygram`
+### `semantic-nesting-example.dy`
 Semantic Nesting Example
 
 ```dy examples/nesting/semantic-nesting-example.dygram
@@ -649,7 +649,7 @@ note DataPipeline.StoragePhase.prepareData "This task inherits access to globalC
 
 ```
 
-### `state-modules-example.dygram`
+### `state-modules-example.dy`
 State Modules Example - ETL Pipeline
 
 ```dy examples/nesting/state-modules-example.dygram
@@ -774,7 +774,7 @@ note Extract.validateSource "Terminal node within Extract module. No explicit ou
 
 ```
 
-### `deep-nested-5-levels.dygram`
+### `deep-nested-5-levels.dy`
 
 Deep Nested Machine
 

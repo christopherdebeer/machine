@@ -38,7 +38,7 @@ Expecting token of type 'EOF' but found `@`.
 However, the documentation shows **standalone annotations** (not attached to any element), which are not supported by the grammar.
 
 **Example from `annotations-1.dy`**:
-```dygram
+```dy
 @Annotation
 @AnotherAnnotation
 ```
@@ -82,7 +82,7 @@ Expecting token of type 'ARROW_SINGLE' but found `;`.
 - As root-level attributes after machine declaration
 
 The documentation shows **standalone attribute declarations** like:
-```dygram
+```dy
 count<number>: 42;
 price: 19.99;
 ```
@@ -90,7 +90,7 @@ price: 19.99;
 These are valid only inside a machine or node body, not as top-level statements.
 
 **Example from `attributes-2.dy`**:
-```dygram
+```dy
 count<number>: 42;
 price: 19.99;
 scientific: 1.5e10;
@@ -98,7 +98,7 @@ temperature: -273.15;
 ```
 
 **Verdict**: **DOCUMENTATION ERROR** - These examples should be wrapped in a machine context:
-```dygram
+```dy
 machine "Example" {
     count<number>: 42;
     price: 19.99;
@@ -124,7 +124,7 @@ Expecting token of type 'EOF' but found `from`.
 ```
 
 **Root Cause**: The grammar partially defines imports (line 68-74) but with a very specific syntax:
-```dygram
+```dy
 import { symbol1, symbol2 } from "path";
 ```
 
@@ -134,8 +134,8 @@ However, documentation examples show more advanced import syntax:
 - Export statements (not in grammar at all)
 
 **Example from `mymachine.dy`**:
-```dygram
-import { ErrorHandling, Logging } from "shared/templates.dygram";
+```dy
+import { ErrorHandling, Logging } from "shared/templates.dy";
 
 machine "MyMachine" {
     use ErrorHandling;
@@ -175,12 +175,12 @@ Expecting token of type ')' but found `:`.
 ```
 
 **Root Cause**: Annotation attributes use a different syntax than expected. The grammar expects:
-```dygram
+```dy
 @style(color: red; penwidth: 3;)
 ```
 
 But documentation shows:
-```dygram
+```dy
 @style(rank: min;)
 @style(rank: same:group1;)
 ```
@@ -192,8 +192,8 @@ name=ID ':' value=EdgeAttributeValue
 
 But `same:group1` has TWO colons, and `EdgeAttributeValue` (line 151) only matches simple tokens, not compound values like `same:group1`.
 
-**Example from `aligned-layout.dygram`**:
-```dygram
+**Example from `aligned-layout.dy`**:
+```dy
 Task start @style(rank: min;) "Start";
 Task a @style(rank: same:group1;) "Task A";
 ```
@@ -209,8 +209,8 @@ The `same:group1` value contains a colon, which breaks the parser.
 **Quick Fix**: Change documentation to use quoted strings for compound values.
 
 **Affected Files**:
-- `examples/styling/aligned-layout.dygram` (extracted from `docs/styling.mdx`)
-- `examples/styling/layout-control.dygram` (extracted from `docs/styling.mdx`)
+- `examples/styling/aligned-layout.dy` (extracted from `docs/styling.mdx`)
+- `examples/styling/layout-control.dy` (extracted from `docs/styling.mdx`)
 - `examples/styling/styling-1.dy` (extracted from `docs/styling.mdx`)
 
 ### 5. Complex Attribute Values (CONTEXT ISSUE)
@@ -226,7 +226,7 @@ Expecting token of type 'EOF' but found `[`.
 **Root Cause**: The grammar supports nested objects and arrays in AttributeValue (lines 83-101), but there may be parsing issues with how they're used in the examples.
 
 **Example from `validation-attributes.dy`**:
-```dygram
+```dy
 machine "Validation Attributes"
 
 Input userInput {
@@ -257,7 +257,7 @@ Expecting token of type 'EOF' but found `123`.
 ```
 
 **Root Cause**: Documentation includes an example showing invalid identifiers:
-```dygram
+```dy
 123invalid;    // ❌ Cannot start with a number
 @symbol;       // ❌ Cannot start with @
 ```
@@ -292,7 +292,7 @@ Expecting token of type 'EOF' but found `machine`.
 2. Clearly mark as future feature if multi-machine files are planned
 
 **Affected Files**:
-- `examples/styling/layout-control.dygram`
+- `examples/styling/layout-control.dy`
 - `examples/styling-and-validation/vertical.dy`
 
 ## Summary of Findings

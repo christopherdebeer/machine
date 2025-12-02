@@ -147,7 +147,7 @@ DYGRAM_TEST_MODE=playback npm test test/validating/generative-execution.test.ts
    ```markdown
    ### New Test Scenario
    
-   ```dygram examples/testing/tool-execution/new-test.dy
+   ```dy examples/testing/tool-execution/new-test.dy
    machine "New Test Machine" {
      // ... DyGram code
    }

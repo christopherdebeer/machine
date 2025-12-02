@@ -15,14 +15,14 @@ describe('DependencyGraph', () => {
 
     describe('addModule', () => {
         it('should add a module to the graph', () => {
-            const uri = URI.file('/test/module.dygram');
+            const uri = URI.file('/test/module.dy');
             graph.addModule(uri);
             expect(graph.hasModule(uri)).toBe(true);
             expect(graph.size).toBe(1);
         });
 
         it('should not add duplicate modules', () => {
-            const uri = URI.file('/test/module.dygram');
+            const uri = URI.file('/test/module.dy');
             graph.addModule(uri);
             graph.addModule(uri);
             expect(graph.size).toBe(1);
@@ -31,8 +31,8 @@ describe('DependencyGraph', () => {
 
     describe('addDependency', () => {
         it('should add a dependency between two modules', () => {
-            const moduleA = URI.file('/test/a.dygram');
-            const moduleB = URI.file('/test/b.dygram');
+            const moduleA = URI.file('/test/a.dy');
+            const moduleB = URI.file('/test/b.dy');
 
             graph.addDependency(moduleA, moduleB);
 
@@ -42,8 +42,8 @@ describe('DependencyGraph', () => {
         });
 
         it('should track dependents', () => {
-            const moduleA = URI.file('/test/a.dygram');
-            const moduleB = URI.file('/test/b.dygram');
+            const moduleA = URI.file('/test/a.dy');
+            const moduleB = URI.file('/test/b.dy');
 
             graph.addDependency(moduleA, moduleB);
 
@@ -55,9 +55,9 @@ describe('DependencyGraph', () => {
 
     describe('detectCycles', () => {
         it('should detect no cycles in acyclic graph', () => {
-            const a = URI.file('/test/a.dygram');
-            const b = URI.file('/test/b.dygram');
-            const c = URI.file('/test/c.dygram');
+            const a = URI.file('/test/a.dy');
+            const b = URI.file('/test/b.dy');
+            const c = URI.file('/test/c.dy');
 
             graph.addDependency(a, b);
             graph.addDependency(b, c);
@@ -67,8 +67,8 @@ describe('DependencyGraph', () => {
         });
 
         it('should detect simple cycle', () => {
-            const a = URI.file('/test/a.dygram');
-            const b = URI.file('/test/b.dygram');
+            const a = URI.file('/test/a.dy');
+            const b = URI.file('/test/b.dy');
 
             graph.addDependency(a, b);
             graph.addDependency(b, a);
@@ -78,9 +78,9 @@ describe('DependencyGraph', () => {
         });
 
         it('should detect complex cycle', () => {
-            const a = URI.file('/test/a.dygram');
-            const b = URI.file('/test/b.dygram');
-            const c = URI.file('/test/c.dygram');
+            const a = URI.file('/test/a.dy');
+            const b = URI.file('/test/b.dy');
+            const c = URI.file('/test/c.dy');
 
             graph.addDependency(a, b);
             graph.addDependency(b, c);
@@ -93,9 +93,9 @@ describe('DependencyGraph', () => {
 
     describe('topologicalSort', () => {
         it('should return modules in dependency order', () => {
-            const a = URI.file('/test/a.dygram');
-            const b = URI.file('/test/b.dygram');
-            const c = URI.file('/test/c.dygram');
+            const a = URI.file('/test/a.dy');
+            const b = URI.file('/test/b.dy');
+            const c = URI.file('/test/c.dy');
 
             // a depends on b, b depends on c
             graph.addDependency(a, b);
@@ -116,8 +116,8 @@ describe('DependencyGraph', () => {
         });
 
         it('should return null for cyclic graph', () => {
-            const a = URI.file('/test/a.dygram');
-            const b = URI.file('/test/b.dygram');
+            const a = URI.file('/test/a.dy');
+            const b = URI.file('/test/b.dy');
 
             graph.addDependency(a, b);
             graph.addDependency(b, a);
@@ -129,8 +129,8 @@ describe('DependencyGraph', () => {
 
     describe('removeModule', () => {
         it('should remove a module and its relationships', () => {
-            const a = URI.file('/test/a.dygram');
-            const b = URI.file('/test/b.dygram');
+            const a = URI.file('/test/a.dy');
+            const b = URI.file('/test/b.dy');
 
             graph.addDependency(a, b);
             graph.removeModule(a);
@@ -142,17 +142,17 @@ describe('DependencyGraph', () => {
 
     describe('hasPath', () => {
         it('should detect direct path', () => {
-            const a = URI.file('/test/a.dygram');
-            const b = URI.file('/test/b.dygram');
+            const a = URI.file('/test/a.dy');
+            const b = URI.file('/test/b.dy');
 
             graph.addDependency(a, b);
             expect(graph.hasPath(a, b)).toBe(true);
         });
 
         it('should detect transitive path', () => {
-            const a = URI.file('/test/a.dygram');
-            const b = URI.file('/test/b.dygram');
-            const c = URI.file('/test/c.dygram');
+            const a = URI.file('/test/a.dy');
+            const b = URI.file('/test/b.dy');
+            const c = URI.file('/test/c.dy');
 
             graph.addDependency(a, b);
             graph.addDependency(b, c);
@@ -161,9 +161,9 @@ describe('DependencyGraph', () => {
         });
 
         it('should return false for no path', () => {
-            const a = URI.file('/test/a.dygram');
-            const b = URI.file('/test/b.dygram');
-            const c = URI.file('/test/c.dygram');
+            const a = URI.file('/test/a.dy');
+            const b = URI.file('/test/b.dy');
+            const c = URI.file('/test/c.dy');
 
             graph.addDependency(a, b);
 

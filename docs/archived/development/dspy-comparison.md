@@ -76,7 +76,7 @@ Despite their different approaches, there are significant conceptual overlaps an
 
 ```
 ┌─────────────────────────────────────────┐
-│        DyGram Program (.dygram)         │
+│        DyGram Program (.dy)         │
 │  ┌────────────────────────────────┐     │
 │  │  Nodes (State, Task, etc.)     │     │
 │  └────────────────────────────────┘     │

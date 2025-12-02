@@ -65,7 +65,7 @@ We're here to help! Find the right channel for your needs.
 Found a bug? Help us fix it by providing:
 
 ### Required Information
-1. **Minimal reproduction** - Smallest .dygram file that shows the issue
+1. **Minimal reproduction** - Smallest .dy file that shows the issue
 2. **Expected behavior** - What should happen?
 3. **Actual behavior** - What actually happens?
 4. **Environment details**:
