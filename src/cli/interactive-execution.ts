@@ -82,12 +82,13 @@ async function loadMachineFromFile(filePath: string): Promise<MachineJSON> {
  * Configure LLM client based on options
  */
 function configureClient(opts: LoadExecutionOptions): any {
-    // Interactive mode with stdin/stdout
-    if (opts.isInteractive && !opts.playback && !opts.record) {
+    // Interactive mode with stdin/stdout (with or without recording)
+    if (opts.isInteractive && !opts.playback) {
         return {
             llm: new StdinResponseClient({
                 modelId: 'cli-interactive',
-                responseInput: opts.input ? JSON.stringify(opts.input) : undefined
+                responseInput: opts.input ? JSON.stringify(opts.input) : undefined,
+                recordingsDir: opts.record  // Enable recording if --record is set
             })
         };
     }
@@ -104,7 +105,10 @@ function configureClient(opts: LoadExecutionOptions): any {
         };
     }
 
+    // Legacy: --record without --interactive uses InteractiveTestClient (file-queue mode)
+    // This is deprecated in favor of --interactive --record
     if (opts.record) {
+        console.warn('⚠️  Using --record without --interactive is deprecated. Use: dy e -i machine.dy --record <dir>');
         return {
             llm: new InteractiveTestClient({
                 mode: 'file-queue',

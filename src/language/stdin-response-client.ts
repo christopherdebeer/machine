@@ -9,6 +9,9 @@
 
 import { ClaudeClient, type ClaudeClientConfig, type ConversationMessage, type ModelResponse, type ToolDefinition } from './claude-client.js';
 import { CLIInteractiveClient, formatRequestForDisplay, createExampleResponse } from './cli-interactive-client.js';
+import type { RequestSignature } from './playback-test-client.js';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Error thrown when a response is needed but not provided
@@ -26,14 +29,16 @@ export class PendingResponseError extends Error {
 /**
  * Stdin Response Client
  *
- * Extends ClaudeClient to enable CLI interactive mode
+ * Extends ClaudeClient to enable CLI interactive mode with optional recording
  */
 export class StdinResponseClient extends ClaudeClient {
     private cliClient: CLIInteractiveClient;
     private responseInput?: string;
     private currentNode: string = 'unknown';
+    private recordingsDir?: string;
+    private turnCounter: number = 0;
 
-    constructor(config: ClaudeClientConfig & { responseInput?: string }) {
+    constructor(config: ClaudeClientConfig & { responseInput?: string; recordingsDir?: string }) {
         // Pass a fake API key to the parent since we won't actually use it
         super({
             ...config,
@@ -41,6 +46,12 @@ export class StdinResponseClient extends ClaudeClient {
         });
         this.cliClient = new CLIInteractiveClient();
         this.responseInput = config.responseInput;
+        this.recordingsDir = config.recordingsDir;
+
+        // Create recordings directory if specified
+        if (this.recordingsDir) {
+            fs.mkdirSync(this.recordingsDir, { recursive: true });
+        }
     }
 
     /**
@@ -75,6 +86,12 @@ export class StdinResponseClient extends ClaudeClient {
                     console.error(`⚠️  Warning: Response requestId (${response.requestId}) doesn't match current request (${request.requestId})`);
                 }
 
+                // Record if recording is enabled
+                if (this.recordingsDir) {
+                    this.turnCounter++;
+                    this.saveRecording(request, response.response, messages, tools);
+                }
+
                 this.cliClient.clearPendingRequest();
                 return response.response;
             } catch (error) {
@@ -87,5 +104,43 @@ export class StdinResponseClient extends ClaudeClient {
         const exampleJson = createExampleResponse(request);
 
         throw new PendingResponseError(requestJson, exampleJson);
+    }
+
+    /**
+     * Save recording for playback (compatible with PlaybackTestClient format)
+     */
+    private saveRecording(
+        request: any,
+        response: ModelResponse,
+        messages: ConversationMessage[],
+        tools: ToolDefinition[]
+    ): void {
+        if (!this.recordingsDir) return;
+
+        // Compute request signature for intelligent playback matching
+        const signature: RequestSignature = {
+            toolNames: tools.map(t => t.name).sort(),
+            messageCount: messages.length,
+            contextKeys: [] // Context keys can be added if needed
+        };
+
+        // Use the same format as InteractiveTestClient for compatibility
+        const recording = {
+            request: {
+                messages,
+                tools,
+                systemPrompt: messages[0]?.content || ''
+            },
+            response: {
+                content: response.content,
+                stop_reason: response.stop_reason
+            },
+            recordedAt: new Date().toISOString(),
+            signature  // Add signature for v2 matching
+        };
+
+        const filename = path.join(this.recordingsDir, `turn-${this.turnCounter}.json`);
+        fs.writeFileSync(filename, JSON.stringify(recording, null, 2));
+        console.error(`📼 Recorded turn ${this.turnCounter} to ${filename}`);
     }
 }
