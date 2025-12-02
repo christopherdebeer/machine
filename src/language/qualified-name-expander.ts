@@ -217,13 +217,29 @@ export class QualifiedNameExpander {
         newNode: Node,
         isStrictMode: boolean
     ): void {
-        // Merge title (new wins if provided)
+        // Check if newNode is a note
+        const newNodeIsNote = newNode.type?.toLowerCase() === 'note';
+        const existingNodeIsNote = existingNode.type?.toLowerCase() === 'note';
+
+        // Merge title (new wins if provided, UNLESS new is a note and existing is not)
+        // Notes should not overwrite non-note titles with their documentation content
         if (newNode.title) {
-            existingNode.title = newNode.title;
+            if (newNodeIsNote && !existingNodeIsNote && existingNode.type) {
+                // Don't overwrite non-note's title with note's documentation content
+                // The note's content is just documentation, not the actual title
+            } else {
+                existingNode.title = newNode.title;
+            }
         }
 
-        // Merge type
-        this.mergeNodeType(existingNode, newNode.type, isStrictMode);
+        // Merge type (notes should NOT overwrite non-note types)
+        // Notes are documentation that attach to targets, they should not replace the target's type
+        if (newNodeIsNote && existingNode.type && existingNode.type !== 'note') {
+            // Preserve existing non-note type - don't let notes overwrite it
+            // The note is just documentation for the existing node
+        } else {
+            this.mergeNodeType(existingNode, newNode.type, isStrictMode);
+        }
 
         // Merge annotations (avoid duplicates)
         if (newNode.annotations && newNode.annotations.length > 0) {
