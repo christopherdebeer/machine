@@ -28,7 +28,7 @@ The current `RuntimeStateVisualizer` provides basic runtime visualization but la
   - Multi-path execution fully visualized
 
 ### Phase 1: RuntimeVisualizer Enhancement ✅ COMPLETE
-- **Commit**: (pending) - feat: add RuntimeSnapshot API to RuntimeVisualizer
+- **Commit**: `2dd5bd3` - feat: add RuntimeSnapshot API to RuntimeVisualizer
 - [x] Add `generateRuntimeSnapshot()` method to RuntimeVisualizer
 - [x] Integrate tool discovery (context tools: read/write operations)
 - [x] Add turn state extraction
@@ -52,6 +52,17 @@ The current `RuntimeStateVisualizer` provides basic runtime visualization but la
 - [x] Update this file with implementation status
 - [x] Document new API methods and types
 - [x] Note: Usage examples already in `runtime-snapshot-usage-examples.md`
+
+### Phase 4: Formatting Utilities ✅ COMPLETE
+- **Commit**: `374b164` - feat: add RuntimeSnapshot formatting utilities
+- [x] Add formatRuntimeSnapshot() - Rich text output with sections
+- [x] Add formatRuntimeSnapshotJSON() - Clean JSON for tooling
+- [x] Add formatRuntimeSnapshotCompact() - One-line summary for scripting
+- **File**: `src/language/runtime-visualizer.ts`
+- **Exports**:
+  - `formatRuntimeSnapshot(snapshot)` - Human-readable formatted output
+  - `formatRuntimeSnapshotJSON(snapshot)` - JSON stringified output
+  - `formatRuntimeSnapshotCompact(snapshot)` - Compact one-liner
 
 ---
 
