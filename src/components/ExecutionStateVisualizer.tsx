@@ -3,6 +3,7 @@ import styled, { keyframes, css } from 'styled-components';
 import type { MachineExecutor } from '../language/executor.js'
 import type { VisualizationState } from '../language/execution/runtime-types.js'
 import type { MachineJSON } from '../language/json/types.js'
+import type { RuntimeSnapshot } from '../language/runtime-visualizer.js'
 
 interface ExecutionStateVisualizerProps {
     executor: MachineExecutor | null;
@@ -490,18 +491,119 @@ const Badge = styled.span<{ $automatic?: boolean }>`
     color: white;
 `;
 
+// Tool affordances display
+const ToolsList = styled.div<{ $mobile?: boolean }>`
+    display: grid;
+    grid-template-columns: ${props => props.$mobile ? '1fr' : 'repeat(auto-fill, minmax(200px, 1fr))'};
+    gap: ${props => props.$mobile ? '0.5rem' : '0.75rem'};
+`;
+
+const ToolCard = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 0.625rem;
+    background: white;
+    border-left: 3px solid #8b5cf6;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+`;
+
+const ToolName = styled.div`
+    font-size: 0.813rem;
+    font-weight: 600;
+    color: #1e293b;
+    font-family: 'Monaco', 'Menlo', monospace;
+    margin-bottom: 0.25rem;
+`;
+
+const ToolDescription = styled.div`
+    font-size: 0.75rem;
+    color: #64748b;
+`;
+
+const ToolSource = styled.span`
+    display: inline-block;
+    padding: 0.125rem 0.375rem;
+    background: #f1f5f9;
+    color: #64748b;
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+`;
+
+// Turn state indicator
+const TurnStateCard = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
+    color: white;
+`;
+
+const TurnStateHeader = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+`;
+
+const TurnStateTitle = styled.div`
+    font-size: 0.875rem;
+    font-weight: 600;
+    opacity: 0.9;
+`;
+
+const TurnStateValue = styled.div`
+    font-size: 1.125rem;
+    font-weight: 700;
+`;
+
+const TurnStateGrid = styled.div<{ $mobile?: boolean }>`
+    display: grid;
+    grid-template-columns: ${props => props.$mobile ? '1fr 1fr' : 'repeat(4, 1fr)'};
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+`;
+
+const TurnStatItem = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 0.375rem;
+`;
+
+const TurnStatLabel = styled.div`
+    font-size: 0.625rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+`;
+
+const TurnStatValue = styled.div`
+    font-size: 0.938rem;
+    font-weight: 600;
+`;
+
 export const ExecutionStateVisualizer = forwardRef<ExecutionStateVisualizerRef, ExecutionStateVisualizerProps>(({
     executor,
     mobile = true
 }, ref) => {
     const [vizState, setVizState] = useState<VisualizationState | null>(null);
     const [machineJSON, setMachineJSON] = useState<MachineJSON | null>(null);
+    const [snapshot, setSnapshot] = useState<RuntimeSnapshot | null>(null);
     const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         if (!executor) {
             setVizState(null);
             setMachineJSON(null);
+            setSnapshot(null);
             return;
         }
 
@@ -537,8 +639,21 @@ export const ExecutionStateVisualizer = forwardRef<ExecutionStateVisualizerRef, 
         try {
             const state = executor.getVisualizationState();
             const machine = executor.getMachineDefinition();
+
+            // Get runtime snapshot for enhanced features (tools, turn state)
+            let runtimeSnapshot: RuntimeSnapshot | null = null;
+            if (typeof (executor as any).getRuntimeSnapshot === 'function') {
+                try {
+                    runtimeSnapshot = (executor as any).getRuntimeSnapshot();
+                } catch (err) {
+                    // Fallback gracefully if snapshot generation fails
+                    console.warn('Failed to get runtime snapshot:', err);
+                }
+            }
+
             setVizState(state);
             setMachineJSON(machine);
+            setSnapshot(runtimeSnapshot);
         } catch (error) {
             console.error('Failed to update execution state:', error);
         }
@@ -766,6 +881,55 @@ export const ExecutionStateVisualizer = forwardRef<ExecutionStateVisualizerRef, 
                             </TransitionItem>
                         ))}
                     </TransitionsList>
+                </Section>
+            )}
+
+            {/* Turn State Indicator */}
+            {snapshot?.turnState && (
+                <Section>
+                    <SectionTitle>Turn Execution</SectionTitle>
+                    <TurnStateCard>
+                        <TurnStateHeader>
+                            <TurnStateTitle>🔄 In Turn</TurnStateTitle>
+                            <TurnStateValue>Turn {snapshot.turnState.turnCount}</TurnStateValue>
+                        </TurnStateHeader>
+                        <TurnStateGrid $mobile={mobile}>
+                            <TurnStatItem>
+                                <TurnStatLabel>Node</TurnStatLabel>
+                                <TurnStatValue>{snapshot.turnState.nodeName}</TurnStatValue>
+                            </TurnStatItem>
+                            <TurnStatItem>
+                                <TurnStatLabel>Messages</TurnStatLabel>
+                                <TurnStatValue>{snapshot.turnState.conversationLength}</TurnStatValue>
+                            </TurnStatItem>
+                            <TurnStatItem>
+                                <TurnStatLabel>Tools</TurnStatLabel>
+                                <TurnStatValue>{snapshot.turnState.availableTools.length}</TurnStatValue>
+                            </TurnStatItem>
+                            <TurnStatItem>
+                                <TurnStatLabel>Status</TurnStatLabel>
+                                <TurnStatValue>{snapshot.turnState.isWaitingForTurn ? 'Waiting' : 'Active'}</TurnStatValue>
+                            </TurnStatItem>
+                        </TurnStateGrid>
+                    </TurnStateCard>
+                </Section>
+            )}
+
+            {/* Tool Affordances */}
+            {snapshot?.affordances.tools && snapshot.affordances.tools.length > 0 && (
+                <Section>
+                    <SectionTitle>
+                        Available Tools <SectionCount>{snapshot.affordances.tools.length}</SectionCount>
+                    </SectionTitle>
+                    <ToolsList $mobile={mobile}>
+                        {snapshot.affordances.tools.map((tool, idx) => (
+                            <ToolCard key={idx}>
+                                <ToolName>{tool.toolName}</ToolName>
+                                <ToolDescription>{tool.description}</ToolDescription>
+                                <ToolSource>{tool.source}</ToolSource>
+                            </ToolCard>
+                        ))}
+                    </ToolsList>
                 </Section>
             )}
         </Container>
