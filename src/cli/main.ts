@@ -421,6 +421,7 @@ export const executeAction = async (fileName: string | undefined, opts: {
     interactive?: boolean;
     step?: boolean;
     stepTurn?: boolean;
+    stepPath?: boolean;
     format?: string;
     id?: string;
     force?: boolean;
@@ -430,7 +431,7 @@ export const executeAction = async (fileName: string | undefined, opts: {
     setupLogger(opts);
 
     // Handle step-based or interactive modes
-    if (opts.interactive || opts.step || opts.stepTurn) {
+    if (opts.interactive || opts.step || opts.stepTurn || opts.stepPath) {
         // Determine machine source and input data
         let machineSource: string | undefined = fileName;
         let inputData: any = undefined;
@@ -472,6 +473,7 @@ export const executeAction = async (fileName: string | undefined, opts: {
             interactive: opts.interactive,
             step: opts.step,
             stepTurn: opts.stepTurn,
+            stepPath: opts.stepPath,
             format: opts.format
         });
 
@@ -1197,8 +1199,9 @@ function initializeCLI(): Promise<void> {
                     .aliases(['e'])
                     .argument('[file]', `source file (${fileExtensions}) or stdin if omitted`)
                     .option('-i, --interactive', 'pause only when LLM response needed (await stdin)')
-                    .option('--step', 'execute one step at a time (for debugging)')
+                    .option('--step', 'execute one step at a time (all paths together)')
                     .option('--step-turn', 'execute one turn at a time (for debugging)')
+                    .option('--step-path', 'execute one path at a time (round-robin through active paths)')
                     .option('--format <format>', 'output format: text (default), json, svg, dot', 'text')
                     .option('--id <id>', 'execution ID (for managing multiple executions)')
                     .option('--force', 'force new execution (ignore existing state)')
@@ -1209,7 +1212,7 @@ function initializeCLI(): Promise<void> {
                     .option('-v, --verbose', 'verbose output (full runtime snapshot)')
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .option('--no-imports', 'disable import resolution (treat as single file)')
-                    .description('executes a machine program\n\nExamples:\n  dygram execute app.dy\n  dygram execute app.dy --interactive\n  dygram execute app.dy --step\n  dygram execute app.dy --step-turn\n  dygram execute app.dy --step --format json\n  dygram execute app.dy --interactive --step\n  cat app.dy| dygram execute --interactive\n  dygram execute app.dy--playback recordings/\n  echo \'{"input": "..."}\' | dygram e -i app.dy')
+                    .description('executes a machine program\n\nExamples:\n  dygram execute app.dy\n  dygram execute app.dy --interactive\n  dygram execute app.dy --step\n  dygram execute app.dy --step-turn\n  dygram execute app.dy --step-path\n  dygram execute app.dy --step --format json\n  dygram execute app.dy --interactive --step\n  cat app.dy| dygram execute --interactive\n  dygram execute app.dy--playback recordings/\n  echo \'{"input": "..."}\' | dygram e -i app.dy')
                     .action(executeAction);
 
                 program

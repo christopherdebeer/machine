@@ -177,11 +177,103 @@ export class MachineExecutor {
         this.currentState = nextState;
 
         // Notify listeners of state change
-        if (this.onStateChange) {
-            this.onStateChange();
+        this.emitStateChange();
+
+        // Return whether there are still active paths
+        return this.currentState.paths.some(p => p.status === 'active');
+    }
+
+    /**
+     * Execute a single step for one specific path (for per-path debugging)
+     * @param pathId The ID of the path to step (e.g., "path_0", "path_1")
+     * @returns boolean indicating if there are still active paths
+     */
+    async stepPath(pathId: string): Promise<boolean> {
+        // Find the path to step
+        const pathIndex = this.currentState.paths.findIndex(p => p.id === pathId);
+        if (pathIndex === -1) {
+            throw new Error(`Path ${pathId} not found`);
         }
 
-        return result.status === 'continue' || result.status === 'waiting';
+        const targetPath = this.currentState.paths[pathIndex];
+        if (targetPath.status !== 'active') {
+            throw new Error(`Path ${pathId} is not active (status: ${targetPath.status})`);
+        }
+
+        // Create a temporary state with only the target path active
+        const tempState = {
+            ...this.currentState,
+            paths: this.currentState.paths.map((p, idx) => {
+                if (idx === pathIndex) {
+                    return p; // Keep target path as-is
+                } else if (p.status === 'active') {
+                    // Temporarily mark other active paths as waiting
+                    return { ...p, status: 'waiting' as const };
+                } else {
+                    return p;
+                }
+            })
+        };
+
+        // Execute step on the temporary state
+        const result = this.runtime.step(tempState);
+
+        // Execute effects for this path only
+        const agentResults = await this.effectExecutor.execute(result.effects, result.nextState);
+
+        // Apply agent results
+        let nextState = result.nextState;
+        for (const agentResult of agentResults) {
+            if (agentResult.nextNode) {
+                nextState = this.runtime.applyAgentResult(
+                    nextState,
+                    agentResult.pathId,
+                    agentResult
+                );
+            }
+        }
+
+        // Apply context writes
+        nextState = this.applyContextWrites(nextState, agentResults);
+
+        // Restore other paths to active status (merge with original state)
+        nextState = {
+            ...nextState,
+            paths: nextState.paths.map((p, idx) => {
+                if (idx === pathIndex) {
+                    return p; // Use updated path state
+                } else {
+                    // Restore original status
+                    return { ...p, status: this.currentState.paths[idx].status };
+                }
+            })
+        };
+
+        this.currentState = nextState;
+
+        // Notify listeners of state change
+        this.emitStateChange();
+
+        // Return whether there are still active paths
+        return this.currentState.paths.some(p => p.status === 'active');
+    }
+
+    /**
+     * Get the next active path ID (for round-robin path stepping)
+     * @param currentPathId The current path ID (optional)
+     * @returns The next active path ID, or undefined if no active paths
+     */
+    getNextActivePathId(currentPathId?: string): string | undefined {
+        const activePaths = this.currentState.paths.filter(p => p.status === 'active');
+        if (activePaths.length === 0) return undefined;
+
+        if (!currentPathId) {
+            return activePaths[0].id;
+        }
+
+        const currentIndex = activePaths.findIndex(p => p.id === currentPathId);
+        const nextIndex = (currentIndex + 1) % activePaths.length;
+        return activePaths[nextIndex].id;
     }
 
     /**
@@ -415,6 +507,15 @@ export class MachineExecutor {
      */
     setOnStateChangeCallback(callback?: () => void): void {
         this.onStateChange = callback;
+    }
+
+    /**
+     * Emit state change event to listeners
+     */
+    private emitStateChange(): void {
+        if (this.onStateChange) {
+            this.onStateChange();
+        }
     }
 
     /**

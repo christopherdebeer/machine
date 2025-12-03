@@ -459,6 +459,7 @@ export async function executeInteractiveTurn(
         interactive?: boolean;
         step?: boolean;
         stepTurn?: boolean;
+        stepPath?: boolean;
         format?: string;
     }
 ): Promise<void> {
@@ -486,16 +487,29 @@ export async function executeInteractiveTurn(
     }
 
     // Determine execution mode
-    const isStepMode = opts.step || opts.stepTurn;
+    const isStepMode = opts.step || opts.stepTurn || opts.stepPath;
     const shouldLoop = !isStepMode; // Loop if not in step mode
 
     // Show mode info
     if (opts.step) {
-        logger.info(chalk.gray('🔍 Step mode: executing one step at a time'));
+        logger.info(chalk.gray('🔍 Step mode: executing one step at a time (all paths)'));
     } else if (opts.stepTurn) {
         logger.info(chalk.gray('🔍 Step-turn mode: executing one turn at a time'));
+    } else if (opts.stepPath) {
+        logger.info(chalk.gray('🔍 Step-path mode: executing one path at a time'));
     } else if (opts.interactive) {
         logger.info(chalk.gray('🔄 Interactive mode: running until LLM response needed'));
+    }
+
+    // For step-path mode, track which path to step next
+    let currentPathId: string | undefined;
+    if (opts.stepPath && !metadata.nextPathId) {
+        // Initialize with first active path
+        currentPathId = executor.getNextActivePathId();
+        metadata.nextPathId = currentPathId;
+    } else if (opts.stepPath) {
+        // Resume from saved path
+        currentPathId = metadata.nextPathId;
     }
 
     // Execute loop
@@ -509,8 +523,36 @@ export async function executeInteractiveTurn(
             let result: any;
 
             // Execute based on mode
-            if (opts.step) {
-                // Step mode: execute one step
+            if (opts.stepPath) {
+                // Step-path mode: execute one path at a time
+                if (!currentPathId) {
+                    logger.error('No active paths to step');
+                    return;
+                }
+
+                const currentState = executor.getState();
+                const pathToStep = currentState.paths.find(p => p.id === currentPathId);
+
+                if (!pathToStep) {
+                    logger.error(`Path ${currentPathId} not found`);
+                    return;
+                }
+
+                logger.info(chalk.cyan(`\n📍 Step ${metadata.stepCount + 1} - Path: ${currentPathId} - Node: ${pathToStep.currentNode}`));
+
+                const hasMore = await executor.stepPath(currentPathId);
+                result = {
+                    status: hasMore ? 'in_progress' : 'complete',
+                    stepCount: metadata.stepCount + 1
+                };
+                metadata.stepCount++;
+
+                // Move to next path (round-robin)
+                currentPathId = executor.getNextActivePathId(currentPathId);
+                metadata.nextPathId = currentPathId;
+
+            } else if (opts.step) {
+                // Step mode: execute one step (all paths)
                 const currentState = executor.getState();
                 const currentNode = currentState.paths[0]?.currentNode || '';
                 logger.info(chalk.cyan(`\n📍 Step ${metadata.stepCount + 1} - Node: ${currentNode}`));

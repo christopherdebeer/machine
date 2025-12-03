@@ -42,6 +42,7 @@ export interface ExecutionMetadata {
     stepCount: number;                    // Total steps executed
     status: 'in_progress' | 'complete' | 'error' | 'paused';
     mode: 'interactive' | 'playback' | 'auto';
+    nextPathId?: string;                  // For --step-path mode: next path to step (round-robin)
     clientConfig?: {                      // Client configuration
         type: 'playback' | 'interactive' | 'api';
         recordingsDir?: string;
