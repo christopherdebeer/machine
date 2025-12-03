@@ -18,6 +18,25 @@
 - **Commit**: (pending) - feat: add RuntimeSnapshot formatting utilities
 - **File**: `src/language/runtime-visualizer.ts`
 
+### Web Playground Integration ✅ VERIFIED
+- [x] ExecutionStateVisualizer already uses `getVisualizationState()` (line 538)
+- [x] Updates automatically via `setOnStateChangeCallback` (line 512-514)
+- [x] Executor calls callback on every state change (executor.ts:180, 557, 650)
+- [x] Displays: summary stats, active paths, all paths, node states, transitions
+- **Status**: Currently optimal - using VisualizationState directly is more efficient
+- **Note**: RuntimeSnapshot is better suited for CLI/external tools than React components
+
+**Analysis**:
+- ExecutionStateVisualizer updates reactively at every turn (step or full execution)
+- Using `getVisualizationState()` directly avoids unnecessary data transformation
+- RuntimeSnapshot formatting utilities designed for text/JSON output, not React rendering
+- No changes needed to ExecutionStateVisualizer
+
+**Potential Future Enhancement** (Low Priority):
+- [ ] Add tool affordances display (read/write context operations)
+- [ ] Add turn state indicator (conversation progress)
+- [ ] These would use snapshot data but render with React components
+
 ### CLI Integration (Pending)
 - [ ] Add --snapshot flag to CLI interactive mode
 - [ ] Add --format option (full, compact, json)
