@@ -56,6 +56,7 @@ function getStaticCopyTargets() {
     const targets = [
         { src: 'static/styles.css', dest: 'static' },
         { src: 'static/styles/*', dest: 'static/styles' },
+        { src: 'static/*', dest: 'static' },
     ];
 
     // Dynamically scan examples directory and include all subdirectories
