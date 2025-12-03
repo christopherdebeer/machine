@@ -419,6 +419,9 @@ export const executeAction = async (fileName: string | undefined, opts: {
     quiet?: boolean;
     noImports?: boolean;
     interactive?: boolean;
+    step?: boolean;
+    stepTurn?: boolean;
+    format?: string;
     id?: string;
     force?: boolean;
     playback?: string;
@@ -426,8 +429,8 @@ export const executeAction = async (fileName: string | undefined, opts: {
 }): Promise<void> => {
     setupLogger(opts);
 
-    // Handle interactive mode
-    if (opts.interactive) {
+    // Handle step-based or interactive modes
+    if (opts.interactive || opts.step || opts.stepTurn) {
         // Determine machine source and input data
         let machineSource: string | undefined = fileName;
         let inputData: any = undefined;
@@ -466,7 +469,10 @@ export const executeAction = async (fileName: string | undefined, opts: {
             verbose: opts.verbose,
             input: inputData,
             isStdin: !fileName,
-            interactive: opts.interactive
+            interactive: opts.interactive,
+            step: opts.step,
+            stepTurn: opts.stepTurn,
+            format: opts.format
         });
 
         return;
@@ -1122,17 +1128,20 @@ function initializeCLI(): Promise<void> {
                     .command('execute')
                     .aliases(['e'])
                     .argument('[file]', `source file (${fileExtensions}) or stdin if omitted`)
-                    .option('-i, --interactive', 'interactive turn-by-turn execution')
+                    .option('-i, --interactive', 'pause only when LLM response needed (await stdin)')
+                    .option('--step', 'execute one step at a time (for debugging)')
+                    .option('--step-turn', 'execute one turn at a time (for debugging)')
+                    .option('--format <format>', 'output format: text (default), json, svg, dot', 'text')
                     .option('--id <id>', 'execution ID (for managing multiple executions)')
                     .option('--force', 'force new execution (ignore existing state)')
                     .option('--playback <dir>', 'playback from recordings directory')
                     .option('--record <dir>', 'record execution to directory')
                     .option('-d, --destination <dir>', 'destination directory for execution results')
                     .option('-m, --model <model>', 'model ID to use (e.g., claude-3-5-haiku-20241022, claude-3-5-sonnet-20241022)')
-                    .option('-v, --verbose', 'verbose output')
+                    .option('-v, --verbose', 'verbose output (full runtime snapshot)')
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .option('--no-imports', 'disable import resolution (treat as single file)')
-                    .description('executes a machine program\n\nExamples:\n  dygram execute app.dy\n  dygram execute app.dy --interactive\n  cat app.dy| dygram execute --interactive\n  dygram execute app.dy--playback recordings/\n  echo \'{"input": "..."}\' | dygram e -i app.dy')
+                    .description('executes a machine program\n\nExamples:\n  dygram execute app.dy\n  dygram execute app.dy --interactive\n  dygram execute app.dy --step\n  dygram execute app.dy --step-turn\n  dygram execute app.dy --step --format json\n  dygram execute app.dy --interactive --step\n  cat app.dy| dygram execute --interactive\n  dygram execute app.dy--playback recordings/\n  echo \'{"input": "..."}\' | dygram e -i app.dy')
                     .action(executeAction);
 
                 program
