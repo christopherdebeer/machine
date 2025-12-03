@@ -20,6 +20,9 @@ import { InteractiveTestClient } from '../language/interactive-test-client.js';
 import { StdinResponseClient, PendingResponseError } from '../language/stdin-response-client.js';
 import { logger } from './logger.js';
 import { RuntimeVisualizer, formatRuntimeSnapshot, formatRuntimeSnapshotJSON, formatRuntimeSnapshotCompact } from '../language/runtime-visualizer.js';
+
+// Re-export visualization utilities
+export { RuntimeVisualizer, formatRuntimeSnapshot, formatRuntimeSnapshotJSON, formatRuntimeSnapshotCompact };
 import {
     type LoadExecutionOptions,
     type ExecutionMetadata,

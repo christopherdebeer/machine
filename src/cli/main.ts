@@ -1000,6 +1000,74 @@ export const showExecutionStatusAction = async (
 }
 
 /**
+ * Show execution runtime snapshot without advancing
+ */
+export const showExecutionSnapshotAction = async (
+    id: string,
+    opts?: { verbose?: boolean; quiet?: boolean; format?: string }
+): Promise<void> => {
+    setupLogger(opts || {});
+
+    try {
+        const { loadOrCreateExecution, RuntimeVisualizer, formatRuntimeSnapshot, formatRuntimeSnapshotJSON, formatRuntimeSnapshotCompact } = await import('./interactive-execution.js');
+        const metadata = await loadExecutionMetadata(id);
+
+        // Get machine source
+        const machineFile = metadata.machineFile;
+        if (!machineFile) {
+            logger.error('Cannot show snapshot for stdin-based execution');
+            process.exit(1);
+        }
+
+        logger.heading(`Runtime Snapshot: ${chalk.bold(id)}`);
+        logger.info(chalk.gray(`Machine: ${machineFile}`));
+        logger.info(chalk.gray(`Status: ${metadata.status}\n`));
+
+        // Load execution without advancing
+        const { executor } = await loadOrCreateExecution({
+            machineSource: machineFile,
+            executionId: id,
+            isStdin: false,
+            isInteractive: false
+        });
+
+        // Display runtime snapshot
+        const { RuntimeVisualizer: RV, formatRuntimeSnapshot: format, formatRuntimeSnapshotJSON: formatJSON, formatRuntimeSnapshotCompact: formatCompact } =
+            await import('../language/runtime-visualizer.js');
+
+        const visualizer = new RV(executor);
+        const snapshot = visualizer.generateRuntimeSnapshot();
+        const outputFormat = opts?.format || 'text';
+
+        switch (outputFormat) {
+            case 'json':
+                logger.output(formatJSON(snapshot));
+                break;
+
+            case 'svg':
+            case 'dot':
+                const dotOutput = visualizer.generateRuntimeVisualization({ format: 'class' });
+                logger.output(dotOutput);
+                break;
+
+            case 'text':
+            default:
+                if (opts?.verbose) {
+                    logger.output(format(snapshot));
+                } else {
+                    const compact = formatCompact(snapshot);
+                    logger.info(`📊 ${compact}`);
+                }
+                break;
+        }
+
+    } catch (error) {
+        logger.error(`Failed to show snapshot: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(1);
+    }
+}
+
+/**
  * Remove execution
  */
 export const removeExecutionAction = async (
@@ -1191,6 +1259,15 @@ function initializeCLI(): Promise<void> {
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .description('show execution status\n\nExamples:\n  dygram exec status exec-20251201-143022')
                     .action(showExecutionStatusAction);
+
+                execCmd
+                    .command('show')
+                    .argument('<id>', 'execution ID')
+                    .option('-v, --verbose', 'verbose output (full runtime snapshot)')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .option('--format <format>', 'output format: text (default), json, svg, dot', 'text')
+                    .description('show runtime snapshot without advancing\n\nExamples:\n  dygram exec show exec-20251201-143022\n  dygram exec show exec-20251201-143022 --verbose\n  dygram exec show exec-20251201-143022 --format json')
+                    .action(showExecutionSnapshotAction);
 
                 execCmd
                     .command('rm')
