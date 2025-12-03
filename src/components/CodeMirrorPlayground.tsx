@@ -2323,13 +2323,11 @@ export const CodeMirrorPlayground: React.FC = () => {
         </HeaderTitle>
       </Header>
 
-      {!settingsCollapsed && (
-        <>
-          <SectionHeader>
-            <span>Settings</span>
-            <ToggleBtn onClick={toggleSettings}>✕</ToggleBtn>
-          </SectionHeader>
-          <SettingsPanel $collapsed={settingsCollapsed}>
+      <SectionHeader>
+        <span>Settings</span>
+        <ToggleBtn onClick={toggleSettings}>✕</ToggleBtn>
+      </SectionHeader>
+      <SettingsPanel $collapsed={settingsCollapsed}>
             <SettingsGroup>
               <label htmlFor="model-select">
                 Model:{" "}
@@ -2373,18 +2371,14 @@ export const CodeMirrorPlayground: React.FC = () => {
                 onChange={handleApiKeyChange}
               />
             </SettingsGroup>
-          </SettingsPanel>{" "}
-        </>
-      )}
+      </SettingsPanel>
 
       {/* Files Section */}
-      {!filesCollapsed && (
-        <>
-          <SectionHeader>
-            <span>Files</span>
-            <HeaderControls>
-              {!filesCollapsed && (
-              <SizeControls>
+      <SectionHeader>
+        <span>Files</span>
+        <HeaderControls>
+          {!filesCollapsed && (
+            <SizeControls>
                 <SizeBtn
                   $active={filesSize === "small"}
                   onClick={(e) => {
@@ -2412,38 +2406,30 @@ export const CodeMirrorPlayground: React.FC = () => {
                 >
                   L
                 </SizeBtn>
-              </SizeControls>
-            )}
-            <ToggleBtn onClick={toggleFiles}>✕</ToggleBtn>
-            </HeaderControls>
-          </SectionHeader>
-          <Section $collapsed={filesCollapsed} $size={filesSize}>
-            <UnifiedFileTree
-              fileService={fileService}
-              onSelectFile={handleFileSelect}
-              onFilesChanged={() => {
-                /* Trigger re-render if needed */
-              }}
-            />
-          </Section>
-        </>
-      )}
+            </SizeControls>
+          )}
+          <ToggleBtn onClick={toggleFiles}>✕</ToggleBtn>
+        </HeaderControls>
+      </SectionHeader>
+      <Section $collapsed={filesCollapsed} $size={filesSize}>
+        <UnifiedFileTree
+          fileService={fileService}
+          onSelectFile={handleFileSelect}
+          onFilesChanged={() => {
+            /* Trigger re-render if needed */
+          }}
+        />
+      </Section>
 
-      {(!outputCollapsed || !editorCollapsed) && (
-        <>
-          <MainContainer
-            $collapsed={outputCollapsed && editorCollapsed}
-            $singleSection={editorCollapsed !== outputCollapsed}
-          >
+      <MainContainer
+        $collapsed={outputCollapsed && editorCollapsed}
+        $singleSection={editorCollapsed !== outputCollapsed}
+      >
+        <SectionHeader $sideways={!editorCollapsed && !outputCollapsed}>
+          <span>Editor</span>
+          <HeaderControls>
             {!editorCollapsed && (
-              <>
-                <SectionHeader
-                  $sideways={!editorCollapsed && !outputCollapsed}
-                >
-                  <span>Editor</span>
-                  <HeaderControls>
-                    {!editorCollapsed && (
-                      <SizeControls>
+              <SizeControls>
                         <SizeBtn
                           $active={editorSize === "small"}
                           onClick={(e) => {
@@ -2471,17 +2457,17 @@ export const CodeMirrorPlayground: React.FC = () => {
                         >
                           L
                         </SizeBtn>
-                      </SizeControls>
-                    )}
-                    <ToggleBtn onClick={toggleEditor}>✕</ToggleBtn>
-                  </HeaderControls>
-                </SectionHeader>
-                <EditorSection
-                  $collapsed={editorCollapsed}
-                  $size={editorSize}
-                  $borderRight
-                >
-                  {openFiles.length > 0 && !editorCollapsed && (
+              </SizeControls>
+            )}
+            <ToggleBtn onClick={toggleEditor}>✕</ToggleBtn>
+          </HeaderControls>
+        </SectionHeader>
+        <EditorSection
+          $collapsed={editorCollapsed}
+          $size={editorSize}
+          $borderRight
+        >
+          {openFiles.length > 0 && (
                     <TabBar>
                       {openFiles.map((file, index) => (
                         <Tab
@@ -2509,36 +2495,30 @@ export const CodeMirrorPlayground: React.FC = () => {
                           💾 Save
                         </SaveButton>
                       )}
-                    </TabBar>
-                  )}
-                  <SectionContent $collapsed={editorCollapsed}>
-                    <EditorContainer ref={editorRef}>
-                      {!editorCollapsed && (
-                        <OverlayButtonGroup>
-                          <OverlayButton
-                            onClick={handleFormatDocument}
-                            disabled={isFormatting}
-                            title="Format document (DSL > JSON > DSL)"
-                          >
-                            {isFormatting ? "⏳" : "🎨"} Format
-                          </OverlayButton>
-                        </OverlayButtonGroup>
-                      )}
-                    </EditorContainer>
-                  </SectionContent>
-                </EditorSection>{" "}
-              </>
-            )}
+            </TabBar>
+          )}
+          <SectionContent $collapsed={editorCollapsed}>
+            <EditorContainer ref={editorRef}>
+              {!editorCollapsed && (
+                <OverlayButtonGroup>
+                  <OverlayButton
+                    onClick={handleFormatDocument}
+                    disabled={isFormatting}
+                    title="Format document (DSL > JSON > DSL)"
+                  >
+                    {isFormatting ? "⏳" : "🎨"} Format
+                  </OverlayButton>
+                </OverlayButtonGroup>
+              )}
+            </EditorContainer>
+          </SectionContent>
+        </EditorSection>
 
+        <SectionHeader $sideways={!editorCollapsed && !outputCollapsed}>
+          <span>Output</span>
+          <HeaderControls>
             {!outputCollapsed && (
-              <>
-                <SectionHeader
-                  $sideways={!editorCollapsed && !outputCollapsed}
-                >
-                  <span>Output</span>
-                  <HeaderControls>
-                    {!outputCollapsed && (
-                      <SizeControls>
+              <SizeControls>
                         <SizeBtn
                           $active={outputSize === "small"}
                           onClick={(e) => {
@@ -2566,44 +2546,38 @@ export const CodeMirrorPlayground: React.FC = () => {
                         >
                           L
                         </SizeBtn>
-                      </SizeControls>
-                    )}
-                    <ToggleBtn onClick={toggleOutput}>✕</ToggleBtn>
-                  </HeaderControls>
-                </SectionHeader>
-                <OutputSection $collapsed={outputCollapsed} $size={outputSize}>
-                  <SectionContent $collapsed={outputCollapsed}>
-                    <div
-                      ref={outputPanelRef}
-                      style={{
-                        flex: 1,
-                        display: "flex",
-                        flexDirection: "column",
-                      }}
-                    >
-                      <OutputPanel
-                        defaultFormat={outputFormat}
-                        mobile={true}
-                        data={outputData}
-                        onFormatChange={handleOutputFormatChange}
-                        onSourceLocationClick={handleSourceLocationClick}
-                      />
-                    </div>
-                  </SectionContent>
-                </OutputSection>{" "}
-              </>
+              </SizeControls>
             )}
-          </MainContainer>{" "}
-        </>
-      )}
+            <ToggleBtn onClick={toggleOutput}>✕</ToggleBtn>
+          </HeaderControls>
+        </SectionHeader>
+        <OutputSection $collapsed={outputCollapsed} $size={outputSize}>
+          <SectionContent $collapsed={outputCollapsed}>
+            <div
+              ref={outputPanelRef}
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <OutputPanel
+                defaultFormat={outputFormat}
+                mobile={true}
+                data={outputData}
+                onFormatChange={handleOutputFormatChange}
+                onSourceLocationClick={handleSourceLocationClick}
+              />
+            </div>
+          </SectionContent>
+        </OutputSection>
+      </MainContainer>
 
-      {!executionCollapsed && (
-        <>
-          <SectionHeader>
-            <span>Execution</span>
-            <HeaderControls>
-              {!executionCollapsed && (
-                <SizeControls>
+      <SectionHeader>
+        <span>Execution</span>
+        <HeaderControls>
+          {!executionCollapsed && (
+            <SizeControls>
                   <SizeBtn
                     $active={executionSize === "small"}
                     onClick={(e) => {
@@ -2631,44 +2605,39 @@ export const CodeMirrorPlayground: React.FC = () => {
                   >
                     L
                   </SizeBtn>
-                </SizeControls>
-              )}
-              <ToggleBtn onClick={toggleExecution}>✕</ToggleBtn>
-            </HeaderControls>
-          </SectionHeader>
-          <ExecutionSection
-            $collapsed={executionCollapsed}
-            $size={executionSize}
-          >
-            <SectionContent $collapsed={executionCollapsed}>
-              {executor && (
-                <ExecutionStateVisualizer executor={executor} mobile={false} />
-              )}
-              <ExecutionControls
-                onExecute={handleExecute}
-                onStep={handleStep}
-                onStepTurn={handleStepTurn}
-                onStop={handleStop}
-                onReset={handleReset}
-                mobile={false}
-                showLog={true}
-                executor={executor}
-                logLevel={logLevel}
-                onLogLevelChange={handleLogLevelChange}
-                playbackMode={isPlaybackMode}
-                recordingsAvailable={recordingsAvailable}
-                onTogglePlaybackMode={handleTogglePlaybackMode}
-                playbackClient={playbackClient}
-                recordingMode={isRecordingMode}
-                onToggleRecordingMode={handleToggleRecordingMode}
-                recordingClient={recordingClient}
-                onExportRecordings={handleExportRecordings}
-                onClearRecordings={handleClearRecordings}
-              />
-            </SectionContent>
-          </ExecutionSection>{" "}
-        </>
-      )}
+            </SizeControls>
+          )}
+          <ToggleBtn onClick={toggleExecution}>✕</ToggleBtn>
+        </HeaderControls>
+      </SectionHeader>
+      <ExecutionSection $collapsed={executionCollapsed} $size={executionSize}>
+        <SectionContent $collapsed={executionCollapsed}>
+          {executor && (
+            <ExecutionStateVisualizer executor={executor} mobile={false} />
+          )}
+          <ExecutionControls
+            onExecute={handleExecute}
+            onStep={handleStep}
+            onStepTurn={handleStepTurn}
+            onStop={handleStop}
+            onReset={handleReset}
+            mobile={false}
+            showLog={true}
+            executor={executor}
+            logLevel={logLevel}
+            onLogLevelChange={handleLogLevelChange}
+            playbackMode={isPlaybackMode}
+            recordingsAvailable={recordingsAvailable}
+            onTogglePlaybackMode={handleTogglePlaybackMode}
+            playbackClient={playbackClient}
+            recordingMode={isRecordingMode}
+            onToggleRecordingMode={handleToggleRecordingMode}
+            recordingClient={recordingClient}
+            onExportRecordings={handleExportRecordings}
+            onClearRecordings={handleClearRecordings}
+          />
+        </SectionContent>
+      </ExecutionSection>
     </Container>
   );
 };
