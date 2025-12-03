@@ -47,6 +47,8 @@ Complete reference to all DyGram documentation organized by topic.
   - [Recording Signature Matching System](development/recording-signature-matching.md)
   - [Recording Validation Bugs and Issues](development/recording-validation-bugs.md)
   - [Round-Trip Test Analysis - November 3, 2025](development/round-trip-analysis-2025-11-03.md)
+  - [RuntimeSnapshot Usage Examples](development/runtime-snapshot-usage-examples.md)
+  - [RuntimeStateVisualizer: Execution Controls & Affordances Review](development/runtime-state-visualizer-review.md)
   - [Snapshot Testing Guide](development/SNAPSHOTS.md)
   - [DyGram Syntax Highlighting Investigation](development/syntax-highlighting-investigation.md)
   - [Template String Parsing Enhancement](development/template-string-parsing-enhancement.md)

@@ -4,12 +4,56 @@
 
 The current `RuntimeStateVisualizer` provides basic runtime visualization but lacks comprehensive execution control affordances needed for a complete "window into the execution runtime." This review identifies gaps and proposes enhancements to provide a condensed snapshot view showing contexts, tools, transitions, and multi-path execution state.
 
-**Status**: Proposal - Not Yet Implemented
-**Date**: 2025-12-03
+**Status**: In Progress - Implementation Started
+**Date**: 2025-12-03 (Created), 2025-12-03 (Implementation Started)
 **Related Files**:
 - `src/language/runtime-visualizer.ts` (current implementation)
 - `src/language/executor.ts` (execution engine)
 - `src/language/execution/runtime-types.ts` (type definitions)
+- `src/components/ExecutionStateVisualizer.tsx` (playground component)
+
+---
+
+## Implementation Tracking
+
+### Phase 0: Analysis Complete ✅
+- **Commit**: `89752d0` - docs: comprehensive review of RuntimeStateVisualizer execution controls
+- **Files**:
+  - `docs/development/runtime-state-visualizer-review.md` (this file)
+  - `docs/development/runtime-snapshot-prototype.ts` (prototype implementation)
+  - `docs/development/runtime-snapshot-usage-examples.md` (usage examples)
+- **Key Finding**: ExecutionStateVisualizer already uses `getVisualizationState()` effectively!
+  - See `src/components/ExecutionStateVisualizer.tsx:539`
+  - Already displays: active paths, node states, context values, available transitions
+  - Multi-path execution fully visualized
+
+### Phase 1: RuntimeVisualizer Enhancement ✅ COMPLETE
+- **Commit**: (pending) - feat: add RuntimeSnapshot API to RuntimeVisualizer
+- [x] Add `generateRuntimeSnapshot()` method to RuntimeVisualizer
+- [x] Integrate tool discovery (context tools: read/write operations)
+- [x] Add turn state extraction
+- [x] Keep existing Graphviz methods (no breaking changes)
+- **Files Modified**: `src/language/runtime-visualizer.ts`
+- **New Exports**:
+  - `RuntimeSnapshot` interface - comprehensive execution state snapshot
+  - `ToolAffordance` interface - tool availability information
+  - `ContextAffordance` interface - context state and write capabilities
+  - `RuntimeVisualizer.generateRuntimeSnapshot()` - main API method
+  - `VisualizingMachineExecutor.getRuntimeSnapshot()` - convenience method
+
+### Phase 2: Verification ✅ COMPLETE
+- [x] Verify no regressions - All existing methods unchanged
+- [x] ExecutionStateVisualizer already uses getVisualizationState() effectively
+- [x] No modifications to existing Graphviz generation
+- [x] New methods added alongside existing ones (backward compatible)
+- **Key Finding**: ExecutionStateVisualizer.tsx (line 539) already demonstrates the pattern we're implementing
+
+### Phase 3: Documentation Update ✅ COMPLETE
+- [x] Update this file with implementation status
+- [x] Document new API methods and types
+- [x] Note: Usage examples already in `runtime-snapshot-usage-examples.md`
+
+---
 
 ---
 
