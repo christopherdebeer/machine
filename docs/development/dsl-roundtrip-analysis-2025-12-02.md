@@ -29,8 +29,8 @@ Deep investigation into DSL round-trip failures reveals two distinct root causes
    ```
 
 2. **Parsing Phase**:
-   - `Concept ArrowTypes` → Node{name: "ArrowTypes", type: "concept", attributes: [...]}
-   - `note Language.ArrowTypes` → Node{name: "Language.ArrowTypes", type: "note", title: "Seven..."}
+   - `Concept ArrowTypes` → Node \{name: "ArrowTypes", type: "concept", attributes: [...]}
+   - `note Language.ArrowTypes` → Node \{name: "Language.ArrowTypes", type: "note", title: "Seven..."}
 
 3. **QualifiedNameExpander.expandQualifiedNames()**:
    - Expands `"Language.Arrow Types"` → `["Language", "ArrowTypes"]`
@@ -223,7 +223,7 @@ grep -r "\-\[" docs/examples/ docs/syntax/
 - `docs/examples/styling-and-validation.md`
 - Any syntax files that use `->` followed by `[`
 
-### Solution 3: Fix Edge Qualification
+### Solution 3. Fix Edge Qualification
 
 **Investigation Needed**: More research required to understand exact failure mode
 
