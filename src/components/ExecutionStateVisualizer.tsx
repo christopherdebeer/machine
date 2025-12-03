@@ -29,7 +29,6 @@ const Container = styled.div<{ $mobile?: boolean }>`
     gap: ${props => props.$mobile ? '0.75rem' : '1rem'};
     padding: ${props => props.$mobile ? '0.75rem' : '0.5rem'};
     background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
-    border-radius: 0.5rem;
     max-height: 100%;
     overflow-y: auto;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;

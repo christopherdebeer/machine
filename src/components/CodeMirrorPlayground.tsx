@@ -610,11 +610,18 @@ const OverlayButtonGroup = styled.div`
 const MainContainer = styled.div<{
   $collapsed?: boolean;
   $singleSection?: boolean;
+  $size?: SectionSize;
 }>`
   flex: 1;
   display: flex;
   flex-direction: column;
-  flex-basis: ${(props) => (props.$collapsed ? "0" : "100%")};
+  flex-basis: ${(props) => {
+    if (props.$collapsed) return "0";
+    if (props.$singleSection && props.$size) {
+      return getSectionFlexBasis(false, props.$size);
+    }
+    return "100%";
+  }};
   overflow: hidden;
 
   @media (min-width: 768px) {
@@ -719,7 +726,12 @@ const Logo = styled.img`
 
 const OutputSection = Section;
 
-const ExecutionSection = Section;
+const ExecutionSection = styled(SectionContent)`
+  @media (min-width: 768px) {
+    flex-direction: row;
+    flex-flow: row-reverse;
+  }
+`;
 
 // Main Component
 export const CodeMirrorPlayground: React.FC = () => {
@@ -2323,10 +2335,12 @@ export const CodeMirrorPlayground: React.FC = () => {
         </HeaderTitle>
       </Header>
 
-      <SectionHeader>
-        <span>Settings</span>
-        <ToggleBtn onClick={toggleSettings}>✕</ToggleBtn>
-      </SectionHeader>
+      {!settingsCollapsed && (
+        <SectionHeader>
+          <span>Settings</span>
+          <ToggleBtn onClick={toggleSettings}>✕</ToggleBtn>
+        </SectionHeader>
+      )}
       <SettingsPanel $collapsed={settingsCollapsed}>
             <SettingsGroup>
               <label htmlFor="model-select">
@@ -2374,10 +2388,10 @@ export const CodeMirrorPlayground: React.FC = () => {
       </SettingsPanel>
 
       {/* Files Section */}
-      <SectionHeader>
-        <span>Files</span>
-        <HeaderControls>
-          {!filesCollapsed && (
+      {!filesCollapsed && (
+        <SectionHeader>
+          <span>Files</span>
+          <HeaderControls>
             <SizeControls>
                 <SizeBtn
                   $active={filesSize === "small"}
@@ -2407,10 +2421,10 @@ export const CodeMirrorPlayground: React.FC = () => {
                   L
                 </SizeBtn>
             </SizeControls>
-          )}
-          <ToggleBtn onClick={toggleFiles}>✕</ToggleBtn>
-        </HeaderControls>
-      </SectionHeader>
+            <ToggleBtn onClick={toggleFiles}>✕</ToggleBtn>
+          </HeaderControls>
+        </SectionHeader>
+      )}
       <Section $collapsed={filesCollapsed} $size={filesSize}>
         <UnifiedFileTree
           fileService={fileService}
@@ -2424,11 +2438,18 @@ export const CodeMirrorPlayground: React.FC = () => {
       <MainContainer
         $collapsed={outputCollapsed && editorCollapsed}
         $singleSection={editorCollapsed !== outputCollapsed}
+        $size={
+          editorCollapsed !== outputCollapsed
+            ? editorCollapsed
+              ? outputSize
+              : editorSize
+            : undefined
+        }
       >
-        <SectionHeader $sideways={!editorCollapsed && !outputCollapsed}>
-          <span>Editor</span>
-          <HeaderControls>
-            {!editorCollapsed && (
+        {!editorCollapsed && (
+          <SectionHeader $sideways={!editorCollapsed && !outputCollapsed}>
+            <span>Editor</span>
+            <HeaderControls>
               <SizeControls>
                         <SizeBtn
                           $active={editorSize === "small"}
@@ -2458,10 +2479,10 @@ export const CodeMirrorPlayground: React.FC = () => {
                           L
                         </SizeBtn>
               </SizeControls>
-            )}
-            <ToggleBtn onClick={toggleEditor}>✕</ToggleBtn>
-          </HeaderControls>
-        </SectionHeader>
+              <ToggleBtn onClick={toggleEditor}>✕</ToggleBtn>
+            </HeaderControls>
+          </SectionHeader>
+        )}
         <EditorSection
           $collapsed={editorCollapsed}
           $size={editorSize}
@@ -2514,10 +2535,10 @@ export const CodeMirrorPlayground: React.FC = () => {
           </SectionContent>
         </EditorSection>
 
-        <SectionHeader $sideways={!editorCollapsed && !outputCollapsed}>
-          <span>Output</span>
-          <HeaderControls>
-            {!outputCollapsed && (
+        {!outputCollapsed && (
+          <SectionHeader $sideways={!editorCollapsed && !outputCollapsed}>
+            <span>Output</span>
+            <HeaderControls>
               <SizeControls>
                         <SizeBtn
                           $active={outputSize === "small"}
@@ -2547,10 +2568,10 @@ export const CodeMirrorPlayground: React.FC = () => {
                           L
                         </SizeBtn>
               </SizeControls>
-            )}
-            <ToggleBtn onClick={toggleOutput}>✕</ToggleBtn>
-          </HeaderControls>
-        </SectionHeader>
+              <ToggleBtn onClick={toggleOutput}>✕</ToggleBtn>
+            </HeaderControls>
+          </SectionHeader>
+        )}
         <OutputSection $collapsed={outputCollapsed} $size={outputSize}>
           <SectionContent $collapsed={outputCollapsed}>
             <div
@@ -2573,10 +2594,10 @@ export const CodeMirrorPlayground: React.FC = () => {
         </OutputSection>
       </MainContainer>
 
-      <SectionHeader>
-        <span>Execution</span>
-        <HeaderControls>
-          {!executionCollapsed && (
+      {!executionCollapsed && (
+        <SectionHeader>
+          <span>Execution</span>
+          <HeaderControls>
             <SizeControls>
                   <SizeBtn
                     $active={executionSize === "small"}
@@ -2606,12 +2627,12 @@ export const CodeMirrorPlayground: React.FC = () => {
                     L
                   </SizeBtn>
             </SizeControls>
-          )}
-          <ToggleBtn onClick={toggleExecution}>✕</ToggleBtn>
-        </HeaderControls>
-      </SectionHeader>
-      <ExecutionSection $collapsed={executionCollapsed} $size={executionSize}>
-        <SectionContent $collapsed={executionCollapsed}>
+            <ToggleBtn onClick={toggleExecution}>✕</ToggleBtn>
+          </HeaderControls>
+        </SectionHeader>
+      )}
+      <Section $collapsed={executionCollapsed} $size={executionSize}>
+        <ExecutionSection $collapsed={executionCollapsed}>
           {executor && (
             <ExecutionStateVisualizer executor={executor} mobile={false} />
           )}
@@ -2636,8 +2657,8 @@ export const CodeMirrorPlayground: React.FC = () => {
             onExportRecordings={handleExportRecordings}
             onClearRecordings={handleClearRecordings}
           />
-        </SectionContent>
-      </ExecutionSection>
+        </ExecutionSection>
+      </Section>
     </Container>
   );
 };
