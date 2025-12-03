@@ -3,10 +3,10 @@
  * This module provides LSP features (diagnostics, semantic highlighting, completions) for CodeMirror
  */
 
-import { EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpdate, gutter, GutterMarker, showTooltip, Tooltip } from '@codemirror/view';
+import { EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpdate, gutter, GutterMarker, showTooltip, Tooltip, keymap } from '@codemirror/view';
 import { StateField, StateEffect, Range, RangeSet } from '@codemirror/state';
 import { linter, Diagnostic as CMDiagnostic } from '@codemirror/lint';
-import { autocompletion, type CompletionContext, type CompletionResult, type Completion } from '@codemirror/autocomplete';
+import { autocompletion, type CompletionContext, type CompletionResult, type Completion, acceptCompletion, selectedCompletion, closeCompletion, completionStatus } from '@codemirror/autocomplete';
 import { createMachineServices } from './language/machine-module.js';
 import { EmptyFileSystem } from 'langium';
 import { parseHelper } from 'langium/test';
@@ -600,16 +600,52 @@ async function langiumCompletionSource(context: CompletionContext): Promise<Comp
             return null;
         }
 
-        // Find the word boundary for replacement
+        // Find the word boundary for replacement (default fallback)
         const wordMatch = context.matchBefore(/\w*/);
-        const from = wordMatch ? wordMatch.from : pos;
+        const defaultFrom = wordMatch ? wordMatch.from : pos;
 
         // Convert Langium completions to CodeMirror format
         const options: Completion[] = completionList.items.map((item) => {
+            // Check if the item has a textEdit (LSP TextEdit)
+            let completionFrom = defaultFrom;
+            let completionTo = pos;
+            let applyText = item.insertText || item.label;
+
+            if (item.textEdit) {
+                // Handle LSP TextEdit
+                const textEdit = item.textEdit as any;
+
+                // Check if it's a standard TextEdit (with range) or InsertReplaceEdit
+                if (textEdit.range) {
+                    // Standard TextEdit with range
+                    const editRange = textEdit.range;
+                    const startLine = state.doc.line(editRange.start.line + 1);
+                    const endLine = state.doc.line(editRange.end.line + 1);
+
+                    completionFrom = startLine.from + editRange.start.character;
+                    completionTo = endLine.from + editRange.end.character;
+                    applyText = textEdit.newText;
+                } else if (textEdit.insert || textEdit.replace) {
+                    // InsertReplaceEdit (use replace range if available)
+                    const range = textEdit.replace || textEdit.insert;
+                    const startLine = state.doc.line(range.start.line + 1);
+                    const endLine = state.doc.line(range.end.line + 1);
+
+                    completionFrom = startLine.from + range.start.character;
+                    completionTo = endLine.from + range.end.character;
+                    applyText = textEdit.newText;
+                }
+            }
+
             const completion: Completion = {
                 label: item.label,
                 type: mapCompletionItemKind(item.kind),
-                apply: item.insertText || item.label,
+                // Use custom apply function to handle range properly
+                apply: (view, completion, from, to) => {
+                    view.dispatch({
+                        changes: { from: completionFrom, to: completionTo, insert: applyText }
+                    });
+                },
                 detail: item.detail,
                 info: item.documentation ?
                     (typeof item.documentation === 'string' ? item.documentation : item.documentation.value)
@@ -620,7 +656,7 @@ async function langiumCompletionSource(context: CompletionContext): Promise<Comp
         });
 
         return {
-            from,
+            from: defaultFrom,
             options,
             validFor: /^\w*$/
         };
@@ -631,15 +667,52 @@ async function langiumCompletionSource(context: CompletionContext): Promise<Comp
 }
 
 /**
+ * Custom keymap for completions that makes Enter behavior more conservative
+ * Only accepts with Enter if a completion is explicitly selected
+ */
+const conservativeCompletionKeymap = keymap.of([
+    {
+        key: 'Enter',
+        run: (view) => {
+            // Check if completion is active
+            const status = completionStatus(view.state);
+            if (status === null) {
+                // No completion active, allow default behavior (newline)
+                return false;
+            }
+
+            // Check if a completion is explicitly selected
+            const selected = selectedCompletion(view.state);
+            if (selected === null) {
+                // Completion shown but nothing selected, close it and insert newline
+                closeCompletion(view);
+                return false;
+            }
+
+            // A completion is selected, accept it
+            return acceptCompletion(view);
+        }
+    }
+]);
+
+/**
  * Create the Langium autocompletion extension
  */
 export function createLangiumCompletion() {
-    return autocompletion({
-        override: [langiumCompletionSource],
-        activateOnTyping: true,
-        maxRenderedOptions: 20,
-        defaultKeymap: true
-    });
+    return [
+        autocompletion({
+            override: [langiumCompletionSource],
+            activateOnTyping: true,
+            maxRenderedOptions: 20,
+            defaultKeymap: true,
+            // Don't auto-select the first completion
+            selectOnOpen: false,
+            // Close on blur to prevent accidental accepts
+            closeOnBlur: true
+        }),
+        // Add our custom keymap with higher priority (placed after to override)
+        conservativeCompletionKeymap
+    ];
 }
 
 /**
