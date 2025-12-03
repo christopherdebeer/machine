@@ -27,7 +27,6 @@ Complete reference to all DyGram documentation organized by topic.
   - [DyGram Code Review & Documentation Analysis](development/code-review-2025-11-24.md)
   - [Context Read/Write Implementation Status and Issues](development/context-read-write-implementation.md)
   - [Context Write Implementation Missing](development/context-write-implementation-missing.md)
-  - [DSL Round-Trip Analysis - December 2, 2025](development/dsl-roundtrip-analysis-2025-12-02.md)
   - [Execution UI and Meta Tools Analysis](development/execution-ui-and-meta-tools-analysis.md)
   - [Execution Visualization and Runtime Issues](development/execution-visualization-runtime-issues.md)
   - [Import System Implementation Summary](development/IMPORT_SYSTEM_IMPLEMENTATION_SUMMARY.md)

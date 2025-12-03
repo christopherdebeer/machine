@@ -74,7 +74,7 @@ machine "Array Attribute Test"
 state A "Start"
 state B "End"
 
-A -values: [1, 2, 3]-> B
+A -[1, 2, 3]-> B
 ```
 
 ## Annotation Only
