@@ -37,43 +37,51 @@ import {
 } from "@codemirror/language";
 import { lintKeymap } from "@codemirror/lint";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { ExecutionControls } from "./ExecutionControls.js"
-import { ExecutionStateVisualizer } from "./ExecutionStateVisualizer.js"
-import { UnifiedFileTree } from "./UnifiedFileTree.js"
-import { loadSettings, saveSettings } from "../language/shared-settings.js"
-import { fetchAnthropicModels, clearModelsCache, type ModelInfo } from "../language/model-fetcher.js"
-import { VirtualFileSystem } from "../playground/virtual-filesystem.js"
-import { FileAccessService } from "../playground/file-access-service.js"
-import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel.js"
-import { createLangiumExtensions } from "../codemirror-langium.js"
-import { createMachineServices } from "../language/machine-module.js"
-import { isFileApiAvailable, writeFile } from "../api/files-api.js"
+import { ExecutionControls } from "./ExecutionControls.js";
+import { ExecutionStateVisualizer } from "./ExecutionStateVisualizer.js";
+import { UnifiedFileTree } from "./UnifiedFileTree.js";
+import { loadSettings, saveSettings } from "../language/shared-settings.js";
+import {
+  fetchAnthropicModels,
+  clearModelsCache,
+  type ModelInfo,
+} from "../language/model-fetcher.js";
+import { VirtualFileSystem } from "../playground/virtual-filesystem.js";
+import { FileAccessService } from "../playground/file-access-service.js";
+import { OutputPanel, OutputData, OutputFormat } from "./OutputPanel.js";
+import { createLangiumExtensions } from "../codemirror-langium.js";
+import { createMachineServices } from "../language/machine-module.js";
+import { isFileApiAvailable, writeFile } from "../api/files-api.js";
 import { EmptyFileSystem } from "langium";
 import { parseHelper } from "langium/test";
-import { Machine } from "../language/generated/ast.js"
+import { Machine } from "../language/generated/ast.js";
+import { generateJSON, generateDSL } from "../language/generator/generator.js";
+import { serializeMachineToJSON } from "../language/json/serializer.js";
+import { generateGraphvizFromJSON } from "../language/diagram/index.js";
+import { render as renderGraphviz } from "../language/diagram-controls.js";
+import { MachineExecutor } from "../language/executor.js";
+import type { MachineJSON } from "../language/json/types.js";
 import {
-  generateJSON,
-  generateDSL,
-} from "../language/generator/generator.js"
-import { serializeMachineToJSON } from "../language/json/serializer.js"
-import { generateGraphvizFromJSON } from "../language/diagram/index.js"
-import { render as renderGraphviz } from "../language/diagram-controls.js"
-import { MachineExecutor } from "../language/executor.js"
-import type { MachineJSON } from "../language/json/types.js"
-import { getExampleByKey, getDefaultExample, type Example } from "../language/shared-examples.js"
+  getExampleByKey,
+  getDefaultExample,
+  type Example,
+} from "../language/shared-examples.js";
 import {
   base64UrlEncode,
   base64UrlDecode,
   parseHashParams as parseHashParamsUtil,
   updateHashParams as updateHashParamsUtil,
   type HashParams as HashParamsType,
-} from "../utils/url-encoding.js"
-import { checkRecordingsAvailable } from "../api/recordings-api.js"
-import { BrowserPlaybackClient } from "../language/browser-playback-client.js"
-import { BrowserRecordingClient } from "../language/browser-recording-client.js"
+} from "../utils/url-encoding.js";
+import { checkRecordingsAvailable } from "../api/recordings-api.js";
+import { BrowserPlaybackClient } from "../language/browser-playback-client.js";
+import { BrowserRecordingClient } from "../language/browser-recording-client.js";
 
 // CodeMirror highlighting effect for SVG → Editor navigation
-const setHighlightEffect = StateEffect.define<{from: number; to: number} | null>();
+const setHighlightEffect = StateEffect.define<{
+  from: number;
+  to: number;
+} | null>();
 
 const highlightField = StateField.define<DecorationSet>({
   create() {
@@ -88,19 +96,24 @@ const highlightField = StateField.define<DecorationSet>({
         } else {
           const mark = Decoration.mark({
             class: "cm-svg-highlight",
-            attributes: { style: "background-color: rgba(14, 99, 156, 0.2); border-bottom: 2px solid rgba(14, 99, 156, 0.8);" }
+            attributes: {
+              style:
+                "background-color: rgba(14, 99, 156, 0.2); border-bottom: 2px solid rgba(14, 99, 156, 0.8);",
+            },
           });
-          highlights = Decoration.set([mark.range(effect.value.from, effect.value.to)]);
+          highlights = Decoration.set([
+            mark.range(effect.value.from, effect.value.to),
+          ]);
         }
       }
     }
     return highlights;
   },
-  provide: f => EditorView.decorations.from(f)
+  provide: (f) => EditorView.decorations.from(f),
 });
 
 // Types
-type SectionSize = 'small' | 'medium' | 'big';
+type SectionSize = "small" | "medium" | "big";
 
 // Use HashParams from shared utility
 type HashParams = HashParamsType;
@@ -110,9 +123,11 @@ interface SectionStates {
   editorCollapsed: boolean;
   outputCollapsed: boolean;
   executionCollapsed: boolean;
+  filesCollapsed: boolean;
   editorSize: SectionSize;
   outputSize: SectionSize;
   executionSize: SectionSize;
+  filesSize: SectionSize;
   outputFormat: OutputFormat;
   fitToContainer: boolean;
 }
@@ -123,59 +138,105 @@ interface SectionStates {
 // Section state encoding/decoding helpers
 function encodeSectionStates(states: SectionStates): string {
   // Create a compact representation using single characters
-  // Format: [s][e][o][x][eSize][oSize][xSize][format][fit]
+  // Format: [s][e][o][x][f][eSize][oSize][xSize][fSize][format][fit]
   // s = settings collapsed (0/1)
   // e = editor collapsed (0/1)
   // o = output collapsed (0/1)
   // x = execution collapsed (0/1)
+  // f = files collapsed (0/1)
   // eSize = editor size (s/m/b for small/medium/big)
   // oSize = output size (s/m/b)
   // xSize = execution size (s/m/b)
+  // fSize = files size (s/m/b)
   // format = output format (0=svg, 1=png, 2=dot, 3=json, 4=ast, 5=cst, 6=src)
   // fit = fit to container (0/1)
 
-  const sizeMap: Record<SectionSize, string> = { small: 's', medium: 'm', big: 'b' };
+  const sizeMap: Record<SectionSize, string> = {
+    small: "s",
+    medium: "m",
+    big: "b",
+  };
   const formatMap: Record<OutputFormat, string> = {
-    svg: '0', png: '1', dot: '2', json: '3', ast: '4', cst: '5', src: '6'
+    svg: "0",
+    png: "1",
+    dot: "2",
+    json: "3",
+    ast: "4",
+    cst: "5",
+    src: "6",
   };
 
   return [
-    states.settingsCollapsed ? '1' : '0',
-    states.editorCollapsed ? '1' : '0',
-    states.outputCollapsed ? '1' : '0',
-    states.executionCollapsed ? '1' : '0',
+    states.settingsCollapsed ? "1" : "0",
+    states.editorCollapsed ? "1" : "0",
+    states.outputCollapsed ? "1" : "0",
+    states.executionCollapsed ? "1" : "0",
+    states.filesCollapsed ? "1" : "0",
     sizeMap[states.editorSize],
     sizeMap[states.outputSize],
     sizeMap[states.executionSize],
+    sizeMap[states.filesSize],
     formatMap[states.outputFormat],
-    states.fitToContainer ? '1' : '0'
-  ].join('');
+    states.fitToContainer ? "1" : "0",
+  ].join("");
 }
 
 function decodeSectionStates(encoded: string): Partial<SectionStates> {
-  if (!encoded || encoded.length !== 9) {
+  // Support both old (9-char) and new (11-char) formats for backward compatibility
+  if (!encoded || (encoded.length !== 9 && encoded.length !== 11)) {
     return {}; // Return empty object for invalid input
   }
 
-  const sizeMap: Record<string, SectionSize> = { s: 'small', m: 'medium', b: 'big' };
+  const sizeMap: Record<string, SectionSize> = {
+    s: "small",
+    m: "medium",
+    b: "big",
+  };
   const formatMap: Record<string, OutputFormat> = {
-    '0': 'svg', '1': 'png', '2': 'dot', '3': 'json', '4': 'ast', '5': 'cst', '6': 'src'
+    "0": "svg",
+    "1": "png",
+    "2": "dot",
+    "3": "json",
+    "4": "ast",
+    "5": "cst",
+    "6": "src",
   };
 
   try {
+    // Handle old 9-character format (without files section)
+    if (encoded.length === 9) {
+      return {
+        settingsCollapsed: encoded[0] === "1",
+        editorCollapsed: encoded[1] === "1",
+        outputCollapsed: encoded[2] === "1",
+        executionCollapsed: encoded[3] === "1",
+        editorSize: sizeMap[encoded[4]] || "medium",
+        outputSize: sizeMap[encoded[5]] || "medium",
+        executionSize: sizeMap[encoded[6]] || "medium",
+        outputFormat: formatMap[encoded[7]] || "svg",
+        fitToContainer: encoded[8] === "1",
+        // Files section defaults when not present
+        filesCollapsed: true,
+        filesSize: "medium",
+      };
+    }
+
+    // Handle new 11-character format (with files section)
     return {
-      settingsCollapsed: encoded[0] === '1',
-      editorCollapsed: encoded[1] === '1',
-      outputCollapsed: encoded[2] === '1',
-      executionCollapsed: encoded[3] === '1',
-      editorSize: sizeMap[encoded[4]] || 'medium',
-      outputSize: sizeMap[encoded[5]] || 'medium',
-      executionSize: sizeMap[encoded[6]] || 'medium',
-      outputFormat: formatMap[encoded[7]] || 'svg',
-      fitToContainer: encoded[8] === '1'
+      settingsCollapsed: encoded[0] === "1",
+      editorCollapsed: encoded[1] === "1",
+      outputCollapsed: encoded[2] === "1",
+      executionCollapsed: encoded[3] === "1",
+      filesCollapsed: encoded[4] === "1",
+      editorSize: sizeMap[encoded[5]] || "medium",
+      outputSize: sizeMap[encoded[6]] || "medium",
+      executionSize: sizeMap[encoded[7]] || "medium",
+      filesSize: sizeMap[encoded[8]] || "medium",
+      outputFormat: formatMap[encoded[9]] || "svg",
+      fitToContainer: encoded[10] === "1",
     };
   } catch (error) {
-    console.error('Failed to decode section states:', error);
+    console.error("Failed to decode section states:", error);
     return {};
   }
 }
@@ -186,12 +247,15 @@ const updateHashParams = updateHashParamsUtil;
 
 // Helper function to get flex-basis for section size
 const getSectionFlexBasis = (collapsed: boolean, size: SectionSize): string => {
-    if (collapsed) return '0';
-    switch (size) {
-        case 'small': return '20%';
-        case 'medium': return '50%';
-        case 'big': return '80%';
-    }
+  if (collapsed) return "0";
+  switch (size) {
+    case "small":
+      return "20%";
+    case "medium":
+      return "50%";
+    case "big":
+      return "100%";
+  }
 };
 
 // Styled Components
@@ -214,12 +278,24 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
+  background: #717575;
+  background: linear-gradient(
+    180deg,
+    rgba(113, 117, 117, 1) 0%,
+    rgba(74, 74, 74, 1) 50%,
+    rgba(43, 41, 41, 1) 100%
+  );
 `;
 
 const HeaderTitle = styled.div`
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
+  display: flex;
+  gap: 1em;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
 
   a {
     color: #ffffff;
@@ -227,20 +303,20 @@ const HeaderTitle = styled.div`
   }
 `;
 
-const SectionHeader = styled.div<{ $collapsed?: boolean, $sideways?: boolean }>`
-    background: #2d2d30;
-    padding: 0.25em 0.6em;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #cccccc;
-    border-bottom: 1px solid #3e3e42;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
+const SectionHeader = styled.div<{ $collapsed?: boolean; $sideways?: boolean }>`
+  background: #2d2d30;
+  padding: 0.25em 0.6em;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #cccccc;
+  border-bottom: 1px solid #3e3e42;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
 
   &:hover {
     background: #333336;
@@ -266,35 +342,33 @@ const ToggleBtn = styled.button`
 `;
 
 const SizeControls = styled.div`
-    display: flex;
-    gap: 4px;
-    margin-left: 8px;
+  display: flex;
+  gap: 4px;
+  margin-left: 8px;
 `;
 
 const SizeBtn = styled.button<{ $active?: boolean }>`
-    background: ${props => props.$active ? '#0e639c' : 'transparent'};
-    border: 1px solid ${props => props.$active ? '#0e639c' : '#505053'};
-    color: ${props => props.$active ? '#ffffff' : '#cccccc'};
-    font-size: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 3px;
-    min-width: 24px;
-    transition: all 0.2s ease;
+  background: ${(props) => (props.$active ? "#0e639c" : "transparent")};
+  border: 1px solid ${(props) => (props.$active ? "#0e639c" : "#505053")};
+  color: ${(props) => (props.$active ? "#ffffff" : "#cccccc")};
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  min-width: 24px;
+  transition: all 0.2s ease;
 
-    &:hover {
-        background: ${props => props.$active ? '#0e639c' : '#3e3e42'};
-        border-color: #0e639c;
-    }
-
-
+  &:hover {
+    background: ${(props) => (props.$active ? "#0e639c" : "#3e3e42")};
+    border-color: #0e639c;
+  }
 `;
 
 const HeaderControls = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const SettingsPanel = styled.div<{ $collapsed?: boolean }>`
@@ -415,8 +489,8 @@ const TabBar = styled.div`
 `;
 
 const Tab = styled.div<{ $active?: boolean }>`
-  background: ${props => props.$active ? '#1e1e1e' : '#252526'};
-  color: ${props => props.$active ? '#ffffff' : '#cccccc'};
+  background: ${(props) => (props.$active ? "#1e1e1e" : "#252526")};
+  color: ${(props) => (props.$active ? "#ffffff" : "#cccccc")};
   padding: 6px 12px;
   border-radius: 4px 4px 0 0;
   cursor: pointer;
@@ -426,11 +500,11 @@ const Tab = styled.div<{ $active?: boolean }>`
   gap: 8px;
   white-space: nowrap;
   font-size: 13px;
-  border: 1px solid ${props => props.$active ? '#3e3e42' : 'transparent'};
+  border: 1px solid ${(props) => (props.$active ? "#3e3e42" : "transparent")};
   border-bottom: none;
 
   &:hover {
-    background: ${props => props.$active ? '#1e1e1e' : '#2a2d2e'};
+    background: ${(props) => (props.$active ? "#1e1e1e" : "#2a2d2e")};
   }
 `;
 
@@ -482,82 +556,92 @@ const SaveButton = styled.button`
 `;
 
 const OverlayButton = styled.button<{ $success?: boolean }>`
-    position: absolute;
-    top: 0.3em;
-    right: 0.3em;
-    padding: 0.2em 0.4em;
-    background: ${props => props.$success ? '#10b981' : 'rgba(0, 0, 0, 0.6)'};
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8em;
-    display: flex;
-    align-items: center;
-    gap: 0.2em;
-    z-index: 10;
-    transition: all 0.2s;
-    opacity: 0.4;
+  position: absolute;
+  top: 0.3em;
+  right: 0.3em;
+  padding: 0.2em 0.4em;
+  background: ${(props) => (props.$success ? "#10b981" : "rgba(0, 0, 0, 0.6)")};
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8em;
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
+  z-index: 10;
+  transition: all 0.2s;
+  opacity: 0.4;
 
-    &:hover {
-        background: ${props => props.$success ? '#10b981' : 'rgba(0, 0, 0, 0.8)'};
-        opacity: 1;
-    }
+  &:hover {
+    background: ${(props) =>
+      props.$success ? "#10b981" : "rgba(0, 0, 0, 0.8)"};
+    opacity: 1;
+  }
 
-    &:active {
-        transform: scale(0.95);
-    }
+  &:active {
+    transform: scale(0.95);
+  }
 
-    &:disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
-    }
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
 `;
 
 const OverlayButtonGroup = styled.div`
-    position: absolute;
-    top: 1.4em;
-    right: 0.4em;
-    display: flex;
-    gap: 0.3em;
-    z-index: 10;
-    width: 100%;
-    height: 0;
-    align-items: flex-end;
-    justify-content: end;
-    overflow: visible;
+  position: absolute;
+  top: 1.4em;
+  right: 0.4em;
+  display: flex;
+  gap: 0.3em;
+  z-index: 10;
+  width: 100%;
+  height: 0;
+  align-items: flex-end;
+  justify-content: end;
+  overflow: visible;
 
-    & > button {
-      position: relative;
-    }
+  & > button {
+    position: relative;
+  }
 `;
 
-const MainContainer = styled.div<{ $collapsed?: boolean }>`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    flex-basis: ${props => props.$collapsed ? '0' : '100%'};
-    overflow: hidden;
+const MainContainer = styled.div<{
+  $collapsed?: boolean;
+  $singleSection?: boolean;
+}>`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  flex-basis: ${(props) => (props.$collapsed ? "0" : "100%")};
+  overflow: hidden;
 
-    @media (min-width: 768px) {
-        flex-direction: ${props => props.$collapsed ? 'column' : 'row'};
-    }
+  @media (min-width: 768px) {
+    flex-direction: ${(props) =>
+      props.$collapsed || props.$singleSection ? "column" : "row"};
+  }
 `;
 
 // Generic Section component (DRY)
-const Section = styled.div<{ $collapsed?: boolean; $size?: SectionSize; $borderRight?: boolean }>`
-    flex: ${props => props.$collapsed ? '0 0 0' : '1'};
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: #1e1e1e;
-    transition: flex 0.3s ease;
-    height: ${props => props.$collapsed ? '0' : 'auto'};
-    flex-basis: ${props => getSectionFlexBasis(props.$collapsed || false, props.$size || 'medium')};
-    
-    @media (min-width: 768px) {
-        ${props => props.$borderRight && 'border-right: 1px solid #3e3e42;'}
-    }
+const Section = styled.div<{
+  $collapsed?: boolean;
+  $size?: SectionSize;
+  $borderRight?: boolean;
+}>`
+  flex: ${(props) => (props.$collapsed ? "0 0 0" : "1")};
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #1e1e1e;
+  transition: flex 0.3s ease;
+  height: ${(props) => (props.$collapsed ? "0" : "auto")};
+  flex-basis: ${(props) =>
+    getSectionFlexBasis(props.$collapsed || false, props.$size || "medium")};
+
+  @media (min-width: 768px) {
+    ${(props) => props.$borderRight && "border-right: 1px solid #3e3e42;"}
+  }
 `;
 
 const EditorSection = Section;
@@ -609,6 +693,30 @@ const EditorContainer = styled.div`
   }
 `;
 
+const HeaderToggles = styled.div`
+  display: flex;
+  gap: 0.3em;
+`;
+
+const HeaderToggle = styled.button<{ $active?: boolean }>`
+  opacity: ${(props) => (props.$active ? 1 : 0.5)};
+  width: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8em;
+  height: 1em;
+  font-family: monospace;
+  border-radius: 0.3em;
+  border: 0;
+  cursor: pointer;
+`;
+
+const Logo = styled.img`
+  height: 1.5em;
+  mix-blend-mode: lighten;
+`;
+
 const OutputSection = Section;
 
 const ExecutionSection = Section;
@@ -620,124 +728,148 @@ export const CodeMirrorPlayground: React.FC = () => {
   const outputPanelRef = useRef<HTMLDivElement>(null);
   const currentHighlightedElements = useRef<SVGElement[]>([]);
 
-    const [settings, setSettings] = useState(() => loadSettings());
-    const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
-    const [isLoadingModels, setIsLoadingModels] = useState(false);
-    const [settingsCollapsed, setSettingsCollapsed] = useState(true);
-    const [filesCollapsed, setFilesCollapsed] = useState(true);
-    const [editorCollapsed, setEditorCollapsed] = useState(false);
-    const [outputCollapsed, setOutputCollapsed] = useState(false);
-    const [executionCollapsed, setExecutionCollapsed] = useState(true);
-    const [editorSize, setEditorSize] = useState<SectionSize>('medium');
-    const [outputSize, setOutputSize] = useState<SectionSize>('medium');
-    const [executionSize, setExecutionSize] = useState<SectionSize>('medium');
-    const [outputData, setOutputData] = useState<OutputData>({});
-    const [executor, setExecutor] = useState<MachineExecutor | null>(null);
-    const [isExecuting, setIsExecuting] = useState(false);
-    const [currentMachineData, setCurrentMachineData] = useState<MachineJSON | null>(null);
-    const [selectedExample, setSelectedExample] = useState<Example | null>(null);
-    const [isDirty, setIsDirty] = useState(false);
-    const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
-    const [fitToContainer, setFitToContainer] = useState(true);
-    const [logLevel, setLogLevel] = useState<string>('info');
-    const [isFormatting, setIsFormatting] = useState(false);
+  const [settings, setSettings] = useState(() => loadSettings());
+  const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
+  const [settingsCollapsed, setSettingsCollapsed] = useState(true);
+  const [filesCollapsed, setFilesCollapsed] = useState(true);
+  const [editorCollapsed, setEditorCollapsed] = useState(false);
+  const [outputCollapsed, setOutputCollapsed] = useState(false);
+  const [executionCollapsed, setExecutionCollapsed] = useState(true);
+  const [editorSize, setEditorSize] = useState<SectionSize>("medium");
+  const [outputSize, setOutputSize] = useState<SectionSize>("medium");
+  const [filesSize, setFilesSize] = useState<SectionSize>("medium");
+  const [executionSize, setExecutionSize] = useState<SectionSize>("medium");
+  const [outputData, setOutputData] = useState<OutputData>({});
+  const [executor, setExecutor] = useState<MachineExecutor | null>(null);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [currentMachineData, setCurrentMachineData] =
+    useState<MachineJSON | null>(null);
+  const [selectedExample, setSelectedExample] = useState<Example | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>("svg");
+  const [fitToContainer, setFitToContainer] = useState(true);
+  const [logLevel, setLogLevel] = useState<string>("info");
+  const [isFormatting, setIsFormatting] = useState(false);
 
-    // Playback mode state
-    const [recordingsAvailable, setRecordingsAvailable] = useState(false);
-    const [isPlaybackMode, setIsPlaybackMode] = useState(false);
-    const [playbackClient, setPlaybackClient] = useState<BrowserPlaybackClient | null>(null);
+  // Playback mode state
+  const [recordingsAvailable, setRecordingsAvailable] = useState(false);
+  const [isPlaybackMode, setIsPlaybackMode] = useState(false);
+  const [playbackClient, setPlaybackClient] =
+    useState<BrowserPlaybackClient | null>(null);
 
-    // Recording mode state
-    const [isRecordingMode, setIsRecordingMode] = useState(false);
-    const [recordingClient, setRecordingClient] = useState<any | null>(null);
+  // Recording mode state
+  const [isRecordingMode, setIsRecordingMode] = useState(false);
+  const [recordingClient, setRecordingClient] = useState<any | null>(null);
 
-    // Multi-file editor state
-    const [openFiles, setOpenFiles] = useState<Array<{ path: string; content: string; name: string }>>([]);
-    const [activeFileIndex, setActiveFileIndex] = useState(0);
-    const activeFileIndexRef = useRef(0);
+  // Multi-file editor state
+  const [openFiles, setOpenFiles] = useState<
+    Array<{ path: string; content: string; name: string }>
+  >([]);
+  const [activeFileIndex, setActiveFileIndex] = useState(0);
+  const activeFileIndexRef = useRef(0);
+
+  // Track if we're in initial load to prevent premature hash updates
+  const isInitialLoadRef = useRef(true);
 
   // Sync activeFileIndexRef with activeFileIndex
   useEffect(() => {
     activeFileIndexRef.current = activeFileIndex;
   }, [activeFileIndex]);
 
-    // Unified file access (VFS + API)
-    const [fileService] = useState(() => {
-        const vfs = new VirtualFileSystem('dygram-playground-vfs');
-        // Load from localStorage (VFS handles this automatically)
-        vfs.loadFromLocalStorage();
-        return new FileAccessService(vfs, { workingDir: 'examples' });
-    });
+  // Unified file access (VFS + API)
+  const [fileService] = useState(() => {
+    const vfs = new VirtualFileSystem("dygram-playground-vfs");
+    // Load from localStorage (VFS handles this automatically)
+    vfs.loadFromLocalStorage();
+    return new FileAccessService(vfs, { workingDir: "examples" });
+  });
 
   // Helper: Clear all SVG highlighting
   const clearSVGHighlighting = useCallback(() => {
-    currentHighlightedElements.current.forEach(element => {
-      element.style.filter = '';
-      element.style.opacity = '';
+    currentHighlightedElements.current.forEach((element) => {
+      element.style.filter = "";
+      element.style.opacity = "";
     });
     currentHighlightedElements.current = [];
   }, []);
 
   // Helper: Highlight SVG elements by source position
-  const highlightSVGElementsAtPosition = useCallback((line: number, character: number) => {
-    clearSVGHighlighting();
+  const highlightSVGElementsAtPosition = useCallback(
+    (line: number, character: number) => {
+      clearSVGHighlighting();
 
-    if (!outputPanelRef.current) return;
+      if (!outputPanelRef.current) return;
 
-    // Find all SVG elements with position data (in xlink:href or href)
-    const elements = outputPanelRef.current.querySelectorAll('[href^="#L"], [*|href^="#L"]');
+      // Find all SVG elements with position data (in xlink:href or href)
+      const elements = outputPanelRef.current.querySelectorAll(
+        '[href^="#L"], [*|href^="#L"]'
+      );
 
-    elements.forEach(element => {
-      // Parse position from href attribute: #L{startLine}:{startChar}-{endLine}:{endChar}
-      const svgElement = element as SVGElement;
-      const href = svgElement.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
-                  svgElement.getAttribute('href');
+      elements.forEach((element) => {
+        // Parse position from href attribute: #L{startLine}:{startChar}-{endLine}:{endChar}
+        const svgElement = element as SVGElement;
+        const href =
+          svgElement.getAttributeNS("http://www.w3.org/1999/xlink", "href") ||
+          svgElement.getAttribute("href");
 
-      if (!href || !href.startsWith('#L')) return;
+        if (!href || !href.startsWith("#L")) return;
 
-      const match = href.match(/^#L(\d+):(\d+)-(\d+):(\d+)$/);
-      if (!match) return;
+        const match = href.match(/^#L(\d+):(\d+)-(\d+):(\d+)$/);
+        if (!match) return;
 
-      const lineStart = parseInt(match[1], 10);
-      const charStart = parseInt(match[2], 10);
-      const lineEnd = parseInt(match[3], 10);
-      const charEnd = parseInt(match[4], 10);
+        const lineStart = parseInt(match[1], 10);
+        const charStart = parseInt(match[2], 10);
+        const lineEnd = parseInt(match[3], 10);
+        const charEnd = parseInt(match[4], 10);
 
-      // Check if cursor is within this element's range
-      if (line >= lineStart && line <= lineEnd) {
-        if (line === lineStart && character < charStart) return;
-        if (line === lineEnd && character > charEnd) return;
+        // Check if cursor is within this element's range
+        if (line >= lineStart && line <= lineEnd) {
+          if (line === lineStart && character < charStart) return;
+          if (line === lineEnd && character > charEnd) return;
 
-        // Highlight this element
-        svgElement.style.filter = 'drop-shadow(0 0 8px rgba(14, 99, 156, 0.8))';
-        svgElement.style.opacity = '1';
-        currentHighlightedElements.current.push(svgElement);
-      }
-    });
-  }, [clearSVGHighlighting]);
+          // Highlight this element
+          svgElement.style.filter =
+            "drop-shadow(0 0 8px rgba(14, 99, 156, 0.8))";
+          svgElement.style.opacity = "1";
+          currentHighlightedElements.current.push(svgElement);
+        }
+      });
+    },
+    [clearSVGHighlighting]
+  );
 
   // Handle SVG element click - highlight source location without changing cursor
-  const handleSourceLocationClick = useCallback((location: { lineStart: number; charStart: number; lineEnd: number; charEnd: number }) => {
-    if (!editorViewRef.current) return;
+  const handleSourceLocationClick = useCallback(
+    (location: {
+      lineStart: number;
+      charStart: number;
+      lineEnd: number;
+      charEnd: number;
+    }) => {
+      if (!editorViewRef.current) return;
 
-    const view = editorViewRef.current;
-    const doc = view.state.doc;
+      const view = editorViewRef.current;
+      const doc = view.state.doc;
 
-    // Convert line/char to offset
-    const startOffset = doc.line(location.lineStart + 1).from + location.charStart;
-    const endOffset = doc.line(location.lineEnd + 1).from + location.charEnd;
+      // Convert line/char to offset
+      const startOffset =
+        doc.line(location.lineStart + 1).from + location.charStart;
+      const endOffset = doc.line(location.lineEnd + 1).from + location.charEnd;
 
-    // Highlight the range without changing selection
-    view.dispatch({
-      effects: setHighlightEffect.of({ from: startOffset, to: endOffset }),
-      scrollIntoView: true
-    });
+      // Highlight the range without changing selection
+      view.dispatch({
+        effects: setHighlightEffect.of({ from: startOffset, to: endOffset }),
+        scrollIntoView: true,
+      });
 
-    // Scroll to the highlighted range
-    view.dispatch({
-      effects: EditorView.scrollIntoView(startOffset, { y: "center" })
-    });
-  }, []);
+      // Scroll to the highlighted range
+      view.dispatch({
+        effects: EditorView.scrollIntoView(startOffset, { y: "center" }),
+      });
+    },
+    []
+  );
 
   // Initialize editor
   useEffect(() => {
@@ -745,7 +877,7 @@ export const CodeMirrorPlayground: React.FC = () => {
 
     // Determine initial content from URL hash or default
     const hashParams = parseHashParams();
-    let initialCode = '';
+    let initialCode = "";
     let initialExample: Example | null = null;
 
     // Priority 1: URL hash with custom content
@@ -790,6 +922,9 @@ export const CodeMirrorPlayground: React.FC = () => {
       if (sectionStates.executionCollapsed !== undefined) {
         setExecutionCollapsed(sectionStates.executionCollapsed);
       }
+      if (sectionStates.filesCollapsed !== undefined) {
+        setFilesCollapsed(sectionStates.filesCollapsed);
+      }
       if (sectionStates.editorSize !== undefined) {
         setEditorSize(sectionStates.editorSize);
       }
@@ -798,6 +933,9 @@ export const CodeMirrorPlayground: React.FC = () => {
       }
       if (sectionStates.executionSize !== undefined) {
         setExecutionSize(sectionStates.executionSize);
+      }
+      if (sectionStates.filesSize !== undefined) {
+        setFilesSize(sectionStates.filesSize);
       }
       if (sectionStates.outputFormat !== undefined) {
         setOutputFormat(sectionStates.outputFormat);
@@ -814,7 +952,7 @@ export const CodeMirrorPlayground: React.FC = () => {
     // Update URL hash to reflect initial state (only if not already set)
     if (!window.location.hash && initialExample) {
       updateHashParams({
-        example: initialExample.name.toLowerCase().replace(/\s+/g, '-'),
+        example: initialExample.name.toLowerCase().replace(/\s+/g, "-"),
       });
     }
 
@@ -884,10 +1022,12 @@ export const CodeMirrorPlayground: React.FC = () => {
           const character = pos - line.from;
 
           // Clear any SVG→Editor highlight when user moves cursor
-          const hasHighlightEffect = transaction.effects.some(e => e.is(setHighlightEffect));
+          const hasHighlightEffect = transaction.effects.some((e) =>
+            e.is(setHighlightEffect)
+          );
           if (!hasHighlightEffect) {
             view.dispatch({
-              effects: setHighlightEffect.of(null)
+              effects: setHighlightEffect.of(null),
             });
           }
           // Highlight SVG elements at cursor position
@@ -900,13 +1040,13 @@ export const CodeMirrorPlayground: React.FC = () => {
           handleDocumentChange(code);
 
           // Update content in open files array
-          setOpenFiles(prev => {
+          setOpenFiles((prev) => {
             const currentIndex = activeFileIndexRef.current;
             if (prev.length > 0 && currentIndex < prev.length) {
               const updated = [...prev];
               updated[currentIndex] = {
                 ...updated[currentIndex],
-                content: code
+                content: code,
               };
               return updated;
             }
@@ -919,7 +1059,7 @@ export const CodeMirrorPlayground: React.FC = () => {
           // Update URL hash with encoded content
           if (selectedExample) {
             updateHashParams({
-              example: selectedExample.name.toLowerCase().replace(/\s+/g, '-'),
+              example: selectedExample.name.toLowerCase().replace(/\s+/g, "-"),
               content: code,
             });
           } else {
@@ -936,6 +1076,11 @@ export const CodeMirrorPlayground: React.FC = () => {
     // Trigger initial render
     handleDocumentChange(initialCode);
 
+    // Mark initial load as complete after a short delay to ensure all state updates are processed
+    setTimeout(() => {
+      isInitialLoadRef.current = false;
+    }, 100);
+
     return () => {
       view.destroy();
     };
@@ -943,16 +1088,23 @@ export const CodeMirrorPlayground: React.FC = () => {
 
   // Update URL hash when section states change
   useEffect(() => {
+    // Skip hash updates during initial load to prevent overwriting restored state
+    if (isInitialLoadRef.current) {
+      return;
+    }
+
     const currentSectionStates: SectionStates = {
       settingsCollapsed,
       editorCollapsed,
       outputCollapsed,
       executionCollapsed,
+      filesCollapsed,
       editorSize,
       outputSize,
       executionSize,
+      filesSize,
       outputFormat,
-      fitToContainer
+      fitToContainer,
     };
 
     // Get current hash params
@@ -964,9 +1116,21 @@ export const CodeMirrorPlayground: React.FC = () => {
     // Update hash params with new section states
     updateHashParams({
       ...hashParams,
-      sections: encodedSections
+      sections: encodedSections,
     });
-  }, [settingsCollapsed, editorCollapsed, outputCollapsed, executionCollapsed, editorSize, outputSize, executionSize, outputFormat, fitToContainer]);
+  }, [
+    settingsCollapsed,
+    editorCollapsed,
+    outputCollapsed,
+    executionCollapsed,
+    filesCollapsed,
+    editorSize,
+    outputSize,
+    executionSize,
+    filesSize,
+    outputFormat,
+    fitToContainer,
+  ]);
 
   // Check for recordings when example changes
   useEffect(() => {
@@ -982,10 +1146,16 @@ export const CodeMirrorPlayground: React.FC = () => {
 
       try {
         // Extract example name from filename (remove extension)
-        const exampleName = selectedExample.filename.replace(/\.(dy|dygram|mach)$/, '');
+        const exampleName = selectedExample.filename.replace(
+          /\.(dy|dygram|mach)$/,
+          ""
+        );
 
         // Check if recordings exist
-        const available = await checkRecordingsAvailable(exampleName, selectedExample.category);
+        const available = await checkRecordingsAvailable(
+          exampleName,
+          selectedExample.category
+        );
         setRecordingsAvailable(available);
 
         if (!available) {
@@ -997,7 +1167,7 @@ export const CodeMirrorPlayground: React.FC = () => {
         setIsRecordingMode(false);
         setRecordingClient(null);
       } catch (error) {
-        console.warn('Failed to check recordings:', error);
+        console.warn("Failed to check recordings:", error);
         setRecordingsAvailable(false);
         setIsPlaybackMode(false);
         setPlaybackClient(null);
@@ -1017,7 +1187,7 @@ export const CodeMirrorPlayground: React.FC = () => {
         const models = await fetchAnthropicModels(settings.apiKey);
         setAvailableModels(models);
       } catch (error) {
-        console.warn('Failed to load models:', error);
+        console.warn("Failed to load models:", error);
         // fetchAnthropicModels already handles fallback to hardcoded models
       } finally {
         setIsLoadingModels(false);
@@ -1059,7 +1229,7 @@ export const CodeMirrorPlayground: React.FC = () => {
       const models = await fetchAnthropicModels(settings.apiKey);
       setAvailableModels(models);
     } catch (error) {
-      console.warn('Failed to refresh models:', error);
+      console.warn("Failed to refresh models:", error);
     } finally {
       setIsLoadingModels(false);
     }
@@ -1086,19 +1256,22 @@ export const CodeMirrorPlayground: React.FC = () => {
     setExecutionCollapsed((prev) => !prev);
   }, []);
 
+  // Handle size changes
+  const handleEditorSizeChange = useCallback((size: SectionSize) => {
+    setEditorSize(size);
+  }, []);
 
-    // Handle size changes
-    const handleEditorSizeChange = useCallback((size: SectionSize) => {
-        setEditorSize(size);
-    }, []);
+  const handleOutputSizeChange = useCallback((size: SectionSize) => {
+    setOutputSize(size);
+  }, []);
 
-    const handleOutputSizeChange = useCallback((size: SectionSize) => {
-        setOutputSize(size);
-    }, []);
+  const handleFilesSizeChange = useCallback((size: SectionSize) => {
+    setFilesSize(size);
+  }, []);
 
-    const handleExecutionSizeChange = useCallback((size: SectionSize) => {
-        setExecutionSize(size);
-    }, []);
+  const handleExecutionSizeChange = useCallback((size: SectionSize) => {
+    setExecutionSize(size);
+  }, []);
 
   // Handle output format change
   const handleOutputFormatChange = useCallback((format: OutputFormat) => {
@@ -1127,121 +1300,134 @@ export const CodeMirrorPlayground: React.FC = () => {
 
       // Update URL hash (without content since it's a clean example)
       updateHashParams({
-        example: example.name.toLowerCase().replace(/\s+/g, '-'),
+        example: example.name.toLowerCase().replace(/\s+/g, "-"),
       });
     }
   }, []);
 
   // Handle file selection from Unified FileTree
-  const handleFileSelect = useCallback((path: string, content: string) => {
-    const pathParts = path.split('/');
-    const filename = pathParts[pathParts.length - 1];
-    const name = filename.replace(/\.(dygram|mach)$/, '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  const handleFileSelect = useCallback(
+    (path: string, content: string) => {
+      const pathParts = path.split("/");
+      const filename = pathParts[pathParts.length - 1];
+      const name = filename
+        .replace(/\.(dygram|mach)$/, "")
+        .split("-")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
 
-    // Check if file is already open
-    const existingIndex = openFiles.findIndex(f => f.path === path);
+      // Check if file is already open
+      const existingIndex = openFiles.findIndex((f) => f.path === path);
 
-    if (existingIndex >= 0) {
-      // File already open, just switch to it
-      setActiveFileIndex(existingIndex);
-      if (editorViewRef.current) {
-        editorViewRef.current.dispatch({
-          changes: {
-            from: 0,
-            to: editorViewRef.current.state.doc.length,
-            insert: openFiles[existingIndex].content,
-          },
-        });
+      if (existingIndex >= 0) {
+        // File already open, just switch to it
+        setActiveFileIndex(existingIndex);
+        if (editorViewRef.current) {
+          editorViewRef.current.dispatch({
+            changes: {
+              from: 0,
+              to: editorViewRef.current.state.doc.length,
+              insert: openFiles[existingIndex].content,
+            },
+          });
+        }
+      } else {
+        // Open new file
+        const newFile = { path, content, name };
+        setOpenFiles((prev) => [...prev, newFile]);
+        setActiveFileIndex(openFiles.length); // New file will be at end of array
+
+        if (editorViewRef.current) {
+          editorViewRef.current.dispatch({
+            changes: {
+              from: 0,
+              to: editorViewRef.current.state.doc.length,
+              insert: content,
+            },
+          });
+        }
       }
-    } else {
-      // Open new file
-      const newFile = { path, content, name };
-      setOpenFiles(prev => [...prev, newFile]);
-      setActiveFileIndex(openFiles.length); // New file will be at end of array
 
-      if (editorViewRef.current) {
-        editorViewRef.current.dispatch({
-          changes: {
-            from: 0,
-            to: editorViewRef.current.state.doc.length,
-            insert: content,
-          },
-        });
-      }
-    }
+      // Create an example-like object for consistency
+      const category = pathParts.length > 1 ? pathParts[0] : "root";
+      const fileExample: Example = {
+        path,
+        name,
+        title: name,
+        category,
+        filename,
+        content,
+      };
 
-    // Create an example-like object for consistency
-    const category = pathParts.length > 1 ? pathParts[0] : 'root';
-    const fileExample: Example = {
-      path,
-      name,
-      title: name,
-      category,
-      filename,
-      content
-    };
+      setSelectedExample(fileExample);
+      setIsDirty(false);
 
-    setSelectedExample(fileExample);
-    setIsDirty(false);
-
-    // Update URL hash
-    updateHashParams({
-      example: name.toLowerCase().replace(/\s+/g, '-'),
-    });
-  }, [openFiles]);
+      // Update URL hash
+      updateHashParams({
+        example: name.toLowerCase().replace(/\s+/g, "-"),
+      });
+    },
+    [openFiles]
+  );
 
   // Handle tab switching
-  const handleTabSwitch = useCallback((index: number) => {
-    if (index >= 0 && index < openFiles.length) {
-      setActiveFileIndex(index);
-      if (editorViewRef.current) {
-        editorViewRef.current.dispatch({
-          changes: {
-            from: 0,
-            to: editorViewRef.current.state.doc.length,
-            insert: openFiles[index].content,
-          },
-        });
+  const handleTabSwitch = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < openFiles.length) {
+        setActiveFileIndex(index);
+        if (editorViewRef.current) {
+          editorViewRef.current.dispatch({
+            changes: {
+              from: 0,
+              to: editorViewRef.current.state.doc.length,
+              insert: openFiles[index].content,
+            },
+          });
+        }
       }
-    }
-  }, [openFiles]);
+    },
+    [openFiles]
+  );
 
   // Handle tab close
-  const handleTabClose = useCallback((index: number) => {
-    const newFiles = openFiles.filter((_, i) => i !== index);
-    setOpenFiles(newFiles);
+  const handleTabClose = useCallback(
+    (index: number) => {
+      const newFiles = openFiles.filter((_, i) => i !== index);
+      setOpenFiles(newFiles);
 
-    // Adjust active index
-    if (newFiles.length === 0) {
-      setActiveFileIndex(0);
-      // Clear editor
-      if (editorViewRef.current) {
-        editorViewRef.current.dispatch({
-          changes: {
-            from: 0,
-            to: editorViewRef.current.state.doc.length,
-            insert: '',
-          },
-        });
+      // Adjust active index
+      if (newFiles.length === 0) {
+        setActiveFileIndex(0);
+        // Clear editor
+        if (editorViewRef.current) {
+          editorViewRef.current.dispatch({
+            changes: {
+              from: 0,
+              to: editorViewRef.current.state.doc.length,
+              insert: "",
+            },
+          });
+        }
+      } else if (index === activeFileIndex) {
+        // Closed active tab, switch to previous or next
+        const newIndex = index > 0 ? index - 1 : 0;
+        setActiveFileIndex(newIndex);
+        if (editorViewRef.current) {
+          editorViewRef.current.dispatch({
+            changes: {
+              from: 0,
+              to: editorViewRef.current.state.doc.length,
+              insert: newFiles[newIndex].content,
+            },
+          });
+        }
+      } else if (index < activeFileIndex) {
+        // Closed tab before active, adjust index
+        setActiveFileIndex(activeFileIndex - 1);
       }
-    } else if (index === activeFileIndex) {
-      // Closed active tab, switch to previous or next
-      const newIndex = index > 0 ? index - 1 : 0;
-      setActiveFileIndex(newIndex);
-      if (editorViewRef.current) {
-        editorViewRef.current.dispatch({
-          changes: {
-            from: 0,
-            to: editorViewRef.current.state.doc.length,
-            insert: newFiles[newIndex].content,
-          },
-        });
-      }
-    } else if (index < activeFileIndex) {
-      // Closed tab before active, adjust index
-      setActiveFileIndex(activeFileIndex - 1);
-    }
-  }, [openFiles, activeFileIndex]);
+    },
+    [openFiles, activeFileIndex]
+  );
 
   // Handle save file
   const handleSaveFile = useCallback(async () => {
@@ -1264,8 +1450,12 @@ export const CodeMirrorPlayground: React.FC = () => {
 
       setIsDirty(false);
     } catch (error) {
-      console.error('Error saving file:', error);
-      alert(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Error saving file:", error);
+      alert(
+        `Failed to save file: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   }, [openFiles, activeFileIndex, fileService]);
 
@@ -1295,7 +1485,10 @@ export const CodeMirrorPlayground: React.FC = () => {
 
       // Check for parser errors
       if (document.parseResult.parserErrors.length > 0) {
-        console.error("Cannot format document with parse errors:", document.parseResult.parserErrors);
+        console.error(
+          "Cannot format document with parse errors:",
+          document.parseResult.parserErrors
+        );
         // alert("Cannot format document: Please fix syntax errors first");
         // return;
       }
@@ -1322,13 +1515,13 @@ export const CodeMirrorPlayground: React.FC = () => {
       });
 
       // Update content in open files array
-      setOpenFiles(prev => {
+      setOpenFiles((prev) => {
         const currentIndex = activeFileIndexRef.current;
         if (prev.length > 0 && currentIndex < prev.length) {
           const updated = [...prev];
           updated[currentIndex] = {
             ...updated[currentIndex],
-            content: formattedDSL
+            content: formattedDSL,
           };
           return updated;
         }
@@ -1341,7 +1534,11 @@ export const CodeMirrorPlayground: React.FC = () => {
       console.log("Document formatted successfully");
     } catch (error) {
       console.error("Error formatting document:", error);
-      alert(`Failed to format document: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(
+        `Failed to format document: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
       setIsFormatting(false);
     }
@@ -1360,112 +1557,126 @@ export const CodeMirrorPlayground: React.FC = () => {
   }, []);
 
   // PNG generation utility
-  const generatePngFromSvg = useCallback(async (svgContent: string): Promise<string | undefined> => {
-    if (!svgContent) {
-      return undefined;
-    }
-
-    try {
-      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
+  const generatePngFromSvg = useCallback(
+    async (svgContent: string): Promise<string | undefined> => {
+      if (!svgContent) {
+        return undefined;
+      }
 
       try {
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          const image = new Image();
+        const blob = new Blob([svgContent], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
 
-          image.onload = () => {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
+        try {
+          const dataUrl = await new Promise<string>((resolve, reject) => {
+            const image = new Image();
 
-            if (!context) {
-              reject(new Error('Unable to obtain 2D canvas context'));
-              return;
-            }
+            image.onload = () => {
+              const canvas = document.createElement("canvas");
+              const context = canvas.getContext("2d");
 
-            canvas.width = image.width;
-            canvas.height = image.height;
-            context.drawImage(image, 0, 0);
-            resolve(canvas.toDataURL('image/png'));
-          };
+              if (!context) {
+                reject(new Error("Unable to obtain 2D canvas context"));
+                return;
+              }
 
-          image.onerror = () => {
-            reject(new Error('Unable to load SVG for PNG conversion'));
-          };
+              canvas.width = image.width;
+              canvas.height = image.height;
+              context.drawImage(image, 0, 0);
+              resolve(canvas.toDataURL("image/png"));
+            };
 
-          image.src = url;
-        });
+            image.onerror = () => {
+              reject(new Error("Unable to load SVG for PNG conversion"));
+            };
 
-        return dataUrl;
-      } finally {
-        URL.revokeObjectURL(url);
+            image.src = url;
+          });
+
+          return dataUrl;
+        } finally {
+          URL.revokeObjectURL(url);
+        }
+      } catch (error) {
+        console.error("Failed to generate PNG preview from SVG:", error);
+        return undefined;
       }
-    } catch (error) {
-      console.error('Failed to generate PNG preview from SVG:', error);
-      return undefined;
-    }
-  }, []);
+    },
+    []
+  );
 
   // Update SVG visualization with execution state
   const updateRuntimeVisualization = useCallback(
     async (exec: MachineExecutor) => {
-      console.log('[updateRuntimeVisualization] Called', { 
-        hasExecutor: !!exec, 
-        hasCurrentMachineData: !!currentMachineData 
+      console.log("[updateRuntimeVisualization] Called", {
+        hasExecutor: !!exec,
+        hasCurrentMachineData: !!currentMachineData,
       });
 
       if (!exec) {
-        console.warn('[updateRuntimeVisualization] No executor provided');
+        console.warn("[updateRuntimeVisualization] No executor provided");
         return;
       }
 
       // Get machine data from executor if not available in state
       const machineData = currentMachineData || exec.getMachineDefinition();
       if (!machineData) {
-        console.warn('[updateRuntimeVisualization] No machine data available');
+        console.warn("[updateRuntimeVisualization] No machine data available");
         return;
       }
 
       try {
         // Get current execution state
         const state = exec.getState();
-        console.log('[updateRuntimeVisualization] Execution state:', {state, machineData});
+        console.log("[updateRuntimeVisualization] Execution state:", {
+          state,
+          machineData,
+        });
 
         // Check if there are any paths with execution
         if (!state.paths || state.paths.length === 0) {
-          console.warn('[updateRuntimeVisualization] No execution paths found');
+          console.warn("[updateRuntimeVisualization] No execution paths found");
           return;
         }
 
         // Generate new Graphviz with ExecutionState (conversion handled internally)
-        const { generateRuntimeGraphviz } = await import('../language/diagram/index.js');
+        const { generateRuntimeGraphviz } = await import(
+          "../language/diagram/index.js"
+        );
         const dotWithContext = generateRuntimeGraphviz(machineData, state, {
           showRuntimeState: true,
           showVisitCounts: true,
           showExecutionPath: true,
         });
 
-        console.log('[updateRuntimeVisualization] Generated runtime DOT, length:', dotWithContext.length);
+        console.log(
+          "[updateRuntimeVisualization] Generated runtime DOT, length:",
+          dotWithContext.length
+        );
 
         // Render to SVG
         const tempDiv = window.document.createElement("div");
         const svgResult = await renderGraphviz(dotWithContext, tempDiv);
-        
+
         // Generate PNG from SVG
         const pngDataUrl = await generatePngFromSvg(tempDiv.innerHTML);
-        
-        console.log('[updateRuntimeVisualization] Rendered SVG, length:', tempDiv.innerHTML.length);
-        
+
+        console.log(
+          "[updateRuntimeVisualization] Rendered SVG, length:",
+          tempDiv.innerHTML.length
+        );
+
         // Update output panel with new SVG
-        setOutputData(prev => ({
+        setOutputData((prev) => ({
           ...prev,
           graphviz: dotWithContext,
           svg: tempDiv.innerHTML,
           png: pngDataUrl,
         }));
-        
-        console.log('[updateRuntimeVisualization] Updated output data');
+
+        console.log("[updateRuntimeVisualization] Updated output data");
       } catch (error) {
-        console.error('[updateRuntimeVisualization] Failed:', error);
+        console.error("[updateRuntimeVisualization] Failed:", error);
       }
     },
     [currentMachineData, generatePngFromSvg]
@@ -1476,14 +1687,14 @@ export const CodeMirrorPlayground: React.FC = () => {
     if (!executor) return;
 
     // Subscribe to state changes
-    if (typeof executor.setOnStateChangeCallback === 'function') {
+    if (typeof executor.setOnStateChangeCallback === "function") {
       executor.setOnStateChangeCallback(() => {
         updateRuntimeVisualization(executor);
       });
 
       return () => {
         // Clean up callback
-        if (typeof executor.setOnStateChangeCallback === 'function') {
+        if (typeof executor.setOnStateChangeCallback === "function") {
           executor.setOnStateChangeCallback(undefined);
         }
       };
@@ -1524,13 +1735,13 @@ export const CodeMirrorPlayground: React.FC = () => {
         // Playback mode - use recordings
         console.log("Starting playback execution...");
         exec = await MachineExecutor.create(machineJSON, {
-          llm: playbackClient as any,  // Duck typing - playback client implements same interface
+          llm: playbackClient as any, // Duck typing - playback client implements same interface
         });
       } else if (isRecordingMode && recordingClient) {
         // Recording mode - use recording client (transparently records)
         console.log("Starting recording execution...");
         exec = await MachineExecutor.create(machineJSON, {
-          llm: recordingClient as any,  // Duck typing - recording client implements same interface
+          llm: recordingClient as any, // Duck typing - recording client implements same interface
         });
       } else {
         // Live mode - use API
@@ -1548,17 +1759,25 @@ export const CodeMirrorPlayground: React.FC = () => {
 
       // Set up state change callback BEFORE execution starts
       // This ensures diagram updates during execution, not just at the end
-      if (typeof exec.setOnStateChangeCallback === 'function') {
+      if (typeof exec.setOnStateChangeCallback === "function") {
         exec.setOnStateChangeCallback((...args) => {
-          exec.getLogger().info('sync', `CodeMirror playground OnStateChangeCallback called`, args)
+          exec
+            .getLogger()
+            .info(
+              "sync",
+              `CodeMirror playground OnStateChangeCallback called`,
+              args
+            );
           updateRuntimeVisualization(exec);
         });
       }
 
       // Set up machine update callback to capture meta-programming changes
-      if (typeof exec.setMachineUpdateCallback === 'function') {
+      if (typeof exec.setMachineUpdateCallback === "function") {
         exec.setMachineUpdateCallback((dsl: string) => {
-          console.log('[Playground] Machine updated via meta-programming, updating editor');
+          console.log(
+            "[Playground] Machine updated via meta-programming, updating editor"
+          );
 
           // Update editor with new DSL
           if (editorViewRef.current) {
@@ -1566,8 +1785,8 @@ export const CodeMirrorPlayground: React.FC = () => {
               changes: {
                 from: 0,
                 to: editorViewRef.current.state.doc.length,
-                insert: dsl
-              }
+                insert: dsl,
+              },
             });
           }
 
@@ -1579,11 +1798,17 @@ export const CodeMirrorPlayground: React.FC = () => {
           setIsDirty(true);
         });
       }
-      if (typeof exec.setMachineUpdateCallback === 'function') {
-        exec.setMachineUpdateCallback((...args)=> {
-          exec.getLogger().info('sync', `CodeMirror playground MachineUpdateCallback called`, args)
-          updateRuntimeVisualization(exec)
-        })
+      if (typeof exec.setMachineUpdateCallback === "function") {
+        exec.setMachineUpdateCallback((...args) => {
+          exec
+            .getLogger()
+            .info(
+              "sync",
+              `CodeMirror playground MachineUpdateCallback called`,
+              args
+            );
+          updateRuntimeVisualization(exec);
+        });
       }
 
       // Execute machine
@@ -1647,15 +1872,17 @@ export const CodeMirrorPlayground: React.FC = () => {
         setExecutor(exec);
 
         // Set up callbacks for new executor
-        if (typeof exec.setOnStateChangeCallback === 'function') {
+        if (typeof exec.setOnStateChangeCallback === "function") {
           exec.setOnStateChangeCallback(() => {
             updateRuntimeVisualization(exec);
           });
         }
 
-        if (typeof exec.setMachineUpdateCallback === 'function') {
+        if (typeof exec.setMachineUpdateCallback === "function") {
           exec.setMachineUpdateCallback((dsl: string) => {
-            console.log('[Playground] Machine updated via meta-programming (step mode), updating editor');
+            console.log(
+              "[Playground] Machine updated via meta-programming (step mode), updating editor"
+            );
 
             // Update editor with new DSL
             if (editorViewRef.current) {
@@ -1663,8 +1890,8 @@ export const CodeMirrorPlayground: React.FC = () => {
                 changes: {
                   from: 0,
                   to: editorViewRef.current.state.doc.length,
-                  insert: dsl
-                }
+                  insert: dsl,
+                },
               });
             }
 
@@ -1740,15 +1967,17 @@ export const CodeMirrorPlayground: React.FC = () => {
         setExecutor(exec);
 
         // Set up callbacks for new executor
-        if (typeof exec.setOnStateChangeCallback === 'function') {
+        if (typeof exec.setOnStateChangeCallback === "function") {
           exec.setOnStateChangeCallback(() => {
             updateRuntimeVisualization(exec);
           });
         }
 
-        if (typeof exec.setMachineUpdateCallback === 'function') {
+        if (typeof exec.setMachineUpdateCallback === "function") {
           exec.setMachineUpdateCallback((dsl: string) => {
-            console.log('[Playground] Machine updated via meta-programming (turn step mode), updating editor');
+            console.log(
+              "[Playground] Machine updated via meta-programming (turn step mode), updating editor"
+            );
 
             // Update editor with new DSL
             if (editorViewRef.current) {
@@ -1756,8 +1985,8 @@ export const CodeMirrorPlayground: React.FC = () => {
                 changes: {
                   from: 0,
                   to: editorViewRef.current.state.doc.length,
-                  insert: dsl
-                }
+                  insert: dsl,
+                },
               });
             }
 
@@ -1782,9 +2011,9 @@ export const CodeMirrorPlayground: React.FC = () => {
       // Update SVG visualization with execution context
       await updateRuntimeVisualization(exec);
 
-      if (result.status === 'complete') {
+      if (result.status === "complete") {
         console.log("Turn complete");
-      } else if (result.status === 'error') {
+      } else if (result.status === "error") {
         console.error("Turn error:", result.error);
       }
     } catch (error) {
@@ -1876,16 +2105,19 @@ export const CodeMirrorPlayground: React.FC = () => {
     // Executor will be preserved for inspection
   }, []);
 
-  const handleLogLevelChange = useCallback((level: string) => {
-    setLogLevel(level);
-    if (executor) {
-      executor.setLogLevel(level as any);
-    }
-  }, [executor]);
+  const handleLogLevelChange = useCallback(
+    (level: string) => {
+      setLogLevel(level);
+      if (executor) {
+        executor.setLogLevel(level as any);
+      }
+    },
+    [executor]
+  );
 
   const handleTogglePlaybackMode = useCallback(async () => {
     if (!selectedExample || !recordingsAvailable) {
-      console.warn('Cannot toggle playback mode: no recordings available');
+      console.warn("Cannot toggle playback mode: no recordings available");
       return;
     }
 
@@ -1895,22 +2127,27 @@ export const CodeMirrorPlayground: React.FC = () => {
     if (newPlaybackMode) {
       // Enable playback mode - create playback client
       try {
-        const exampleName = selectedExample.filename.replace(/\.(dy|dygram|mach)$/, '');
+        const exampleName = selectedExample.filename.replace(
+          /\.(dy|dygram|mach)$/,
+          ""
+        );
         const client = await BrowserPlaybackClient.create({
           exampleName,
-          category: selectedExample.category
+          category: selectedExample.category,
         });
         setPlaybackClient(client);
-        console.log(`Playback mode enabled: ${client.getRecordingCount()} recordings loaded`);
+        console.log(
+          `Playback mode enabled: ${client.getRecordingCount()} recordings loaded`
+        );
       } catch (error) {
-        console.error('Failed to create playback client:', error);
+        console.error("Failed to create playback client:", error);
         setIsPlaybackMode(false);
         setPlaybackClient(null);
       }
     } else {
       // Disable playback mode
       setPlaybackClient(null);
-      console.log('Playback mode disabled');
+      console.log("Playback mode disabled");
     }
 
     // Reset executor when toggling modes
@@ -1921,7 +2158,9 @@ export const CodeMirrorPlayground: React.FC = () => {
   const handleToggleRecordingMode = useCallback(async () => {
     if (!selectedExample || !settings.apiKey) {
       if (!settings.apiKey) {
-        alert('API key required for recording mode. Please set your Anthropic API key in settings.');
+        alert(
+          "API key required for recording mode. Please set your Anthropic API key in settings."
+        );
       }
       return;
     }
@@ -1932,19 +2171,28 @@ export const CodeMirrorPlayground: React.FC = () => {
     if (newRecordingMode) {
       // Enable recording mode - create recording client
       try {
-        const exampleName = selectedExample.filename.replace(/\.(dy|dygram|mach)$/, '');
+        const exampleName = selectedExample.filename.replace(
+          /\.(dy|dygram|mach)$/,
+          ""
+        );
         const client = await BrowserRecordingClient.create({
           apiKey: settings.apiKey,
           modelId: settings.model,
           exampleName,
           category: selectedExample.category,
-          userNotes: `Recording for ${selectedExample.name}`
+          userNotes: `Recording for ${selectedExample.name}`,
         });
         setRecordingClient(client);
-        console.log(`Recording mode enabled for ${selectedExample.category}/${exampleName}`);
+        console.log(
+          `Recording mode enabled for ${selectedExample.category}/${exampleName}`
+        );
       } catch (error) {
-        console.error('Failed to create recording client:', error);
-        alert(`Failed to enable recording mode: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error("Failed to create recording client:", error);
+        alert(
+          `Failed to enable recording mode: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        );
         setIsRecordingMode(false);
         setRecordingClient(null);
       }
@@ -1952,28 +2200,42 @@ export const CodeMirrorPlayground: React.FC = () => {
       // Disable recording mode
       if (recordingClient && recordingClient.getRecordingCount() > 0) {
         const count = recordingClient.getRecordingCount();
-        if (confirm(`You have ${count} recording(s). Export before disabling recording mode?`)) {
+        if (
+          confirm(
+            `You have ${count} recording(s). Export before disabling recording mode?`
+          )
+        ) {
           recordingClient.downloadRecordings();
         }
       }
       setRecordingClient(null);
-      console.log('Recording mode disabled');
+      console.log("Recording mode disabled");
     }
 
     // Reset executor when toggling modes
     setExecutor(null);
     setIsExecuting(false);
-  }, [selectedExample, settings.apiKey, settings.model, isRecordingMode, recordingClient]);
+  }, [
+    selectedExample,
+    settings.apiKey,
+    settings.model,
+    isRecordingMode,
+    recordingClient,
+  ]);
 
   const handleExportRecordings = useCallback(() => {
     if (!recordingClient) return;
 
     try {
       recordingClient.downloadRecordings();
-      console.log('Recordings exported successfully');
+      console.log("Recordings exported successfully");
     } catch (error) {
-      console.error('Failed to export recordings:', error);
-      alert(`Failed to export recordings: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Failed to export recordings:", error);
+      alert(
+        `Failed to export recordings: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   }, [recordingClient]);
 
@@ -1985,7 +2247,7 @@ export const CodeMirrorPlayground: React.FC = () => {
 
     if (confirm(`Clear all ${count} recording(s)? This cannot be undone.`)) {
       recordingClient.clearRecordings();
-      console.log('Recordings cleared');
+      console.log("Recordings cleared");
     }
   }, [recordingClient]);
 
@@ -2033,252 +2295,380 @@ export const CodeMirrorPlayground: React.FC = () => {
   }, [outputData.machine, generatePngFromSvg]);
 
   return (
-        <Container>
-            <Header>
-                <HeaderTitle>
-                    <a href="./">DyGram</a>
-                </HeaderTitle>
-            </Header>
+    <Container>
+      <Header>
+        <HeaderTitle>
+          <a href="./">DyGram</a>
+          <Logo src="./static/icon.png" alt="Logo" />
+          <HeaderToggles>
+            <HeaderToggle $active={!editorCollapsed} onClick={toggleEditor}>
+              E
+            </HeaderToggle>
+            <HeaderToggle $active={!outputCollapsed} onClick={toggleOutput}>
+              O
+            </HeaderToggle>
+            <HeaderToggle $active={!settingsCollapsed} onClick={toggleSettings}>
+              S
+            </HeaderToggle>
+            <HeaderToggle $active={!filesCollapsed} onClick={toggleFiles}>
+              F
+            </HeaderToggle>
+            <HeaderToggle
+              $active={!executionCollapsed}
+              onClick={toggleExecution}
+            >
+              X
+            </HeaderToggle>
+          </HeaderToggles>
+        </HeaderTitle>
+      </Header>
 
-            <SectionHeader onClick={toggleSettings}>
-                <span>Settings</span>
-                <ToggleBtn>{settingsCollapsed ? '▶' : '▼'}</ToggleBtn>
-            </SectionHeader>
-            <SettingsPanel $collapsed={settingsCollapsed}>
-                <SettingsGroup>
-                    <label htmlFor="model-select">
-                        Model: {isLoadingModels && <span style={{ fontSize: '10px', color: '#888' }}>(loading...)</span>}
-                    </label>
-                    <SettingsSelect
-                        id="model-select"
-                        value={settings.model}
-                        onChange={handleModelChange}
-                        disabled={isLoadingModels}
-                    >
-                        {availableModels.length > 0 ? (
-                            availableModels.map((model) => (
-                                <option key={model.id} value={model.id}>
-                                    {model.name}
-                                </option>
-                            ))
-                        ) : (
-                            <option value={settings.model}>{settings.model}</option>
-                        )}
-                    </SettingsSelect>
-                    <RefreshButton
-                        onClick={handleRefreshModels}
-                        disabled={isLoadingModels}
-                        title="Refresh models list"
-                    >
-                        ↻
-                    </RefreshButton>
-                </SettingsGroup>
-                <SettingsGroup>
-                    <label htmlFor="api-key-input">API Key:</label>
-                    <SettingsInput
-                        type="password"
-                        id="api-key-input"
-                        placeholder="Anthropic API key..."
-                        value={settings.apiKey}
-                        onChange={handleApiKeyChange}
-                    />
-                </SettingsGroup>
-            </SettingsPanel>
+      {!settingsCollapsed && (
+        <>
+          <SectionHeader>
+            <span>Settings</span>
+            <ToggleBtn onClick={toggleSettings}>✕</ToggleBtn>
+          </SectionHeader>
+          <SettingsPanel $collapsed={settingsCollapsed}>
+            <SettingsGroup>
+              <label htmlFor="model-select">
+                Model:{" "}
+                {isLoadingModels && (
+                  <span style={{ fontSize: "10px", color: "#888" }}>
+                    (loading...)
+                  </span>
+                )}
+              </label>
+              <SettingsSelect
+                id="model-select"
+                value={settings.model}
+                onChange={handleModelChange}
+                disabled={isLoadingModels}
+              >
+                {availableModels.length > 0 ? (
+                  availableModels.map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value={settings.model}>{settings.model}</option>
+                )}
+              </SettingsSelect>
+              <RefreshButton
+                onClick={handleRefreshModels}
+                disabled={isLoadingModels}
+                title="Refresh models list"
+              >
+                ↻
+              </RefreshButton>
+            </SettingsGroup>
+            <SettingsGroup>
+              <label htmlFor="api-key-input">API Key:</label>
+              <SettingsInput
+                type="password"
+                id="api-key-input"
+                placeholder="Anthropic API key..."
+                value={settings.apiKey}
+                onChange={handleApiKeyChange}
+              />
+            </SettingsGroup>
+          </SettingsPanel>{" "}
+        </>
+      )}
 
-            {/* Files Section */}
-            <SectionHeader onClick={toggleFiles}>
-                <span>Files</span>
-                <ToggleBtn>{filesCollapsed ? '▶' : '▼'}</ToggleBtn>
-            </SectionHeader>
-            <Section $collapsed={filesCollapsed}>
-                <UnifiedFileTree
-                    fileService={fileService}
-                    onSelectFile={handleFileSelect}
-                    onFilesChanged={() => { /* Trigger re-render if needed */ }}
-                />
-            </Section>
+      {/* Files Section */}
+      {!filesCollapsed && (
+        <>
+          <SectionHeader>
+            <span>Files</span>
+            <HeaderControls>
+              {!filesCollapsed && (
+              <SizeControls>
+                <SizeBtn
+                  $active={filesSize === "small"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFilesSizeChange("small");
+                  }}
+                >
+                  S
+                </SizeBtn>
+                <SizeBtn
+                  $active={filesSize === "medium"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFilesSizeChange("medium");
+                  }}
+                >
+                  M
+                </SizeBtn>
+                <SizeBtn
+                  $active={filesSize === "big"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFilesSizeChange("big");
+                  }}
+                >
+                  L
+                </SizeBtn>
+              </SizeControls>
+            )}
+            <ToggleBtn onClick={toggleFiles}>✕</ToggleBtn>
+            </HeaderControls>
+          </SectionHeader>
+          <Section $collapsed={filesCollapsed} $size={filesSize}>
+            <UnifiedFileTree
+              fileService={fileService}
+              onSelectFile={handleFileSelect}
+              onFilesChanged={() => {
+                /* Trigger re-render if needed */
+              }}
+            />
+          </Section>
+        </>
+      )}
 
-            <MainContainer $collapsed={outputCollapsed && editorCollapsed}>
-                <SectionHeader onClick={toggleEditor} $sideways={outputCollapsed && editorCollapsed ? false : true}>
-                    <span>Editor</span>
-                    <HeaderControls>
-                        {!editorCollapsed && (
-                            <SizeControls>
-                                <SizeBtn 
-                                    $active={editorSize === 'small'} 
-                                    onClick={(e) => { e.stopPropagation(); handleEditorSizeChange('small'); }}
-                                >
-                                    S
-                                </SizeBtn>
-                                <SizeBtn 
-                                    $active={editorSize === 'medium'} 
-                                    onClick={(e) => { e.stopPropagation(); handleEditorSizeChange('medium'); }}
-                                >
-                                    M
-                                </SizeBtn>
-                                <SizeBtn 
-                                    $active={editorSize === 'big'} 
-                                    onClick={(e) => { e.stopPropagation(); handleEditorSizeChange('big'); }}
-                                >
-                                    B
-                                </SizeBtn>
-                            </SizeControls>
-                        )}
-                        <ToggleBtn>{editorCollapsed ? '▶' : '▼'}</ToggleBtn>
-                    </HeaderControls>
-                </SectionHeader>
-                <EditorSection $collapsed={editorCollapsed} $size={editorSize} $borderRight>
-                    {openFiles.length > 0 && !editorCollapsed && (
-                        <TabBar>
-                            {openFiles.map((file, index) => (
-                                <Tab
-                                    key={file.path}
-                                    $active={index === activeFileIndex}
-                                    onClick={() => handleTabSwitch(index)}
-                                >
-                                    <TabName>{file.name}</TabName>
-                                    <TabCloseBtn
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleTabClose(index);
-                                        }}
-                                        title="Close"
-                                    >
-                                        ×
-                                    </TabCloseBtn>
-                                </Tab>
-                            ))}
-                            {isDirty && (
-                                <SaveButton
-                                    onClick={handleSaveFile}
-                                    title="Save current file (API + VFS)"
-                                >
-                                    💾 Save
-                                </SaveButton>
-                            )}
-                        </TabBar>
+      {(!outputCollapsed || !editorCollapsed) && (
+        <>
+          <MainContainer
+            $collapsed={outputCollapsed && editorCollapsed}
+            $singleSection={editorCollapsed !== outputCollapsed}
+          >
+            {!editorCollapsed && (
+              <>
+                <SectionHeader
+                  $sideways={!editorCollapsed && !outputCollapsed}
+                >
+                  <span>Editor</span>
+                  <HeaderControls>
+                    {!editorCollapsed && (
+                      <SizeControls>
+                        <SizeBtn
+                          $active={editorSize === "small"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditorSizeChange("small");
+                          }}
+                        >
+                          S
+                        </SizeBtn>
+                        <SizeBtn
+                          $active={editorSize === "medium"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditorSizeChange("medium");
+                          }}
+                        >
+                          M
+                        </SizeBtn>
+                        <SizeBtn
+                          $active={editorSize === "big"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditorSizeChange("big");
+                          }}
+                        >
+                          L
+                        </SizeBtn>
+                      </SizeControls>
                     )}
-                    <SectionContent $collapsed={editorCollapsed}>
-                        <EditorContainer ref={editorRef}>
-                            {!editorCollapsed && (
-                                <OverlayButtonGroup>
-                                    <OverlayButton
-                                        onClick={handleFormatDocument}
-                                        disabled={isFormatting}
-                                        title="Format document (DSL > JSON > DSL)"
-                                    >
-                                        {isFormatting ? '⏳' : '🎨'} Format
-                                    </OverlayButton>
-                                </OverlayButtonGroup>
-                            )}
-                        </EditorContainer>
-                    </SectionContent>
-                </EditorSection>
+                    <ToggleBtn onClick={toggleEditor}>✕</ToggleBtn>
+                  </HeaderControls>
+                </SectionHeader>
+                <EditorSection
+                  $collapsed={editorCollapsed}
+                  $size={editorSize}
+                  $borderRight
+                >
+                  {openFiles.length > 0 && !editorCollapsed && (
+                    <TabBar>
+                      {openFiles.map((file, index) => (
+                        <Tab
+                          key={file.path}
+                          $active={index === activeFileIndex}
+                          onClick={() => handleTabSwitch(index)}
+                        >
+                          <TabName>{file.name}</TabName>
+                          <TabCloseBtn
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTabClose(index);
+                            }}
+                            title="Close"
+                          >
+                            ×
+                          </TabCloseBtn>
+                        </Tab>
+                      ))}
+                      {isDirty && (
+                        <SaveButton
+                          onClick={handleSaveFile}
+                          title="Save current file (API + VFS)"
+                        >
+                          💾 Save
+                        </SaveButton>
+                      )}
+                    </TabBar>
+                  )}
+                  <SectionContent $collapsed={editorCollapsed}>
+                    <EditorContainer ref={editorRef}>
+                      {!editorCollapsed && (
+                        <OverlayButtonGroup>
+                          <OverlayButton
+                            onClick={handleFormatDocument}
+                            disabled={isFormatting}
+                            title="Format document (DSL > JSON > DSL)"
+                          >
+                            {isFormatting ? "⏳" : "🎨"} Format
+                          </OverlayButton>
+                        </OverlayButtonGroup>
+                      )}
+                    </EditorContainer>
+                  </SectionContent>
+                </EditorSection>{" "}
+              </>
+            )}
 
-                <SectionHeader onClick={toggleOutput} $sideways={outputCollapsed && editorCollapsed ? false : true}>
-                    <span>Output</span>
-                    <HeaderControls>
-                        {!outputCollapsed && (
-                            <SizeControls>
-                                <SizeBtn 
-                                    $active={outputSize === 'small'} 
-                                    onClick={(e) => { e.stopPropagation(); handleOutputSizeChange('small'); }}
-                                >
-                                    S
-                                </SizeBtn>
-                                <SizeBtn 
-                                    $active={outputSize === 'medium'} 
-                                    onClick={(e) => { e.stopPropagation(); handleOutputSizeChange('medium'); }}
-                                >
-                                    M
-                                </SizeBtn>
-                                <SizeBtn 
-                                    $active={outputSize === 'big'} 
-                                    onClick={(e) => { e.stopPropagation(); handleOutputSizeChange('big'); }}
-                                >
-                                    L
-                                </SizeBtn>
-                            </SizeControls>
-                        )}
-                        <ToggleBtn>{outputCollapsed ? '▶' : '▼'}</ToggleBtn>
-                    </HeaderControls>
+            {!outputCollapsed && (
+              <>
+                <SectionHeader
+                  $sideways={!editorCollapsed && !outputCollapsed}
+                >
+                  <span>Output</span>
+                  <HeaderControls>
+                    {!outputCollapsed && (
+                      <SizeControls>
+                        <SizeBtn
+                          $active={outputSize === "small"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOutputSizeChange("small");
+                          }}
+                        >
+                          S
+                        </SizeBtn>
+                        <SizeBtn
+                          $active={outputSize === "medium"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOutputSizeChange("medium");
+                          }}
+                        >
+                          M
+                        </SizeBtn>
+                        <SizeBtn
+                          $active={outputSize === "big"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOutputSizeChange("big");
+                          }}
+                        >
+                          L
+                        </SizeBtn>
+                      </SizeControls>
+                    )}
+                    <ToggleBtn onClick={toggleOutput}>✕</ToggleBtn>
+                  </HeaderControls>
                 </SectionHeader>
                 <OutputSection $collapsed={outputCollapsed} $size={outputSize}>
+                  <SectionContent $collapsed={outputCollapsed}>
+                    <div
+                      ref={outputPanelRef}
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <OutputPanel
+                        defaultFormat={outputFormat}
+                        mobile={true}
+                        data={outputData}
+                        onFormatChange={handleOutputFormatChange}
+                        onSourceLocationClick={handleSourceLocationClick}
+                      />
+                    </div>
+                  </SectionContent>
+                </OutputSection>{" "}
+              </>
+            )}
+          </MainContainer>{" "}
+        </>
+      )}
 
-                    <SectionContent $collapsed={outputCollapsed}>
-                        <div ref={outputPanelRef} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                            <OutputPanel
-                                defaultFormat={outputFormat}
-                                mobile={true}
-                                data={outputData}
-                                onFormatChange={handleOutputFormatChange}
-                                onSourceLocationClick={handleSourceLocationClick}
-                            />
-                        </div>
-                    </SectionContent>
-                </OutputSection>
-            </MainContainer>
-
-            <SectionHeader onClick={toggleExecution}>
-                <span>Execution</span>
-                <HeaderControls>
-                    {!executionCollapsed && (
-                        <SizeControls>
-                            <SizeBtn 
-                                $active={executionSize === 'small'} 
-                                onClick={(e) => { e.stopPropagation(); handleExecutionSizeChange('small'); }}
-                            >
-                                S
-                            </SizeBtn>
-                            <SizeBtn 
-                                $active={executionSize === 'medium'} 
-                                onClick={(e) => { e.stopPropagation(); handleExecutionSizeChange('medium'); }}
-                            >
-                                M
-                            </SizeBtn>
-                            <SizeBtn 
-                                $active={executionSize === 'big'} 
-                                onClick={(e) => { e.stopPropagation(); handleExecutionSizeChange('big'); }}
-                            >
-                                L
-                            </SizeBtn>
-                        </SizeControls>
-                    )}
-                    <ToggleBtn>{executionCollapsed ? '▶' : '▼'}</ToggleBtn>
-                </HeaderControls>
-            </SectionHeader>
-            <ExecutionSection $collapsed={executionCollapsed} $size={executionSize}>
-
-                <SectionContent $collapsed={executionCollapsed}>
-                    {executor && (
-                        <ExecutionStateVisualizer
-                            executor={executor}
-                            mobile={false}
-                        />
-                    )}
-                    <ExecutionControls
-                        onExecute={handleExecute}
-                        onStep={handleStep}
-                        onStepTurn={handleStepTurn}
-                        onStop={handleStop}
-                        onReset={handleReset}
-                        mobile={false}
-                        showLog={true}
-                        executor={executor}
-                        logLevel={logLevel}
-                        onLogLevelChange={handleLogLevelChange}
-                        playbackMode={isPlaybackMode}
-                        recordingsAvailable={recordingsAvailable}
-                        onTogglePlaybackMode={handleTogglePlaybackMode}
-                        playbackClient={playbackClient}
-                        recordingMode={isRecordingMode}
-                        onToggleRecordingMode={handleToggleRecordingMode}
-                        recordingClient={recordingClient}
-                        onExportRecordings={handleExportRecordings}
-                        onClearRecordings={handleClearRecordings}
-                    />
-                </SectionContent>
-            </ExecutionSection>
-        </Container>
-    );
+      {!executionCollapsed && (
+        <>
+          <SectionHeader>
+            <span>Execution</span>
+            <HeaderControls>
+              {!executionCollapsed && (
+                <SizeControls>
+                  <SizeBtn
+                    $active={executionSize === "small"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExecutionSizeChange("small");
+                    }}
+                  >
+                    S
+                  </SizeBtn>
+                  <SizeBtn
+                    $active={executionSize === "medium"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExecutionSizeChange("medium");
+                    }}
+                  >
+                    M
+                  </SizeBtn>
+                  <SizeBtn
+                    $active={executionSize === "big"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExecutionSizeChange("big");
+                    }}
+                  >
+                    L
+                  </SizeBtn>
+                </SizeControls>
+              )}
+              <ToggleBtn onClick={toggleExecution}>✕</ToggleBtn>
+            </HeaderControls>
+          </SectionHeader>
+          <ExecutionSection
+            $collapsed={executionCollapsed}
+            $size={executionSize}
+          >
+            <SectionContent $collapsed={executionCollapsed}>
+              {executor && (
+                <ExecutionStateVisualizer executor={executor} mobile={false} />
+              )}
+              <ExecutionControls
+                onExecute={handleExecute}
+                onStep={handleStep}
+                onStepTurn={handleStepTurn}
+                onStop={handleStop}
+                onReset={handleReset}
+                mobile={false}
+                showLog={true}
+                executor={executor}
+                logLevel={logLevel}
+                onLogLevelChange={handleLogLevelChange}
+                playbackMode={isPlaybackMode}
+                recordingsAvailable={recordingsAvailable}
+                onTogglePlaybackMode={handleTogglePlaybackMode}
+                playbackClient={playbackClient}
+                recordingMode={isRecordingMode}
+                onToggleRecordingMode={handleToggleRecordingMode}
+                recordingClient={recordingClient}
+                onExportRecordings={handleExportRecordings}
+                onClearRecordings={handleClearRecordings}
+              />
+            </SectionContent>
+          </ExecutionSection>{" "}
+        </>
+      )}
+    </Container>
+  );
 };

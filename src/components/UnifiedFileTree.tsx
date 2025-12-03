@@ -26,7 +26,6 @@ interface DirectoryNode {
 const Container = styled.div`
     background: #252526;
     font-size: 12px;
-    max-height: 400px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -57,7 +56,6 @@ const Content = styled.div`
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    max-height: 400px;
 `;
 
 const ActionBar = styled.div`
