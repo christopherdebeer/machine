@@ -278,13 +278,6 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
-  background: #717575;
-  background: linear-gradient(
-    180deg,
-    rgba(113, 117, 117, 1) 0%,
-    rgba(74, 74, 74, 1) 50%,
-    rgba(43, 41, 41, 1) 100%
-  );
 `;
 
 const HeaderTitle = styled.div`
@@ -2634,7 +2627,7 @@ export const CodeMirrorPlayground: React.FC = () => {
       <Section $collapsed={executionCollapsed} $size={executionSize}>
         <ExecutionSection $collapsed={executionCollapsed}>
           {executor && (
-            <ExecutionStateVisualizer executor={executor} mobile={false} />
+            <ExecutionStateVisualizer executor={executor} />
           )}
           <ExecutionControls
             onExecute={handleExecute}
