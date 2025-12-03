@@ -564,3 +564,158 @@ export interface RuntimeSnapshot {
         startTime: number;
     };
 }
+
+// ============================================================================
+// Formatting Utilities for RuntimeSnapshot
+// ============================================================================
+
+/**
+ * Format runtime snapshot as human-readable text
+ */
+export function formatRuntimeSnapshot(snapshot: RuntimeSnapshot): string {
+    const lines: string[] = [];
+
+    // Header
+    lines.push('═══════════════════════════════════════════════════════════');
+    lines.push('  RUNTIME EXECUTION SNAPSHOT');
+    lines.push('═══════════════════════════════════════════════════════════');
+    lines.push('');
+
+    // Current Position
+    lines.push('📍 CURRENT POSITION');
+    lines.push('───────────────────────────────────────────────────────────');
+    if (snapshot.currentNodes.length === 0) {
+        lines.push('  (no active nodes)');
+    } else {
+        for (const node of snapshot.currentNodes) {
+            lines.push(`  Path ${node.pathId}: ${node.nodeName} (${node.nodeType})`);
+        }
+    }
+    lines.push('');
+
+    // Available Transitions
+    if (snapshot.affordances.transitions.length > 0) {
+        lines.push('🔀 AVAILABLE TRANSITIONS');
+        lines.push('───────────────────────────────────────────────────────────');
+        for (const trans of snapshot.affordances.transitions) {
+            const status = trans.canTake ? '✓' : '✗';
+            const auto = trans.isAutomatic ? '[auto]' : '';
+            lines.push(`  ${status} ${trans.fromNode} → ${trans.toNode} ${auto}`);
+            if (trans.condition) {
+                lines.push(`     if: ${trans.condition}`);
+            }
+        }
+        lines.push('');
+    }
+
+    // Available Tools
+    if (snapshot.affordances.tools.length > 0) {
+        lines.push('🔧 AVAILABLE TOOLS');
+        lines.push('───────────────────────────────────────────────────────────');
+        for (const tool of snapshot.affordances.tools) {
+            lines.push(`  • ${tool.toolName} (${tool.source})`);
+            lines.push(`    ${tool.description}`);
+        }
+        lines.push('');
+    }
+
+    // Contexts
+    if (snapshot.affordances.contexts.length > 0) {
+        lines.push('📦 CONTEXTS');
+        lines.push('───────────────────────────────────────────────────────────');
+        for (const ctx of snapshot.affordances.contexts) {
+            lines.push(`  ${ctx.name} (${ctx.nodeType})`);
+            for (const [attr, info] of Object.entries(ctx.attributes)) {
+                const value = JSON.stringify(info.currentValue);
+                lines.push(`    ${attr}: ${value} (${info.type})`);
+            }
+        }
+        lines.push('');
+    }
+
+    // Multi-Path State
+    if (snapshot.paths.details.length > 1) {
+        lines.push('🌲 MULTI-PATH EXECUTION');
+        lines.push('───────────────────────────────────────────────────────────');
+        lines.push(`  Active: ${snapshot.paths.active}`);
+        lines.push(`  Completed: ${snapshot.paths.completed}`);
+        lines.push(`  Failed: ${snapshot.paths.failed}`);
+        lines.push(`  Waiting: ${snapshot.paths.waiting}`);
+        lines.push('');
+        lines.push('  Path Details:');
+        for (const path of snapshot.paths.details) {
+            const turnInfo = path.isInTurn ? ` [turn ${path.turnCount}]` : '';
+            lines.push(`    ${path.id}: ${path.currentNode} (${path.status})${turnInfo}`);
+        }
+        lines.push('');
+    }
+
+    // Turn State
+    if (snapshot.turnState) {
+        lines.push('🔄 TURN EXECUTION STATE');
+        lines.push('───────────────────────────────────────────────────────────');
+        lines.push(`  Path: ${snapshot.turnState.pathId}`);
+        lines.push(`  Node: ${snapshot.turnState.nodeName}`);
+        lines.push(`  Turn: ${snapshot.turnState.turnCount}`);
+        lines.push(`  Conversation Length: ${snapshot.turnState.conversationLength} messages`);
+        lines.push(`  Available Tools: ${snapshot.turnState.availableTools.length}`);
+        lines.push(`  Waiting: ${snapshot.turnState.isWaitingForTurn ? 'yes' : 'no'}`);
+        lines.push('');
+    }
+
+    // Metadata
+    lines.push('📊 EXECUTION METADATA');
+    lines.push('───────────────────────────────────────────────────────────');
+    lines.push(`  Total Steps: ${snapshot.metadata.totalSteps}`);
+    lines.push(`  Elapsed Time: ${snapshot.metadata.elapsedTime}ms`);
+    lines.push(`  Error Count: ${snapshot.metadata.errorCount}`);
+    lines.push(`  Status: ${snapshot.metadata.isComplete ? 'Complete' : 'Running'}`);
+    lines.push(`  Paused: ${snapshot.metadata.isPaused ? 'Yes' : 'No'}`);
+    lines.push('');
+
+    return lines.join('\n');
+}
+
+/**
+ * Format snapshot as JSON (for API/tooling)
+ */
+export function formatRuntimeSnapshotJSON(snapshot: RuntimeSnapshot): string {
+    return JSON.stringify(snapshot, null, 2);
+}
+
+/**
+ * Format snapshot as compact summary (for CLI one-liners)
+ */
+export function formatRuntimeSnapshotCompact(snapshot: RuntimeSnapshot): string {
+    const parts: string[] = [];
+
+    // Position
+    if (snapshot.currentNodes.length > 0) {
+        const nodes = snapshot.currentNodes.map(n => n.nodeName).join(', ');
+        parts.push(`at: ${nodes}`);
+    }
+
+    // Paths
+    if (snapshot.paths.details.length > 1) {
+        parts.push(`paths: ${snapshot.paths.active}/${snapshot.paths.details.length}`);
+    }
+
+    // Affordances
+    const transCount = snapshot.affordances.transitions.length;
+    const toolCount = snapshot.affordances.tools.length;
+    const ctxCount = snapshot.affordances.contexts.length;
+
+    if (transCount > 0) parts.push(`${transCount} transitions`);
+    if (toolCount > 0) parts.push(`${toolCount} tools`);
+    if (ctxCount > 0) parts.push(`${ctxCount} contexts`);
+
+    // Progress
+    parts.push(`steps: ${snapshot.metadata.totalSteps}`);
+
+    // Status
+    if (snapshot.metadata.isPaused) parts.push('PAUSED');
+    if (snapshot.metadata.isComplete) parts.push('COMPLETE');
+    if (snapshot.metadata.errorCount > 0) parts.push(`errors: ${snapshot.metadata.errorCount}`);
+
+    return parts.join(' | ');
+}

@@ -1,7 +1,42 @@
 # RuntimeSnapshot Usage Examples
 
-**Status**: Proposal - Example implementations for enhanced RuntimeStateVisualizer
-**Date**: 2025-12-03
+**Status**: In Progress - Implementation Started
+**Date**: 2025-12-03 (Created), 2025-12-03 (Implementation Started)
+
+## Implementation Checklist
+
+### Core API ✅ COMPLETE
+- [x] RuntimeSnapshot interface (`src/language/runtime-visualizer.ts`)
+- [x] RuntimeVisualizer.generateRuntimeSnapshot() method
+- [x] VisualizingMachineExecutor.getRuntimeSnapshot() convenience method
+- **Commit**: `2dd5bd3` - feat: add RuntimeSnapshot API to RuntimeVisualizer
+
+### Formatting Utilities ✅ COMPLETE
+- [x] Add formatRuntimeSnapshot() - human-readable text output
+- [x] Add formatRuntimeSnapshotJSON() - JSON output
+- [x] Add formatRuntimeSnapshotCompact() - compact one-liner
+- **Commit**: (pending) - feat: add RuntimeSnapshot formatting utilities
+- **File**: `src/language/runtime-visualizer.ts`
+
+### CLI Integration (Pending)
+- [ ] Add --snapshot flag to CLI interactive mode
+- [ ] Add --format option (full, compact, json)
+- [ ] Integrate into executeInteractiveTurn()
+- **Target**: `src/cli/interactive-execution.ts`
+
+### Testing (Pending)
+- [ ] Add RuntimeSnapshot tests
+- [ ] Test multi-path execution snapshots
+- [ ] Test context value extraction
+- [ ] Test tool discovery
+- **Target**: `test/integration/runtime-visualization.test.ts`
+
+### Documentation (Pending)
+- [ ] Update this file with actual implementation examples
+- [ ] Add API documentation
+- [ ] Add CLI usage documentation
+
+---
 
 ## Table of Contents
 
