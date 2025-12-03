@@ -64,6 +64,34 @@ The current `RuntimeStateVisualizer` provides basic runtime visualization but la
   - `formatRuntimeSnapshotJSON(snapshot)` - JSON stringified output
   - `formatRuntimeSnapshotCompact(snapshot)` - Compact one-liner
 
+### Phase 5: Web Playground Integration ✅ COMPLETE
+- **Commit**: `8ba1e08` - feat: enhance ExecutionStateVisualizer with RuntimeSnapshot integration
+- [x] Import RuntimeSnapshot type
+- [x] Add snapshot state management alongside VisualizationState
+- [x] Update updateExecutionState() to fetch RuntimeSnapshot safely
+- [x] Add responsive styled components with $mobile prop:
+  - ToolsList: grid adapts from 1fr (mobile) to auto-fill minmax(200px) (desktop)
+  - TurnStateCard: gradient background with execution stats
+  - TurnStateGrid: adapts from 2 columns (mobile) to 4 columns (desktop)
+- [x] Add Turn State Indicator section:
+  - Turn count and current node
+  - Message count and available tools count
+  - Waiting/Active status
+- [x] Add Tool Affordances section:
+  - Tool name and description
+  - Source badge (context/session/machine)
+- [x] Maintain backward compatibility:
+  - New sections only render when data available
+  - Graceful fallback if getRuntimeSnapshot() not available
+  - No impact on existing Graphviz diagram or core visualization
+- **File**: `src/components/ExecutionStateVisualizer.tsx`
+- **Features**:
+  - Responsive design ensures no diminished features on mobile
+  - Grid layouts adapt automatically to viewport size
+  - Turn state card shows conversation progress with gradient styling
+  - Tool cards display available context read/write operations
+  - All enhancements complement existing VisualizationState display
+
 ---
 
 ---

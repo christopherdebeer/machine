@@ -15,27 +15,31 @@
 - [x] Add formatRuntimeSnapshot() - human-readable text output
 - [x] Add formatRuntimeSnapshotJSON() - JSON output
 - [x] Add formatRuntimeSnapshotCompact() - compact one-liner
-- **Commit**: (pending) - feat: add RuntimeSnapshot formatting utilities
+- **Commit**: `374b164` - feat: add RuntimeSnapshot formatting utilities
 - **File**: `src/language/runtime-visualizer.ts`
 
-### Web Playground Integration ✅ VERIFIED
-- [x] ExecutionStateVisualizer already uses `getVisualizationState()` (line 538)
-- [x] Updates automatically via `setOnStateChangeCallback` (line 512-514)
+### Web Playground Integration ✅ COMPLETE
+- [x] ExecutionStateVisualizer uses `getVisualizationState()` for core display (line 640)
+- [x] Updates automatically via `setOnStateChangeCallback` (line 614-625)
 - [x] Executor calls callback on every state change (executor.ts:180, 557, 650)
 - [x] Displays: summary stats, active paths, all paths, node states, transitions
-- **Status**: Currently optimal - using VisualizationState directly is more efficient
-- **Note**: RuntimeSnapshot is better suited for CLI/external tools than React components
+- [x] Enhanced with RuntimeSnapshot for tool affordances (line 644-652)
+- [x] Added Turn State Indicator section showing conversation progress
+- [x] Added Tool Affordances section showing available context tools
+- [x] Responsive design with $mobile prop for small viewports
+- **Commit**: `8ba1e08` - feat: enhance ExecutionStateVisualizer with RuntimeSnapshot integration
+- **File**: `src/components/ExecutionStateVisualizer.tsx`
 
-**Analysis**:
+**Implementation Details**:
 - ExecutionStateVisualizer updates reactively at every turn (step or full execution)
-- Using `getVisualizationState()` directly avoids unnecessary data transformation
-- RuntimeSnapshot formatting utilities designed for text/JSON output, not React rendering
-- No changes needed to ExecutionStateVisualizer
-
-**Potential Future Enhancement** (Low Priority):
-- [ ] Add tool affordances display (read/write context operations)
-- [ ] Add turn state indicator (conversation progress)
-- [ ] These would use snapshot data but render with React components
+- Uses `getVisualizationState()` for core state (efficient, optimized for React)
+- Uses `getRuntimeSnapshot()` for enhanced features (tools, turn state)
+- Graceful fallback if getRuntimeSnapshot() not available
+- Turn state card shows: turn count, node, messages, tools count, status
+- Tool cards show: name, description, source badge (context/session/machine)
+- Both new sections only render when data available (backward compatible)
+- Responsive grid layouts: mobile (1fr/2col) → desktop (auto-fill/4col)
+- No impact on existing Graphviz diagram or core visualization
 
 ### CLI Integration (Pending)
 - [ ] Add --snapshot flag to CLI interactive mode
