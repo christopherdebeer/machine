@@ -1,0 +1,216 @@
+{
+  "json": {
+    "title": "Personalized Workflow",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 15
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Request",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "userName",
+            "value": "Alex"
+          },
+          {
+            "name": "reportType",
+            "value": "monthly"
+          },
+          {
+            "name": "department",
+            "value": "Engineering"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "You are generating a {{ Request.reportType }} report for {{ Request.userName }} in the {{ Request.department }} department. Confirm the details."
+          }
+        ],
+        "title": "Generate report for {{ Request.userName }}",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "fetchData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Retrieve {{ Request.reportType }} data specifically for the {{ Request.department }} department"
+          }
+        ],
+        "title": "Fetch {{ Request.reportType }} data for {{ Request.department }}",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "compileReport",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Compile the {{ Request.reportType }} report for {{ Request.userName }} using the fetched data"
+          }
+        ],
+        "title": "Compile {{ Request.reportType }} report",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Report for {{ Request.userName }} complete",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 24,
+            "character": 48
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "fetchData",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 6
+          },
+          "end": {
+            "line": 26,
+            "character": 18
+          }
+        }
+      },
+      {
+        "source": "fetchData",
+        "target": "compileReport",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 19
+          },
+          "end": {
+            "line": 26,
+            "character": 35
+          }
+        }
+      },
+      {
+        "source": "compileReport",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 36
+          },
+          "end": {
+            "line": 26,
+            "character": 42
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "start",
+        "target": "Request",
+        "reason": "reads Request.reportType",
+        "path": "Request.reportType"
+      },
+      {
+        "source": "start",
+        "target": "Request",
+        "reason": "reads Request.userName",
+        "path": "Request.userName"
+      },
+      {
+        "source": "start",
+        "target": "Request",
+        "reason": "reads Request.department",
+        "path": "Request.department"
+      },
+      {
+        "source": "fetchData",
+        "target": "Request",
+        "reason": "reads Request.reportType",
+        "path": "Request.reportType"
+      },
+      {
+        "source": "fetchData",
+        "target": "Request",
+        "reason": "reads Request.department",
+        "path": "Request.department"
+      },
+      {
+        "source": "compileReport",
+        "target": "Request",
+        "reason": "reads Request.reportType",
+        "path": "Request.reportType"
+      },
+      {
+        "source": "compileReport",
+        "target": "Request",
+        "reason": "reads Request.userName",
+        "path": "Request.userName"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Personalized Workflow</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">15</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Request\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Request</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"userName__key\" align=\"left\" balign=\"left\">userName</td><td port=\"userName__value\" align=\"left\" balign=\"left\">Alex</td></tr><tr><td port=\"reportType__key\" align=\"left\" balign=\"left\">reportType</td><td port=\"reportType__value\" align=\"left\" balign=\"left\">monthly</td></tr><tr><td port=\"department__key\" align=\"left\" balign=\"left\">department</td><td port=\"department__value\" align=\"left\" balign=\"left\">Engineering</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-10:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Generate report for Alex</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ You are generating a monthly report for Alex in the Engineering department. Confirm the details.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-14:1\"];\n  \"fetchData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetchData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Fetch monthly data for Engineering</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Retrieve monthly data specifically for the Engineering department</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L16:0-18:1\"];\n  \"compileReport\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>compileReport</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Compile monthly report</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Compile the monthly report for Alex using the fetched data</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L20:0-22:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Report for Alex complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L24:0-24:48\"];\n\n  // Edges\n  \"start\" -> \"fetchData\" [labelOverlay=\"75%\", edgeURL=\"#L26:6-26:18\"];\n  \"fetchData\" -> \"compileReport\" [labelOverlay=\"75%\", edgeURL=\"#L26:19-26:35\"];\n  \"compileReport\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L26:36-26:42\"];\n\n  // Inferred Dependencies\n  \"start\" -> \"Request\" [label=\"reads Request.reportType\", style=dashed, color=blue];\n  \"start\" -> \"Request\" [label=\"reads Request.userName\", style=dashed, color=blue];\n  \"start\" -> \"Request\" [label=\"reads Request.department\", style=dashed, color=blue];\n  \"fetchData\" -> \"Request\" [label=\"reads Request.reportType\", style=dashed, color=blue];\n  \"fetchData\" -> \"Request\" [label=\"reads Request.department\", style=dashed, color=blue];\n  \"compileReport\" -> \"Request\" [label=\"reads Request.reportType\", style=dashed, color=blue];\n  \"compileReport\" -> \"Request\" [label=\"reads Request.userName\", style=dashed, color=blue];\n}",
+  "svgHash": "ecf8292ec6028b330e8c66558ebd2026f3186620eb90f92e2c4ab91d5c68959b"
+}

@@ -1,0 +1,70 @@
+{
+  "json": {
+    "title": "Strategy Selector",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "selectStrategy",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "For data parsing, use code_generation for performance. For sentiment analysis, use agent_backed for accuracy. For data pipeline, use composition for maintainability."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Choose implementation approach",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "createTools",
+        "type": "task",
+        "attributes": [],
+        "title": "Create with selected strategies",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 50
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "selectStrategy",
+        "target": "createTools",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 15
+          },
+          "end": {
+            "line": 10,
+            "character": 29
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Strategy Selector</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"selectStrategy\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>selectStrategy</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Choose implementation approach</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ For data parsing, use code_generation for performance. For sentiment analysis, use agent_backed for<br/>accuracy. For data pipeline, use composition for maintainability.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-6:1\"];\n  \"createTools\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>createTools</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create with selected strategies</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-8:50\"];\n\n  // Edges\n  \"selectStrategy\" -> \"createTools\" [labelOverlay=\"75%\", edgeURL=\"#L10:15-10:29\"];\n}",
+  "svgHash": "caa0d4e328ce97891c4974f2a0209b7385abd8e96de7232deb3026d416879407"
+}

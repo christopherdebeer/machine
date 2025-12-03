@@ -1,0 +1,122 @@
+{
+  "json": {
+    "title": "Complex Code Generation",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "step1",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Parse and validate JSON input. Input: {raw: string}. Output: {parsed: any, valid: boolean}"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Parse input",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "step2",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Transform parsed data to target format. Input: {parsed: any}. Output: {transformed: any}"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Transform data",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "step3",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate transformed data against schema. Input: {transformed: any}. Output: {valid: boolean, errors: Array<string>}"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Validate output",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "step1",
+        "target": "step2",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 6
+          },
+          "end": {
+            "line": 18,
+            "character": 14
+          }
+        }
+      },
+      {
+        "source": "step2",
+        "target": "step3",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 15
+          },
+          "end": {
+            "line": 18,
+            "character": 23
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complex Code Generation</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"step1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step1</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Parse input</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Parse and validate JSON input. Input: {raw: string}. Output: {parsed: any, valid: boolean}</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-5:1\"];\n  \"step2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step2</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Transform data</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Transform parsed data to target format. Input: {parsed: any}. Output: {transformed: any}</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-9:1\"];\n  \"step3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step3</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Validate output</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Validate transformed data against schema. Input: {transformed: any}. Output: {valid: boolean,<br/>errors: Array&lt;string&gt;}</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L11:0-13:1\"];\n\n  // Edges\n  \"step1\" -> \"step2\" [labelOverlay=\"75%\", edgeURL=\"#L18:6-18:14\"];\n  \"step2\" -> \"step3\" [labelOverlay=\"75%\", edgeURL=\"#L18:15-18:23\"];\n}",
+  "svgHash": "5150dfe6999e01761217c48b1b274132b6adb3b0ba99fb79e71e564bb5879ff6"
+}

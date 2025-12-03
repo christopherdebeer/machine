@@ -1,0 +1,214 @@
+{
+  "json": {
+    "title": "Multi-Path Router",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 15
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Analyze input and select the most appropriate processing path"
+          }
+        ],
+        "title": "Initial routing decision",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "fastPath",
+        "type": "state",
+        "attributes": [],
+        "title": "Fast processing path",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 37
+          }
+        }
+      },
+      {
+        "name": "standardPath",
+        "type": "state",
+        "attributes": [],
+        "title": "Standard processing path",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 45
+          }
+        }
+      },
+      {
+        "name": "detailedPath",
+        "type": "state",
+        "attributes": [],
+        "title": "Detailed analysis path",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 43
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Processing complete",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 25
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "fastPath",
+        "arrowType": "->",
+        "attributes": {
+          "text": "fast"
+        },
+        "value": {
+          "text": "fast"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 6
+          },
+          "end": {
+            "line": 15,
+            "character": 24
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "standardPath",
+        "arrowType": "->",
+        "attributes": {
+          "text": "standard"
+        },
+        "value": {
+          "text": "standard"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 6
+          },
+          "end": {
+            "line": 16,
+            "character": 32
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "detailedPath",
+        "arrowType": "->",
+        "attributes": {
+          "text": "detailed"
+        },
+        "value": {
+          "text": "detailed"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 6
+          },
+          "end": {
+            "line": 17,
+            "character": 32
+          }
+        }
+      },
+      {
+        "source": "fastPath",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 9
+          },
+          "end": {
+            "line": 18,
+            "character": 15
+          }
+        }
+      },
+      {
+        "source": "standardPath",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 13
+          },
+          "end": {
+            "line": 19,
+            "character": 19
+          }
+        }
+      },
+      {
+        "source": "detailedPath",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 13
+          },
+          "end": {
+            "line": 20,
+            "character": 19
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Multi-Path Router</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">15</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Initial routing decision</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Analyze input and select the most appropriate processing path</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-8:1\"];\n  \"fastPath\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fastPath</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Fast processing path</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:37\"];\n  \"standardPath\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>standardPath</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Standard processing path</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:45\"];\n  \"detailedPath\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>detailedPath</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Detailed analysis path</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L12:0-12:43\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Processing complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L13:0-13:25\"];\n\n  // Edges\n  \"start\" -> \"fastPath\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>fast</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L15:6-15:24\"];\n  \"start\" -> \"standardPath\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>standard</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L16:6-16:32\"];\n  \"start\" -> \"detailedPath\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>detailed</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L17:6-17:32\"];\n  \"fastPath\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L18:9-18:15\"];\n  \"standardPath\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L19:13-19:19\"];\n  \"detailedPath\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L20:13-20:19\"];\n}",
+  "svgHash": "1ee13cafcb383dd8a723db40cb686f3869b86651810929de25874b43501aa918"
+}

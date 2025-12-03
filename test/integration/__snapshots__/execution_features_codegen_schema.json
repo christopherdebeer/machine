@@ -1,0 +1,308 @@
+{
+  "json": {
+    "title": "Database Model Generator",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 30
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Schema",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "tableName",
+            "value": "users"
+          },
+          {
+            "name": "fields",
+            "value": []
+          },
+          {
+            "name": "relationships",
+            "value": []
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "Output",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "orm",
+            "value": "prisma"
+          },
+          {
+            "name": "modelCode",
+            "value": ""
+          },
+          {
+            "name": "migrationCode",
+            "value": ""
+          },
+          {
+            "name": "validationCode",
+            "value": ""
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Define a schema for {{ Schema.tableName }} table. Add fields to Schema.fields array with structure: {name, type, required, unique, default}. Example: {name: 'email', type: 'string', required: true, unique: true}. Add at least 5 fields."
+          }
+        ],
+        "title": "Define database schema",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "generateModel",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Generate {{ Output.orm }} model code for {{ Schema.tableName }} with all fields from Schema.fields. Include field decorators for validation, uniqueness, defaults. Store in Output.modelCode."
+          }
+        ],
+        "title": "Generate ORM model",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "generateMigration",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Generate SQL migration code to create {{ Schema.tableName }} table with all Schema.fields. Use proper PostgreSQL syntax with constraints. Store in Output.migrationCode."
+          }
+        ],
+        "title": "Generate migration SQL",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 0
+          },
+          "end": {
+            "line": 29,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "generateValidation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Generate Zod validation schema for {{ Schema.tableName }} matching all Schema.fields. Include type checking, required validation, and format validation where applicable. Store in Output.validationCode."
+          }
+        ],
+        "title": "Generate validation schema",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 0
+          },
+          "end": {
+            "line": 33,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "verifyConsistency",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Compare Output.modelCode, Output.migrationCode, and Output.validationCode. Ensure field names, types, and constraints are consistent across all three. List any inconsistencies."
+          }
+        ],
+        "title": "Verify code consistency",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 0
+          },
+          "end": {
+            "line": 37,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Full model code generated",
+        "$sourceRange": {
+          "start": {
+            "line": 39,
+            "character": 0
+          },
+          "end": {
+            "line": 39,
+            "character": 31
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "generateModel",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 6
+          },
+          "end": {
+            "line": 41,
+            "character": 22
+          }
+        }
+      },
+      {
+        "source": "generateModel",
+        "target": "generateMigration",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 23
+          },
+          "end": {
+            "line": 41,
+            "character": 43
+          }
+        }
+      },
+      {
+        "source": "generateMigration",
+        "target": "generateValidation",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 44
+          },
+          "end": {
+            "line": 41,
+            "character": 65
+          }
+        }
+      },
+      {
+        "source": "generateValidation",
+        "target": "verifyConsistency",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 66
+          },
+          "end": {
+            "line": 41,
+            "character": 86
+          }
+        }
+      },
+      {
+        "source": "verifyConsistency",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 87
+          },
+          "end": {
+            "line": 41,
+            "character": 93
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "start",
+        "target": "Schema",
+        "reason": "reads Schema.tableName",
+        "path": "Schema.tableName"
+      },
+      {
+        "source": "generateModel",
+        "target": "Output",
+        "reason": "reads Output.orm",
+        "path": "Output.orm"
+      },
+      {
+        "source": "generateModel",
+        "target": "Schema",
+        "reason": "reads Schema.tableName",
+        "path": "Schema.tableName"
+      },
+      {
+        "source": "generateMigration",
+        "target": "Schema",
+        "reason": "reads Schema.tableName",
+        "path": "Schema.tableName"
+      },
+      {
+        "source": "generateValidation",
+        "target": "Schema",
+        "reason": "reads Schema.tableName",
+        "path": "Schema.tableName"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Database Model Generator</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">30</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Schema\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Schema</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"tableName__key\" align=\"left\" balign=\"left\">tableName</td><td port=\"tableName__value\" align=\"left\" balign=\"left\">users</td></tr><tr><td port=\"fields__key\" align=\"left\" balign=\"left\">fields</td><td port=\"fields__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"relationships__key\" align=\"left\" balign=\"left\">relationships</td><td port=\"relationships__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-10:1\"];\n  \"Output\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Output</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"orm__key\" align=\"left\" balign=\"left\">orm</td><td port=\"orm__value\" align=\"left\" balign=\"left\">prisma</td></tr><tr><td port=\"modelCode__key\" align=\"left\" balign=\"left\">modelCode</td><td port=\"modelCode__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"migrationCode__key\" align=\"left\" balign=\"left\">migrationCode</td><td port=\"migrationCode__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"validationCode__key\" align=\"left\" balign=\"left\">validationCode</td><td port=\"validationCode__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L12:0-17:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Define database schema</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Define a schema for users table. Add fields to Schema.fields array with structure: {name, type,<br/>required, unique, default}. Example: {name: 'email', type: 'string', required: true, unique: true}.<br/>Add at least 5 fields.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L19:0-21:1\"];\n  \"generateModel\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generateModel</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate ORM model</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Generate prisma model code for users with all fields from Schema.fields. Include field decorators<br/>for validation, uniqueness, defaults. Store in Output.modelCode.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L23:0-25:1\"];\n  \"generateMigration\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generateMigration</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate migration SQL</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Generate SQL migration code to create users table with all Schema.fields. Use proper PostgreSQL<br/>syntax with constraints. Store in Output.migrationCode.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L27:0-29:1\"];\n  \"generateValidation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>generateValidation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate validation schema</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Generate Zod validation schema for users matching all Schema.fields. Include type checking, required<br/>validation, and format validation where applicable. Store in Output.validationCode.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L31:0-33:1\"];\n  \"verifyConsistency\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>verifyConsistency</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Verify code consistency</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Compare Output.modelCode, Output.migrationCode, and Output.validationCode. Ensure field names,<br/>types, and constraints are consistent across all three. List any inconsistencies.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L35:0-37:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Full model code generated</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L39:0-39:31\"];\n\n  // Edges\n  \"start\" -> \"generateModel\" [labelOverlay=\"75%\", edgeURL=\"#L41:6-41:22\"];\n  \"generateModel\" -> \"generateMigration\" [labelOverlay=\"75%\", edgeURL=\"#L41:23-41:43\"];\n  \"generateMigration\" -> \"generateValidation\" [labelOverlay=\"75%\", edgeURL=\"#L41:44-41:65\"];\n  \"generateValidation\" -> \"verifyConsistency\" [labelOverlay=\"75%\", edgeURL=\"#L41:66-41:86\"];\n  \"verifyConsistency\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L41:87-41:93\"];\n\n  // Inferred Dependencies\n  \"start\" -> \"Schema\" [label=\"reads Schema.tableName\", style=dashed, color=blue];\n  \"generateModel\" -> \"Output\" [label=\"reads Output.orm\", style=dashed, color=blue];\n  \"generateModel\" -> \"Schema\" [label=\"reads Schema.tableName\", style=dashed, color=blue];\n  \"generateMigration\" -> \"Schema\" [label=\"reads Schema.tableName\", style=dashed, color=blue];\n  \"generateValidation\" -> \"Schema\" [label=\"reads Schema.tableName\", style=dashed, color=blue];\n}",
+  "svgHash": "da7efcc9352c07a4781d505af9abe65ccf9d2fe5a6a4de485e51a906782a538f"
+}

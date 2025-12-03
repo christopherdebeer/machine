@@ -1,0 +1,286 @@
+{
+  "json": {
+    "title": "Smart Notification System",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 20
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Alert",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "severity",
+            "value": "high"
+          },
+          {
+            "name": "count",
+            "value": 5
+          },
+          {
+            "name": "service",
+            "value": "payment-api"
+          },
+          {
+            "name": "threshold",
+            "value": 3
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "Response",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "action",
+            "value": ""
+          },
+          {
+            "name": "escalated",
+            "value": false
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Alert severity is {{ Alert.severity }} with {{ Alert.count }} failures. Threshold is {{ Alert.threshold }}. Analyze if escalation is needed."
+          }
+        ],
+        "title": "Alert detected: {{ Alert.count }} failures in {{ Alert.service }}",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "evaluateSeverity",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Check if Alert.count ({{ Alert.count }}) exceeds Alert.threshold ({{ Alert.threshold }}). Set Response.escalated to true if it does."
+          }
+        ],
+        "title": "Evaluate alert severity",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 0
+          },
+          "end": {
+            "line": 24,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "respondToAlert",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Based on Alert.severity being {{ Alert.severity }} and Response.escalated status, determine appropriate action and set Response.action (options: 'auto-heal', 'notify-team', 'escalate-oncall')"
+          }
+        ],
+        "title": "Respond to {{ Alert.severity }} severity alert",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 0
+          },
+          "end": {
+            "line": 28,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "executeAction",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute the {{ Response.action }} action for service {{ Alert.service }}"
+          }
+        ],
+        "title": "Execute action: {{ Response.action }}",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 0
+          },
+          "end": {
+            "line": 32,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Alert handled",
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 0
+          },
+          "end": {
+            "line": 34,
+            "character": 19
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "evaluateSeverity",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 6
+          },
+          "end": {
+            "line": 36,
+            "character": 25
+          }
+        }
+      },
+      {
+        "source": "evaluateSeverity",
+        "target": "respondToAlert",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 26
+          },
+          "end": {
+            "line": 36,
+            "character": 43
+          }
+        }
+      },
+      {
+        "source": "respondToAlert",
+        "target": "executeAction",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 44
+          },
+          "end": {
+            "line": 36,
+            "character": 60
+          }
+        }
+      },
+      {
+        "source": "executeAction",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 61
+          },
+          "end": {
+            "line": 36,
+            "character": 67
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "start",
+        "target": "Alert",
+        "reason": "reads Alert.severity",
+        "path": "Alert.severity"
+      },
+      {
+        "source": "start",
+        "target": "Alert",
+        "reason": "reads Alert.count",
+        "path": "Alert.count"
+      },
+      {
+        "source": "start",
+        "target": "Alert",
+        "reason": "reads Alert.threshold",
+        "path": "Alert.threshold"
+      },
+      {
+        "source": "evaluateSeverity",
+        "target": "Alert",
+        "reason": "reads Alert.count",
+        "path": "Alert.count"
+      },
+      {
+        "source": "evaluateSeverity",
+        "target": "Alert",
+        "reason": "reads Alert.threshold",
+        "path": "Alert.threshold"
+      },
+      {
+        "source": "respondToAlert",
+        "target": "Alert",
+        "reason": "reads Alert.severity",
+        "path": "Alert.severity"
+      },
+      {
+        "source": "executeAction",
+        "target": "Response",
+        "reason": "reads Response.action",
+        "path": "Response.action"
+      },
+      {
+        "source": "executeAction",
+        "target": "Alert",
+        "reason": "reads Alert.service",
+        "path": "Alert.service"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Smart Notification System</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">20</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Alert\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Alert</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"severity__key\" align=\"left\" balign=\"left\">severity</td><td port=\"severity__value\" align=\"left\" balign=\"left\">high</td></tr><tr><td port=\"count__key\" align=\"left\" balign=\"left\">count</td><td port=\"count__value\" align=\"left\" balign=\"left\">5</td></tr><tr><td port=\"service__key\" align=\"left\" balign=\"left\">service</td><td port=\"service__value\" align=\"left\" balign=\"left\">payment-api</td></tr><tr><td port=\"threshold__key\" align=\"left\" balign=\"left\">threshold</td><td port=\"threshold__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-11:1\"];\n  \"Response\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Response</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"action__key\" align=\"left\" balign=\"left\">action</td><td port=\"action__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"escalated__key\" align=\"left\" balign=\"left\">escalated</td><td port=\"escalated__value\" align=\"left\" balign=\"left\">false</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L13:0-16:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Alert detected: 5 failures in<br/>payment-api</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Alert severity is high with 5 failures. Threshold is 3. Analyze if escalation is needed.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L18:0-20:1\"];\n  \"evaluateSeverity\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>evaluateSeverity</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Evaluate alert severity</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Check if Alert.count (5) exceeds Alert.threshold (3). Set Response.escalated to true if it does.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L22:0-24:1\"];\n  \"respondToAlert\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>respondToAlert</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Respond to high severity alert</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Based on Alert.severity being high and Response.escalated status, determine appropriate action and<br/>set Response.action (options: 'auto-heal', 'notify-team', 'escalate-oncall')</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L26:0-28:1\"];\n  \"executeAction\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>executeAction</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Execute action: </td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute the  action for service payment-api</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L30:0-32:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Alert handled</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L34:0-34:19\"];\n\n  // Edges\n  \"start\" -> \"evaluateSeverity\" [labelOverlay=\"75%\", edgeURL=\"#L36:6-36:25\"];\n  \"evaluateSeverity\" -> \"respondToAlert\" [labelOverlay=\"75%\", edgeURL=\"#L36:26-36:43\"];\n  \"respondToAlert\" -> \"executeAction\" [labelOverlay=\"75%\", edgeURL=\"#L36:44-36:60\"];\n  \"executeAction\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L36:61-36:67\"];\n\n  // Inferred Dependencies\n  \"start\" -> \"Alert\" [label=\"reads Alert.severity\", style=dashed, color=blue];\n  \"start\" -> \"Alert\" [label=\"reads Alert.count\", style=dashed, color=blue];\n  \"start\" -> \"Alert\" [label=\"reads Alert.threshold\", style=dashed, color=blue];\n  \"evaluateSeverity\" -> \"Alert\" [label=\"reads Alert.count\", style=dashed, color=blue];\n  \"evaluateSeverity\" -> \"Alert\" [label=\"reads Alert.threshold\", style=dashed, color=blue];\n  \"respondToAlert\" -> \"Alert\" [label=\"reads Alert.severity\", style=dashed, color=blue];\n  \"executeAction\" -> \"Response\" [label=\"reads Response.action\", style=dashed, color=blue];\n  \"executeAction\" -> \"Alert\" [label=\"reads Alert.service\", style=dashed, color=blue];\n}",
+  "svgHash": "dc1b02ffd8678c9e819194a4b50ed4992b0490a33c6b9fb1b10c8df13c6bc01c"
+}

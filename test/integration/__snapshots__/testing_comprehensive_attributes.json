@@ -1,0 +1,212 @@
+{
+  "json": {
+    "title": "Comprehensive Task Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 15
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "dataCollection",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Data Collection"
+          },
+          {
+            "name": "desc",
+            "value": "Collect and validate input data"
+          },
+          {
+            "name": "prompt",
+            "value": "Collect data from the specified sources and validate completeness"
+          },
+          {
+            "name": "taskType",
+            "value": "collection"
+          },
+          {
+            "name": "priority",
+            "value": "high"
+          },
+          {
+            "name": "timeout",
+            "value": 30000
+          },
+          {
+            "name": "retries",
+            "value": 3
+          }
+        ],
+        "title": "Data Collection Task",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "dataProcessing",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Data Processing"
+          },
+          {
+            "name": "desc",
+            "value": "Process collected data"
+          },
+          {
+            "name": "prompt",
+            "value": "Process the collected data using standard algorithms"
+          },
+          {
+            "name": "taskType",
+            "value": "processing"
+          },
+          {
+            "name": "priority",
+            "value": "medium"
+          },
+          {
+            "name": "dependencies",
+            "value": [
+              "dataCollection"
+            ]
+          }
+        ],
+        "title": "Data Processing Task",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 23,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "dataValidation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Data Validation"
+          },
+          {
+            "name": "desc",
+            "value": "Validate processed results"
+          },
+          {
+            "name": "prompt",
+            "value": "Validate the processed data meets quality standards"
+          },
+          {
+            "name": "taskType",
+            "value": "validation"
+          },
+          {
+            "name": "priority",
+            "value": "high"
+          },
+          {
+            "name": "outputFormat",
+            "value": "json"
+          }
+        ],
+        "title": "Data Validation Task",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 0
+          },
+          "end": {
+            "line": 32,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "All tasks complete",
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 0
+          },
+          "end": {
+            "line": 34,
+            "character": 24
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "dataCollection",
+        "target": "dataProcessing",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 15
+          },
+          "end": {
+            "line": 36,
+            "character": 32
+          }
+        }
+      },
+      {
+        "source": "dataProcessing",
+        "target": "dataValidation",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 33
+          },
+          "end": {
+            "line": 36,
+            "character": 50
+          }
+        }
+      },
+      {
+        "source": "dataValidation",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 51
+          },
+          "end": {
+            "line": 36,
+            "character": 57
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Comprehensive Task Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">15</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"dataCollection\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataCollection</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data Collection Task</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Collect and validate input data</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Collect data from the specified sources and validate completeness</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Data Collection</td></tr><tr><td port=\"taskType__key\" align=\"left\" balign=\"left\">taskType</td><td port=\"taskType__value\" align=\"left\" balign=\"left\">collection</td></tr><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority</td><td port=\"priority__value\" align=\"left\" balign=\"left\">high</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">30000</td></tr><tr><td port=\"retries__key\" align=\"left\" balign=\"left\">retries</td><td port=\"retries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-14:1\"];\n  \"dataProcessing\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataProcessing</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data Processing Task</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Process collected data</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process the collected data using standard algorithms</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Data Processing</td></tr><tr><td port=\"taskType__key\" align=\"left\" balign=\"left\">taskType</td><td port=\"taskType__value\" align=\"left\" balign=\"left\">processing</td></tr><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority</td><td port=\"priority__value\" align=\"left\" balign=\"left\">medium</td></tr><tr><td port=\"dependencies__key\" align=\"left\" balign=\"left\">dependencies</td><td port=\"dependencies__value\" align=\"left\" balign=\"left\">[<br/>  &quot;dataCollection&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L16:0-23:1\"];\n  \"dataValidation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataValidation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data Validation Task</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Validate processed results</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Validate the processed data meets quality standards</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Data Validation</td></tr><tr><td port=\"taskType__key\" align=\"left\" balign=\"left\">taskType</td><td port=\"taskType__value\" align=\"left\" balign=\"left\">validation</td></tr><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority</td><td port=\"priority__value\" align=\"left\" balign=\"left\">high</td></tr><tr><td port=\"outputFormat__key\" align=\"left\" balign=\"left\">outputFormat</td><td port=\"outputFormat__value\" align=\"left\" balign=\"left\">json</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L25:0-32:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">All tasks complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L34:0-34:24\"];\n\n  // Edges\n  \"dataCollection\" -> \"dataProcessing\" [labelOverlay=\"75%\", edgeURL=\"#L36:15-36:32\"];\n  \"dataProcessing\" -> \"dataValidation\" [labelOverlay=\"75%\", edgeURL=\"#L36:33-36:50\"];\n  \"dataValidation\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L36:51-36:57\"];\n}",
+  "svgHash": "9dfa82d3e3ce5c6208ebb6bc584f90c61a893870a90c25502273d12e3340dce8"
+}

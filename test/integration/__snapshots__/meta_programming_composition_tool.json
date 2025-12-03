@@ -1,0 +1,75 @@
+{
+  "json": {
+    "title": "Tool Composition",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "listTools",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use list_available_tools with filter_type='all' to see what tools exist."
+          }
+        ],
+        "title": "List available tools",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "composeDataPipeline",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use construct_tool to create a 'process_and_validate' tool with implementation_strategy='composition'. The implementation_details should describe a chain: parse_csv -> validate_schema -> transform_data."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Create composed tool",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "listTools",
+        "target": "composeDataPipeline",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 10
+          },
+          "end": {
+            "line": 12,
+            "character": 32
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Tool Composition</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"listTools\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>listTools</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">List available tools</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use list_available_tools with filter_type='all' to see what tools exist.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-5:1\"];\n  \"composeDataPipeline\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>composeDataPipeline</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create composed tool</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use construct_tool to create a 'process_and_validate' tool with<br/>implementation_strategy='composition'. The implementation_details should describe a chain: parse_csv<br/>-&gt; validate_schema -&gt; transform_data.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-10:1\"];\n\n  // Edges\n  \"listTools\" -> \"composeDataPipeline\" [labelOverlay=\"75%\", edgeURL=\"#L12:10-12:32\"];\n}",
+  "svgHash": "0713607d70839e646c387ec9aa907c624bdf951256d114c25a30a94141055fc4"
+}

@@ -1,0 +1,77 @@
+{
+  "json": {
+    "title": "Documented Changes",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "modifyMachine",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use update_definition to add logging. Reason: 'Debugging production issues requires detailed execution logs. Adding a logging node between each processing step to track data transformations."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Make informed change",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "modifyMachine",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 6
+          },
+          "end": {
+            "line": 8,
+            "character": 22
+          }
+        }
+      },
+      {
+        "source": "modifyMachine",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 23
+          },
+          "end": {
+            "line": 8,
+            "character": 29
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Documented Changes</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"modifyMachine\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>modifyMachine</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Make informed change</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use update_definition to add logging. Reason: 'Debugging production issues requires detailed<br/>execution logs. Adding a logging node between each processing step to track data transformations.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-6:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"modifyMachine\" [labelOverlay=\"75%\", edgeURL=\"#L8:6-8:22\"];\n  \"modifyMachine\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L8:23-8:29\"];\n}",
+  "svgHash": "b78908f0c3d6df4361131154e187a55a8550cd21811ae5d9b67ea885093f29cd"
+}

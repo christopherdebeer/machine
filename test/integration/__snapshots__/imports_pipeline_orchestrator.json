@@ -278,6 +278,7 @@
         "value": {
           "text": "error"
         },
+        "type": "catch",
         "$sourceRange": {
           "start": {
             "line": 20,
@@ -299,6 +300,7 @@
         "value": {
           "text": "error"
         },
+        "type": "catch",
         "$sourceRange": {
           "start": {
             "line": 21,
@@ -320,6 +322,7 @@
         "value": {
           "text": "error"
         },
+        "type": "catch",
         "$sourceRange": {
           "start": {
             "line": 22,

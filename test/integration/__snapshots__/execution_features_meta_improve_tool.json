@@ -1,0 +1,228 @@
+{
+  "json": {
+    "title": "Tool Quality Improvement",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 30
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Evaluation",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "toolName",
+            "value": ""
+          },
+          {
+            "name": "issues",
+            "value": []
+          },
+          {
+            "name": "improvements",
+            "value": []
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use list_available_tools meta-tool with include_source=true. Pick a tool that could be improved (e.g., one with unclear description or missing error handling). Set Evaluation.toolName to its name."
+          }
+        ],
+        "title": "Identify target tool",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "analyzeToolQuality",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Review the implementation of tool {{ Evaluation.toolName }}. Identify issues: unclear description, missing input validation, poor error handling, inefficient logic. Store issues in Evaluation.issues array."
+          }
+        ],
+        "title": "Analyze tool implementation",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "proposeImprovements",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Based on Evaluation.issues, use propose_tool_improvement meta-tool to suggest concrete improvements for {{ Evaluation.toolName }}. Include specific code changes or description improvements."
+          }
+        ],
+        "title": "Generate improvement proposal",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "reviewProposal",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Display the proposed improvements for {{ Evaluation.toolName }} and explain their benefits."
+          }
+        ],
+        "title": "Review improvement proposal",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 26,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Tool improvement proposed",
+        "$sourceRange": {
+          "start": {
+            "line": 28,
+            "character": 0
+          },
+          "end": {
+            "line": 28,
+            "character": 31
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "analyzeToolQuality",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 6
+          },
+          "end": {
+            "line": 30,
+            "character": 27
+          }
+        }
+      },
+      {
+        "source": "analyzeToolQuality",
+        "target": "proposeImprovements",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 28
+          },
+          "end": {
+            "line": 30,
+            "character": 50
+          }
+        }
+      },
+      {
+        "source": "proposeImprovements",
+        "target": "reviewProposal",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 51
+          },
+          "end": {
+            "line": 30,
+            "character": 68
+          }
+        }
+      },
+      {
+        "source": "reviewProposal",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 69
+          },
+          "end": {
+            "line": 30,
+            "character": 75
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "analyzeToolQuality",
+        "target": "Evaluation",
+        "reason": "reads Evaluation.toolName",
+        "path": "Evaluation.toolName"
+      },
+      {
+        "source": "proposeImprovements",
+        "target": "Evaluation",
+        "reason": "reads Evaluation.toolName",
+        "path": "Evaluation.toolName"
+      },
+      {
+        "source": "reviewProposal",
+        "target": "Evaluation",
+        "reason": "reads Evaluation.toolName",
+        "path": "Evaluation.toolName"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Tool Quality Improvement</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">30</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Evaluation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Evaluation</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"toolName__key\" align=\"left\" balign=\"left\">toolName</td><td port=\"toolName__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"issues__key\" align=\"left\" balign=\"left\">issues</td><td port=\"issues__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"improvements__key\" align=\"left\" balign=\"left\">improvements</td><td port=\"improvements__value\" align=\"left\" balign=\"left\">[]</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-10:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Identify target tool</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use list_available_tools meta-tool with include_source=true. Pick a tool that could be improved<br/>(e.g., one with unclear description or missing error handling). Set Evaluation.toolName to its name.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-14:1\"];\n  \"analyzeToolQuality\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analyzeToolQuality</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analyze tool implementation</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Review the implementation of tool . Identify issues: unclear description, missing input validation,<br/>poor error handling, inefficient logic. Store issues in Evaluation.issues array.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L16:0-18:1\"];\n  \"proposeImprovements\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>proposeImprovements</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Generate improvement proposal</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Based on Evaluation.issues, use propose_tool_improvement meta-tool to suggest concrete improvements<br/>for . Include specific code changes or description improvements.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L20:0-22:1\"];\n  \"reviewProposal\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>reviewProposal</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Review improvement proposal</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Display the proposed improvements for  and explain their benefits.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L24:0-26:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Tool improvement proposed</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L28:0-28:31\"];\n\n  // Edges\n  \"start\" -> \"analyzeToolQuality\" [labelOverlay=\"75%\", edgeURL=\"#L30:6-30:27\"];\n  \"analyzeToolQuality\" -> \"proposeImprovements\" [labelOverlay=\"75%\", edgeURL=\"#L30:28-30:50\"];\n  \"proposeImprovements\" -> \"reviewProposal\" [labelOverlay=\"75%\", edgeURL=\"#L30:51-30:68\"];\n  \"reviewProposal\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L30:69-30:75\"];\n\n  // Inferred Dependencies\n  \"analyzeToolQuality\" -> \"Evaluation\" [label=\"reads Evaluation.toolName\", style=dashed, color=blue];\n  \"proposeImprovements\" -> \"Evaluation\" [label=\"reads Evaluation.toolName\", style=dashed, color=blue];\n  \"reviewProposal\" -> \"Evaluation\" [label=\"reads Evaluation.toolName\", style=dashed, color=blue];\n}",
+  "svgHash": "24dbc63c3801a540b8c75479b445281871e541fb7fdcb5391a3fb3830c38cb7e"
+}

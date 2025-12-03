@@ -1,0 +1,162 @@
+{
+  "json": {
+    "title": "Test Router Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 10
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Classify this input and choose appropriate path"
+          }
+        ],
+        "title": "Classify this input and choose appropriate path",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "pathA",
+        "type": "state",
+        "attributes": [],
+        "title": "Path A selected",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 29
+          }
+        }
+      },
+      {
+        "name": "pathB",
+        "type": "state",
+        "attributes": [],
+        "title": "Path B selected",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 29
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Execution complete",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 24
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "pathA",
+        "arrowType": "->",
+        "attributes": {
+          "text": "option_a"
+        },
+        "value": {
+          "text": "option_a"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 6
+          },
+          "end": {
+            "line": 14,
+            "character": 25
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "pathB",
+        "arrowType": "->",
+        "attributes": {
+          "text": "option_b"
+        },
+        "value": {
+          "text": "option_b"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 6
+          },
+          "end": {
+            "line": 15,
+            "character": 25
+          }
+        }
+      },
+      {
+        "source": "pathA",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 6
+          },
+          "end": {
+            "line": 16,
+            "character": 12
+          }
+        }
+      },
+      {
+        "source": "pathB",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 6
+          },
+          "end": {
+            "line": 17,
+            "character": 12
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Test Router Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Classify this input and choose<br/>appropriate path</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Classify this input and choose appropriate path</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-8:1\"];\n  \"pathA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pathA</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Path A selected</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:29\"];\n  \"pathB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pathB</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Path B selected</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:29\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Execution complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L12:0-12:24\"];\n\n  // Edges\n  \"start\" -> \"pathA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>option_a</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L14:6-14:25\"];\n  \"start\" -> \"pathB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>option_b</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L15:6-15:25\"];\n  \"pathA\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L16:6-16:12\"];\n  \"pathB\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L17:6-17:12\"];\n}",
+  "svgHash": "5ea758b4751c4e8d5ae379a36b147a74609631f906adf33b74aba97e73eb3057"
+}

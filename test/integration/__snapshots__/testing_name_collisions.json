@@ -1,0 +1,162 @@
+{
+  "json": {
+    "title": "Name Collision Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 10
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Select the correct custom transition"
+          }
+        ],
+        "title": "Choose transition carefully",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "customEnd",
+        "type": "state",
+        "attributes": [],
+        "title": "Custom end-like state (not actual end)",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 56
+          }
+        }
+      },
+      {
+        "name": "actualTarget",
+        "type": "state",
+        "attributes": [],
+        "title": "Actual target state",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 40
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Real end node",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 19
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "customEnd",
+        "arrowType": "->",
+        "attributes": {
+          "text": "goto_custom_end"
+        },
+        "value": {
+          "text": "goto_custom_end"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 6
+          },
+          "end": {
+            "line": 14,
+            "character": 36
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "actualTarget",
+        "arrowType": "->",
+        "attributes": {
+          "text": "goto_actual"
+        },
+        "value": {
+          "text": "goto_actual"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 6
+          },
+          "end": {
+            "line": 15,
+            "character": 35
+          }
+        }
+      },
+      {
+        "source": "customEnd",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 10
+          },
+          "end": {
+            "line": 16,
+            "character": 16
+          }
+        }
+      },
+      {
+        "source": "actualTarget",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 13
+          },
+          "end": {
+            "line": 17,
+            "character": 19
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Name Collision Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">10</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Choose transition carefully</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Select the correct custom transition</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-8:1\"];\n  \"customEnd\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>customEnd</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Custom end-like state (not actual end)</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:56\"];\n  \"actualTarget\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>actualTarget</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Actual target state</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:40\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Real end node</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L12:0-12:19\"];\n\n  // Edges\n  \"start\" -> \"customEnd\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>goto_custom_end</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L14:6-14:36\"];\n  \"start\" -> \"actualTarget\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>goto_actual</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L15:6-15:35\"];\n  \"customEnd\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L16:10-16:16\"];\n  \"actualTarget\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L17:13-17:19\"];\n}",
+  "svgHash": "94e66f99680b5dc0934fe69149616c0ee38e2e63c399121e3a640b7cd6900593"
+}

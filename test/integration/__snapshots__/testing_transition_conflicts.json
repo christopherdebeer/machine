@@ -1,0 +1,264 @@
+{
+  "json": {
+    "title": "Transition Conflict Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 15
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Conditions",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "criteriaA",
+            "value": true
+          },
+          {
+            "name": "criteriaB",
+            "value": true
+          },
+          {
+            "name": "priority",
+            "value": "A"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Choose path when multiple conditions are met"
+          }
+        ],
+        "title": "Evaluate conflicting conditions",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "pathA",
+        "type": "state",
+        "attributes": [],
+        "title": "Path A (Criteria A met)",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 37
+          }
+        }
+      },
+      {
+        "name": "pathB",
+        "type": "state",
+        "attributes": [],
+        "title": "Path B (Criteria B met)",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 37
+          }
+        }
+      },
+      {
+        "name": "pathDefault",
+        "type": "state",
+        "attributes": [],
+        "title": "Default path",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 32
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Conflict resolved",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 23
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "pathA",
+        "arrowType": "->",
+        "attributes": {
+          "when": "Conditions.criteriaA == true"
+        },
+        "value": {
+          "when": "Conditions.criteriaA == true"
+        },
+        "style": {
+          "when": "Conditions.criteriaA == true"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 6
+          },
+          "end": {
+            "line": 21,
+            "character": 51
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "pathB",
+        "arrowType": "->",
+        "attributes": {
+          "when": "Conditions.criteriaB == true"
+        },
+        "value": {
+          "when": "Conditions.criteriaB == true"
+        },
+        "style": {
+          "when": "Conditions.criteriaB == true"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 6
+          },
+          "end": {
+            "line": 22,
+            "character": 51
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "pathDefault",
+        "arrowType": "->",
+        "attributes": {
+          "when": "true"
+        },
+        "value": {
+          "when": "true"
+        },
+        "style": {
+          "when": true
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 6
+          },
+          "end": {
+            "line": 23,
+            "character": 33
+          }
+        }
+      },
+      {
+        "source": "pathA",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 6
+          },
+          "end": {
+            "line": 24,
+            "character": 12
+          }
+        }
+      },
+      {
+        "source": "pathB",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 6
+          },
+          "end": {
+            "line": 25,
+            "character": 12
+          }
+        }
+      },
+      {
+        "source": "pathDefault",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 12
+          },
+          "end": {
+            "line": 26,
+            "character": 18
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "start",
+        "target": "Conditions",
+        "reason": "condition references Conditions",
+        "path": "Conditions.criteriaA == true"
+      },
+      {
+        "source": "start",
+        "target": "Conditions",
+        "reason": "condition references Conditions",
+        "path": "Conditions.criteriaB == true"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Transition Conflict Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">15</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Conditions\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Conditions</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"criteriaA__key\" align=\"left\" balign=\"left\">criteriaA</td><td port=\"criteriaA__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"criteriaB__key\" align=\"left\" balign=\"left\">criteriaB</td><td port=\"criteriaB__value\" align=\"left\" balign=\"left\">true</td></tr><tr><td port=\"priority__key\" align=\"left\" balign=\"left\">priority</td><td port=\"priority__value\" align=\"left\" balign=\"left\">A</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-10:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Evaluate conflicting conditions</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Choose path when multiple conditions are met</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-14:1\"];\n  \"pathA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pathA</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Path A (Criteria A met)</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L16:0-16:37\"];\n  \"pathB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pathB</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Path B (Criteria B met)</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L17:0-17:37\"];\n  \"pathDefault\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>pathDefault</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Default path</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L18:0-18:32\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Conflict resolved</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L19:0-19:23\"];\n\n  // Edges\n  \"start\" -> \"pathA\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Conditions.criteriaA == true</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L21:6-21:51\", when=\"Conditions.criteriaA == true\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"start\" -> \"pathB\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Conditions.criteriaB == true</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L22:6-22:51\", when=\"Conditions.criteriaB == true\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"start\" -> \"pathDefault\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L23:6-23:33\", when=\"true\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"pathA\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L24:6-24:12\"];\n  \"pathB\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L25:6-25:12\"];\n  \"pathDefault\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L26:12-26:18\"];\n\n  // Inferred Dependencies\n  \"start\" -> \"Conditions\" [label=\"condition references Conditions\", style=dashed, color=blue];\n  \"start\" -> \"Conditions\" [label=\"condition references Conditions\", style=dashed, color=blue];\n}",
+  "svgHash": "28709c2861139bc63b0015beed269eb2774ded4c9c00ff814ca9574e7a7b403e"
+}

@@ -1,0 +1,103 @@
+{
+  "json": {
+    "title": "Rollback-Ready System",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "VersionControl",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "currentStage",
+            "value": "hybrid"
+          },
+          {
+            "name": "previousStage",
+            "value": "llm_only"
+          },
+          {
+            "name": "previousCodePath",
+            "value": "./generated/old_version.ts"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "checkPerformance",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Compare current stage performance to previous stage baseline."
+          }
+        ],
+        "title": "Monitor new stage performance",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "rollbackIfWorse",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "If current performance is worse than baseline, rollback to VersionControl.previousStage and restore code from VersionControl.previousCodePath."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Rollback if performance degrades",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "checkPerformance",
+        "target": "rollbackIfWorse",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 17
+          },
+          "end": {
+            "line": 18,
+            "character": 35
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Rollback-Ready System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"VersionControl\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>VersionControl</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"currentStage__key\" align=\"left\" balign=\"left\">currentStage</td><td port=\"currentStage__value\" align=\"left\" balign=\"left\">hybrid</td></tr><tr><td port=\"previousStage__key\" align=\"left\" balign=\"left\">previousStage</td><td port=\"previousStage__value\" align=\"left\" balign=\"left\">llm_only</td></tr><tr><td port=\"previousCodePath__key\" align=\"left\" balign=\"left\">previousCodePath</td><td port=\"previousCodePath__value\" align=\"left\" balign=\"left\">./generated/old_version.ts</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-7:1\"];\n  \"checkPerformance\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkPerformance</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Monitor new stage performance</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Compare current stage performance to previous stage baseline.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-11:1\"];\n  \"rollbackIfWorse\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>rollbackIfWorse</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Rollback if performance degrades</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ If current performance is worse than baseline, rollback to VersionControl.previousStage and restore<br/>code from VersionControl.previousCodePath.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L13:0-16:1\"];\n\n  // Edges\n  \"checkPerformance\" -> \"rollbackIfWorse\" [labelOverlay=\"75%\", edgeURL=\"#L18:17-18:35\"];\n}",
+  "svgHash": "8b0fe0ad1ce2c9037601542ae4853eceb313a3b9d17eb9006ed212d7a0e5d343"
+}

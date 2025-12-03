@@ -1,0 +1,130 @@
+{
+  "json": {
+    "title": "Progressive Code Enhancement",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "processor_v1",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Basic data processing: trim whitespace, lowercase, remove special characters"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Simple processor",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "processor_v2",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Enhanced processing: trim, lowercase, remove special chars. Add: null handling, type coercion, detailed error messages"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Robust processor",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "processor_v3",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Performance-optimized processing: use efficient string operations, batch processing for arrays, caching for repeated values"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Optimized processor",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "processor_v3",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 6
+          },
+          "end": {
+            "line": 18,
+            "character": 21
+          }
+        }
+      },
+      {
+        "source": "processor_v3",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 22
+          },
+          "end": {
+            "line": 18,
+            "character": 28
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Progressive Code Enhancement</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"processor_v1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processor_v1</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Simple processor</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Basic data processing: trim whitespace, lowercase, remove special characters</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-6:1\"];\n  \"processor_v2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processor_v2</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Robust processor</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Enhanced processing: trim, lowercase, remove special chars. Add: null handling, type coercion,<br/>detailed error messages</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-11:1\"];\n  \"processor_v3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processor_v3</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Optimized processor</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Performance-optimized processing: use efficient string operations, batch processing for arrays,<br/>caching for repeated values</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-16:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"processor_v3\" [labelOverlay=\"75%\", edgeURL=\"#L18:6-18:21\"];\n  \"processor_v3\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L18:22-18:28\"];\n}",
+  "svgHash": "a0d3fe299bf29ca7abc77e8a2f2ee80936b70384ec8f84d616a27a7af46a696d"
+}

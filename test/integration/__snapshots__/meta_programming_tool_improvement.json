@@ -1,0 +1,75 @@
+{
+  "json": {
+    "title": "Tool Reviewer",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "reviewTool",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Examine the 'parse_json' tool using list_available_tools with include_source=true."
+          }
+        ],
+        "title": "Review existing tool",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "proposeImprovement",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use propose_tool_improvement for 'parse_json'. Rationale: 'Should handle deeply nested objects better'. Proposed changes: 'Add recursive depth limit and circular reference detection."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Suggest enhancement",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "reviewTool",
+        "target": "proposeImprovement",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 11
+          },
+          "end": {
+            "line": 12,
+            "character": 32
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Tool Reviewer</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"reviewTool\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>reviewTool</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Review existing tool</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Examine the 'parse_json' tool using list_available_tools with include_source=true.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-5:1\"];\n  \"proposeImprovement\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>proposeImprovement</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Suggest enhancement</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use propose_tool_improvement for 'parse_json'. Rationale: 'Should handle deeply nested objects<br/>better'. Proposed changes: 'Add recursive depth limit and circular reference detection.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-10:1\"];\n\n  // Edges\n  \"reviewTool\" -> \"proposeImprovement\" [labelOverlay=\"75%\", edgeURL=\"#L12:11-12:32\"];\n}",
+  "svgHash": "f0ee8bc21e0f5529edd390d51a7229ced1389714a8c809032909b7531e577f49"
+}

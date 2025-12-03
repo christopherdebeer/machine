@@ -1,0 +1,111 @@
+{
+  "json": {
+    "title": "Tool Node Builder",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "discoverToolNodes",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use get_tool_nodes with include_registered=true to discover what tools are available and identify any that need implementation."
+          }
+        ],
+        "title": "Find tool requirements",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "buildToolNode",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use build_tool_from_node to create a 'customValidator' tool with strategy='agent_backed' and implementation_details='Validates data against business rules. Accepts rules array and data object."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Build custom validator",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "validateData",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use the customValidator tool you just created to validate input data."
+          }
+        ],
+        "title": "Use the new validator",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "discoverToolNodes",
+        "target": "buildToolNode",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 18
+          },
+          "end": {
+            "line": 16,
+            "character": 34
+          }
+        }
+      },
+      {
+        "source": "buildToolNode",
+        "target": "validateData",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 35
+          },
+          "end": {
+            "line": 16,
+            "character": 50
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Tool Node Builder</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"discoverToolNodes\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>discoverToolNodes</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Find tool requirements</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use get_tool_nodes with include_registered=true to discover what tools are available and identify<br/>any that need implementation.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-5:1\"];\n  \"buildToolNode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>buildToolNode</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Build custom validator</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use build_tool_from_node to create a 'customValidator' tool with strategy='agent_backed' and<br/>implementation_details='Validates data against business rules. Accepts rules array and data object.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-10:1\"];\n  \"validateData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateData</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Use the new validator</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use the customValidator tool you just created to validate input data.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-14:1\"];\n\n  // Edges\n  \"discoverToolNodes\" -> \"buildToolNode\" [labelOverlay=\"75%\", edgeURL=\"#L16:18-16:34\"];\n  \"buildToolNode\" -> \"validateData\" [labelOverlay=\"75%\", edgeURL=\"#L16:35-16:50\"];\n}",
+  "svgHash": "44d43309cabdfb188bf347823a67f91917a8f3938ed76760070865b1b82a4348"
+}

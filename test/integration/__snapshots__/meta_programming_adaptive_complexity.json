@@ -1,0 +1,75 @@
+{
+  "json": {
+    "title": "Complexity Adapter",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "assessComplexity",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Analyze input data complexity. Simple data can use fast path, complex data needs detailed processing."
+          }
+        ],
+        "title": "Assess data complexity",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 5,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "adaptWorkflow",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "If complexity is low, use update_definition to create a simple 2-step workflow. If high, create a detailed 5-step workflow with validation and error handling."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Adapt processing approach",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "assessComplexity",
+        "target": "adaptWorkflow",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 17
+          },
+          "end": {
+            "line": 12,
+            "character": 33
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complexity Adapter</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"assessComplexity\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>assessComplexity</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Assess data complexity</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Analyze input data complexity. Simple data can use fast path, complex data needs detailed<br/>processing.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-5:1\"];\n  \"adaptWorkflow\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>adaptWorkflow</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Adapt processing approach</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ If complexity is low, use update_definition to create a simple 2-step workflow. If high, create a<br/>detailed 5-step workflow with validation and error handling.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-10:1\"];\n\n  // Edges\n  \"assessComplexity\" -> \"adaptWorkflow\" [labelOverlay=\"75%\", edgeURL=\"#L12:17-12:33\"];\n}",
+  "svgHash": "8c1d6f90262d2e1bcf2f99a6d65693b57f5f7322fd77e49e8ebb3202afd47705"
+}

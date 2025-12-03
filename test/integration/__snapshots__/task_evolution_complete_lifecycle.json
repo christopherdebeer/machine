@@ -1,0 +1,109 @@
+{
+  "json": {
+    "title": "Evolution Lifecycle Demo",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Evolution",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "stage",
+            "value": "llm_only"
+          },
+          {
+            "name": "executions",
+            "value": 0
+          },
+          {
+            "name": "ready",
+            "value": false
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "dataProcessor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process and categorize the input data"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "llm_only"
+          }
+        ],
+        "title": "Evolving processor",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "dataProcessor",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 6
+          },
+          "end": {
+            "line": 35,
+            "character": 22
+          }
+        }
+      },
+      {
+        "source": "dataProcessor",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 23
+          },
+          "end": {
+            "line": 35,
+            "character": 29
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Evolution Lifecycle Demo</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Evolution\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Evolution</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">llm_only</td></tr><tr><td port=\"executions__key\" align=\"left\" balign=\"left\">executions</td><td port=\"executions__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"ready__key\" align=\"left\" balign=\"left\">ready</td><td port=\"ready__value\" align=\"left\" balign=\"left\">false</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-7:1\"];\n  \"dataProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataProcessor</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Evolving processor</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process and categorize the input data</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">llm_only</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-13:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"dataProcessor\" [labelOverlay=\"75%\", edgeURL=\"#L35:6-35:22\"];\n  \"dataProcessor\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L35:23-35:29\"];\n}",
+  "svgHash": "7d066d9267fd1fc07159b3bca4fea980924bda5af750d16217cbbce45b7d0c32"
+}

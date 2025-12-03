@@ -1,0 +1,243 @@
+{
+  "json": {
+    "title": "Parallel Processing Router",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 25
+      },
+      {
+        "name": "maxConcurrentPaths",
+        "value": 3
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "dataProcessor",
+        "type": "init",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Begin data processing workflow"
+          }
+        ],
+        "title": "Process data stream",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "healthMonitor",
+        "type": "init",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Start health monitoring"
+          }
+        ],
+        "title": "Monitor system health",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "coordinator",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Coordinate results from parallel processes"
+          }
+        ],
+        "title": "Coordinate results",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "dataComplete",
+        "type": "state",
+        "attributes": [],
+        "title": "Data processing complete",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 45
+          }
+        }
+      },
+      {
+        "name": "healthComplete",
+        "type": "state",
+        "attributes": [],
+        "title": "Health monitoring complete",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 49
+          }
+        }
+      },
+      {
+        "name": "synchronized",
+        "type": "state",
+        "attributes": [],
+        "title": "All processes synchronized",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 47
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "System ready",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 18
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "dataProcessor",
+        "target": "dataComplete",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 14
+          },
+          "end": {
+            "line": 25,
+            "character": 29
+          }
+        }
+      },
+      {
+        "source": "healthMonitor",
+        "target": "healthComplete",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 14
+          },
+          "end": {
+            "line": 26,
+            "character": 31
+          }
+        }
+      },
+      {
+        "source": "dataComplete",
+        "target": "coordinator",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 13
+          },
+          "end": {
+            "line": 29,
+            "character": 27
+          }
+        }
+      },
+      {
+        "source": "healthComplete",
+        "target": "coordinator",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 30,
+            "character": 15
+          },
+          "end": {
+            "line": 30,
+            "character": 29
+          }
+        }
+      },
+      {
+        "source": "coordinator",
+        "target": "synchronized",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 31,
+            "character": 12
+          },
+          "end": {
+            "line": 31,
+            "character": 27
+          }
+        }
+      },
+      {
+        "source": "synchronized",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 32,
+            "character": 13
+          },
+          "end": {
+            "line": 32,
+            "character": 19
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Parallel Processing Router</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">25</td></tr><tr><td port=\"maxConcurrentPaths__key\" align=\"left\" balign=\"left\">maxConcurrentPaths</td><td port=\"maxConcurrentPaths__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"dataProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataProcessor</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Process data stream</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Begin data processing workflow</font></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L7:0-9:1\"];\n  \"healthMonitor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>healthMonitor</b> <i>&lt;init&gt;</i></td></tr><tr><td align=\"left\">Monitor system health</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Start health monitoring</font></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\", URL=\"#L11:0-13:1\"];\n  \"coordinator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>coordinator</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Coordinate results</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Coordinate results from parallel processes</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L15:0-17:1\"];\n  \"dataComplete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>dataComplete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Data processing complete</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L19:0-19:45\"];\n  \"healthComplete\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>healthComplete</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Health monitoring complete</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L20:0-20:49\"];\n  \"synchronized\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>synchronized</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">All processes synchronized</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L21:0-21:47\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">System ready</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L22:0-22:18\"];\n\n  // Edges\n  \"dataProcessor\" -> \"dataComplete\" [labelOverlay=\"75%\", edgeURL=\"#L25:14-25:29\"];\n  \"healthMonitor\" -> \"healthComplete\" [labelOverlay=\"75%\", edgeURL=\"#L26:14-26:31\"];\n  \"dataComplete\" -> \"coordinator\" [labelOverlay=\"75%\", edgeURL=\"#L29:13-29:27\"];\n  \"healthComplete\" -> \"coordinator\" [labelOverlay=\"75%\", edgeURL=\"#L30:15-30:29\"];\n  \"coordinator\" -> \"synchronized\" [labelOverlay=\"75%\", edgeURL=\"#L31:12-31:27\"];\n  \"synchronized\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L32:13-32:19\"];\n}",
+  "svgHash": "b20b60c2eab91533f1d3a0d3061f59e09e0b30d198ff21999f179ca5741d8a90"
+}

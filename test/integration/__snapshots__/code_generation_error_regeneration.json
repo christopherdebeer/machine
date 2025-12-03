@@ -1,0 +1,106 @@
+{
+  "json": {
+    "title": "Self-Healing Code",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "CodeHealth",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "error_count",
+            "value": 0
+          },
+          {
+            "name": "last_error",
+            "value": ""
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "robustProcessor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process data robustly"
+          },
+          {
+            "name": "code_path",
+            "value": "./generated/robustProcessor.ts"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Self-repairing processor",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "robustProcessor",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 6
+          },
+          "end": {
+            "line": 19,
+            "character": 24
+          }
+        }
+      },
+      {
+        "source": "robustProcessor",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 25
+          },
+          "end": {
+            "line": 19,
+            "character": 31
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Self-Healing Code</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"CodeHealth\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CodeHealth</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"error_count__key\" align=\"left\" balign=\"left\">error_count</td><td port=\"error_count__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"last_error__key\" align=\"left\" balign=\"left\">last_error</td><td port=\"last_error__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:1\"];\n  \"robustProcessor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>robustProcessor</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Self-repairing processor</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process data robustly</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"code_path__key\" align=\"left\" balign=\"left\">code_path</td><td port=\"code_path__value\" align=\"left\" balign=\"left\">./generated/robustProcessor.ts</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-11:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"robustProcessor\" [labelOverlay=\"75%\", edgeURL=\"#L19:6-19:24\"];\n  \"robustProcessor\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L19:25-19:31\"];\n}",
+  "svgHash": "1373bf6aadc03b0c8cdc2fefc2302055db2c3b628b80ee6602461555e1345f52"
+}

@@ -1,0 +1,75 @@
+{
+  "json": {
+    "title": "Code Generation Tool",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "createValidatorTool",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use construct_tool to create an 'validate_email' tool with implementation_strategy='code_generation'. Provide implementation_details with a JavaScript function: 'function(input) { const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/; return { valid: regex.test(input.email), email: input.email }; }"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Create email validator",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "validateEmails",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use validate_email to check these emails: 'user@example.com', 'invalid.email', 'test@test.co.uk"
+          }
+        ],
+        "title": "Validate email addresses",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "createValidatorTool",
+        "target": "validateEmails",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 20
+          },
+          "end": {
+            "line": 12,
+            "character": 37
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Code Generation Tool</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"createValidatorTool\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>createValidatorTool</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Create email validator</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use construct_tool to create an 'validate_email' tool with<br/>implementation_strategy='code_generation'. Provide implementation_details with a JavaScript<br/>function: 'function(input) { const regex = /^[^\\s@]+@[^\\s@]+.[^\\s@]+$/; return { valid:<br/>regex.test(input.email), email: input.email }; }</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-6:1\"];\n  \"validateEmails\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateEmails</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Validate email addresses</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use validate_email to check these emails: '<u>user@example.com</u>', 'invalid.email', '<u>test@test.co.uk</u></font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-10:1\"];\n\n  // Edges\n  \"createValidatorTool\" -> \"validateEmails\" [labelOverlay=\"75%\", edgeURL=\"#L12:20-12:37\"];\n}",
+  "svgHash": "b7b389d5906f640235ed980b6d9677a8070bb155b8586d17e4bb3203a1a5ee2c"
+}

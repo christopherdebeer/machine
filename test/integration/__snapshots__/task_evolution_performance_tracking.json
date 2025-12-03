@@ -1,0 +1,115 @@
+{
+  "json": {
+    "title": "Performance-Tracked System",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "TaskMetrics",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "execution_count",
+            "value": 0
+          },
+          {
+            "name": "success_count",
+            "value": 0
+          },
+          {
+            "name": "failure_count",
+            "value": 0
+          },
+          {
+            "name": "avg_execution_time",
+            "value": 0
+          },
+          {
+            "name": "total_cost",
+            "value": 0
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "trackedOperation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process data and track performance"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "llm_only"
+          }
+        ],
+        "title": "Monitored task",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "reportMetrics",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Display TaskMetrics showing execution count, success rate, average time, and total cost. Recommend evolution stage based on metrics."
+          }
+        ],
+        "title": "Report on performance",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "trackedOperation",
+        "target": "reportMetrics",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 17
+          },
+          "end": {
+            "line": 21,
+            "character": 33
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Performance-Tracked System</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"TaskMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>TaskMetrics</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"execution_count__key\" align=\"left\" balign=\"left\">execution_count</td><td port=\"execution_count__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"success_count__key\" align=\"left\" balign=\"left\">success_count</td><td port=\"success_count__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"failure_count__key\" align=\"left\" balign=\"left\">failure_count</td><td port=\"failure_count__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"avg_execution_time__key\" align=\"left\" balign=\"left\">avg_execution_time</td><td port=\"avg_execution_time__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"total_cost__key\" align=\"left\" balign=\"left\">total_cost</td><td port=\"total_cost__value\" align=\"left\" balign=\"left\">0</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-9:1\"];\n  \"trackedOperation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>trackedOperation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Monitored task</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process data and track performance</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">llm_only</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L11:0-15:1\"];\n  \"reportMetrics\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>reportMetrics</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Report on performance</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Display TaskMetrics showing execution count, success rate, average time, and total cost. Recommend<br/>evolution stage based on metrics.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L17:0-19:1\"];\n\n  // Edges\n  \"trackedOperation\" -> \"reportMetrics\" [labelOverlay=\"75%\", edgeURL=\"#L21:17-21:33\"];\n}",
+  "svgHash": "0c81286a704506b9c83dc026b18a39e0f554d4d79f72c17d0517ee218b8d9f6b"
+}

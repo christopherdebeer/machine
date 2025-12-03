@@ -1,0 +1,173 @@
+{
+  "json": {
+    "title": "Multiple Evolving Tasks",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "classifier",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Classify sentiment"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "hybrid"
+          },
+          {
+            "name": "code_path",
+            "value": "./generated/classify.ts"
+          }
+        ],
+        "title": "Sentiment classifier",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "extractor",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Extract named entities"
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "llm_only"
+          }
+        ],
+        "title": "Entity extractor",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "aggregator",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Aggregate results"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "code_only"
+          },
+          {
+            "name": "code_path",
+            "value": "./generated/aggregate.ts"
+          }
+        ],
+        "title": "Result aggregator",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "classifier",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 6
+          },
+          "end": {
+            "line": 25,
+            "character": 19
+          }
+        }
+      },
+      {
+        "source": "classifier",
+        "target": "extractor",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 20
+          },
+          "end": {
+            "line": 25,
+            "character": 32
+          }
+        }
+      },
+      {
+        "source": "extractor",
+        "target": "aggregator",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 33
+          },
+          "end": {
+            "line": 25,
+            "character": 46
+          }
+        }
+      },
+      {
+        "source": "aggregator",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 47
+          },
+          "end": {
+            "line": 25,
+            "character": 53
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Multiple Evolving Tasks</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"classifier\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>classifier</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Sentiment classifier</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Classify sentiment</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">hybrid</td></tr><tr><td port=\"code_path__key\" align=\"left\" balign=\"left\">code_path</td><td port=\"code_path__value\" align=\"left\" balign=\"left\">./generated/classify.ts</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-8:1\"];\n  \"extractor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extractor</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Entity extractor</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Extract named entities</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">llm_only</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-14:1\"];\n  \"aggregator\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>aggregator</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Result aggregator</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Aggregate results</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">code_only</td></tr><tr><td port=\"code_path__key\" align=\"left\" balign=\"left\">code_path</td><td port=\"code_path__value\" align=\"left\" balign=\"left\">./generated/aggregate.ts</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L16:0-20:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"classifier\" [labelOverlay=\"75%\", edgeURL=\"#L25:6-25:19\"];\n  \"classifier\" -> \"extractor\" [labelOverlay=\"75%\", edgeURL=\"#L25:20-25:32\"];\n  \"extractor\" -> \"aggregator\" [labelOverlay=\"75%\", edgeURL=\"#L25:33-25:46\"];\n  \"aggregator\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L25:47-25:53\"];\n}",
+  "svgHash": "11786151de871cca90c770fe9496ad343287e854d97b9de6c95bcf9c9c63f1bc"
+}

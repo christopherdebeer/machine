@@ -1,0 +1,82 @@
+{
+  "json": {
+    "title": "Edge Case Handling",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "robustParser",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Parse JSON with robust error handling. Edge cases: malformed JSON (return error), empty string (return null), very large objects (stream parsing), circular references (detect and break), special characters (proper escaping). Include detailed error messages for each case."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "annotations": [
+          {
+            "name": "code"
+          }
+        ],
+        "title": "Comprehensive parser",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "robustParser",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 6
+          },
+          "end": {
+            "line": 8,
+            "character": 21
+          }
+        }
+      },
+      {
+        "source": "robustParser",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 22
+          },
+          "end": {
+            "line": 8,
+            "character": 28
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Edge Case Handling</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"robustParser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>robustParser</b> <i>&lt;task&gt;</i> <i>@code</i></td></tr><tr><td align=\"left\">Comprehensive parser</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Parse JSON with robust error handling. Edge cases: malformed JSON (return error), empty string<br/>(return null), very large objects (stream parsing), circular references (detect and break), special<br/>characters (proper escaping). Include detailed error messages for each case.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-6:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"robustParser\" [labelOverlay=\"75%\", edgeURL=\"#L8:6-8:21\"];\n  \"robustParser\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L8:22-8:28\"];\n}",
+  "svgHash": "2765898a795583158e2eecbe36c2522522a0ffc4c68ff82c13b1ca9a368a1bb0"
+}

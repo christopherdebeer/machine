@@ -1,0 +1,214 @@
+{
+  "json": {
+    "title": "Tool Disambiguation Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 15
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Select the most appropriate processing tool for this data type"
+          }
+        ],
+        "title": "Choose the correct processing method",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "method_a",
+        "type": "state",
+        "attributes": [],
+        "title": "Processing Method A - Fast",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 43
+          }
+        }
+      },
+      {
+        "name": "method_b",
+        "type": "state",
+        "attributes": [],
+        "title": "Processing Method B - Accurate",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 47
+          }
+        }
+      },
+      {
+        "name": "method_c",
+        "type": "state",
+        "attributes": [],
+        "title": "Processing Method C - Balanced",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 47
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Processing selected",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 25
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "method_a",
+        "arrowType": "->",
+        "attributes": {
+          "text": "fast processing"
+        },
+        "value": {
+          "text": "fast processing"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 6
+          },
+          "end": {
+            "line": 15,
+            "character": 35
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "method_b",
+        "arrowType": "->",
+        "attributes": {
+          "text": "accurate processing"
+        },
+        "value": {
+          "text": "accurate processing"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 6
+          },
+          "end": {
+            "line": 16,
+            "character": 39
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "method_c",
+        "arrowType": "->",
+        "attributes": {
+          "text": "balanced processing"
+        },
+        "value": {
+          "text": "balanced processing"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 6
+          },
+          "end": {
+            "line": 17,
+            "character": 39
+          }
+        }
+      },
+      {
+        "source": "method_a",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 9
+          },
+          "end": {
+            "line": 18,
+            "character": 15
+          }
+        }
+      },
+      {
+        "source": "method_b",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 9
+          },
+          "end": {
+            "line": 19,
+            "character": 15
+          }
+        }
+      },
+      {
+        "source": "method_c",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 9
+          },
+          "end": {
+            "line": 20,
+            "character": 15
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Tool Disambiguation Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">15</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Choose the correct processing method</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Select the most appropriate processing tool for this data type</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-8:1\"];\n  \"method_a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>method_a</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing Method A - Fast</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L10:0-10:43\"];\n  \"method_b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>method_b</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing Method B - Accurate</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L11:0-11:47\"];\n  \"method_c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>method_c</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Processing Method C - Balanced</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L12:0-12:47\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Processing selected</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L13:0-13:25\"];\n\n  // Edges\n  \"start\" -> \"method_a\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>fast processing</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L15:6-15:35\"];\n  \"start\" -> \"method_b\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>accurate processing</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L16:6-16:39\"];\n  \"start\" -> \"method_c\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>balanced processing</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L17:6-17:39\"];\n  \"method_a\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L18:9-18:15\"];\n  \"method_b\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L19:9-19:15\"];\n  \"method_c\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L20:9-20:15\"];\n}",
+  "svgHash": "8505a1d743f774cb622eda76d7452d4d2e08ad0aa916d665718cc4fc736ba856"
+}

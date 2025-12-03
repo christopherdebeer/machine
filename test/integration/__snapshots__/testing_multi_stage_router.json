@@ -1,0 +1,219 @@
+{
+  "json": {
+    "title": "Complex Router",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 20
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Make initial routing decision based on input analysis"
+          }
+        ],
+        "title": "Initial routing decision",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "checkpoint1",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Evaluate intermediate results and choose next step"
+          }
+        ],
+        "title": "Second routing decision",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "success",
+        "type": "state",
+        "attributes": [],
+        "title": "Success path",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 28
+          }
+        }
+      },
+      {
+        "name": "alternate",
+        "type": "state",
+        "attributes": [],
+        "title": "Alternate path",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 32
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Final state",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 17
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "checkpoint1",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 6
+          },
+          "end": {
+            "line": 19,
+            "character": 20
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "alternate",
+        "arrowType": "->",
+        "attributes": {
+          "text": "direct_alternate"
+        },
+        "value": {
+          "text": "direct_alternate"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 6
+          },
+          "end": {
+            "line": 20,
+            "character": 37
+          }
+        }
+      },
+      {
+        "source": "checkpoint1",
+        "target": "success",
+        "arrowType": "->",
+        "attributes": {
+          "text": "proceed_success"
+        },
+        "value": {
+          "text": "proceed_success"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 12
+          },
+          "end": {
+            "line": 21,
+            "character": 40
+          }
+        }
+      },
+      {
+        "source": "checkpoint1",
+        "target": "alternate",
+        "arrowType": "->",
+        "attributes": {
+          "text": "fallback_alternate"
+        },
+        "value": {
+          "text": "fallback_alternate"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 12
+          },
+          "end": {
+            "line": 22,
+            "character": 45
+          }
+        }
+      },
+      {
+        "source": "success",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 8
+          },
+          "end": {
+            "line": 23,
+            "character": 14
+          }
+        }
+      },
+      {
+        "source": "alternate",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 10
+          },
+          "end": {
+            "line": 24,
+            "character": 16
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Complex Router</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">20</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Initial routing decision</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Make initial routing decision based on input analysis</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-8:1\"];\n  \"checkpoint1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>checkpoint1</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Second routing decision</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Evaluate intermediate results and choose next step</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-12:1\"];\n  \"success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>success</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Success path</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L14:0-14:28\"];\n  \"alternate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>alternate</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Alternate path</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L15:0-15:32\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Final state</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L16:0-16:17\"];\n\n  // Edges\n  \"start\" -> \"checkpoint1\" [labelOverlay=\"75%\", edgeURL=\"#L19:6-19:20\"];\n  \"start\" -> \"alternate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>direct_alternate</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L20:6-20:37\"];\n  \"checkpoint1\" -> \"success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>proceed_success</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L21:12-21:40\"];\n  \"checkpoint1\" -> \"alternate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>fallback_alternate</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L22:12-22:45\"];\n  \"success\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L23:8-23:14\"];\n  \"alternate\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L24:10-24:16\"];\n}",
+  "svgHash": "b507a25a4a5f70683b259f5cb1994e524b8d314922025c75875001d429e2be2e"
+}

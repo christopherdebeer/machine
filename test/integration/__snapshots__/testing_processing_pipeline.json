@@ -1,0 +1,398 @@
+{
+  "json": {
+    "title": "Processing Pipeline",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 25
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "PipelineData",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "rawData",
+            "value": []
+          },
+          {
+            "name": "processedData",
+            "value": []
+          },
+          {
+            "name": "validatedData",
+            "value": []
+          },
+          {
+            "name": "status",
+            "value": "initializing"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "ingestion",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Data Ingestion"
+          },
+          {
+            "name": "desc",
+            "value": "Ingest raw data from sources"
+          },
+          {
+            "name": "prompt",
+            "value": "Ingest data from configured sources and store in pipeline context"
+          },
+          {
+            "name": "stage",
+            "value": "ingestion"
+          },
+          {
+            "name": "inputSources",
+            "value": [
+              "api",
+              "file",
+              "database"
+            ]
+          }
+        ],
+        "title": "Data Ingestion",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "transformation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Data Transformation"
+          },
+          {
+            "name": "desc",
+            "value": "Transform ingested data"
+          },
+          {
+            "name": "prompt",
+            "value": "Transform raw data according to business rules"
+          },
+          {
+            "name": "stage",
+            "value": "transformation"
+          },
+          {
+            "name": "rules",
+            "value": [
+              "normalize",
+              "validate",
+              "enrich"
+            ]
+          }
+        ],
+        "title": "Data Transformation",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 0
+          },
+          "end": {
+            "line": 27,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "aggregation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Data Aggregation"
+          },
+          {
+            "name": "desc",
+            "value": "Aggregate transformed data"
+          },
+          {
+            "name": "prompt",
+            "value": "Aggregate data for reporting and analysis"
+          },
+          {
+            "name": "stage",
+            "value": "aggregation"
+          },
+          {
+            "name": "groupBy",
+            "value": [
+              "category",
+              "date",
+              "region"
+            ]
+          }
+        ],
+        "title": "Data Aggregation",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 0
+          },
+          "end": {
+            "line": 35,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "output",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Data Output"
+          },
+          {
+            "name": "desc",
+            "value": "Output processed data"
+          },
+          {
+            "name": "prompt",
+            "value": "Output aggregated data to target systems"
+          },
+          {
+            "name": "stage",
+            "value": "output"
+          },
+          {
+            "name": "targets",
+            "value": [
+              "warehouse",
+              "api",
+              "reports"
+            ]
+          }
+        ],
+        "title": "Data Output",
+        "$sourceRange": {
+          "start": {
+            "line": 37,
+            "character": 0
+          },
+          "end": {
+            "line": 43,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Pipeline complete",
+        "$sourceRange": {
+          "start": {
+            "line": 45,
+            "character": 0
+          },
+          "end": {
+            "line": 45,
+            "character": 23
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "ingestion",
+        "target": "transformation",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 10
+          },
+          "end": {
+            "line": 47,
+            "character": 27
+          }
+        }
+      },
+      {
+        "source": "transformation",
+        "target": "aggregation",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 28
+          },
+          "end": {
+            "line": 47,
+            "character": 42
+          }
+        }
+      },
+      {
+        "source": "aggregation",
+        "target": "output",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 43
+          },
+          "end": {
+            "line": 47,
+            "character": 52
+          }
+        }
+      },
+      {
+        "source": "output",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 53
+          },
+          "end": {
+            "line": 47,
+            "character": 59
+          }
+        }
+      },
+      {
+        "source": "ingestion",
+        "target": "ingestion",
+        "value": {
+          "attribute": "stage",
+          "text": "stage",
+          "sourceAttribute": "stage"
+        },
+        "attributes": {
+          "attribute": "stage",
+          "text": "stage",
+          "sourceAttribute": "stage"
+        },
+        "type": "inferred",
+        "sourceAttribute": "stage",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 2
+          },
+          "end": {
+            "line": 17,
+            "character": 20
+          }
+        }
+      },
+      {
+        "source": "transformation",
+        "target": "transformation",
+        "value": {
+          "attribute": "stage",
+          "text": "stage",
+          "sourceAttribute": "stage"
+        },
+        "attributes": {
+          "attribute": "stage",
+          "text": "stage",
+          "sourceAttribute": "stage"
+        },
+        "type": "inferred",
+        "sourceAttribute": "stage",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 2
+          },
+          "end": {
+            "line": 25,
+            "character": 25
+          }
+        }
+      },
+      {
+        "source": "aggregation",
+        "target": "aggregation",
+        "value": {
+          "attribute": "stage",
+          "text": "stage",
+          "sourceAttribute": "stage"
+        },
+        "attributes": {
+          "attribute": "stage",
+          "text": "stage",
+          "sourceAttribute": "stage"
+        },
+        "type": "inferred",
+        "sourceAttribute": "stage",
+        "$sourceRange": {
+          "start": {
+            "line": 33,
+            "character": 2
+          },
+          "end": {
+            "line": 33,
+            "character": 22
+          }
+        }
+      },
+      {
+        "source": "output",
+        "target": "output",
+        "value": {
+          "attribute": "stage",
+          "text": "stage",
+          "sourceAttribute": "stage"
+        },
+        "attributes": {
+          "attribute": "stage",
+          "text": "stage",
+          "sourceAttribute": "stage"
+        },
+        "type": "inferred",
+        "sourceAttribute": "stage",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 2
+          },
+          "end": {
+            "line": 41,
+            "character": 17
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Processing Pipeline</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">25</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"PipelineData\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>PipelineData</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"rawData__key\" align=\"left\" balign=\"left\">rawData</td><td port=\"rawData__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"processedData__key\" align=\"left\" balign=\"left\">processedData</td><td port=\"processedData__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"validatedData__key\" align=\"left\" balign=\"left\">validatedData</td><td port=\"validatedData__value\" align=\"left\" balign=\"left\">[]</td></tr><tr><td port=\"status__key\" align=\"left\" balign=\"left\">status</td><td port=\"status__value\" align=\"left\" balign=\"left\">initializing</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-11:1\"];\n  \"ingestion\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ingestion</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data Ingestion</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Ingest raw data from sources</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Ingest data from configured sources and store in pipeline context</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Data Ingestion</td></tr><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">ingestion</td></tr><tr><td port=\"inputSources__key\" align=\"left\" balign=\"left\">inputSources</td><td port=\"inputSources__value\" align=\"left\" balign=\"left\">[<BR/>  &quot;api&quot;,<BR/>  &quot;file&quot;,<BR/>  &quot;database&quot;<BR/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L13:0-19:1\"];\n  \"transformation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>transformation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data Transformation</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Transform ingested data</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Transform raw data according to business rules</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Data Transformation</td></tr><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">transformation</td></tr><tr><td port=\"rules__key\" align=\"left\" balign=\"left\">rules</td><td port=\"rules__value\" align=\"left\" balign=\"left\">[<BR/>  &quot;normalize&quot;,<BR/>  &quot;validate&quot;,<BR/>  &quot;enrich&quot;<BR/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L21:0-27:1\"];\n  \"aggregation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>aggregation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data Aggregation</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Aggregate transformed data</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Aggregate data for reporting and analysis</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Data Aggregation</td></tr><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">aggregation</td></tr><tr><td port=\"groupBy__key\" align=\"left\" balign=\"left\">groupBy</td><td port=\"groupBy__value\" align=\"left\" balign=\"left\">[<BR/>  &quot;category&quot;,<BR/>  &quot;date&quot;,<BR/>  &quot;region&quot;<BR/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L29:0-35:1\"];\n  \"output\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>output</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data Output</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Output processed data</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Output aggregated data to target systems</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Data Output</td></tr><tr><td port=\"stage__key\" align=\"left\" balign=\"left\">stage</td><td port=\"stage__value\" align=\"left\" balign=\"left\">output</td></tr><tr><td port=\"targets__key\" align=\"left\" balign=\"left\">targets</td><td port=\"targets__value\" align=\"left\" balign=\"left\">[<BR/>  &quot;warehouse&quot;,<BR/>  &quot;api&quot;,<BR/>  &quot;reports&quot;<BR/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L37:0-43:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Pipeline complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L45:0-45:23\"];\n\n  // Edges\n  \"ingestion\" -> \"transformation\" [labelOverlay=\"75%\", edgeURL=\"#L47:10-47:27\"];\n  \"transformation\" -> \"aggregation\" [labelOverlay=\"75%\", edgeURL=\"#L47:28-47:42\"];\n  \"aggregation\" -> \"output\" [labelOverlay=\"75%\", edgeURL=\"#L47:43-47:52\"];\n  \"output\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L47:53-47:59\"];\n  \"ingestion\":\"stage__value\" -> \"ingestion\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>stage</b></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">attribute</td><td align=\"left\" balign=\"left\">stage</td></tr><tr><td align=\"left\" balign=\"left\">type</td><td align=\"left\" balign=\"left\">undefined</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L17:2-17:20\"];\n  \"transformation\":\"stage__value\" -> \"transformation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>stage</b></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">attribute</td><td align=\"left\" balign=\"left\">stage</td></tr><tr><td align=\"left\" balign=\"left\">type</td><td align=\"left\" balign=\"left\">undefined</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L25:2-25:25\"];\n  \"aggregation\":\"stage__value\" -> \"aggregation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>stage</b></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">attribute</td><td align=\"left\" balign=\"left\">stage</td></tr><tr><td align=\"left\" balign=\"left\">type</td><td align=\"left\" balign=\"left\">undefined</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L33:2-33:22\"];\n  \"output\":\"stage__value\" -> \"output\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>stage</b></td></tr><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">attribute</td><td align=\"left\" balign=\"left\">stage</td></tr><tr><td align=\"left\" balign=\"left\">type</td><td align=\"left\" balign=\"left\">undefined</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L41:2-41:17\"];\n}",
+  "svgHash": "b4c7580925fe7a861ba509bd3da1714c96adc9ce2176ca60b7637b04e0330bcd"
+}

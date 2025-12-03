@@ -1,0 +1,170 @@
+{
+  "json": {
+    "title": "Template Task Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 20
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "analysisTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Data Analysis"
+          },
+          {
+            "name": "desc",
+            "value": "Perform statistical analysis"
+          },
+          {
+            "name": "prompt",
+            "value": "Analyze the dataset and provide statistical insights"
+          },
+          {
+            "name": "taskType",
+            "value": "analysis"
+          },
+          {
+            "name": "template",
+            "value": "statistical_analysis"
+          },
+          {
+            "name": "inputSchema",
+            "value": {
+              "dataSource": "string",
+              "analysisType": "string",
+              "parameters": "object"
+            }
+          },
+          {
+            "name": "outputSchema",
+            "value": {
+              "results": "object",
+              "summary": "string",
+              "confidence": "number"
+            }
+          }
+        ],
+        "title": "Analysis Template Task",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "reportTask",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Report Generation"
+          },
+          {
+            "name": "desc",
+            "value": "Generate analysis report"
+          },
+          {
+            "name": "prompt",
+            "value": "Generate a comprehensive report from analysis results"
+          },
+          {
+            "name": "taskType",
+            "value": "reporting"
+          },
+          {
+            "name": "template",
+            "value": "analysis_report"
+          },
+          {
+            "name": "format",
+            "value": "markdown"
+          },
+          {
+            "name": "sections",
+            "value": [
+              "summary",
+              "findings",
+              "recommendations"
+            ]
+          }
+        ],
+        "title": "Report Generation Task",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 32,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Report generated",
+        "$sourceRange": {
+          "start": {
+            "line": 34,
+            "character": 0
+          },
+          "end": {
+            "line": 34,
+            "character": 22
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "analysisTask",
+        "target": "reportTask",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 13
+          },
+          "end": {
+            "line": 36,
+            "character": 26
+          }
+        }
+      },
+      {
+        "source": "reportTask",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 27
+          },
+          "end": {
+            "line": 36,
+            "character": 33
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Template Task Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">20</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"analysisTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>analysisTask</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Analysis Template Task</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Perform statistical analysis</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Analyze the dataset and provide statistical insights</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Data Analysis</td></tr><tr><td port=\"taskType__key\" align=\"left\" balign=\"left\">taskType</td><td port=\"taskType__value\" align=\"left\" balign=\"left\">analysis</td></tr><tr><td port=\"template__key\" align=\"left\" balign=\"left\">template</td><td port=\"template__value\" align=\"left\" balign=\"left\">statistical_analysis</td></tr><tr><td port=\"inputSchema__key\" align=\"left\" balign=\"left\">inputSchema</td><td port=\"inputSchema__value\" align=\"left\" balign=\"left\">{<BR/>  &quot;dataSource&quot;: &quot;string&quot;,<BR/>  &quot;analysisType&quot;: &quot;string&quot;,<BR/>  &quot;parameters&quot;: &quot;object&quot;<BR/>}</td></tr><tr><td port=\"outputSchema__key\" align=\"left\" balign=\"left\">outputSchema</td><td port=\"outputSchema__value\" align=\"left\" balign=\"left\">{<BR/>  &quot;results&quot;: &quot;object&quot;,<BR/>  &quot;summary&quot;: &quot;string&quot;,<BR/>  &quot;confidence&quot;: &quot;number&quot;<BR/>}</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-22:1\"];\n  \"reportTask\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>reportTask</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Report Generation Task</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Generate analysis report</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Generate a comprehensive report from analysis results</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Report Generation</td></tr><tr><td port=\"taskType__key\" align=\"left\" balign=\"left\">taskType</td><td port=\"taskType__value\" align=\"left\" balign=\"left\">reporting</td></tr><tr><td port=\"template__key\" align=\"left\" balign=\"left\">template</td><td port=\"template__value\" align=\"left\" balign=\"left\">analysis_report</td></tr><tr><td port=\"format__key\" align=\"left\" balign=\"left\">format</td><td port=\"format__value\" align=\"left\" balign=\"left\">markdown</td></tr><tr><td port=\"sections__key\" align=\"left\" balign=\"left\">sections</td><td port=\"sections__value\" align=\"left\" balign=\"left\">[<BR/>  &quot;summary&quot;,<BR/>  &quot;findings&quot;,<BR/>  &quot;recommendations&quot;<BR/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L24:0-32:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Report generated</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L34:0-34:22\"];\n\n  // Edges\n  \"analysisTask\" -> \"reportTask\" [labelOverlay=\"75%\", edgeURL=\"#L36:13-36:26\"];\n  \"reportTask\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L36:27-36:33\"];\n}",
+  "svgHash": "7af51e315c5738480b8144d314eb1de4220f5f5f516ca795030756a2f82d645b"
+}

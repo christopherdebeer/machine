@@ -1,0 +1,276 @@
+{
+  "json": {
+    "title": "Transition Priority Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 15
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Priority",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "urgency",
+            "value": "high"
+          },
+          {
+            "name": "cost",
+            "value": "low"
+          },
+          {
+            "name": "quality",
+            "value": "standard"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Route based on multiple priority criteria"
+          }
+        ],
+        "title": "Multi-criteria routing",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "urgent",
+        "type": "state",
+        "attributes": [],
+        "title": "Urgent path (high urgency)",
+        "$sourceRange": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 16,
+            "character": 41
+          }
+        }
+      },
+      {
+        "name": "economical",
+        "type": "state",
+        "attributes": [],
+        "title": "Economical path (low cost)",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 45
+          }
+        }
+      },
+      {
+        "name": "quality",
+        "type": "state",
+        "attributes": [],
+        "title": "Quality path (standard quality)",
+        "$sourceRange": {
+          "start": {
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 47
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Routing complete",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 22
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "urgent",
+        "arrowType": "->",
+        "attributes": {
+          "when": "Priority.urgency == 'high'"
+        },
+        "value": {
+          "when": "Priority.urgency == 'high'"
+        },
+        "style": {
+          "when": "Priority.urgency == 'high"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 6
+          },
+          "end": {
+            "line": 21,
+            "character": 50
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "economical",
+        "arrowType": "->",
+        "attributes": {
+          "when": "Priority.cost == 'low'"
+        },
+        "value": {
+          "when": "Priority.cost == 'low'"
+        },
+        "style": {
+          "when": "Priority.cost == 'low"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 6
+          },
+          "end": {
+            "line": 22,
+            "character": 50
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "quality",
+        "arrowType": "->",
+        "attributes": {
+          "when": "Priority.quality == 'standard'"
+        },
+        "value": {
+          "when": "Priority.quality == 'standard'"
+        },
+        "style": {
+          "when": "Priority.quality == 'standard"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 23,
+            "character": 6
+          },
+          "end": {
+            "line": 23,
+            "character": 55
+          }
+        }
+      },
+      {
+        "source": "urgent",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 24,
+            "character": 7
+          },
+          "end": {
+            "line": 24,
+            "character": 13
+          }
+        }
+      },
+      {
+        "source": "economical",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 11
+          },
+          "end": {
+            "line": 25,
+            "character": 17
+          }
+        }
+      },
+      {
+        "source": "quality",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 26,
+            "character": 8
+          },
+          "end": {
+            "line": 26,
+            "character": 14
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "start",
+        "target": "Priority",
+        "reason": "condition references Priority",
+        "path": "Priority.urgency == "
+      },
+      {
+        "source": "start",
+        "target": "Priority",
+        "reason": "condition references Priority",
+        "path": "Priority.cost == "
+      },
+      {
+        "source": "start",
+        "target": "Priority",
+        "reason": "condition references Priority",
+        "path": "Priority.quality == "
+      },
+      {
+        "source": "start",
+        "target": "quality",
+        "reason": "condition references quality",
+        "path": "Priority.quality == "
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Transition Priority Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">15</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Priority\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Priority</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"urgency__key\" align=\"left\" balign=\"left\">urgency</td><td port=\"urgency__value\" align=\"left\" balign=\"left\">high</td></tr><tr><td port=\"cost__key\" align=\"left\" balign=\"left\">cost</td><td port=\"cost__value\" align=\"left\" balign=\"left\">low</td></tr><tr><td port=\"quality__key\" align=\"left\" balign=\"left\">quality</td><td port=\"quality__value\" align=\"left\" balign=\"left\">standard</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-10:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Multi-criteria routing</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Route based on multiple priority criteria</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-14:1\"];\n  \"urgent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>urgent</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Urgent path (high urgency)</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L16:0-16:41\"];\n  \"economical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>economical</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Economical path (low cost)</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L17:0-17:45\"];\n  \"quality\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>quality</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Quality path (standard quality)</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L18:0-18:47\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Routing complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L19:0-19:22\"];\n\n  // Edges\n  \"start\" -> \"urgent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Priority.urgency == 'high'</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L21:6-21:50\", when=\"Priority.urgency == 'high\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"start\" -> \"economical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Priority.cost == 'low'</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L22:6-22:50\", when=\"Priority.cost == 'low\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"start\" -> \"quality\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">Priority.quality == 'standard'</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L23:6-23:55\", when=\"Priority.quality == 'standard\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"urgent\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L24:7-24:13\"];\n  \"economical\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L25:11-25:17\"];\n  \"quality\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L26:8-26:14\"];\n\n  // Inferred Dependencies\n  \"start\" -> \"Priority\" [label=\"condition references Priority\", style=dashed, color=blue];\n  \"start\" -> \"Priority\" [label=\"condition references Priority\", style=dashed, color=blue];\n  \"start\" -> \"Priority\" [label=\"condition references Priority\", style=dashed, color=blue];\n  \"start\" -> \"quality\" [label=\"condition references quality\", style=dashed, color=blue];\n}",
+  "svgHash": "32cfe2373a72aca46d8b1ae559bbacb64bfa4d1bacb38c234188471e1a25c1f5"
+}

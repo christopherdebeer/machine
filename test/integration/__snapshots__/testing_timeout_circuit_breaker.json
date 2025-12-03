@@ -1,0 +1,336 @@
+{
+  "json": {
+    "title": "Timeout Circuit Breaker Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 25
+      },
+      {
+        "name": "circuitBreakerThreshold",
+        "value": 3
+      },
+      {
+        "name": "circuitBreakerTimeout",
+        "value": 5000
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "CircuitState",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "failureCount",
+            "value": 0
+          },
+          {
+            "name": "circuitOpen",
+            "value": false
+          },
+          {
+            "name": "lastFailureTime",
+            "value": "null"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "externalCall",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "External Service Call"
+          },
+          {
+            "name": "desc",
+            "value": "Call external service with timeout"
+          },
+          {
+            "name": "prompt",
+            "value": "Make call to external service with timeout protection"
+          },
+          {
+            "name": "timeout",
+            "value": 5000
+          },
+          {
+            "name": "circuitBreaker",
+            "value": true
+          }
+        ],
+        "title": "External Service Call",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "circuitOpenHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Circuit Open Handler"
+          },
+          {
+            "name": "desc",
+            "value": "Handle circuit breaker open state"
+          },
+          {
+            "name": "prompt",
+            "value": "Handle requests when circuit breaker is open"
+          },
+          {
+            "name": "fallbackResponse",
+            "value": "Service temporarily unavailable"
+          }
+        ],
+        "title": "Circuit Open Handler",
+        "$sourceRange": {
+          "start": {
+            "line": 22,
+            "character": 0
+          },
+          "end": {
+            "line": 27,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "timeoutHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Timeout Handler"
+          },
+          {
+            "name": "desc",
+            "value": "Handle request timeouts"
+          },
+          {
+            "name": "prompt",
+            "value": "Handle timeout scenarios gracefully"
+          },
+          {
+            "name": "timeoutResponse",
+            "value": "Request timed out"
+          }
+        ],
+        "title": "Timeout Handler",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 0
+          },
+          "end": {
+            "line": 34,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "successHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Success Handler"
+          },
+          {
+            "name": "desc",
+            "value": "Handle successful responses"
+          },
+          {
+            "name": "prompt",
+            "value": "Process successful service response"
+          }
+        ],
+        "title": "Success Handler",
+        "$sourceRange": {
+          "start": {
+            "line": 36,
+            "character": 0
+          },
+          "end": {
+            "line": 40,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Request processed",
+        "$sourceRange": {
+          "start": {
+            "line": 42,
+            "character": 0
+          },
+          "end": {
+            "line": 42,
+            "character": 23
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "externalCall",
+        "target": "successHandler",
+        "arrowType": "->",
+        "attributes": {
+          "when": "!CircuitState.circuitOpen && response.success"
+        },
+        "value": {
+          "when": "!CircuitState.circuitOpen && response.success"
+        },
+        "style": {
+          "when": "!CircuitState.circuitOpen && response.success"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 44,
+            "character": 13
+          },
+          "end": {
+            "line": 44,
+            "character": 84
+          }
+        }
+      },
+      {
+        "source": "externalCall",
+        "target": "timeoutHandler",
+        "arrowType": "->",
+        "attributes": {
+          "when": "response.timeout"
+        },
+        "value": {
+          "when": "response.timeout"
+        },
+        "style": {
+          "when": "response.timeout"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 45,
+            "character": 13
+          },
+          "end": {
+            "line": 45,
+            "character": 55
+          }
+        }
+      },
+      {
+        "source": "externalCall",
+        "target": "circuitOpenHandler",
+        "arrowType": "->",
+        "attributes": {
+          "when": "CircuitState.circuitOpen"
+        },
+        "value": {
+          "when": "CircuitState.circuitOpen"
+        },
+        "style": {
+          "when": "CircuitState.circuitOpen"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 46,
+            "character": 13
+          },
+          "end": {
+            "line": 46,
+            "character": 67
+          }
+        }
+      },
+      {
+        "source": "successHandler",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 15
+          },
+          "end": {
+            "line": 47,
+            "character": 21
+          }
+        }
+      },
+      {
+        "source": "timeoutHandler",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 48,
+            "character": 15
+          },
+          "end": {
+            "line": 48,
+            "character": 21
+          }
+        }
+      },
+      {
+        "source": "circuitOpenHandler",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 49,
+            "character": 19
+          },
+          "end": {
+            "line": 49,
+            "character": 25
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "externalCall",
+        "target": "CircuitState",
+        "reason": "condition references CircuitState",
+        "path": "!CircuitState.circuitOpen && response.success"
+      },
+      {
+        "source": "externalCall",
+        "target": "CircuitState",
+        "reason": "condition references CircuitState",
+        "path": "CircuitState.circuitOpen"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Timeout Circuit Breaker Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">25</td></tr><tr><td port=\"circuitBreakerThreshold__key\" align=\"left\" balign=\"left\">circuitBreakerThreshold</td><td port=\"circuitBreakerThreshold__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"circuitBreakerTimeout__key\" align=\"left\" balign=\"left\">circuitBreakerTimeout</td><td port=\"circuitBreakerTimeout__value\" align=\"left\" balign=\"left\">5000</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"CircuitState\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>CircuitState</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"failureCount__key\" align=\"left\" balign=\"left\">failureCount</td><td port=\"failureCount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"circuitOpen__key\" align=\"left\" balign=\"left\">circuitOpen</td><td port=\"circuitOpen__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"lastFailureTime__key\" align=\"left\" balign=\"left\">lastFailureTime</td><td port=\"lastFailureTime__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L8:0-12:1\"];\n  \"externalCall\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>externalCall</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">External Service Call</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Call external service with timeout</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Make call to external service with timeout protection</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">External Service Call</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">5000</td></tr><tr><td port=\"circuitBreaker__key\" align=\"left\" balign=\"left\">circuitBreaker</td><td port=\"circuitBreaker__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-20:1\"];\n  \"circuitOpenHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>circuitOpenHandler</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Circuit Open Handler</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Handle circuit breaker open state</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Handle requests when circuit breaker is open</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Circuit Open Handler</td></tr><tr><td port=\"fallbackResponse__key\" align=\"left\" balign=\"left\">fallbackResponse</td><td port=\"fallbackResponse__value\" align=\"left\" balign=\"left\">Service temporarily<BR/>unavailable</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L22:0-27:1\"];\n  \"timeoutHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>timeoutHandler</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Timeout Handler</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Handle request timeouts</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Handle timeout scenarios gracefully</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Timeout Handler</td></tr><tr><td port=\"timeoutResponse__key\" align=\"left\" balign=\"left\">timeoutResponse</td><td port=\"timeoutResponse__value\" align=\"left\" balign=\"left\">Request timed out</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L29:0-34:1\"];\n  \"successHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>successHandler</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Success Handler</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Handle successful responses</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process successful service response</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Success Handler</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L36:0-40:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Request processed</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L42:0-42:23\"];\n\n  // Edges\n  \"externalCall\" -> \"successHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">!CircuitState.circuitOpen &amp;&amp; response.success</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L44:13-44:84\", when=\"!CircuitState.circuitOpen && response.success\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"externalCall\" -> \"timeoutHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">response.timeout</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L45:13-45:55\", when=\"response.timeout\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"externalCall\" -> \"circuitOpenHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">CircuitState.circuitOpen</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L46:13-46:67\", when=\"CircuitState.circuitOpen\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"successHandler\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L47:15-47:21\"];\n  \"timeoutHandler\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L48:15-48:21\"];\n  \"circuitOpenHandler\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L49:19-49:25\"];\n\n  // Inferred Dependencies\n  \"externalCall\" -> \"CircuitState\" [label=\"condition references CircuitState\", style=dashed, color=blue];\n  \"externalCall\" -> \"CircuitState\" [label=\"condition references CircuitState\", style=dashed, color=blue];\n}",
+  "svgHash": "b319e88e94166832f72d4c8d0a9320fbfd83dfed12cc6407730be36726da99e9"
+}

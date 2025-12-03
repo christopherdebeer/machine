@@ -1,0 +1,75 @@
+{
+  "json": {
+    "title": "Code Validation",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "validateCode",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Run test suite against generated code. Verify: correctness, performance, edge case handling. Report results."
+          },
+          {
+            "name": "model",
+            "value": "claude-3-5-sonnet-20241022"
+          }
+        ],
+        "title": "Test generated code",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "promoteIfValid",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "If all tests pass, advance task to code_only stage."
+          }
+        ],
+        "title": "Promote to code_only if tests pass",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "validateCode",
+        "target": "promoteIfValid",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 13
+          },
+          "end": {
+            "line": 12,
+            "character": 30
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Code Validation</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"validateCode\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validateCode</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Test generated code</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Run test suite against generated code. Verify: correctness, performance, edge case handling. Report<br/>results.</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"model__key\" align=\"left\" balign=\"left\">model</td><td port=\"model__value\" align=\"left\" balign=\"left\">claude-3-5-sonnet-20241022</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-6:1\"];\n  \"promoteIfValid\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>promoteIfValid</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Promote to code_only if tests pass</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ If all tests pass, advance task to code_only stage.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-10:1\"];\n\n  // Edges\n  \"validateCode\" -> \"promoteIfValid\" [labelOverlay=\"75%\", edgeURL=\"#L12:13-12:30\"];\n}",
+  "svgHash": "dc84d406f3c49202b44622b2b7b053a4d32639273aae5e8d338a7767c54ef56e"
+}

@@ -1,0 +1,243 @@
+{
+  "json": {
+    "title": "Dynamic Tool Builder",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 20
+      },
+      {
+        "name": "meta",
+        "value": true
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Requirements",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "needsCustomTool",
+            "value": false
+          },
+          {
+            "name": "toolName",
+            "value": ""
+          },
+          {
+            "name": "toolPurpose",
+            "value": ""
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use list_available_tools meta-tool to see what tools exist. Determine if you need a custom tool for calculating Fibonacci numbers. Set Requirements.needsCustomTool to true if fibonacci tool doesn't exist."
+          }
+        ],
+        "title": "Assess capabilities",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "buildTool",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "If Requirements.needsCustomTool is true, use construct_tool meta-tool to create a fibonacci calculator tool with code_generation strategy. The implementation should be JavaScript code that calculates fibonacci(n). Set Requirements.toolName to the created tool name."
+          }
+        ],
+        "title": "Construct fibonacci tool if needed",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "useTool",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Use the fibonacci tool (either existing or newly created) to calculate fibonacci(10). Display the result."
+          }
+        ],
+        "title": "Use the fibonacci tool",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 0
+          },
+          "end": {
+            "line": 23,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Tool construction demo complete",
+        "$sourceRange": {
+          "start": {
+            "line": 25,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 37
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "Requirements",
+        "arrowType": "->",
+        "attributes": {
+          "text": "writes"
+        },
+        "value": {
+          "text": "writes"
+        },
+        "type": "writes",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 26
+          },
+          "end": {
+            "line": 27,
+            "character": 48
+          }
+        }
+      },
+      {
+        "source": "buildTool",
+        "target": "Requirements",
+        "arrowType": "->",
+        "attributes": {
+          "text": "writes"
+        },
+        "value": {
+          "text": "writes"
+        },
+        "type": "writes",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 26
+          },
+          "end": {
+            "line": 27,
+            "character": 48
+          }
+        }
+      },
+      {
+        "source": "useTool",
+        "target": "Requirements",
+        "arrowType": "->",
+        "attributes": {
+          "text": "writes"
+        },
+        "value": {
+          "text": "writes"
+        },
+        "type": "writes",
+        "$sourceRange": {
+          "start": {
+            "line": 27,
+            "character": 26
+          },
+          "end": {
+            "line": 27,
+            "character": 48
+          }
+        }
+      },
+      {
+        "source": "start",
+        "target": "buildTool",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 6
+          },
+          "end": {
+            "line": 29,
+            "character": 18
+          }
+        }
+      },
+      {
+        "source": "buildTool",
+        "target": "useTool",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 19
+          },
+          "end": {
+            "line": 29,
+            "character": 29
+          }
+        }
+      },
+      {
+        "source": "useTool",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 29,
+            "character": 30
+          },
+          "end": {
+            "line": 29,
+            "character": 36
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Dynamic Tool Builder</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">20</td></tr><tr><td port=\"meta__key\" align=\"left\" balign=\"left\">meta</td><td port=\"meta__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Requirements\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Requirements</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"needsCustomTool__key\" align=\"left\" balign=\"left\">needsCustomTool</td><td port=\"needsCustomTool__value\" align=\"left\" balign=\"left\">false</td></tr><tr><td port=\"toolName__key\" align=\"left\" balign=\"left\">toolName</td><td port=\"toolName__value\" align=\"left\" balign=\"left\"></td></tr><tr><td port=\"toolPurpose__key\" align=\"left\" balign=\"left\">toolPurpose</td><td port=\"toolPurpose__value\" align=\"left\" balign=\"left\"></td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L7:0-11:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr><tr><td align=\"left\">Assess capabilities</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use list_available_tools meta-tool to see what tools exist. Determine if you need a custom tool for<br/>calculating Fibonacci numbers. Set Requirements.needsCustomTool to true if fibonacci tool doesn't<br/>exist.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L13:0-15:1\"];\n  \"buildTool\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>buildTool</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Construct fibonacci tool if needed</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ If Requirements.needsCustomTool is true, use construct_tool meta-tool to create a fibonacci<br/>calculator tool with code_generation strategy. The implementation should be JavaScript code that<br/>calculates fibonacci(n). Set Requirements.toolName to the created tool name.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L17:0-19:1\"];\n  \"useTool\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>useTool</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Use the fibonacci tool</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Use the fibonacci tool (either existing or newly created) to calculate fibonacci(10). Display the<br/>result.</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L21:0-23:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Tool construction demo complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L25:0-25:37\"];\n\n  // Edges\n  \"start\" -> \"Requirements\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>writes</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L27:26-27:48\"];\n  \"buildTool\" -> \"Requirements\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>writes</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L27:26-27:48\"];\n  \"useTool\" -> \"Requirements\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>writes</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L27:26-27:48\"];\n  \"start\" -> \"buildTool\" [labelOverlay=\"75%\", edgeURL=\"#L29:6-29:18\"];\n  \"buildTool\" -> \"useTool\" [labelOverlay=\"75%\", edgeURL=\"#L29:19-29:29\"];\n  \"useTool\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L29:30-29:36\"];\n}",
+  "svgHash": "42164a2fc05840c97e8e23efddd8ff5d374fb324b6f2b2f7f08e58808583ac1d"
+}

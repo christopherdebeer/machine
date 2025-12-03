@@ -1,0 +1,81 @@
+{
+  "json": {
+    "title": "Code-Only Task",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "classify",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Classify sentiment"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "code_only"
+          },
+          {
+            "name": "code_path",
+            "value": "./generated/classify.ts"
+          }
+        ],
+        "title": "Production classifier",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "start",
+        "attributes": []
+      },
+      {
+        "name": "end",
+        "attributes": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "classify",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 6
+          },
+          "end": {
+            "line": 9,
+            "character": 17
+          }
+        }
+      },
+      {
+        "source": "classify",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 18
+          },
+          "end": {
+            "line": 9,
+            "character": 24
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Code-Only Task</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"classify\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>classify</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Production classifier</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Classify sentiment</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">code_only</td></tr><tr><td port=\"code_path__key\" align=\"left\" balign=\"left\">code_path</td><td port=\"code_path__value\" align=\"left\" balign=\"left\">./generated/classify.ts</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-7:1\"];\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b></td></tr></table>>, pad=0.5, shape=ellipse, fillcolor=\"#FFF3E0\", style=filled, color=\"#F57C00\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n  // Edges\n  \"start\" -> \"classify\" [labelOverlay=\"75%\", edgeURL=\"#L9:6-9:17\"];\n  \"classify\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L9:18-9:24\"];\n}",
+  "svgHash": "0df82063a3f2d37a283634caaab8c77c7e5a5b6c44abe66e5cee2582da61c8fe"
+}

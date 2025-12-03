@@ -1,0 +1,338 @@
+{
+  "json": {
+    "title": "Retry Recovery Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 30
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "ErrorContext",
+        "type": "context",
+        "attributes": [
+          {
+            "name": "attemptCount",
+            "value": 0
+          },
+          {
+            "name": "lastError",
+            "value": "null"
+          },
+          {
+            "name": "maxRetries",
+            "value": 3
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "riskyOperation",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Risky Operation"
+          },
+          {
+            "name": "desc",
+            "value": "Operation that might fail"
+          },
+          {
+            "name": "prompt",
+            "value": "Perform operation that has a chance of failure"
+          },
+          {
+            "name": "maxRetries",
+            "value": 3
+          },
+          {
+            "name": "retryDelay",
+            "value": 1000
+          },
+          {
+            "name": "errorHandling",
+            "value": "retry"
+          }
+        ],
+        "title": "Risky Operation",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 19,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "retryHandler",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Retry Handler"
+          },
+          {
+            "name": "desc",
+            "value": "Handle retry logic"
+          },
+          {
+            "name": "prompt",
+            "value": "Evaluate failure and determine if retry is appropriate"
+          },
+          {
+            "name": "strategy",
+            "value": "exponential_backoff"
+          }
+        ],
+        "title": "Retry Handler",
+        "$sourceRange": {
+          "start": {
+            "line": 21,
+            "character": 0
+          },
+          "end": {
+            "line": 26,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "errorRecovery",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Error Recovery"
+          },
+          {
+            "name": "desc",
+            "value": "Recover from persistent errors"
+          },
+          {
+            "name": "prompt",
+            "value": "Implement recovery strategy for persistent failures"
+          },
+          {
+            "name": "fallbackMode",
+            "value": true
+          }
+        ],
+        "title": "Error Recovery",
+        "$sourceRange": {
+          "start": {
+            "line": 28,
+            "character": 0
+          },
+          "end": {
+            "line": 33,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "success",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "title",
+            "value": "Success Handler"
+          },
+          {
+            "name": "desc",
+            "value": "Handle successful completion"
+          },
+          {
+            "name": "prompt",
+            "value": "Process successful operation results"
+          }
+        ],
+        "title": "Success Handler",
+        "$sourceRange": {
+          "start": {
+            "line": 35,
+            "character": 0
+          },
+          "end": {
+            "line": 39,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Operation complete",
+        "$sourceRange": {
+          "start": {
+            "line": 41,
+            "character": 0
+          },
+          "end": {
+            "line": 41,
+            "character": 24
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "riskyOperation",
+        "target": "success",
+        "arrowType": "->",
+        "attributes": {
+          "when": "ErrorContext.lastError == null"
+        },
+        "value": {
+          "when": "ErrorContext.lastError == null"
+        },
+        "style": {
+          "when": "ErrorContext.lastError == null"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 43,
+            "character": 15
+          },
+          "end": {
+            "line": 43,
+            "character": 64
+          }
+        }
+      },
+      {
+        "source": "riskyOperation",
+        "target": "retryHandler",
+        "arrowType": "->",
+        "attributes": {
+          "when": "ErrorContext.attemptCount < ErrorContext.maxRetries"
+        },
+        "value": {
+          "when": "ErrorContext.attemptCount < ErrorContext.maxRetries"
+        },
+        "style": {
+          "when": "ErrorContext.attemptCount < ErrorContext.maxRetries"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 44,
+            "character": 15
+          },
+          "end": {
+            "line": 44,
+            "character": 90
+          }
+        }
+      },
+      {
+        "source": "riskyOperation",
+        "target": "errorRecovery",
+        "arrowType": "->",
+        "attributes": {
+          "when": "ErrorContext.attemptCount >= ErrorContext.maxRetries"
+        },
+        "value": {
+          "when": "ErrorContext.attemptCount >= ErrorContext.maxRetries"
+        },
+        "style": {
+          "when": "ErrorContext.attemptCount >= ErrorContext.maxRetries"
+        },
+        "$sourceRange": {
+          "start": {
+            "line": 45,
+            "character": 15
+          },
+          "end": {
+            "line": 45,
+            "character": 92
+          }
+        }
+      },
+      {
+        "source": "retryHandler",
+        "target": "riskyOperation",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 46,
+            "character": 13
+          },
+          "end": {
+            "line": 46,
+            "character": 30
+          }
+        }
+      },
+      {
+        "source": "errorRecovery",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 47,
+            "character": 14
+          },
+          "end": {
+            "line": 47,
+            "character": 20
+          }
+        }
+      },
+      {
+        "source": "success",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 48,
+            "character": 8
+          },
+          "end": {
+            "line": 48,
+            "character": 14
+          }
+        }
+      }
+    ],
+    "inferredDependencies": [
+      {
+        "source": "riskyOperation",
+        "target": "ErrorContext",
+        "reason": "condition references ErrorContext",
+        "path": "ErrorContext.lastError == null"
+      },
+      {
+        "source": "riskyOperation",
+        "target": "ErrorContext",
+        "reason": "condition references ErrorContext",
+        "path": "ErrorContext.attemptCount < ErrorContext.maxRetries"
+      },
+      {
+        "source": "riskyOperation",
+        "target": "ErrorContext",
+        "reason": "condition references ErrorContext",
+        "path": "ErrorContext.attemptCount >= ErrorContext.maxRetries"
+      }
+    ]
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Retry Recovery Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">30</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"ErrorContext\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>ErrorContext</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"attemptCount__key\" align=\"left\" balign=\"left\">attemptCount</td><td port=\"attemptCount__value\" align=\"left\" balign=\"left\">0</td></tr><tr><td port=\"lastError__key\" align=\"left\" balign=\"left\">lastError</td><td port=\"lastError__value\" align=\"left\" balign=\"left\">null</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L6:0-10:1\"];\n  \"riskyOperation\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>riskyOperation</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Risky Operation</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Operation that might fail</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Perform operation that has a chance of failure</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Risky Operation</td></tr><tr><td port=\"maxRetries__key\" align=\"left\" balign=\"left\">maxRetries</td><td port=\"maxRetries__value\" align=\"left\" balign=\"left\">3</td></tr><tr><td port=\"retryDelay__key\" align=\"left\" balign=\"left\">retryDelay</td><td port=\"retryDelay__value\" align=\"left\" balign=\"left\">1000</td></tr><tr><td port=\"errorHandling__key\" align=\"left\" balign=\"left\">errorHandling</td><td port=\"errorHandling__value\" align=\"left\" balign=\"left\">retry</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-19:1\"];\n  \"retryHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>retryHandler</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Retry Handler</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Handle retry logic</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Evaluate failure and determine if retry is appropriate</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Retry Handler</td></tr><tr><td port=\"strategy__key\" align=\"left\" balign=\"left\">strategy</td><td port=\"strategy__value\" align=\"left\" balign=\"left\">exponential_backoff</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L21:0-26:1\"];\n  \"errorRecovery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>errorRecovery</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Error Recovery</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Recover from persistent errors</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Implement recovery strategy for persistent failures</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Error Recovery</td></tr><tr><td port=\"fallbackMode__key\" align=\"left\" balign=\"left\">fallbackMode</td><td port=\"fallbackMode__value\" align=\"left\" balign=\"left\">true</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L28:0-33:1\"];\n  \"success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>success</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Success Handler</td></tr><tr><td align=\"left\"><font point-size=\"9\"><i>Handle successful completion</i></font></td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process successful operation results</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"title__key\" align=\"left\" balign=\"left\">title</td><td port=\"title__value\" align=\"left\" balign=\"left\">Success Handler</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L35:0-39:1\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Operation complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L41:0-41:24\"];\n\n  // Edges\n  \"riskyOperation\" -> \"success\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">ErrorContext.lastError == null</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L43:15-43:64\", when=\"ErrorContext.lastError == null\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"riskyOperation\" -> \"retryHandler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">ErrorContext.attemptCount &lt; ErrorContext.maxRetries</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L44:15-44:90\", when=\"ErrorContext.attemptCount < ErrorContext.maxRetries\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"riskyOperation\" -> \"errorRecovery\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\"><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\">when</td><td align=\"left\" balign=\"left\">ErrorContext.attemptCount &gt;= ErrorContext.maxRetries</td></tr></table></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L45:15-45:92\", when=\"ErrorContext.attemptCount >= ErrorContext.maxRetries\", style=solid, color=\"#4CAF50\", penwidth=2];\n  \"retryHandler\" -> \"riskyOperation\" [labelOverlay=\"75%\", edgeURL=\"#L46:13-46:30\"];\n  \"errorRecovery\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L47:14-47:20\"];\n  \"success\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L48:8-48:14\"];\n\n  // Inferred Dependencies\n  \"riskyOperation\" -> \"ErrorContext\" [label=\"condition references ErrorContext\", style=dashed, color=blue];\n  \"riskyOperation\" -> \"ErrorContext\" [label=\"condition references ErrorContext\", style=dashed, color=blue];\n  \"riskyOperation\" -> \"ErrorContext\" [label=\"condition references ErrorContext\", style=dashed, color=blue];\n}",
+  "svgHash": "2332c1581b64e6dd7841028914b8d98b18b013501c793393143d1ec28d9c7c72"
+}

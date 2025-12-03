@@ -1,0 +1,398 @@
+{
+  "json": {
+    "title": "Deep Chain Machine",
+    "attributes": [
+      {
+        "name": "logLevel",
+        "value": "debug"
+      },
+      {
+        "name": "maxSteps",
+        "value": 50
+      }
+    ],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "step1",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute step 1"
+          }
+        ],
+        "title": "Step 1",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 48
+          }
+        }
+      },
+      {
+        "name": "step2",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute step 2"
+          }
+        ],
+        "title": "Step 2",
+        "$sourceRange": {
+          "start": {
+            "line": 7,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 48
+          }
+        }
+      },
+      {
+        "name": "step3",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute step 3"
+          }
+        ],
+        "title": "Step 3",
+        "$sourceRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 48
+          }
+        }
+      },
+      {
+        "name": "step4",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute step 4"
+          }
+        ],
+        "title": "Step 4",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 9,
+            "character": 48
+          }
+        }
+      },
+      {
+        "name": "step5",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute step 5"
+          }
+        ],
+        "title": "Step 5",
+        "$sourceRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 48
+          }
+        }
+      },
+      {
+        "name": "step6",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute step 6"
+          }
+        ],
+        "title": "Step 6",
+        "$sourceRange": {
+          "start": {
+            "line": 11,
+            "character": 0
+          },
+          "end": {
+            "line": 11,
+            "character": 48
+          }
+        }
+      },
+      {
+        "name": "step7",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute step 7"
+          }
+        ],
+        "title": "Step 7",
+        "$sourceRange": {
+          "start": {
+            "line": 12,
+            "character": 0
+          },
+          "end": {
+            "line": 12,
+            "character": 48
+          }
+        }
+      },
+      {
+        "name": "step8",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute step 8"
+          }
+        ],
+        "title": "Step 8",
+        "$sourceRange": {
+          "start": {
+            "line": 13,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 48
+          }
+        }
+      },
+      {
+        "name": "step9",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute step 9"
+          }
+        ],
+        "title": "Step 9",
+        "$sourceRange": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 48
+          }
+        }
+      },
+      {
+        "name": "step10",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Execute step 10"
+          }
+        ],
+        "title": "Step 10",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 51
+          }
+        }
+      },
+      {
+        "name": "end",
+        "attributes": [],
+        "title": "Deep chain complete",
+        "$sourceRange": {
+          "start": {
+            "line": 17,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 25
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "step1",
+        "target": "step2",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 6
+          },
+          "end": {
+            "line": 19,
+            "character": 14
+          }
+        }
+      },
+      {
+        "source": "step2",
+        "target": "step3",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 15
+          },
+          "end": {
+            "line": 19,
+            "character": 23
+          }
+        }
+      },
+      {
+        "source": "step3",
+        "target": "step4",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 24
+          },
+          "end": {
+            "line": 19,
+            "character": 32
+          }
+        }
+      },
+      {
+        "source": "step4",
+        "target": "step5",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 19,
+            "character": 33
+          },
+          "end": {
+            "line": 19,
+            "character": 41
+          }
+        }
+      },
+      {
+        "source": "step5",
+        "target": "step6",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 6
+          },
+          "end": {
+            "line": 20,
+            "character": 14
+          }
+        }
+      },
+      {
+        "source": "step6",
+        "target": "step7",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 15
+          },
+          "end": {
+            "line": 20,
+            "character": 23
+          }
+        }
+      },
+      {
+        "source": "step7",
+        "target": "step8",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 24
+          },
+          "end": {
+            "line": 20,
+            "character": 32
+          }
+        }
+      },
+      {
+        "source": "step8",
+        "target": "step9",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 33
+          },
+          "end": {
+            "line": 20,
+            "character": 41
+          }
+        }
+      },
+      {
+        "source": "step9",
+        "target": "step10",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 42
+          },
+          "end": {
+            "line": 20,
+            "character": 51
+          }
+        }
+      },
+      {
+        "source": "step10",
+        "target": "end",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 20,
+            "character": 52
+          },
+          "end": {
+            "line": 20,
+            "character": 58
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Deep Chain Machine</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"logLevel__key\" align=\"left\" balign=\"left\">logLevel</td><td port=\"logLevel__value\" align=\"left\" balign=\"left\">debug</td></tr><tr><td port=\"maxSteps__key\" align=\"left\" balign=\"left\">maxSteps</td><td port=\"maxSteps__value\" align=\"left\" balign=\"left\">50</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"step1\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step1</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Step 1</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute step 1</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-6:48\"];\n  \"step2\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step2</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Step 2</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute step 2</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L7:0-7:48\"];\n  \"step3\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step3</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Step 3</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute step 3</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-8:48\"];\n  \"step4\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step4</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Step 4</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute step 4</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-9:48\"];\n  \"step5\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step5</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Step 5</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute step 5</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L10:0-10:48\"];\n  \"step6\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step6</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Step 6</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute step 6</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L11:0-11:48\"];\n  \"step7\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step7</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Step 7</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute step 7</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L12:0-12:48\"];\n  \"step8\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step8</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Step 8</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute step 8</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L13:0-13:48\"];\n  \"step9\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step9</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Step 9</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute step 9</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L14:0-14:48\"];\n  \"step10\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>step10</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Step 10</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Execute step 10</font></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L15:0-15:51\"];\n  \"end\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>end</b></td></tr><tr><td align=\"left\">Deep chain complete</td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L17:0-17:25\"];\n\n  // Edges\n  \"step1\" -> \"step2\" [labelOverlay=\"75%\", edgeURL=\"#L19:6-19:14\"];\n  \"step2\" -> \"step3\" [labelOverlay=\"75%\", edgeURL=\"#L19:15-19:23\"];\n  \"step3\" -> \"step4\" [labelOverlay=\"75%\", edgeURL=\"#L19:24-19:32\"];\n  \"step4\" -> \"step5\" [labelOverlay=\"75%\", edgeURL=\"#L19:33-19:41\"];\n  \"step5\" -> \"step6\" [labelOverlay=\"75%\", edgeURL=\"#L20:6-20:14\"];\n  \"step6\" -> \"step7\" [labelOverlay=\"75%\", edgeURL=\"#L20:15-20:23\"];\n  \"step7\" -> \"step8\" [labelOverlay=\"75%\", edgeURL=\"#L20:24-20:32\"];\n  \"step8\" -> \"step9\" [labelOverlay=\"75%\", edgeURL=\"#L20:33-20:41\"];\n  \"step9\" -> \"step10\" [labelOverlay=\"75%\", edgeURL=\"#L20:42-20:51\"];\n  \"step10\" -> \"end\" [labelOverlay=\"75%\", edgeURL=\"#L20:52-20:58\"];\n}",
+  "svgHash": "7c72b1cca864000c560c285a7eaeafc1acd5c5ddbb77cb4675929eb2c2cda43c"
+}

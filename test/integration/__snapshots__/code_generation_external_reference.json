@@ -1,0 +1,87 @@
+{
+  "json": {
+    "title": "External Code References",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "validate",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Validate input data"
+          },
+          {
+            "name": "code_path",
+            "value": "./generated/validate.ts"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "code_only"
+          }
+        ],
+        "title": "Input validator",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 7,
+            "character": 1
+          }
+        }
+      },
+      {
+        "name": "process",
+        "type": "task",
+        "attributes": [
+          {
+            "name": "prompt",
+            "value": "Process validated data"
+          },
+          {
+            "name": "code_path",
+            "value": "./generated/process.ts"
+          },
+          {
+            "name": "evolution_stage",
+            "value": "code_first"
+          }
+        ],
+        "title": "Data processor",
+        "$sourceRange": {
+          "start": {
+            "line": 9,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 1
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "validate",
+        "target": "process",
+        "arrowType": "->",
+        "$sourceRange": {
+          "start": {
+            "line": 15,
+            "character": 9
+          },
+          "end": {
+            "line": 15,
+            "character": 19
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>External Code References</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"validate\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>validate</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Input validator</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Validate input data</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"code_path__key\" align=\"left\" balign=\"left\">code_path</td><td port=\"code_path__value\" align=\"left\" balign=\"left\">./generated/validate.ts</td></tr><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">code_only</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-7:1\"];\n  \"process\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>process</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Data processor</td></tr><tr><td align=\"left\"><font point-size=\"8\" color=\"#666666\">→ Process validated data</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"code_path__key\" align=\"left\" balign=\"left\">code_path</td><td port=\"code_path__value\" align=\"left\" balign=\"left\">./generated/process.ts</td></tr><tr><td port=\"evolution_stage__key\" align=\"left\" balign=\"left\">evolution_stage</td><td port=\"evolution_stage__value\" align=\"left\" balign=\"left\">code_first</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L9:0-13:1\"];\n\n  // Edges\n  \"validate\" -> \"process\" [labelOverlay=\"75%\", edgeURL=\"#L15:9-15:19\"];\n}",
+  "svgHash": "a8c244bbbed6b7caf83c33c4e70dbf9f4f0f0d9cdf1439c5f9d8865c92a6df35"
+}
