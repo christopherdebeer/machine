@@ -78,8 +78,17 @@ export interface ExecutionState {
             requiredPaths: string[];   // Which paths must arrive
             waitingPaths: string[];    // Which paths have arrived
             isReleased: boolean;       // Whether barrier has been released
+            merge: boolean;            // Whether to merge paths on release
         };
     };
+}
+
+/**
+ * Barrier configuration parsed from @barrier annotation
+ */
+export interface BarrierConfig {
+    id: string;        // Barrier identifier (default: "default")
+    merge: boolean;    // Whether to merge paths on release (default: false)
 }
 
 /**

@@ -6,7 +6,7 @@
  */
 
 import type { MachineJSON } from '../json/types.js';
-import type { ExecutionState, Path, Transition, PathStatus, ExecutionLimits } from './runtime-types.js';
+import type { ExecutionState, Path, Transition, PathStatus, ExecutionLimits, BarrierConfig } from './runtime-types.js';
 import { EXECUTION_STATE_VERSION } from './runtime-types.js';
 
 /**
@@ -418,7 +418,7 @@ export function deserializeState(json: string): ExecutionState {
  * Barriers are automatically created with ALL path IDs (not just active ones)
  * because barrier synchronization applies to all paths in a multi-path execution
  */
-export function ensureBarrier(state: ExecutionState, barrierName: string): ExecutionState {
+export function ensureBarrier(state: ExecutionState, barrierName: string, merge: boolean = false): ExecutionState {
     if (!state.barriers) {
         state = { ...state, barriers: {} };
     }
@@ -438,7 +438,8 @@ export function ensureBarrier(state: ExecutionState, barrierName: string): Execu
                 [barrierName]: {
                     requiredPaths: allPaths,
                     waitingPaths: [],
-                    isReleased: false
+                    isReleased: false,
+                    merge
                 }
             }
         };
@@ -448,16 +449,41 @@ export function ensureBarrier(state: ExecutionState, barrierName: string): Execu
 }
 
 /**
+ * Merge multiple paths into the continuing path
+ * Other paths are marked as 'completed' after merge
+ * Context values and attributes are preserved (paths don't carry data themselves)
+ * @param continuingPathId The path that continues after merge (usually the one that released the barrier)
+ */
+function mergePaths(state: ExecutionState, pathIds: string[], continuingPathId: string): ExecutionState {
+    if (pathIds.length <= 1) return state; // Nothing to merge
+
+    return {
+        ...state,
+        paths: state.paths.map(path => {
+            if (pathIds.includes(path.id) && path.id !== continuingPathId) {
+                // Mark other paths as completed (merged into continuing path)
+                return {
+                    ...path,
+                    status: 'completed' as PathStatus
+                };
+            }
+            return path;
+        })
+    };
+}
+
+/**
  * Mark a path as waiting at a barrier
  * Returns [newState, isReleased] where isReleased indicates if barrier is now complete
  */
 export function waitAtBarrier(
     state: ExecutionState,
     barrierName: string,
-    pathId: string
+    pathId: string,
+    merge: boolean = false
 ): [ExecutionState, boolean] {
     // Ensure barrier exists
-    state = ensureBarrier(state, barrierName);
+    state = ensureBarrier(state, barrierName, merge);
 
     const barrier = state.barriers![barrierName];
 
@@ -478,19 +504,23 @@ export function waitAtBarrier(
 
     // Release barrier if all paths have arrived
     if (allWaiting) {
-        return [
-            {
-                ...state,
-                barriers: {
-                    ...state.barriers!,
-                    [barrierName]: {
-                        ...barrier,
-                        isReleased: true
-                    }
+        let nextState = {
+            ...state,
+            barriers: {
+                ...state.barriers!,
+                [barrierName]: {
+                    ...barrier,
+                    isReleased: true
                 }
-            },
-            true
-        ];
+            }
+        };
+
+        // If merge=true, merge all waiting paths into the current path (the one releasing the barrier)
+        if (barrier.merge) {
+            nextState = mergePaths(nextState, barrier.waitingPaths, pathId);
+        }
+
+        return [nextState, true];
     }
 
     // Barrier not ready, path must wait
@@ -516,22 +546,37 @@ export function isBarrierReleased(state: ExecutionState, barrierName: string): b
 }
 
 /**
- * Get barrier annotation value from edge annotations
- * Returns barrier name if edge has @barrier("name") annotation, null otherwise
+ * Get barrier configuration from edge annotations
+ * Supports two forms:
+ * - Simple: @barrier("sync_point") -> { id: "sync_point", merge: false }
+ * - Attributes: @barrier(id: "sync_point"; merge: true) -> { id: "sync_point", merge: true }
+ * Returns null if no @barrier annotation found
  */
-export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string; value?: string }> }): string | null {
+export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): BarrierConfig | null {
     if (!edge.annotations) return null;
 
     const barrierAnnotation = edge.annotations.find(a => a.name === 'barrier');
     if (!barrierAnnotation) return null;
 
-    // Extract value: @barrier("sync_point") -> "sync_point"
-    const value = barrierAnnotation.value;
-    if (!value) {
-        // Default barrier name if none specified
-        return 'default';
+    // Check for attribute-style parameters first (takes precedence)
+    if (barrierAnnotation.attributes) {
+        const id = typeof barrierAnnotation.attributes.id === 'string'
+            ? barrierAnnotation.attributes.id
+            : 'default';
+
+        // Handle merge attribute (can be boolean true or string "true")
+        const mergeAttr = barrierAnnotation.attributes.merge;
+        const merge = mergeAttr === true || mergeAttr === 'true';
+
+        return { id, merge };
     }
 
-    // Remove quotes if present
-    return value.replace(/['"]/g, '');
+    // Fallback to simple value form: @barrier("sync_point")
+    const value = barrierAnnotation.value;
+    const id = value ? value.replace(/['"]/g, '') : 'default';
+
+    return {
+        id,
+        merge: false  // Default to sync-only (no merge)
+    };
 }

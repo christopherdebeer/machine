@@ -236,34 +236,45 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
             e => e.source === nodeName && e.target === autoTransition.to
         );
 
-        const barrierName = edge ? getBarrierAnnotation(edge) : null;
+        const barrierConfig = edge ? getBarrierAnnotation(edge) : null;
 
-        if (barrierName) {
+        if (barrierConfig) {
             // Barrier synchronization: check if all paths have arrived
-            const [stateAfterWait, isReleased] = waitAtBarrier(nextState, barrierName, path.id);
+            const [stateAfterWait, isReleased] = waitAtBarrier(nextState, barrierConfig.id, path.id, barrierConfig.merge);
             nextState = stateAfterWait;
 
             if (isReleased) {
-                // Barrier released: all paths have arrived, proceed with transition
-                effects.push(buildLogEffect(
-                    'info',
-                    'barrier',
-                    `Barrier '${barrierName}' released - all paths synchronized`,
-                    { pathId: path.id, barrier: barrierName }
-                ));
+                // Barrier released: all paths have arrived
+                const barrier = nextState.barriers![barrierConfig.id];
 
-                // Reactivate all paths that were waiting at this barrier
-                const barrier = nextState.barriers![barrierName];
-                for (const waitingPathId of barrier.waitingPaths) {
-                    if (waitingPathId !== path.id) {
-                        // Reactivate other waiting paths (current path is already proceeding)
-                        nextState = updatePathStatus(nextState, waitingPathId, 'active');
-                        effects.push(buildLogEffect(
-                            'info',
-                            'barrier',
-                            `Path reactivated after barrier release`,
-                            { pathId: waitingPathId, barrier: barrierName }
-                        ));
+                if (barrier.merge) {
+                    // Paths merged: other paths are now completed
+                    effects.push(buildLogEffect(
+                        'info',
+                        'barrier',
+                        `Barrier '${barrierConfig.id}' released - paths merged into ${path.id}`,
+                        { pathId: path.id, barrier: barrierConfig.id, merged: true }
+                    ));
+                } else {
+                    // Sync-only: reactivate all waiting paths
+                    effects.push(buildLogEffect(
+                        'info',
+                        'barrier',
+                        `Barrier '${barrierConfig.id}' released - all paths synchronized`,
+                        { pathId: path.id, barrier: barrierConfig.id }
+                    ));
+
+                    for (const waitingPathId of barrier.waitingPaths) {
+                        if (waitingPathId !== path.id) {
+                            // Reactivate other waiting paths (current path is already proceeding)
+                            nextState = updatePathStatus(nextState, waitingPathId, 'active');
+                            effects.push(buildLogEffect(
+                                'info',
+                                'barrier',
+                                `Path reactivated after barrier release`,
+                                { pathId: waitingPathId, barrier: barrierConfig.id }
+                            ));
+                        }
                     }
                 }
 
@@ -288,12 +299,12 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
                 effects.push(buildLogEffect(
                     'info',
                     'barrier',
-                    `Path waiting at barrier '${barrierName}'`,
+                    `Path waiting at barrier '${barrierConfig.id}'`,
                     {
                         pathId: path.id,
-                        barrier: barrierName,
-                        waitingCount: nextState.barriers?.[barrierName]?.waitingPaths.length,
-                        requiredCount: nextState.barriers?.[barrierName]?.requiredPaths.length
+                        barrier: barrierConfig.id,
+                        waitingCount: nextState.barriers?.[barrierConfig.id]?.waitingPaths.length,
+                        requiredCount: nextState.barriers?.[barrierConfig.id]?.requiredPaths.length
                     }
                 ));
 
