@@ -34,7 +34,11 @@ import {
     serializeState,
     deserializeState,
     cloneState,
-    updateMachineSnapshot
+    updateMachineSnapshot,
+    ensureBarrier,
+    waitAtBarrier,
+    isBarrierReleased,
+    getBarrierAnnotation
 } from './state-builder.js';
 import {
     evaluateAutomatedTransitions,
@@ -227,6 +231,66 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
     const autoTransition = evaluateAutomatedTransitions(machineJSON, nextState, path.id);
 
     if (autoTransition) {
+        // Check if transition edge has @barrier annotation
+        const edge = machineJSON.edges.find(
+            e => e.source === nodeName && e.target === autoTransition.to
+        );
+
+        const barrierName = edge ? getBarrierAnnotation(edge) : null;
+
+        if (barrierName) {
+            // Barrier synchronization: check if all paths have arrived
+            const [stateAfterWait, isReleased] = waitAtBarrier(nextState, barrierName, path.id);
+            nextState = stateAfterWait;
+
+            if (isReleased) {
+                // Barrier released: all paths have arrived, proceed with transition
+                effects.push(buildLogEffect(
+                    'info',
+                    'barrier',
+                    `Barrier '${barrierName}' released - all paths synchronized`,
+                    { pathId: path.id, barrier: barrierName }
+                ));
+
+                effects.push(buildLogEffect(
+                    'info',
+                    'transition',
+                    `Automated transition: ${nodeName} -> ${autoTransition.to}`,
+                    { reason: autoTransition.transition }
+                ));
+
+                nextState = recordTransition(nextState, path.id, autoTransition);
+
+                return {
+                    nextState,
+                    effects,
+                    status: 'continue'
+                };
+            } else {
+                // Barrier not ready: path must wait
+                nextState = updatePathStatus(nextState, path.id, 'waiting');
+
+                effects.push(buildLogEffect(
+                    'info',
+                    'barrier',
+                    `Path waiting at barrier '${barrierName}'`,
+                    {
+                        pathId: path.id,
+                        barrier: barrierName,
+                        waitingCount: nextState.barriers?.[barrierName]?.waitingPaths.length,
+                        requiredCount: nextState.barriers?.[barrierName]?.requiredPaths.length
+                    }
+                ));
+
+                return {
+                    nextState,
+                    effects,
+                    status: 'waiting'
+                };
+            }
+        }
+
+        // No barrier: proceed with normal automated transition
         effects.push(buildLogEffect(
             'info',
             'transition',

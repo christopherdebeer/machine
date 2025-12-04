@@ -50,7 +50,8 @@ export function createInitialState(
             elapsedTime: 0,
             errorCount: 0
         },
-        contextState
+        contextState,
+        barriers: {} // Initialize empty barriers
     };
 }
 
@@ -406,4 +407,131 @@ export function deserializeState(json: string): ExecutionState {
     }
 
     return state;
+}
+
+/**
+ * Barrier Synchronization Functions
+ */
+
+/**
+ * Create or get a barrier for synchronization
+ * Barriers are automatically created with ALL path IDs (not just active ones)
+ * because barrier synchronization applies to all paths in a multi-path execution
+ */
+export function ensureBarrier(state: ExecutionState, barrierName: string): ExecutionState {
+    if (!state.barriers) {
+        state = { ...state, barriers: {} };
+    }
+
+    if (!state.barriers[barrierName]) {
+        // Barriers require ALL paths to synchronize (active or not)
+        // This includes paths that may have completed or failed before reaching the barrier
+        // Only count paths that could potentially reach the barrier (active + waiting)
+        const allPaths = state.paths
+            .filter(p => p.status === 'active' || p.status === 'waiting')
+            .map(p => p.id);
+
+        return {
+            ...state,
+            barriers: {
+                ...state.barriers,
+                [barrierName]: {
+                    requiredPaths: allPaths,
+                    waitingPaths: [],
+                    isReleased: false
+                }
+            }
+        };
+    }
+
+    return state;
+}
+
+/**
+ * Mark a path as waiting at a barrier
+ * Returns [newState, isReleased] where isReleased indicates if barrier is now complete
+ */
+export function waitAtBarrier(
+    state: ExecutionState,
+    barrierName: string,
+    pathId: string
+): [ExecutionState, boolean] {
+    // Ensure barrier exists
+    state = ensureBarrier(state, barrierName);
+
+    const barrier = state.barriers![barrierName];
+
+    // If barrier already released, path can proceed
+    if (barrier.isReleased) {
+        return [state, true];
+    }
+
+    // Add path to waiting set if not already there
+    if (!barrier.waitingPaths.includes(pathId)) {
+        barrier.waitingPaths.push(pathId);
+    }
+
+    // Check if all required paths are now waiting
+    const allWaiting = barrier.requiredPaths.every(
+        requiredPath => barrier.waitingPaths.includes(requiredPath)
+    );
+
+    // Release barrier if all paths have arrived
+    if (allWaiting) {
+        return [
+            {
+                ...state,
+                barriers: {
+                    ...state.barriers!,
+                    [barrierName]: {
+                        ...barrier,
+                        isReleased: true
+                    }
+                }
+            },
+            true
+        ];
+    }
+
+    // Barrier not ready, path must wait
+    return [
+        {
+            ...state,
+            barriers: {
+                ...state.barriers!,
+                [barrierName]: {
+                    ...barrier
+                }
+            }
+        },
+        false
+    ];
+}
+
+/**
+ * Check if a barrier is released
+ */
+export function isBarrierReleased(state: ExecutionState, barrierName: string): boolean {
+    return state.barriers?.[barrierName]?.isReleased ?? false;
+}
+
+/**
+ * Get barrier annotation value from edge annotations
+ * Returns barrier name if edge has @barrier("name") annotation, null otherwise
+ */
+export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string; value?: string }> }): string | null {
+    if (!edge.annotations) return null;
+
+    const barrierAnnotation = edge.annotations.find(a => a.name === 'barrier');
+    if (!barrierAnnotation) return null;
+
+    // Extract value: @barrier("sync_point") -> "sync_point"
+    const value = barrierAnnotation.value;
+    if (!value) {
+        // Default barrier name if none specified
+        return 'default';
+    }
+
+    // Remove quotes if present
+    return value.replace(/['"]/g, '');
 }

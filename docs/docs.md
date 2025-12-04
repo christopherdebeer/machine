@@ -12,7 +12,7 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Cli
 
-  - [Interactive Mode](cli/interactive-mode.md)
+  - [Interactive Execution & Debugging](cli/interactive-mode.md)
   - [CLI Reference](cli/README.md)
 
 ### Development

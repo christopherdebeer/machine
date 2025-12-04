@@ -72,6 +72,14 @@ export interface ExecutionState {
     // Turn-level execution state (for fine-grained stepping)
     // Import from turn-types to avoid duplication
     turnState?: import('./turn-types.js').TurnState;
+    // Barrier synchronization state
+    barriers?: {
+        [barrierName: string]: {
+            requiredPaths: string[];   // Which paths must arrive
+            waitingPaths: string[];    // Which paths have arrived
+            isReleased: boolean;       // Whether barrier has been released
+        };
+    };
 }
 
 /**
