@@ -240,20 +240,62 @@ ls -la test/fixtures/recordings/generative-execution-features/<test-name>/
 DYGRAM_TEST_MODE=playback npm test -- test/validating/generative-execution.test.ts -t "execution-features"
 ```
 
+## Session 2 Fixes (2025-12-04 - Continued)
+
+### ✅ FIXED: Recording playback format mismatch (HIGH PRIORITY)
+
+**Problem**: Recordings created by `StdinResponseClient` didn't match `PlaybackTestClient` expectations, causing:
+```
+✗ context-basic: Cannot read properties of undefined (reading 'content')
+```
+
+**Root Cause**: `StdinResponseClient.saveRecording()` created simplified format without nested `response.response` structure.
+
+**Solution** (commit 0811773):
+- Updated `StdinResponseClient.saveRecording()` to match `PlaybackTestClient` `Recording` interface
+- Added required fields: `type`, `requestId`, `timestamp`, `context`
+- Changed response structure from `{ content, stop_reason }` to `{ response: { content, stop_reason } }`
+- Updated 3 existing context-basic recordings to new format
+
+**Files Modified**:
+- `src/language/stdin-response-client.ts` lines 148-173
+- `test/fixtures/recordings/generative-execution-features/context-basic/turn-*.json` (all 3)
+
+**Result**: ✅ context-basic test now passes in playback mode with signature matching
+
+---
+
+### ✅ FIXED: Infinite loop on completion (MEDIUM PRIORITY)
+
+**Problem**: After reaching end node, execution printed "✅ Execution complete" infinitely:
+```
+✅ Execution complete
+💾 State saved
+📊 steps: 2 | COMPLETE
+📍 Current Node: end
+✅ Execution complete
+[... repeats forever ...]
+```
+
+**Root Cause**: `getExecutionStatus()` in `interactive-execution.ts` line 277 returned `'in_progress'` when `paths.length === 0`, but having no active paths means execution is **complete**, not in progress.
+
+**Solution** (commit 7007b13):
+- Changed `getExecutionStatus()` to return `'complete'` when no active paths
+- Added comment explaining the logic
+- This matches `execution-runtime.ts` line 116 behavior
+
+**Files Modified**:
+- `src/cli/interactive-execution.ts` lines 276-278
+
+**Result**: ✅ Execution now exits cleanly after first completion, no infinite loop
+
+---
+
 ## Next Session TODO
 
-1. **Fix recording playback format mismatch** (HIGH PRIORITY)
-   - Investigate `PlaybackTestClient` expected format
-   - Compare with `StdinResponseClient.saveRecording()` output
-   - Adjust format to match (probably add wrapper fields to response)
-
-2. **Fix infinite loop on completion** (MEDIUM PRIORITY)
-   - Debug execution loop exit condition
-   - Add proper break when status === 'complete'
-   - Test with various completion scenarios
-
-3. **Create remaining test recordings** (BLOCKED by #1)
-   - Once playback works, create recordings for all 12 failing tests:
+1. **Create remaining test recordings** (UNBLOCKED - ready to proceed)
+   - Create recordings for 12 remaining execution-features tests:
+     - async-conditional (has validation error - skip for now)
      - barrier-sync
      - codegen-schema
      - codegen-simple
@@ -261,13 +303,13 @@ DYGRAM_TEST_MODE=playback npm test -- test/validating/generative-execution.test.
      - combined-advanced
      - context-complex
      - diamond-barrier
-     - meta-improve-tool
+     - meta-improve-tool (check if meta-construct-tool has recordings to reference)
      - meta-introspection
      - template-conditional
      - template-simple
-   - context-basic is already complete (3 recordings)
+   - context-basic already complete (3 recordings) ✅
 
-4. **Fix async-conditional validation error** (LOW PRIORITY)
+2. **Fix async-conditional validation error** (LOW PRIORITY)
    - Syntax error with edge labels
    - Line 38-39 in generated file
    - Already noted in previous work
@@ -275,20 +317,20 @@ DYGRAM_TEST_MODE=playback npm test -- test/validating/generative-execution.test.
 ## Success Metrics
 
 ✅ **Phase 1 (COMPLETE)**: stdin correctly treated as response data when resuming
-- Can resume execution with `--id` without providing machine file  
+- Can resume execution with `--id` without providing machine file
 - stdin JSON is consumed as LLM response
 - Recordings are created in correct directory structure
 
-⏳ **Phase 2 (IN PROGRESS)**: Recordings work in playback mode
-- Recordings have correct format for `PlaybackTestClient`
-- Tests pass in playback mode with existing recordings
-- Execution exits cleanly when complete
+✅ **Phase 2 (COMPLETE)**: Recordings work in playback mode
+- Recordings have correct format for `PlaybackTestClient` ✅
+- Tests pass in playback mode with existing recordings ✅
+- Execution exits cleanly when complete ✅
 
-⏳ **Phase 3 (BLOCKED)**: All execution-features tests have recordings
+⏳ **Phase 3 (IN PROGRESS)**: All execution-features tests have recordings
 - 14 total tests
-- 1 complete (context-basic)
-- 1 validation error (async-conditional)
-- 12 need recordings created
+- 1 complete (context-basic) ✅
+- 1 validation error (async-conditional) ⚠️
+- 12 need recordings created ⏳
 
 ## References
 
