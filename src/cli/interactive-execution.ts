@@ -274,7 +274,8 @@ export async function loadOrCreateExecution(
  */
 function getExecutionStatus(state: any): 'in_progress' | 'complete' | 'error' | 'paused' {
     if (!state.paths || state.paths.length === 0) {
-        return 'in_progress';
+        // No active paths means execution is complete
+        return 'complete';
     }
 
     const activePath = state.paths[0];
