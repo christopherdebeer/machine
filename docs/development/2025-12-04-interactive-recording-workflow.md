@@ -291,28 +291,205 @@ DYGRAM_TEST_MODE=playback npm test -- test/validating/generative-execution.test.
 
 ---
 
+### ✅ FIXED: meta-construct-tool recordings format (commit 1abb6b0)
+
+**Problem**: Existing meta-construct-tool recordings (7 files) were in old format, causing:
+```
+✗ meta-construct-tool: Cannot read properties of undefined (reading 'content')
+```
+
+**Solution**:
+- Converted all 7 turn files from old format to new PlaybackTestClient format
+- Used Node script to batch-update all recordings with proper structure
+
+**Result**: ✅ meta-construct-tool test now passes in playback mode
+
+---
+
+### ✅ CREATED: template-simple recordings (commit 93f6fdc)
+
+**Process**: Used CLI interactive mode to create recordings turn-by-turn:
+
+```bash
+# Start interactive recording
+node ./bin/cli.js execute --interactive examples/execution-features/template-simple.dy \
+  --record test/fixtures/recordings/generative-execution-features/template-simple \
+  --id template-simple-rec
+
+# Provide intelligent response for turn 1 (fetchData)
+cat <<'EOF' | node ./bin/cli.js execute --interactive examples/execution-features/template-simple.dy --id template-simple-rec
+{
+  "type": "llm_response",
+  "requestId": "...",
+  "reasoning": "Retrieving monthly data for Engineering department",
+  "response": {
+    "content": [
+      {"type": "text", "text": "Fetching monthly Engineering department data..."},
+      {"type": "tool_use", "name": "write_Report", "input": {...}},
+      {"type": "tool_use", "name": "transition_to_compileReport", "input": {...}}
+    ],
+    "stop_reason": "end_turn"
+  }
+}
+EOF
+
+# Provide intelligent response for turn 2 (compileReport)
+cat <<'EOF' | node ./bin/cli.js execute --interactive examples/execution-features/template-simple.dy --id template-simple-rec
+{
+  "type": "llm_response",
+  "requestId": "...",
+  "reasoning": "Compiling monthly report for Alex",
+  "response": {
+    "content": [
+      {"type": "text", "text": "Compiling the monthly report..."},
+      {"type": "tool_use", "name": "write_Report", "input": {...}},
+      {"type": "tool_use", "name": "transition_to_end", "input": {...}}
+    ],
+    "stop_reason": "end_turn"
+  }
+}
+EOF
+```
+
+**Result**: ✅ template-simple test now passes in playback mode (2 recordings created)
+
+---
+
+### ⚠️ NEW ISSUE DISCOVERED: Interactive mode stdin loop
+
+**Problem**: When using CLI interactive mode with stdin responses, execution completes successfully and recordings are saved, but the CLI continues looping infinitely with "✅ Execution complete" messages.
+
+**Impact**:
+- Recordings are created correctly ✅
+- Tests pass in playback mode ✅
+- Must manually kill CLI process after recordings are saved ⚠️
+
+**Workaround**: After seeing "📼 Recorded turn N to ..." and "✅ Execution complete", kill the process (Ctrl+C).
+
+**Root Cause**: Different from the first infinite loop bug (which was fixed). This appears to be specific to interactive mode when stdin is provided - the CLI may be re-reading stdin or not properly detecting completion with stdin input.
+
+**Priority**: LOW (doesn't block recording creation)
+
+---
+
+## Progress Summary
+
+### Tests Passing (3/13)
+1. ✅ context-basic (3 recordings)
+2. ✅ meta-construct-tool (7 recordings)
+3. ✅ template-simple (2 recordings)
+
+### Tests Needing Recordings (9)
+1. ⏳ barrier-sync
+2. ⏳ codegen-schema
+3. ⏳ codegen-simple
+4. ⏳ codegen-tests
+5. ⏳ combined-advanced
+6. ⏳ context-complex
+7. ⏳ diamond-barrier
+8. ⏳ meta-improve-tool
+9. ⏳ meta-introspection
+10. ⏳ template-conditional
+
+### Tests with Validation Errors (1)
+1. ⚠️ async-conditional (syntax error in generated file)
+
+---
+
+## Workflow for Creating Remaining Recordings
+
+Based on successful template-simple recording creation, here's the proven workflow:
+
+### 1. Start Interactive Recording
+
+```bash
+# Build project first if needed
+npm run build
+
+# Start recording session
+node ./bin/cli.js execute --interactive examples/execution-features/<TEST-NAME>.dy \
+  --record test/fixtures/recordings/generative-execution-features/<TEST-NAME> \
+  --id <TEST-NAME>-rec
+```
+
+### 2. Observe LLM Request
+
+The CLI will pause and show:
+- Current node and objective
+- Available tools
+- Available context
+- Example response format
+
+### 3. Provide Intelligent Response
+
+Analyze the objective and provide semantically appropriate response:
+
+```bash
+cat <<'EOF' | node ./bin/cli.js execute --interactive examples/execution-features/<TEST-NAME>.dy --id <TEST-NAME>-rec
+{
+  "type": "llm_response",
+  "requestId": "<copy-from-request>",
+  "reasoning": "Brief explanation of what you're doing",
+  "response": {
+    "id": "msg-<test>-<turn>",
+    "model": "cli-interactive",
+    "role": "assistant",
+    "content": [
+      {"type": "text", "text": "Explanation of actions..."},
+      {"type": "tool_use", "id": "tool-1", "name": "<tool-name>", "input": {...}},
+      {"type": "tool_use", "id": "tool-2", "name": "transition_to_<next>", "input": {"reason": "..."}}
+    ],
+    "stop_reason": "end_turn",
+    "usage": {"input_tokens": 100, "output_tokens": 50}
+  }
+}
+EOF
+```
+
+### 4. Repeat Until Complete
+
+- Continue providing responses for each turn
+- Watch for "📼 Recorded turn N to ..." confirmations
+- After seeing "✅ Execution complete", kill process (Ctrl+C)
+
+### 5. Verify Recording
+
+```bash
+# Check recordings were created
+ls -la test/fixtures/recordings/generative-execution-features/<TEST-NAME>/
+
+# Test in playback mode
+DYGRAM_TEST_MODE=playback npm test -- test/validating/generative-execution.test.ts 2>&1 | grep -A 2 "<TEST-NAME>"
+```
+
+### 6. Commit
+
+```bash
+git add test/fixtures/recordings/generative-execution-features/<TEST-NAME>/
+git commit -m "Add <TEST-NAME> test recordings"
+```
+
+---
+
 ## Next Session TODO
 
-1. **Create remaining test recordings** (UNBLOCKED - ready to proceed)
-   - Create recordings for 12 remaining execution-features tests:
-     - async-conditional (has validation error - skip for now)
-     - barrier-sync
-     - codegen-schema
-     - codegen-simple
-     - codegen-tests
-     - combined-advanced
-     - context-complex
-     - diamond-barrier
-     - meta-improve-tool (check if meta-construct-tool has recordings to reference)
-     - meta-introspection
-     - template-conditional
-     - template-simple
-   - context-basic already complete (3 recordings) ✅
+1. **Fix interactive mode stdin loop** (LOW PRIORITY)
+   - Investigate why CLI loops after completion with stdin input
+   - May be related to how stdin detection works in interactive mode
+   - Workaround exists (Ctrl+C after recordings saved)
 
-2. **Fix async-conditional validation error** (LOW PRIORITY)
-   - Syntax error with edge labels
-   - Line 38-39 in generated file
-   - Already noted in previous work
+2. **Create remaining 9 test recordings** (PRIMARY GOAL)
+   - Use proven workflow documented above
+   - Start with simpler tests: barrier-sync, template-conditional, context-complex
+   - Then tackle code generation tests: codegen-simple, codegen-schema, codegen-tests
+   - Finally complex tests: combined-advanced, diamond-barrier, meta-*
+   - Estimated time: 2-3 hours for all 9 tests (15-20 min per test)
+
+3. **Fix async-conditional validation error** (BACKLOG)
+   - Syntax error with edge labels in generated file
+   - Can be addressed after all recordings are created
+
+---
 
 ## Success Metrics
 
@@ -325,12 +502,15 @@ DYGRAM_TEST_MODE=playback npm test -- test/validating/generative-execution.test.
 - Recordings have correct format for `PlaybackTestClient` ✅
 - Tests pass in playback mode with existing recordings ✅
 - Execution exits cleanly when complete ✅
+- CLI interactive recording workflow proven ✅
 
-⏳ **Phase 3 (IN PROGRESS)**: All execution-features tests have recordings
-- 14 total tests
-- 1 complete (context-basic) ✅
+⏳ **Phase 3 (IN PROGRESS - 23% complete)**: All execution-features tests have recordings
+- 13 total tests
+- 3 complete (context-basic, meta-construct-tool, template-simple) ✅
 - 1 validation error (async-conditional) ⚠️
-- 12 need recordings created ⏳
+- 9 need recordings created ⏳
+
+**Overall Progress**: 3/13 tests passing (23%)
 
 ## References
 
