@@ -109,21 +109,6 @@ function configureClient(opts: LoadExecutionOptions): any {
         };
     }
 
-    // Legacy: --record without --interactive uses InteractiveTestClient (file-queue mode)
-    // This is deprecated in favor of --interactive --record
-    if (opts.record) {
-        console.warn('⚠️  Using --record without --interactive is deprecated. Use: dy e -i machine.dy --record <dir>');
-        return {
-            llm: new InteractiveTestClient({
-                mode: 'file-queue',
-                queueDir: '.dygram-interactive-queue',
-                recordResponses: true,
-                recordingsDir: opts.record,
-                timeout: 60000
-            })
-        };
-    }
-
     // Default: use API client
     const modelId = process.env.ANTHROPIC_MODEL_ID || 'claude-3-5-haiku-20241022';
     return {
