@@ -93,6 +93,10 @@ export class StdinResponseClient extends ClaudeClient {
                 }
 
                 this.cliClient.clearPendingRequest();
+                
+                // Clear response input after consuming it to prevent replay loop
+                this.responseInput = undefined;
+                
                 return response.response;
             } catch (error) {
                 throw new Error(`Failed to parse response: ${error instanceof Error ? error.message : String(error)}`);
