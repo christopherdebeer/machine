@@ -1,33 +1,132 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
-        "name": "Async",
+        "name": "fetch",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Async"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 1,
+            "character": 18
+          }
+        }
+      },
+      {
+        "name": "compute",
+        "type": "task",
         "attributes": [],
         "annotations": [
           {
             "name": "Sync"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
           },
+          "end": {
+            "line": 2,
+            "character": 19
+          }
+        }
+      },
+      {
+        "name": "lookup",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
           {
             "name": "Cached"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
           },
+          "end": {
+            "line": 3,
+            "character": 20
+          }
+        }
+      },
+      {
+        "name": "save",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
           {
             "name": "Transactional"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
           },
+          "end": {
+            "line": 4,
+            "character": 25
+          }
+        }
+      },
+      {
+        "name": "query",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
           {
             "name": "ReadOnly"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 5,
+            "character": 0
           },
+          "end": {
+            "line": 5,
+            "character": 21
+          }
+        }
+      },
+      {
+        "name": "update",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
           {
             "name": "WriteOnly"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 23
+          }
+        }
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Async\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Async</b> <i>@Sync @Cached @Transactional @ReadOnly @WriteOnly</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
-  "svgHash": "d06bd414bf03feb2e8a94bf34bdc025a472178bba3d240f81fe67ee661ef5b8b"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"fetch\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>fetch</b> <i>&lt;task&gt;</i> <i>@Async</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L1:0-1:18\"];\n  \"compute\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>compute</b> <i>&lt;task&gt;</i> <i>@Sync</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L2:0-2:19\"];\n  \"lookup\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>lookup</b> <i>&lt;task&gt;</i> <i>@Cached</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:20\"];\n  \"save\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>save</b> <i>&lt;task&gt;</i> <i>@Transactional</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:25\"];\n  \"query\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>query</b> <i>&lt;task&gt;</i> <i>@ReadOnly</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-5:21\"];\n  \"update\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>update</b> <i>&lt;task&gt;</i> <i>@WriteOnly</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-6:23\"];\n\n}",
+  "svgHash": "ea461d522b6499c8415fc036fce663281fc590d34728528f8b8c1c11d94cf85f"
 }

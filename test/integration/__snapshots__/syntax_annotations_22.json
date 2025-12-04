@@ -9,16 +9,13 @@
         "attributes": [],
         "annotations": [
           {
-            "name": "HTTP",
-            "value": "GET"
+            "name": "HTTP"
           },
           {
-            "name": "Route",
-            "value": "/api/users"
+            "name": "Route"
           },
           {
-            "name": "Auth",
-            "value": "Bearer"
+            "name": "Auth"
           }
         ],
         "$sourceRange": {
@@ -41,8 +38,7 @@
             "name": "EventDriven"
           },
           {
-            "name": "Topic",
-            "value": "user.created"
+            "name": "Topic"
           }
         ],
         "$sourceRange": {
@@ -65,8 +61,7 @@
             "name": "Batch"
           },
           {
-            "name": "Schedule",
-            "value": "0 0 * * *"
+            "name": "Schedule"
           }
         ],
         "$sourceRange": {
@@ -84,6 +79,6 @@
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"apiEndpoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiEndpoint</b> <i>&lt;task&gt;</i> <i>@HTTP(\"GET\") @Route(\"/api/users\") @Auth(\"Bearer\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L2:0-2:67\"];\n  \"handler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handler</b> <i>&lt;task&gt;</i> <i>@EventDriven @Topic(\"user.created\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:49\"];\n  \"processor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processor</b> <i>&lt;task&gt;</i> <i>@Batch @Schedule(\"0 0 * * *\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:45\"];\n\n}",
-  "svgHash": "b78a38ed040e69ac30376c97f81d8e641d2e99b9ddd08fa04efb73c910c0ef19"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"apiEndpoint\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>apiEndpoint</b> <i>&lt;task&gt;</i> <i>@HTTP @Route @Auth</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L2:0-2:67\"];\n  \"handler\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>handler</b> <i>&lt;task&gt;</i> <i>@EventDriven @Topic</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:49\"];\n  \"processor\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processor</b> <i>&lt;task&gt;</i> <i>@Batch @Schedule</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:45\"];\n\n}",
+  "svgHash": "0c1442df86d91361634d6d9432c90736134c89dcea6763994a658dd6b780eef1"
 }

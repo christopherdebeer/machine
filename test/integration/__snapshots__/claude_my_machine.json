@@ -1,0 +1,61 @@
+{
+  "json": {
+    "title": "My Machine",
+    "attributes": [],
+    "annotations": [],
+    "nodes": [
+      {
+        "name": "Start",
+        "type": "state",
+        "attributes": [],
+        "title": "Initial State",
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 3,
+            "character": 27
+          }
+        }
+      },
+      {
+        "name": "End",
+        "type": "state",
+        "attributes": [],
+        "title": "Final State",
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 23
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "Start",
+        "target": "End",
+        "arrowType": "-->",
+        "$sourceRange": {
+          "start": {
+            "line": 6,
+            "character": 6
+          },
+          "end": {
+            "line": 6,
+            "character": 13
+          }
+        }
+      }
+    ],
+    "inferredDependencies": []
+  },
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>My Machine</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Start</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Initial State</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L3:0-3:27\"];\n  \"End\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>End</b> <i>&lt;state&gt;</i></td></tr><tr><td align=\"left\">Final State</td></tr></table>>, pad=0.5, shape=diamond, fillcolor=\"#F3E5F5\", style=filled, color=\"#7B1FA2\", URL=\"#L4:0-4:23\"];\n\n  // Edges\n  \"Start\" -> \"End\" [style=\"dashed\", labelOverlay=\"75%\", edgeURL=\"#L6:6-6:13\"];\n}",
+  "svgHash": "1d109d314a421f06a53911dff41b19cad1f871df379b4d1285217167da9f93d1"
+}

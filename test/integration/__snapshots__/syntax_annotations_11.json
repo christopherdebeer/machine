@@ -1,28 +1,92 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
-        "name": "Deprecated",
-        "attributes": []
+        "name": "oldApi",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Deprecated"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 1,
+            "character": 38
+          }
+        }
       },
       {
-        "name": "Experimental",
+        "name": "newFeature",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Experimental"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 30
+          }
+        }
+      },
+      {
+        "name": "core",
+        "type": "task",
         "attributes": [],
         "annotations": [
           {
             "name": "Stable"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
           },
+          "end": {
+            "line": 3,
+            "character": 18
+          }
+        }
+      },
+      {
+        "name": "preview",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
           {
             "name": "Beta"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 19
+          }
+        }
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Deprecated\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Deprecated</b></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n  \"Experimental\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Experimental</b> <i>@Stable @Beta</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
-  "svgHash": "1def88db3212ba4cf0e309326085b1f2fb4c6f432f0a4779724c7d0fdb3b366d"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"oldApi\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>oldApi</b> <i>&lt;task&gt;</i> <i>@Deprecated</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=\"filled,dashed\", color=\"#1976D2\", fontcolor=\"#999999\", URL=\"#L1:0-1:38\"];\n  \"newFeature\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>newFeature</b> <i>&lt;task&gt;</i> <i>@Experimental</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L2:0-2:30\"];\n  \"core\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>core</b> <i>&lt;task&gt;</i> <i>@Stable</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:18\"];\n  \"preview\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>preview</b> <i>&lt;task&gt;</i> <i>@Beta</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:19\"];\n\n}",
+  "svgHash": "c8bffca83ab940cbab6950daa78e084659fd6cc2ec952bb768e3191328cd27fc"
 }

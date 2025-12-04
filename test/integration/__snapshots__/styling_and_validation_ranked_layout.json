@@ -10,8 +10,7 @@
         "attributes": [],
         "annotations": [
           {
-            "name": "rank",
-            "value": "header"
+            "name": "rank"
           }
         ],
         "$sourceRange": {
@@ -31,8 +30,7 @@
         "attributes": [],
         "annotations": [
           {
-            "name": "rank",
-            "value": "same:planning"
+            "name": "rank"
           }
         ],
         "$sourceRange": {
@@ -52,8 +50,7 @@
         "attributes": [],
         "annotations": [
           {
-            "name": "rank",
-            "value": "same:planning"
+            "name": "rank"
           }
         ],
         "$sourceRange": {
@@ -73,8 +70,7 @@
         "attributes": [],
         "annotations": [
           {
-            "name": "rank",
-            "value": "footer"
+            "name": "rank"
           }
         ],
         "$sourceRange": {
@@ -138,6 +134,6 @@
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Ranked Layout</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i> <i>@rank(\"header\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:27\"];\n  \"plan\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>plan</b> <i>&lt;task&gt;</i> <i>@rank(\"same:planning\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:33\"];\n  \"review\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>review</b> <i>&lt;task&gt;</i> <i>@rank(\"same:planning\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-5:35\"];\n  \"archive\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>archive</b> <i>&lt;task&gt;</i> <i>@rank(\"footer\")</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-6:29\"];\n\n  // Edges\n  \"start\" -> \"plan\" [labelOverlay=\"75%\", edgeURL=\"#L8:6-8:13\"];\n  \"plan\" -> \"review\" [labelOverlay=\"75%\", edgeURL=\"#L8:14-8:23\"];\n  \"review\" -> \"archive\" [labelOverlay=\"75%\", edgeURL=\"#L8:24-8:34\"];\n}",
-  "svgHash": "7777a300ed9122842381f0387031688857148e2962f2cbed038e1b66754f1405"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Ranked Layout</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"start\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>start</b> <i>&lt;task&gt;</i> <i>@rank</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:27\"];\n  \"plan\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>plan</b> <i>&lt;task&gt;</i> <i>@rank</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:33\"];\n  \"review\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>review</b> <i>&lt;task&gt;</i> <i>@rank</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L5:0-5:35\"];\n  \"archive\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>archive</b> <i>&lt;task&gt;</i> <i>@rank</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L6:0-6:29\"];\n\n  // Edges\n  \"start\" -> \"plan\" [labelOverlay=\"75%\", edgeURL=\"#L8:6-8:13\"];\n  \"plan\" -> \"review\" [labelOverlay=\"75%\", edgeURL=\"#L8:14-8:23\"];\n  \"review\" -> \"archive\" [labelOverlay=\"75%\", edgeURL=\"#L8:24-8:34\"];\n}",
+  "svgHash": "19eae4ce7b8b809aaf0fc7eaa55d66ab6f8eb6884d250a48f6f427b04c348947"
 }

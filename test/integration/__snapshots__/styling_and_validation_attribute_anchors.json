@@ -1,20 +1,7 @@
 {
   "json": {
     "title": "Attribute Anchors",
-    "attributes": [
-      {
-        "name": "text",
-        "value": "uses"
-      },
-      {
-        "name": "sourceAttribute",
-        "value": "endpoint"
-      },
-      {
-        "name": "targetAttribute",
-        "value": "operation"
-      }
-    ],
+    "attributes": [],
     "annotations": [],
     "nodes": [
       {
@@ -68,6 +55,11 @@
         "source": "api",
         "target": "call_api",
         "arrowType": "->",
+        "attributes": {
+          "text": "uses",
+          "sourceAttribute": "endpoint",
+          "targetAttribute": "operation"
+        },
         "$sourceRange": {
           "start": {
             "line": 12,
@@ -82,6 +74,6 @@
     ],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Attribute Anchors</b></font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"text__key\" align=\"left\" balign=\"left\">text</td><td port=\"text__value\" align=\"left\" balign=\"left\">uses</td></tr><tr><td port=\"sourceAttribute__key\" align=\"left\" balign=\"left\">sourceAttribute</td><td port=\"sourceAttribute__value\" align=\"left\" balign=\"left\">endpoint</td></tr><tr><td port=\"targetAttribute__key\" align=\"left\" balign=\"left\">targetAttribute</td><td port=\"targetAttribute__value\" align=\"left\" balign=\"left\">operation</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"api\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>api</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"token__key\" align=\"left\" balign=\"left\">token : string</td><td port=\"token__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:2\"];\n  \"call_api\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>call_api</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Invoke API</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"operation__key\" align=\"left\" balign=\"left\">operation</td><td port=\"operation__value\" align=\"left\" balign=\"left\">GET</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-10:2\"];\n\n  // Edges\n  \"api\" -> \"call_api\" [labelOverlay=\"75%\", edgeURL=\"#L12:4-12:15\"];\n}",
-  "svgHash": "9c86599b52ba07b8ae35d25e295714af39accb3d1ff237ffa30c0b87603daf6f"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Attribute Anchors</b></font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"api\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>api</b> <i>&lt;context&gt;</i></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"endpoint__key\" align=\"left\" balign=\"left\">endpoint</td><td port=\"endpoint__value\" align=\"left\" balign=\"left\">https://api.example.com</td></tr><tr><td port=\"token__key\" align=\"left\" balign=\"left\">token : string</td><td port=\"token__value\" align=\"left\" balign=\"left\">null</td></tr></table></td></tr></table>>, pad=0.5, shape=folder, fillcolor=\"#E8F5E9\", style=filled, color=\"#388E3C\", URL=\"#L3:0-6:2\"];\n  \"call_api\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>call_api</b> <i>&lt;task&gt;</i></td></tr><tr><td align=\"left\">Invoke API</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"operation__key\" align=\"left\" balign=\"left\">operation</td><td port=\"operation__value\" align=\"left\" balign=\"left\">GET</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L8:0-10:2\"];\n\n  // Edges\n  \"api\":\"endpoint__value\" -> \"call_api\":\"operation__value\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td align=\"left\" balign=\"left\"><b>uses</b></td></tr></table>>, labelOverlay=\"75%\", edgeURL=\"#L12:4-12:15\"];\n}",
+  "svgHash": "17d8631a4e21b0a7c19dc78399684e202fe32dbc19e449f2b36803732dc7b948"
 }

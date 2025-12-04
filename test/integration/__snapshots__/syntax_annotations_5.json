@@ -25,8 +25,7 @@
             "name": "Async"
           },
           {
-            "name": "Version",
-            "value": "2.1"
+            "name": "Version"
           }
         ],
         "title": "Process Payment",
@@ -45,6 +44,6 @@
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"processPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processPayment</b> <i>&lt;task&gt;</i> <i>@Critical @Async @Version(\"2.1\")</i></td></tr><tr><td align=\"left\">Process Payment</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"provider__key\" align=\"left\" balign=\"left\">provider</td><td port=\"provider__value\" align=\"left\" balign=\"left\">stripe</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L1:0-4:2\"];\n\n}",
-  "svgHash": "f62b98c815d47906bfb4f2854b29b913a18b83066e59de71392c7314bd43e0d1"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"processPayment\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>processPayment</b> <i>&lt;task&gt;</i> <i>@Critical @Async @Version</i></td></tr><tr><td align=\"left\">Process Payment</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"provider__key\" align=\"left\" balign=\"left\">provider</td><td port=\"provider__value\" align=\"left\" balign=\"left\">stripe</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L1:0-4:2\"];\n\n}",
+  "svgHash": "b622f2da8743f864712f23692615f07b46eae4afae178c5507de73a9baf08733"
 }

@@ -7,14 +7,13 @@
         "name": "Critical"
       },
       {
-        "name": "Version",
-        "value": "2.0"
+        "name": "Version"
       }
     ],
     "nodes": [],
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Production System</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Critical @Version(&quot;2.0&quot;)</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
-  "svgHash": "83a96a805b37c3a7f1f66bdaaf3b798274eb1bb6b4020c8ff0730840c6c2f4a7"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Production System</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Critical @Version</font></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "fa8b6de17b48d3b84c4c2087deeec72821350a229c8c01838f79ac8785d3eced"
 }

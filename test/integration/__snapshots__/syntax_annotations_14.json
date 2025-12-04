@@ -1,27 +1,92 @@
 {
   "json": {
     "attributes": [],
+    "annotations": [],
     "nodes": [
       {
-        "name": "Critical",
+        "name": "urgent",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
+          {
+            "name": "Critical"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 1,
+            "character": 22
+          }
+        }
+      },
+      {
+        "name": "priority",
+        "type": "task",
         "attributes": [],
         "annotations": [
           {
             "name": "Important"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 2,
+            "character": 0
           },
+          "end": {
+            "line": 2,
+            "character": 25
+          }
+        }
+      },
+      {
+        "name": "extra",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
           {
             "name": "Optional"
+          }
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 3,
+            "character": 0
           },
+          "end": {
+            "line": 3,
+            "character": 21
+          }
+        }
+      },
+      {
+        "name": "mandatory",
+        "type": "task",
+        "attributes": [],
+        "annotations": [
           {
             "name": "Required"
           }
-        ]
+        ],
+        "$sourceRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 25
+          }
+        }
       }
     ],
     "edges": [],
-    "notes": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"Critical\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>Critical</b> <i>@Important @Optional @Required</i></td></tr></table>>, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\"];\n\n}",
-  "svgHash": "8f58b0edee4e63681d95546b01a715f649f1cd1faa7570c5424a85ff5f9cdcf2"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"urgent\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>urgent</b> <i>&lt;task&gt;</i> <i>@Critical</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L1:0-1:22\"];\n  \"priority\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>priority</b> <i>&lt;task&gt;</i> <i>@Important</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L2:0-2:25\"];\n  \"extra\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>extra</b> <i>&lt;task&gt;</i> <i>@Optional</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L3:0-3:21\"];\n  \"mandatory\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>mandatory</b> <i>&lt;task&gt;</i> <i>@Required</i></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", URL=\"#L4:0-4:25\"];\n\n}",
+  "svgHash": "c83706ee2b9800a2fbfec568f6a26e27eb6ca4c8813efc1b76cd83ae2a74aea8"
 }

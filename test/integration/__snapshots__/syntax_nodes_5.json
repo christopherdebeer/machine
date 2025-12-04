@@ -30,8 +30,7 @@
             "name": "Annotation1"
           },
           {
-            "name": "Annotation2",
-            "value": "value"
+            "name": "Annotation2"
           }
         ],
         "title": "Title",
@@ -50,6 +49,6 @@
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"NodeName\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>NodeName</b> <i>&lt;type&gt;</i> <i>@Annotation1 @Annotation2(\"value\")</i></td></tr><tr><td align=\"left\">Title</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"attribute1__key\" align=\"left\" balign=\"left\">attribute1</td><td port=\"attribute1__value\" align=\"left\" balign=\"left\">value1</td></tr><tr><td port=\"attribute2__key\" align=\"left\" balign=\"left\">attribute2 : number</td><td port=\"attribute2__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"nested__key\" align=\"left\" balign=\"left\">nested : Array&lt;string&gt;</td><td port=\"nested__value\" align=\"left\" balign=\"left\">[<br/>  &quot;a&quot;,<br/>  &quot;b&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L1:0-5:2\"];\n\n}",
-  "svgHash": "2a0ea6f5013cc65c745f6992583506038cf8be71209a0f522d6056ce2dbd01c2"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"NodeName\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>NodeName</b> <i>&lt;type&gt;</i> <i>@Annotation1 @Annotation2</i></td></tr><tr><td align=\"left\">Title</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"attribute1__key\" align=\"left\" balign=\"left\">attribute1</td><td port=\"attribute1__value\" align=\"left\" balign=\"left\">value1</td></tr><tr><td port=\"attribute2__key\" align=\"left\" balign=\"left\">attribute2 : number</td><td port=\"attribute2__value\" align=\"left\" balign=\"left\">42</td></tr><tr><td port=\"nested__key\" align=\"left\" balign=\"left\">nested : Array&lt;string&gt;</td><td port=\"nested__value\" align=\"left\" balign=\"left\">[<br/>  &quot;a&quot;,<br/>  &quot;b&quot;<br/>]</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#FFFFFF\", style=filled, color=\"#000000\", URL=\"#L1:0-5:2\"];\n\n}",
+  "svgHash": "ce9792deabcace7df1364854a0ed8a7c209db14bf51b5b09308815d014bc3dd2"
 }

@@ -25,16 +25,13 @@
             "name": "Async"
           },
           {
-            "name": "Version",
-            "value": "2.1"
+            "name": "Version"
           },
           {
-            "name": "Author",
-            "value": "Security Team"
+            "name": "Author"
           },
           {
-            "name": "Since",
-            "value": "2024-01-15"
+            "name": "Since"
           }
         ],
         "title": "Authenticate User",
@@ -53,6 +50,6 @@
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"authenticateUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticateUser</b> <i>&lt;task&gt;</i> <i>@Critical @Async @Version(\"2.1\") @Author(\"Security Team\") @Since(\"2024-01-15\")</i></td></tr><tr><td align=\"left\">Authenticate User</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"provider__key\" align=\"left\" balign=\"left\">provider</td><td port=\"provider__value\" align=\"left\" balign=\"left\">OAuth2</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L1:0-9:2\"];\n\n}",
-  "svgHash": "84ff3ec45b41a9483898271c0e374a0379461d1a9e7aadf214253b3ecf0a79e0"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n  \"authenticateUser\" [label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"left\"><b>authenticateUser</b> <i>&lt;task&gt;</i> <i>@Critical @Async @Version @Author @Since</i></td></tr><tr><td align=\"left\">Authenticate User</td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"provider__key\" align=\"left\" balign=\"left\">provider</td><td port=\"provider__value\" align=\"left\" balign=\"left\">OAuth2</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr></table></td></tr></table>>, pad=0.5, shape=box, fillcolor=\"#E3F2FD\", style=filled, color=\"#1976D2\", penwidth=3, URL=\"#L1:0-9:2\"];\n\n}",
+  "svgHash": "e4c0eacf8ab221ef4895d7378d33350ba5eb6e0a1996312862a5feddf8a0fc9a"
 }

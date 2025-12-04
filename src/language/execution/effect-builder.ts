@@ -17,6 +17,8 @@ import type {
 import { getPath } from './state-builder.js';
 import { getNonAutomatedTransitions, getNodeAttributes, getMachineAttributes } from './transition-evaluator.js';
 import { AgentContextBuilder } from '../agent-context-builder.js';
+import { MetaAnnotationConfig } from './annotation-configs.js';
+import { UnifiedAnnotationProcessor } from './unified-annotation-processor.js';
 
 /**
  * Build LLM invocation effect
@@ -442,10 +444,6 @@ function hasMetaAnnotation(
     annotations: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> | undefined
 ): boolean {
     if (!annotations) return false;
-
-    // Import here to avoid circular dependencies
-    const { MetaAnnotationConfig } = require('./annotation-configs.js');
-    const { UnifiedAnnotationProcessor } = require('./unified-annotation-processor.js');
 
     const config = UnifiedAnnotationProcessor.process(
         annotations,

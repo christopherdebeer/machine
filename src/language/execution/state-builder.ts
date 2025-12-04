@@ -8,6 +8,8 @@
 import type { MachineJSON } from '../json/types.js';
 import type { ExecutionState, Path, Transition, PathStatus, ExecutionLimits, BarrierConfig, AsyncConfig } from './runtime-types.js';
 import { EXECUTION_STATE_VERSION } from './runtime-types.js';
+import { BarrierAnnotationConfig, AsyncAnnotationConfig } from './annotation-configs.js';
+import { UnifiedAnnotationProcessor } from './unified-annotation-processor.js';
 
 /**
  * Create initial execution state from machine JSON
@@ -590,10 +592,6 @@ export function isBarrierReleased(state: ExecutionState, barrierName: string): b
  * Returns null if no barrier annotation found
  */
 export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): BarrierConfig | null {
-    // Import here to avoid circular dependencies
-    const { BarrierAnnotationConfig } = require('./annotation-configs.js');
-    const { UnifiedAnnotationProcessor } = require('./unified-annotation-processor.js');
-
     return UnifiedAnnotationProcessor.process(
         edge.annotations,
         BarrierAnnotationConfig
@@ -606,10 +604,6 @@ export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string;
  * Returns null if no async annotation found
  */
 export function getAsyncAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): AsyncConfig | null {
-    // Import here to avoid circular dependencies
-    const { AsyncAnnotationConfig } = require('./annotation-configs.js');
-    const { UnifiedAnnotationProcessor } = require('./unified-annotation-processor.js');
-
     return UnifiedAnnotationProcessor.process(
         edge.annotations,
         AsyncAnnotationConfig

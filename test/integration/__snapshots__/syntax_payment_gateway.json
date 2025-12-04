@@ -18,21 +18,19 @@
     ],
     "annotations": [
       {
-        "name": "Version",
-        "value": "3.1.0"
+        "name": "Version"
       },
       {
         "name": "Critical"
       },
       {
-        "name": "Owner",
-        "value": "Platform Team"
+        "name": "Owner"
       }
     ],
     "nodes": [],
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Payment Gateway</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version(&quot;3.1.0&quot;) @Critical @Owner(&quot;Platform Team&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"region__key\" align=\"left\" balign=\"left\">region</td><td port=\"region__value\" align=\"left\" balign=\"left\">us-east-1</td></tr><tr><td port=\"maxConcurrency__key\" align=\"left\" balign=\"left\">maxConcurrency</td><td port=\"maxConcurrency__value\" align=\"left\" balign=\"left\">100</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
-  "svgHash": "5802aa25a4f5bf5d29916ce1c056cdde3e798be1e8db78fa853b01598b668531"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>Payment Gateway</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version @Critical @Owner</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"region__key\" align=\"left\" balign=\"left\">region</td><td port=\"region__value\" align=\"left\" balign=\"left\">us-east-1</td></tr><tr><td port=\"maxConcurrency__key\" align=\"left\" balign=\"left\">maxConcurrency</td><td port=\"maxConcurrency__value\" align=\"left\" balign=\"left\">100</td></tr><tr><td port=\"timeout__key\" align=\"left\" balign=\"left\">timeout : Duration</td><td port=\"timeout__value\" align=\"left\" balign=\"left\">PT30S</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "3ae3dbe072bbe82bf432cdb1017dcaa74eedd035b6fa0efd4b7feb9a6046d0cc"
 }

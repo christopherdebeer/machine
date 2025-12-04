@@ -3,6 +3,10 @@
     "title": "User Service",
     "attributes": [
       {
+        "name": "version",
+        "value": 1
+      },
+      {
         "name": "region",
         "value": "us-east-1"
       },
@@ -14,21 +18,16 @@
     ],
     "annotations": [
       {
-        "name": "Version",
-        "value": "3.0.0"
-      },
-      {
         "name": "Critical"
       },
       {
-        "name": "Owner",
-        "value": "Platform Team"
+        "name": "Owner"
       }
     ],
     "nodes": [],
     "edges": [],
     "inferredDependencies": []
   },
-  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>User Service</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">@Version(&quot;3.0.0&quot;) @Critical @Owner(&quot;Platform Team&quot;)</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"region__key\" align=\"left\" balign=\"left\">region</td><td port=\"region__value\" align=\"left\" balign=\"left\">us-east-1</td></tr><tr><td port=\"deployed__key\" align=\"left\" balign=\"left\">deployed : Date</td><td port=\"deployed__value\" align=\"left\" balign=\"left\">2025-10-22T13:30:00Z</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
-  "svgHash": "98dab65b401dc362f77e22075ea1d531f9b2e2479b8b5575dc8bfe615a2ef025"
+  "graphviz": "digraph {\n  // Graph attributes\n  label=<<table border=\"0\" cellborder=\"0\" cellspacing=\"0\" cellpadding=\"4\"><tr><td align=\"center\"><font point-size=\"12\"><b>User Service</b></font></td></tr><tr><td align=\"center\"><font point-size=\"10\">v1 @Critical @Owner</font></td></tr><tr><td><table border=\"0\" cellborder=\"1\" cellspacing=\"0\" cellpadding=\"2\" align=\"left\"><tr><td port=\"region__key\" align=\"left\" balign=\"left\">region</td><td port=\"region__value\" align=\"left\" balign=\"left\">us-east-1</td></tr><tr><td port=\"deployed__key\" align=\"left\" balign=\"left\">deployed : Date</td><td port=\"deployed__value\" align=\"left\" balign=\"left\">2025-10-22T13:30:00Z</td></tr></table></td></tr></table>>;\n  labelloc=\"t\";\n  fontsize=10;\n  fontname=\"Arial\";\n  compound=true;\n  rankdir=TB;\n  pad=0.25;\n  node [fontname=\"Arial\", fontsize=10];\n  edge [fontname=\"Arial\", fontsize=9];\n\n  // Node definitions with nested namespaces\n\n\n}",
+  "svgHash": "bbbfd3cfa2ccd8fee61de0d715f1a81e99f24899863e83f94554ceaa43ba3237"
 }

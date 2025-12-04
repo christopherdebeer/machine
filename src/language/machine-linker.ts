@@ -2,6 +2,8 @@ import { AstNodeDescription, AstUtils, DefaultLinker, isLinkingError, LangiumDoc
 import { Machine, Node, isMachine, } from './generated/ast.js';
 import type { MachineServices } from './machine-module.js';
 import { QualifiedNameExpander } from './qualified-name-expander.js';
+import { StrictModeAnnotationConfig } from './execution/annotation-configs.js';
+import { UnifiedAnnotationProcessor } from './execution/unified-annotation-processor.js';
 
 /**
  * Custom linker that auto-creates nodes for undefined references when not in @StrictMode
@@ -166,10 +168,6 @@ export class MachineLinker extends DefaultLinker {
      * Check if the machine has @StrictMode annotation
      */
     private isStrictMode(machine: Machine): boolean {
-        // Import here to avoid circular dependencies
-        const { StrictModeAnnotationConfig } = require('./execution/annotation-configs.js');
-        const { UnifiedAnnotationProcessor } = require('./execution/unified-annotation-processor.js');
-
         // Convert AST annotations to JSON format for processing
         const jsonAnnotations = machine.annotations?.map(ann => ({
             name: ann.name,
