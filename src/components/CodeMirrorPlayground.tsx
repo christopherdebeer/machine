@@ -2306,17 +2306,17 @@ export const CodeMirrorPlayground: React.FC = () => {
           <a href="./">DyGram</a>
           <Logo src="./static/icon.png" alt="Logo" />
           <HeaderToggles>
-            <HeaderToggle $active={!editorCollapsed} onClick={toggleEditor}>
-              E
-            </HeaderToggle>
-            <HeaderToggle $active={!outputCollapsed} onClick={toggleOutput}>
-              O
-            </HeaderToggle>
             <HeaderToggle $active={!settingsCollapsed} onClick={toggleSettings}>
               S
             </HeaderToggle>
             <HeaderToggle $active={!filesCollapsed} onClick={toggleFiles}>
               F
+            </HeaderToggle>
+            <HeaderToggle $active={!editorCollapsed} onClick={toggleEditor}>
+              E
+            </HeaderToggle>
+            <HeaderToggle $active={!outputCollapsed} onClick={toggleOutput}>
+              O
             </HeaderToggle>
             <HeaderToggle
               $active={!executionCollapsed}
