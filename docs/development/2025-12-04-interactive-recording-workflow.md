@@ -504,13 +504,36 @@ git commit -m "Add <TEST-NAME> test recordings"
 - Execution exits cleanly when complete ✅
 - CLI interactive recording workflow proven ✅
 
-⏳ **Phase 3 (IN PROGRESS - 23% complete)**: All execution-features tests have recordings
+⏳ **Phase 3 (IN PROGRESS - 38% complete)**: All execution-features tests have recordings
 - 13 total tests
-- 3 complete (context-basic, meta-construct-tool, template-simple) ✅
+- 5 complete (context-basic, meta-construct-tool, template-simple, template-conditional, codegen-simple) ✅
 - 1 validation error (async-conditional) ⚠️
-- 9 need recordings created ⏳
+- 7 need recordings created ⏳
 
-**Overall Progress**: 3/13 tests passing (23%)
+**Overall Progress**: 5/13 tests passing (38%)
+
+## Session 3: Creating Remaining Test Recordings (2025-12-04)
+
+### Recordings Created
+
+**4. template-conditional** (commit b76a85c)
+- 2 recordings: alert severity evaluation and oncall escalation
+- ✓ Passes in playback mode
+
+**5. codegen-simple** (commit cc47801)
+- 2 recordings: API spec configuration and JavaScript client generation
+- ✓ Passes in playback mode
+
+### Remaining Tests (7)
+
+1. barrier-sync - parallel execution with barrier synchronization
+2. codegen-schema - JSON schema-based code generation
+3. codegen-tests - test generation for API client
+4. combined-advanced - complex workflow with multiple features
+5. context-complex - advanced context operations
+6. diamond-barrier - diamond pattern with barrier
+7. meta-improve-tool - meta-tool improvement workflow
+8. meta-introspection - machine self-inspection
 
 ## References
 
