@@ -38,7 +38,9 @@ import {
     ensureBarrier,
     waitAtBarrier,
     isBarrierReleased,
-    getBarrierAnnotation
+    getBarrierAnnotation,
+    spawnPath,
+    getAsyncAnnotation
 } from './state-builder.js';
 import {
     evaluateAutomatedTransitions,
@@ -231,11 +233,26 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
     const autoTransition = evaluateAutomatedTransitions(machineJSON, nextState, path.id);
 
     if (autoTransition) {
-        // Check if transition edge has @barrier annotation
+        // Check if transition edge has annotations
         const edge = machineJSON.edges.find(
             e => e.source === nodeName && e.target === autoTransition.to
         );
 
+        // Check for @async annotation (spawn new path)
+        const asyncConfig = edge ? getAsyncAnnotation(edge) : null;
+        if (asyncConfig && asyncConfig.enabled) {
+            // Spawn a new path at the target node
+            nextState = spawnPath(nextState, autoTransition.to, path.id);
+
+            effects.push(buildLogEffect(
+                'info',
+                'async',
+                `Spawned new path at ${autoTransition.to}`,
+                { sourcePathId: path.id, newPathId: nextState.paths[nextState.paths.length - 1].id, targetNode: autoTransition.to }
+            ));
+        }
+
+        // Check for @barrier annotation
         const barrierConfig = edge ? getBarrierAnnotation(edge) : null;
 
         if (barrierConfig) {

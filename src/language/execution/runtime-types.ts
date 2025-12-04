@@ -92,6 +92,15 @@ export interface BarrierConfig {
 }
 
 /**
+ * Async configuration parsed from @async annotation
+ * Spawns a new execution path at the target node
+ * Aliases: @spawn, @parallel, @fork
+ */
+export interface AsyncConfig {
+    enabled: boolean;  // Whether to spawn new path (default: true)
+}
+
+/**
  * Effect types that can be produced by execution
  */
 export type EffectType =

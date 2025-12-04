@@ -6,7 +6,7 @@
  */
 
 import type { MachineJSON } from '../json/types.js';
-import type { ExecutionState, Path, Transition, PathStatus, ExecutionLimits, BarrierConfig } from './runtime-types.js';
+import type { ExecutionState, Path, Transition, PathStatus, ExecutionLimits, BarrierConfig, AsyncConfig } from './runtime-types.js';
 import { EXECUTION_STATE_VERSION } from './runtime-types.js';
 
 /**
@@ -473,6 +473,37 @@ function mergePaths(state: ExecutionState, pathIds: string[], continuingPathId: 
 }
 
 /**
+ * Spawn a new execution path at the specified node
+ * Used by @async annotation to create parallel execution paths
+ * @param state Current execution state
+ * @param startNode Node where the new path should start
+ * @param sourcePathId Optional source path ID (for tracking spawn relationships)
+ * @returns New execution state with spawned path added
+ */
+export function spawnPath(state: ExecutionState, startNode: string, sourcePathId?: string): ExecutionState {
+    // Generate unique path ID
+    const pathCount = state.paths.length;
+    const newPathId = `path_${pathCount}`;
+
+    // Create new path starting at the specified node
+    const newPath: Path = {
+        id: newPathId,
+        currentNode: startNode,
+        status: 'active' as PathStatus,
+        history: [],
+        stepCount: 0,
+        nodeInvocationCounts: {},
+        stateTransitions: [],
+        startTime: Date.now()
+    };
+
+    return {
+        ...state,
+        paths: [...state.paths, newPath]
+    };
+}
+
+/**
  * Mark a path as waiting at a barrier
  * Returns [newState, isReleased] where isReleased indicates if barrier is now complete
  */
@@ -579,4 +610,21 @@ export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string;
         id,
         merge: false  // Default to sync-only (no merge)
     };
+}
+
+/**
+ * Get async configuration from edge annotations
+ * Supports aliases: @async, @spawn, @parallel, @fork
+ * Returns null if no async annotation found
+ */
+export function getAsyncAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): AsyncConfig | null {
+    if (!edge.annotations) return null;
+
+    // Check for any of the async aliases
+    const aliases = ['async', 'spawn', 'parallel', 'fork'];
+    const asyncAnnotation = edge.annotations.find(a => aliases.includes(a.name));
+    if (!asyncAnnotation) return null;
+
+    // Async is enabled by default if annotation is present
+    return { enabled: true };
 }
