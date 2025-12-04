@@ -10,6 +10,7 @@ import remarkLinkRewrite from './scripts/remark-link-rewrite.js';
 import remarkEscapeAngleBrackets from './scripts/remark-escape-angle-brackets.js';
 import remarkSlug from 'remark-slug';
 import remarkToc from 'remark-toc';
+import remarkGfm from 'remark-gfm';
 import { apiPlugin } from './vite-plugin-api';
 
 /**
@@ -117,8 +118,6 @@ function getStaticCopyTargets() {
         }
     }
 
-    console.log(targets)
-
     return targets;
 }
 
@@ -152,6 +151,7 @@ export default defineConfig(() => {
                 enforce: 'pre',
                 ...mdx({
                     remarkPlugins: [
+                        remarkGfm,
                         // remarkEscapeAngleBrackets,
                         remarkLinkRewrite,
                         remarkSlug,

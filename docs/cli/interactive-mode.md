@@ -25,35 +25,35 @@ Run continuously until LLM response needed:
 
 ```bash
 # Start execution - runs until LLM invocation
-dygram execute --interactive machine.dy
+dy execute --interactive machine.dy
 
 # Provide response via stdin, continue
-echo '{"action": "continue"}' | dygram execute --interactive machine.dy
+echo '{"action": "continue"}' | dy execute --interactive machine.dy
 ```
 
 ### Step-by-Step Debugging
 
 ```bash
 # Step through all paths together
-dygram execute --step machine.dy
+dy execute --step machine.dy
 
 # Step through one turn at a time
-dygram execute --step-turn machine.dy
+dy execute --step-turn machine.dy
 
 # Step through one path at a time (for multi-path debugging)
-dygram execute --step-path machine.dy
+dy execute --step-path machine.dy
 ```
 
 ### View State Without Advancing
 
 ```bash
 # Get last execution ID
-dygram exec list
+dy exec list
 
 # View current state
-dygram exec show exec-20251203-143022
-dygram exec show exec-20251203-143022 --verbose
-dygram exec show exec-20251203-143022 --format json
+dy exec show exec-20251203-143022
+dy exec show exec-20251203-143022 --verbose
+dy exec show exec-20251203-143022 --format json
 ```
 
 ## Execution Modes
@@ -70,11 +70,11 @@ Runs continuously, pausing **only** when LLM response is needed.
 **Example:**
 ```bash
 # Runs until LLM invocation, then pauses
-dygram execute --interactive workflow.dy
+dy execute --interactive workflow.dy
 
 # LLM request displayed, waiting for stdin response
 # Provide response:
-echo '{"analysis": "data shows trend"}' | dygram execute --interactive workflow.dy
+echo '{"analysis": "data shows trend"}' | dy execute --interactive workflow.dy
 ```
 
 ### Step Mode (`--step`)
@@ -89,10 +89,10 @@ Executes one step at a time, **advancing all active paths together**.
 **Example:**
 ```bash
 # Execute first step (all paths advance)
-dygram execute --step machine.dy
+dy execute --step machine.dy
 
 # Execute next step
-dygram execute --step machine.dy
+dy execute --step machine.dy
 ```
 
 ### Step-Turn Mode (`--step-turn`)
@@ -107,10 +107,10 @@ Executes one turn at a time (LLM conversation turns).
 **Example:**
 ```bash
 # Execute one turn
-dygram execute --step-turn machine.dy
+dy execute --step-turn machine.dy
 
 # Continue turn-by-turn
-dygram execute --step-turn machine.dy
+dy execute --step-turn machine.dy
 ```
 
 ### Step-Path Mode (`--step-path`)
@@ -126,15 +126,15 @@ Executes **one path at a time** in round-robin fashion.
 **Example:**
 ```bash
 # Step path_0
-dygram execute --step-path machine.dy
+dy execute --step-path machine.dy
 # Output: 📍 Step 1 - Path: path_0 - Node: FetchData
 
 # Step path_1
-dygram execute --step-path machine.dy
+dy execute --step-path machine.dy
 # Output: 📍 Step 2 - Path: path_1 - Node: FetchConfig
 
 # Continue round-robin...
-dygram execute --step-path machine.dy
+dy execute --step-path machine.dy
 ```
 
 **Barrier Example:**
@@ -159,17 +159,17 @@ Control output format with `--format`:
 
 ```bash
 # Compact summary (default)
-dygram execute --step machine.dy
+dy execute --step machine.dy
 # Output: 📊 at: WaitPoint | paths: 2/2 | 2 transitions | steps: 1
 
 # Full snapshot
-dygram execute --step machine.dy --verbose
+dy execute --step machine.dy --verbose
 
 # JSON for tooling
-dygram execute --step machine.dy --format json
+dy execute --step machine.dy --format json
 
 # Graphviz diagram
-dygram execute --step machine.dy --format dot > snapshot.dot
+dy execute --step machine.dy --format dot > snapshot.dot
 ```
 
 ### Compact Summary (Default)
@@ -230,7 +230,7 @@ Detailed state with all execution information:
 Structured output for programmatic processing:
 
 ```bash
-dygram execute --step machine.dy --format json
+dy execute --step machine.dy --format json
 ```
 
 ```json
@@ -265,7 +265,7 @@ dygram execute --step machine.dy --format json
 Visual diagram with runtime state overlays:
 
 ```bash
-dygram execute --step machine.dy --format dot > snapshot.dot
+dy execute --step machine.dy --format dot > snapshot.dot
 dot -Tpng snapshot.dot -o snapshot.png
 ```
 
@@ -323,7 +323,7 @@ dy exec show exec-20251203-143022 --format dot > state.dot
 ### List Executions
 
 ```bash
-dygram exec list
+dy exec list
 ```
 
 Output:
@@ -336,7 +336,7 @@ Active executions:
 ### Check Execution Status
 
 ```bash
-dygram exec status exec-20251203-143022
+dy exec status exec-20251203-143022
 ```
 
 Output:
@@ -359,10 +359,10 @@ Use custom IDs for multiple parallel executions:
 
 ```bash
 # Start with specific ID
-dygram execute --step machine.dy --id debug-session
+dy execute --step machine.dy --id debug-session
 
 # Continue with same ID
-dygram execute --step machine.dy --id debug-session
+dy execute --step machine.dy --id debug-session
 ```
 
 ### Force New Execution
@@ -370,20 +370,20 @@ dygram execute --step machine.dy --id debug-session
 Start fresh, ignoring existing state:
 
 ```bash
-dygram execute --step machine.dy --force
+dy execute --step machine.dy --force
 ```
 
 ### Cleanup
 
 ```bash
 # Remove specific execution
-dygram exec rm exec-20251203-143022
+dy exec rm exec-20251203-143022
 
 # Clean completed executions
-dygram exec clean
+dy exec clean
 
 # Clean all executions
-dygram exec clean --all
+dy exec clean --all
 ```
 
 ## Recording & Playback
@@ -394,10 +394,10 @@ Record execution for later playback:
 
 ```bash
 # Start recording
-dygram execute --interactive machine.dy --record recordings/golden/
+dy execute --interactive machine.dy --record recordings/golden/
 
 # Continue (mode persists)
-dygram execute --interactive machine.dy
+dy execute --interactive machine.dy
 ```
 
 ### Playback Mode
@@ -406,10 +406,10 @@ Replay recorded execution (deterministic, no API calls):
 
 ```bash
 # Start playback
-dygram execute --interactive machine.dy --playback recordings/golden/
+dy execute --interactive machine.dy --playback recordings/golden/
 
 # Continue playback
-dygram execute --interactive machine.dy
+dy execute --interactive machine.dy
 ```
 
 ## Combining Modes
@@ -418,13 +418,13 @@ Modes can be combined for powerful debugging:
 
 ```bash
 # Interactive + step: runs step-by-step, pauses on LLM
-dygram execute --interactive --step machine.dy
+dy execute --interactive --step machine.dy
 
 # Interactive + step-path: per-path stepping with LLM pausing
-dygram execute --interactive --step-path machine.dy
+dy execute --interactive --step-path machine.dy
 
 # Step-path + verbose + JSON
-dygram execute --step-path machine.dy --verbose --format json
+dy execute --step-path machine.dy --verbose --format json
 ```
 
 ## Command Reference
@@ -432,7 +432,7 @@ dygram execute --step-path machine.dy --verbose --format json
 ### Execute Command
 
 ```bash
-dygram execute [file] [options]
+dy execute [file] [options]
 ```
 
 **Aliases:** `e`
@@ -466,31 +466,31 @@ dygram execute [file] [options]
 
 **List executions:**
 ```bash
-dygram exec list
-dygram exec ls            # alias
+dy exec list
+dy exec ls            # alias
 ```
 
 **Show status:**
 ```bash
-dygram exec status <id>
+dy exec status <id>
 ```
 
 **Show runtime snapshot:**
 ```bash
-dygram exec show <id> [options]
+dy exec show <id> [options]
   --verbose                # Full snapshot
   --format <format>        # text, json, svg, dot
 ```
 
 **Remove execution:**
 ```bash
-dygram exec rm <id>
+dy exec rm <id>
 ```
 
 **Clean up:**
 ```bash
-dygram exec clean         # Clean completed only
-dygram exec clean --all   # Clean all executions
+dy exec clean         # Clean completed only
+dy exec clean --all   # Clean all executions
 ```
 
 ## Examples
@@ -499,33 +499,33 @@ dygram exec clean --all   # Clean all executions
 
 ```bash
 # Start stepping
-dygram e --step machine.dy
+dy e --step machine.dy
 
 # Continue stepping
-dygram e --step machine.dy
-dygram e --step machine.dy
+dy e --step machine.dy
+dy e --step machine.dy
 
 # Check state
-dygram exec show $(dygram exec list | tail -1 | awk '{print $1}')
+dy exec show $(dy exec list | tail -1 | awk '{print $1}')
 ```
 
 ### Barrier Debugging
 
 ```bash
 # Debug barrier synchronization with per-path stepping
-dygram e --step-path barrier.dy --verbose
+dy e --step-path barrier.dy --verbose
 
 # Path 0: FetchData → WaitPoint
 # (waits at barrier)
 
-dygram e --step-path barrier.dy --verbose
+dy e --step-path barrier.dy --verbose
 # Path 1: FetchConfig → WaitPoint
 # (both now at barrier)
 
-dygram e --step-path barrier.dy --verbose
+dy e --step-path barrier.dy --verbose
 # Barrier releases, path 0 continues
 
-dygram e --step-path barrier.dy --verbose
+dy e --step-path barrier.dy --verbose
 # Path 1 continues
 ```
 
@@ -534,27 +534,27 @@ dygram e --step-path barrier.dy --verbose
 ```bash
 # Execute several steps
 for i in {1..5}; do
-  dygram e --step machine.dy
+  dy e --step machine.dy
 done
 
 # Export final state
-EXEC_ID=$(dygram exec list | tail -1 | awk '{print $1}')
-dygram exec show $EXEC_ID --format json > state-step-5.json
+EXEC_ID=$(dy exec list | tail -1 | awk '{print $1}')
+dy exec show $EXEC_ID --format json > state-step-5.json
 
 # Generate diagram
-dygram exec show $EXEC_ID --format dot | dot -Tpng > state-step-5.png
+dy exec show $EXEC_ID --format dot | dot -Tpng > state-step-5.png
 ```
 
 ### Automated Testing with Playback
 
 ```bash
 # Record golden execution
-dygram e -i workflow.dy --record recordings/golden/ --id golden
-while dygram e -i workflow.dy --id golden; do :; done
+dy e -i workflow.dy --record recordings/golden/ --id golden
+while dy e -i workflow.dy --id golden; do :; done
 
 # Test with playback (deterministic)
-dygram e -i workflow.dy --playback recordings/golden/ --id test
-while dygram e -i workflow.dy --id test --format json > test-output.json; do :; done
+dy e -i workflow.dy --playback recordings/golden/ --id test
+while dy e -i workflow.dy --id test --format json > test-output.json; do :; done
 
 # Compare results
 diff <(jq -S . recordings/golden/output.json) <(jq -S . test-output.json)

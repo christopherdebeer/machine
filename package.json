@@ -113,6 +113,7 @@
         "playwright": "^1.56.0",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
+        "remark-gfm": "^4.0.1",
         "remark-slug": "^7.0.1",
         "remark-toc": "^9.0.0",
         "sitemap": "^8.0.1",
