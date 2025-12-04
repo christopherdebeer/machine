@@ -279,8 +279,9 @@ function getExecutionStatus(state: any): 'in_progress' | 'complete' | 'error' | 
     }
 
     const activePath = state.paths[0];
-    if (activePath.status === 'complete') return 'complete';
-    if (activePath.status === 'error') return 'error';
+    // Check for 'completed' (with 'd') which is the actual PathStatus value
+    if (activePath.status === 'completed') return 'complete';
+    if (activePath.status === 'failed') return 'error';
     if (state.turnState) return 'paused';
     return 'in_progress';
 }
