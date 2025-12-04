@@ -1,0 +1,104 @@
+{
+  "request": {
+    "type": "llm_invocation_request",
+    "requestId": "req-1764891106754-amvyhdmg4",
+    "timestamp": "2025-12-04T23:31:46.755Z",
+    "context": {},
+    "messages": [
+      {
+        "role": "user",
+        "content": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: addSecondItem\n- **Type**: task\n- **Objective**: Add second item to Cart.items: {productId: 'prod-002', name: 'Mouse', price: 49, quantity: 2}. Update Cart.total to 1097 (999 + 49*2).\n- **Visited Nodes**: 2\n- **Error Count**: 0\n\n# Available Context\nYou have access to the following context nodes with specified permissions:\n\n## Cart\n- **Permissions**: write\n\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## applyDiscount\n\n\n# Instructions\nYour primary objective is:\n> Add second item to Cart.items: {productId: 'prod-002', name: 'Mouse', price: 49, quantity: 2}. Update Cart.total to 1097 (999 + 49*2).\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+      }
+    ],
+    "tools": [
+      {
+        "name": "transition_to_applyDiscount",
+        "description": "Transition to applyDiscount",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      },
+      {
+        "name": "write_Cart",
+        "description": "Write data to Cart context",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "object",
+              "description": "Data to write"
+            }
+          },
+          "required": [
+            "data"
+          ]
+        }
+      }
+    ],
+    "systemPrompt": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: addSecondItem\n- **Type**: task\n- **Objective**: Add second item to Cart.items: {productId: 'prod-002', name: 'Mouse', price: 49, quantity: 2}. Update Cart.total to 1097 (999 + 49*2).\n- **Visited Nodes**: 2\n- **Error Count**: 0\n\n# Available Context\nYou have access to the following context nodes with specified permissions:\n\n## Cart\n- **Permissions**: write\n\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## applyDiscount\n\n\n# Instructions\nYour primary objective is:\n> Add second item to Cart.items: {productId: 'prod-002', name: 'Mouse', price: 49, quantity: 2}. Update Cart.total to 1097 (999 + 49*2).\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+  },
+  "response": {
+    "type": "llm_invocation_response",
+    "requestId": "req-1764891106754-amvyhdmg4",
+    "timestamp": "2025-12-04T23:31:46.755Z",
+    "reasoning": "",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Adding Mouse (quantity 2) to cart..."
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-6",
+          "name": "write_Cart",
+          "input": {
+            "data": {
+              "items": [
+                {
+                  "productId": "prod-001",
+                  "name": "Laptop",
+                  "price": 999,
+                  "quantity": 1
+                },
+                {
+                  "productId": "prod-002",
+                  "name": "Mouse",
+                  "price": 49,
+                  "quantity": 2
+                }
+              ],
+              "total": 1097,
+              "discount": 0,
+              "currency": "USD"
+            }
+          }
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-7",
+          "name": "transition_to_applyDiscount",
+          "input": {
+            "reason": "Both items added, ready for discount"
+          }
+        }
+      ],
+      "stop_reason": "end_turn"
+    }
+  },
+  "recordedAt": "2025-12-04T23:31:46.755Z",
+  "signature": {
+    "toolNames": [
+      "transition_to_applyDiscount",
+      "write_Cart"
+    ],
+    "messageCount": 1,
+    "contextKeys": []
+  }
+}
