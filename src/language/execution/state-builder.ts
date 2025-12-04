@@ -578,16 +578,30 @@ export function isBarrierReleased(state: ExecutionState, barrierName: string): b
 
 /**
  * Get barrier configuration from edge annotations
+ * Supports aliases with smart defaults:
+ * - Sync-only: @barrier, @wait, @sync (merge: false by default)
+ * - Merge: @join, @merge (merge: true by default)
+ * 
  * Supports two forms:
  * - Simple: @barrier("sync_point") -> { id: "sync_point", merge: false }
  * - Attributes: @barrier(id: "sync_point"; merge: true) -> { id: "sync_point", merge: true }
- * Returns null if no @barrier annotation found
+ * 
+ * Returns null if no barrier annotation found
  */
 export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): BarrierConfig | null {
     if (!edge.annotations) return null;
 
-    const barrierAnnotation = edge.annotations.find(a => a.name === 'barrier');
+    // Define alias categories
+    const syncAliases = ['wait', 'barrier', 'sync'];  // merge: false by default
+    const mergeAliases = ['join', 'merge'];           // merge: true by default
+    const allAliases = [...syncAliases, ...mergeAliases];
+
+    // Check for any of the barrier aliases
+    const barrierAnnotation = edge.annotations.find(a => allAliases.includes(a.name));
     if (!barrierAnnotation) return null;
+
+    // Determine smart default for merge based on alias used
+    const defaultMerge = mergeAliases.includes(barrierAnnotation.name);
 
     // Check for attribute-style parameters first (takes precedence)
     if (barrierAnnotation.attributes) {
@@ -596,8 +610,11 @@ export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string;
             : 'default';
 
         // Handle merge attribute (can be boolean true or string "true")
+        // If explicitly provided, use that value; otherwise use smart default
         const mergeAttr = barrierAnnotation.attributes.merge;
-        const merge = mergeAttr === true || mergeAttr === 'true';
+        const merge = mergeAttr !== undefined
+            ? (mergeAttr === true || mergeAttr === 'true')
+            : defaultMerge;
 
         return { id, merge };
     }
@@ -608,7 +625,7 @@ export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string;
 
     return {
         id,
-        merge: false  // Default to sync-only (no merge)
+        merge: defaultMerge  // Use smart default based on alias
     };
 }
 
