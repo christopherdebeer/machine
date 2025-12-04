@@ -36,17 +36,9 @@ class MachineAstSerializer {
     serialize(): MachineJSON {
         const dependencyAnalyzer = new DependencyAnalyzer(this.machine);
         const inferredDeps = dependencyAnalyzer.inferDependencies();
-        let machineAttributes = this.serializeMachineAttributes(this.machine.attributes ?? []);
+        const machineAttributes = this.serializeMachineAttributes(this.machine.attributes ?? []);
         const machineAnnotations = this.machine.annotations?.map(serializeAnnotation);
-        
-        // Handle @meta annotation - convert to meta: true attribute
-        if (machineAnnotations?.some(a => a.name === 'meta')) {
-            const hasMetaAttr = machineAttributes.some(a => a.name === 'meta');
-            if (!hasMetaAttr) {
-                machineAttributes = [...machineAttributes, { name: 'meta', value: true }];
-            }
-        }
-        
+
         const machineStyle = this.computeMachineStyle(machineAttributes, machineAnnotations);
 
         return {
@@ -67,17 +59,9 @@ class MachineAstSerializer {
 
     private serializeNodes(): MachineNodeJSON[] {
         const flattenNode = (node: Node, parentName?: string): MachineNodeJSON[] => {
-            let serializedAttributes = this.serializeAttributes(node);
+            const serializedAttributes = this.serializeAttributes(node);
             const serializedAnnotations = node.annotations?.map(serializeAnnotation);
-            
-            // Handle @meta annotation - convert to meta: true attribute
-            if (serializedAnnotations?.some(a => a.name === 'meta')) {
-                const hasMetaAttr = serializedAttributes.some(a => a.name === 'meta');
-                if (!hasMetaAttr) {
-                    serializedAttributes = [...serializedAttributes, { name: 'meta', value: true }];
-                }
-            }
-            
+
             const nodeStyle = this.computeNodeStyle(node, serializedAttributes, serializedAnnotations);
 
             const baseNode: MachineNodeJSON = {

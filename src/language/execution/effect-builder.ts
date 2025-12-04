@@ -114,12 +114,11 @@ export function buildTools(
     const contextTools = buildContextTools(machineJSON, nodeName);
     tools.push(...contextTools);
 
-    // Add meta-tools if machine or node has meta capability
-    const machineAttributes = getMachineAttributes(machineJSON);
-    const nodeAttributes = getNodeAttributes(machineJSON, nodeName);
-
-    const hasMachineMeta = machineAttributes.meta === true || machineAttributes.meta === 'true' || machineAttributes.meta === 'True';
-    const hasNodeMeta = nodeAttributes.meta === 'true' || nodeAttributes.meta === 'True';
+    // Add meta-tools if machine or node has @meta annotation
+    const hasMachineMeta = hasMetaAnnotation(machineJSON.annotations);
+    const hasNodeMeta = hasMetaAnnotation(
+        machineJSON.nodes.find(n => n.name === nodeName)?.annotations
+    );
 
     if (hasMachineMeta || hasNodeMeta) {
         tools.push(...buildMetaTools());
@@ -433,4 +432,25 @@ export function buildErrorEffect(
         pathId,
         nodeName
     };
+}
+
+/**
+ * Check if @meta annotation is present
+ * Uses the unified annotation processor
+ */
+function hasMetaAnnotation(
+    annotations: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> | undefined
+): boolean {
+    if (!annotations) return false;
+
+    // Import here to avoid circular dependencies
+    const { MetaAnnotationConfig } = require('./annotation-configs.js');
+    const { UnifiedAnnotationProcessor } = require('./unified-annotation-processor.js');
+
+    const config = UnifiedAnnotationProcessor.process(
+        annotations,
+        MetaAnnotationConfig
+    );
+
+    return config?.enabled ?? false;
 }

@@ -101,10 +101,8 @@ export class AnnotationProcessor {
                     break;
                 }
 
-                case 'meta': {
-                    result.meta = true;
-                    break;
-                }
+                // Note: @meta is now handled via unified annotation processor
+                // and checked directly via annotations, not attributes
 
                 default:
                     // Unknown annotation - log but don't fail
@@ -132,10 +130,8 @@ export class AnnotationProcessor {
                     break;
                 }
 
-                case 'barrier': {
-                    result.barrier = annotation.value || 'default';
-                    break;
-                }
+                // Note: @barrier is now handled via unified annotation processor
+                // Use getBarrierAnnotation() from state-builder.ts
 
                 case 'priority': {
                     result.priority = this.parsePriorityAnnotation(annotation.value);

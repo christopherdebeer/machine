@@ -2,6 +2,7 @@
 
 Complete reference to all DyGram documentation organized by topic.
 
+- [Documentation Guidelines](CLAUDE.md)
 - [Documentation Index](docs.md)
 - [DyGram | Thought → System](README.md)
 - [Custom Styling](styling.md)

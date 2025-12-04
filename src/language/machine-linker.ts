@@ -166,7 +166,47 @@ export class MachineLinker extends DefaultLinker {
      * Check if the machine has @StrictMode annotation
      */
     private isStrictMode(machine: Machine): boolean {
-        return machine.annotations?.some(ann => ann.name === 'StrictMode') ?? false;
+        // Import here to avoid circular dependencies
+        const { StrictModeAnnotationConfig } = require('./execution/annotation-configs.js');
+        const { UnifiedAnnotationProcessor } = require('./execution/unified-annotation-processor.js');
+
+        // Convert AST annotations to JSON format for processing
+        const jsonAnnotations = machine.annotations?.map(ann => ({
+            name: ann.name,
+            value: ann.value,
+            attributes: ann.attributes ? this.convertAnnotationAttributes(ann.attributes) : undefined
+        }));
+
+        const config = UnifiedAnnotationProcessor.process(
+            jsonAnnotations,
+            StrictModeAnnotationConfig
+        );
+
+        return config?.enabled ?? false;
+    }
+
+    /**
+     * Convert AST annotation attributes to JSON format
+     */
+    private convertAnnotationAttributes(attrs: any): Record<string, unknown> {
+        if (!attrs || !attrs.params) return {};
+
+        const result: Record<string, unknown> = {};
+        for (const param of attrs.params) {
+            if (param.value !== undefined && param.value !== null) {
+                let value = param.value;
+                if (typeof value === 'object' && value.$cstNode) {
+                    value = value.$cstNode.text;
+                }
+                if (typeof value === 'string') {
+                    value = value.replace(/^["']|["']$/g, '');
+                }
+                result[param.name] = value;
+            } else {
+                result[param.name] = true;
+            }
+        }
+        return result;
     }
 
     /**

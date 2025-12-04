@@ -581,52 +581,23 @@ export function isBarrierReleased(state: ExecutionState, barrierName: string): b
  * Supports aliases with smart defaults:
  * - Sync-only: @barrier, @wait, @sync (merge: false by default)
  * - Merge: @join, @merge (merge: true by default)
- * 
- * Supports two forms:
- * - Simple: @barrier("sync_point") -> { id: "sync_point", merge: false }
+ *
+ * Supports three forms:
+ * - Simple: @barrier -> { id: "default", merge: false }
+ * - Value: @barrier("sync_point") -> { id: "sync_point", merge: false }
  * - Attributes: @barrier(id: "sync_point"; merge: true) -> { id: "sync_point", merge: true }
- * 
+ *
  * Returns null if no barrier annotation found
  */
 export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): BarrierConfig | null {
-    if (!edge.annotations) return null;
+    // Import here to avoid circular dependencies
+    const { BarrierAnnotationConfig } = require('./annotation-configs.js');
+    const { UnifiedAnnotationProcessor } = require('./unified-annotation-processor.js');
 
-    // Define alias categories
-    const syncAliases = ['wait', 'barrier', 'sync'];  // merge: false by default
-    const mergeAliases = ['join', 'merge'];           // merge: true by default
-    const allAliases = [...syncAliases, ...mergeAliases];
-
-    // Check for any of the barrier aliases
-    const barrierAnnotation = edge.annotations.find(a => allAliases.includes(a.name));
-    if (!barrierAnnotation) return null;
-
-    // Determine smart default for merge based on alias used
-    const defaultMerge = mergeAliases.includes(barrierAnnotation.name);
-
-    // Check for attribute-style parameters first (takes precedence)
-    if (barrierAnnotation.attributes) {
-        const id = typeof barrierAnnotation.attributes.id === 'string'
-            ? barrierAnnotation.attributes.id
-            : 'default';
-
-        // Handle merge attribute (can be boolean true or string "true")
-        // If explicitly provided, use that value; otherwise use smart default
-        const mergeAttr = barrierAnnotation.attributes.merge;
-        const merge = mergeAttr !== undefined
-            ? (mergeAttr === true || mergeAttr === 'true')
-            : defaultMerge;
-
-        return { id, merge };
-    }
-
-    // Fallback to simple value form: @barrier("sync_point")
-    const value = barrierAnnotation.value;
-    const id = value ? value.replace(/['"]/g, '') : 'default';
-
-    return {
-        id,
-        merge: defaultMerge  // Use smart default based on alias
-    };
+    return UnifiedAnnotationProcessor.process(
+        edge.annotations,
+        BarrierAnnotationConfig
+    );
 }
 
 /**
@@ -635,13 +606,12 @@ export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string;
  * Returns null if no async annotation found
  */
 export function getAsyncAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): AsyncConfig | null {
-    if (!edge.annotations) return null;
+    // Import here to avoid circular dependencies
+    const { AsyncAnnotationConfig } = require('./annotation-configs.js');
+    const { UnifiedAnnotationProcessor } = require('./unified-annotation-processor.js');
 
-    // Check for any of the async aliases
-    const aliases = ['async', 'spawn', 'parallel', 'fork'];
-    const asyncAnnotation = edge.annotations.find(a => aliases.includes(a.name));
-    if (!asyncAnnotation) return null;
-
-    // Async is enabled by default if annotation is present
-    return { enabled: true };
+    return UnifiedAnnotationProcessor.process(
+        edge.annotations,
+        AsyncAnnotationConfig
+    );
 }
