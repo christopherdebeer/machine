@@ -252,6 +252,21 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
                     { pathId: path.id, barrier: barrierName }
                 ));
 
+                // Reactivate all paths that were waiting at this barrier
+                const barrier = nextState.barriers![barrierName];
+                for (const waitingPathId of barrier.waitingPaths) {
+                    if (waitingPathId !== path.id) {
+                        // Reactivate other waiting paths (current path is already proceeding)
+                        nextState = updatePathStatus(nextState, waitingPathId, 'active');
+                        effects.push(buildLogEffect(
+                            'info',
+                            'barrier',
+                            `Path reactivated after barrier release`,
+                            { pathId: waitingPathId, barrier: barrierName }
+                        ));
+                    }
+                }
+
                 effects.push(buildLogEffect(
                     'info',
                     'transition',

@@ -255,9 +255,10 @@ export async function loadOrCreateExecution(
             ...currentExecState,
             contextState: state.executionState.contextValues,
             turnState: state.executionState.turnState,
-            paths: currentExecState.paths.map((path, index) => {
+            // Restore full paths array if available, otherwise use legacy single-path restore
+            paths: state.executionState.paths || currentExecState.paths.map((path, index) => {
                 if (index === 0) {
-                    // Restore the active path state
+                    // Legacy restore: only restore the first path
                     return {
                         ...path,
                         currentNode: state.executionState.currentNode,
@@ -266,7 +267,9 @@ export async function loadOrCreateExecution(
                     };
                 }
                 return path;
-            })
+            }),
+            // Restore barrier state
+            barriers: state.executionState.barriers || {}
         };
         executor.setState(restoredState);
 
@@ -323,7 +326,9 @@ export async function saveCurrentExecutionState(
             ])) : [],
             attributes: {},
             contextValues: execState.contextState || {},
-            turnState: execState.turnState
+            turnState: execState.turnState,
+            paths: execState.paths,           // Save full paths array
+            barriers: execState.barriers       // Save barrier state
         },
         status: getExecutionStatus(execState),
         lastUpdated: new Date().toISOString()

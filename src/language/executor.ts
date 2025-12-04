@@ -237,14 +237,29 @@ export class MachineExecutor {
         nextState = this.applyContextWrites(nextState, agentResults);
 
         // Restore other paths to active status (merge with original state)
+        // BUT: preserve status changes made by barriers (e.g., reactivation)
         nextState = {
             ...nextState,
             paths: nextState.paths.map((p, idx) => {
                 if (idx === pathIndex) {
                     return p; // Use updated path state
                 } else {
-                    // Restore original status
-                    return { ...p, status: this.currentState.paths[idx].status };
+                    // Check if this path's status changed during the step (e.g., barrier reactivation)
+                    const originalStatus = this.currentState.paths[idx].status;
+                    const newStatus = p.status;
+
+                    // If status changed from 'waiting' to 'active', this is likely a barrier release
+                    // Preserve this change instead of restoring original status
+                    if (originalStatus === 'waiting' && newStatus === 'active') {
+                        return p; // Preserve barrier reactivation
+                    } else if (originalStatus === 'active' && newStatus === 'waiting') {
+                        // This path was temporarily set to 'waiting' for stepPath isolation
+                        // Restore to original 'active' status
+                        return { ...p, status: originalStatus };
+                    } else {
+                        // Keep the current status unchanged
+                        return p;
+                    }
                 }
             })
         };

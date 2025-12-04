@@ -24,6 +24,8 @@ export interface ExecutionStateFile {
         attributes: Record<string, any>;
         contextValues: Record<string, any>;
         turnState?: TurnState;            // If in mid-turn
+        paths?: any[];                    // Full paths array (for multi-path execution)
+        barriers?: Record<string, any>;   // Barrier synchronization state
     };
     status: 'in_progress' | 'complete' | 'error' | 'paused';
     lastUpdated: string;                  // ISO timestamp
