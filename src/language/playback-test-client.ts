@@ -195,20 +195,12 @@ export class PlaybackTestClient {
         // Fall back to sequential mode if no signature match
         if (!recording && (this.config.matchingMode === 'sequential' || this.config.matchingMode === 'hybrid')) {
             if (this.playbackIndex >= this.recordings.length) {
-                if (this.config.strict) {
-                    throw new Error(
-                        `No more recordings available (index: ${this.playbackIndex}, total: ${this.recordings.length})`
-                    );
-                }
-
-                // Fallback: return empty response
-                console.warn('[PlaybackTestClient] No recording available, returning empty response');
-                return {
-                    content: [
-                        { type: 'text', text: 'Playback: No recording available' }
-                    ],
-                    stop_reason: 'end_turn'
-                };
+                // If LLM was invoked but no recording exists, this is a test failure
+                // (even in non-strict mode, because the machine actually needs LLM interaction)
+                throw new Error(
+                    `LLM invoked but no recording available (index: ${this.playbackIndex}, total: ${this.recordings.length}). ` +
+                    `This machine requires LLM interaction but recordings are missing.`
+                );
             }
 
             recording = this.recordings[this.playbackIndex];

@@ -442,22 +442,23 @@ export const executeAction = async (fileName: string | undefined, opts: {
 
             // Only process if stdin has content
             if (stdin && stdin.trim()) {
-                if (!fileName) {
-                    // No file argument: stdin is machine source
-                    machineSource = stdin;
-                } else {
-                    // File argument provided: stdin is input/response data
+                // When resuming (--id provided), stdin is always response data
+                if (opts.id || fileName) {
+                    // Resuming or file provided: stdin is input/response data
                     try {
                         inputData = JSON.parse(stdin);
                     } catch (e) {
                         logger.error('Invalid JSON input from stdin');
                         process.exit(1);
                     }
+                } else {
+                    // No file and no --id: stdin is machine source
+                    machineSource = stdin;
                 }
             }
         }
 
-        if (!machineSource) {
+        if (!machineSource && !opts.id) {
             logger.error('No machine source provided (file or stdin)');
             process.exit(1);
         }

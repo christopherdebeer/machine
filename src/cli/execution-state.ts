@@ -68,7 +68,7 @@ export interface TurnHistoryEntry {
  * Options for loading or creating execution
  */
 export interface LoadExecutionOptions {
-    machineSource: string;       // File path or machine DSL source
+    machineSource?: string;      // File path or machine DSL source (optional when resuming with executionId)
     isStdin?: boolean;           // True if source is stdin (not file)
     executionId?: string;        // Explicit ID, or undefined for "last"
     playback?: string;           // Playback directory

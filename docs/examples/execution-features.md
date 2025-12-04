@@ -48,6 +48,9 @@ task displaySummary "Show session summary" {
 
 end "Session tracking complete"
 
+start, updateActivity, displaySummary -writes-> UserProfile;
+start, updateActivity -writes-> SessionData;
+
 start -> updateActivity -> displaySummary -> end
 ```
 
@@ -100,6 +103,9 @@ task reviewOrder "Display final order" {
 
 end "Order ready for checkout"
 
+start -writes-> User;
+start, addItem, addSecondItem, applyDiscount -writes-> Cart;
+
 start -> addItem -> addSecondItem -> applyDiscount -> reviewOrder -> end
 ```
 
@@ -127,19 +133,26 @@ context Request {
   department: "Engineering"
 }
 
+context Report {
+  data: ""
+  compiled: ""
+}
+
 start "Generate report for {{ Request.userName }}" {
-  prompt: "You are generating a {{ Request.reportType }} report for {{ Request.userName }} in the {{ Request.department }} department. Confirm the details."
+  prompt: "You are generating a {{ Request.reportType }} report for {{ Request.userName }} in the {{ Request.department }} department. Confirm the details by reading Request context."
 }
 
 task fetchData "Fetch {{ Request.reportType }} data for {{ Request.department }}" {
-  prompt: "Retrieve {{ Request.reportType }} data specifically for the {{ Request.department }} department"
+  prompt: "Retrieve {{ Request.reportType }} data specifically for the {{ Request.department }} department. Store sample data in Report.data."
 }
 
 task compileReport "Compile {{ Request.reportType }} report" {
-  prompt: "Compile the {{ Request.reportType }} report for {{ Request.userName }} using the fetched data"
+  prompt: "Compile the {{ Request.reportType }} report for {{ Request.userName }} using Report.data. Store compiled report in Report.compiled."
 }
 
 end "Report for {{ Request.userName }} complete"
+
+fetchData, compileReport -writes-> Report;
 
 start -> fetchData -> compileReport -> end
 ```
@@ -187,6 +200,8 @@ task executeAction "Execute action: {{ Response.action }}" {
 
 end "Alert handled"
 
+evaluateSeverity, respondToAlert -writes-> Response;
+
 start -> evaluateSeverity -> respondToAlert -> executeAction -> end
 ```
 
@@ -203,7 +218,7 @@ Meta-tools enable agents to modify machines, construct new tools, and adapt beha
 ### Machine Introspection and Modification
 
 ```dy examples/execution-features/meta-introspection.dy
-machine "Self-Modifying Workflow" {
+machine "Self-Modifying Workflow" @Meta {
   logLevel: "debug"
   maxSteps: 25
 }
@@ -228,6 +243,8 @@ task potentiallyModify "Modify machine if needed" {
 
 end "Workflow complete"
 
+start, decidePath, potentiallyModify -writes-> Analysis;
+
 start -> decidePath -> potentiallyModify -> end
 ```
 
@@ -240,10 +257,9 @@ start -> decidePath -> potentiallyModify -> end
 ### Dynamic Tool Construction
 
 ```dy examples/execution-features/meta-construct-tool.dy
-machine "Dynamic Tool Builder" {
+machine "Dynamic Tool Builder" @Meta {
   logLevel: "debug"
   maxSteps: 20
-  meta: true
 }
 
 context Requirements {
@@ -281,7 +297,7 @@ start -> buildTool -> useTool -> end
 ### Tool Review and Improvement
 
 ```dy examples/execution-features/meta-improve-tool.dy
-machine "Tool Quality Improvement" {
+machine "Tool Quality Improvement" @Meta {
   logLevel: "debug"
   maxSteps: 30
 }
@@ -309,6 +325,8 @@ task reviewProposal "Review improvement proposal" {
 }
 
 end "Tool improvement proposed"
+
+start, analyzeToolQuality, proposeImprovements -writes-> Evaluation;
 
 start -> analyzeToolQuality -> proposeImprovements -> reviewProposal -> end
 ```
@@ -361,6 +379,9 @@ task displayCode "Display generated code" {
 
 end "Code generation complete"
 
+start -writes-> APISpec;
+generateClient -writes-> Generated;
+
 start -> generateClient -> validateGenerated -> displayCode -> end
 ```
 
@@ -407,6 +428,8 @@ task reviewCoverage "Review test coverage" {
 }
 
 end "Test suite ready"
+
+identifyTestCases, generateTests -writes-> TestSuite;
 
 start -> identifyTestCases -> generateTests -> reviewCoverage -> end
 ```
@@ -460,6 +483,9 @@ task verifyConsistency "Verify code consistency" {
 
 end "Full model code generated"
 
+start -writes-> Schema;
+generateModel, generateMigration, generateValidation -writes-> Output;
+
 start -> generateModel -> generateMigration -> generateValidation -> verifyConsistency -> end
 ```
 
@@ -474,7 +500,7 @@ start -> generateModel -> generateMigration -> generateValidation -> verifyConsi
 ### Adaptive Workflow with Full Feature Integration
 
 ```dy examples/execution-features/combined-advanced.dy
-machine "Adaptive Data Processor" {
+machine "Adaptive Data Processor" @Meta {
   logLevel: "debug"
   maxSteps: 50
 }
@@ -541,6 +567,10 @@ task generateReport "Generate processing report" {
 
 end "Adaptive processing complete"
 
+start -writes-> Input;
+determineStrategy, processData, validateResults -writes-> Processing;
+buildCustomTools, generateValidator, generateTransformer -writes-> Generated;
+
 start -> determineStrategy -> checkToolAvailability -> buildCustomTools -> generateValidator -> generateTransformer -> modifyWorkflow -> processData -> validateResults -> generateReport -> end
 ```
 
@@ -552,6 +582,148 @@ start -> determineStrategy -> checkToolAvailability -> buildCustomTools -> gener
 - Comprehensive use of context, templates, meta-tools, and code generation
 - Final report demonstrates all features working together
 
+## Execution Patterns Without LLM
+
+These examples demonstrate execution features like barriers, async paths, and conditional routing that work without requiring LLM interaction.
+
+### Barrier Synchronization
+
+```dy examples/execution-features/barrier-sync.dy
+machine "Parallel Data Processing" {
+  logLevel: "debug"
+  maxSteps: 20
+}
+
+context Results {
+  dataA: ""
+  dataB: ""
+  dataC: ""
+  combined: ""
+}
+
+start "Initialize parallel processing"
+
+task fetchA "Fetch dataset A"
+task fetchB "Fetch dataset B"
+task fetchC "Fetch dataset C"
+
+barrier sync "Wait for all data"
+
+task combineResults "Combine all datasets"
+
+end "Processing complete"
+
+start -@async-> fetchA, fetchB, fetchC;
+fetchA -@barrier("sync")-> sync;
+fetchB -@barrier("sync")-> sync;
+fetchC -@barrier("sync")-> sync;
+sync -> combineResults -> end;
+```
+
+**Expected behavior:**
+- Three tasks execute in parallel
+- Barrier waits for all three to complete
+- Execution continues only after all paths reach barrier
+- Demonstrates synchronization point in async workflows
+
+### Async Paths with Conditional Routing
+
+```dy examples/execution-features/async-conditional.dy
+machine "Conditional Async Workflow" {
+  logLevel: "debug"
+  maxSteps: 30
+}
+
+context Config {
+  enableValidation: true
+  enableLogging: true
+  processType: "standard"
+}
+
+context State {
+  validated: false
+  logged: false
+  processed: false
+}
+
+start "Initialize workflow"
+
+task process "Main processing"
+task validate "Validate data"
+task log "Log operations"
+
+barrier checkpoint "Synchronization point"
+
+decision routing "Route based on results"
+task standardPath "Standard completion"
+task fastPath "Fast completion"
+
+end "Workflow complete"
+
+start -@async-> process, validate, log;
+process -@barrier("checkpoint")-> checkpoint;
+validate -@barrier("checkpoint")-> checkpoint;
+log -@barrier("checkpoint")-> checkpoint;
+checkpoint -> routing;
+routing -standard-> standardPath;
+routing -fast-> fastPath;
+standardPath, fastPath -> end;
+```
+
+**Expected behavior:**
+- Multiple async paths execute concurrently
+- Barrier synchronizes before decision point
+- Conditional routing based on execution state
+- Demonstrates complex async + conditional patterns
+
+### Diamond Pattern with Multiple Barriers
+
+```dy examples/execution-features/diamond-barrier.dy
+machine "Multi-Stage Pipeline" {
+  logLevel: "debug"
+  maxSteps: 40
+}
+
+context Pipeline {
+  stage1Complete: false
+  stage2Complete: false
+  errors: []
+}
+
+start "Begin pipeline"
+
+task split "Split workload"
+
+task processLeft "Process left branch"
+task processRight "Process right branch"
+
+barrier stage1 "Stage 1 complete"
+
+task transformLeft "Transform left"
+task transformRight "Transform right"
+
+barrier stage2 "Stage 2 complete"
+
+task merge "Merge results"
+
+end "Pipeline complete"
+
+start -> split;
+split -@async-> processLeft, processRight;
+processLeft -@barrier("stage1")-> stage1;
+processRight -@barrier("stage1")-> stage1;
+stage1 -@async-> transformLeft, transformRight;
+transformLeft -@barrier("stage2")-> stage2;
+transformRight -@barrier("stage2")-> stage2;
+stage2 -> merge -> end;
+```
+
+**Expected behavior:**
+- Diamond pattern with two synchronization points
+- Work splits, processes in parallel, syncs, transforms in parallel, syncs again
+- Demonstrates multi-stage parallel pipelines
+- No LLM needed - pure execution orchestration
+
 ## Summary
 
 These examples demonstrate DyGram's advanced execution capabilities:
@@ -560,5 +732,6 @@ These examples demonstrate DyGram's advanced execution capabilities:
 2. **Template Interpolation**: Dynamic prompts and descriptions using `{{ Context.field }}` syntax
 3. **Meta-Tools**: Introspect, modify, and extend machine behavior at runtime
 4. **Code Generation**: Generate executable code from specifications and context
+5. **Execution Patterns**: Barriers, async paths, conditional routing, and synchronization
 
-All examples are designed to be run in interactive mode with a real LLM agent, demonstrating how DyGram enables sophisticated, adaptive workflows that go beyond simple state machines.
+Examples requiring LLM are designed to be run in interactive mode with a real LLM agent, demonstrating how DyGram enables sophisticated, adaptive workflows. Execution pattern examples demonstrate orchestration features without requiring LLM interaction.

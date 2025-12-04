@@ -161,6 +161,11 @@ export async function loadOrCreateExecution(
         // Create new execution
         logger.debug('Creating new execution');
 
+        // Validate machine source is provided for new execution
+        if (!opts.machineSource) {
+            throw new Error('Machine source required when creating new execution');
+        }
+
         // Load or create machine from source
         if (opts.isStdin) {
             // Parse machine from stdin source

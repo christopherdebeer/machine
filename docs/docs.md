@@ -122,6 +122,5 @@ Complete reference to all DyGram documentation organized by topic.
 ### Testing
 
   - [CLI Interactive Execution - Test Results](testing/cli-interactive-execution-test-results-2025-12-02.md)
-  - [Recording and Playback: Testing Without LLM Costs](testing/recording-playback.md)
   - [Task Execution Test Cases](testing/task-execution.md)
   - [Tool Execution Test Cases](testing/tool-execution.md)

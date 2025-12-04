@@ -51,6 +51,23 @@ export class StdinResponseClient extends ClaudeClient {
         // Create recordings directory if specified
         if (this.recordingsDir) {
             fs.mkdirSync(this.recordingsDir, { recursive: true });
+            
+            // Initialize turn counter from existing recordings
+            this.turnCounter = this.getExistingTurnCount();
+        }
+    }
+    
+    private getExistingTurnCount(): number {
+        if (!this.recordingsDir || !fs.existsSync(this.recordingsDir)) {
+            return 0;
+        }
+        
+        try {
+            const files = fs.readdirSync(this.recordingsDir);
+            const turnFiles = files.filter(f => f.match(/^turn-\d+\.json$/));
+            return turnFiles.length;
+        } catch (error) {
+            return 0;
         }
     }
 
