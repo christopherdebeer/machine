@@ -104,7 +104,7 @@ PrimitiveValue:
 // Annotation for nodes (e.g., @Abstract, @Singleton, @Deprecated, @note, @style(color: red;))
 // Supports both string values and attribute-style parameters
 Annotation:
-    '@' name=ID ('(' (value=STRING | attributes=AnnotationAttributes) ')')?
+    '@' name=ID ('(' (value=PrimitiveValue | attributes=AnnotationAttributes) ')')?
 ;
 
 // Attribute-style parameters for annotations (e.g., @style(color: red; penwidth: 3;))

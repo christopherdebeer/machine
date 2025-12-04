@@ -935,7 +935,7 @@ function serializeAnnotation(ann: any): MachineAnnotationJSON {
         name: ann.name
     };
 
-    if (ann.value) {
+    if (ann.value && typeof ann.value === 'string') {
         result.value = ann.value.replace(/^"|"$/g, '');
     }
 

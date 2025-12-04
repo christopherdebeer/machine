@@ -14,6 +14,7 @@ Complete reference to all DyGram documentation organized by topic.
 
   - [Execution Management](cli/exec-management.md)
   - [Interactive Execution & Debugging](cli/interactive-mode.md)
+  - [Output Formats](cli/output-formats.md)
   - [CLI Reference](cli/README.md)
   ### Commands
 

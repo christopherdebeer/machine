@@ -187,11 +187,11 @@ Task call_api "Invoke API" {
     operation: "GET";
 };
 
-api -> call_api [
-    text: "uses",
-    sourceAttribute: endpoint,
-    targetAttribute: operation
-];
+api -> call_api {
+    text: "uses";
+    sourceAttribute: endpoint;
+    targetAttribute: operation;
+};
 ```
 
 - Attribute names are sanitized into stable port IDs (spaces and symbols become `_`).
