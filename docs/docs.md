@@ -12,8 +12,21 @@ Complete reference to all DyGram documentation organized by topic.
 
 ### Cli
 
-  - [Interactive Mode](cli/interactive-mode.md)
+  - [Execution Management](cli/exec-management.md)
+  - [Interactive Execution & Debugging](cli/interactive-mode.md)
+  - [Output Formats](cli/output-formats.md)
   - [CLI Reference](cli/README.md)
+  ### Commands
+
+    - [batch Command](cli/commands/batch.md)
+    - [bundle Command](cli/commands/bundle.md)
+    - [check-imports Command](cli/commands/check-imports.md)
+    - [debug Command](cli/commands/debug.md)
+    - [execute Command](cli/commands/execute.md)
+    - [generate Command](cli/commands/generate.md)
+    - [parseAndValidate Command](cli/commands/parse-validate.md)
+    - [server Command](cli/commands/server.md)
+
 
 ### Development
 

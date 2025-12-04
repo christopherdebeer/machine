@@ -24,6 +24,8 @@ export interface ExecutionStateFile {
         attributes: Record<string, any>;
         contextValues: Record<string, any>;
         turnState?: TurnState;            // If in mid-turn
+        paths?: any[];                    // Full paths array (for multi-path execution)
+        barriers?: Record<string, any>;   // Barrier synchronization state
     };
     status: 'in_progress' | 'complete' | 'error' | 'paused';
     lastUpdated: string;                  // ISO timestamp
@@ -42,6 +44,7 @@ export interface ExecutionMetadata {
     stepCount: number;                    // Total steps executed
     status: 'in_progress' | 'complete' | 'error' | 'paused';
     mode: 'interactive' | 'playback' | 'auto';
+    nextPathId?: string;                  // For --step-path mode: next path to step (round-robin)
     clientConfig?: {                      // Client configuration
         type: 'playback' | 'interactive' | 'api';
         recordingsDir?: string;

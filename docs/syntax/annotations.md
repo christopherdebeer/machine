@@ -7,9 +7,8 @@ Annotations add semantic metadata to machines, nodes, and edges. They're prefixe
 Annotations start with `@` followed by an identifier and must be attached to machines, nodes, or edges:
 
 ```dy
-machine "Example" @Annotation {
-    Task foo @AnotherAnnotation "Bar";
-}
+machine "Example" @Annotation;
+Task foo @AnotherAnnotation "Bar";
 ```
 
 ### With Values
@@ -17,10 +16,8 @@ machine "Example" @Annotation {
 Annotations can have string values in parentheses:
 
 ```dy
-machine "Example" {
-    Task process @Version("2.0") @Author("John Doe");
-    Task legacy @Deprecated("Use NewTask instead");
-}
+Task process @Version("2.0") @Author("John Doe");
+Task legacy @Deprecated("Use NewTask instead");
 ```
 
 ### Multiple Annotations
@@ -28,7 +25,7 @@ machine "Example" {
 Elements can have multiple annotations:
 
 ```dy
-Task important @Critical @Async @Version("1.0");
+Task important @Critical @Async @Version(1.0);
 ```
 
 ## Machine Annotations
@@ -42,7 +39,8 @@ machine "Production System" @Critical @Version("2.0")
 With attributes:
 
 ```dy
-machine "API Service" @Version("3.0") @Owner("Platform Team") {
+machine "API Service" @Owner("Platform Team") {
+    version: "0.0.1";
     environment: "production";
 };
 ```
@@ -82,7 +80,7 @@ Task processPayment "Process Payment" @Critical @Async @Version("2.1") {
 Annotate edges to add styling or metadata:
 
 ```dy examples/syntax/edge-annotations.dygram
-start -@style("color: red; stroke-width: 3px")-> end;
+start -@style(color: red; stroke-width: 3px)-> end;
 a -@weight(5)-> b;
 ```
 
@@ -109,11 +107,12 @@ Note: Annotations come after attributes in edge syntax.
 Most annotations accept string values:
 
 ```dy
-machine "Example" {
-    Task component @Version("1.0.0") @Author("Team A");
-    Task feature @Description("Long description text");
-    Task oldFeature @Deprecated("Use newImplementation instead");
-}
+machine "Example";
+
+Task component @Version("1.0.0") @Author("Team A");
+Task feature @Description("Long description text");
+Task oldFeature @Deprecated("Use newImplementation instead");
+
 ```
 
 ### Simple Values (No Quotes)
@@ -121,10 +120,8 @@ machine "Example" {
 Some annotations work without quotes in edge context:
 
 ```dy
-machine "Example" {
-    a -@weight(5)-> b;
-    a -@priority(high)-> b;
-}
+a -@weight(5)-> b;
+a -@priority(high)-> b;
 ```
 
 ### Multi-line Values
@@ -132,11 +129,9 @@ machine "Example" {
 Annotation values can be multi-line strings:
 
 ```dy
-machine "Example" {
-    Task feature @Description("This is a long description
+Task feature @Description("This is a long description
 that spans multiple lines
 and provides detailed information");
-}
 ```
 
 ## Semantic Annotations
@@ -144,55 +139,47 @@ and provides detailed information");
 ### Lifecycle Annotations
 
 ```dy
-machine "Example" {
-    Task oldApi @Deprecated("Use v2 API");
-    Task newFeature @Experimental;
-    Task core @Stable;
-    Task preview @Beta;
-}
+Task oldApi @Deprecated("Use v2 API");
+Task newFeature @Experimental;
+Task core @Stable;
+Task preview @Beta;
 ```
 
 ### Organizational Annotations
 
 ```dy
-machine "Example" {
-    Task service @Owner("Platform Team") @Team("Backend");
-    Task migration @Project("Migration");
-}
+Task service @Owner("Platform Team") @Team("Backend");
+Task migration @Project("Migration");
 ```
 
 ### Technical Annotations
 
 ```dy
-machine "Example" {
-    Task fetch @Async;
-    Task compute @Sync;
-    Task lookup @Cached;
-    Task save @Transactional;
-    Task query @ReadOnly;
-    Task update @WriteOnly;
-}
+Task fetch @Async;
+Task compute @Sync;
+Task lookup @Cached;
+Task save @Transactional;
+Task query @ReadOnly;
+Task update @WriteOnly;
+
 ```
 
 ### Quality Annotations
 
 ```dy
-machine "Example" {
-    Task urgent @Critical;
-    Task priority @Important;
-    Task extra @Optional;
-    Task mandatory @Required;
-}
+Task urgent @Critical;
+Task priority @Important;
+Task extra @Optional;
+Task mandatory @Required;
 ```
 
 ### Documentation Annotations
 
 ```dy
-machine "Example" {
-    Task feature @Since("2024-01-15") @Version("2.0");
-    Task handler @Author("John Doe");
-    Task process @Description("Detailed explanation");
-}
+Task feature @Since("2024-01-15") @Version("2.0");
+Task handler @Author("John Doe");
+Task process @Description("Detailed explanation");
+
 ```
 
 ## Best Practices
@@ -222,7 +209,8 @@ machine "Example" {
 
 ### Machine Metadata
 ```dy
-machine "User Service" @Version("3.0.0") @Critical @Owner("Platform Team") {
+machine "User Service"  @Critical @Owner("Platform Team") {
+    version: "1.0";
     region: "us-east-1";
     deployed<Date>: "2025-10-22T13:30:00Z";
 };
@@ -251,8 +239,8 @@ legacyProcessor -> newProcessor;
 
 ### Edge Styling
 ```dy
-Start -@style("color: green; stroke-width: 2px;")-> Success;
-Start -@style("color: red; stroke-dasharray: 5,5;")-> Failure;
+Start -@style(color: green; stroke-width: 2px;)-> Success;
+Start -@style(color: red; stroke-dasharray: 5,5;)-> Failure;
 ```
 
 ### Mixed Usage

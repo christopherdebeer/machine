@@ -19,6 +19,10 @@ import { PlaybackTestClient } from '../language/playback-test-client.js';
 import { InteractiveTestClient } from '../language/interactive-test-client.js';
 import { StdinResponseClient, PendingResponseError } from '../language/stdin-response-client.js';
 import { logger } from './logger.js';
+import { RuntimeVisualizer, formatRuntimeSnapshot, formatRuntimeSnapshotJSON, formatRuntimeSnapshotCompact } from '../language/runtime-visualizer.js';
+
+// Re-export visualization utilities
+export { RuntimeVisualizer, formatRuntimeSnapshot, formatRuntimeSnapshotJSON, formatRuntimeSnapshotCompact };
 import {
     type LoadExecutionOptions,
     type ExecutionMetadata,
@@ -251,9 +255,10 @@ export async function loadOrCreateExecution(
             ...currentExecState,
             contextState: state.executionState.contextValues,
             turnState: state.executionState.turnState,
-            paths: currentExecState.paths.map((path, index) => {
+            // Restore full paths array if available, otherwise use legacy single-path restore
+            paths: state.executionState.paths || currentExecState.paths.map((path, index) => {
                 if (index === 0) {
-                    // Restore the active path state
+                    // Legacy restore: only restore the first path
                     return {
                         ...path,
                         currentNode: state.executionState.currentNode,
@@ -262,7 +267,9 @@ export async function loadOrCreateExecution(
                     };
                 }
                 return path;
-            })
+            }),
+            // Restore barrier state
+            barriers: state.executionState.barriers || {}
         };
         executor.setState(restoredState);
 
@@ -319,7 +326,9 @@ export async function saveCurrentExecutionState(
             ])) : [],
             attributes: {},
             contextValues: execState.contextState || {},
-            turnState: execState.turnState
+            turnState: execState.turnState,
+            paths: execState.paths,           // Save full paths array
+            barriers: execState.barriers       // Save barrier state
         },
         status: getExecutionStatus(execState),
         lastUpdated: new Date().toISOString()
@@ -344,7 +353,41 @@ export async function saveCurrentExecutionState(
 }
 
 /**
- * Display turn result
+ * Display runtime snapshot using RuntimeVisualizer
+ */
+function displayRuntimeSnapshot(executor: MachineExecutor, opts: { verbose?: boolean; format?: string }): void {
+    const visualizer = new RuntimeVisualizer(executor);
+    const snapshot = visualizer.generateRuntimeSnapshot();
+    const format = opts.format || 'text';
+
+    switch (format) {
+        case 'json':
+            logger.output(formatRuntimeSnapshotJSON(snapshot));
+            break;
+
+        case 'svg':
+        case 'dot':
+            // Generate Graphviz diagram
+            const dotOutput = visualizer.generateRuntimeVisualization({ format: 'class' });
+            logger.output(dotOutput);
+            break;
+
+        case 'text':
+        default:
+            if (opts.verbose) {
+                // Full snapshot in verbose mode
+                logger.output(formatRuntimeSnapshot(snapshot));
+            } else {
+                // Compact summary by default
+                const compact = formatRuntimeSnapshotCompact(snapshot);
+                logger.info(chalk.gray(`📊 ${compact}`));
+            }
+            break;
+    }
+}
+
+/**
+ * Display turn result (legacy - for turn-based output)
  */
 function displayTurnResult(result: any): void {
     logger.success(chalk.green('✓ Turn completed'));
@@ -400,7 +443,13 @@ function displayFinalResults(executor: MachineExecutor, metadata: ExecutionMetad
 }
 
 /**
- * Execute one interactive turn
+ * Execute machine with specified execution mode
+ * - No flags: Run to completion
+ * - --interactive: Run until LLM needed or completion
+ * - --step: Execute one step, pause
+ * - --step-turn: Execute one turn, pause
+ * - --interactive --step: Execute one step, pause on LLM or after step
+ * - --interactive --step-turn: Execute one turn, pause on LLM or after turn
  */
 export async function executeInteractiveTurn(
     machineSource: string,
@@ -413,6 +462,10 @@ export async function executeInteractiveTurn(
         input?: any;
         isStdin?: boolean;
         interactive?: boolean;
+        step?: boolean;
+        stepTurn?: boolean;
+        stepPath?: boolean;
+        format?: string;
     }
 ): Promise<void> {
     // Load or create execution
@@ -438,82 +491,175 @@ export async function executeInteractiveTurn(
         return;
     }
 
-    // Execute next turn
-    try {
-        let result: any;
+    // Determine execution mode
+    const isStepMode = opts.step || opts.stepTurn || opts.stepPath;
+    const shouldLoop = !isStepMode; // Loop if not in step mode
 
-        if (executor.isInTurn()) {
-            // Continue turn
-            const turnState = executor.getTurnState();
-            logger.info(chalk.cyan(`\n📍 Turn ${turnState!.turnCount} - Node: ${turnState!.nodeName}`));
-            result = await executor.stepTurn();
-        } else {
-            // Start new turn (step to next node if needed)
-            const currentState = executor.getState();
-            const currentNode = currentState.paths[0]?.currentNode || '';
-            logger.info(chalk.cyan(`\n📍 Current Node: ${currentNode}`));
-            result = await executor.stepTurn();
-        }
+    // Show mode info
+    if (opts.step) {
+        logger.info(chalk.gray('🔍 Step mode: executing one step at a time (all paths)'));
+    } else if (opts.stepTurn) {
+        logger.info(chalk.gray('🔍 Step-turn mode: executing one turn at a time'));
+    } else if (opts.stepPath) {
+        logger.info(chalk.gray('🔍 Step-path mode: executing one path at a time'));
+    } else if (opts.interactive) {
+        logger.info(chalk.gray('🔄 Interactive mode: running until LLM response needed'));
+    }
 
-        // Display turn result
-        displayTurnResult(result);
+    // For step-path mode, track which path to step next
+    let currentPathId: string | undefined;
+    if (opts.stepPath && !metadata.nextPathId) {
+        // Initialize with first active path
+        currentPathId = executor.getNextActivePathId();
+        metadata.nextPathId = currentPathId;
+    } else if (opts.stepPath) {
+        // Resume from saved path
+        currentPathId = metadata.nextPathId;
+    }
 
-        // Create history entry
-        const updatedState = executor.getState();
-        const historyEntry: TurnHistoryEntry = {
-            turn: result.turnCount || metadata.turnCount + 1,
-            timestamp: new Date().toISOString(),
-            node: result.nodeName || updatedState.paths[0]?.currentNode || '',
-            tools: result.toolExecutions?.map((t: any) => t.toolName) || [],
-            output: result.text?.slice(0, 100),
-            status: result.status
-        };
+    // Execute loop
+    let iterationCount = 0;
+    const maxIterations = shouldLoop ? 1000 : 1; // Safety limit for loop mode
 
-        // Append to history
-        await appendTurnHistory(executionId, historyEntry);
+    while (iterationCount < maxIterations) {
+        iterationCount++;
 
-        // Increment turn count if turn completed
-        if (result.status !== 'in_turn') {
-            metadata.turnCount++;
-        }
+        try {
+            let result: any;
 
-        // Save state
-        await saveCurrentExecutionState(executionId, executor, metadata);
+            // Execute based on mode
+            if (opts.stepPath) {
+                // Step-path mode: execute one path at a time
+                if (!currentPathId) {
+                    logger.error('No active paths to step');
+                    return;
+                }
 
-        // Check if complete
-        const finalStatus = getExecutionStatus(executor.getState());
-        if (finalStatus === 'complete') {
-            logger.success(chalk.green('\n✅ Execution complete!'));
-            displayFinalResults(executor, metadata);
-        }
+                const currentState = executor.getState();
+                const pathToStep = currentState.paths.find(p => p.id === currentPathId);
 
-    } catch (error) {
-        // Handle pending response (interactive mode)
-        if (error instanceof PendingResponseError) {
-            logger.info(chalk.yellow('\n⏸️  Waiting for LLM response...\n'));
-            logger.output(chalk.dim('─'.repeat(60)));
-            logger.output(chalk.bold('LLM REQUEST:'));
-            logger.output(error.request);
-            logger.output(chalk.dim('─'.repeat(60)));
-            logger.output(chalk.bold('\nEXAMPLE RESPONSE:'));
-            logger.output(error.exampleResponse);
-            logger.output(chalk.dim('─'.repeat(60)));
-            logger.info(chalk.cyan('\n💡 Provide response via stdin:'));
-            logger.info(chalk.gray(`   echo '<response-json>' | dygram execute <machine> --interactive --id ${executionId}\n`));
+                if (!pathToStep) {
+                    logger.error(`Path ${currentPathId} not found`);
+                    return;
+                }
 
-            // Save state as paused
-            metadata.status = 'paused';
+                logger.info(chalk.cyan(`\n📍 Step ${metadata.stepCount + 1} - Path: ${currentPathId} - Node: ${pathToStep.currentNode}`));
+
+                const hasMore = await executor.stepPath(currentPathId);
+                result = {
+                    status: hasMore ? 'in_progress' : 'complete',
+                    stepCount: metadata.stepCount + 1
+                };
+                metadata.stepCount++;
+
+                // Move to next path (round-robin)
+                currentPathId = executor.getNextActivePathId(currentPathId);
+                metadata.nextPathId = currentPathId;
+
+            } else if (opts.step) {
+                // Step mode: execute one step (all paths)
+                const currentState = executor.getState();
+                const currentNode = currentState.paths[0]?.currentNode || '';
+                logger.info(chalk.cyan(`\n📍 Step ${metadata.stepCount + 1} - Node: ${currentNode}`));
+
+                const hasMore = await executor.step();
+                result = {
+                    status: hasMore ? 'in_progress' : 'complete',
+                    stepCount: metadata.stepCount + 1
+                };
+                metadata.stepCount++;
+            } else {
+                // Turn mode (default): execute one turn
+                if (executor.isInTurn()) {
+                    // Continue turn
+                    const turnState = executor.getTurnState();
+                    logger.info(chalk.cyan(`\n📍 Turn ${turnState!.turnCount} - Node: ${turnState!.nodeName}`));
+                    result = await executor.stepTurn();
+                } else {
+                    // Start new turn
+                    const currentState = executor.getState();
+                    const currentNode = currentState.paths[0]?.currentNode || '';
+                    logger.info(chalk.cyan(`\n📍 Current Node: ${currentNode}`));
+                    result = await executor.stepTurn();
+                }
+
+                // Display turn result
+                displayTurnResult(result);
+
+                // Create history entry
+                const updatedState = executor.getState();
+                const historyEntry: TurnHistoryEntry = {
+                    turn: result.turnCount || metadata.turnCount + 1,
+                    timestamp: new Date().toISOString(),
+                    node: result.nodeName || updatedState.paths[0]?.currentNode || '',
+                    tools: result.toolExecutions?.map((t: any) => t.toolName) || [],
+                    output: result.text?.slice(0, 100),
+                    status: result.status
+                };
+
+                // Append to history
+                await appendTurnHistory(executionId, historyEntry);
+
+                // Increment turn count if turn completed
+                if (result.status !== 'in_turn') {
+                    metadata.turnCount++;
+                }
+            }
+
+            // Save state
             await saveCurrentExecutionState(executionId, executor, metadata);
-            return;
+
+            // Display runtime snapshot
+            displayRuntimeSnapshot(executor, { verbose: opts.verbose, format: opts.format });
+
+            // Check if complete
+            const finalStatus = getExecutionStatus(executor.getState());
+            if (finalStatus === 'complete') {
+                logger.success(chalk.green('\n✅ Execution complete!'));
+                displayFinalResults(executor, metadata);
+                return;
+            }
+
+            // Exit loop if in step mode (only execute once)
+            if (isStepMode) {
+                logger.info(chalk.gray(`\n💾 State saved. Run again to continue.`));
+                return;
+            }
+
+        } catch (error) {
+            // Handle pending response (interactive mode)
+            if (error instanceof PendingResponseError) {
+                logger.info(chalk.yellow('\n⏸️  Waiting for LLM response...\n'));
+                logger.output(chalk.dim('─'.repeat(60)));
+                logger.output(chalk.bold('LLM REQUEST:'));
+                logger.output(error.request);
+                logger.output(chalk.dim('─'.repeat(60)));
+                logger.output(chalk.bold('\nEXAMPLE RESPONSE:'));
+                logger.output(error.exampleResponse);
+                logger.output(chalk.dim('─'.repeat(60)));
+                logger.info(chalk.cyan('\n💡 Provide response via stdin:'));
+                logger.info(chalk.gray(`   echo '<response-json>' | dygram execute <machine> --interactive --id ${executionId}\n`));
+
+                // Save state as paused
+                metadata.status = 'paused';
+                await saveCurrentExecutionState(executionId, executor, metadata);
+                return;
+            }
+
+            // Other errors
+            logger.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : String(error)}`));
+
+            // Save error state
+            metadata.status = 'error';
+            await saveCurrentExecutionState(executionId, executor, metadata);
+
+            throw error;
         }
+    }
 
-        // Other errors
-        logger.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : String(error)}`));
-
-        // Save error state
-        metadata.status = 'error';
-        await saveCurrentExecutionState(executionId, executor, metadata);
-
-        throw error;
+    // Safety check: if we hit max iterations
+    if (shouldLoop) {
+        logger.warn(chalk.yellow(`\n⚠️  Reached maximum iterations (${maxIterations}). Execution paused.`));
+        logger.info(chalk.gray(`   Run again to continue: dygram execute --interactive --id ${executionId}\n`));
     }
 }

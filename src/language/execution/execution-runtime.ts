@@ -34,7 +34,13 @@ import {
     serializeState,
     deserializeState,
     cloneState,
-    updateMachineSnapshot
+    updateMachineSnapshot,
+    ensureBarrier,
+    waitAtBarrier,
+    isBarrierReleased,
+    getBarrierAnnotation,
+    spawnPath,
+    getAsyncAnnotation
 } from './state-builder.js';
 import {
     evaluateAutomatedTransitions,
@@ -227,6 +233,107 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
     const autoTransition = evaluateAutomatedTransitions(machineJSON, nextState, path.id);
 
     if (autoTransition) {
+        // Check if transition edge has annotations
+        const edge = machineJSON.edges.find(
+            e => e.source === nodeName && e.target === autoTransition.to
+        );
+
+        // Check for @async annotation (spawn new path)
+        const asyncConfig = edge ? getAsyncAnnotation(edge) : null;
+        if (asyncConfig && asyncConfig.enabled) {
+            // Spawn a new path at the target node
+            nextState = spawnPath(nextState, autoTransition.to, path.id);
+
+            effects.push(buildLogEffect(
+                'info',
+                'async',
+                `Spawned new path at ${autoTransition.to}`,
+                { sourcePathId: path.id, newPathId: nextState.paths[nextState.paths.length - 1].id, targetNode: autoTransition.to }
+            ));
+        }
+
+        // Check for @barrier annotation
+        const barrierConfig = edge ? getBarrierAnnotation(edge) : null;
+
+        if (barrierConfig) {
+            // Barrier synchronization: check if all paths have arrived
+            const [stateAfterWait, isReleased] = waitAtBarrier(nextState, barrierConfig.id, path.id, barrierConfig.merge);
+            nextState = stateAfterWait;
+
+            if (isReleased) {
+                // Barrier released: all paths have arrived
+                const barrier = nextState.barriers![barrierConfig.id];
+
+                if (barrier.merge) {
+                    // Paths merged: other paths are now completed
+                    effects.push(buildLogEffect(
+                        'info',
+                        'barrier',
+                        `Barrier '${barrierConfig.id}' released - paths merged into ${path.id}`,
+                        { pathId: path.id, barrier: barrierConfig.id, merged: true }
+                    ));
+                } else {
+                    // Sync-only: reactivate all waiting paths
+                    effects.push(buildLogEffect(
+                        'info',
+                        'barrier',
+                        `Barrier '${barrierConfig.id}' released - all paths synchronized`,
+                        { pathId: path.id, barrier: barrierConfig.id }
+                    ));
+
+                    for (const waitingPathId of barrier.waitingPaths) {
+                        if (waitingPathId !== path.id) {
+                            // Reactivate other waiting paths (current path is already proceeding)
+                            nextState = updatePathStatus(nextState, waitingPathId, 'active');
+                            effects.push(buildLogEffect(
+                                'info',
+                                'barrier',
+                                `Path reactivated after barrier release`,
+                                { pathId: waitingPathId, barrier: barrierConfig.id }
+                            ));
+                        }
+                    }
+                }
+
+                effects.push(buildLogEffect(
+                    'info',
+                    'transition',
+                    `Automated transition: ${nodeName} -> ${autoTransition.to}`,
+                    { reason: autoTransition.transition }
+                ));
+
+                nextState = recordTransition(nextState, path.id, autoTransition);
+
+                return {
+                    nextState,
+                    effects,
+                    status: 'continue'
+                };
+            } else {
+                // Barrier not ready: path must wait
+                nextState = updatePathStatus(nextState, path.id, 'waiting');
+
+                effects.push(buildLogEffect(
+                    'info',
+                    'barrier',
+                    `Path waiting at barrier '${barrierConfig.id}'`,
+                    {
+                        pathId: path.id,
+                        barrier: barrierConfig.id,
+                        waitingCount: nextState.barriers?.[barrierConfig.id]?.waitingPaths.length,
+                        requiredCount: nextState.barriers?.[barrierConfig.id]?.requiredPaths.length
+                    }
+                ));
+
+                return {
+                    nextState,
+                    effects,
+                    status: 'waiting'
+                };
+            }
+        }
+
+        // No barrier: proceed with normal automated transition
         effects.push(buildLogEffect(
             'info',
             'transition',

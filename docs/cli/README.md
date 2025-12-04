@@ -2,35 +2,6 @@
 
 Complete reference for the DyGram command-line interface.
 
-## Table of Contents
-
-- [Installation](#installation)
-- [Commands](#commands)
-  - [generate](#dygram-generate)
-  - [batch](#dygram-batch)
-  - [execute](#dygram-execute)
-  - [parseAndValidate](#dygram-parseandvalidate)
-  - [debug](#dygram-debug)
-- [Interactive Mode](#interactive-mode) - Turn-by-turn execution with state persistence
-- [Output Formats](#output-formats)
-- [Examples](#examples)
-- [Error Handling](#error-handling)
-
-## Interactive Mode
-
-For detailed documentation on interactive turn-by-turn execution with persistent state, see:
-
-**[Interactive Mode Guide](./interactive-mode.md)**
-
-Quick example:
-```bash
-# Start interactive execution
-dygram execute --interactive myMachine.dygram
-
-# Continue execution (auto-resumes)
-dygram execute --interactive myMachine.dygram
-```
-
 ## Installation
 
 ```bash
@@ -38,334 +9,231 @@ npm install -g dygram
 ```
 
 Verify installation:
-
 ```bash
-dygram --version
+dy --version
 ```
 
-## Commands
+## Quick Start
 
-### `dygram generate`
-
-Generate output from a DyGram source file.
-
-**Aliases**: `g`
-
-**Usage**:
 ```bash
-dygram generate <file> [options]
-```
+# Validate a file
+dy parseAndValidate workflow.dy
 
-**Arguments**:
-- `<file>` - Source file (.dy, .dy) or JSON file for backward compilation
+# Generate JSON output
+dy generate workflow.dy
 
-**Options**:
-- `-d, --destination <dir>` - Output directory for generated files
-- `-f, --format <formats>` - Comma-separated output formats (default: `json`)
-  - Available formats: `json`, `mermaid`, `graphviz`, `dot`, `html`, `dsl`
-- `--debug` - Output raw AST for debugging
-- `-v, --verbose` - Verbose output
-- `-q, --quiet` - Quiet output (errors only)
-
-**Examples**:
-
-Generate JSON output (default):
-```bash
-dygram generate workflow.dygram
-```
-
-Generate multiple formats:
-```bash
-dygram generate workflow.dy --format json,html,mermaid
-```
-
-Save to specific directory:
-```bash
-dygram generate workflow.dy --destination ./output
-```
-
-Backward compilation (JSON to DSL):
-```bash
-dygram generate workflow.json --format dsl
-```
-
----
-
-### `dygram batch`
-
-Process multiple files matching a glob pattern.
-
-**Aliases**: `b`
-
-**Usage**:
-```bash
-dygram batch <pattern> [options]
-```
-
-**Arguments**:
-- `<pattern>` - Glob pattern for files (e.g., `"examples/**/*.dy"`)
-
-**Options**:
-- `-d, --destination <dir>` - Output directory for generated files
-- `-f, --format <formats>` - Comma-separated output formats (default: `json`)
-- `--continue-on-error` - Continue processing if a file fails
-- `-v, --verbose` - Verbose output
-- `-q, --quiet` - Quiet output (errors only)
-
-**Examples**:
-
-Process all DyGram files in examples:
-```bash
-dygram batch "examples/**/*.dy"
-```
-
-Generate HTML for all files with error handling:
-```bash
-dygram batch "src/**/*.dy" --format html --continue-on-error
-```
-
----
-
-### `dygram execute`
-
-Execute a machine program using the Rails-Based Architecture.
-
-**Aliases**: `exec`, `e`
-
-**Usage**:
-```bash
-dygram execute <file> [options]
-```
-
-**Arguments**:
-- `<file>` - DyGram source file to execute
-
-**Options**:
-- `-d, --destination <dir>` - Directory for execution results
-- `-m, --model <model>` - LLM model ID (default: `claude-3-5-haiku-20241022`)
-- `-v, --verbose` - Verbose output
-- `-q, --quiet` - Quiet output (errors only)
-
-**Environment Variables**:
-- `ANTHROPIC_API_KEY` - Your Anthropic API key (required)
-- `ANTHROPIC_MODEL_ID` - Default model ID (optional)
-
-**Model Priority**:
-1. CLI `--model` parameter
-2. Machine-level `model` or `modelId` attribute
-3. `ANTHROPIC_MODEL_ID` environment variable
-4. Default: `claude-3-5-haiku-20241022`
-
-**Examples**:
-
-Execute with default model:
-```bash
+# Execute a machine
 export ANTHROPIC_API_KEY=your_api_key
-dygram execute workflow.dygram
+dy execute workflow.dy --interactive
 ```
 
-Execute with specific model:
-```bash
-dygram execute workflow.dy --model claude-3-5-sonnet-20241022
-```
+## Command Index
 
----
+### Core Commands
 
-### `dygram parseAndValidate`
+| Command | Alias | Description |
+|---------|-------|-------------|
+| [generate](./commands/generate.md) | `g` | Generate output in various formats (JSON, HTML, DOT, DSL) |
+| [batch](./commands/batch.md) | `b` | Process multiple files matching a glob pattern |
+| [execute](./commands/execute.md) | `e` | Execute machines with LLM integration |
+| [parseAndValidate](./commands/parse-validate.md) | `pv` | Validate syntax and semantics without generating output |
+| [debug](./commands/debug.md) | `d` | Output serialized AST for debugging |
 
-Parse and validate a DyGram file without generating output.
+### Multi-File Support
 
-**Aliases**: `pv`
+| Command | Alias | Description |
+|---------|-------|-------------|
+| [check-imports](./commands/check-imports.md) | `ci` | Validate imports and show dependency graph |
+| [bundle](./commands/bundle.md) | - | Bundle multi-file machines into single file |
 
-**Usage**:
-```bash
-dygram parseAndValidate <file> [options]
-```
+### Development Tools
 
-**Arguments**:
-- `<file>` - Source file to validate
+| Command | Alias | Description |
+|---------|-------|-------------|
+| [server](./commands/server.md) | `serve` | Start local development server with playground |
+| [exec](./exec-management.md) | - | Manage execution state (list, show, status, rm, clean) |
 
-**Options**:
-- `-v, --verbose` - Verbose output
-- `-q, --quiet` - Quiet output (errors only)
+## Execution & Debugging
 
-**Examples**:
+For detailed information on execution modes, state management, and debugging:
 
-```bash
-dygram parseAndValidate workflow.dygram
-```
+**[Interactive Mode Guide](./interactive-mode.md)**
 
----
-
-### `dygram debug`
-
-Output serialized AST for debugging and inspection.
-
-**Aliases**: `d`
-
-**Usage**:
-```bash
-dygram debug <file> [options]
-```
-
-**Arguments**:
-- `<file>` - Source file to debug
-
-**Options**:
-- `-d, --destination <dir>` - Output directory
-- `-t, --text-regions` - Show positions of each syntax node
-- `-s, --source-text` - Show source text of each syntax node
-- `-v, --verbose` - Verbose output
-- `-q, --quiet` - Quiet output (errors only)
-
-**Examples**:
-
-Debug with text regions:
-```bash
-dygram debug workflow.dy --text-regions
-```
-
----
+Topics covered:
+- Interactive, step, step-turn, and step-path execution modes
+- State persistence and management
+- Runtime visualization
+- Recording and playback
+- Barrier debugging
+- Multi-path execution
 
 ## Global Options
 
-These options are available for all commands:
+Available for all commands:
 
 - `-v, --verbose` - Enable detailed logging
 - `-q, --quiet` - Suppress all output except errors
 - `--version` - Display version number
 - `--help` - Display help information
 
+## File Extensions
+
+DyGram recognizes the following file extensions:
+
+- `.dy` (recommended)
+- `.dygram` (alternative)
+- `.mach` (legacy)
+
 ## Output Formats
 
-### JSON (`json`)
+### Available Formats
 
-Structured JSON representation of the machine graph.
+| Format | Extension | Description | Commands |
+|--------|-----------|-------------|----------|
+| JSON | `.json` | Structured machine representation | generate, batch |
+| HTML | `.html` | Interactive visualization | generate, batch |
+| Graphviz/DOT | `.dot` | Graph visualization | generate, batch, exec show |
+| DSL | `.dy` | DyGram source (backward compilation) | generate only |
+| SVG | `.svg` | Vector graphics | exec show |
 
-**Use Cases**:
-- Programmatic processing
-- API integration
-- Debugging
+For detailed format documentation, see [Output Formats Guide](./output-formats.md).
 
-**Output**: `<filename>.json`
+## Common Workflows
 
-### Mermaid (`mermaid`)
-
-Mermaid diagram syntax for visualization.
-
-**Use Cases**:
-- Documentation
-- Presentations
-- GitHub/GitLab rendering
-
-**Output**: `<filename>.mmd`
-
-### Graphviz/DOT (`graphviz`, `dot`)
-
-DOT language for Graphviz rendering.
-
-**Use Cases**:
-- Complex visualizations
-- Large graphs
-- Custom styling
-
-**Output**: `<filename>.dot`
-
-### HTML (`html`)
-
-Interactive HTML visualization with embedded JavaScript.
-
-**Use Cases**:
-- Shareable visualizations
-- Presentations
-- Web integration
-
-**Output**: `<filename>.html`
-
-**Tip**: Open HTML files in a browser for interactive diagrams.
-
-### DSL (`dsl`)
-
-Generate DyGram source from JSON (backward compilation).
-
-**Requirements**: Input must be a JSON file
-
-**Use Cases**:
-- Round-trip transformation
-- Programmatic generation
-- Format migration
-
-**Output**: `<filename>.dy`
-
-## Examples
-
-### Basic Workflow
+### Development Workflow
 
 ```bash
 # 1. Validate syntax
-dygram parseAndValidate my-machine.dygram
+dy parseAndValidate workflow.dy
 
-# 2. Generate JSON
-dygram generate my-machine.dygram
+# 2. Generate outputs
+dy generate workflow.dy --format json,html
 
-# 3. Generate visualization
-dygram generate my-machine.dy --format html
+# 3. Start dev server
+dy server
+
+# 4. Execute and test
+dy execute workflow.dy --interactive
+```
+
+### Multi-File Projects
+
+```bash
+# 1. Validate imports
+dy check-imports main.dy
+
+# 2. Bundle for distribution
+dy bundle main.dy --output dist/app.dy
+
+# 3. Generate from bundle
+dy generate dist/app.dy --format json,html
 ```
 
 ### Batch Processing
 
 ```bash
-# Process all examples
-dygram batch "examples/**/*.dy" --format json,html --destination ./output
+# Process all files
+dy batch "src/**/*.dy" --format json,html --destination ./output
+
+# With error handling
+dy batch "**/*.dy" --continue-on-error --quiet
 ```
+
+### Debugging
+
+```bash
+# Step through execution
+dy execute workflow.dy --step --verbose
+
+# Debug barriers and multi-path
+dy execute workflow.dy --step-path --verbose
+
+# View execution state
+dy exec show $(dy exec list | tail -1 | awk '{print $1}')
+```
+
+## Environment Variables
 
 ### Execution
 
-```bash
-# Set up environment
-export ANTHROPIC_API_KEY=your_api_key
+- `ANTHROPIC_API_KEY` - Your Anthropic API key (required for execution)
+- `ANTHROPIC_MODEL_ID` - Default model ID (optional)
 
-# Execute machine
-dygram execute workflow.dy --verbose
-```
+## Exit Codes
 
-### Development Workflow
-
-```bash
-# Watch mode: validate on save (use with file watcher)
-while inotifywait -e modify workflow.dy; do
-    dygram parseAndValidate workflow.dygram
-done
-```
+- `0` - Success
+- `1` - Error (parse, validation, generation, or execution failure)
 
 ## Error Handling
 
 The CLI provides detailed error messages for:
 
-- **Lexer Errors**: Invalid tokens or characters
-- **Parser Errors**: Syntax errors
-- **Validation Errors**: Semantic errors (undefined nodes, circular references, etc.)
-- **Generation Errors**: Issues during output generation
+- **Lexer Errors** - Invalid tokens or characters
+- **Parser Errors** - Syntax errors
+- **Validation Errors** - Semantic errors (undefined nodes, circular references, etc.)
+- **Generation Errors** - Issues during output generation
+- **Execution Errors** - Runtime errors during machine execution
 
 Use `--verbose` for detailed error information and stack traces.
 
-## File Extensions
+## Integration
 
-DyGram recognizes the following file extensions:
-- `.dy` (recommended)
-- `.dy` (legacy)
+### CI/CD
 
-## Exit Codes
+```yaml
+# .github/workflows/validate.yml
+- name: Validate DyGram files
+  run: |
+    npm install -g dygram
+    dy batch "**/*.dy" --format json
+```
 
-- `0` - Success
-- `1` - Error (parse, validation, or generation failure)
+### Pre-Commit Hook
 
-## Next Steps
+```bash
+#!/bin/bash
+# .git/hooks/pre-commit
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.dy$')
+if [ -n "$FILES" ]; then
+  for file in $FILES; do
+    dy parseAndValidate "$file" || exit 1
+  done
+fi
+```
 
-- **[Syntax Reference](../syntax/README.md)** - Learn the language syntax
+### NPM Scripts
+
+```json
+{
+  "scripts": {
+    "validate": "dy batch 'src/**/*.dy'",
+    "build": "dy batch 'src/**/*.dy' --format json,html --destination dist",
+    "dev": "dy server"
+  }
+}
+```
+
+## Additional Resources
+
+- **[Interactive Mode Guide](./interactive-mode.md)** - Execution and debugging
+- **[Execution Management](./exec-management.md)** - Managing execution state
+- **[Output Formats](./output-formats.md)** - Format specifications
+- **[Examples](./examples.md)** - Common patterns and workflows
+- **[Syntax Reference](../syntax/README.md)** - Language syntax
 - **[API Reference](../api/README.md)** - Programmatic usage
-- **[Examples](../examples/README.md)** - Practical patterns
 
----
+## Getting Help
 
-**Implementation**: See [src/cli/main.ts](../../src/cli/main.ts) for the full CLI implementation
+```bash
+# General help
+dy --help
+
+# Command-specific help
+dy generate --help
+dy execute --help
+dy exec --help
+```
+
+## Implementation
+
+See [src/cli/](../../src/cli/) for the full CLI implementation.

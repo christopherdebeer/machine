@@ -1,137 +1,389 @@
-# Interactive Mode
+# Interactive Execution & Debugging
 
-Execute machines turn-by-turn with persistent state across CLI calls.
+Execute and debug machines with persistent state, step-by-step control, and runtime visualization.
 
 ## Overview
 
-Interactive mode allows you to execute machines one turn at a time, with automatic state persistence between CLI calls. This is perfect for:
+The CLI provides multiple execution modes for different use cases:
 
-- **Agent workflows** - Simple stateless CLI calls, easy to script
-- **Manual debugging** - Step through execution turn-by-turn
-- **Recorded sessions** - Record and replay executions
-- **Testing** - Validate machine behavior with playback mode
+- **Interactive Mode** (`--interactive`) - Runs until LLM response needed, pauses for human input
+- **Step Debugging** (`--step`, `--step-turn`, `--step-path`) - Fine-grained control for debugging
+- **State Inspection** (`dy exec show`) - View runtime state without advancing
+- **Runtime Visualization** (`--format`, `--verbose`) - Rich output formats for analysis
+
+Perfect for:
+- **Agent workflows** - Automated execution with LLM integration
+- **Debugging** - Step through execution with detailed state inspection
+- **Multi-path analysis** - Debug parallel execution and barriers
+- **Testing** - Record and replay with deterministic playback
 
 ## Quick Start
 
-### Basic Usage
+### Interactive Execution
 
-Start a new interactive execution:
-
-```bash
-dygram execute --interactive myMachine.dygram
-```
-
-Continue execution (automatically resumes last execution):
+Run continuously until LLM response needed:
 
 ```bash
-dygram execute --interactive myMachine.dygram
+# Start execution - runs until LLM invocation
+dy execute --interactive machine.dy
+
+# Provide response via stdin, continue
+echo '{"action": "continue"}' | dy execute --interactive machine.dy
 ```
 
-Repeat until complete:
+### Step-by-Step Debugging
 
 ```bash
-# Keep running until execution finishes
-while dygram execute --interactive myMachine.dy; do :; done
+# Step through all paths together
+dy execute --step machine.dy
+
+# Step through one turn at a time
+dy execute --step-turn machine.dy
+
+# Step through one path at a time (for multi-path debugging)
+dy execute --step-path machine.dy
 ```
 
-## How It Works
+### View State Without Advancing
 
-Each CLI call is **isolated and stateless**:
-1. Reads persisted state from disk
-2. Executes one turn
+```bash
+# Get last execution ID
+dy exec list
+
+# View current state
+dy exec show exec-20251203-143022
+dy exec show exec-20251203-143022 --verbose
+dy exec show exec-20251203-143022 --format json
+```
+
+## Execution Modes
+
+### Interactive Mode (`--interactive`)
+
+Runs continuously, pausing **only** when LLM response is needed.
+
+**Use cases:**
+- Agent workflows with LLM interactions
+- Human-in-the-loop execution
+- Long-running processes
+
+**Example:**
+```bash
+# Runs until LLM invocation, then pauses
+dy execute --interactive workflow.dy
+
+# LLM request displayed, waiting for stdin response
+# Provide response:
+echo '{"analysis": "data shows trend"}' | dy execute --interactive workflow.dy
+```
+
+### Step Mode (`--step`)
+
+Executes one step at a time, **advancing all active paths together**.
+
+**Use cases:**
+- Basic debugging
+- Understanding execution flow
+- Verifying state changes
+
+**Example:**
+```bash
+# Execute first step (all paths advance)
+dy execute --step machine.dy
+
+# Execute next step
+dy execute --step machine.dy
+```
+
+### Step-Turn Mode (`--step-turn`)
+
+Executes one turn at a time (LLM conversation turns).
+
+**Use cases:**
+- Debugging LLM interactions
+- Tool execution analysis
+- Conversation flow inspection
+
+**Example:**
+```bash
+# Execute one turn
+dy execute --step-turn machine.dy
+
+# Continue turn-by-turn
+dy execute --step-turn machine.dy
+```
+
+### Step-Path Mode (`--step-path`)
+
+Executes **one path at a time** in round-robin fashion.
+
+**Use cases:**
+- **Barrier debugging** - See exactly when paths synchronize
+- Multi-path execution analysis
+- Race condition detection
+- Understanding parallel execution
+
+**Example:**
+```bash
+# Step path_0
+dy execute --step-path machine.dy
+# Output: 📍 Step 1 - Path: path_0 - Node: FetchData
+
+# Step path_1
+dy execute --step-path machine.dy
+# Output: 📍 Step 2 - Path: path_1 - Node: FetchConfig
+
+# Continue round-robin...
+dy execute --step-path machine.dy
+```
+
+**Barrier Example:**
+```bash
+# Both paths start at init nodes
+dy execute --step-path barrier.dy
+# path_0: FetchData → WaitPoint
+
+dy execute --step-path barrier.dy
+# path_1: FetchConfig → WaitPoint
+
+# Both now at barrier - next step releases barrier
+dy execute --step-path barrier.dy
+# path_0: WaitPoint → MergeAndContinue
+```
+
+## Runtime Visualization
+
+### Output Formats
+
+Control output format with `--format`:
+
+```bash
+# Compact summary (default)
+dy execute --step machine.dy
+# Output: 📊 at: WaitPoint | paths: 2/2 | 2 transitions | steps: 1
+
+# Full snapshot
+dy execute --step machine.dy --verbose
+
+# JSON for tooling
+dy execute --step machine.dy --format json
+
+# Graphviz diagram
+dy execute --step machine.dy --format dot > snapshot.dot
+```
+
+### Compact Summary (Default)
+
+Shows essential state in one line:
+
+```
+📊 at: WaitPoint, FetchConfig | paths: 2/2 | 2 transitions | steps: 3
+```
+
+Includes:
+- Current node(s) for all active paths
+- Active/total path count
+- Available transitions
+- Total steps executed
+
+### Full Snapshot (`--verbose`)
+
+Detailed state with all execution information:
+
+```
+═══════════════════════════════════════════════════════════
+  RUNTIME EXECUTION SNAPSHOT
+═══════════════════════════════════════════════════════════
+
+📍 CURRENT POSITION
+───────────────────────────────────────────────────────────
+  Path path_0: WaitPoint (State)
+  Path path_1: FetchConfig (Unknown)
+
+🔀 AVAILABLE TRANSITIONS
+───────────────────────────────────────────────────────────
+  ✓ WaitPoint → MergeAndContinue
+  ✓ FetchConfig → WaitPoint
+
+🌲 MULTI-PATH EXECUTION
+───────────────────────────────────────────────────────────
+  Active: 2
+  Completed: 0
+  Failed: 0
+  Waiting: 0
+
+  Path Details:
+    path_0: WaitPoint (active)
+    path_1: FetchConfig (active)
+
+📊 EXECUTION METADATA
+───────────────────────────────────────────────────────────
+  Total Steps: 2
+  Elapsed Time: 15ms
+  Error Count: 0
+  Status: Running
+  Paused: No
+```
+
+### JSON Format
+
+Structured output for programmatic processing:
+
+```bash
+dy execute --step machine.dy --format json
+```
+
+```json
+{
+  "currentNodes": [
+    {
+      "pathId": "path_0",
+      "nodeName": "WaitPoint",
+      "nodeType": "State"
+    }
+  ],
+  "affordances": {
+    "transitions": [...],
+    "tools": [...],
+    "contexts": [...]
+  },
+  "paths": {
+    "active": 2,
+    "completed": 0,
+    "details": [...]
+  },
+  "metadata": {
+    "totalSteps": 2,
+    "elapsedTime": 15,
+    "isComplete": false
+  }
+}
+```
+
+### Graphviz Format
+
+Visual diagram with runtime state overlays:
+
+```bash
+dy execute --step machine.dy --format dot > snapshot.dot
+dot -Tpng snapshot.dot -o snapshot.png
+```
+
+## State Management
+
+### How It Works
+
+Each execution is isolated and stateless:
+1. Reads persisted state from `.dygram/executions/<id>/`
+2. Executes according to mode (`--interactive`, `--step`, etc.)
 3. Saves updated state back to disk
 4. Exits
 
-State is stored in `.dygram/executions/` with:
-- Execution state (current node, visited nodes, attributes, context)
-- Machine snapshot (ensures machine hasn't changed)
-- Metadata (started, last executed, turn count, mode)
-- History log (turn-by-turn record)
+State includes:
+- Execution position (current nodes per path)
+- Visited nodes and history
+- Context attributes
+- Turn state (for LLM interactions)
+- Metadata (turn count, step count, status)
 
 ### State Directory Structure
 
 ```
 .dygram/
   executions/
-    last -> exec-20251201-143022/     # Symlink to most recent
-    exec-20251201-143022/
+    last -> exec-20251203-143022/     # Symlink to most recent
+    exec-20251203-143022/
       state.json                      # Current execution state
       metadata.json                   # Execution metadata
-      machine.json                    # Machine definition snapshot
+      machine.json                    # Machine snapshot
       history.jsonl                   # Turn-by-turn history
 ```
 
-## Managing Multiple Executions
+## State Inspection
 
-### Explicit Execution ID
+### View Current State
 
-Start with specific ID:
-
-```bash
-dygram execute --interactive myMachine.dy --id my-session
-```
-
-Resume specific execution:
+Use `dy exec show` to inspect state without advancing:
 
 ```bash
-dygram execute --interactive myMachine.dy --id my-session
-```
+# Compact summary
+dy exec show exec-20251203-143022
+# Output: 📊 at: WaitPoint | paths: 2/2 | 2 transitions | steps: 5
 
-### Force New Execution
+# Full snapshot
+dy exec show exec-20251203-143022 --verbose
 
-Start fresh even if state exists:
+# JSON export
+dy exec show exec-20251203-143022 --format json > state.json
 
-```bash
-dygram execute --interactive myMachine.dy --force
+# Graphviz diagram
+dy exec show exec-20251203-143022 --format dot > state.dot
 ```
 
 ### List Executions
 
-View all active executions:
-
 ```bash
-dygram exec list
+dy exec list
 ```
 
 Output:
 ```
 Active executions:
-  exec-20251201-143022  myMachine.dy  turn 3/5   in_progress  2 min ago
-  my-session            myMachine.dy  turn 1/5   paused       5 min ago
-  demo-recording        demo.dy       complete   1 hour ago
+  exec-20251203-143022  machine.dy  step 5   in_progress  2 min ago
+  my-session            workflow.dy turn 3   paused       5 min ago
 ```
 
-### Check Status
-
-View execution details:
+### Check Execution Status
 
 ```bash
-dygram exec status my-session
+dy exec status exec-20251203-143022
 ```
 
 Output:
 ```
-Execution: my-session
-  Machine: ./myMachine.dy
-  Status: paused
-  Turn: 1/5
-  Current Node: agent
-  Started: 2025-12-01 14:25:00
-  Last Updated: 2025-12-01 14:30:00
+Execution: exec-20251203-143022
+  Machine: ./machine.dy
+  Status: in_progress
+  Mode: interactive
+  Turns: 3
+  Steps: 5
+  Started: 2025-12-03 14:30:22
+  Last updated: 2025-12-03 14:35:45
+```
+
+## Managing Executions
+
+### Explicit Execution ID
+
+Use custom IDs for multiple parallel executions:
+
+```bash
+# Start with specific ID
+dy execute --step machine.dy --id debug-session
+
+# Continue with same ID
+dy execute --step machine.dy --id debug-session
+```
+
+### Force New Execution
+
+Start fresh, ignoring existing state:
+
+```bash
+dy execute --step machine.dy --force
 ```
 
 ### Cleanup
 
-Remove specific execution:
-
 ```bash
-dygram exec rm my-session
-```
+# Remove specific execution
+dy exec rm exec-20251203-143022
 
-Clean completed executions:
+# Clean completed executions
+dy exec clean
 
-```bash
-dygram exec clean
+# Clean all executions
+dy exec clean --all
 ```
 
 ## Recording & Playback
@@ -142,277 +394,212 @@ Record execution for later playback:
 
 ```bash
 # Start recording
-dygram execute --interactive myMachine.dy --record recordings/golden/
+dy execute --interactive machine.dy --record recordings/golden/
 
-# Continue recording (mode persists)
-dygram execute --interactive myMachine.dygram
-
-# Recording continues until execution complete
+# Continue (mode persists)
+dy execute --interactive machine.dy
 ```
 
 ### Playback Mode
 
-Replay a recorded execution:
+Replay recorded execution (deterministic, no API calls):
 
 ```bash
 # Start playback
-dygram execute --interactive myMachine.dy --playback recordings/golden/
+dy execute --interactive machine.dy --playback recordings/golden/
 
-# Continue playback (mode persists)
-dygram execute --interactive myMachine.dygram
+# Continue playback
+dy execute --interactive machine.dy
 ```
 
-Playback is **deterministic** - uses pre-recorded LLM responses, no API calls.
+## Combining Modes
 
-## Input from stdin
-
-### Machine Source from stdin
-
-Provide machine definition via stdin when no file argument given:
+Modes can be combined for powerful debugging:
 
 ```bash
-# Pipe machine source
-cat myMachine.dy | dygram execute --interactive
+# Interactive + step: runs step-by-step, pauses on LLM
+dy execute --interactive --step machine.dy
 
-# Inline machine
-echo 'machine "Test" { state Start; state End; Start --> End }' | dygram execute --interactive
+# Interactive + step-path: per-path stepping with LLM pausing
+dy execute --interactive --step-path machine.dy
 
-# Chain commands
-dygram generate template.dy | dygram execute --interactive
+# Step-path + verbose + JSON
+dy execute --step-path machine.dy --verbose --format json
 ```
-
-### Response Input via stdin
-
-Provide LLM response via stdin (for manual control):
-
-```bash
-# Single-line JSON
-echo '{"action": "continue"}' | dygram execute --interactive myMachine.dygram
-
-# Multi-line input
-dygram execute --interactive myMachine.dy <<EOF
-{
-  "response": "Analyze the data",
-  "tools": [{"name": "read_file", "params": {"path": "data.json"}}]
-}
-EOF
-```
-
-## Agent Usage Pattern
-
-Perfect for agent automation:
-
-```bash
-#!/bin/bash
-
-# Start execution
-dygram execute --interactive ./workflow.dygram
-
-# Continue execution in loop
-for i in {1..10}; do
-    dygram execute --interactive ./workflow.dygram
-
-    # Check exit code
-    if [ $? -ne 0 ]; then
-        echo "Execution failed or complete"
-        break
-    fi
-done
-
-# Check final status
-dygram exec status
-```
-
-## Human-in-Loop
-
-Combine agent execution with human intervention:
-
-```bash
-# Agent starts
-dygram execute --interactive ./process.dy --record recordings/session1/
-
-# Agent continues...
-dygram execute --interactive ./process.dygram
-
-# Human checks progress
-dygram exec status
-
-# Human provides input (future feature)
-echo '{"response": "use different approach"}' | dygram execute --interactive ./process.dygram
-
-# Agent continues
-dygram execute --interactive ./process.dygram
-```
-
-## Error Handling
-
-### Machine Changed
-
-If the machine definition changes after execution started:
-
-```bash
-$ dygram execute --interactive myMachine.dygram
-❌ Error: Machine definition has changed since execution started.
-   Original hash: a3f5d8...
-   Current hash:  b2e4c9...
-
-   Options:
-   - Use --force to start a new execution
-   - Restore original machine definition
-   - Use --id to start a parallel execution
-```
-
-### Missing Recordings
-
-If playback directory doesn't exist:
-
-```bash
-$ dygram execute --interactive myMachine.dy --playback recordings/missing/
-❌ Error: Playback directory not found: recordings/missing/
-
-   Available recordings:
-   - recordings/golden/
-   - recordings/test-session/
-```
-
-## Exit Codes
-
-- `0` - Turn executed successfully (execution may continue)
-- `1` - Error occurred
-- (Future) `2` - Execution complete
 
 ## Command Reference
 
 ### Execute Command
 
 ```bash
-dygram execute [file] [options]
+dy execute [file] [options]
 ```
 
-**Aliases:** `exec`, `e`
+**Aliases:** `e`
 
 **Arguments:**
 - `[file]` - Source file or stdin if omitted
 
-**Options:**
-- `-i, --interactive` - Interactive turn-by-turn execution
+**Execution Modes:**
+- `-i, --interactive` - Pause only when LLM response needed
+- `--step` - Execute one step at a time (all paths)
+- `--step-turn` - Execute one turn at a time
+- `--step-path` - Execute one path at a time (round-robin)
+
+**Visualization:**
+- `--format <format>` - Output format: `text` (default), `json`, `svg`, `dot`
+- `-v, --verbose` - Full runtime snapshot instead of compact summary
+
+**State Management:**
 - `--id <id>` - Execution ID (default: auto-resume last)
 - `--force` - Force new execution
+
+**Playback:**
 - `--playback <dir>` - Playback from recordings
 - `--record <dir>` - Record execution
-- `-d, --destination <dir>` - Results directory
+
+**Other:**
 - `-m, --model <model>` - LLM model ID
-- `-v, --verbose` - Verbose output
 - `-q, --quiet` - Quiet output
 
 ### Exec Management Commands
 
 **List executions:**
 ```bash
-dygram exec list
-dygram exec ls        # alias
+dy exec list
+dy exec ls            # alias
 ```
 
 **Show status:**
 ```bash
-dygram exec status <id>
+dy exec status <id>
+```
+
+**Show runtime snapshot:**
+```bash
+dy exec show <id> [options]
+  --verbose                # Full snapshot
+  --format <format>        # text, json, svg, dot
 ```
 
 **Remove execution:**
 ```bash
-dygram exec rm <id>
+dy exec rm <id>
 ```
 
 **Clean up:**
 ```bash
-dygram exec clean              # Clean completed executions
-dygram exec clean --all        # Clean all executions
+dy exec clean         # Clean completed only
+dy exec clean --all   # Clean all executions
 ```
 
 ## Examples
 
-### Basic Workflow
+### Basic Step-Through Debugging
 
 ```bash
-# Start execution
-dygram e -i workflow.dygram
+# Start stepping
+dy e --step machine.dy
 
-# Continue manually
-dygram e -i workflow.dygram
-dygram e -i workflow.dygram
+# Continue stepping
+dy e --step machine.dy
+dy e --step machine.dy
 
-# Check progress
-dygram exec status
+# Check state
+dy exec show $(dy exec list | tail -1 | awk '{print $1}')
 ```
 
-### Record Golden Test
+### Barrier Debugging
+
+```bash
+# Debug barrier synchronization with per-path stepping
+dy e --step-path barrier.dy --verbose
+
+# Path 0: FetchData → WaitPoint
+# (waits at barrier)
+
+dy e --step-path barrier.dy --verbose
+# Path 1: FetchConfig → WaitPoint
+# (both now at barrier)
+
+dy e --step-path barrier.dy --verbose
+# Barrier releases, path 0 continues
+
+dy e --step-path barrier.dy --verbose
+# Path 1 continues
+```
+
+### Export State for Analysis
+
+```bash
+# Execute several steps
+for i in {1..5}; do
+  dy e --step machine.dy
+done
+
+# Export final state
+EXEC_ID=$(dy exec list | tail -1 | awk '{print $1}')
+dy exec show $EXEC_ID --format json > state-step-5.json
+
+# Generate diagram
+dy exec show $EXEC_ID --format dot | dot -Tpng > state-step-5.png
+```
+
+### Automated Testing with Playback
 
 ```bash
 # Record golden execution
-dygram e -i workflow.dy --record recordings/golden/ --id golden-test
+dy e -i workflow.dy --record recordings/golden/ --id golden
+while dy e -i workflow.dy --id golden; do :; done
 
-# Continue until complete
-while dygram e -i workflow.dy --id golden-test; do :; done
+# Test with playback (deterministic)
+dy e -i workflow.dy --playback recordings/golden/ --id test
+while dy e -i workflow.dy --id test --format json > test-output.json; do :; done
 
-# Later: replay for testing
-dygram e -i workflow.dy --playback recordings/golden/ --id test-run
-while dygram e -i workflow.dy --id test-run; do :; done
-```
-
-### Batch Process with Agent
-
-```bash
-#!/bin/bash
-for machine in workflows/*.dy; do
-    echo "Processing $machine..."
-
-    # Start with unique ID
-    id=$(basename "$machine" .dy)
-    dygram e -i "$machine" --id "$id"
-
-    # Continue until complete
-    while dygram e -i "$machine" --id "$id" 2>&1 | grep -q "Turn completed"; do
-        echo "  Turn completed"
-    done
-
-    echo "✓ $machine complete"
-done
+# Compare results
+diff <(jq -S . recordings/golden/output.json) <(jq -S . test-output.json)
 ```
 
 ## Tips & Best Practices
 
-### For Agents
+### For Debugging
 
-- **Use loops** - Wrap in `while` or `for` to continue execution
-- **Check exit codes** - Detect completion or errors
-- **Use explicit IDs** - Manage multiple parallel executions
-- **Record sessions** - Create playback for testing
-- **Script workflows** - Easy to automate with bash/python
+- **Use `--step-path` for barriers** - See exact synchronization behavior
+- **Combine `--verbose` with `--step`** - Full visibility into each step
+- **Export snapshots** - Use `--format json` to capture state
+- **Check `dy exec show`** - Inspect without changing state
+
+### For Multi-Path Execution
+
+- **Use `--step-path` first** - Understand path behavior individually
+- **Then use `--step`** - See all paths together
+- **Watch for barriers** - Paths waiting at synchronization points
+- **Export diagrams** - Visualize with `--format dot`
 
 ### For Testing
 
-- **Record golden runs** - Use `--record` to capture expected behavior
-- **Playback in CI** - Use `--playback` for deterministic tests
-- **Version recordings** - Commit to git for reproducibility
-- **Update when needed** - Re-record when behavior intentionally changes
+- **Record golden runs** - Use `--record` for expected behavior
+- **Playback in CI** - Deterministic tests with `--playback`
+- **Export JSON** - Compare states programmatically
+- **Version recordings** - Commit to git
 
-### For Debugging
+### For Agent Workflows
 
-- **Use verbose mode** - Add `-v` to see detailed execution
-- **Check history** - Review `.dygram/executions/*/history.jsonl`
-- **Step through** - Execute turn-by-turn manually
-- **Compare states** - Diff `state.json` files across turns
+- **Use `--interactive` only** - No `--step` flags for automation
+- **Handle LLM pauses** - Provide responses via stdin
+- **Use explicit IDs** - Manage parallel executions
+- **Record sessions** - Debug later with playback
 
 ## Next Steps
 
 - **[CLI Reference](./README.md)** - Full CLI documentation
 - **[Syntax Reference](../syntax/README.md)** - Learn machine syntax
-- **[Examples](../examples/README.md)** - See practical patterns
+- **[Examples](../examples/README.md)** - Practical patterns
 
-## Implementation Details
+## Implementation
 
-For technical implementation details and design rationale, see:
-- `docs/development/cli-stateful-execution-design.md` - Complete design
-- `docs/development/cli-interactive-execution-implementation.md` - Implementation notes
-- `src/cli/interactive-execution.ts` - Source code
-- `src/cli/execution-state.ts` - State management
+Technical details:
+- `src/cli/interactive-execution.ts` - Execution modes and state management
+- `src/cli/execution-state.ts` - State persistence
+- `src/language/executor.ts` - Executor with `step()`, `stepTurn()`, `stepPath()`
+- `src/language/runtime-visualizer.ts` - Runtime visualization and snapshots

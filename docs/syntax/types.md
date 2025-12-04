@@ -439,7 +439,7 @@ promise<Promise<Result>>: #pending;
 ```
 
 ### Validated Generics
-```dy examples/syntax/validated-generics.dygram
+```dy examples/syntax/validated-generics-b.dygram
 task myTask {
   dates<Array<Date>>: ["2025-10-22T13:30:00Z", "2025-10-23T14:00:00Z"];
   counts<Array<Integer>>: [1, 2, 3];

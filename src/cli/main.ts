@@ -419,6 +419,10 @@ export const executeAction = async (fileName: string | undefined, opts: {
     quiet?: boolean;
     noImports?: boolean;
     interactive?: boolean;
+    step?: boolean;
+    stepTurn?: boolean;
+    stepPath?: boolean;
+    format?: string;
     id?: string;
     force?: boolean;
     playback?: string;
@@ -426,8 +430,8 @@ export const executeAction = async (fileName: string | undefined, opts: {
 }): Promise<void> => {
     setupLogger(opts);
 
-    // Handle interactive mode
-    if (opts.interactive) {
+    // Handle step-based or interactive modes
+    if (opts.interactive || opts.step || opts.stepTurn || opts.stepPath) {
         // Determine machine source and input data
         let machineSource: string | undefined = fileName;
         let inputData: any = undefined;
@@ -466,7 +470,11 @@ export const executeAction = async (fileName: string | undefined, opts: {
             verbose: opts.verbose,
             input: inputData,
             isStdin: !fileName,
-            interactive: opts.interactive
+            interactive: opts.interactive,
+            step: opts.step,
+            stepTurn: opts.stepTurn,
+            stepPath: opts.stepPath,
+            format: opts.format
         });
 
         return;
@@ -994,6 +1002,74 @@ export const showExecutionStatusAction = async (
 }
 
 /**
+ * Show execution runtime snapshot without advancing
+ */
+export const showExecutionSnapshotAction = async (
+    id: string,
+    opts?: { verbose?: boolean; quiet?: boolean; format?: string }
+): Promise<void> => {
+    setupLogger(opts || {});
+
+    try {
+        const { loadOrCreateExecution, RuntimeVisualizer, formatRuntimeSnapshot, formatRuntimeSnapshotJSON, formatRuntimeSnapshotCompact } = await import('./interactive-execution.js');
+        const metadata = await loadExecutionMetadata(id);
+
+        // Get machine source
+        const machineFile = metadata.machineFile;
+        if (!machineFile) {
+            logger.error('Cannot show snapshot for stdin-based execution');
+            process.exit(1);
+        }
+
+        logger.heading(`Runtime Snapshot: ${chalk.bold(id)}`);
+        logger.info(chalk.gray(`Machine: ${machineFile}`));
+        logger.info(chalk.gray(`Status: ${metadata.status}\n`));
+
+        // Load execution without advancing
+        const { executor } = await loadOrCreateExecution({
+            machineSource: machineFile,
+            executionId: id,
+            isStdin: false,
+            isInteractive: false
+        });
+
+        // Display runtime snapshot
+        const { RuntimeVisualizer: RV, formatRuntimeSnapshot: format, formatRuntimeSnapshotJSON: formatJSON, formatRuntimeSnapshotCompact: formatCompact } =
+            await import('../language/runtime-visualizer.js');
+
+        const visualizer = new RV(executor);
+        const snapshot = visualizer.generateRuntimeSnapshot();
+        const outputFormat = opts?.format || 'text';
+
+        switch (outputFormat) {
+            case 'json':
+                logger.output(formatJSON(snapshot));
+                break;
+
+            case 'svg':
+            case 'dot':
+                const dotOutput = visualizer.generateRuntimeVisualization({ format: 'class' });
+                logger.output(dotOutput);
+                break;
+
+            case 'text':
+            default:
+                if (opts?.verbose) {
+                    logger.output(format(snapshot));
+                } else {
+                    const compact = formatCompact(snapshot);
+                    logger.info(`📊 ${compact}`);
+                }
+                break;
+        }
+
+    } catch (error) {
+        logger.error(`Failed to show snapshot: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(1);
+    }
+}
+
+/**
  * Remove execution
  */
 export const removeExecutionAction = async (
@@ -1122,17 +1198,21 @@ function initializeCLI(): Promise<void> {
                     .command('execute')
                     .aliases(['e'])
                     .argument('[file]', `source file (${fileExtensions}) or stdin if omitted`)
-                    .option('-i, --interactive', 'interactive turn-by-turn execution')
+                    .option('-i, --interactive', 'pause only when LLM response needed (await stdin)')
+                    .option('--step', 'execute one step at a time (all paths together)')
+                    .option('--step-turn', 'execute one turn at a time (for debugging)')
+                    .option('--step-path', 'execute one path at a time (round-robin through active paths)')
+                    .option('--format <format>', 'output format: text (default), json, svg, dot', 'text')
                     .option('--id <id>', 'execution ID (for managing multiple executions)')
                     .option('--force', 'force new execution (ignore existing state)')
                     .option('--playback <dir>', 'playback from recordings directory')
                     .option('--record <dir>', 'record execution to directory')
                     .option('-d, --destination <dir>', 'destination directory for execution results')
                     .option('-m, --model <model>', 'model ID to use (e.g., claude-3-5-haiku-20241022, claude-3-5-sonnet-20241022)')
-                    .option('-v, --verbose', 'verbose output')
+                    .option('-v, --verbose', 'verbose output (full runtime snapshot)')
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .option('--no-imports', 'disable import resolution (treat as single file)')
-                    .description('executes a machine program\n\nExamples:\n  dygram execute app.dy\n  dygram execute app.dy --interactive\n  cat app.dy| dygram execute --interactive\n  dygram execute app.dy--playback recordings/\n  echo \'{"input": "..."}\' | dygram e -i app.dy')
+                    .description('executes a machine program\n\nExamples:\n  dygram execute app.dy\n  dygram execute app.dy --interactive\n  dygram execute app.dy --step\n  dygram execute app.dy --step-turn\n  dygram execute app.dy --step-path\n  dygram execute app.dy --step --format json\n  dygram execute app.dy --interactive --step\n  cat app.dy| dygram execute --interactive\n  dygram execute app.dy--playback recordings/\n  echo \'{"input": "..."}\' | dygram e -i app.dy')
                     .action(executeAction);
 
                 program
@@ -1182,6 +1262,15 @@ function initializeCLI(): Promise<void> {
                     .option('-q, --quiet', 'quiet output (errors only)')
                     .description('show execution status\n\nExamples:\n  dygram exec status exec-20251201-143022')
                     .action(showExecutionStatusAction);
+
+                execCmd
+                    .command('show')
+                    .argument('<id>', 'execution ID')
+                    .option('-v, --verbose', 'verbose output (full runtime snapshot)')
+                    .option('-q, --quiet', 'quiet output (errors only)')
+                    .option('--format <format>', 'output format: text (default), json, svg, dot', 'text')
+                    .description('show runtime snapshot without advancing\n\nExamples:\n  dygram exec show exec-20251201-143022\n  dygram exec show exec-20251201-143022 --verbose\n  dygram exec show exec-20251201-143022 --format json')
+                    .action(showExecutionSnapshotAction);
 
                 execCmd
                     .command('rm')

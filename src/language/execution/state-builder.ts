@@ -6,7 +6,7 @@
  */
 
 import type { MachineJSON } from '../json/types.js';
-import type { ExecutionState, Path, Transition, PathStatus, ExecutionLimits } from './runtime-types.js';
+import type { ExecutionState, Path, Transition, PathStatus, ExecutionLimits, BarrierConfig, AsyncConfig } from './runtime-types.js';
 import { EXECUTION_STATE_VERSION } from './runtime-types.js';
 
 /**
@@ -50,7 +50,8 @@ export function createInitialState(
             elapsedTime: 0,
             errorCount: 0
         },
-        contextState
+        contextState,
+        barriers: {} // Initialize empty barriers
     };
 }
 
@@ -406,4 +407,241 @@ export function deserializeState(json: string): ExecutionState {
     }
 
     return state;
+}
+
+/**
+ * Barrier Synchronization Functions
+ */
+
+/**
+ * Create or get a barrier for synchronization
+ * Barriers are automatically created with ALL path IDs (not just active ones)
+ * because barrier synchronization applies to all paths in a multi-path execution
+ */
+export function ensureBarrier(state: ExecutionState, barrierName: string, merge: boolean = false): ExecutionState {
+    if (!state.barriers) {
+        state = { ...state, barriers: {} };
+    }
+
+    if (!state.barriers[barrierName]) {
+        // Barriers require ALL paths to synchronize (active or not)
+        // This includes paths that may have completed or failed before reaching the barrier
+        // Only count paths that could potentially reach the barrier (active + waiting)
+        const allPaths = state.paths
+            .filter(p => p.status === 'active' || p.status === 'waiting')
+            .map(p => p.id);
+
+        return {
+            ...state,
+            barriers: {
+                ...state.barriers,
+                [barrierName]: {
+                    requiredPaths: allPaths,
+                    waitingPaths: [],
+                    isReleased: false,
+                    merge
+                }
+            }
+        };
+    }
+
+    return state;
+}
+
+/**
+ * Merge multiple paths into the continuing path
+ * Other paths are marked as 'completed' after merge
+ * Context values and attributes are preserved (paths don't carry data themselves)
+ * @param continuingPathId The path that continues after merge (usually the one that released the barrier)
+ */
+function mergePaths(state: ExecutionState, pathIds: string[], continuingPathId: string): ExecutionState {
+    if (pathIds.length <= 1) return state; // Nothing to merge
+
+    return {
+        ...state,
+        paths: state.paths.map(path => {
+            if (pathIds.includes(path.id) && path.id !== continuingPathId) {
+                // Mark other paths as completed (merged into continuing path)
+                return {
+                    ...path,
+                    status: 'completed' as PathStatus
+                };
+            }
+            return path;
+        })
+    };
+}
+
+/**
+ * Spawn a new execution path at the specified node
+ * Used by @async annotation to create parallel execution paths
+ * @param state Current execution state
+ * @param startNode Node where the new path should start
+ * @param sourcePathId Optional source path ID (for tracking spawn relationships)
+ * @returns New execution state with spawned path added
+ */
+export function spawnPath(state: ExecutionState, startNode: string, sourcePathId?: string): ExecutionState {
+    // Generate unique path ID
+    const pathCount = state.paths.length;
+    const newPathId = `path_${pathCount}`;
+
+    // Create new path starting at the specified node
+    const newPath: Path = {
+        id: newPathId,
+        currentNode: startNode,
+        status: 'active' as PathStatus,
+        history: [],
+        stepCount: 0,
+        nodeInvocationCounts: {},
+        stateTransitions: [],
+        startTime: Date.now()
+    };
+
+    return {
+        ...state,
+        paths: [...state.paths, newPath]
+    };
+}
+
+/**
+ * Mark a path as waiting at a barrier
+ * Returns [newState, isReleased] where isReleased indicates if barrier is now complete
+ */
+export function waitAtBarrier(
+    state: ExecutionState,
+    barrierName: string,
+    pathId: string,
+    merge: boolean = false
+): [ExecutionState, boolean] {
+    // Ensure barrier exists
+    state = ensureBarrier(state, barrierName, merge);
+
+    const barrier = state.barriers![barrierName];
+
+    // If barrier already released, path can proceed
+    if (barrier.isReleased) {
+        return [state, true];
+    }
+
+    // Add path to waiting set if not already there
+    if (!barrier.waitingPaths.includes(pathId)) {
+        barrier.waitingPaths.push(pathId);
+    }
+
+    // Check if all required paths are now waiting
+    const allWaiting = barrier.requiredPaths.every(
+        requiredPath => barrier.waitingPaths.includes(requiredPath)
+    );
+
+    // Release barrier if all paths have arrived
+    if (allWaiting) {
+        let nextState = {
+            ...state,
+            barriers: {
+                ...state.barriers!,
+                [barrierName]: {
+                    ...barrier,
+                    isReleased: true
+                }
+            }
+        };
+
+        // If merge=true, merge all waiting paths into the current path (the one releasing the barrier)
+        if (barrier.merge) {
+            nextState = mergePaths(nextState, barrier.waitingPaths, pathId);
+        }
+
+        return [nextState, true];
+    }
+
+    // Barrier not ready, path must wait
+    return [
+        {
+            ...state,
+            barriers: {
+                ...state.barriers!,
+                [barrierName]: {
+                    ...barrier
+                }
+            }
+        },
+        false
+    ];
+}
+
+/**
+ * Check if a barrier is released
+ */
+export function isBarrierReleased(state: ExecutionState, barrierName: string): boolean {
+    return state.barriers?.[barrierName]?.isReleased ?? false;
+}
+
+/**
+ * Get barrier configuration from edge annotations
+ * Supports aliases with smart defaults:
+ * - Sync-only: @barrier, @wait, @sync (merge: false by default)
+ * - Merge: @join, @merge (merge: true by default)
+ * 
+ * Supports two forms:
+ * - Simple: @barrier("sync_point") -> { id: "sync_point", merge: false }
+ * - Attributes: @barrier(id: "sync_point"; merge: true) -> { id: "sync_point", merge: true }
+ * 
+ * Returns null if no barrier annotation found
+ */
+export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): BarrierConfig | null {
+    if (!edge.annotations) return null;
+
+    // Define alias categories
+    const syncAliases = ['wait', 'barrier', 'sync'];  // merge: false by default
+    const mergeAliases = ['join', 'merge'];           // merge: true by default
+    const allAliases = [...syncAliases, ...mergeAliases];
+
+    // Check for any of the barrier aliases
+    const barrierAnnotation = edge.annotations.find(a => allAliases.includes(a.name));
+    if (!barrierAnnotation) return null;
+
+    // Determine smart default for merge based on alias used
+    const defaultMerge = mergeAliases.includes(barrierAnnotation.name);
+
+    // Check for attribute-style parameters first (takes precedence)
+    if (barrierAnnotation.attributes) {
+        const id = typeof barrierAnnotation.attributes.id === 'string'
+            ? barrierAnnotation.attributes.id
+            : 'default';
+
+        // Handle merge attribute (can be boolean true or string "true")
+        // If explicitly provided, use that value; otherwise use smart default
+        const mergeAttr = barrierAnnotation.attributes.merge;
+        const merge = mergeAttr !== undefined
+            ? (mergeAttr === true || mergeAttr === 'true')
+            : defaultMerge;
+
+        return { id, merge };
+    }
+
+    // Fallback to simple value form: @barrier("sync_point")
+    const value = barrierAnnotation.value;
+    const id = value ? value.replace(/['"]/g, '') : 'default';
+
+    return {
+        id,
+        merge: defaultMerge  // Use smart default based on alias
+    };
+}
+
+/**
+ * Get async configuration from edge annotations
+ * Supports aliases: @async, @spawn, @parallel, @fork
+ * Returns null if no async annotation found
+ */
+export function getAsyncAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): AsyncConfig | null {
+    if (!edge.annotations) return null;
+
+    // Check for any of the async aliases
+    const aliases = ['async', 'spawn', 'parallel', 'fork'];
+    const asyncAnnotation = edge.annotations.find(a => aliases.includes(a.name));
+    if (!asyncAnnotation) return null;
+
+    // Async is enabled by default if annotation is present
+    return { enabled: true };
 }

@@ -25,10 +25,10 @@ Task analyze {
 ### In Edges
 
 ```dy examples/syntax/edge-attributes.dygram
-a -condition: true, priority: 1-> b;
+a -when: true, priority: 1-> b;
 ```
 
-Note: Edge attributes are separated by semicolons (`;`), while node attributes are separated by semicolons as well.
+Note: Edge attributes are separated by semicolons (`;`), the same as node attributes.
 
 ### In Machines
 
