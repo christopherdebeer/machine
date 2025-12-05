@@ -14,7 +14,7 @@ import type {
     ErrorEffect,
     ToolDefinition
 } from './runtime-types.js';
-import { getPath } from './state-builder.js';
+import { getPath, getAsyncAnnotation } from './state-builder.js';
 import { getNonAutomatedTransitions, getNodeAttributes, getMachineAttributes } from './transition-evaluator.js';
 import { AgentContextBuilder } from '../agent-context-builder.js';
 import { MetaAnnotationConfig } from './annotation-configs.js';
@@ -115,6 +115,11 @@ export function buildTools(
     // Add context tools (read/write based on edges)
     const contextTools = buildContextTools(machineJSON, nodeName);
     tools.push(...contextTools);
+
+    // Add async spawn tools for @async edges
+    // These allow the agent to spawn parallel paths on demand
+    const asyncTools = buildAsyncTools(machineJSON, nodeName);
+    tools.push(...asyncTools);
 
     // Add meta-tools if machine or node has @meta annotation
     const hasMachineMeta = hasMetaAnnotation(machineJSON.annotations);
@@ -221,6 +226,52 @@ function buildContextTools(machineJSON: MachineJSON, nodeName: string): ToolDefi
                 }
             });
         }
+    }
+
+    return tools;
+}
+
+/**
+ * Build async spawn tools for @async edges
+ *
+ * When a node has outbound edges with @async annotation, these become tools
+ * that the agent can use to spawn parallel execution paths. This gives the
+ * agent control over when and whether to spawn async paths.
+ */
+function buildAsyncTools(machineJSON: MachineJSON, nodeName: string): ToolDefinition[] {
+    const tools: ToolDefinition[] = [];
+
+    // Find outbound edges with @async annotation
+    const asyncEdges = machineJSON.edges.filter(e => {
+        if (e.source !== nodeName) return false;
+        const asyncConfig = getAsyncAnnotation(e);
+        return asyncConfig && asyncConfig.enabled;
+    });
+
+    for (const edge of asyncEdges) {
+        // Get edge description if available
+        const edgeLabel = edge.label || edge.value?.text || edge.attributes?.text;
+        const description = edgeLabel
+            ? `Spawn async path to ${edge.target}: ${edgeLabel}`
+            : `Spawn a parallel execution path to ${edge.target}. The spawned path runs independently.`;
+
+        tools.push({
+            name: `spawn_async_to_${edge.target}`,
+            description,
+            input_schema: {
+                type: 'object',
+                properties: {
+                    reason: {
+                        type: 'string',
+                        description: 'Brief explanation of why spawning this async path'
+                    },
+                    await_result: {
+                        type: 'boolean',
+                        description: 'If true, wait for the spawned path\'s first node to complete and return its result. Default: false (fire-and-forget).'
+                    }
+                }
+            }
+        });
     }
 
     return tools;

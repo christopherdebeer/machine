@@ -22,7 +22,7 @@ import { ClaudeClient } from '../claude-client.js';
 import { extractText, extractToolUses } from '../llm-client.js';
 import { CodeExecutor } from './code-executor.js';
 import type { MetaToolManager } from '../meta-tool-manager.js';
-import { getContextValues } from './state-builder.js';
+import { getContextValues, spawnPath } from './state-builder.js';
 
 /**
  * Effect executor configuration
@@ -384,6 +384,46 @@ export class EffectExecutor {
                 action: 'transition',
                 target,
                 reason: input.reason || 'agent decision'
+            };
+        }
+
+        // Async spawn tools
+        if (toolName.startsWith('spawn_async_to_')) {
+            const target = toolName.replace('spawn_async_to_', '');
+
+            if (!this.currentState) {
+                throw new Error('No execution state available for async spawn');
+            }
+
+            // Find the current path (we need its ID for tracking spawn relationships)
+            const activePaths = this.currentState.paths.filter(p => p.status === 'active');
+            const sourcePathId = activePaths.length > 0 ? activePaths[0].id : undefined;
+
+            // Spawn the new path
+            const newState = spawnPath(this.currentState, target, sourcePathId);
+            const newPathId = newState.paths[newState.paths.length - 1].id;
+
+            // Update our internal state reference (the actual state mutation
+            // will be applied by the executor after receiving the AgentResult)
+            this.currentState = newState;
+
+            this.executeLog({
+                type: 'log',
+                level: 'info',
+                category: 'async',
+                message: `Spawned async path ${newPathId} to ${target}`,
+                data: { sourcePathId, newPathId, target, reason: input.reason }
+            });
+
+            // For now, we implement fire-and-forget semantics
+            // TODO: Implement await_result semantics if input.await_result is true
+            return {
+                success: true,
+                action: 'spawn_async',
+                pathId: newPathId,
+                target,
+                status: 'spawned',
+                reason: input.reason || 'agent spawned async path'
             };
         }
 
