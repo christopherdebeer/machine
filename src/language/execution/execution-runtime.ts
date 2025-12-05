@@ -229,6 +229,52 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
         nextState = recordStateTransition(nextState, path.id, nodeName);
     }
 
+    // Check for @async edges - spawn multiple parallel paths
+    const allOutboundEdges = machineJSON.edges.filter(e => e.source === nodeName);
+    const asyncEdges = allOutboundEdges.filter(e => {
+        const asyncConfig = getAsyncAnnotation(e);
+        return asyncConfig && asyncConfig.enabled;
+    });
+
+    // If ALL outbound edges have @async, spawn paths for all targets
+    if (asyncEdges.length > 0 && asyncEdges.length === allOutboundEdges.length) {
+        effects.push(buildLogEffect(
+            'info',
+            'async',
+            `Spawning ${asyncEdges.length} parallel paths from ${nodeName}`,
+            { sourceNode: nodeName, targets: asyncEdges.map(e => e.target) }
+        ));
+
+        // Spawn a new path for each async edge
+        for (const edge of asyncEdges) {
+            nextState = spawnPath(nextState, edge.target, path.id);
+            const newPathId = nextState.paths[nextState.paths.length - 1].id;
+
+            effects.push(buildLogEffect(
+                'info',
+                'async',
+                `Spawned path ${newPathId} at ${edge.target}`,
+                { sourcePathId: path.id, newPathId, targetNode: edge.target }
+            ));
+        }
+
+        // Mark original path as completed (all work delegated to spawned paths)
+        nextState = updatePathStatus(nextState, path.id, 'completed');
+
+        effects.push(buildLogEffect(
+            'info',
+            'async',
+            `Original path ${path.id} completed after spawning ${asyncEdges.length} paths`,
+            { pathId: path.id, spawnedCount: asyncEdges.length }
+        ));
+
+        return {
+            nextState,
+            effects,
+            status: 'continue'
+        };
+    }
+
     // Check for automated transitions
     const autoTransition = evaluateAutomatedTransitions(machineJSON, nextState, path.id);
 
