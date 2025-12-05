@@ -1,7 +1,7 @@
 # Edge Map Design: Data-Driven Fan-Out
 
 Date: 2025-12-05
-Status: Grammar & Parsing Implemented
+Status: Core Implementation Complete
 
 ## Overview
 
@@ -18,23 +18,24 @@ This document explores implementing an "edge map" feature that spawns one path p
 - [x] `BarrierAnnotationConfig` updated to support inferred groups from `qualifiedValue`
 - [x] `AnnotationMatch` interface includes `qualifiedValue` field
 
-### Phase 2: Execution Runtime (Pending)
+### Phase 2: Execution Runtime (Complete)
 
-- [ ] Implement `spawnMappedPaths()` in state-builder
-- [ ] Implement `resolveQualifiedName()` helper
-- [ ] Add map handling in `stepPath()` execution flow
-- [ ] Add context overlay for `_mapItem`, `_mapIndex`
+- [x] Implement `spawnMappedPaths()` in state-builder
+- [x] Implement `resolveQualifiedName()` helper
+- [x] Add `getMapContextOverlay()` for `_mapItem`, `_mapIndex`
+- [x] Add `MapContext` interface to Path type
 
-### Phase 3: Tool Exposure (Pending)
+### Phase 3: Tool Exposure (Complete)
 
-- [ ] Add `buildMapTools()` for @map edges on task nodes
-- [ ] Handle `map_spawn_to_X` tool execution
+- [x] Add `buildMapTools()` for @map edges on task nodes
+- [x] Handle `map_spawn_to_X` tool execution in effect-executor
 
-### Phase 4: Barrier Integration (Pending)
+### Phase 4: Barrier Integration (Complete)
 
-- [ ] Add `groupId` to Path type
-- [ ] Extend barrier to track groups
-- [ ] Update `isBarrierReleased()` logic
+- [x] Add `mapContext` with `groupId` to Path type
+- [x] Add `registerBarrierGroup()` for group tracking
+- [x] Add `getPathsInGroup()` helper
+- [ ] Update `isBarrierReleased()` to check group completion (future work)
 
 ## Motivation
 

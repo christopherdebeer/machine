@@ -22,7 +22,7 @@ import { ClaudeClient } from '../claude-client.js';
 import { extractText, extractToolUses } from '../llm-client.js';
 import { CodeExecutor } from './code-executor.js';
 import type { MetaToolManager } from '../meta-tool-manager.js';
-import { getContextValues, spawnPath } from './state-builder.js';
+import { getContextValues, spawnPath, spawnMappedPaths, resolveQualifiedName, getMapAnnotation } from './state-builder.js';
 
 /**
  * Effect executor configuration
@@ -424,6 +424,105 @@ export class EffectExecutor {
                 target,
                 status: 'spawned',
                 reason: input.reason || 'agent spawned async path'
+            };
+        }
+
+        // Map spawn tools - spawn one path per item in an array
+        if (toolName.startsWith('map_spawn_to_')) {
+            const target = toolName.replace('map_spawn_to_', '');
+
+            if (!this.currentState) {
+                throw new Error('No execution state available for map spawn');
+            }
+
+            // Get the source array from context
+            // Use provided source or find from edge annotation
+            let source = input.source;
+
+            if (!source) {
+                // Find the map annotation on the edge to get default source
+                const edge = this.currentState.machineSnapshot.edges.find(e =>
+                    e.target === target && e.annotations?.some(a =>
+                        ['map', 'foreach', 'each'].includes(a.name.toLowerCase())
+                    )
+                );
+
+                if (edge) {
+                    const mapConfig = getMapAnnotation(edge);
+                    source = mapConfig?.source;
+                }
+            }
+
+            if (!source) {
+                return {
+                    success: false,
+                    action: 'map_spawn',
+                    error: 'No source array specified. Provide source parameter or define in @map annotation.'
+                };
+            }
+
+            // Resolve the source array from context
+            let items: any[];
+            try {
+                items = resolveQualifiedName(this.currentState, source);
+            } catch (e: any) {
+                return {
+                    success: false,
+                    action: 'map_spawn',
+                    error: `Failed to resolve source "${source}": ${e.message}`
+                };
+            }
+
+            if (!Array.isArray(items)) {
+                return {
+                    success: false,
+                    action: 'map_spawn',
+                    error: `Source "${source}" is not an array (got ${typeof items})`
+                };
+            }
+
+            // Find the current path for tracking spawn relationships
+            const activePaths = this.currentState.paths.filter(p => p.status === 'active');
+            const sourcePathId = activePaths.length > 0 ? activePaths[0].id : 'path_0';
+
+            // Generate group ID for barrier coordination
+            const groupId = source.replace(/\./g, '_');
+
+            // Spawn paths
+            const pathCountBefore = this.currentState.paths.length;
+            const newState = spawnMappedPaths(
+                this.currentState,
+                target,
+                sourcePathId,
+                items,
+                source,
+                groupId
+            );
+
+            const spawnedCount = newState.paths.length - pathCountBefore;
+            const spawnedPathIds = newState.paths.slice(pathCountBefore).map(p => p.id);
+
+            // Update our internal state reference
+            this.currentState = newState;
+
+            this.executeLog({
+                type: 'log',
+                level: 'info',
+                category: 'map',
+                message: `Spawned ${spawnedCount} paths to ${target} from ${source}`,
+                data: { sourcePathId, spawnedPathIds, target, source, groupId, reason: input.reason }
+            });
+
+            return {
+                success: true,
+                action: 'map_spawn',
+                pathIds: spawnedPathIds,
+                target,
+                source,
+                groupId,
+                itemCount: items.length,
+                status: 'spawned',
+                reason: input.reason || 'agent spawned map paths'
             };
         }
 

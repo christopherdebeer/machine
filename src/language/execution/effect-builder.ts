@@ -14,7 +14,7 @@ import type {
     ErrorEffect,
     ToolDefinition
 } from './runtime-types.js';
-import { getPath, getAsyncAnnotation } from './state-builder.js';
+import { getPath, getAsyncAnnotation, getMapAnnotation } from './state-builder.js';
 import { getNonAutomatedTransitions, getNodeAttributes, getMachineAttributes } from './transition-evaluator.js';
 import { AgentContextBuilder } from '../agent-context-builder.js';
 import { MetaAnnotationConfig } from './annotation-configs.js';
@@ -120,6 +120,11 @@ export function buildTools(
     // These allow the agent to spawn parallel paths on demand
     const asyncTools = buildAsyncTools(machineJSON, nodeName);
     tools.push(...asyncTools);
+
+    // Add map spawn tools for @map edges
+    // These allow the agent to spawn one path per item in an array
+    const mapTools = buildMapTools(machineJSON, nodeName);
+    tools.push(...mapTools);
 
     // Add meta-tools if machine or node has @meta annotation
     const hasMachineMeta = hasMetaAnnotation(machineJSON.annotations);
@@ -268,6 +273,55 @@ function buildAsyncTools(machineJSON: MachineJSON, nodeName: string): ToolDefini
                     await_result: {
                         type: 'boolean',
                         description: 'If true, wait for the spawned path\'s first node to complete and return its result. Default: false (fire-and-forget).'
+                    }
+                }
+            }
+        });
+    }
+
+    return tools;
+}
+
+/**
+ * Build map spawn tools for @map edges
+ *
+ * When a node has outbound edges with @map annotation, these become tools
+ * that the agent can use to spawn one path per item in a collection.
+ * This enables data-driven fan-out where the number of paths depends on
+ * runtime data rather than being defined statically.
+ */
+function buildMapTools(machineJSON: MachineJSON, nodeName: string): ToolDefinition[] {
+    const tools: ToolDefinition[] = [];
+
+    // Find outbound edges with @map annotation
+    const mapEdges = machineJSON.edges.filter(e => {
+        if (e.source !== nodeName) return false;
+        const mapConfig = getMapAnnotation(e);
+        return mapConfig && mapConfig.source;
+    });
+
+    for (const edge of mapEdges) {
+        const mapConfig = getMapAnnotation(edge)!;
+
+        // Get edge description if available
+        const edgeLabel = edge.label || edge.value?.text || edge.attributes?.text;
+        const description = edgeLabel
+            ? `Spawn paths to ${edge.target} for each item: ${edgeLabel}`
+            : `Spawn one execution path to ${edge.target} for each item in ${mapConfig.source}. Each spawned path receives the item in _mapItem and index in _mapIndex.`;
+
+        tools.push({
+            name: `map_spawn_to_${edge.target}`,
+            description,
+            input_schema: {
+                type: 'object',
+                properties: {
+                    source: {
+                        type: 'string',
+                        description: `Qualified name of the array to iterate (default: ${mapConfig.source}). Example: "Context.items"`
+                    },
+                    reason: {
+                        type: 'string',
+                        description: 'Brief explanation of why spawning these paths'
                     }
                 }
             }

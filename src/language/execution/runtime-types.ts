@@ -29,6 +29,18 @@ export interface Transition {
 }
 
 /**
+ * Map context for paths spawned via @map annotation
+ * Contains the item value and metadata for data-driven fan-out
+ */
+export interface MapContext {
+    sourcePathId: string;    // Path that spawned this one
+    mapSource: string;       // Qualified name of source array (e.g., "Context.items")
+    item: any;               // The actual item value
+    index: number;           // Position in source array
+    groupId: string;         // Group identifier for barrier coordination
+}
+
+/**
  * Execution path (single flow through the machine)
  */
 export interface Path {
@@ -40,6 +52,8 @@ export interface Path {
     nodeInvocationCounts: Record<string, number>;  // JSON-serializable (was Map)
     stateTransitions: Array<{ state: string; timestamp: string }>;
     startTime: number;
+    /** Map context for paths spawned via @map - contains item value and metadata */
+    mapContext?: MapContext;
 }
 
 /**
