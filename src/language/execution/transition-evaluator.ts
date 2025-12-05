@@ -35,6 +35,17 @@ function hasParallelAnnotation(edge: MachineEdgeJSON): boolean {
 }
 
 /**
+ * Extract @async annotation from edge
+ * Async edges become spawn tools, not transition tools
+ */
+function hasAsyncAnnotation(edge: MachineEdgeJSON): boolean {
+    if (!edge.annotations) return false;
+    return edge.annotations.some(a =>
+        a.name === 'async' || a.name === 'spawn' || a.name === 'fork'
+    );
+}
+
+/**
  * Get annotated edges from machine
  */
 function getAnnotatedEdges(machineJSON: MachineJSON): AnnotatedEdge[] {
@@ -279,6 +290,9 @@ export function getNonAutomatedTransitions(
         .filter(edge => {
             // Skip @auto edges
             if (edge.hasAutoAnnotation) return false;
+
+            // Skip @async edges - they become spawn_async tools, not transition tools
+            if (hasAsyncAnnotation(edge)) return false;
 
             // Skip data/context edges (not control flow transitions)
             if (isDataEdge(edge, machineJSON)) return false;
