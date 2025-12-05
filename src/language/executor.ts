@@ -588,6 +588,9 @@ export class MachineExecutor {
             };
         }
 
+        // Set current state on effect executor for tool handlers
+        this.effectExecutor.setCurrentState(stepResult.nextState);
+
         // Create turn executor
         const turnExecutor = new TurnExecutor(
             this.llmClient,
@@ -660,6 +663,17 @@ export class MachineExecutor {
         };
         this.currentState = this.applyContextWrites(this.currentState, [agentResult]);
 
+        // Sync spawned paths from effectExecutor back to this.currentState
+        // This handles paths spawned via @async or @map tools
+        const effectState = this.effectExecutor.getCurrentState();
+        if (effectState && effectState.paths.length > this.currentState.paths.length) {
+            // New paths were spawned - merge them in
+            this.currentState = {
+                ...this.currentState,
+                paths: effectState.paths
+            };
+        }
+
         // If complete, apply the agent result
         if (turnResult.isComplete && turnResult.nextNode) {
             this.currentState = this.runtime.applyAgentResult(
@@ -697,6 +711,9 @@ export class MachineExecutor {
         }
 
         const turnState = this.currentState.turnState;
+
+        // Set current state on effect executor for tool handlers
+        this.effectExecutor.setCurrentState(this.currentState);
 
         // Create turn executor
         const turnExecutor = new TurnExecutor(
@@ -751,6 +768,17 @@ export class MachineExecutor {
             toolExecutions: turnResult.toolExecutions
         };
         this.currentState = this.applyContextWrites(this.currentState, [agentResult]);
+
+        // Sync spawned paths from effectExecutor back to this.currentState
+        // This handles paths spawned via @async or @map tools
+        const effectStateContinue = this.effectExecutor.getCurrentState();
+        if (effectStateContinue && effectStateContinue.paths.length > this.currentState.paths.length) {
+            // New paths were spawned - merge them in
+            this.currentState = {
+                ...this.currentState,
+                paths: effectStateContinue.paths
+            };
+        }
 
         // If complete, apply the agent result
         if (turnResult.isComplete && turnResult.nextNode) {

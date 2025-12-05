@@ -68,6 +68,22 @@ export class EffectExecutor {
     }
 
     /**
+     * Set the current execution state for context access
+     * Used by turn-based execution to ensure state is available for tool handlers
+     */
+    setCurrentState(state: ExecutionState): void {
+        this.currentState = state;
+    }
+
+    /**
+     * Get the current execution state
+     * Returns the state which may have been modified by tool executions
+     */
+    getCurrentState(): ExecutionState | undefined {
+        return this.currentState;
+    }
+
+    /**
      * Execute a batch of effects
      * @param effects - Effects to execute
      * @param state - Current execution state (for context access)
