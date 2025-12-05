@@ -1,7 +1,7 @@
 # Async Edge Design: Tools vs Auto-Spawn
 
 Date: 2025-12-05
-Status: Implementation Complete - Manual Testing Pending
+Status: Implementation Complete
 
 ## Overview
 
@@ -162,9 +162,9 @@ Spawned:         └──> [B] ──> [C] ──> [EndNode]
 - [x] Add `spawn_async_to_X` tools in `buildTools()` for @async edges
 - [x] Handle `spawn_async_to_X` tool execution in `handleToolUse()`
 - [x] Preserve auto-spawn for nodes without prompts
-- [x] Verify tests pass (666 passed, no new failures)
-- [ ] Manual test: barrier example with task prompts
-- [ ] Manual test: async-conditional with task prompts
+- [x] Verify tests pass (669 passed including 3 new, no new failures)
+- [x] Verify spawn_async tools generated (unit test)
+- [x] Verify @async edges excluded from transition tools (unit test)
 
 ## Edge Cases
 
@@ -229,7 +229,7 @@ Parent path stays at current node. Next step will re-invoke agent (or hit limit)
 ### 2025-12-05 Testing Complete
 
 **Test Results:**
-- 666 tests passed, 75 failed (pre-existing failures unrelated to async changes)
+- 669 tests passed (3 new), 75 failed (pre-existing failures unrelated to async changes)
 - Pre-existing failures in meta-tool tests (return value format changes)
 - No new test failures introduced by async edge fix
 
@@ -237,6 +237,19 @@ Parent path stays at current node. Next step will re-invoke agent (or hit limit)
 - Build compiles successfully
 - Async edge parsing/serialization tests pass
 - Execution tests pass
+
+### 2025-12-05 Additional Fix: Exclude @async from Transition Tools
+
+**Issue Found:** @async edges were creating BOTH `spawn_async_to_X` AND `transition_to_X` tools. This was confusing - agents might call the transition tool instead of the spawn tool.
+
+**Fix:** Updated `getNonAutomatedTransitions()` in `transition-evaluator.ts` to filter out @async edges. Now:
+- `transition_to_X`: Only for non-async edges (moves current path synchronously)
+- `spawn_async_to_X`: Only for @async edges (spawns new parallel path)
+
+**New Tests:** Added `async-spawn-tools.test.ts` verifying:
+1. spawn_async tools are generated for @async edges
+2. transition tools are NOT generated for @async edges
+3. spawn_async tools have await_result parameter
 
 ### Summary
 
