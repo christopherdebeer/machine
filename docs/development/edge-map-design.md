@@ -1,11 +1,40 @@
 # Edge Map Design: Data-Driven Fan-Out
 
 Date: 2025-12-05
-Status: Design Exploration
+Status: Grammar & Parsing Implemented
 
 ## Overview
 
 This document explores implementing an "edge map" feature that spawns one path per item in an array. This complements `@async` by enabling data-driven parallelism rather than static fan-out.
+
+## Implementation Progress
+
+### Phase 1: Grammar & Annotation Parsing (Complete)
+
+- [x] Grammar updated to accept `QualifiedName` in `EdgeAnnotation`
+- [x] `MachineAnnotationJSON` type includes `qualifiedValue` field
+- [x] Serializer handles `qualifiedValue` for qualified name annotations
+- [x] `MapAnnotationConfig` added with aliases: `map`, `foreach`, `each`
+- [x] `BarrierAnnotationConfig` updated to support inferred groups from `qualifiedValue`
+- [x] `AnnotationMatch` interface includes `qualifiedValue` field
+
+### Phase 2: Execution Runtime (Pending)
+
+- [ ] Implement `spawnMappedPaths()` in state-builder
+- [ ] Implement `resolveQualifiedName()` helper
+- [ ] Add map handling in `stepPath()` execution flow
+- [ ] Add context overlay for `_mapItem`, `_mapIndex`
+
+### Phase 3: Tool Exposure (Pending)
+
+- [ ] Add `buildMapTools()` for @map edges on task nodes
+- [ ] Handle `map_spawn_to_X` tool execution
+
+### Phase 4: Barrier Integration (Pending)
+
+- [ ] Add `groupId` to Path type
+- [ ] Extend barrier to track groups
+- [ ] Update `isBarrierReleased()` logic
 
 ## Motivation
 
@@ -26,34 +55,56 @@ context WorkQueue {
 coordinator -@map(WorkQueue.items)-> processItem;  # 4 paths at runtime
 ```
 
-## Syntax Options
+## Implemented Syntax
 
-### Option 1: @map Annotation
+The grammar now supports qualified names directly in edge annotations:
+
+```langium
+EdgeAnnotation:
+    '@' name=ID ('(' (value=STRING | qualifiedValue=QualifiedName | attributes=AnnotationAttributes) ')')?
+;
+```
+
+### @map / @foreach / @each (Aliases)
 
 ```dy
-# Basic form - spawn path per item
+# Basic form - qualified name value (IMPLEMENTED)
 task coordinator "Distribute work" -@map(WorkQueue.items)-> processItem;
+
+# Alias: @foreach
+task coordinator "Distribute work" -@foreach(WorkQueue.items)-> processItem;
+
+# Alias: @each
+task coordinator "Distribute work" -@each(WorkQueue.items)-> processItem;
 
 # Combined with @async (fire-and-forget each)
 task coordinator "Distribute work" -@async @map(WorkQueue.items)-> processItem;
 
-# With item variable name
-task coordinator "Distribute work" -@map(WorkQueue.items as item)-> processItem;
+# Attribute form (with explicit group)
+task coordinator "Distribute work" -@map(items: WorkQueue.items; group: myGroup)-> processItem;
 ```
 
-### Option 2: @foreach Annotation
+### @barrier with Qualified Name (Inferred Groups)
 
 ```dy
-task coordinator "Distribute work" -@foreach(WorkQueue.items)-> processItem;
+# String value (explicit group name)
+processItem -@barrier("mygroup")-> collector;
+
+# Qualified name (group inferred as "WorkQueue_items")
+processItem -@barrier(WorkQueue.items)-> collector;
+
+# Attribute form (explicit configuration)
+processItem -@barrier(id: mygroup; merge: true)-> collector;
 ```
 
-### Option 3: Edge Attribute
+### How Inferred Groups Work
 
-```dy
-task coordinator "Distribute work" -[map: WorkQueue.items]-> processItem;
-```
+When using `@barrier(Context.items)`:
+1. The qualified name `Context.items` is parsed into `qualifiedValue`
+2. The barrier ID is inferred by replacing dots with underscores: `Context_items`
+3. The `sourceRef` field stores the original qualified name for runtime resolution
 
-**Recommendation**: Option 1 (`@map`) - follows existing annotation patterns, clear semantics.
+This enables automatic correlation between `@map(Context.items)` and `@barrier(Context.items)` - both will use the same inferred group ID `Context_items`.
 
 ## Semantics
 

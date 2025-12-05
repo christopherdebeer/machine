@@ -18,6 +18,8 @@ export interface MachineAttributeJSON {
 export interface MachineAnnotationJSON {
     name: string;
     value?: string;
+    /** Qualified name value for data-driven annotations (e.g., @map(Context.items)) */
+    qualifiedValue?: string;
     /** Attribute-style parameters exposed as key/value pairs */
     attributes?: Record<string, unknown>;
 }

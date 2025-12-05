@@ -85,10 +85,19 @@ export interface ExecutionState {
 
 /**
  * Barrier configuration parsed from @barrier annotation
+ * Aliases: @wait, @sync, @join, @merge
+ *
+ * Usage:
+ * - @barrier - default barrier, id="default"
+ * - @barrier("mygroup") - explicit group name
+ * - @barrier(Context.results) - infer group from qualified name (group="Context_results")
+ * - @barrier(id: mygroup; merge: true) - attribute form
  */
 export interface BarrierConfig {
     id: string;        // Barrier identifier (default: "default")
     merge: boolean;    // Whether to merge paths on release (default: false)
+    /** If set, barrier group is inferred from this qualified name */
+    sourceRef?: string;
 }
 
 /**
@@ -98,6 +107,22 @@ export interface BarrierConfig {
  */
 export interface AsyncConfig {
     enabled: boolean;  // Whether to spawn new path (default: true)
+}
+
+/**
+ * Map configuration parsed from @map annotation
+ * Enables data-driven fan-out: spawn one path per item in a collection
+ * Aliases: @foreach, @each
+ *
+ * Usage:
+ * - @map(Context.items) - spawn path per item, infer group name
+ * - @map(items: Context.items; group: myGroup) - explicit group name
+ */
+export interface MapConfig {
+    /** Qualified name reference to collection (e.g., Context.items) */
+    source: string;
+    /** Barrier group name for coordination (inferred from source if not specified) */
+    group?: string;
 }
 
 /**
