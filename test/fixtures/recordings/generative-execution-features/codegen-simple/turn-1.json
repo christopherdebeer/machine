@@ -1,0 +1,91 @@
+{
+  "request": {
+    "type": "llm_invocation_request",
+    "requestId": "req-1764890892175-dfkbsiz8y",
+    "timestamp": "2025-12-04T23:28:12.176Z",
+    "context": {},
+    "messages": [
+      {
+        "role": "user",
+        "content": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: start\n- **Type**: unknown\n- **Objective**: Review APISpec context. Set APISpec.baseUrl to a real API you want to generate a client for (or use the default). Set APISpec.method and APISpec.endpoint appropriately.\n- **Visited Nodes**: 0\n- **Error Count**: 0\n\n# Available Context\nYou have access to the following context nodes with specified permissions:\n\n## APISpec\n- **Permissions**: write\n\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## generateClient\n\n\n# Instructions\nYour primary objective is:\n> Review APISpec context. Set APISpec.baseUrl to a real API you want to generate a client for (or use the default). Set APISpec.method and APISpec.endpoint appropriately.\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+      }
+    ],
+    "tools": [
+      {
+        "name": "transition_to_generateClient",
+        "description": "Transition to generateClient",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Brief explanation of why this transition was chosen"
+            }
+          }
+        }
+      },
+      {
+        "name": "write_APISpec",
+        "description": "Write data to APISpec context",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "object",
+              "description": "Data to write"
+            }
+          },
+          "required": [
+            "data"
+          ]
+        }
+      }
+    ],
+    "systemPrompt": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: start\n- **Type**: unknown\n- **Objective**: Review APISpec context. Set APISpec.baseUrl to a real API you want to generate a client for (or use the default). Set APISpec.method and APISpec.endpoint appropriately.\n- **Visited Nodes**: 0\n- **Error Count**: 0\n\n# Available Context\nYou have access to the following context nodes with specified permissions:\n\n## APISpec\n- **Permissions**: write\n\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## generateClient\n\n\n# Instructions\nYour primary objective is:\n> Review APISpec context. Set APISpec.baseUrl to a real API you want to generate a client for (or use the default). Set APISpec.method and APISpec.endpoint appropriately.\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
+  },
+  "response": {
+    "type": "llm_invocation_response",
+    "requestId": "req-1764890892175-dfkbsiz8y",
+    "timestamp": "2025-12-04T23:28:12.176Z",
+    "reasoning": "",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Using default API specification: GET https://api.example.com/users with bearer authentication."
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-1",
+          "name": "write_APISpec",
+          "input": {
+            "data": {
+              "baseUrl": "https://api.example.com",
+              "endpoint": "/users",
+              "method": "GET",
+              "authType": "bearer"
+            }
+          }
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-2",
+          "name": "transition_to_generateClient",
+          "input": {
+            "reason": "API specification configured"
+          }
+        }
+      ],
+      "stop_reason": "end_turn"
+    }
+  },
+  "recordedAt": "2025-12-04T23:28:12.176Z",
+  "signature": {
+    "toolNames": [
+      "transition_to_generateClient",
+      "write_APISpec"
+    ],
+    "messageCount": 1,
+    "contextKeys": []
+  }
+}

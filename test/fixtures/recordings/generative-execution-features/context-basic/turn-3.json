@@ -1,5 +1,9 @@
 {
   "request": {
+    "type": "llm_invocation_request",
+    "requestId": "req-context-basic-turn-3",
+    "timestamp": "2025-12-04T18:10:28.860Z",
+    "context": {},
     "messages": [
       {
         "role": "user",
@@ -40,21 +44,27 @@
     "systemPrompt": "# Role\nYou are executing a state machine workflow. You have been positioned at a specific node and must accomplish the objectives defined for that node using the tools and context available to you.\n\n# Current Position\n- **Node**: displaySummary\n- **Type**: task\n- **Objective**: Display all context values: UserProfile and SessionData\n- **Visited Nodes**: 2\n- **Error Count**: 0\n\n# Available Context\nYou have access to the following context nodes with specified permissions:\n\n## UserProfile\n- **Permissions**: write\n\n\n# Available Transitions\nYou must choose one of these transitions when you have completed your objective:\n\n## end\n\n\n# Instructions\nYour primary objective is:\n> Display all context values: UserProfile and SessionData\n\nTo accomplish your objective:\n1. Use the provided tools to interact with context nodes (read/write data)\n2. Perform any necessary computations or reasoning\n3. When ready, use the appropriate transition tool to move to the next node\n\nRemember: You must use a transition tool to move forward. The machine will not progress until you do."
   },
   "response": {
-    "content": [
-      {
-        "type": "text",
-        "text": "UserProfile: userId=user-12345, name=Alice Johnson, email=alice@example.com. SessionData: loginTime=1733333711000, activityCount=1, lastAction=profile_view."
-      },
-      {
-        "type": "tool_use",
-        "id": "tool-6",
-        "name": "transition_to_end",
-        "input": {
-          "reason": "Summary displayed"
+    "type": "llm_invocation_response",
+    "requestId": "req-context-basic-turn-3",
+    "timestamp": "2025-12-04T18:10:28.860Z",
+    "reasoning": "",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "UserProfile: userId=user-12345, name=Alice Johnson, email=alice@example.com. SessionData: loginTime=1733333711000, activityCount=1, lastAction=profile_view."
+        },
+        {
+          "type": "tool_use",
+          "id": "tool-6",
+          "name": "transition_to_end",
+          "input": {
+            "reason": "Summary displayed"
+          }
         }
-      }
-    ],
-    "stop_reason": "end_turn"
+      ],
+      "stop_reason": "end_turn"
+    }
   },
   "recordedAt": "2025-12-04T18:10:28.860Z",
   "signature": {

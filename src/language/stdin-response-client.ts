@@ -145,18 +145,30 @@ export class StdinResponseClient extends ClaudeClient {
             contextKeys: [] // Context keys can be added if needed
         };
 
-        // Use the same format as InteractiveTestClient for compatibility
+        const timestamp = new Date().toISOString();
+
+        // Format matches PlaybackTestClient Recording interface
         const recording = {
             request: {
+                type: 'llm_invocation_request',
+                requestId: request.requestId,
+                timestamp,
+                context: {}, // Context can be added if needed
                 messages,
                 tools,
                 systemPrompt: messages[0]?.content || ''
             },
             response: {
-                content: response.content,
-                stop_reason: response.stop_reason
+                type: 'llm_invocation_response',
+                requestId: request.requestId,
+                timestamp,
+                reasoning: '', // Can be populated if available
+                response: {
+                    content: response.content,
+                    stop_reason: response.stop_reason
+                }
             },
-            recordedAt: new Date().toISOString(),
+            recordedAt: timestamp,
             signature  // Add signature for v2 matching
         };
 
