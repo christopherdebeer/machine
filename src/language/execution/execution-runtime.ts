@@ -56,6 +56,7 @@ import {
     buildErrorEffect,
     buildTools
 } from './effect-builder.js';
+import { evaluateCondition, extractEdgeCondition } from './condition-evaluator.js';
 
 /**
  * Default execution limits
@@ -227,6 +228,65 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
     // Track state transitions
     if (NodeTypeChecker.isState(node)) {
         nextState = recordStateTransition(nextState, path.id, nodeName);
+    }
+
+    // Check for all-@async edges fan-out BEFORE automated transitions
+    // This is for promptless nodes (state nodes, orchestration nodes) where ALL edges have @async
+    // In this case, we want to spawn paths for all eligible targets in parallel
+    if (!requiresAgentDecision(machineJSON, nodeName)) {
+        const allOutboundEdges = machineJSON.edges.filter(e => e.source === nodeName);
+        const asyncEdges = allOutboundEdges.filter(e => {
+            const asyncConfig = getAsyncAnnotation(e);
+            return asyncConfig && asyncConfig.enabled;
+        });
+
+        // If ALL outbound edges have @async, fan-out to all targets with passing conditions
+        if (asyncEdges.length > 0 && asyncEdges.length === allOutboundEdges.length) {
+            // Filter async edges by evaluating their conditions
+            const eligibleEdges = asyncEdges.filter(edge => {
+                const condition = extractEdgeCondition(edge);
+                return evaluateCondition(condition, machineJSON, nextState, path.id);
+            });
+
+            if (eligibleEdges.length > 0) {
+                effects.push(buildLogEffect(
+                    'info',
+                    'async',
+                    `Auto-spawning ${eligibleEdges.length} parallel paths from ${nodeName} (all edges are @async)`,
+                    { sourceNode: nodeName, targets: eligibleEdges.map(e => e.target) }
+                ));
+
+                // Spawn a new path for each eligible async edge
+                for (const edge of eligibleEdges) {
+                    nextState = spawnPath(nextState, edge.target, path.id);
+                    const newPathId = nextState.paths[nextState.paths.length - 1].id;
+
+                    effects.push(buildLogEffect(
+                        'info',
+                        'async',
+                        `Spawned path ${newPathId} at ${edge.target}`,
+                        { sourcePathId: path.id, newPathId, targetNode: edge.target }
+                    ));
+                }
+
+                // Mark original path as completed (all work delegated to spawned paths)
+                nextState = updatePathStatus(nextState, path.id, 'completed');
+
+                effects.push(buildLogEffect(
+                    'info',
+                    'async',
+                    `Original path ${path.id} completed after spawning ${eligibleEdges.length} paths`,
+                    { pathId: path.id, spawnedCount: eligibleEdges.length }
+                ));
+
+                return {
+                    nextState,
+                    effects,
+                    status: 'continue'
+                };
+            }
+            // If no eligible edges, fall through to other transition logic
+        }
     }
 
     // Check for automated transitions
@@ -433,54 +493,6 @@ function stepPath(state: ExecutionState, pathId: string): ExecutionResult {
             nextState,
             effects,
             status: 'waiting' // Wait for agent result
-        };
-    }
-
-    // No agent decision needed - check for @async edges that should auto-spawn
-    // This only runs for nodes WITHOUT prompts (state nodes, orchestration nodes)
-    const allOutboundEdges = machineJSON.edges.filter(e => e.source === nodeName);
-    const asyncEdges = allOutboundEdges.filter(e => {
-        const asyncConfig = getAsyncAnnotation(e);
-        return asyncConfig && asyncConfig.enabled;
-    });
-
-    // If ALL outbound edges have @async, auto-spawn paths for all targets
-    // This is safe because the node has no prompt (no agent work to skip)
-    if (asyncEdges.length > 0 && asyncEdges.length === allOutboundEdges.length) {
-        effects.push(buildLogEffect(
-            'info',
-            'async',
-            `Auto-spawning ${asyncEdges.length} parallel paths from ${nodeName} (no agent decision needed)`,
-            { sourceNode: nodeName, targets: asyncEdges.map(e => e.target) }
-        ));
-
-        // Spawn a new path for each async edge
-        for (const edge of asyncEdges) {
-            nextState = spawnPath(nextState, edge.target, path.id);
-            const newPathId = nextState.paths[nextState.paths.length - 1].id;
-
-            effects.push(buildLogEffect(
-                'info',
-                'async',
-                `Spawned path ${newPathId} at ${edge.target}`,
-                { sourcePathId: path.id, newPathId, targetNode: edge.target }
-            ));
-        }
-
-        // Mark original path as completed (all work delegated to spawned paths)
-        nextState = updatePathStatus(nextState, path.id, 'completed');
-
-        effects.push(buildLogEffect(
-            'info',
-            'async',
-            `Original path ${path.id} completed after spawning ${asyncEdges.length} paths`,
-            { pathId: path.id, spawnedCount: asyncEdges.length }
-        ));
-
-        return {
-            nextState,
-            effects,
-            status: 'continue'
         };
     }
 
