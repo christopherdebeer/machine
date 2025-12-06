@@ -24,7 +24,7 @@ type MachineData = MachineJSON;
 
 // Helper to create appropriate client based on environment
 function createTestClient(recordingsDir: string) {
-    const mode = process.env.DYGRAM_TEST_MODE || 'interactive';
+    const mode = process.env.DYGRAM_TEST_MODE || 'playback';
 
     if (mode === 'playback') {
         return new PlaybackTestClient({

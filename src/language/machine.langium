@@ -160,9 +160,10 @@ EdgeAttribute:
 ;
 
 // Edge styling annotation (e.g., @style("color: red; stroke-width: 4px") or @style(color: red; penwidth: 3;))
-// Supports both string values and attribute-style parameters
+// Supports string values, qualified names (for @map, @barrier), and attribute-style parameters
+// Qualified names like Context.items enable data-driven annotations: @map(Context.items), @barrier(Context.results)
 EdgeAnnotation:
-    '@' name=ID ('(' (value=STRING | attributes=AnnotationAttributes) ')')?
+    '@' name=ID ('(' (value=STRING | qualifiedValue=QualifiedName | attributes=AnnotationAttributes) ')')?
 ;
 
 // EdgeType allows annotations and attributes in any order

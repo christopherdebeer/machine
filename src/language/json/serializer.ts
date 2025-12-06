@@ -923,6 +923,12 @@ function serializeAnnotation(ann: any): MachineAnnotationJSON {
         result.value = ann.value.replace(/^"|"$/g, '');
     }
 
+    // Handle qualified name values (e.g., @map(Context.items), @barrier(Context.results))
+    // QualifiedName returns a string directly from the grammar
+    if (ann.qualifiedValue) {
+        result.qualifiedValue = ann.qualifiedValue;
+    }
+
     if (ann.attributes && ann.attributes.params) {
         result.attributes = {};
         ann.attributes.params.forEach((param: any) => {

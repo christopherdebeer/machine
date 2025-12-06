@@ -16,6 +16,7 @@ import type { MachineAnnotationJSON } from '../json/types.js';
 export interface AnnotationMatch {
     name: string;           // The actual annotation name used
     value?: string;         // Value from @name("value") form
+    qualifiedValue?: string; // Qualified name from @name(Node.attr) form
     attributes?: Record<string, unknown>;  // Attributes from @name(k: v) form
 }
 
@@ -68,6 +69,7 @@ export class UnifiedAnnotationProcessor {
         const match: AnnotationMatch = {
             name: annotation.name.toLowerCase(),
             value: annotation.value,
+            qualifiedValue: annotation.qualifiedValue,
             attributes: annotation.attributes
         };
 

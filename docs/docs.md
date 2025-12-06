@@ -33,6 +33,7 @@ Complete reference to all DyGram documentation organized by topic.
 
   - [Interactive Recording Workflow - 2025-12-04](development/2025-12-04-interactive-recording-workflow.md)
   - [Annotation Behaviors - Interactive Execution Observations](development/annotation-behaviors-observed.md)
+  - [Async Edge Design: Tools vs Auto-Spawn](development/async-edge-design.md)
   - [Build and Test Failure Analysis - December 2, 2025](development/build-test-failure-analysis-2025-12-02.md)
   - [Canonical Machine JSON Adoption Review](development/canonical-machine-json-usage.md)
   - [Centralized Syntax Highlighting Architecture](development/centralized-syntax-highlighting-design.md)
@@ -44,6 +45,7 @@ Complete reference to all DyGram documentation organized by topic.
   - [Context Read/Write Implementation Status and Issues](development/context-read-write-implementation.md)
   - [Context Write Implementation Missing](development/context-write-implementation-missing.md)
   - [DSL Round-Trip Analysis - December 2, 2025](development/dsl-roundtrip-analysis-2025-12-02.md)
+  - [Edge Map Design: Data-Driven Fan-Out](development/edge-map-design.md)
   - [Execution UI and Meta Tools Analysis](development/execution-ui-and-meta-tools-analysis.md)
   - [Execution Visualization and Runtime Issues](development/execution-visualization-runtime-issues.md)
   - [Import System Implementation Summary](development/IMPORT_SYSTEM_IMPLEMENTATION_SUMMARY.md)

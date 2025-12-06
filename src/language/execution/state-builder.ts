@@ -6,9 +6,9 @@
  */
 
 import type { MachineJSON } from '../json/types.js';
-import type { ExecutionState, Path, Transition, PathStatus, ExecutionLimits, BarrierConfig, AsyncConfig } from './runtime-types.js';
+import type { ExecutionState, Path, Transition, PathStatus, ExecutionLimits, BarrierConfig, AsyncConfig, MapConfig, MapContext } from './runtime-types.js';
 import { EXECUTION_STATE_VERSION } from './runtime-types.js';
-import { BarrierAnnotationConfig, AsyncAnnotationConfig } from './annotation-configs.js';
+import { BarrierAnnotationConfig, AsyncAnnotationConfig, MapAnnotationConfig } from './annotation-configs.js';
 import { UnifiedAnnotationProcessor } from './unified-annotation-processor.js';
 
 /**
@@ -591,7 +591,7 @@ export function isBarrierReleased(state: ExecutionState, barrierName: string): b
  *
  * Returns null if no barrier annotation found
  */
-export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): BarrierConfig | null {
+export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string; value?: string; qualifiedValue?: string; attributes?: Record<string, unknown> }> }): BarrierConfig | null {
     return UnifiedAnnotationProcessor.process(
         edge.annotations,
         BarrierAnnotationConfig
@@ -603,9 +603,189 @@ export function getBarrierAnnotation(edge: { annotations?: Array<{ name: string;
  * Supports aliases: @async, @spawn, @parallel, @fork
  * Returns null if no async annotation found
  */
-export function getAsyncAnnotation(edge: { annotations?: Array<{ name: string; value?: string; attributes?: Record<string, unknown> }> }): AsyncConfig | null {
+export function getAsyncAnnotation(edge: { annotations?: Array<{ name: string; value?: string; qualifiedValue?: string; attributes?: Record<string, unknown> }> }): AsyncConfig | null {
     return UnifiedAnnotationProcessor.process(
         edge.annotations,
         AsyncAnnotationConfig
     );
+}
+
+/**
+ * Get map configuration from edge annotations
+ * Supports aliases: @map, @foreach, @each
+ * Returns null if no map annotation found
+ */
+export function getMapAnnotation(edge: { annotations?: Array<{ name: string; value?: string; qualifiedValue?: string; attributes?: Record<string, unknown> }> }): MapConfig | null {
+    return UnifiedAnnotationProcessor.process(
+        edge.annotations,
+        MapAnnotationConfig
+    );
+}
+
+/**
+ * Resolve a qualified name to a value from context state
+ * e.g., "WorkData.items" -> state.contextState.WorkData.items
+ *
+ * @param state Current execution state
+ * @param qualifiedName Dot-separated path (e.g., "Context.items")
+ * @returns The resolved value
+ * @throws Error if context or field not found
+ */
+export function resolveQualifiedName(
+    state: ExecutionState,
+    qualifiedName: string
+): any {
+    const parts = qualifiedName.split('.');
+    if (parts.length < 2) {
+        throw new Error(`Invalid qualified name: ${qualifiedName}. Expected format: Context.field`);
+    }
+
+    const [contextName, ...fieldPath] = parts;
+    let value = state.contextState?.[contextName];
+
+    if (value === undefined) {
+        throw new Error(`Context '${contextName}' not found in state`);
+    }
+
+    for (const field of fieldPath) {
+        if (value === undefined || value === null) {
+            throw new Error(`Field '${field}' not found in path ${qualifiedName}`);
+        }
+        value = value[field];
+    }
+
+    return value;
+}
+
+/**
+ * Spawn multiple paths from a map operation
+ * Creates one path per item in the source array
+ *
+ * @param state Current execution state
+ * @param targetNode Node where spawned paths should start
+ * @param sourcePathId ID of the path that triggered the spawn
+ * @param items Array of items to spawn paths for
+ * @param mapSource Qualified name of the source array (for tracking)
+ * @param groupId Optional group ID for barrier coordination (auto-generated if not provided)
+ * @returns New execution state with spawned paths added
+ */
+export function spawnMappedPaths(
+    state: ExecutionState,
+    targetNode: string,
+    sourcePathId: string,
+    items: any[],
+    mapSource: string,
+    groupId?: string
+): ExecutionState {
+    if (!Array.isArray(items)) {
+        throw new Error(`Map source must be an array, got: ${typeof items}`);
+    }
+
+    if (items.length === 0) {
+        // Empty array - no paths to spawn, return state unchanged
+        // This is valid behavior (e.g., empty work queue)
+        return state;
+    }
+
+    let nextState = state;
+    const actualGroupId = groupId || `map_${mapSource.replace(/\./g, '_')}_${Date.now()}`;
+
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const pathCount = nextState.paths.length;
+        const newPathId = `path_${pathCount}`;
+
+        const mapContext: MapContext = {
+            sourcePathId,
+            mapSource,
+            item,
+            index: i,
+            groupId: actualGroupId
+        };
+
+        const newPath: Path = {
+            id: newPathId,
+            currentNode: targetNode,
+            status: 'active' as PathStatus,
+            history: [],
+            stepCount: 0,
+            nodeInvocationCounts: {},
+            stateTransitions: [],
+            startTime: Date.now(),
+            mapContext
+        };
+
+        nextState = {
+            ...nextState,
+            paths: [...nextState.paths, newPath]
+        };
+    }
+
+    return nextState;
+}
+
+/**
+ * Get the map context overlay for a path
+ * Provides _mapItem, _mapIndex, etc. variables for CEL/template evaluation
+ *
+ * @param path The execution path
+ * @returns Context overlay with map variables, or empty object if not a mapped path
+ */
+export function getMapContextOverlay(path: Path): Record<string, any> {
+    if (!path.mapContext) {
+        return {};
+    }
+
+    return {
+        _mapItem: path.mapContext.item,
+        _mapIndex: path.mapContext.index,
+        _mapSource: path.mapContext.mapSource,
+        _mapGroupId: path.mapContext.groupId
+    };
+}
+
+/**
+ * Register a group requirement for a barrier
+ * Used to track paths spawned from @map that should synchronize at a barrier
+ */
+export function registerBarrierGroup(
+    state: ExecutionState,
+    barrierName: string,
+    groupId: string
+): ExecutionState {
+    if (!state.barriers) {
+        state = { ...state, barriers: {} };
+    }
+
+    const barrier = state.barriers[barrierName] || {
+        requiredPaths: [],
+        waitingPaths: [],
+        isReleased: false,
+        merge: false,
+        requiredGroups: []
+    };
+
+    // Add requiredGroups if not present
+    const requiredGroups = (barrier as any).requiredGroups || [];
+    if (!requiredGroups.includes(groupId)) {
+        return {
+            ...state,
+            barriers: {
+                ...state.barriers,
+                [barrierName]: {
+                    ...barrier,
+                    requiredGroups: [...requiredGroups, groupId]
+                }
+            }
+        };
+    }
+
+    return state;
+}
+
+/**
+ * Get all paths belonging to a specific map group
+ */
+export function getPathsInGroup(state: ExecutionState, groupId: string): Path[] {
+    return state.paths.filter(p => p.mapContext?.groupId === groupId);
 }
