@@ -51,7 +51,10 @@
         "build:with-tests": "(npm run test:reports:playback || true) && npm run build",
         "snapshots:update": "node scripts/update-snapshots.js",
         "snapshots:list": "node scripts/update-snapshots.js --list",
-        "snapshots:review": "node scripts/update-snapshots.js --review"
+        "snapshots:review": "node scripts/update-snapshots.js --review",
+        "analyze:dead-code": "node scripts/analyze-dead-code.js",
+        "analyze:organization": "node scripts/analyze-organization.js",
+        "analyze:all": "npm run analyze:dead-code && npm run analyze:organization"
     },
     "dependencies": {
         "@anthropic-ai/claude-agent-sdk": "^0.1.25",
